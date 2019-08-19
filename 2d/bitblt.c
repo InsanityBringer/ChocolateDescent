@@ -124,36 +124,14 @@ void gr_ubitmap00m(int x, int y, grs_bitmap* bm)
 	}*/ //[ISB] need to fix fade table;
 }
 
-// From Linear to ModeX
-void gr_bm_ubitblt01(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
-{
-	Error("gr_bm_ubitblt01: STUB\n");
-}
-
-
-// From Linear to ModeX masked
-void gr_bm_ubitblt01m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
-{
-	Error("gr_bm_ubitblt01m: STUB\n");
-}
-
-void gr_ubitmap012(int x, int y, grs_bitmap* bm)
-{
-	Error("gr_ubitmap012: STUB\n");
-}
-
-void gr_ubitmap012m(int x, int y, grs_bitmap* bm)
-{
-	Error("gr_ubitmap012m: STUB\n");
-}
-
-
 void gr_ubitmapGENERIC(int x, int y, grs_bitmap* bm)
 {
 	register int x1, y1;
 
-	for (y1 = 0; y1 < bm->bm_h; y1++) {
-		for (x1 = 0; x1 < bm->bm_w; x1++) {
+	for (y1 = 0; y1 < bm->bm_h; y1++)
+	{
+		for (x1 = 0; x1 < bm->bm_w; x1++) 
+		{
 			gr_setcolor(gr_gpixel(bm, x1, y1));
 			gr_upixel(x + x1, y + y1);
 		}
@@ -209,8 +187,6 @@ void gr_ubitmapm(int x, int y, grs_bitmap* bm)
 		gr_ubitmap00m(x, y, bm);
 	}
 }
-
-
 
 // From linear to SVGA
 void gr_bm_ubitblt02(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
@@ -334,13 +310,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src
 	}
 	else
 	{
-		/*for (y1 = 0; y1 < h; y1++) 
-		{
-			for (x1 = 0; x1 < w; x1++) 
-			{
-				gr_bm_pixel(dest, dx + x1, dy + y1, gr_gpixel(src, sx + x1, sy + y1));
-			}
-		}*/
 		gr_bm_ubitblt00(w, h, dx, dy, sx, sy, src, dest);
 	}
 }
@@ -389,10 +358,6 @@ void gr_bitmapm(int x, int y, grs_bitmap* bm)
 			//gr_bm_ubitbltm(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap); //[ISB] this is slow
 		return;
 	}
-	
-
-	//gr_bm_ubitbltm(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
-
 }
 
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
@@ -454,9 +419,7 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 }
 
 // in rle.c
-
 extern void gr_rle_expand_scanline_generic(grs_bitmap* dest, int dx, int dy, ubyte* src, int x1, int x2);
-
 
 void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
 {
@@ -475,9 +438,4 @@ void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 		sbits += (int)src->bm_data[4 + y1 + sy];
 	}
 
-}
-
-void gr_bitblt_cockpit(grs_bitmap* bm)
-{
-	//[ISB] this was from the mac source, I thought it would be needed, but it appears not
 }

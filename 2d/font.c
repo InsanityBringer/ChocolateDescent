@@ -17,101 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Graphical routines for drawing fonts.
  *
- * $Log: font.c $
- * Revision 1.30  1995/01/25  20:02:03  john
- * Fixed bug with mono clipped fonts only drawing 1 row.
- *
- * Revision 1.29  1994/12/08  19:03:54  john
- * Made functions use cfile.
- *
- * Revision 1.28  1994/11/27  23:08:22  matt
- * Changes for new mprintf calling convention
- *
- * Revision 1.27  1994/11/18  23:54:50  john
- * Made centering work on x = 0x8000 not -0x8000.
- *
- * Revision 1.26  1994/11/18  22:50:23  john
- * Changed shorts to ints in parameters.
- *
- * Revision 1.25  1994/11/04  11:10:31  john
- * Took the & out of string sizing.
- *
- * Revision 1.24  1994/11/04  10:06:36  john
- * Added fade table for fading fonts. Made font that partially clips
- * not print a warning message.
- *
- * Revision 1.23  1994/09/29  10:09:06  john
- * Added real clipping to text.
- *
- * Revision 1.22  1994/09/12  19:27:51  john
- * Fixed bug with unclipped fonts clipping.
- *
- * Revision 1.21  1994/09/12  17:16:59  john
- * Added clipping.
- *
- * Revision 1.20  1994/08/28  16:43:01  matt
- * Added centering if x==0x8000
- *
- * Revision 1.19  1994/08/15  15:01:11  matt
- * Close font file after reading
- *
- * Revision 1.18  1994/08/12  18:17:42  matt
- * Fixed stupid bug that cause first char in font not to print
- *
- * Revision 1.17  1994/08/11  18:00:17  matt
- * Cleaned up code, fixed string width bug.
- *
- * Revision 1.16  1994/08/10  18:46:11  matt
- * Fixed a couple of little things
- *
- * Revision 1.15  1994/08/10  18:36:20  matt
- * Changed font file format.  Made chars not in font plot as spaces.  Font file
- * now stores palette for color font & remaps on load.
- *
- * Revision 1.14  1994/08/10  12:27:27  matt
- * Took out unneeded int3
- *
- * Revision 1.13  1994/08/10  12:25:26  matt
- * Added support for colors fonts & kerned fonts
- * Made our own font file format
- *
- * Revision 1.12  1994/07/22  17:19:00  john
- * made proportional font width be the max width.
- *
- * Revision 1.11  1994/05/06  12:50:26  john
- * Added supertransparency; neatend things up; took out warnings.
- *
- * Revision 1.10  1994/01/31  11:08:12  john
- * fixed bug with order of frees.
- *
- * Revision 1.9  1994/01/31  10:36:40  john
- * Free'd variable size font data.
- *
- * Revision 1.8  1994/01/27  17:17:40  john
- * Made error if font file doesn't exist.
- *
- * Revision 1.7  1993/10/26  13:17:48  john
- * *** empty log message ***
- *
- * Revision 1.6  1993/10/15  16:23:25  john
- * y
- *
- * Revision 1.5  1993/09/28  19:05:50  john
- * added support for \n in gr_string and gr_get_string_size
- *
- * Revision 1.4  1993/09/28  12:46:49  matt
- * On error, now call Error() instead of exit().
- *
- * Revision 1.3  1993/09/20  11:35:31  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/09/08  15:54:39  john
- * renamed ReadFile to readfontfile to prevent conflicts with others.
- *
- * Revision 1.1  1993/09/08  11:43:34  john
- * Initial revision
- *
- *
  */
 
 #include <stdarg.h>
@@ -215,7 +120,8 @@ int get_centered_x(unsigned char* s)
 {
 	int w, w2, s2;
 
-	for (w = 0; *s != 0 && *s != '\n'; s++) {
+	for (w = 0; *s != 0 && *s != '\n'; s++) 
+	{
 		get_char_width(s[0], s[1], &w2, &s2);
 		w += s2;
 	}
@@ -274,7 +180,8 @@ int gr_internal_string0(int x, int y, unsigned char* s)
 
 				letter = *text_ptr - FMINCHAR;
 
-				if (!INFONT(letter)) {	//not in font, draw as space
+				if (!INFONT(letter)) // not in font, draw as space
+				{	
 					VideoOffset += spacing;
 					text_ptr++;
 					continue;
@@ -296,7 +203,8 @@ int gr_internal_string0(int x, int y, unsigned char* s)
 
 					for (i = 0; i < width; i++)
 					{
-						if (BitMask == 0) {
+						if (BitMask == 0) 
+						{
 							bits = *fp++;
 							BitMask = 0x80;
 						}
@@ -337,14 +245,14 @@ int gr_internal_string0m(int x, int y, unsigned char* s)
 		text_ptr1 = next_row;
 		next_row = NULL;
 
-		if (x == 0x8000) {			//centered
+		if (x == 0x8000) //centered
+		{
 			int xx = get_centered_x(text_ptr1);
 			VideoOffset1 = y * ROWSIZE + xx;
 		}
 
 		for (r = 0; r < FHEIGHT; r++)
 		{
-
 			text_ptr = text_ptr1;
 
 			VideoOffset = VideoOffset1;
@@ -392,7 +300,8 @@ int gr_internal_string0m(int x, int y, unsigned char* s)
 
 					for (i = 0; i < width; i++)
 					{
-						if (BitMask == 0) {
+						if (BitMask == 0)
+						{
 							bits = *fp++;
 							BitMask = 0x80;
 						}
@@ -476,7 +385,8 @@ int gr_internal_color_string(int x, int y, unsigned char* s)
 
 			get_char_width(text_ptr[0], text_ptr[1], &width, &spacing);
 
-			if (!INFONT(letter)) {	//not in font, draw as space
+			if (!INFONT(letter)) //not in font, draw as space
+			{
 				xx += spacing;
 				text_ptr++;
 				continue;
@@ -655,16 +565,6 @@ void gr_close_font(grs_font* font)
 }
 
 void build_colormap_good(ubyte* palette, ubyte* colormap, int* freq);
-/*void decode_data_asm(ubyte* data, int num_pixels, ubyte* colormap, int* count)
-{ //[ISB] From Mac source. 
-	int i;
-
-	for (i = 0; i < num_pixels; i++) {
-		count[*data]++;
-		*data = colormap[*data];
-		data++;
-	}
-}*/
 
 extern void decode_data_asm(ubyte* data, int num_pixels, ubyte* colormap, int* count); //[ISB] fucking hack
 
@@ -696,10 +596,10 @@ void GR_ReadFont(grs_font* font, CFILE* fp, int len)
 
 	nchars = font->ft_maxchar - font->ft_minchar + 1;
 
-	printf(" dimensions: %d x %d\n", font->ft_w, font->ft_h);
-	printf(" flags: %d\n", font->ft_flags);
-	printf(" baseline: %d\n", font->ft_baseline);
-	printf(" range: %d - %d (%d chars)\n", font->ft_minchar, font->ft_maxchar, nchars);
+	//printf(" dimensions: %d x %d\n", font->ft_w, font->ft_h);
+	//printf(" flags: %d\n", font->ft_flags);
+	//printf(" baseline: %d\n", font->ft_baseline);
+	//printf(" range: %d - %d (%d chars)\n", font->ft_minchar, font->ft_maxchar, nchars);
 
 	if (font->ft_flags & FT_PROPORTIONAL)
 	{
@@ -760,62 +660,15 @@ grs_font * gr_init_font(char* fontname)
 		Error("Can't open font file %s", fontname);
 
 	cfread(&file_id, sizeof(file_id), 1, fontfile);
-	cfread(&datasize, sizeof(datasize), 1, fontfile);
+	datasize = CF_ReadInt(fontfile);
 
 	if (file_id != 'NFSP')
 		Error("File %s is not a font file", fontname);
 
 	font = (grs_font*)malloc(datasize);
-	//font = (grs_font*)malloc(sizeof(grs_font));
 
-	//cfread(font, 1, datasize, fontfile);
-	printf("loaded font %s\n", fontname);
+	//printf("loading font %s\n", fontname);
 	GR_ReadFont(font, fontfile, datasize);
-	/*nchars = font->ft_maxchar - font->ft_minchar + 1;
-
-	if (font->ft_flags & FT_PROPORTIONAL) 
-	{
-		font->ft_widths = (short*)(((int)font->ft_widths) + ((ubyte*)font));
-		font->ft_data = ((int)font->ft_data) + ((ubyte*)font);
-		font->ft_chars = (unsigned char**)malloc(nchars * sizeof(unsigned char*));
-		ptr = font->ft_data;
-
-		for (i = 0; i < nchars; i++) 
-		{
-			font->ft_chars[i] = ptr;
-			if (font->ft_flags & FT_COLOR)
-				ptr += font->ft_widths[i] * font->ft_h;
-			else
-				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
-		}
-	}
-	else 
-	{
-		font->ft_data = ((unsigned char*)font) + sizeof(*font);
-
-		font->ft_chars = NULL;
-		font->ft_widths = NULL;
-
-		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
-	}
-
-	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = ((int)font->ft_kerndata) + ((ubyte*)font);
-
-	if (font->ft_flags & FT_COLOR) //remap palette
-	{		
-		ubyte palette[256 * 3];
-		ubyte colormap[256];
-		int freq[256];
-
-		cfread(palette, 3, 256, fontfile);		//read the palette
-
-		build_colormap_good(&palette[0], &colormap[0], freq);
-
-		colormap[255] = 255;
-
-		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq);
-	}*/
 
 	cfclose(fontfile);
 
@@ -826,7 +679,6 @@ grs_font * gr_init_font(char* fontname)
 	BG_COLOR = 0;
 
 	return font;
-
 }
 
 void gr_set_fontcolor(int fg, int bg)
@@ -861,18 +713,22 @@ int gr_internal_string_clipped(int x, int y, unsigned char* s)
 
 		last_x = x;
 
-		for (r = 0; r < FHEIGHT; r++) {
+		for (r = 0; r < FHEIGHT; r++)
+		{
 			text_ptr = text_ptr1;
 			x = last_x;
 
-			while (*text_ptr) {
-				if (*text_ptr == '\n') {
+			while (*text_ptr) 
+			{
+				if (*text_ptr == '\n') 
+				{
 					next_row = &text_ptr[1];
 					break;
 				}
 
 				underline = 0;
-				if (*text_ptr == '&') {
+				if (*text_ptr == '&') 
+				{
 					if ((r == FBASELINE + 2) || (r == FBASELINE + 3))
 						underline = 1;
 					text_ptr++;
@@ -882,7 +738,8 @@ int gr_internal_string_clipped(int x, int y, unsigned char* s)
 
 				letter = *text_ptr - FMINCHAR;
 
-				if (!INFONT(letter)) {	//not in font, draw as space
+				if (!INFONT(letter)) //not in font, draw as space
+				{
 					x += spacing;
 					text_ptr++;
 					continue;
@@ -893,8 +750,10 @@ int gr_internal_string_clipped(int x, int y, unsigned char* s)
 				else
 					fp = FDATA + letter * BITS_TO_BYTES(width) * FHEIGHT;
 
-				if (underline) {
-					for (i = 0; i < width; i++) {
+				if (underline) 
+				{
+					for (i = 0; i < width; i++) 
+					{
 						gr_setcolor(FG_COLOR);
 						gr_pixel(x++, y);
 					}
@@ -904,8 +763,10 @@ int gr_internal_string_clipped(int x, int y, unsigned char* s)
 
 					BitMask = 0;
 
-					for (i = 0; i < width; i++) {
-						if (BitMask == 0) {
+					for (i = 0; i < width; i++) 
+					{
+						if (BitMask == 0)
+						{
 							bits = *fp++;
 							BitMask = 0x80;
 						}
@@ -948,19 +809,23 @@ int gr_internal_string_clipped_m(int x, int y, unsigned char* s)
 
 		last_x = x;
 
-		for (r = 0; r < FHEIGHT; r++) {
+		for (r = 0; r < FHEIGHT; r++) 
+		{
 			x = last_x;
 
 			text_ptr = text_ptr1;
 
-			while (*text_ptr) {
-				if (*text_ptr == '\n') {
+			while (*text_ptr) 
+			{
+				if (*text_ptr == '\n') 
+				{
 					next_row = &text_ptr[1];
 					break;
 				}
 
 				underline = 0;
-				if (*text_ptr == '&') {
+				if (*text_ptr == '&') 
+				{
 					if ((r == FBASELINE + 2) || (r == FBASELINE + 3))
 						underline = 1;
 					text_ptr++;
@@ -970,7 +835,8 @@ int gr_internal_string_clipped_m(int x, int y, unsigned char* s)
 
 				letter = *text_ptr - FMINCHAR;
 
-				if (!INFONT(letter)) {	//not in font, draw as space
+				if (!INFONT(letter)) //not in font, draw as space
+				{
 					x += spacing;
 					text_ptr++;
 					continue;
@@ -981,27 +847,34 @@ int gr_internal_string_clipped_m(int x, int y, unsigned char* s)
 				else
 					fp = FDATA + letter * BITS_TO_BYTES(width) * FHEIGHT;
 
-				if (underline) {
-					for (i = 0; i < width; i++) {
+				if (underline) 
+				{
+					for (i = 0; i < width; i++) 
+					{
 						gr_setcolor(FG_COLOR);
 						gr_pixel(x++, y);
 					}
 				}
-				else {
+				else 
+				{
 					fp += BITS_TO_BYTES(width) * r;
 
 					BitMask = 0;
 
-					for (i = 0; i < width; i++) {
-						if (BitMask == 0) {
+					for (i = 0; i < width; i++) 
+					{
+						if (BitMask == 0)
+						{
 							bits = *fp++;
 							BitMask = 0x80;
 						}
-						if (bits & BitMask) {
+						if (bits & BitMask) 
+						{
 							gr_setcolor(FG_COLOR);
 							gr_pixel(x++, y);
 						}
-						else {
+						else 
+						{
 							x++;
 						}
 						BitMask >>= 1;
