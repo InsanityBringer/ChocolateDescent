@@ -45,6 +45,7 @@ extern int Physics_cheat_flag;
 
 #define face_type_num(nfaces,face_num,tri_edge) ((nfaces==1)?0:(tri_edge*2 + face_num))
 
+#if 0
 //[ISB] HORRIBLE ATTEMPT AT PORTING OH GOD
 int oflow_check(fix a, fix b)
 {
@@ -73,14 +74,13 @@ int oflow_check(fix a, fix b)
 	if (hack2 > 0x7FFFFFFF || hack2 < -2147483647) return 1;
 	return 0;*/
 }
-#if 0
+#endif
 //[ISB] Credits to Parabolicus for the not horrible port
 int oflow_check(fix a, fix b)
 {
 	long long tmp = (long long)abs(a) * (long long)abs(b);
 	return (tmp >> 47) ? 1 : 0;
 }
-#endif
 
 /*
 #pragma aux oflow_check parm [eax] [ebx] value [eax] modify exact [eax ebx edx] = \
@@ -132,12 +132,6 @@ int find_plane_line_intersection(vms_vector* new_pnt, vms_vector* plane_pnt, vms
 			(den < 0 && num < den))		//frac greater than one
 		return 0;
 
-	if (abs(new_pnt->z) > 20000 * F1_0)
-	{
-		fprintf(stderr, "entering find_plane_line_intersection: insane hit point, motion magnitude is %d\n", vm_vec_mag(&fuckingbullshit));
-	}
-
-
 	//if (num>0) {mprintf(1,"HEY! num>0 in FVI!!!"); return 0;}
 	//??	Assert(num>=0);
 	//    Assert(num >= den);
@@ -161,11 +155,6 @@ int find_plane_line_intersection(vms_vector* new_pnt, vms_vector* plane_pnt, vms
 
 	vm_vec_scale2(&d, num, den);
 	vm_vec_add(new_pnt, p0, &d); //we should have vm_vec_scale2_add2()
-
-	if (abs(new_pnt->z) > 20000 * F1_0)
-	{
-		fprintf(stderr, "exiting find_plane_line_intersection: insane hit point, motion magnitude is %d\n", vm_vec_mag(&fuckingbullshit));
-	}
 
 	return 1;
 
@@ -375,11 +364,6 @@ int check_line_to_face(vms_vector* newp, vms_vector* p0, vms_vector* p1, segment
 	pli = find_plane_line_intersection(newp, &Vertices[vertnum], &norm, p0, p1, rad);
 
 	if (!pli) return IT_NONE;
-
-	if (abs(newp->z) > 20000 * F1_0)
-	{
-		fprintf(stderr, "check_line_to_face: insane hit point\n");
-	}
 
 	checkp = *newp;
 
@@ -1010,10 +994,6 @@ int fvi_sub(vms_vector* intp, int* ints, vms_vector* p0, int startseg, vms_vecto
 						}
 						else //a wall
 						{
-							if (abs(hit_point.x) > 20000 * F1_0)
-							{
-								fprintf(stderr, "fvi_sub: insane hit point\n");
-							}
 							//is this the closest hit?
 							d = vm_vec_dist(&hit_point, p0);
 

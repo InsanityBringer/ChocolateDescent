@@ -246,9 +246,7 @@ ulong quad_sqrt(long long q)
 		if (t == r)	//got it!
 			return r;
 
-		r = (t + r) / 2;
-		//r = (t + r); bit = r & 1;
-		//r >>= 1; if (bit) r |= 0x80000000;
+		r = t / 2 + r / 2; //t / 2 + r / 2 + (t & r & 1) Quoth Parabolicus: this would make it exact to (r + t) / 2;
 
 		iterLimit++;
 		if (iterLimit > 500)
