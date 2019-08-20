@@ -297,7 +297,7 @@ void init_controlcen_for_level(void)
 		}
 	}
 
-#ifndef NDEBUG
+#ifndef NDEBUG //[ISB] buy why
 	if (cntrlcen_objnum == -1) 
 	{
 		mprintf((1, "Warning: No control center.\n"));
@@ -317,17 +317,20 @@ void init_controlcen_for_level(void)
 	}
 	else 
 	{
-		//	Compute all gun positions.
-		objp = &Objects[cntrlcen_objnum];
-		for (i = 0; i < N_controlcen_guns; i++)
-			calc_controlcen_gun_point(&Gun_pos[i], &Gun_dir[i], objp, i);
-		Control_center_present = 1;
+		if (cntrlcen_objnum != -1) //[ISB] Resolve memory corruption. 
+		{
+			//	Compute all gun positions.
+			objp = &Objects[cntrlcen_objnum];
+			for (i = 0; i < N_controlcen_guns; i++)
+				calc_controlcen_gun_point(&Gun_pos[i], &Gun_dir[i], objp, i);
+			Control_center_present = 1;
 
-		//	Boost control center strength at higher levels.
-		if (Current_level_num >= 0)
-			objp->shields = F1_0 * 200 + (F1_0 * 200 / 4) * Current_level_num;
-		else
-			objp->shields = F1_0 * 200 - Current_level_num * F1_0 * 100;
+			//	Boost control center strength at higher levels.
+			if (Current_level_num >= 0)
+				objp->shields = F1_0 * 200 + (F1_0 * 200 / 4) * Current_level_num;
+			else
+				objp->shields = F1_0 * 200 - Current_level_num * F1_0 * 100;
+		}
 	}
 
 	//	Say the control center has not yet been hit.

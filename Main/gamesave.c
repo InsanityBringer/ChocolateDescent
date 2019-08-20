@@ -1020,7 +1020,7 @@ void write_object(object* obj, FILE* f)
 // returns 0=everything ok, 1=old version, -1=error
 int load_game_data(CFILE* LoadFile)
 {
-	int i, j, elem;
+	int i, j;
 	int start_offset;
 
 	start_offset = cftell(LoadFile);
@@ -1106,7 +1106,7 @@ int load_game_data(CFILE* LoadFile)
 		/*char* p = Current_level_name;
 		//must do read one char at a time, since no cfgets()
 		do *p = cfgetc(LoadFile); while (*p++ != 0);*/
-		CF_GetString(&Current_level_name, LEVEL_NAME_LEN, LoadFile);
+		CF_GetString(&Current_level_name[0], LEVEL_NAME_LEN, LoadFile);
 	}
 	else
 		Current_level_name[0] = 0;

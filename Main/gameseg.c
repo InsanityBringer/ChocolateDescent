@@ -407,7 +407,6 @@ segmasks get_seg_masks(vms_vector* checkp, int segnum, fix rad)
 #endif
 
 			//use lowest point number
-
 			vertnum = vertex_list[0];
 			for (i = 1; i < 4; i++)
 				if (vertex_list[i] < vertnum)
@@ -427,7 +426,6 @@ segmasks get_seg_masks(vms_vector* checkp, int segnum, fix rad)
 				masks.facemask |= facebit;
 				masks.sidemask |= sidebit;
 			}
-
 			facebit <<= 2;
 		}
 

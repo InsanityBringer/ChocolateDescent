@@ -931,7 +931,7 @@ done:
 }
 
 //returns error codes - see IFF.H.  see GR.H for bitmap_type
-int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, byte* palette)
+int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, ubyte* palette)
 {
 	int ret;			//return code
 	FFILE ifile;
@@ -956,7 +956,7 @@ done:
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
 //without allocating memory for the bitmap. 
-int iff_read_into_bitmap(char* ifilename, grs_bitmap* bm, byte* palette)
+int iff_read_into_bitmap(char* ifilename, grs_bitmap* bm, ubyte* palette)
 {
 	int ret;			//return code
 	FFILE ifile;

@@ -1840,6 +1840,7 @@ int SenseStatus1(void)
 int SenseGetData(int function, int cls, fix* yaw, fix* pitch, fix* roll, int* buttons)
 {
 	Warning("SenseGetData: STUB\n");
+	return 0;
 }
 
 //--unused-- int SenseSetVideo( int function, int cls, int mode )
@@ -1860,7 +1861,6 @@ int SenseGetData(int function, int cls, fix* yaw, fix* pitch, fix* roll, int* bu
 void kconfig_center_headset()
 {
 	Warning("kconfig_center_headset: STUB\n");
-	return 0;
 }
 
 int SenseSetZero(int function, int cls)

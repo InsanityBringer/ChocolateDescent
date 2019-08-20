@@ -501,8 +501,6 @@ int digi_init()
 		digi_sound_locks[i] = 0;
 	digi_reset_digi_sounds();
 
-	printf("The sound system was initalized. Isn't that great?");
-
 	return 0;
 }
 
@@ -529,8 +527,6 @@ int digi_total_locks = 0;
 //I guess. 
 ubyte* digi_lock_sound_data(int soundnum)
 {
-	int i;
-
 	if ( !Digi_initialized ) return NULL;
 	if ( digi_driver_board <= 0 )	return NULL;
 
@@ -547,8 +543,6 @@ ubyte* digi_lock_sound_data(int soundnum)
 
 void digi_unlock_sound_data(int soundnum)
 {
-	int i;
-
 	if ( !Digi_initialized ) return;
 	if ( digi_driver_board <= 0 )	return;
 
@@ -657,7 +651,7 @@ ushort digi_start_sound(sampledata_t* sampledata, short soundnum)
 TryNextChannel:
 	if ((SampleHandles[next_handle] < _MAX_VOICES)  && !I_CheckSoundDone(SampleHandles[next_handle]) /*&& (!sosDIGISampleDone( hSOSDigiDriver, SampleHandles[next_handle]))*/)		
 	{
-		if ( (SoundVolumes[next_handle] > digi_volume) && (ntries<digi_max_channels) )	
+		if ( (SoundVolumes[next_handle] > (uint)digi_volume) && (ntries<digi_max_channels) )	
 		{
 			//mprintf(( 0, "Not stopping loud sound %d.\n", next_handle ));
 			next_handle++;
@@ -718,7 +712,7 @@ TryNextChannel:
 	SoundNums[next_handle] = soundnum;
 	SoundVolumes[next_handle] = sampledata->volume;
 //	mprintf(( 0, "Starting sample %d at volume %d\n", next_handle, sampledata->wVolume  ));
-	if (SoundVolumes[next_handle] > digi_volume)
+	if (SoundVolumes[next_handle] > (uint)digi_volume)
 		mprintf(( 0, "Starting loud sample %d\n", next_handle ));
 	next_handle++;
 	if ( next_handle >= digi_max_channels )

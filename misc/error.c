@@ -68,18 +68,20 @@ void set_exit_message(char* fmt, ...)
 
 }
 
-#ifndef NDEBUG		//macros for debugging
 void _Assert(int expr, char* expr_text, char* filename, int linenum)
 {
+#ifndef NDEBUG
 	if (!(expr)) Error("Assertion failed: %s, file %s, line %d", expr_text, filename, linenum);
+#endif
 }
 
 void Int3()
 {
+#ifndef NDEBUG
 	Warning("int3 raised\n");
 	return;
-}
 #endif
+}
 
 void print_exit_message(void)
 {

@@ -98,7 +98,7 @@ void fixmulaccum(long long *q, fix a, fix b)
 //parabolicus's version
 fix fixquadadjust(long long q)
 {
-	fix v = q >> 16;
+	fix v = (fix)(q >> 16);
 	long vh = q >> 48;
 	int signb = vh < 0;
 	int signv = v < 0;
@@ -127,14 +127,14 @@ fix fixmul(fix a, fix b)
 long fixdivquadlong(long long n, ulong d)
 {
 	if (d == 0) return 1;
-	return n / d;
+	return (long)(n / d);
 }
 
 //divide a quad by a fix, returning a fix
 ulong ufixdivquadlong(ulong nl, ulong nh, ulong d)
 {
 	unsigned long long num = (((unsigned long long)nh << 32) + (unsigned long long)nl);
-	return num / d;
+	return (ulong)(num / d);
 }
 
 fix fixdiv(fix a, fix b)
@@ -157,7 +157,7 @@ fix fixmuldiv(fix a, fix b, fix c)
 
 	long long mul;
 	mul = (long long)a * (long long)b;
-	return mul / c;
+	return (fix)(mul / c);
 }
 
 fixang fix_atan2(fix cos, fix sin)
@@ -203,7 +203,6 @@ ulong quad_sqrt(long long q)
 	ulong firstr, secondr, thirdr;
 	long high = (q >> 32) & 0xFFFFFFFF;
 	int iterLimit = 0;
-	int bit;
 	quad tq;
 	//[ISB] fixes c4700 error
 	memset((void*)&tq, 0, sizeof(quad));
@@ -262,8 +261,8 @@ ulong quad_sqrt(long long q)
 	long long tq2;
 	fixmulaccum(&tq2, r, t);
 	long high2 = (tq2 >> 32) & 0xFFFFFFFF;
-	ulong low2 = tq2 & 0xFFFFFFFFF;
-	ulong low = q & 0xFFFFFFFFF;
+	ulong low2 = (ulong)(tq2 & 0xFFFFFFFFF);
+	ulong low = (ulong)(q & 0xFFFFFFFFF);
 	if (low2 != low || high2 != high)
 		r++;
 
