@@ -1315,17 +1315,19 @@ int newdemo_read_demo_start(int rnd_demo)
 	nd_read_int(&Newdemo_game_mode);
 
 #ifndef NETWORK
-	if (Newdemo_game_mode & GM_MULTI) {
+	if (Newdemo_game_mode & GM_MULTI)
+	{
 		nm_messagebox(NULL, 1, "Ok", "can't playback net game\nwith this version of code\n");
 		return 1;
 	}
 #endif
 
-#ifdef NETWORK
+//#ifdef NETWORK
 	int i; byte laser_level;
 	char current_mission[9];
-
+#ifdef NETWORK
 	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
+#endif
 #ifdef SHAREWARE
 	if (Newdemo_game_mode & GM_TEAM)
 		nd_read_byte(&(Netgame.team_vector));
@@ -1335,12 +1337,15 @@ int newdemo_read_demo_start(int rnd_demo)
 		Players[i].invulnerable_time = 0;
 	}
 #else
-	if (Newdemo_game_mode & GM_TEAM) {
+#ifdef NETWORK
+	if (Newdemo_game_mode & GM_TEAM) 
+	{
 		nd_read_byte(&(Netgame.team_vector));
 		nd_read_string(Netgame.team_name[0]);
 		nd_read_string(Netgame.team_name[1]);
 	}
-	if (Newdemo_game_mode & GM_MULTI) {
+	if (Newdemo_game_mode & GM_MULTI) 
+	{
 
 		multi_new_game();
 		nd_read_byte((byte*)& N_players);
@@ -1363,6 +1368,7 @@ int newdemo_read_demo_start(int rnd_demo)
 		Game_mode = GM_NORMAL;
 	}
 	else
+#endif //[ISB] goddamn I hate breaking if chains with ifdefs but this original code was useless
 #endif
 		nd_read_int(&(Players[Player_num].score));		// Note link to above if!
 
@@ -1373,7 +1379,8 @@ int newdemo_read_demo_start(int rnd_demo)
 		nd_read_short((short*) & (Players[Player_num].secondary_ammo[i]));
 
 	nd_read_byte(&laser_level);
-	if (laser_level != Players[Player_num].laser_level) {
+	if (laser_level != Players[Player_num].laser_level)
+	{
 		Players[Player_num].laser_level = laser_level;
 		update_laser_weapon_info();
 	}
@@ -1385,7 +1392,8 @@ int newdemo_read_demo_start(int rnd_demo)
 	if (!strcmp(current_mission, ""))
 		strcpy(current_mission, "DESTSAT");
 #endif
-	if (!load_mission_by_name(current_mission)) {
+	if (!load_mission_by_name(current_mission)) 
+	{
 		newmenu_item m[1];
 
 		sprintf(text, TXT_NOMISSION4DEMO, current_mission);
@@ -1394,7 +1402,7 @@ int newdemo_read_demo_start(int rnd_demo)
 		return 1;
 	}
 
-#endif
+//#endif
 
 	nd_recorded_total = 0;
 	nd_playback_total = 0;
