@@ -34,6 +34,9 @@ typedef struct control_info
 	fix	sideways_thrust_time;
 	fix	bank_time;
 	fix	forward_thrust_time;
+#ifdef RESTORE_AFTERBURNER
+	fix afterburner_time;
+#endif
 
 	ubyte	rear_view_down_count;
 	ubyte	rear_view_down_state;

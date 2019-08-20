@@ -1775,7 +1775,9 @@ void controls_read_all()
 	if (Controls.sideways_thrust_time > FrameTime) Controls.sideways_thrust_time = FrameTime;
 	if (Controls.bank_time > FrameTime) Controls.bank_time = FrameTime;
 	if (Controls.forward_thrust_time > FrameTime) Controls.forward_thrust_time = FrameTime;
-	//	if (Controls.afterburner_time > FrameTime ) Controls.afterburner_time = FrameTime;
+#ifdef RESTORE_AFTERBURNER
+	if (Controls.afterburner_time > FrameTime ) Controls.afterburner_time = FrameTime;
+#endif
 
 	if (Controls.pitch_time < -FrameTime / 2) Controls.pitch_time = -FrameTime / 2;
 	if (Controls.vertical_thrust_time < -FrameTime) Controls.vertical_thrust_time = -FrameTime;
@@ -1783,7 +1785,9 @@ void controls_read_all()
 	if (Controls.sideways_thrust_time < -FrameTime) Controls.sideways_thrust_time = -FrameTime;
 	if (Controls.bank_time < -FrameTime) Controls.bank_time = -FrameTime;
 	if (Controls.forward_thrust_time < -FrameTime) Controls.forward_thrust_time = -FrameTime;
-	//	if (Controls.afterburner_time < -FrameTime ) Controls.afterburner_time = -FrameTime;
+#ifdef RESTORE_AFTERBURNER
+	if (Controls.afterburner_time < -FrameTime ) Controls.afterburner_time = -FrameTime;
+#endif
 
 
 	//--------- Don't do anything if in debug mode

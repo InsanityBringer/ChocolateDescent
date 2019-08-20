@@ -114,6 +114,9 @@ typedef struct player
 	fix		homing_object_dist;			//	Distance of nearest homing object.
 	byte		hours_level;					// Hours played (since time_total can only go up to 9 hours)
 	byte		hours_total;					// Hours played (since time_total can only go up to 9 hours)
+#ifdef RESTORE_AFTERBURNER
+	fix afterburner_time; //afterburner time
+#endif
 } player;
 
 #define N_PLAYER_GUNS 8

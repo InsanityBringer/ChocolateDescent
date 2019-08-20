@@ -1546,27 +1546,36 @@ void do_show_help()
 
 extern int been_in_editor;
 
-//--killed--//	------------------------------------------------------------------------------------
-//--killed--//	Return 1 if toggled, else return 0.
-//--killed--//	Might not be able to toggle if off and not allowed to turn on.
-//--killed--int toggle_afterburner_status(void)
-//--killed--{
-//--killed--	player	*pp = &Players[Player_num];
-//--killed--
-//--killed--	if (!(pp->flags & PLAYER_FLAGS_AFTERBURNER)) {
-//--killed--		//	Was off, try to turn on.
-//--killed--		if ((pp->afterburner_time > AFTERBURNER_MAX_TIME/4) && (pp->energy > 0)) {
-//--killed--			pp->flags |= PLAYER_FLAGS_AFTERBURNER;
-//--killed--		} else {
-//--killed--			mprintf(0, "Cannot turn on afterburner due to energy or recharge.\n");
-//--killed--			return 0;
-//--killed--		}
-//--killed--		return 1;
-//--killed--	} else {
-//--killed--		pp->flags ^= PLAYER_FLAGS_AFTERBURNER;
-//--killed--		return 1;
-//--killed--	}
-//--killed--}
+#ifdef RESTORE_AFTERBURNER
+//	------------------------------------------------------------------------------------
+//	Return 1 if toggled, else return 0.
+//	Might not be able to toggle if off and not allowed to turn on.
+int toggle_afterburner_status(void)
+{
+	player	*pp = &Players[Player_num];
+
+	if (!(pp->flags & PLAYER_FLAGS_AFTERBURNER)) 
+	{
+		//	Was off, try to turn on.
+		if ((pp->afterburner_time > AFTERBURNER_MAX_TIME/4) && (pp->energy > 0)) 
+		{
+			pp->flags |= PLAYER_FLAGS_AFTERBURNER;
+			say_afterburner_status();
+		} 
+		else 
+		{
+			mprintf((0, "Cannot turn on afterburner due to energy or recharge.\n"));
+			return 0;
+		}
+		return 1;
+	} else 
+	{
+		pp->flags ^= PLAYER_FLAGS_AFTERBURNER;
+		say_afterburner_status();
+		return 1;
+	}
+}
+#endif
 
 //	------------------------------------------------------------------------------------
 void do_cloak_stuff(void)
@@ -1610,38 +1619,45 @@ void do_invulnerable_stuff(void)
 	}
 }
 
-//--killed--//	------------------------------------------------------------------------------------
-//--killed--void do_afterburner_stuff(void)
-//--killed--{
-//--killed--	player	*pp = &Players[Player_num];
-//--killed--
-//--killed--//	mprintf(0, "[Afterburner] Time: %7.3f, status = %i\n", f2fl(pp->afterburner_time), pp->flags & PLAYER_FLAGS_AFTERBURNER);
-//--killed--
-//--killed--	if (pp->flags & PLAYER_FLAGS_AFTERBURNER) {
-//--killed--		if (pp->afterburner_time > 0) {
-//--killed--			pp->afterburner_time -= FrameTime;
-//--killed--			pp->energy -= FrameTime/2;
-//--killed--			if (pp->afterburner_time <= 0) {
-//--killed--				pp->afterburner_time = 0;
-//--killed--				pp->flags &= ~PLAYER_FLAGS_AFTERBURNER;
-//--killed--				say_afterburner_status();
-//--killed--			}
-//--killed--			if (pp->energy <= 0) {
-//--killed--				pp->energy = 0;
-//--killed--				pp->flags &= ~PLAYER_FLAGS_AFTERBURNER;
-//--killed--				say_afterburner_status();
-//--killed--			}
-//--killed--		}
-//--killed--	} else {
-//--killed--		//	Since afterburner is probably almost always max, do the check, we save time.
-//--killed--		if (pp->afterburner_time < AFTERBURNER_MAX_TIME) {
-//--killed--			pp->afterburner_time += FrameTime/2;
-//--killed--			if (pp->afterburner_time > AFTERBURNER_MAX_TIME)
-//--killed--				pp->afterburner_time = AFTERBURNER_MAX_TIME;
-//--killed--		}
-//--killed--	}
-//--killed--
-//--killed--}
+#ifdef RESTORE_AFTERBURNER
+//	------------------------------------------------------------------------------------
+void do_afterburner_stuff(void)
+{
+	player	*pp = &Players[Player_num];
+
+//	mprintf(0, "[Afterburner] Time: %7.3f, status = %i\n", f2fl(pp->afterburner_time), pp->flags & PLAYER_FLAGS_AFTERBURNER);
+
+	if (pp->flags & PLAYER_FLAGS_AFTERBURNER)
+	{
+		if (pp->afterburner_time > 0)
+		{
+			pp->afterburner_time -= FrameTime;
+			pp->energy -= FrameTime/2;
+			if (pp->afterburner_time <= 0)
+			{
+				pp->afterburner_time = 0;
+				pp->flags &= ~PLAYER_FLAGS_AFTERBURNER;
+				say_afterburner_status();
+			}
+			if (pp->energy <= 0) 
+			{
+				pp->energy = 0;
+				pp->flags &= ~PLAYER_FLAGS_AFTERBURNER;
+				say_afterburner_status();
+			}
+		}
+	} else 
+	{
+		//	Since afterburner is probably almost always max, do the check, we save time.
+		if (pp->afterburner_time < AFTERBURNER_MAX_TIME) 
+		{
+			pp->afterburner_time += FrameTime/2;
+			if (pp->afterburner_time > AFTERBURNER_MAX_TIME)
+				pp->afterburner_time = AFTERBURNER_MAX_TIME;
+		}
+	}
+}
+#endif
 
 //	Amount to diminish guns towards normal, per second.
 #define	DIMINISH_RATE	16		//	gots to be a power of 2, else change the code in diminish_palette_towards_normal
@@ -2963,15 +2979,18 @@ void ReadControls()
 			}
 			}
 #endif
+#ifdef RESTORE_AFTERBURNER
+		//Players[Player_num].flags &= ~PLAYER_FLAGS_AFTERBURNER;	//	Turn off, keypress might turn it on.
+#endif
 
-		//--killed--Players[Player_num].flags &= ~PLAYER_FLAGS_AFTERBURNER;	//	Turn off, keypress might turn it on.
-
-		switch (key) {
+		switch (key) 
+		{
 
 			//	================================================================================================
 			//FIRST ARE ALL THE REAL GAME KEYS.  PUT TEST AND DEBUG KEYS LATER.
-
-			//--killed--case KEY_SHIFTED+KEY_A:	toggle_afterburner_status();	break;
+#ifdef RESTORE_AFTERBURNER
+			case KEY_SHIFTED+KEY_A:	toggle_afterburner_status();	break;
+#endif
 		case KEY_ESC:
 			Game_aborted = 1;
 			Function_mode = FMODE_MENU;
@@ -3311,7 +3330,9 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
-	//--killed--do_afterburner_stuff();
+#ifdef RESTORE_AFTERBURNER
+	do_afterburner_stuff();
+#endif
 	do_cloak_stuff();
 	do_invulnerable_stuff();
 	remove_obsolete_stuck_objects();

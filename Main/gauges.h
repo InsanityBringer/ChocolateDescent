@@ -55,7 +55,9 @@ extern void HUD_clear_messages();
 extern void draw_hud();		//draw all the HUD stuff
 
 extern void player_dead_message(void);
-// extern void say_afterburner_status(void);
+#ifdef RESTORE_AFTERBURNER
+extern void say_afterburner_status(void);
+#endif
 
 //fills in the coords of the hostage video window
 void get_hostage_window_coords(int* x, int* y, int* w, int* h);

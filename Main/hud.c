@@ -239,10 +239,12 @@ void player_dead_message(void)
 
 }
 
-// void say_afterburner_status(void)
-// {
-// 	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
-// 		HUD_init_message("Afterburner engaged.");
-// 	else
-// 		HUD_init_message("Afterburner disengaged.");
-// }
+#ifdef RESTORE_AFTERBURNER
+void say_afterburner_status(void)
+{
+	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
+		HUD_init_message("Afterburner engaged.");
+	else
+		HUD_init_message("Afterburner disengaged.");
+}
+#endif
