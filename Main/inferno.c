@@ -484,6 +484,15 @@ int D_DescentMain(int argc, char** argv)
 		Skip_briefing_screens = 1;
 #endif
 
+	//[ISB] Allow the user to configure the FPS limit, if desired
+	int limitParam = FindArg("-fpslimit");
+	if (limitParam && limitParam < (Num_args - 1))
+	{
+		FPSLimit = atoi(Args[limitParam + 1]);
+		if (FPSLimit < 4) FPSLimit = 4; if (FPSLimit > 150) FPSLimit = 150;
+	}
+	if (Inferno_verbose) printf("Setting FPS Limit %d\n", FPSLimit);
+
 	Lighting_on = 1;
 
 	strcpy(Menu_pcx_name, "menu.pcx");	//	Used to be menu2.pcx.

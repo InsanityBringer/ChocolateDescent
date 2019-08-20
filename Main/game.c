@@ -248,6 +248,9 @@ extern void newdemo_strip_frames(char*, int);
 
 #define BACKGROUND_NAME "statback.pcx"
 
+//[ISB] FPS limiting code
+int FPSLimit = 30;
+
 //	==============================================================================================
 
 #ifndef NDEBUG
@@ -977,6 +980,7 @@ void reset_time()
 void calc_frame_time()
 {
 	fix timer_value, last_frametime = FrameTime;
+	int numMS = 1000 / FPSLimit; //[ISB] TODO: Investigate cleaner timing, this won't round accurately and will give slight variances
 
 #if defined(TIMER_TEST) && !defined(NDEBUG)
 	_last_frametime = last_frametime;
@@ -985,10 +989,10 @@ void calc_frame_time()
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
-	if (FrameTime < (F1_0 / 30)) //[ISB] framerate limiter
+	if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
 	{
 		int ms = (FrameTime * 1000) >> 16;
-		I_Delay(33 - ms);
+		I_Delay(numMS - ms);
 
 		//Recalculate
 		timer_value = timer_get_fixed_seconds();

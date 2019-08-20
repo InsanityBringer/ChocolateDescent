@@ -103,6 +103,8 @@ extern int Game_double_buffer;			//double buffering?
 
 extern int Game_suspended;			//if non-zero, nothing moves but player
 
+extern int FPSLimit;
+
 //from game.c
 
 void init_game(void);
