@@ -874,6 +874,7 @@ int state_restore_all_sub(char* filename, int multi)
 		else 
 		{
 			ubyte tmp_object[sizeof(object)];
+			memset(&tmp_object[0], 0, sizeof(object));
 			for (i = 0; i <= Highest_object_index; i++) 
 			{
 				//fread(tmp_object, sizeof(object) - 3, 1, fp);

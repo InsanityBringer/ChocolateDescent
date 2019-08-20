@@ -80,6 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\dev\whyamidoingthis\SDL2-2.0.10\include;$(SolutionDir)2d;$(SolutionDir)bios;$(SolutionDir)cfile;$(SolutionDir)misc;$(SolutionDir)mem;$(SolutionDir)fix;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\dev\whyamidoingthis\SDL2-2.0.10\lib\x86;$(SolutionDir)$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -132,6 +134,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>2d.lib;fix.lib;mem.lib;misc.lib;bios.lib;cfile.lib;sdl2.lib;sdl2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

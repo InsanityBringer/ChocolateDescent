@@ -74,12 +74,16 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\dev\whyamidoingthis\SDL2-2.0.10\include;$(SolutionDir)2d;$(SolutionDir)3d;$(SolutionDir)cfile;$(SolutionDir)fix;$(SolutionDir)mem;$(SolutionDir)misc;$(SolutionDir)texmap;$(SolutionDir)ui;$(SolutionDir)vecmat;$(SolutionDir)iff;$(SolutionDir)bios;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration);C:\dev\whyamidoingthis\SDL2-2.0.10\lib\x86;C:\dev\whyamidoingthis\openal-soft-1.19.1-bin\libs\Win32;$(LibraryPath)</LibraryPath>
+    <TargetName>$(SolutionName)-$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\dev\whyamidoingthis\SDL2-2.0.10\include;$(SolutionDir)2d;$(SolutionDir)3d;$(SolutionDir)cfile;$(SolutionDir)fix;$(SolutionDir)mem;$(SolutionDir)misc;$(SolutionDir)texmap;$(SolutionDir)ui;$(SolutionDir)vecmat;$(SolutionDir)iff;$(SolutionDir)bios;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)$(Configuration);C:\dev\whyamidoingthis\SDL2-2.0.10\lib\x86;C:\dev\whyamidoingthis\openal-soft-1.19.1-bin\libs\Win32;$(LibraryPath)</LibraryPath>
+    <TargetName>$(SolutionName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -124,7 +128,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;RELEASE;_CONSOLE;NEWDEMO;PIGGY_USE_PAGING;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -132,6 +136,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>2d.lib;3d.lib;bios.lib;cfile.lib;mem.lib;misc.lib;fix.lib;texmap.lib;iff.lib;ui.lib;vecmat.lib;SDL2.lib;SDL2main.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

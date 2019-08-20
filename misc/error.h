@@ -68,14 +68,11 @@ void _Assert(int expr, char* expr_text, char* filename, int linenum);	//assert f
 void Error(char* fmt, ...);					//exit with error code=1, print message
 
 //void Assert(int expr);
+
+#ifndef NDEBUG		//macros for debugging
+
 #define Assert(expr) _Assert(expr,#expr,__FILE__,__LINE__)
 void Int3();
-
-
-
-//[ISB] I should probably figure out what to do with these funcs...
-/*
-#ifndef NDEBUG		//macros for debugging
 
 //void Int3(void);									//generate int3
 #pragma aux Int3 = "int 3h";
@@ -99,12 +96,11 @@ void Int3();
 
 #else					//macros for real game
 
-#pragma aux Error aborts;
 //Changed Assert and Int3 because I couldn't get the macros to compile -KRB
-//#define Assert(__ignore) ((void)0)
-void Assert(int expr);
-//#define Int3() ((void)0)
-void Int3();
+#define Assert(a) ((void)0)
+//void Assert(int expr);
+#define Int3() ((void)0)
+//void Int3();
 #endif
-*/
+
 
