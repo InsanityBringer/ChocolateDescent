@@ -251,6 +251,10 @@ extern void newdemo_strip_frames(char*, int);
 //[ISB] FPS limiting code
 int FPSLimit = 30;
 
+//[ISB] alternate timing mode which attempts to run all frames as fixed length ticks.
+dbool pollFPS = 0;
+fix pollTime = 0; //[ISB]: This is the time that the game should think its at on a given frame
+
 //	==============================================================================================
 
 #ifndef NDEBUG
@@ -974,7 +978,7 @@ void game_flush_inputs()
 void reset_time()
 {
 	last_timer_value = timer_get_fixed_seconds();
-
+	pollTime = last_timer_value;
 }
 
 void calc_frame_time()
@@ -986,17 +990,27 @@ void calc_frame_time()
 	_last_frametime = last_frametime;
 #endif
 
-	timer_value = timer_get_fixed_seconds();
+	if (pollFPS)
+	{
+		timer_value = pollTime = pollTime + (F1_0 / FPSLimit);
+	}
+	else
+	{
+		timer_value = timer_get_fixed_seconds();
+	}
 	FrameTime = timer_value - last_timer_value;
 
-	if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
+	if (!pollFPS)
 	{
-		int ms = (FrameTime * 1000) >> 16;
-		I_Delay(numMS - ms);
+		if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
+		{
+			int ms = (FrameTime * 1000) >> 16;
+			I_Delay(numMS - ms);
 
-		//Recalculate
-		timer_value = timer_get_fixed_seconds();
-		FrameTime = timer_value - last_timer_value;
+			//Recalculate
+			timer_value = timer_get_fixed_seconds();
+			FrameTime = timer_value - last_timer_value;
+		}
 	}
 
 #if defined(TIMER_TEST) && !defined(NDEBUG)
@@ -3296,239 +3310,251 @@ extern void check_create_player_path(void);
 
 extern	int	Do_appearance_effect;
 
+dbool CanRunFrame()
+{
+	if (!pollFPS) return 1;
+	fix currentTime = timer_get_fixed_seconds();
+	if (currentTime > pollTime) return 1;
+	return 0;
+}
+
 void GameLoop(int RenderFlag, int ReadControlsFlag)
 {
-	static int desc_dead_countdown = 100;   /*  used if player shouldn't be playing */
-
-	I_DoEvents();
-	//[ISB] Okay I really don't want to track all the changes and mini loops and shit
-	//so the game loop will ensure the mouse is always in relative mode
-	I_SetRelative(1);
-#ifndef	NDEBUG
-	//	Used to slow down frame rate for testing things.
-//	RenderFlag = 1; // DEBUG
-	if (Debug_slowdown) 
+	//[ISB] I hate altering the code this much, but ugh.
+	//while (CanRunFrame())
 	{
-		int	h, i, j = 0;
+		static int desc_dead_countdown = 100;   /*  used if player shouldn't be playing */
 
-		for (h = 0; h < Debug_slowdown; h++)
-			for (i = 0; i < 1000; i++)
-				j += i;
-	}
+		I_DoEvents();
+		//[ISB] Okay I really don't want to track all the changes and mini loops and shit
+		//so the game loop will ensure the mouse is always in relative mode
+		I_SetRelative(1);
+#ifndef	NDEBUG
+		//	Used to slow down frame rate for testing things.
+	//	RenderFlag = 1; // DEBUG
+		if (Debug_slowdown)
+		{
+			int	h, i, j = 0;
+
+			for (h = 0; h < Debug_slowdown; h++)
+				for (i = 0; i < 1000; i++)
+					j += i;
+		}
 #endif
 
-	if (desc_id_exit_num) // are we supposed to be checking
-	{
-		if (!(--desc_dead_countdown))  // if so, at zero, then pull the plug
-			Error("Loading overlay -- error number: %d\n", (int)desc_id_exit_num);
-	}
+		if (desc_id_exit_num) // are we supposed to be checking
+		{
+			if (!(--desc_dead_countdown))  // if so, at zero, then pull the plug
+				Error("Loading overlay -- error number: %d\n", (int)desc_id_exit_num);
+		}
 
 #ifndef RELEASE
-	if (FindArg("-invulnerability"))
-		Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
+		if (FindArg("-invulnerability"))
+			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 #endif
 
-	update_player_stats();
-	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
+		update_player_stats();
+		diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
 #ifdef RESTORE_AFTERBURNER
-	do_afterburner_stuff();
+		do_afterburner_stuff();
 #endif
-	do_cloak_stuff();
-	do_invulnerable_stuff();
-	remove_obsolete_stuck_objects();
+		do_cloak_stuff();
+		do_invulnerable_stuff();
+		remove_obsolete_stuck_objects();
 #ifdef EDITOR
-	check_create_player_path();
-	player_follow_path(ConsoleObject);
+		check_create_player_path();
+		player_follow_path(ConsoleObject);
 #endif
 #ifdef NETWORK
-	if (Game_mode & GM_MULTI)
-		multi_do_frame();
+		if (Game_mode & GM_MULTI)
+			multi_do_frame();
 #endif
 
-	if (RenderFlag) 
-	{
-		if (force_cockpit_redraw) //screen need redrawing?
+		if (RenderFlag)
 		{
-			init_cockpit();
-			force_cockpit_redraw = 0;
+			if (force_cockpit_redraw) //screen need redrawing?
+			{
+				init_cockpit();
+				force_cockpit_redraw = 0;
+			}
+			game_render_frame();
 		}
-		game_render_frame();
-	}
 
-	//		mprintf(0,"Velocity %2.2f\n", f2fl(vm_vec_mag(&ConsoleObject->phys_info.velocity)));
+		//		mprintf(0,"Velocity %2.2f\n", f2fl(vm_vec_mag(&ConsoleObject->phys_info.velocity)));
 
 #if 0
-	mem_fill();
-	mem_check();
+		mem_fill();
+		mem_check();
 #endif
 
-	I_DrawCurrentCanvas(0);
+		I_DrawCurrentCanvas(0);
 
-	calc_frame_time();
+		calc_frame_time();
 
-	dead_player_frame();
-	if (Newdemo_state != ND_STATE_PLAYBACK)
-		do_controlcen_dead_frame();
+		dead_player_frame();
+		if (Newdemo_state != ND_STATE_PLAYBACK)
+			do_controlcen_dead_frame();
 
-	if (ReadControlsFlag)
-		ReadControls();
-	else
-		memset(&Controls, 0, sizeof(Controls));
+		if (ReadControlsFlag)
+			ReadControls();
+		else
+			memset(&Controls, 0, sizeof(Controls));
 
-	GameTime += FrameTime;
+		GameTime += FrameTime;
 
-	digi_sync_sounds();
+		digi_sync_sounds();
 
-	if (Endlevel_sequence) 
-	{
-		do_endlevel_frame();
-		powerup_grab_cheat_all();
-		do_special_effects();
-		return;					//skip everything else
-	}
+		if (Endlevel_sequence)
+		{
+			do_endlevel_frame();
+			powerup_grab_cheat_all();
+			do_special_effects();
+			return;					//skip everything else
+		}
 
 #ifdef ARCADE
-	if (Arcade_mode && (Arcade_timer < 0) && (Newdemo_state != ND_STATE_PLAYBACK)) {
-		memset(&Controls, 0, sizeof(Controls));
-		continue;
-	}
+		if (Arcade_mode && (Arcade_timer < 0) && (Newdemo_state != ND_STATE_PLAYBACK)) {
+			memset(&Controls, 0, sizeof(Controls));
+			continue;
+		}
 #endif
 
-	if (Newdemo_state != ND_STATE_PLAYBACK)
-		do_exploding_wall_frame();
-	if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) 
-	{
-		do_special_effects();
-		wall_frame_process();
-		triggers_frame_process();
-	}
-
-
-	if (Fuelcen_control_center_destroyed) 
-	{
-		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_control_center_destroyed();
-		flash_frame();
-	}
-
-	if (Newdemo_state == ND_STATE_PLAYBACK) 
-	{
-		newdemo_playback_one_frame();
-		if (Newdemo_state != ND_STATE_PLAYBACK) 
+		if (Newdemo_state != ND_STATE_PLAYBACK)
+			do_exploding_wall_frame();
+		if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED))
 		{
-			longjmp(LeaveGame, 0);		// Go back to menu
+			do_special_effects();
+			wall_frame_process();
+			triggers_frame_process();
 		}
-	}
-	else
-	{ // Note the link to above!
 
-		Players[Player_num].homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 
-		object_move_all();
-		powerup_grab_cheat_all();
-
-		if (Endlevel_sequence)	//might have been started during move
-			return;
-
-		fuelcen_update_all();
-
-		do_ai_frame_all();
-
-		if (allowed_to_fire_laser()) 
+		if (Fuelcen_control_center_destroyed)
 		{
-			Global_laser_firing_count += Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
-			if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) 
+			if (Newdemo_state == ND_STATE_RECORDING)
+				newdemo_record_control_center_destroyed();
+			flash_frame();
+		}
+
+		if (Newdemo_state == ND_STATE_PLAYBACK)
+		{
+			newdemo_playback_one_frame();
+			if (Newdemo_state != ND_STATE_PLAYBACK)
 			{
-				if ((Players[Player_num].energy < F1_0 * 2) && (Auto_fire_fusion_cannon_time == 0)) 
+				longjmp(LeaveGame, 0);		// Go back to menu
+			}
+		}
+		else
+		{ // Note the link to above!
+
+			Players[Player_num].homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
+
+			object_move_all();
+			powerup_grab_cheat_all();
+
+			if (Endlevel_sequence)	//might have been started during move
+				return;
+
+			fuelcen_update_all();
+
+			do_ai_frame_all();
+
+			if (allowed_to_fire_laser())
+			{
+				Global_laser_firing_count += Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
+				if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count))
 				{
-					Global_laser_firing_count = 0;
-				}
-				else 
-				{
-					if (Fusion_charge == 0)
-						Players[Player_num].energy -= F1_0 * 2;
-
-					Fusion_charge += FrameTime;
-					Players[Player_num].energy -= FrameTime;
-
-					if (Players[Player_num].energy <= 0) {
-						Players[Player_num].energy = 0;
-						Auto_fire_fusion_cannon_time = GameTime - 1;				//	Fire now!
-					}
-					else
-						Auto_fire_fusion_cannon_time = GameTime + FrameTime / 2 + 1;		//	Fire the fusion cannon at this time in the future.
-
-					if (Fusion_charge < F1_0 * 2)
-						PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
-					else
-						PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
-
-					if (Fusion_next_sound_time < GameTime) 
+					if ((Players[Player_num].energy < F1_0 * 2) && (Auto_fire_fusion_cannon_time == 0))
 					{
-						if (Fusion_charge > F1_0 * 2) 
-						{
-							digi_play_sample(11, F1_0);
-							apply_damage_to_player(ConsoleObject, ConsoleObject, rand() * 4);
+						Global_laser_firing_count = 0;
+					}
+					else
+					{
+						if (Fusion_charge == 0)
+							Players[Player_num].energy -= F1_0 * 2;
+
+						Fusion_charge += FrameTime;
+						Players[Player_num].energy -= FrameTime;
+
+						if (Players[Player_num].energy <= 0) {
+							Players[Player_num].energy = 0;
+							Auto_fire_fusion_cannon_time = GameTime - 1;				//	Fire now!
 						}
-						else 
+						else
+							Auto_fire_fusion_cannon_time = GameTime + FrameTime / 2 + 1;		//	Fire the fusion cannon at this time in the future.
+
+						if (Fusion_charge < F1_0 * 2)
+							PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
+						else
+							PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
+
+						if (Fusion_next_sound_time < GameTime)
 						{
-							create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
-							digi_play_sample(SOUND_FUSION_WARMUP, F1_0);
+							if (Fusion_charge > F1_0 * 2)
+							{
+								digi_play_sample(11, F1_0);
+								apply_damage_to_player(ConsoleObject, ConsoleObject, rand() * 4);
+							}
+							else
+							{
+								create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
+								digi_play_sample(SOUND_FUSION_WARMUP, F1_0);
 #ifdef NETWORK
-							if (Game_mode & GM_MULTI)
-								multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
+								if (Game_mode & GM_MULTI)
+									multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
 #endif
+							}
+							Fusion_next_sound_time = GameTime + F1_0 / 8 + rand() / 4;
 						}
-						Fusion_next_sound_time = GameTime + F1_0 / 8 + rand() / 4;
 					}
 				}
 			}
-		}
 
-		if (Auto_fire_fusion_cannon_time) {
-			if (Primary_weapon != FUSION_INDEX)
-				Auto_fire_fusion_cannon_time = 0;
-			else if (GameTime + FrameTime / 2 >= Auto_fire_fusion_cannon_time)
-			{
-				Auto_fire_fusion_cannon_time = 0;
-				Global_laser_firing_count = 1;
+			if (Auto_fire_fusion_cannon_time) {
+				if (Primary_weapon != FUSION_INDEX)
+					Auto_fire_fusion_cannon_time = 0;
+				else if (GameTime + FrameTime / 2 >= Auto_fire_fusion_cannon_time)
+				{
+					Auto_fire_fusion_cannon_time = 0;
+					Global_laser_firing_count = 1;
+				}
+				else
+				{
+					vms_vector	rand_vec;
+					fix			bump_amount;
+
+					Global_laser_firing_count = 0;
+
+					ConsoleObject->mtype.phys_info.rotvel.x += (rand() - 16384) / 8;
+					ConsoleObject->mtype.phys_info.rotvel.z += (rand() - 16384) / 8;
+					make_random_vector(&rand_vec);
+
+					bump_amount = F1_0 * 4;
+
+					if (Fusion_charge > F1_0 * 2)
+						bump_amount = Fusion_charge * 4;
+
+					bump_one_object(ConsoleObject, &rand_vec, bump_amount);
+				}
 			}
-			else 
-			{
-				vms_vector	rand_vec;
-				fix			bump_amount;
 
+			if (Global_laser_firing_count)
+			{
+				//	Don't cap here, gets capped in Laser_create_new and is based on whether in multiplayer mode, MK, 3/27/95
+				// if (Fusion_charge > F1_0*2)
+				// 	Fusion_charge = F1_0*2;
+				Global_laser_firing_count -= do_laser_firing_player();	//do_laser_firing(Players[Player_num].objnum, Primary_weapon);
+			}
+
+			if (Global_laser_firing_count < 0)
 				Global_laser_firing_count = 0;
-
-				ConsoleObject->mtype.phys_info.rotvel.x += (rand() - 16384) / 8;
-				ConsoleObject->mtype.phys_info.rotvel.z += (rand() - 16384) / 8;
-				make_random_vector(&rand_vec);
-
-				bump_amount = F1_0 * 4;
-
-				if (Fusion_charge > F1_0 * 2)
-					bump_amount = Fusion_charge * 4;
-
-				bump_one_object(ConsoleObject, &rand_vec, bump_amount);
-			}
 		}
 
-		if (Global_laser_firing_count) 
+		if (Do_appearance_effect)
 		{
-			//	Don't cap here, gets capped in Laser_create_new and is based on whether in multiplayer mode, MK, 3/27/95
-			// if (Fusion_charge > F1_0*2)
-			// 	Fusion_charge = F1_0*2;
-			Global_laser_firing_count -= do_laser_firing_player();	//do_laser_firing(Players[Player_num].objnum, Primary_weapon);
+			create_player_appearance_effect(ConsoleObject);
+			Do_appearance_effect = 0;
 		}
-
-		if (Global_laser_firing_count < 0)
-			Global_laser_firing_count = 0;
-	}
-
-	if (Do_appearance_effect)
-	{
-		create_player_appearance_effect(ConsoleObject);
-		Do_appearance_effect = 0;
 	}
 }
 
