@@ -103,7 +103,8 @@ extern int Game_double_buffer;			//double buffering?
 
 extern int Game_suspended;			//if non-zero, nothing moves but player
 
-extern int FPSLimit;
+extern int FPSLimit; //[ISB] timer controls
+extern dbool pollFPS;
 
 //from game.c
 

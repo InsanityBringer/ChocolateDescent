@@ -493,6 +493,12 @@ int D_DescentMain(int argc, char** argv)
 	}
 	if (Inferno_verbose) printf("Setting FPS Limit %d\n", FPSLimit);
 
+	if (FindArg("-ticktimer"))
+	{
+		pollFPS = 1;
+		if (Inferno_verbose) printf("Enabling tick timer");
+	}
+
 	Lighting_on = 1;
 
 	strcpy(Menu_pcx_name, "menu.pcx");	//	Used to be menu2.pcx.
