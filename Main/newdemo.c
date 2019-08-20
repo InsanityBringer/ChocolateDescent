@@ -1273,7 +1273,7 @@ void newdemo_set_new_level(int level_num)
 int newdemo_read_demo_start(int rnd_demo)
 {
 	byte version, game_type;
-	char c, energy, shield;
+	unsigned char c, energy, shield;
 	char text[50];
 
 	nd_read_byte(&c);
