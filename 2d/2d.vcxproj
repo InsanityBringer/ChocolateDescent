@@ -187,6 +187,7 @@
     <ClCompile Include="roller.c" />
     <ClCompile Include="scale.c" />
     <ClCompile Include="scanline.c" />
+    <ClCompile Include="sdl_conf.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

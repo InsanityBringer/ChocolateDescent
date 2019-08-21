@@ -113,5 +113,8 @@
     <ClCompile Include="gr_sdl.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sdl_conf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

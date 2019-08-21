@@ -9,6 +9,8 @@
 #include "gr.h"
 
 extern int WindowWidth, WindowHeight;
+extern int BestFit;
+extern int Fullscreen;
 
 //-----------------------------------------------------------------------------
 //	Graphics initalization and shutdown
@@ -16,6 +18,9 @@ extern int WindowWidth, WindowHeight;
 
 //Init the framework
 int I_Init();
+
+//Load configuration
+int I_ReadChocolateConfig();
 
 //Init graphics library and create a window
 int I_InitWindow();

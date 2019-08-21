@@ -33,7 +33,8 @@ SDL_Surface* hackSurface = NULL;
 SDL_Texture* gameTexture = NULL;
 grs_canvas* screenBuffer;
 
-SDL_bool bestFit = SDL_FALSE;
+int BestFit = 0;
+int Fullscreen = 0;
 
 SDL_Rect screenRectangle;
 
@@ -47,6 +48,7 @@ int I_Init()
 		Warning("Error initalizing SDL: %s\n", SDL_GetError());
 		return res;
 	}
+	I_ReadChocolateConfig();
 	return 0;
 }
 
@@ -54,7 +56,12 @@ int I_InitWindow()
 {
 	//SDL is good, create a game window
 	//gameWindow = SDL_CreateWindow("it's a video game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, /*SDL_WINDOW_INPUT_GRABBED*/0);
-	int result = SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, 0, &gameWindow, &renderer);
+	int flags = 0;
+	if (Fullscreen)
+		flags = SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
+	int result = SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, flags, &gameWindow, &renderer);
+	if (Fullscreen)
+		SDL_GetWindowSize(gameWindow, &WindowWidth, &WindowHeight);
 
 	if (result)
 	{
@@ -191,7 +198,7 @@ int I_SetMode(int mode)
 	int bestWidth = WindowHeight * 4 / 3;
 	if (WindowWidth < bestWidth) bestWidth = WindowWidth;
 
-	if (bestFit)
+	if (BestFit)
 	{
 		int numWidths = bestWidth / w;
 		screenRectangle.w = numWidths * w;
