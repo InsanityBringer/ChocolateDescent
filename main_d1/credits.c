@@ -129,8 +129,6 @@ void credits_show()
 	first_line_offset = 0;
 	while (1)
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
 		int k;
 
 		do
@@ -162,6 +160,8 @@ void credits_show()
 
 		for (i = 0; i < ROW_SPACING; i++) 
 		{
+			I_DrawCurrentCanvas(0);
+			I_DoEvents();
 			int y;
 
 			y = first_line_offset - i;
