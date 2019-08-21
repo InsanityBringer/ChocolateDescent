@@ -44,6 +44,17 @@ void gr_linear_movsd(void* src, void* dest, unsigned short num_pixels)
 		*ldest++ = *lsrc++;
 }
 
+void gr_linear_rep_movsd_faded(void* src, void* dest, unsigned short num_pixels, ubyte fade_value)
+{
+	int i;
+	ubyte* ldest = (ubyte*)dest;
+	ubyte* lsrc = (ubyte*)src;
+	for (i = 0; i < num_pixels; i++)
+	{
+		*ldest++ = gr_fade_table[*lsrc++ + (256 * fade_value)];
+	}
+}
+
 void gr_linear_movsdm(void* src, void* dest, unsigned short num_pixels)
 {
 	int i;
@@ -59,6 +70,26 @@ void gr_linear_movsdm(void* src, void* dest, unsigned short num_pixels)
 		}
 	}
 }
+
+void gr_linear_rep_movsdm_faded(void* src, void* dest, unsigned short num_pixels, ubyte fade_value)
+{
+	int i;
+	ubyte* ldest = (ubyte*)dest;
+	ubyte* lsrc = (ubyte*)src;
+	for (i = 0; i < num_pixels; i++)
+	{
+		if (*lsrc != TRANSPARENCY_COLOR)
+		{
+			*ldest++ = gr_fade_table[*lsrc + (256 * fade_value)];
+			lsrc++;
+		}
+		else
+		{
+			ldest++; lsrc++;
+		}
+	}
+}
+
 
 void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 {
@@ -82,14 +113,16 @@ void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 			dest += (int)(dest_rowsize);
 		}
 	}
-	/*
-	else {
-		for (y1 = 0; y1 < bm->bm_h; y1++) {
+	
+	else 
+	{
+		for (y1 = 0; y1 < bm->bm_h; y1++) 
+		{
 			gr_linear_rep_movsdm_faded(src, dest, bm->bm_w, gr_bitblt_fade_table[y1 + y]);
 			src += bm->bm_rowsize;
 			dest += (int)(dest_rowsize);
 		}
-	}*/ //[ISB] need to fix fade table;
+	}
 }
 
 void gr_ubitmap00m(int x, int y, grs_bitmap* bm)
@@ -250,7 +283,7 @@ void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* 
 			dbits += dest->bm_rowsize;
 		}
 	}
-	/*else 
+	else 
 	{
 		for (i = 0; i < h; i++) 
 		{
@@ -258,7 +291,7 @@ void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* 
 			sbits += src->bm_rowsize;
 			dbits += dest->bm_rowsize;
 		}
-	}*/ //[ISB] TODO on faded shit
+	}
 }
 
 

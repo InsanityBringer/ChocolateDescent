@@ -138,7 +138,7 @@ void credits_show()
 			buffer_line = (buffer_line + 1) % NUM_LINES;
 			if (cfgets(buffer[buffer_line], 80, file)) 
 			{
-				char* p;
+				unsigned char* p;
 				if (have_bin_file) 
 				{				// is this a binary tbl file
 					for (i = 0; i < (int)strlen(buffer[buffer_line]) - 1; i++) 
@@ -149,7 +149,7 @@ void credits_show()
 					}
 				}
 				p = strchr(&buffer[buffer_line][0], '\n');
-				if (p)* p = '\0';
+				if (p) *p = '\0';
 			}
 			else 
 			{
@@ -170,7 +170,7 @@ void credits_show()
 			gr_bitmap(0, 0, &backdrop);
 			for (j = 0; j < NUM_LINES; j++)
 			{
-				char* s;
+				unsigned char* s;
 
 				l = (buffer_line + j + 1) % NUM_LINES;
 				s = &buffer[l][0]; //[ISB] this will either fix compiler warnings, not fix them, or not fix them and cause this to explode
