@@ -899,7 +899,8 @@ void digi_play_sample_3d(int soundno, int angle, int volume, int no_dups)
 	sSOSSampleData.wSampleFlags			= _DIGI_SAMPLE_FLAGS;*/
 
 	memset(&DigiSampleData, 0, sizeof(sampledata_t));
-	DigiSampleData.angle = 0xFFFF / 2;
+	//DigiSampleData.angle = 0xFFFF / 2;
+	DigiSampleData.angle = angle;
 	DigiSampleData.volume = fixmuldiv(volume, digi_volume, F1_0);
 	DigiSampleData.data = snd->data;
 	DigiSampleData.length = snd->length;
