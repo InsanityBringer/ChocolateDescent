@@ -103,7 +103,7 @@ void I_JoyHandler(int buttons, dbool down)
 	Button_info* button;
 
 	//	joystick.max_timer = ticks_this_time;
-	joystick.CurTime = timer_get_fixed_secondsX();
+	joystick.CurTime = timer_get_fixed_seconds();
 
 	value = buttons;
 
@@ -121,7 +121,7 @@ void I_JoyHandler(int buttons, dbool down)
 
 			if (button->last_state == state) 
 			{
-				if (state) button->timedown = timer_get_fixed_secondsX(); //[ISB] I hate DOS joysticks AAAA. fixed point seconds timer. 
+				if (state) button->timedown = timer_get_fixed_seconds(); //[ISB] I hate DOS joysticks AAAA. fixed point seconds timer. 
 			}
 			else 
 			{

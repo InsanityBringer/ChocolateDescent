@@ -133,7 +133,7 @@ void mouse_set_pos(int x, int y)
 //Adaption of Parallax's mouse handler
 void I_MouseHandler(uint32_t button, dbool down)
 {
-	Mouse.ctime = timer_get_fixed_secondsX();
+	Mouse.ctime = timer_get_fixed_seconds();
 
 	if (down && (button == SDL_BUTTON_LEFT)) // left button pressed
 	{
@@ -254,7 +254,7 @@ fix mouse_button_down_time(int button)
 	}
 	else 
 	{
-		time = timer_get_fixed_secondsX();
+		time = timer_get_fixed_seconds();
 		time_down = time - Mouse.time_went_down[button];
 		Mouse.time_went_down[button] = time;
 	}

@@ -2,81 +2,47 @@
 	Hi this code isn't the sole property of PARALLAX SOFTWARE CORPORATION
 	and is instead released under the MIT license.
 */
-/*
-*	Code for SDL timer functions
-*
-*/
 
+#include <chrono>
+#include <thread>
 #include "platform/timer.h"
 #include "misc/error.h"
 #include "fix/fix.h"
 
-#ifdef USE_SDL
+static uint64_t baseTick;
 
-#include "SDL_timer.h"
-
-int baseTick;
+static uint64_t GetClockTimeMS()
+{
+	using namespace std::chrono;
+	return static_cast<uint64_t>(duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count());
+}
 
 void timer_init()
 {
-	baseTick = SDL_GetTicks();
-}
-
-void timer_close()
-{
-
-}
-
-void timer_set_rate(int count_val)
-{
-	Warning("timer_set_rate: STUB\n");
+	baseTick = GetClockTimeMS();
 }
 
 fix timer_get_fixed_seconds()
 {
-	fix time;
 	//time = (SDL_GetTicks() << 16) / 1000;
 	//[ISB] TODO HACK this is disgusting, but shifting ticks up 16 is a great way to cause an overflow
 	//[ISB] tbf I could cast it to a 64-bit type before shifting IG... heh
 	double hack;
-	hack = ((double)SDL_GetTicks() - baseTick) / 1000.;
-	time = fl2f(hack);
-	return time;
-}
-
-fix timer_get_fixed_secondsX()
-{
-	//Not interrupt based, so just return normal timer
-	return timer_get_fixed_seconds();
+	hack = ((double)GetClockTimeMS() - baseTick) / 1000.;
+	return fl2f(hack);
 }
 
 fix timer_get_approx_seconds()
 {
-	//I coooould change it to be accurate to 1/120th intervals.... but nah
 	return timer_get_fixed_seconds();
 }
 
 int I_GetTicks()
 {
-	return ((SDL_GetTicks()-baseTick) * 18 / 1000);
+	return (GetClockTimeMS() - baseTick) * 18 / 1000;
 }
 
 void I_Delay(int ms)
 {
-	SDL_Delay(ms);
+	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
-
-#else
-
-void timer_init() { }
-void timer_close() { }
-void timer_set_rate(int count_val) { }
-
-fix timer_get_fixed_seconds() { return 0; }
-fix timer_get_fixed_secondsX() { return 0; }
-fix timer_get_approx_seconds() { return 0; }
-
-int I_GetTicks() { return 0; }
-void I_Delay(int ms) { }
-
-#endif

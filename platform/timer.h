@@ -16,46 +16,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 #include "fix/fix.h"
 
- //==========================================================================
- // This installs the timer services and interrupts at the rate specified by
- // count_val.  If 'function' isn't 0, the function pointed to by function will
- // be called 'freq' times per second.  Should be > 19 and anything around
- // 2-3000 is gonna start slowing down the system.  Count_val should be
- // 1,193,180 divided by your target frequency. Use 0 for the normal 18.2 Hz
- // interrupt rate.
+void timer_init();
 
-#define TIMER_FREQUENCY 1193180
-
-extern void timer_init();
-extern void timer_close();
-extern void timer_set_rate(int count_val);
-//extern void timer_set_function(void _far* function); [ISB] ew. In practice appears unused. 
-
-//==========================================================================
-// These functions return the time since the timer was initialized in
-// some various units. The total length of reading time varies for each
-// one.  They will roll around after they read 2^32.
-// There are milliseconds, milliseconds times 10, milliseconds times 100,
-// and microseconds.  They time out after 1000 hrs, 100 hrs, 10 hrs, and
-// 1 hr, respectively.
-
-extern fix timer_get_fixed_seconds();	// Rolls about every 9 hours...
-extern fix timer_get_fixed_secondsX(); // Assume interrupts already disabled
-extern fix timer_get_approx_seconds();		// Returns time since program started... accurate to 1/120th of a second
-
-//NOT_USED extern unsigned int timer_get_microseconds();
-//NOT_USED extern unsigned int timer_get_milliseconds100();
-//NOT_USED extern unsigned int timer_get_milliseconds10();
-//NOT_USED extern unsigned int timer_get_milliseconds();
-//NOT_USED extern unsigned int timer_get_millisecondsX();	// Assume interrupts disabled
-
-//==========================================================================
-// Use to access the BIOS ticker... ie...   i = TICKER
-//#define TICKER (*(volatile int *)0x46C)
-#define USECS_PER_READING( start, stop, frames ) (((stop-start)*54945)/frames)
+fix timer_get_fixed_seconds(); // Rolls about every 9 hours...
+fix timer_get_approx_seconds(); // Returns time since program started... accurate to 1/120th of a second
 
 //[ISB] Replacement for the annoying ticker, increments 18 times/sec
-extern int I_GetTicks();
+int I_GetTicks();
 
 //[ISB] replacement for delay?
-extern void I_Delay(int ms);
+void I_Delay(int ms);

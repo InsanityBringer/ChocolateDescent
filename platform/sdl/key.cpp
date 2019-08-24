@@ -110,7 +110,7 @@ void key_flush()
 
 	//Clear the keyboard array
 
-	CurTime = timer_get_fixed_secondsX();
+	CurTime = timer_get_fixed_seconds();
 
 	for (i = 0; i < 256; i++) 
 	{
@@ -229,7 +229,7 @@ fix key_down_time(int scancode) {
 	}
 	else 
 	{
-		time = timer_get_fixed_secondsX();
+		time = timer_get_fixed_seconds();
 		time_down = time - key_data.TimeKeyWentDown[scancode];
 		key_data.TimeKeyWentDown[scancode] = time;
 	}
@@ -296,11 +296,11 @@ void I_KeyHandler(int sc, dbool down)
 	{
 		// Key going down
 		keyd_last_pressed = scancode;
-		keyd_time_when_last_pressed = timer_get_fixed_secondsX();
+		keyd_time_when_last_pressed = timer_get_fixed_seconds();
 		if (!keyd_pressed[scancode]) 
 		{
 			// First time down
-			key_data.TimeKeyWentDown[scancode] = timer_get_fixed_secondsX();
+			key_data.TimeKeyWentDown[scancode] = timer_get_fixed_seconds();
 			keyd_pressed[scancode] = 1;
 			key_data.NumDowns[scancode]++;
 #ifndef NDEBUG
@@ -360,7 +360,7 @@ void I_KeyHandler(int sc, dbool down)
 		temp |= keyd_pressed[KEY_DELETE];
 		if (!(keyd_editor_mode && temp))
 #endif		// NOTICE LINK TO ABOVE IF!!!!
-			key_data.TimeKeyHeldDown[scancode] += timer_get_fixed_secondsX() - key_data.TimeKeyWentDown[scancode];
+			key_data.TimeKeyHeldDown[scancode] += timer_get_fixed_seconds() - key_data.TimeKeyWentDown[scancode];
 	}
 }
 

@@ -516,7 +516,6 @@ int D_DescentMain(int argc, const char** argv)
 	if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_2);
 
 	timer_init();
-	timer_set_rate(digi_timer_rate);			// Tell our timer how fast to go (120 Hz)
 	joy_set_timer_rate(digi_timer_rate);	 	// Tell joystick how fast timer is going
 
 	if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_3);
