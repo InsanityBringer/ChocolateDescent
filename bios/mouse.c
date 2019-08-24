@@ -10,6 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+#ifdef USE_SDL
+
 //[ISB] barely TBH but I keep their bookkeeping code...
 
 #include "SDL_video.h"
@@ -263,3 +266,26 @@ void mouse_get_cyberman_pos(int* x, int* y)
 {
 	Error("mouse_get_cyberman_pos: STUB How the hell did you get this to call???\n");
 }
+
+#else
+
+#include "mouse.h"
+#include "timer.h"
+#include "error.h"
+
+int mouse_init(int enable_cyberman) { return 0; }
+int mouse_set_limits(int x1, int y1, int x2, int y2) { return 0; }
+void mouse_flush() { }	// clears all mice events...
+void mouse_close() { }
+void mouse_get_pos(int* x, int* y) { }
+void mouse_get_delta(int* dx, int* dy) { }
+int mouse_get_btns() { return 0; }
+void mouse_set_pos(int x, int y) { }
+void mouse_get_cyberman_pos(int* x, int* y) { }
+fix mouse_button_down_time(int button) { return 0; }
+int mouse_button_down_count(int button) { return 0; }
+int mouse_button_state(int button) { return 0; }
+
+void I_MouseHandler(uint button, dbool down) { }
+
+#endif

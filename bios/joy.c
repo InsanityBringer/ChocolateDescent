@@ -3,6 +3,8 @@
 #include "timer.h"
 #include "error.h"
 
+#ifdef USE_SDL
+
 #include "SDL_joystick.h"
 
 #define MAX_BUTTONS 20
@@ -259,3 +261,39 @@ void joy_poll()
 {
 	//Warning("joy_poll: STUB\n");
 }
+
+#else
+
+void I_JoyHandler(int buttons, dbool down) { }
+
+int joy_init() { return 0; }
+void joy_close() { }
+void joy_set_ul() { }
+void joy_set_lr() { }
+void joy_set_cen() { }
+void joy_get_pos(int* x, int* y) { }
+int joy_get_btns() { return 0; }
+int joy_get_button_up_cnt(int btn) { return 0; }
+int joy_get_button_down_cnt(int btn) { return 0; }
+fix joy_get_button_down_time(int btn) { return 0; }
+
+ubyte joy_read_raw_buttons() { return 0; }
+ubyte joystick_read_raw_axis(ubyte mask, int* axis) { return 0; }
+void joy_flush() { }
+ubyte joy_get_present_mask() { return 0; }
+void joy_set_timer_rate(int max_value) { }
+int joy_get_timer_rate() { return 0; }
+
+int joy_get_button_state(int btn) { return 0; }
+void joy_set_cen_fake(int channel) { }
+ubyte joy_read_stick(ubyte masks, int* axis) { return 0; }
+void joy_get_cal_vals(int* axis_min, int* axis_center, int* axis_max) { }
+void joy_set_cal_vals(int* axis_min, int* axis_center, int* axis_max) { }
+void joy_set_btn_values(int btn, int state, fix timedown, int downcount, int upcount) { }
+int joy_get_scaled_reading(int raw, int axn) { return 0; }
+void joy_set_slow_reading(int flag) { }
+
+char joy_installed;
+char joy_present;
+
+#endif

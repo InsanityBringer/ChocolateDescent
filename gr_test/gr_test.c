@@ -40,6 +40,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "i_gr.h"
 #include "palette.h"
 
+#ifdef USE_SDL
+
 //for SDL_main
 #include "sdl.h"
 
@@ -160,3 +162,12 @@ int main(int argc, char** argv)
 	//_getch();
 
 }
+
+#else
+
+int main(int argc, char** argv)
+{
+	return 0;
+}
+
+#endif

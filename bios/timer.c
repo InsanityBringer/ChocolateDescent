@@ -11,6 +11,8 @@
 #include "error.h"
 #include "fix.h"
 
+#ifdef USE_SDL
+
 #include "SDL_timer.h"
 
 int baseTick;
@@ -63,3 +65,18 @@ void I_Delay(int ms)
 {
 	SDL_Delay(ms);
 }
+
+#else
+
+void timer_init() { }
+void timer_close() { }
+void timer_set_rate(int count_val) { }
+
+fix timer_get_fixed_seconds() { return 0; }
+fix timer_get_fixed_secondsX() { return 0; }
+fix timer_get_approx_seconds() { return 0; }
+
+int I_GetTicks() { return 0; }
+void I_Delay(int ms) { }
+
+#endif

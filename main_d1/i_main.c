@@ -1,6 +1,8 @@
+
+#ifdef USE_SDL
+
 #include <stdio.h>
 
-#include "sdl.h"
 #include "inferno.h"
 #include "fix.h"
 #include "vecmat.h"
@@ -9,8 +11,15 @@
 
 int main(int argc, char** argv)
 {
-	int ret;
-	ret = D_DescentMain(argc, argv);
-	return ret;
-	//return 0;
+	return D_DescentMain(argc, argv);
 }
+
+#else
+
+#include <Windows.h>
+
+int D_DescentMain(int argc, char** argv);
+
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) { return 0; }
+
+#endif

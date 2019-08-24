@@ -6,6 +6,8 @@
 //[ISB] goddamnit we need a dependency on 2d just for I_DoEvents aaa
 #include "i_gr.h"
 
+#ifdef USE_SDL
+
 #include "SDL_events.h"
 #include "SDL_keyboard.h"
 
@@ -386,3 +388,32 @@ void key_close()
 {
 	//[ISB] heh
 }
+
+#else
+
+void I_KeyHandler(int sc, dbool down) { }
+
+void key_init() { }
+void key_close() { }
+
+void key_flush() { }
+int key_checkch() { return 0; }
+int key_getch() { return 0; }
+int key_inkey() { return 0; }
+int key_inkey_time(fix* time) { return 0; }
+int key_peekkey() { return 0; }
+fix key_down_time(int scancode) { return 0; }
+unsigned int key_down_count(int scancode) { return 0; }
+unsigned int key_up_count(int scancode) { return 0; }
+unsigned char key_to_ascii(int keycode) { return 0; }
+
+unsigned char keyd_buffer_type;
+unsigned char keyd_repeat;
+unsigned char keyd_editor_mode;
+int keyd_time_when_last_pressed;
+
+unsigned char keyd_pressed[256];
+unsigned char keyd_last_pressed;
+unsigned char keyd_last_released;
+
+#endif

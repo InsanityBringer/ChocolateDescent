@@ -10,6 +10,8 @@ Instead, it is released under the terms of the MIT License.
 
 #include <string.h>
 
+#ifdef USE_SDL
+
 #include "sdl.h"
 #include "sdl_video.h"
 #include "sdl_surface.h"
@@ -375,3 +377,32 @@ void I_Shutdown()
 {
 	SDL_Quit();
 }
+
+#else
+
+#include "gr.h"
+#include "i_gr.h"
+#include "error.h"
+#include "types.h"
+
+#include "mouse.h"
+#include "key.h"
+
+int I_Init() { return 0; }
+int I_InitWindow() { return 0; }
+void I_ShutdownGraphics() { }
+int I_CheckMode(int mode) { return 0; }
+void I_SetScreenCanvas(grs_canvas* canv) { }
+int I_SetMode(int mode) { return 0; }
+void I_DoEvents() { }
+void I_SetRelative(int state) { }
+void I_WritePalette(int start, int end, ubyte* data) { }
+void I_BlankPalette() { }
+void I_ReadPalette(ubyte* dest) { }
+void I_WaitVBL() { }
+void I_DrawCurrentCanvas(int sync) { }
+void I_BlitCurrentCanvas() { }
+void I_BlitCanvas(grs_canvas* canv) { }
+void I_Shutdown() { }
+
+#endif
