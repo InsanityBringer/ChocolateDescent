@@ -563,8 +563,12 @@ static LetterboxRect FindLetterbox()
 	}
 	int screenWidth = screenBuffer->cv_bitmap.bm_w;
 	int screenHeight = screenBuffer->cv_bitmap.bm_h;
+
+	if (screenHeight == 400) // Minimap support
+		screenHeight = 200;
+
 	float scaleX, scaleY;
-	if (screenHeight == 200)
+	if (screenHeight == 200) // Pixel strech 320x200
 	{
 		scaleX = min(clientWidth / (float)screenWidth, clientHeight / (screenHeight * 1.2f));
 		scaleY = scaleX * 1.2f;
