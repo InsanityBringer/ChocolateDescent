@@ -68,7 +68,7 @@ namespace
 
 	bool vid_vsync = true;
 
-	LRESULT WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
+	LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
 	{
 		if (message == WM_CLOSE)
 		{
@@ -79,10 +79,15 @@ namespace
 		{
 			return 0;
 		}
+#if 0
 		else if (message == WM_PAINT)
 		{
+			PAINTSTRUCT ps;
+			HDC dc = BeginPaint(handle, &ps);
+			EndPaint(handle, &ps);
 			return 0;
 		}
+#endif
 		else if (message == WM_SETFOCUS)
 		{
 			return 0;
@@ -91,7 +96,7 @@ namespace
 		{
 			return 0;
 		}
-		else if (message == WM_KEYDOWN || message == WM_KEYUP)
+		else if (message == WM_KEYDOWN)
 		{
 			int scancode = (lparam >> 16) & 0xff;
 			KeyPressed(scancode);
@@ -494,10 +499,12 @@ void I_DoEvents()
 	{
 		MSG msg;
 		BOOL result = PeekMessage(&msg, 0, 0, 0, PM_REMOVE);
-		if (result == 0 || msg.message == WM_QUIT)
+		if (result == 0)
 			break;
+		else if (msg.message == WM_QUIT)
+			exit(0); // Is there a nicer way?
 
-		TranslateMessage(&msg);
+		//TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 }
@@ -510,7 +517,7 @@ void I_WritePalette(int start, int end, uint8_t* data)
 {
 	for (int i = start; i <= end; i++)
 	{
-		palette[i] = MAKEARGB(255, data[i * 3 + 0], data[i * 3 + 1], data[i * 3 + 2]);
+		palette[i] = MAKEARGB(255, data[i * 3 + 0] << 2, data[i * 3 + 1] << 2, data[i * 3 + 2] << 2);
 	}
 }
 
@@ -537,6 +544,9 @@ void I_WaitVBL()
 
 void I_DrawCurrentCanvas(int sync)
 {
+	if (!screenBuffer)
+		return;
+
 	vid_vsync = sync;
 
 	int width = screenBuffer->cv_bitmap.bm_w;

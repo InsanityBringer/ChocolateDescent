@@ -18,8 +18,11 @@ int main(int argc, char** argv)
 
 #include <Windows.h>
 
-int D_DescentMain(int argc, char** argv);
+int D_DescentMain(int argc, const char** argv);
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) { return 0; }
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+{
+	return D_DescentMain(0, nullptr);
+}
 
 #endif
