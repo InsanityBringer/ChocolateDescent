@@ -36,6 +36,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern void free_temp_point(g3s_point* p);
 extern g3s_point** clip_polygon(g3s_point** src, g3s_point** dest, int* nv, g3s_codes* cc);
 extern void init_free_points(void);
-extern void clip_line(g3s_point** p0, g3s_point** p1, ubyte codes_or);
+extern void clip_line(g3s_point** p0, g3s_point** p1, uint8_t codes_or);
 
 #endif

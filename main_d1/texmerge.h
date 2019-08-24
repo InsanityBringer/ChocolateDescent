@@ -30,7 +30,7 @@ grs_bitmap* texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top);
 void texmerge_close(void);
 void texmerge_flush();
 
-void merge_textures_new(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, ubyte* dest_data);
-void merge_textures_super_xparent(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, ubyte* dest_data);
+void merge_textures_new(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, uint8_t* dest_data);
+void merge_textures_super_xparent(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, uint8_t* dest_data);
 
 #endif

@@ -108,7 +108,7 @@ int get_num_faces(side* sidep)
 void get_side_verts(short* vertlist, int segnum, int sidenum)
 {
 	int	i;
-	byte* sv = Side_to_verts[sidenum];
+	int8_t* sv = Side_to_verts[sidenum];
 	short* vp = Segments[segnum].verts;
 
 	for (i = 4; i--;)
@@ -436,10 +436,10 @@ segmasks get_seg_masks(vms_vector* checkp, int segnum, fix rad)
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad 
-ubyte get_side_dists(vms_vector* checkp, int segnum, fix* side_dists)
+uint8_t get_side_dists(vms_vector* checkp, int segnum, fix* side_dists)
 {
 	int			sn, facebit, sidebit;
-	ubyte			mask;
+	uint8_t			mask;
 	int			num_faces;
 	int			vertex_list[6];
 	segment* seg;
@@ -929,7 +929,7 @@ fix find_connected_distance(vms_vector* p0, int seg0, vms_vector* p1, int seg1, 
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	byte		visited[MAX_SEGMENTS];
+	int8_t		visited[MAX_SEGMENTS];
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
@@ -1091,14 +1091,14 @@ fix find_connected_distance(vms_vector* p0, int seg0, vms_vector* p1, int seg1, 
 //--unused-- 	return rval;
 //--unused-- }
 
-byte convert_to_byte(fix f)
+int8_t convert_to_byte(fix f)
 {
 	if (f >= 0x00010000)
 		return MATRIX_MAX;
 	else if (f <= -0x00010000)
 		return -MATRIX_MAX;
 	else
-		return (byte)(f >> MATRIX_PRECISION);
+		return (int8_t)(f >> MATRIX_PRECISION);
 }
 
 #define VEL_PRECISION 12
@@ -1110,7 +1110,7 @@ byte convert_to_byte(fix f)
 void create_shortpos(shortpos * spp, object * objp)
 {
 	// int	segnum;
-	byte* sp;
+	int8_t* sp;
 
 	sp = spp->bytemat;
 
@@ -1154,7 +1154,7 @@ void create_shortpos(shortpos * spp, object * objp)
 void extract_shortpos(object* objp, shortpos* spp)
 {
 	int	segnum;
-	byte* sp;
+	int8_t* sp;
 
 	sp = spp->bytemat;
 
@@ -1544,7 +1544,7 @@ void create_walls_on_side(segment* sp, int sidenum)
 
 typedef struct ncache_element {
 	short segnum;
-	ubyte sidenum;
+	uint8_t sidenum;
 	vms_vector normals[2];
 } ncache_element;
 
@@ -1576,7 +1576,7 @@ void ncache_flush()
 // -------------------------------------------------------------------------------
 int find_ncache_element(int segnum, int sidenum, int face_flags)
 {
-	uint i;
+	uint32_t i;
 
 	if (!ncache_initialized) ncache_init();
 
@@ -1588,7 +1588,7 @@ int find_ncache_element(int segnum, int sidenum, int face_flags)
 	i = ((segnum << 2) ^ sidenum) & CACHE_MASK;
 
 	if ((ncache[i].segnum == segnum) && ((ncache[i].sidenum & 0xf) == sidenum)) {
-		uint f1;
+		uint32_t f1;
 #ifdef CACHE_DEBUG
 		ncache_hits++;
 #endif
@@ -1823,10 +1823,10 @@ void pick_random_point_in_seg(vms_vector* new_pos, int segnum)
 //	----------------------------------------------------------------------------------------------------------
 //	Set the segment depth of all segments from start_seg in *segbuf.
 //	Returns maximum depth value.
-int set_segment_depths(int start_seg, ubyte* segbuf)
+int set_segment_depths(int start_seg, uint8_t* segbuf)
 {
 	int	i, curseg;
-	ubyte	visited[MAX_SEGMENTS];
+	uint8_t	visited[MAX_SEGMENTS];
 	int	queue[MAX_SEGMENTS];
 	int	head, tail;
 	int	depth;

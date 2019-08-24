@@ -141,18 +141,18 @@ int stop_count, start_count;
 int time_stopped, time_started;
 #endif
 
-ubyte* Game_cockpit_copy_code = NULL;
+uint8_t* Game_cockpit_copy_code = NULL;
 
-ubyte new_cheats[] = { KEY_B ^ 0xaa, KEY_B ^ 0xaa, KEY_B ^ 0xaa, KEY_F ^ 0xaa, KEY_A ^ 0xaa,
+uint8_t new_cheats[] = { KEY_B ^ 0xaa, KEY_B ^ 0xaa, KEY_B ^ 0xaa, KEY_F ^ 0xaa, KEY_A ^ 0xaa,
 							KEY_U ^ 0xaa, KEY_I ^ 0xaa, KEY_R ^ 0xaa, KEY_L ^ 0xaa, KEY_H ^ 0xaa,
 							KEY_G ^ 0xaa, KEY_G ^ 0xaa, KEY_U ^ 0xaa, KEY_A ^ 0xaa, KEY_I ^ 0xaa,
 							KEY_G ^ 0xaa, KEY_R ^ 0xaa, KEY_I ^ 0xaa, KEY_S ^ 0xaa, KEY_M ^ 0xaa,
 							KEY_I ^ 0xaa, KEY_E ^ 0xaa, KEY_N ^ 0xaa, KEY_H ^ 0xaa, KEY_S ^ 0xaa,
 							KEY_N ^ 0xaa, KEY_D ^ 0xaa, KEY_X ^ 0xaa, KEY_X ^ 0xaa, KEY_A ^ 0xaa };
 
-ubyte			VR_use_paging = 0;
-ubyte			VR_current_page = 0;
-ubyte			VR_switch_eyes = 0;
+uint8_t			VR_use_paging = 0;
+uint8_t			VR_current_page = 0;
+uint8_t			VR_switch_eyes = 0;
 fix			VR_eye_width = F1_0;
 int			VR_eye_offset = 0;
 int			VR_eye_offset_changed = 0;
@@ -308,7 +308,7 @@ void speedtest_frame(void)
 //this is called once per game
 void init_game()
 {
-	ubyte pal[256 * 3];
+	uint8_t pal[256 * 3];
 	int pcx_error;
 
 	atexit(close_game);             //for cleanup
@@ -1455,7 +1455,7 @@ void save_screen_shot(int automap_flag)
 	static savenum = 0;
 	grs_canvas* temp_canv, * save_canv;
 	char savename[13];
-	ubyte pal[768];
+	uint8_t pal[768];
 	int w, h, aw, x, y;
 
 	// Can't do screen shots in VR modes.
@@ -2080,24 +2080,24 @@ int Config_menu_flag;
 jmp_buf LeaveGame;
 
 #ifndef FINAL_CHEATS
-ubyte cheat_enable_keys[] = { KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_H,KEY_E,KEY_Y };
+uint8_t cheat_enable_keys[] = { KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_H,KEY_E,KEY_Y };
 #endif
 
-byte	Enable_john_cheat_1, Enable_john_cheat_2, Enable_john_cheat_3, Enable_john_cheat_4;
+int8_t	Enable_john_cheat_1, Enable_john_cheat_2, Enable_john_cheat_3, Enable_john_cheat_4;
 
 int cheat_enable_index;
 #define CHEAT_ENABLE_LENGTH (sizeof(cheat_enable_keys) / sizeof(*cheat_enable_keys))
 
 #ifdef FINAL_CHEATS
-ubyte cheat_enable_keys[] = { KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_H,KEY_E,KEY_Y };
+uint8_t cheat_enable_keys[] = { KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_H,KEY_E,KEY_Y };
 
-ubyte cheat_wowie[] = { KEY_S,KEY_C,KEY_O,KEY_U,KEY_R,KEY_G,KEY_E };
-ubyte cheat_allkeys[] = { KEY_M,KEY_I,KEY_T,KEY_Z,KEY_I };
-ubyte cheat_invuln[] = { KEY_R,KEY_A,KEY_C,KEY_E,KEY_R,KEY_X };
-ubyte cheat_cloak[] = { KEY_G,KEY_U,KEY_I,KEY_L,KEY_E };
-ubyte cheat_shield[] = { KEY_T,KEY_W,KEY_I,KEY_L,KEY_I,KEY_G,KEY_H,KEY_T };
-ubyte cheat_warp[] = { KEY_F,KEY_A,KEY_R,KEY_M,KEY_E,KEY_R,KEY_J,KEY_O,KEY_E };
-ubyte cheat_astral[] = { KEY_A,KEY_S,KEY_T,KEY_R,KEY_A,KEY_L };
+uint8_t cheat_wowie[] = { KEY_S,KEY_C,KEY_O,KEY_U,KEY_R,KEY_G,KEY_E };
+uint8_t cheat_allkeys[] = { KEY_M,KEY_I,KEY_T,KEY_Z,KEY_I };
+uint8_t cheat_invuln[] = { KEY_R,KEY_A,KEY_C,KEY_E,KEY_R,KEY_X };
+uint8_t cheat_cloak[] = { KEY_G,KEY_U,KEY_I,KEY_L,KEY_E };
+uint8_t cheat_shield[] = { KEY_T,KEY_W,KEY_I,KEY_L,KEY_I,KEY_G,KEY_H,KEY_T };
+uint8_t cheat_warp[] = { KEY_F,KEY_A,KEY_R,KEY_M,KEY_E,KEY_R,KEY_J,KEY_O,KEY_E };
+uint8_t cheat_astral[] = { KEY_A,KEY_S,KEY_T,KEY_R,KEY_A,KEY_L };
 
 #define NUM_NEW_CHEATS 5
 
@@ -2371,7 +2371,7 @@ grs_canvas* get_current_game_screen()
 	return &VR_screen_pages[VR_current_page];
 }
 
-ubyte exploding_flag = 0;
+uint8_t exploding_flag = 0;
 
 #ifdef EDITOR
 extern dump_used_textures_all();

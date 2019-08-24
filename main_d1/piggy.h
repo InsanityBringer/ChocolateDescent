@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 
 typedef struct bitmap_index {
-	ushort	index;
+	uint16_t	index;
 } bitmap_index;
 
 int piggy_init();

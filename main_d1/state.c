@@ -99,7 +99,7 @@ char dgss_id[4] = "DGSS";
 
 int state_default_item = 0;
 
-uint state_game_id;
+uint32_t state_game_id;
 
 void state_callback(int nitems, newmenu_item* items, int* last_key, int citem)
 {
@@ -284,7 +284,7 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 {
 	int i;
 	int temp_int;
-	ubyte temp_byte;
+	uint8_t temp_byte;
 	char desc[DESC_LENGTH + 1];
 	char filename[128];
 	grs_canvas* cnv;
@@ -310,7 +310,7 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	if (cnv) 
 	{
 		char* pcx_file;
-		ubyte pcx_palette[768];
+		uint8_t pcx_palette[768];
 		grs_bitmap bmp;
 
 		gr_set_current_canvas(cnv);
@@ -337,9 +337,9 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	}
 	else 
 	{
-		ubyte color = 0;
+		uint8_t color = 0;
 		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++)
-			fwrite(&color, sizeof(ubyte), 1, fp);
+			fwrite(&color, sizeof(uint8_t), 1, fp);
 	}
 
 	// Save the Between levels flag...
@@ -364,9 +364,9 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 
 	// Save the current weapon info
 	temp_byte = sg_primary_weapon;
-	fwrite(&temp_byte, sizeof(byte), 1, fp);
+	fwrite(&temp_byte, sizeof(int8_t), 1, fp);
 	temp_byte = sg_secondary_weapon;
-	fwrite(&temp_byte, sizeof(byte), 1, fp);
+	fwrite(&temp_byte, sizeof(int8_t), 1, fp);
 
 	// Save the difficulty level
 	temp_int = sg_difficulty_level;
@@ -378,7 +378,7 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	temp_int = 0;		// turbo mode
 	fwrite(&temp_int, sizeof(int), 1, fp);
 
-	fwrite(&state_game_id, sizeof(uint), 1, fp);
+	fwrite(&state_game_id, sizeof(uint32_t), 1, fp);
 	fwrite(&Laser_rapid_fire, sizeof(int), 1, fp);
 	fwrite(&Ugly_robot_cheat, sizeof(int), 1, fp);
 	fwrite(&Ugly_robot_texture, sizeof(int), 1, fp);
@@ -460,7 +460,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 		if (between_levels) 
 		{
 			char* pcx_file;
-			ubyte pcx_palette[768];
+			uint8_t pcx_palette[768];
 			grs_bitmap bmp;
 
 			gr_clear_canvas(BM_XRGB(0, 0, 0));
@@ -490,9 +490,9 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	}
 	else 
 	{
-		ubyte color = 0;
+		uint8_t color = 0;
 		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++)
-			fwrite(&color, sizeof(ubyte), 1, fp);
+			fwrite(&color, sizeof(uint8_t), 1, fp);
 	}
 
 	// Save the Between levels flag...
@@ -517,8 +517,8 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	P_WritePlayer(&Players[Player_num], fp);
 
 	// Save the current weapon info
-	//fwrite(&Primary_weapon, sizeof(byte), 1, fp);
-	//fwrite(&Secondary_weapon, sizeof(byte), 1, fp);
+	//fwrite(&Primary_weapon, sizeof(int8_t), 1, fp);
+	//fwrite(&Secondary_weapon, sizeof(int8_t), 1, fp);
 	F_WriteByte(fp, Primary_weapon);
 	F_WriteByte(fp, Secondary_weapon);
 
@@ -647,9 +647,9 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 		ai_save_state(fp);
 
 		// Save the automap visited info
-		fwrite(Automap_visited, sizeof(ubyte) * MAX_SEGMENTS, 1, fp);
+		fwrite(Automap_visited, sizeof(uint8_t) * MAX_SEGMENTS, 1, fp);
 	}
-	//fwrite(&state_game_id, sizeof(uint), 1, fp);
+	//fwrite(&state_game_id, sizeof(uint32_t), 1, fp);
 	//fwrite(&Laser_rapid_fire, sizeof(int), 1, fp);
 	//fwrite(&Ugly_robot_cheat, sizeof(int), 1, fp);
 	//fwrite(&Ugly_robot_texture, sizeof(int), 1, fp);
@@ -831,8 +831,8 @@ int state_restore_all_sub(char* filename, int multi)
 		Players[Player_num].level = next_level;
 
 	// Restore the weapon states
-	//fread(&Primary_weapon, sizeof(byte), 1, fp);
-	//fread(&Secondary_weapon, sizeof(byte), 1, fp);
+	//fread(&Primary_weapon, sizeof(int8_t), 1, fp);
+	//fread(&Secondary_weapon, sizeof(int8_t), 1, fp);
 	Primary_weapon = F_ReadByte(fp);
 	Secondary_weapon = F_ReadByte(fp);
 
@@ -873,7 +873,7 @@ int state_restore_all_sub(char* filename, int multi)
 		}
 		else 
 		{
-			ubyte tmp_object[sizeof(object)];
+			uint8_t tmp_object[sizeof(object)];
 			memset(&tmp_object[0], 0, sizeof(object));
 			for (i = 0; i <= Highest_object_index; i++) 
 			{
@@ -1023,7 +1023,7 @@ int state_restore_all_sub(char* filename, int multi)
 		ai_restore_state(fp);
 
 		// Restore the automap visited info
-		fread(Automap_visited, sizeof(ubyte) * MAX_SEGMENTS, 1, fp);
+		fread(Automap_visited, sizeof(uint8_t) * MAX_SEGMENTS, 1, fp);
 
 		//	Restore hacked up weapon system stuff.
 		Fusion_next_sound_time = GameTime;
@@ -1038,7 +1038,7 @@ int state_restore_all_sub(char* filename, int multi)
 	if (version >= 7) 
 	{
 		int tmp_Lunacy;
-		//fread(&state_game_id, sizeof(uint), 1, fp);
+		//fread(&state_game_id, sizeof(uint32_t), 1, fp);
 		//fread(&Laser_rapid_fire, sizeof(int), 1, fp);
 		//fread(&Ugly_robot_cheat, sizeof(int), 1, fp);
 		//fread(&Ugly_robot_texture, sizeof(int), 1, fp);

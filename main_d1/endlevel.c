@@ -1400,7 +1400,7 @@ try_again:
 		case 0: //ground terrain
 		{			
 			int iff_error;
-			ubyte pal[768];
+			uint8_t pal[768];
 
 			if (terrain_bm_instance.bm_data)
 				free(terrain_bm_instance.bm_data);
@@ -1428,7 +1428,7 @@ try_again:
 		case 4: //planet bitmap
 		{
 			int iff_error;
-			ubyte pal[768];
+			uint8_t pal[768];
 
 			if (satellite_bm_instance.bm_data)
 				free(satellite_bm_instance.bm_data);

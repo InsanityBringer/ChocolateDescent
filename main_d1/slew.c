@@ -120,11 +120,11 @@ int do_slew_movement(object* obj, int check_keys, int check_joy)
 		if (abs(joy_y) < JOY_NULL) joy_y = 0;
 
 		if (btns)
-			if (!rotang.p) rotang.p = (ushort)fixmul(-joy_y * 512, FrameTime); else;
+			if (!rotang.p) rotang.p = (uint16_t)fixmul(-joy_y * 512, FrameTime); else;
 		else
 			if (joyy_moved) obj->mtype.phys_info.velocity.z = -joy_y * 8192;
 
-		if (!rotang.h) rotang.h = (ushort)fixmul(joy_x * 512, FrameTime);
+		if (!rotang.h) rotang.h = (uint16_t)fixmul(joy_x * 512, FrameTime);
 
 		if (joyx_moved) old_joy_x = joy_x;
 		if (joyy_moved) old_joy_y = joy_y;

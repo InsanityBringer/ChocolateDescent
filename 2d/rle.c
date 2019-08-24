@@ -107,11 +107,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define RLE_CODE 			0xE0
 #define NOT_RLE_CODE		31
 
-ubyte* gr_rle_decode(ubyte* src, ubyte* dest)
+uint8_t* gr_rle_decode(uint8_t* src, uint8_t* dest)
 {
 	//[ISB] from mac code
 	int i;
-	ubyte data, count = 0;
+	uint8_t data, count = 0;
 
 	while (1) {
 		data = *src++;
@@ -132,7 +132,7 @@ ubyte* gr_rle_decode(ubyte* src, ubyte* dest)
 }
 
 
-void rle_stosb(ubyte* dest, int len, int color)
+void rle_stosb(uint8_t* dest, int len, int color)
 {
 	int i;
 	for (i = 0; i < len; i++)
@@ -141,11 +141,11 @@ void rle_stosb(ubyte* dest, int len, int color)
 
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
-void gr_rle_expand_scanline_masked(ubyte* dest, ubyte* src, int x1, int x2)
+void gr_rle_expand_scanline_masked(uint8_t* dest, uint8_t* src, int x1, int x2)
 {
 	int i = 0;
-	ubyte count;
-	ubyte color = 0; //[ISB] shut up compiler warning
+	uint8_t count;
+	uint8_t color = 0; //[ISB] shut up compiler warning
 
 	if (x2 < x1) return;
 
@@ -204,11 +204,11 @@ void gr_rle_expand_scanline_masked(ubyte* dest, ubyte* src, int x1, int x2)
 	}
 }
 
-void gr_rle_expand_scanline(ubyte* dest, ubyte* src, int x1, int x2)
+void gr_rle_expand_scanline(uint8_t* dest, uint8_t* src, int x1, int x2)
 {
 	int i = 0;
-	ubyte count;
-	ubyte color = 0; //[ISB] shut up compiler warning
+	uint8_t count;
+	uint8_t color = 0; //[ISB] shut up compiler warning
 
 	if (x2 < x1) return;
 
@@ -267,12 +267,12 @@ void gr_rle_expand_scanline(ubyte* dest, ubyte* src, int x1, int x2)
 }
 
 
-int gr_rle_encode(int org_size, ubyte* src, ubyte* dest)
+int gr_rle_encode(int org_size, uint8_t* src, uint8_t* dest)
 {
 	int i;
-	ubyte c, oc;
-	ubyte count;
-	ubyte* dest_start;
+	uint8_t c, oc;
+	uint8_t count;
+	uint8_t* dest_start;
 
 	dest_start = dest;
 	oc = *src++;
@@ -320,11 +320,11 @@ int gr_rle_encode(int org_size, ubyte* src, ubyte* dest)
 }
 
 
-int gr_rle_getsize(int org_size, ubyte* src)
+int gr_rle_getsize(int org_size, uint8_t* src)
 {
 	int i;
-	ubyte c, oc;
-	ubyte count;
+	uint8_t c, oc;
+	uint8_t count;
 	int dest_size = 0;
 
 	oc = *src++;
@@ -370,7 +370,7 @@ int gr_bitmap_rle_compress(grs_bitmap* bmp)
 {
 	int y, d1, d;
 	int doffset;
-	ubyte* rle_data;
+	uint8_t* rle_data;
 
 	rle_data = malloc((bmp->bm_w + 1) * bmp->bm_h);
 	if (rle_data == NULL) return 0;
@@ -398,7 +398,7 @@ int gr_bitmap_rle_compress(grs_bitmap* bmp)
 
 typedef struct rle_cache_element {
 	grs_bitmap* rle_bitmap;
-	ubyte* rle_data;
+	uint8_t* rle_data;
 	grs_bitmap* expanded_bitmap;
 	int last_used;
 } rle_cache_element;
@@ -513,11 +513,11 @@ void rle_expand_texture_sub(grs_bitmap* bmp, grs_bitmap* rle_temp_bitmap_1)
 }
 
 
-void gr_rle_expand_scanline_generic(grs_bitmap* dest, int dx, int dy, ubyte* src, int x1, int x2)
+void gr_rle_expand_scanline_generic(grs_bitmap* dest, int dx, int dy, uint8_t* src, int x1, int x2)
 {
 	int i = 0, j;
 	int count;
-	ubyte color = 0; //[ISB] shut up compiler warning
+	uint8_t color = 0; //[ISB] shut up compiler warning
 
 	if (x2 < x1) return;
 

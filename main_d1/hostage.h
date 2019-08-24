@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct hostage_data {
 	short		objnum;
 	int		objsig;
-	//ubyte		type;
+	//uint8_t		type;
 	short		vclip_num;
 	//short		sound_num;
 	char		text[HOSTAGE_MESSAGE_LEN];

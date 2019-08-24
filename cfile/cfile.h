@@ -85,15 +85,15 @@ char* cfgets(char* buf, size_t n, CFILE* fp);
 int cfexist(char* filename);	// Returns true if file exists on disk (1) or in hog (2).
 
 //[ISB] little endian reading functions
-ubyte CF_ReadByte(CFILE* fp);
+uint8_t CF_ReadByte(CFILE* fp);
 short CF_ReadShort(CFILE* fp);
 int CF_ReadInt(CFILE* fp);
 
 //[ISB] normal file versions of these because why not
-ubyte F_ReadByte(FILE* fp);
+uint8_t F_ReadByte(FILE* fp);
 short F_ReadShort(FILE* fp);
 int F_ReadInt(FILE* fp);
-void F_WriteByte(FILE* fp, ubyte b);
+void F_WriteByte(FILE* fp, uint8_t b);
 void F_WriteShort(FILE* fp, short s);
 void F_WriteInt(FILE* fp, int i);
 void CF_GetString(char* buffer, int count, CFILE* fp);

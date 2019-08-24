@@ -44,14 +44,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void c_tmap_scanline_flat()
 {
-	ubyte* dest;
+	uint8_t* dest;
 	int x;
 
 	//[ISB] godawful hack from the ASM
 	if (fx_y > window_bottom)
 		return;
 
-	dest = (ubyte*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 
 	if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) < 0)
 	{
@@ -71,14 +71,14 @@ void c_tmap_scanline_flat()
 void c_tmap_scanline_shaded()
 {
 	int fade;
-	ubyte* dest;
+	uint8_t* dest;
 	int x;
 
 	//[ISB] godawful hack from the ASM
 	if (fx_y > window_bottom)
 		return;
 
-	dest = (ubyte*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 
 	fade = tmap_flat_shade_value << 8;
 	for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
@@ -89,8 +89,8 @@ void c_tmap_scanline_shaded()
 
 void c_tmap_scanline_lin_nolight()
 {
-	ubyte* dest;
-	uint c;
+	uint8_t* dest;
+	uint32_t c;
 	int x;
 	fix u, v, dudx, dvdx;
 
@@ -99,18 +99,18 @@ void c_tmap_scanline_lin_nolight()
 	dudx = fx_du_dx;
 	dvdx = fx_dv_dx * 64;
 
-	dest = (ubyte*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 
 	if (!Transparency_on) {
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) {
-			*dest++ = (uint)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
+			*dest++ = (uint32_t)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
 			u += dudx;
 			v += dvdx;
 		}
 	}
 	else {
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) {
-			c = (uint)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
+			c = (uint32_t)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
 			if (c != 255)
 				* dest = c;
 			dest++;
@@ -123,8 +123,8 @@ void c_tmap_scanline_lin_nolight()
 
 void c_tmap_scanline_lin()
 {
-	ubyte* dest;
-	uint c;
+	uint8_t* dest;
+	uint32_t c;
 	int x;
 	fix u, v, l, dudx, dvdx, dldx;
 
@@ -138,7 +138,7 @@ void c_tmap_scanline_lin()
 	if (dldx < 0)
 		dldx++; //round towards 0 for negative deltas
 
-	dest = (ubyte*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 
 	if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
 	{
@@ -149,7 +149,7 @@ void c_tmap_scanline_lin()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			*dest++ = gr_fade_table[(l & (0xff00)) + (uint)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)]];
+			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)]];
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -159,7 +159,7 @@ void c_tmap_scanline_lin()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			c = (uint)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)];
+			c = (uint32_t)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)];
 			if (c != 255)
 				* dest = gr_fade_table[(l & (0xff00)) + c];
 			dest++;
@@ -173,8 +173,8 @@ void c_tmap_scanline_lin()
 
 void c_tmap_scanline_per_nolight()
 {
-	ubyte* dest;
-	uint c;
+	uint8_t* dest;
+	uint32_t c;
 	int x;
 	fix u, v, z, dudx, dvdx, dzdx;
 
@@ -185,7 +185,7 @@ void c_tmap_scanline_per_nolight()
 	dvdx = fx_dv_dx;
 	dzdx = fx_dz_dx;
 
-	dest = (ubyte*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 	if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
 	{
 		printf("Overflow drawing unlit perspective texture scanline\n");
@@ -195,7 +195,7 @@ void c_tmap_scanline_per_nolight()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			*dest++ = (uint)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
+			*dest++ = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
@@ -205,8 +205,8 @@ void c_tmap_scanline_per_nolight()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			//c = (uint)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
-			c = (uint)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
+			//c = (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
+			c = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
 
 			if (c != 255)
 				*dest = c;
@@ -220,8 +220,8 @@ void c_tmap_scanline_per_nolight()
 
 void c_tmap_scanline_per()
 {
-	ubyte* dest;
-	uint c;
+	uint8_t* dest;
+	uint32_t c;
 	int x;
 	fix u, v, z, l, dudx, dvdx, dzdx, dldx;
 
@@ -234,7 +234,7 @@ void c_tmap_scanline_per()
 
 	l = fx_l >> 8;
 	dldx = fx_dl_dx >> 8;
-	dest = (ubyte*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 	if (dldx < 0)
 		dldx++; //round towards 0 for negative deltas
 
@@ -247,8 +247,8 @@ void c_tmap_scanline_per()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			//*dest++ = gr_fade_table[(l & (0xff00)) + (uint)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)]];
-			*dest++ = gr_fade_table[(l & (0xff00)) + (uint)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]];
+			//*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)]];
+			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]];
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -260,8 +260,8 @@ void c_tmap_scanline_per()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			//c = (uint)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
-			c = (uint)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
+			//c = (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
+			c = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
 			if (c != 255)
 				*dest = gr_fade_table[(l & (0xff00)) + c];
 			dest++;

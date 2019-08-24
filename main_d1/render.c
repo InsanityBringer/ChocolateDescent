@@ -77,7 +77,7 @@ int	N_render_segs;
 fix Render_zoom = 0x9000;							//the player's zoom factor
 
 #ifndef NDEBUG
-ubyte object_rendered[MAX_OBJECTS];
+uint8_t object_rendered[MAX_OBJECTS];
 #endif
 
 #define DEFAULT_RENDER_DEPTH 16
@@ -791,9 +791,9 @@ typedef struct window
 	short left, top, right, bot;
 } window;
 
-ubyte code_window_point(fix x, fix y, window* w)
+uint8_t code_window_point(fix x, fix y, window* w)
 {
-	ubyte code = 0;
+	uint8_t code = 0;
 
 	if (x <= w->left)  code |= 1;
 	if (x >= w->right) code |= 2;
@@ -837,11 +837,11 @@ char visited2[MAX_SEGMENTS];
 char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
 short Seg_depth[MAX_RENDER_SEGS];		//depth for each seg in Render_list
-ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
+uint8_t processed[MAX_RENDER_SEGS];		//whether each entry has been processed
 int	lcnt_save, scnt_save;
 //@@short *persp_ptr;
 short render_pos[MAX_SEGMENTS];	//where in render_list does this segment appear?
-//ubyte no_render_flag[MAX_RENDER_SEGS];
+//uint8_t no_render_flag[MAX_RENDER_SEGS];
 window render_windows[MAX_RENDER_SEGS];
 
 short render_obj_list[MAX_RENDER_SEGS + N_EXTRA_OBJ_LISTS][OBJS_PER_SEG];
@@ -1494,8 +1494,8 @@ void build_segment_list(int start_seg_num)
 				{
 					if (behind_check) 
 					{
-						byte* sv = Side_to_verts[c];
-						ubyte codes_and = 0xff;
+						int8_t* sv = Side_to_verts[c];
+						uint8_t codes_and = 0xff;
 						int i;
 
 						rotate_list(8, &seg->verts[0]);
@@ -1530,7 +1530,7 @@ void build_segment_list(int start_seg_num)
 					if (window_check) 
 					{
 						int i;
-						ubyte codes_and_3d, codes_and_2d;
+						uint8_t codes_and_3d, codes_and_2d;
 						short _x, _y, min_x = 32767, max_x = -32767, min_y = 32767, max_y = -32767;
 						int no_proj_flag = 0;	//a point wasn't projected
 

@@ -170,9 +170,9 @@ void gr_free_sub_bitmap(grs_bitmap* bm)
 		free(bm);
 }
 
-void build_colormap_good(ubyte* palette, ubyte* colormap, int* freq);
+void build_colormap_good(uint8_t* palette, uint8_t* colormap, int* freq);
 
-//NO_INVERSE_TABLE void build_colormap_asm( ubyte * palette, ubyte * cmap, int * count );
+//NO_INVERSE_TABLE void build_colormap_asm( uint8_t * palette, uint8_t * cmap, int * count );
 //NO_INVERSE_TABLE #pragma aux build_colormap_asm parm [esi] [edi] [edx] modify exact [eax ebx ecx edx esi edi] = \
 //NO_INVERSE_TABLE 	"mov  ecx, 256"			\
 //NO_INVERSE_TABLE 	"xor	eax,eax"				\
@@ -199,7 +199,7 @@ void build_colormap_good(ubyte* palette, ubyte* colormap, int* freq);
 //NO_INVERSE_TABLE 	"dec	ecx"					\
 //NO_INVERSE_TABLE 	"jne	again2x"				\
 
-void decode_data_asm(ubyte* data, int num_pixels, ubyte* colormap, int* count)
+void decode_data_asm(uint8_t* data, int num_pixels, uint8_t* colormap, int* count)
 { //[ISB] From Mac source. 
 	int i;
 
@@ -223,9 +223,9 @@ void decode_data_asm(ubyte* data, int num_pixels, ubyte* colormap, int* count)
 	"jne	again_ddn"
 #endif
 
-void gr_remap_bitmap(grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color)
+void gr_remap_bitmap(grs_bitmap * bmp, uint8_t * palette, int transparent_color, int super_transparent_color)
 {
-	ubyte colormap[256];
+	uint8_t colormap[256];
 	int freq[256];
 
 	// This should be build_colormap_asm, but we're not using invert table, so...
@@ -246,7 +246,7 @@ void gr_remap_bitmap(grs_bitmap * bmp, ubyte * palette, int transparent_color, i
 		bmp->bm_flags |= BM_FLAG_SUPER_TRANSPARENT;
 }
 
-void build_colormap_good(ubyte* palette, ubyte* colormap, int* freq)
+void build_colormap_good(uint8_t* palette, uint8_t* colormap, int* freq)
 {
 	int i, r, g, b;
 
@@ -260,9 +260,9 @@ void build_colormap_good(ubyte* palette, ubyte* colormap, int* freq)
 }
 
 
-void gr_remap_bitmap_good(grs_bitmap* bmp, ubyte* palette, int transparent_color, int super_transparent_color)
+void gr_remap_bitmap_good(grs_bitmap* bmp, uint8_t* palette, int transparent_color, int super_transparent_color)
 {
-	ubyte colormap[256];
+	uint8_t colormap[256];
 	int freq[256];
 
 	build_colormap_good(palette, colormap, freq);
@@ -298,7 +298,7 @@ int gr_bitmap_assign_selector(grs_bitmap* bmp)
 void gr_bitmap_check_transparency(grs_bitmap* bmp)
 {
 	int x, y;
-	ubyte* data;
+	uint8_t* data;
 
 	data = bmp->bm_data;
 

@@ -39,8 +39,8 @@ typedef struct morph_data
 	int n_morphing_points[MAX_SUBMODELS];	//how many active points in each part
 	int submodel_startpoints[MAX_SUBMODELS];	//first point for each submodel
 	int n_submodels_active;
-	ubyte morph_save_control_type;
-	ubyte morph_save_movement_type;
+	uint8_t morph_save_control_type;
+	uint8_t morph_save_movement_type;
 	physics_info morph_save_phys_info;
 	int Morph_sig;
 } morph_data;

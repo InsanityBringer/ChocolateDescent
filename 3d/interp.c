@@ -105,12 +105,12 @@ void vms_vector_swap(vms_vector* v)
 	v->z = (fix)swapint((int)v->z);
 }
 
-void swap_polygon_model_data(ubyte* data)
+void swap_polygon_model_data(uint8_t* data)
 {
 	int i;
 	short n;
 	g3s_uvl* uvl_val;
-	ubyte* p = data;
+	uint8_t* p = data;
 
 	short_swap(wp(p));
 
@@ -208,7 +208,7 @@ void swap_polygon_model_data(ubyte* data)
 //is really a seperate pipeline. returns true if drew
 dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_angvec* anim_angles, fix model_light, fix* glow_values)
 {
-	ubyte* p = model_ptr;
+	uint8_t* p = model_ptr;
 	int current_poly = 0;
 
 	glow_num = -1;		//glow off by default
@@ -375,7 +375,7 @@ int nest_count;
 //alternate interpreter for morphing object
 dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_angvec* anim_angles, fix model_light, vms_vector* new_points)
 {
-	ubyte* p = model_ptr;
+	uint8_t* p = model_ptr;
 	fix* glow_values = NULL;
 
 	glow_num = -1;		//glow off by default
@@ -545,7 +545,7 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 	return 1;
 }
 
-void init_model_sub(ubyte* p)
+void init_model_sub(uint8_t* p)
 {
 #ifndef NDEBUG
 	Assert(++nest_count < 1000);
@@ -629,5 +629,5 @@ void g3_init_polygon_model(void* model_ptr)
 
 	highest_texture_num = -1;
 
-	init_model_sub((ubyte*)model_ptr);
+	init_model_sub((uint8_t*)model_ptr);
 }

@@ -36,7 +36,7 @@ extern int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 int state_save_all_sub(char* filename, char* desc, int between_levels);
 int state_restore_all_sub(char* filename, int multi);
 
-extern uint state_game_id;
+extern uint32_t state_game_id;
 
 int state_get_save_file(char* fname, char* dsc, int multi);
 int state_get_restore_file(char* fname, int multi);

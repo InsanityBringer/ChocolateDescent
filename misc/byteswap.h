@@ -38,18 +38,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/types.h"
 
-extern ushort swapshort(ushort s);
-extern uint swapint(uint i);
+extern uint16_t swapshort(uint16_t s);
+extern uint32_t swapint(uint32_t i);
 
 #if 0
 #define swapshort(x)	(							\
 						(x << 8) |					\
-						(((ushort)x) >> 8)			\
+						(((uint16_t)x) >> 8)			\
 						)
 
 #define swapint(x)		(							\
 						(x << 24) |					\
-						(((ulong)x) >> 24) |		\
+						(((uint32_t)x) >> 24) |		\
 						((x & 0x0000ff00) << 8) |	\
 						((x & 0x00ff0000) >> 8)		\
 						)

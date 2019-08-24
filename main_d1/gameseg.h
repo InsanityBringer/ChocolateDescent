@@ -36,8 +36,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct segmasks 
 {
 	short facemask;     //which faces sphere pokes through (12 bits)
-	byte  sidemask;     //which sides sphere pokes through (6 bits)
-	byte  centermask;   //which sides center point is on back of (6 bits)
+	int8_t  sidemask;     //which sides sphere pokes through (6 bits)
+	int8_t  centermask;   //which sides center point is on back of (6 bits)
 } segmasks;
 
 extern int	Highest_vertex_index;			// Highest index in Vertices and Vertex_active, an efficiency hack

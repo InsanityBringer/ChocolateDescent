@@ -304,13 +304,13 @@ void check_memory()
 
 int Inferno_verbose = 0;
 
-//NO_STACK_SIZE_CHECK uint * stack, *stack_ptr;
+//NO_STACK_SIZE_CHECK uint32_t * stack, *stack_ptr;
 //NO_STACK_SIZE_CHECK int stack_size, unused_stack_space;
 //NO_STACK_SIZE_CHECK int sil;
 //NO_STACK_SIZE_CHECK 
 //NO_STACK_SIZE_CHECK int main(int argc,char **argv)
 //NO_STACK_SIZE_CHECK {
-//NO_STACK_SIZE_CHECK 	uint ret_value;
+//NO_STACK_SIZE_CHECK 	uint32_t ret_value;
 //NO_STACK_SIZE_CHECK 	
 //NO_STACK_SIZE_CHECK 	unused_stack_space = 0;
 //NO_STACK_SIZE_CHECK 	stack = &ret_value;
@@ -343,7 +343,7 @@ unsigned descent_critical_errcode = 0;
 
 extern int Network_allow_socket_changes;
 
-extern void vfx_set_palette_sub(ubyte*);
+extern void vfx_set_palette_sub(uint8_t*);
 
 extern int Game_vfx_flag;
 extern int Game_victor_flag;
@@ -364,7 +364,7 @@ extern int Config_vr_tracking;
 int D_DescentMain(int argc, char** argv)
 {
 	int t;
-	ubyte title_pal[768];
+	uint8_t title_pal[768];
 
 	error_init(NULL);
 
@@ -466,7 +466,7 @@ int D_DescentMain(int argc, char** argv)
 #ifdef PASSWORD
 	if ((t = FindArg("-pswd")) != 0) {
 		int	n;
-		byte* pp = Side_to_verts;
+		int8_t* pp = Side_to_verts;
 		int ch;
 		for (n = 0; n < 6; n++)
 			for (ch = 0; ch < strlen(Args[t + 1]); ch++)
@@ -942,15 +942,15 @@ void show_order_form()
 
 typedef struct {
 	char unit;
-	ushort dev_offset;
-	ushort dev_segment;
+	uint16_t dev_offset;
+	uint16_t dev_segment;
 } dev_list;
 
 typedef struct _Dev_Hdr {
 	unsigned int dev_next;
 	unsigned short dev_att;
-	ushort dev_stat;
-	ushort dev_int;
+	uint16_t dev_stat;
+	uint16_t dev_int;
 	char dev_name[8];
 	short dev_resv;
 	char dev_letr;

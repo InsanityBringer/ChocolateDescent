@@ -47,7 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //	Length in segments of avoidance path
 #define	AVOID_SEG_LENGTH	7
 
-void create_random_xlate(byte * xt)
+void create_random_xlate(int8_t * xt)
 {
 	int	i;
 
@@ -56,7 +56,7 @@ void create_random_xlate(byte * xt)
 
 	for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++) {
 		int	j = (rand() * MAX_SIDES_PER_SEGMENT) / (RAND_MAX + 1);
-		byte	temp_byte;
+		int8_t	temp_byte;
 		Assert((j >= 0) && (j < MAX_SIDES_PER_SEGMENT));
 
 		temp_byte = xt[j];
@@ -133,11 +133,11 @@ int create_path_points(object* objp, int start_seg, int end_seg, point_seg* pseg
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	byte		visited[MAX_SEGMENTS];
+	int8_t		visited[MAX_SEGMENTS];
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
-	byte		random_xlate[MAX_SIDES_PER_SEGMENT];
+	int8_t		random_xlate[MAX_SIDES_PER_SEGMENT];
 	point_seg* original_psegs = psegs;
 #ifndef NDEBUG
 	point_seg* other_original_psegs = psegs;

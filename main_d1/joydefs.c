@@ -76,7 +76,7 @@ extern int WriteConfigFile();
 
 void joydefs_calibrate()
 {
-	ubyte masks;
+	uint8_t masks;
 	int org_axis_min[4];
 	int org_axis_center[4];
 	int org_axis_max[4];
@@ -305,9 +305,9 @@ void joydef_menuset_1(int nitems, newmenu_item* items, int* last_key, int citem)
 
 }
 
-extern ubyte kc_use_external_control;
-extern ubyte kc_enable_external_control;
-extern ubyte* kc_external_name;
+extern uint8_t kc_use_external_control;
+extern uint8_t kc_enable_external_control;
+extern uint8_t* kc_external_name;
 
 void joydefs_config()
 {

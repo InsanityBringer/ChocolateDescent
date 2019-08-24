@@ -25,9 +25,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
-ubyte g3_code_point(g3s_point* p)
+uint8_t g3_code_point(g3s_point* p)
 {
-	ubyte cc = 0;
+	uint8_t cc = 0;
 
 	if (p->p3_x > p->p3_z)
 		cc |= CC_OFF_RIGHT;
@@ -49,7 +49,7 @@ ubyte g3_code_point(g3s_point* p)
 }
 
 //rotates a point. returns codes.  does not check if already rotated
-ubyte g3_rotate_point(g3s_point* dest, vms_vector* src)
+uint8_t g3_rotate_point(g3s_point* dest, vms_vector* src)
 {
 	vms_vector tempv;
 
@@ -70,7 +70,7 @@ int checkmuldiv(fix* r, fix a, fix b, fix c)
 	long long q, qt;
 	q = 0; qt = 0;
 
-	long high; ulong low;
+	long high; uint32_t low;
 
 	//q.low = q.high = 0;
 	fixmulaccum(&q, a, b);
@@ -184,7 +184,7 @@ vms_vector* g3_rotate_delta_vec(vms_vector* dest, vms_vector* src)
 	return vm_vec_rotate(dest, src, &View_matrix);
 }
 
-ubyte g3_add_delta_vec(g3s_point* dest, g3s_point* src, vms_vector* deltav)
+uint8_t g3_add_delta_vec(g3s_point* dest, g3s_point* src, vms_vector* deltav)
 {
 	vm_vec_add(&dest->p3_vec, &src->p3_vec, deltav);
 

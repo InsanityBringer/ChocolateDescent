@@ -59,8 +59,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define NO_DUMP_SOUNDS	1		//if set, dump bitmaps but not sounds
 
-ubyte* BitmapBits = NULL;
-ubyte* SoundBits = NULL;
+uint8_t* BitmapBits = NULL;
+uint8_t* SoundBits = NULL;
 
 typedef struct BitmapFile 
 {
@@ -94,10 +94,10 @@ int piggy_low_memory = 0;
 
 int Piggy_bitmap_cache_size = 0;
 int Piggy_bitmap_cache_next = 0;
-ubyte* Piggy_bitmap_cache_data = NULL;
+uint8_t* Piggy_bitmap_cache_data = NULL;
 static int GameBitmapOffset[MAX_BITMAP_FILES];
-static ubyte GameBitmapFlags[MAX_BITMAP_FILES];
-ushort GameBitmapXlat[MAX_BITMAP_FILES];
+static uint8_t GameBitmapFlags[MAX_BITMAP_FILES];
+uint16_t GameBitmapXlat[MAX_BITMAP_FILES];
 
 #define PIGGY_BUFFER_SIZE (2048*1024)
 
@@ -106,11 +106,11 @@ int piggy_page_flushed = 0;
 typedef struct DiskBitmapHeader 
 {
 	char name[8];
-	ubyte dflags;
-	ubyte	width;
-	ubyte height;
-	ubyte flags;
-	ubyte avg_color;
+	uint8_t dflags;
+	uint8_t	width;
+	uint8_t height;
+	uint8_t flags;
+	uint8_t avg_color;
 	int offset;
 } DiskBitmapHeader;
 
@@ -127,7 +127,7 @@ typedef struct DiskSoundHeader
 
 #define SOUND_HEADER_SIZE 20
 
-ubyte BigPig = 0;
+uint8_t BigPig = 0;
 
 void piggy_get_bitmap_name(int i, char* name)
 {
@@ -223,9 +223,9 @@ void piggy_close_file(void)
 	}
 }
 
-ubyte bogus_data[64 * 64];
+uint8_t bogus_data[64 * 64];
 grs_bitmap bogus_bitmap;
-ubyte bogus_bitmap_initialized = 0;
+uint8_t bogus_bitmap_initialized = 0;
 digi_sound bogus_sound;
 
 extern void bm_read_all(CFILE* fp);
@@ -270,7 +270,7 @@ int piggy_init()
 	if (!bogus_bitmap_initialized) 
 	{
 		int i;
-		ubyte c;
+		uint8_t c;
 		bogus_bitmap_initialized = 1;
 		memset(&bogus_bitmap, 0, sizeof(grs_bitmap));
 		bogus_bitmap.bm_w = bogus_bitmap.bm_h = bogus_bitmap.bm_rowsize = 64;
@@ -319,7 +319,7 @@ int piggy_init()
 #endif
 	{
 		bm_read_all(Piggy_fp);	// Note connection to above if!!!
-		cfread(GameBitmapXlat, sizeof(ushort) * MAX_BITMAP_FILES, 1, Piggy_fp);
+		cfread(GameBitmapXlat, sizeof(uint16_t) * MAX_BITMAP_FILES, 1, Piggy_fp);
 	}
 
 	cfseek(Piggy_fp, Pigdata_start, SEEK_SET);
@@ -347,11 +347,11 @@ int piggy_init()
 		//size -= sizeof(DiskBitmapHeader);
 		//[ISB] fix platform bugs, hopefully
 		/*	char name[8];
-	ubyte dflags;
-	ubyte	width;
-	ubyte height;
-	ubyte flags;
-	ubyte avg_color;
+	uint8_t dflags;
+	uint8_t	width;
+	uint8_t height;
+	uint8_t flags;
+	uint8_t avg_color;
 	int offset;*/
 		cfread(&bmh.name[0], 8 * sizeof(char), 1, Piggy_fp);
 		bmh.dflags = CF_ReadByte(Piggy_fp);
@@ -397,7 +397,7 @@ int piggy_init()
 		sndh.offset = CF_ReadInt(Piggy_fp);
 		//size -= sizeof(DiskSoundHeader);
 		temp_sound.length = sndh.length;
-		temp_sound.data = (ubyte*)(sndh.offset + header_size + (sizeof(int) * 2) + Pigdata_start);
+		temp_sound.data = (uint8_t*)(sndh.offset + header_size + (sizeof(int) * 2) + Pigdata_start);
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + (sizeof(int) * 2) + Pigdata_start;
 		memcpy(temp_name_read, sndh.name, 8);
 		temp_name_read[8] = 0;
@@ -454,7 +454,7 @@ int piggy_is_needed(int soundnum)
 
 void piggy_read_sounds()
 {
-	ubyte* ptr;
+	uint8_t* ptr;
 	int i, sbytes;
 
 	ptr = SoundBits;
@@ -733,7 +733,7 @@ void piggy_dump_all()
 	fwrite(&i, sizeof(int), 1, fp);
 	bm_write_all(fp);
 	xlat_offset = ftell(fp);
-	fwrite(GameBitmapXlat, sizeof(ushort) * MAX_BITMAP_FILES, 1, fp);
+	fwrite(GameBitmapXlat, sizeof(uint16_t) * MAX_BITMAP_FILES, 1, fp);
 	i = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 	fwrite(&i, sizeof(int), 1, fp);
@@ -791,7 +791,7 @@ void piggy_dump_all()
 
 		if (bmp->bm_flags & BM_FLAG_RLE) {
 			size = (int*)bmp->bm_data;
-			fwrite(bmp->bm_data, sizeof(ubyte), *size, fp);
+			fwrite(bmp->bm_data, sizeof(uint8_t), *size, fp);
 			data_offset += *size;
 			//bmh.data_length = *size;
 #ifndef RELEASE
@@ -799,7 +799,7 @@ void piggy_dump_all()
 #endif
 		}
 		else {
-			fwrite(bmp->bm_data, sizeof(ubyte), bmp->bm_rowsize * bmp->bm_h, fp);
+			fwrite(bmp->bm_data, sizeof(uint8_t), bmp->bm_rowsize * bmp->bm_h, fp);
 			data_offset += bmp->bm_rowsize * bmp->bm_h;
 			//bmh.data_length = bmp->bm_rowsize * bmp->bm_h;
 #ifndef RELEASE
@@ -850,7 +850,7 @@ void piggy_dump_all()
 		fseek(fp, data_offset, SEEK_SET);
 
 		sndh.data_length = GameSounds[i].length;
-		fwrite(snd->data, sizeof(ubyte), snd->length, fp);
+		fwrite(snd->data, sizeof(uint8_t), snd->length, fp);
 		data_offset += snd->length;
 		fseek(fp, org_offset, SEEK_SET);
 		fwrite(&sndh, sizeof(DiskSoundHeader), 1, fp);			// Mark as a bitmap
@@ -863,7 +863,7 @@ void piggy_dump_all()
 	}
 
 	fseek(fp, xlat_offset, SEEK_SET);
-	fwrite(GameBitmapXlat, sizeof(ushort) * MAX_BITMAP_FILES, 1, fp);
+	fwrite(GameBitmapXlat, sizeof(uint16_t) * MAX_BITMAP_FILES, 1, fp);
 
 	fclose(fp);
 

@@ -82,7 +82,7 @@ void _pof_cfseek(int len, int type)
 
 #define pof_cfseek(_buf,_len,_type) _pof_cfseek((_len),(_type))
 
-int pof_read_int(ubyte* bufp)
+int pof_read_int(uint8_t* bufp)
 {
 	int i;
 
@@ -96,7 +96,7 @@ int pof_read_int(ubyte* bufp)
 	//	return i;
 }
 
-size_t pof_cfread(void* dst, size_t elsize, size_t nelem, ubyte* bufp)
+size_t pof_cfread(void* dst, size_t elsize, size_t nelem, uint8_t* bufp)
 {
 	if ((size_t)Pof_addr + nelem * elsize > (size_t)Pof_file_end)
 		return 0;
@@ -114,7 +114,7 @@ size_t pof_cfread(void* dst, size_t elsize, size_t nelem, ubyte* bufp)
 // #define new_read_int(i,f) cfread(&(i),sizeof(i),1,(f))
 #define new_pof_read_int(i,f) pof_cfread(&(i),sizeof(i),1,(f))
 
-short pof_read_short(ubyte* bufp)
+short pof_read_short(uint8_t* bufp)
 {
 	short s;
 
@@ -127,7 +127,7 @@ short pof_read_short(ubyte* bufp)
 	//	return s;
 }
 
-void pof_read_string(char* buf, int max, ubyte* bufp)
+void pof_read_string(char* buf, int max, uint8_t* bufp)
 {
 	int	i;
 
@@ -140,7 +140,7 @@ void pof_read_string(char* buf, int max, ubyte* bufp)
 
 }
 
-void pof_read_vecs(vms_vector* vecs, int n, ubyte* bufp)
+void pof_read_vecs(vms_vector* vecs, int n, uint8_t* bufp)
 {
 	//	cfread(vecs,sizeof(vms_vector),n,f);
 
@@ -174,7 +174,7 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 	CFILE* ifile;
 	short version;
 	int id, len, next_chunk;
-	ubyte	model_buf[MODEL_BUF_SIZE];
+	uint8_t	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile = cfopen(filename, "rb")) == NULL)
 		Error("Can't open file <%s>", filename);
@@ -248,7 +248,7 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 
 			Assert(n < MAX_SUBMODELS);
 
-			pm->submodel_parents[n] = (ubyte)pof_read_short(model_buf);
+			pm->submodel_parents[n] = (uint8_t)pof_read_short(model_buf);
 
 			pof_read_vecs(&pm->submodel_norms[n], 1, model_buf);
 			pof_read_vecs(&pm->submodel_pnts[n], 1, model_buf);
@@ -282,7 +282,7 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 					int id;
 
 					id = pof_read_short(model_buf);
-					r->gun_submodels[id] = (ubyte)pof_read_short(model_buf);
+					r->gun_submodels[id] = (uint8_t)pof_read_short(model_buf);
 					Assert(r->gun_submodels[id] != 0xff);
 					pof_read_vecs(&r->gun_points[id], 1, model_buf);
 
@@ -383,7 +383,7 @@ int read_model_guns(char* filename, vms_vector* gun_points, vms_vector* gun_dirs
 	short version;
 	int id, len;
 	int n_guns = 0;
-	ubyte	model_buf[MODEL_BUF_SIZE];
+	uint8_t	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile = cfopen(filename, "rb")) == NULL)
 		Error("Can't open file <%s>", filename);
@@ -553,9 +553,9 @@ void free_polygon_models(void)
 
 void polyobj_find_min_max(polymodel* pm)
 {
-	ushort nverts;
+	uint16_t nverts;
 	vms_vector* vp;
-	ushort* data, type;
+	uint16_t* data, type;
 	int m;
 	vms_vector* big_mn, * big_mx;
 
@@ -570,7 +570,7 @@ void polyobj_find_min_max(polymodel* pm)
 		mx = &pm->submodel_maxs[m];
 		ofs = &pm->submodel_offsets[m];
 
-		data = (ushort*)& pm->model_data[pm->submodel_ptrs[m]];
+		data = (uint16_t*)& pm->model_data[pm->submodel_ptrs[m]];
 
 		type = *data++;
 

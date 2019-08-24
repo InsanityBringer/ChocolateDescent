@@ -219,7 +219,7 @@ fix weapon_box_fade_values[2];
 
 typedef struct span 
 {
-	byte l, r;
+	int8_t l, r;
 } span;
 
 //store delta x values from left of box

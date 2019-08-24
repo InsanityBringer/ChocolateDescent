@@ -110,6 +110,6 @@ extern int mouse_button_state(int button);
 //[ISB] new things
 
 //Replace the interrupt callback with a proper handler. 
-void I_MouseHandler(uint button, dbool down);
+void I_MouseHandler(uint32_t button, dbool down);
 
 #endif

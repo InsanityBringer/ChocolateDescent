@@ -63,7 +63,7 @@ void g3_set_special_render(void (*tmap_drawer)(grs_bitmap* bm, int nv, g3s_point
 }
 
 //deal with a clipped line
-dbool must_clip_line(g3s_point* p0, g3s_point* p1, ubyte codes_or)
+dbool must_clip_line(g3s_point* p0, g3s_point* p1, uint8_t codes_or)
 {
 	dbool ret;
 
@@ -92,7 +92,7 @@ dbool must_clip_line(g3s_point* p0, g3s_point* p1, ubyte codes_or)
 //draws a line. takes two points.  returns true if drew
 dbool g3_draw_line(g3s_point* p0, g3s_point* p1)
 {
-	ubyte codes_or;
+	uint8_t codes_or;
 
 	if (p0->p3_codes & p1->p3_codes)
 		return 0;

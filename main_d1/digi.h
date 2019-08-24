@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 typedef struct digi_sound {
 	int length;
-	ubyte* data;
+	uint8_t* data;
 } digi_sound;
 
 extern int digi_driver_board;

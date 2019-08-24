@@ -33,16 +33,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _TYPES_H
 
  //define a byte 
-typedef signed char byte;
+typedef signed char int8_t;
 
 //define unsigned types;
-typedef unsigned char ubyte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
 
 //define a boolean
-typedef ubyte dbool;
+typedef uint8_t dbool;
 
 #ifndef NULL
 #define NULL 0

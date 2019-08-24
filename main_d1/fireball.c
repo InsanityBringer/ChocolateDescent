@@ -56,7 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define EXPLOSION_SCALE fl2f(2.5)		//explosion is the obj size times this  
 
-//--unused-- ubyte	Frame_processed[MAX_OBJECTS];
+//--unused-- uint8_t	Frame_processed[MAX_OBJECTS];
 
 object* object_create_explosion_sub(object* objp, short segnum, vms_vector* position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, int parent)
 {
@@ -337,9 +337,9 @@ int pick_connected_segment(object * objp, int max_depth)
 	int		start_seg;
 	int		head, tail;
 	int		seg_queue[QUEUE_SIZE * 2];
-	byte		visited[MAX_SEGMENTS];
-	byte		depth[MAX_SEGMENTS];
-	byte		side_rand[MAX_SIDES_PER_SEGMENT];
+	int8_t		visited[MAX_SEGMENTS];
+	int8_t		depth[MAX_SEGMENTS];
+	int8_t		side_rand[MAX_SIDES_PER_SEGMENT];
 
 	//	mprintf((0, "Finding a segment %i segments away from segment %i: ", max_depth, objp->segnum));
 
@@ -358,7 +358,7 @@ int pick_connected_segment(object * objp, int max_depth)
 	while (tail != head) {
 		int		sidenum;
 		segment* segp;
-		byte		ind1, ind2, temp;
+		int8_t		ind1, ind2, temp;
 
 		if (cur_depth >= max_depth)
 		{

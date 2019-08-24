@@ -46,34 +46,34 @@ char gr_pal_default[768];
 int gr_installed = 0;
 
 #if 0
-ubyte* pVideoMode = (volatile ubyte*)0x449;
-ushort* pNumColumns = (volatile ushort*)0x44a;
-ubyte* pNumRows = (volatile ubyte*)0x484;
-ushort* pCharHeight = (volatile ushort*)0x485;
-ushort* pCursorPos = (volatile ushort*)0x450;
-ushort* pCursorType = (volatile ushort*)0x460;
-ushort* pTextMemory = (volatile ushort*)0xb8000;
+uint8_t* pVideoMode = (volatile uint8_t*)0x449;
+uint16_t* pNumColumns = (volatile uint16_t*)0x44a;
+uint8_t* pNumRows = (volatile uint8_t*)0x484;
+uint16_t* pCharHeight = (volatile uint16_t*)0x485;
+uint16_t* pCursorPos = (volatile uint16_t*)0x450;
+uint16_t* pCursorType = (volatile uint16_t*)0x460;
+uint16_t* pTextMemory = (volatile uint16_t*)0xb8000;
 #endif
 
 typedef struct screen_save {
-	ubyte 	video_mode;
-	ubyte 	is_graphics;
-	ushort	char_height;
-	ubyte		width;
-	ubyte		height;
-	ubyte		cursor_x, cursor_y;
-	ubyte		cursor_sline, cursor_eline;
-	ushort* video_memory;
+	uint8_t 	video_mode;
+	uint8_t 	is_graphics;
+	uint16_t	char_height;
+	uint8_t		width;
+	uint8_t		height;
+	uint8_t		cursor_x, cursor_y;
+	uint8_t		cursor_sline, cursor_eline;
+	uint16_t* video_memory;
 } screen_save;
 
 screen_save gr_saved_screen;
 
 int gr_show_screen_info = 0;
 
-void gr_set_cellheight(ubyte height)
+void gr_set_cellheight(uint8_t height)
 {
 #if 0
-	ubyte temp;
+	uint8_t temp;
 
 	outp(0x3d4, 9);
 	temp = inp(0x3d5);
@@ -112,7 +112,7 @@ void gr_16_to_256()
 void gr_turn_screen_off()
 {
 #if 0
-	ubyte temp;
+	uint8_t temp;
 	temp = inp(0x3da);
 	outp(0x3c0, 0);
 #endif
@@ -121,13 +121,13 @@ void gr_turn_screen_off()
 void gr_turn_screen_on()
 {
 #if 0
-	ubyte temp;
+	uint8_t temp;
 	temp = inp(0x3da);
 	outp(0x3c0, 0x20);
 #endif
 }
 
-void gr_set_misc_mode(uint mode)
+void gr_set_misc_mode(uint32_t mode)
 {
 #if 0
 	union REGS regs;
@@ -138,7 +138,7 @@ void gr_set_misc_mode(uint mode)
 #endif
 }
 
-void gr_set_3dbios_mode(uint mode)
+void gr_set_3dbios_mode(uint32_t mode)
 {
 #if 0
 	union REGS regs;
@@ -197,11 +197,11 @@ void gr_set_text_50()
 #endif
 }
 
-ubyte is_graphics_mode()
+uint8_t is_graphics_mode()
 {
 	return 1;
 #if 0
-	byte tmp;
+	int8_t tmp;
 	tmp = inp(0x3DA);		// Reset flip-flip
 	outp(0x3C0, 0x30);		// Select attr register 10
 	tmp = inp(0x3C1);	// Get graphics/text bit
@@ -209,7 +209,7 @@ ubyte is_graphics_mode()
 #endif
 }
 
-void gr_setcursor(ubyte x, ubyte y, ubyte sline, ubyte eline)
+void gr_setcursor(uint8_t x, uint8_t y, uint8_t sline, uint8_t eline)
 {
 #if 0
 	union REGS regs;
@@ -229,7 +229,7 @@ void gr_setcursor(ubyte x, ubyte y, ubyte sline, ubyte eline)
 #endif
 }
 
-void gr_getcursor(ubyte* x, ubyte* y, ubyte* sline, ubyte* eline)
+void gr_getcursor(uint8_t* x, uint8_t* y, uint8_t* sline, uint8_t* eline)
 {
 #if 0
 	union REGS regs;
@@ -260,8 +260,8 @@ int gr_save_mode()
 		gr_saved_screen.height = *pNumRows + 1;
 		gr_saved_screen.char_height = *pCharHeight;
 		gr_getcursor(&gr_saved_screen.cursor_x, &gr_saved_screen.cursor_y, &gr_saved_screen.cursor_sline, &gr_saved_screen.cursor_eline);
-		//MALLOC(gr_saved_screen.video_memory,ushort, gr_saved_screen.width*gr_saved_screen.height );//Hack by Krb
-		gr_saved_screen.video_memory = (ushort*)malloc((gr_saved_screen.width * gr_saved_screen.height) * sizeof(ushort));
+		//MALLOC(gr_saved_screen.video_memory,uint16_t, gr_saved_screen.width*gr_saved_screen.height );//Hack by Krb
+		gr_saved_screen.video_memory = (uint16_t*)malloc((gr_saved_screen.width * gr_saved_screen.height) * sizeof(uint16_t));
 		for (i = 0; i < gr_saved_screen.width * gr_saved_screen.height; i++)
 			gr_saved_screen.video_memory[i] = pTextMemory[i];
 	}

@@ -57,13 +57,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //[ISB] heeh
 #define CF_ReadFix(a) ((fix)CF_ReadInt(a))
 
-ubyte Sounds[MAX_SOUNDS];
-ubyte AltSounds[MAX_SOUNDS];
+uint8_t Sounds[MAX_SOUNDS];
+uint8_t AltSounds[MAX_SOUNDS];
 
 int Num_total_object_types;
 
-byte	ObjType[MAX_OBJTYPE];
-byte	ObjId[MAX_OBJTYPE];
+int8_t	ObjType[MAX_OBJTYPE];
+int8_t	ObjId[MAX_OBJTYPE];
 fix	ObjStrength[MAX_OBJTYPE];
 
 //for each model, a model number for dying & dead variants, or -1 if none
@@ -87,7 +87,7 @@ tmap_info 			TmapInfo[MAX_TEXTURES];
 int					First_multi_bitmap_num = -1;
 
 bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
-ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
+uint16_t				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
 
 //-----------------------------------------------------------------
 // Initializes all bitmaps from BITMAPS.TBL file.
@@ -224,9 +224,9 @@ void read_robot_info(CFILE* fp)
 		for (j = 0; j < NDL; j++)
 			Robot_info[i].circle_distance[j] = CF_ReadFix(fp);
 		for (j = 0; j < NDL; j++)
-			cfread(&(Robot_info[i].rapidfire_count[j]), sizeof(byte), 1, fp);
+			cfread(&(Robot_info[i].rapidfire_count[j]), sizeof(int8_t), 1, fp);
 		for (j = 0; j < NDL; j++)
-			cfread(&(Robot_info[i].evade_speed[j]), sizeof(byte), 1, fp);
+			cfread(&(Robot_info[i].evade_speed[j]), sizeof(int8_t), 1, fp);
 		Robot_info[i].cloak_type = CF_ReadByte(fp);
 		Robot_info[i].attack_type = CF_ReadByte(fp);
 		Robot_info[i].boss_flag = CF_ReadByte(fp);
@@ -335,7 +335,7 @@ void read_polygon_models(CFILE* fp)
 	{
 		Polygon_models[i].n_models = CF_ReadInt(fp);
 		Polygon_models[i].model_data_size = CF_ReadInt(fp);
-		Polygon_models[i].model_data = (ubyte*)CF_ReadInt(fp);
+		Polygon_models[i].model_data = (uint8_t*)CF_ReadInt(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			Polygon_models[i].submodel_ptrs[j] = CF_ReadInt(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++) 
@@ -417,8 +417,8 @@ void bm_read_all(CFILE* fp)
 
 	read_tmap_info(fp);
 
-	cfread(Sounds, sizeof(ubyte), MAX_SOUNDS, fp);
-	cfread(AltSounds, sizeof(ubyte), MAX_SOUNDS, fp);
+	cfread(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
+	cfread(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
 	Num_vclips = CF_ReadInt(fp);
 	read_vclip_info(fp);
@@ -446,9 +446,9 @@ void bm_read_all(CFILE* fp)
 
 	for (i = 0; i < N_polygon_models; i++) 
 	{
-		Polygon_models[i].model_data = (ubyte*)malloc(Polygon_models[i].model_data_size);
+		Polygon_models[i].model_data = (uint8_t*)malloc(Polygon_models[i].model_data_size);
 		Assert(Polygon_models[i].model_data != NULL);
-		cfread(Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp);
+		cfread(Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp);
 		//swap_polygon_model_data(Polygon_models[i].model_data); //[ISB] will probably make interp endianness independent with swaps and shifts
 	}
 
@@ -471,12 +471,12 @@ void bm_read_all(CFILE* fp)
 	for (i = 0; i < N_COCKPIT_BITMAPS; i++)
 		cockpit_bitmap[i].index = CF_ReadShort(fp);
 	//[ISB] there's a story behind this, isn't there... who was drunk...
-	cfread(Sounds, sizeof(ubyte), MAX_SOUNDS, fp);
-	cfread(AltSounds, sizeof(ubyte), MAX_SOUNDS, fp);
+	cfread(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
+	cfread(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
 	Num_total_object_types = CF_ReadInt(fp);
-	cfread(ObjType, sizeof(byte), MAX_OBJTYPE, fp);
-	cfread(ObjId, sizeof(byte), MAX_OBJTYPE, fp);
+	cfread(ObjType, sizeof(int8_t), MAX_OBJTYPE, fp);
+	cfread(ObjId, sizeof(int8_t), MAX_OBJTYPE, fp);
 	for (i = 0; i < MAX_OBJTYPE; i++)
 		ObjStrength[i] = CF_ReadFix(fp);
 
@@ -505,8 +505,8 @@ void bm_read_all(CFILE* fp)
 	cfread(Textures, sizeof(bitmap_index), MAX_TEXTURES, fp);
 	cfread(TmapInfo, sizeof(tmap_info), MAX_TEXTURES, fp);
 
-	cfread(Sounds, sizeof(ubyte), MAX_SOUNDS, fp);
-	cfread(AltSounds, sizeof(ubyte), MAX_SOUNDS, fp);
+	cfread(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
+	cfread(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
 	cfread(&Num_vclips, sizeof(int), 1, fp);
 	cfread(Vclip, sizeof(vclip), VCLIP_MAXNUM, fp);
@@ -535,7 +535,7 @@ void bm_read_all(CFILE* fp)
 	for (i = 0; i < N_polygon_models; i++) {
 		Polygon_models[i].model_data = malloc(Polygon_models[i].model_data_size);
 		Assert(Polygon_models[i].model_data != NULL);
-		cfread(Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp);
+		cfread(Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp);
 	}
 
 	cfread(Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS, fp);
@@ -544,19 +544,19 @@ void bm_read_all(CFILE* fp)
 	cfread(Dead_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp);
 
 	cfread(ObjBitmaps, sizeof(bitmap_index), MAX_OBJ_BITMAPS, fp);
-	cfread(ObjBitmapPtrs, sizeof(ushort), MAX_OBJ_BITMAPS, fp);
+	cfread(ObjBitmapPtrs, sizeof(uint16_t), MAX_OBJ_BITMAPS, fp);
 
 	cfread(&only_player_ship, sizeof(player_ship), 1, fp);
 
 	cfread(&Num_cockpits, sizeof(int), 1, fp);
 	cfread(cockpit_bitmap, sizeof(bitmap_index), N_COCKPIT_BITMAPS, fp);
 
-	cfread(Sounds, sizeof(ubyte), MAX_SOUNDS, fp);
-	cfread(AltSounds, sizeof(ubyte), MAX_SOUNDS, fp);
+	cfread(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
+	cfread(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
 	cfread(&Num_total_object_types, sizeof(int), 1, fp);
-	cfread(ObjType, sizeof(byte), MAX_OBJTYPE, fp);
-	cfread(ObjId, sizeof(byte), MAX_OBJTYPE, fp);
+	cfread(ObjType, sizeof(int8_t), MAX_OBJTYPE, fp);
+	cfread(ObjId, sizeof(int8_t), MAX_OBJTYPE, fp);
 	cfread(ObjStrength, sizeof(fix), MAX_OBJTYPE, fp);
 
 	cfread(&First_multi_bitmap_num, sizeof(int), 1, fp);

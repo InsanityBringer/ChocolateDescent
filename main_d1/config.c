@@ -69,7 +69,7 @@ int Config_midi_type = 0;
 int Config_vr_type = 0;
 int Config_vr_tracking = 0;
 
-extern byte	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
+extern int8_t	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
 
 void set_custom_detail_vars(void);
 
@@ -77,12 +77,12 @@ void set_custom_detail_vars(void);
 #define CL_MC0 0xF8F
 #define CL_MC1 0xF8D
 
-void CrystalLakeWriteMCP(ushort mc_addr, ubyte mc_data)
+void CrystalLakeWriteMCP(uint16_t mc_addr, uint8_t mc_data)
 {
 	Warning("CrystalLakeWriteMCP: STUB\n");
 }
 
-ubyte CrystalLakeReadMCP(ushort mc_addr)
+uint8_t CrystalLakeReadMCP(uint16_t mc_addr)
 {
 	Warning("CrystalLakeReadMCP: STUB\n");
 	return 0;
@@ -102,7 +102,7 @@ int ReadConfigFile()
 {
 	FILE* infile;
 	char line[80], * token, * value, * ptr;
-	ubyte gamma;
+	uint8_t gamma;
 	int joy_axis_min[4];
 	int joy_axis_center[4];
 	int joy_axis_max[4];
@@ -150,17 +150,17 @@ int ReadConfigFile()
 			else if (!strcmp(token, digi_dma_str))
 				digi_driver_dma = strtol(value, NULL, 10);
 			else if (!strcmp(token, digi_volume_str))
-				Config_digi_volume = (ubyte)strtol(value, NULL, 10);
+				Config_digi_volume = (uint8_t)strtol(value, NULL, 10);
 			else if (!strcmp(token, midi_dev_str))
 				digi_midi_type = strtol(value, NULL, 16);
 			else if (!strcmp(token, midi_port_str))
 				digi_midi_port = strtol(value, NULL, 16);
 			else if (!strcmp(token, midi_volume_str))
-				Config_midi_volume = (ubyte)strtol(value, NULL, 10);
+				Config_midi_volume = (uint8_t)strtol(value, NULL, 10);
 			else if (!strcmp(token, stereo_rev_str))
-				Config_channels_reversed = (ubyte)strtol(value, NULL, 10);
+				Config_channels_reversed = (uint8_t)strtol(value, NULL, 10);
 			else if (!strcmp(token, gamma_level_str)) {
-				gamma = (ubyte)strtol(value, NULL, 10);
+				gamma = (uint8_t)strtol(value, NULL, 10);
 				gr_palette_set_gamma(gamma);
 			}
 			else if (!strcmp(token, detail_level_str)) {
@@ -247,7 +247,7 @@ int ReadConfigFile()
 	// HACK!!! 
 	//Hack to make the Crytal Lake look like Microsoft Sound System
 	if (digi_driver_board == 0xe200) {
-		ubyte tmp;
+		uint8_t tmp;
 		tmp = CrystalLakeReadMCP(CL_MC1);
 		if (!(tmp & 0x80))
 			atexit(CrystalLakeSetSB);		// Restore to SB when done.
@@ -265,7 +265,7 @@ int WriteConfigFile()
 	int joy_axis_min[4];
 	int joy_axis_center[4];
 	int joy_axis_max[4];
-	ubyte gamma = gr_palette_get_gamma();
+	uint8_t gamma = gr_palette_get_gamma();
 
 	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 

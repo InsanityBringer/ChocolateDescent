@@ -117,8 +117,8 @@ UI_GADGET_ICON* ui_add_gadget_icon(UI_WINDOW* wnd, char* text, short x, short y,
 	// Call twice to get original;
 	if (f)
 	{
-		icon->flag = (byte)f();
-		icon->flag = (byte)f();
+		icon->flag = (int8_t)f();
+		icon->flag = (int8_t)f();
 	}
 	else {
 		icon->flag = 0;
@@ -153,7 +153,7 @@ void ui_icon_do(UI_GADGET_ICON* icon, int keypress)
 	if (icon->pressed == 1 || keypress == icon->trap_key)
 	{
 		icon->status = 1;
-		icon->flag = (byte)icon->user_function();
+		icon->flag = (int8_t)icon->user_function();
 		if (keypress == icon->trap_key) last_keypress = 0;
 	}
 

@@ -68,8 +68,8 @@ typedef struct player
 {
 	// Who am I data
 	char		callsign[CALLSIGN_LEN + 1];	// The callsign of this player, for net purposes.
-	ubyte		net_address[6];				// The network address of the player.
-	byte		connected; 						//	Is the player connected or not?
+	uint8_t		net_address[6];				// The network address of the player.
+	int8_t		connected; 						//	Is the player connected or not?
 	int		objnum;							// What object number this player is. (made an int by mk because it's very often referenced)
 	int		n_packets_got;					// How many packets we got from them
 	int		n_packets_sent;				// How many packets we sent to them
@@ -77,18 +77,18 @@ typedef struct player
 	//	-- make sure you're 4 byte aligned now!
 
 	// Game data
-	uint		flags;							// Powerup flags, see below...
+	uint32_t		flags;							// Powerup flags, see below...
 	fix		energy;							// Amount of energy remaining.
 	fix		shields;							// shields remaining (protection) 
-	ubyte		lives;							// Lives remaining, 0 = game over.
-	byte		level;							// Current level player is playing. (must be signed for secret levels)
-	ubyte		laser_level;					//	Current level of the laser.
-	byte     starting_level;				// What level the player started on.
+	uint8_t		lives;							// Lives remaining, 0 = game over.
+	int8_t		level;							// Current level player is playing. (must be signed for secret levels)
+	uint8_t		laser_level;					//	Current level of the laser.
+	int8_t     starting_level;				// What level the player started on.
 	short	 	killer_objnum;					// Who killed me.... (-1 if no one)
-	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
-	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
-	ushort	primary_ammo[MAX_PRIMARY_WEAPONS];	// How much ammo of each type.
-	ushort	secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
+	uint8_t		primary_weapon_flags;					//	bit set indicates the player has this weapon.
+	uint8_t		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
+	uint16_t	primary_ammo[MAX_PRIMARY_WEAPONS];	// How much ammo of each type.
+	uint16_t	secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
 	//	-- make sure you're 4 byte aligned now
 
@@ -107,13 +107,13 @@ typedef struct player
 	short		num_kills_total;				// Number of kills total
 	short		num_robots_level; 			// Number of initial robots this level
 	short		num_robots_total; 			// Number of robots total
-	ushort 	hostages_rescued_total;		// Total number of hostages rescued.
-	ushort	hostages_total;				// Total number of hostages.
-	ubyte		hostages_on_board;			//	Number of hostages on ship.
-	ubyte		hostages_level;				// Number of hostages on this level.
+	uint16_t 	hostages_rescued_total;		// Total number of hostages rescued.
+	uint16_t	hostages_total;				// Total number of hostages.
+	uint8_t		hostages_on_board;			//	Number of hostages on ship.
+	uint8_t		hostages_level;				// Number of hostages on this level.
 	fix		homing_object_dist;			//	Distance of nearest homing object.
-	byte		hours_level;					// Hours played (since time_total can only go up to 9 hours)
-	byte		hours_total;					// Hours played (since time_total can only go up to 9 hours)
+	int8_t		hours_level;					// Hours played (since time_total can only go up to 9 hours)
+	int8_t		hours_total;					// Hours played (since time_total can only go up to 9 hours)
 #ifdef RESTORE_AFTERBURNER
 	fix afterburner_time; //afterburner time
 #endif

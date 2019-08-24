@@ -33,19 +33,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 
 //	Note, only Vulcan cannon requires ammo.
-//ubyte	Default_primary_ammo_level[MAX_PRIMARY_WEAPONS] = {255, 0, 255, 255, 255};
-//ubyte	Default_secondary_ammo_level[MAX_SECONDARY_WEAPONS] = {3, 0, 0, 0, 0};
+//uint8_t	Default_primary_ammo_level[MAX_PRIMARY_WEAPONS] = {255, 0, 255, 255, 255};
+//uint8_t	Default_secondary_ammo_level[MAX_SECONDARY_WEAPONS] = {3, 0, 0, 0, 0};
 
 //	Convert primary weapons to indices in Weapon_info array.
-ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = { 0, 11, 12, 13, 14 };
-ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = { 8, 15, 16, 17, 18 };
+uint8_t Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = { 0, 11, 12, 13, 14 };
+uint8_t Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = { 8, 15, 16, 17, 18 };
 
 int Primary_ammo_max[MAX_PRIMARY_WEAPONS] = { 0, VULCAN_AMMO_MAX, 0, 0, 0 };
-ubyte Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = { 20, 10, 10, 5, 5 };
+uint8_t Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = { 20, 10, 10, 5, 5 };
 
 weapon_info Weapon_info[MAX_WEAPON_TYPES];
 int	N_weapon_types = 0;
-byte	Primary_weapon, Secondary_weapon;
+int8_t	Primary_weapon, Secondary_weapon;
 
 //char	*Primary_weapon_names[MAX_PRIMARY_WEAPONS] = {
 //	"Laser Cannon",
@@ -395,8 +395,8 @@ int pick_up_secondary(int weapon_index, int count)
 //returns true if actually picked up
 int pick_up_primary(int weapon_index)
 {
-	ubyte old_flags = Players[Player_num].primary_weapon_flags;
-	ubyte flag = 1 << weapon_index;
+	uint8_t old_flags = Players[Player_num].primary_weapon_flags;
+	uint8_t flag = 1 << weapon_index;
 
 	if (Players[Player_num].primary_weapon_flags & flag) //already have
 	{

@@ -207,9 +207,9 @@ int per2_flag = 0;
 int Transparency_on = 0;
 int dither_intensity_lighting = 0;
 
-ubyte* tmap_flat_cthru_table;
-ubyte tmap_flat_color;
-ubyte tmap_flat_shade_value;
+uint8_t* tmap_flat_cthru_table;
+uint8_t tmap_flat_color;
+uint8_t tmap_flat_shade_value;
 
 
 

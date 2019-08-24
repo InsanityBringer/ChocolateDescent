@@ -71,7 +71,7 @@ void add_bonus_points_to_score(int points);
 extern void add_points_to_score(int points);
 
 typedef struct {
-	ubyte r, g, b;
+	uint8_t r, g, b;
 } rgb;
 
 extern rgb player_rgb[];

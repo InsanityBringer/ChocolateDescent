@@ -62,14 +62,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void gr_palette_set_gamma(int gamma);
 int gr_palette_get_gamma();
-ubyte gr_palette_faded_out;
+uint8_t gr_palette_faded_out;
 void gr_palette_clear();
-int gr_palette_fade_out(ubyte* pal, int nsteps, int allow_keys);
-int gr_palette_fade_in(ubyte* pal, int nsteps, int allow_keys);
-void gr_palette_load(ubyte* pal);
-void gr_make_cthru_table(ubyte* table, ubyte r, ubyte g, ubyte b);
+int gr_palette_fade_out(uint8_t* pal, int nsteps, int allow_keys);
+int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys);
+void gr_palette_load(uint8_t* pal);
+void gr_make_cthru_table(uint8_t* table, uint8_t r, uint8_t g, uint8_t b);
 int gr_find_closest_color_current(int r, int g, int b);
-void gr_palette_read(ubyte* palette);
+void gr_palette_read(uint8_t* palette);
 
 #endif
 

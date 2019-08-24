@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 
  //Returns a checksum of a block of memory.
-extern ushort netmisc_calc_checksum(void* vptr, int len);
+extern uint16_t netmisc_calc_checksum(void* vptr, int len);
 
 //Finds the difference between block1 and block2.  Fills in diff_buffer and returns the size of diff_buffer.
 //[ISB] both killed

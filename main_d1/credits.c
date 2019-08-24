@@ -56,7 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ROW_SPACING 11
 #define NUM_LINES 20			//19
 
-ubyte fade_values[200] = { 1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,8,9,9,10,10,
+uint8_t fade_values[200] = { 1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,8,9,9,10,10,
 11,11,12,12,12,13,13,14,14,15,15,15,16,16,17,17,17,18,18,19,19,19,20,20,
 20,21,21,22,22,22,23,23,23,24,24,24,24,25,25,25,26,26,26,26,27,27,27,27,
 28,28,28,28,28,29,29,29,29,29,29,30,30,30,30,30,30,30,30,30,31,31,31,31,
@@ -66,7 +66,7 @@ ubyte fade_values[200] = { 1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,8,9,9,10,10,
 17,16,16,15,15,15,14,14,13,13,12,12,12,11,11,10,10,9,9,8,8,8,7,7,6,6,5,
 5,4,4,3,3,2,2,1 };
 
-extern ubyte* gr_bitblt_fade_table;
+extern uint8_t* gr_bitblt_fade_table;
 
 grs_font* header_font;
 grs_font* title_font;
@@ -78,7 +78,7 @@ void credits_show()
 	CFILE* file;
 	unsigned char buffer[NUM_LINES][80];
 	grs_bitmap backdrop;
-	ubyte backdrop_palette[768];
+	uint8_t backdrop_palette[768];
 	int pcx_error;
 	int buffer_line = 0;
 	fix last_time;

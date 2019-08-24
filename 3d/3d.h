@@ -47,7 +47,7 @@ typedef struct g3s_uvl {
 //Stucture to store clipping codes in a word
 typedef struct g3s_codes 
 {
-	ubyte low, high;	//or is low byte, and is high byte //[ISB] good variable names?...
+	uint8_t low, high;	//or is low byte, and is high byte //[ISB] good variable names?...
 } g3s_codes;
 
 //flags for point structure
@@ -71,8 +71,8 @@ typedef struct g3s_point {
 	vms_vector p3_vec;         //reference as vector...
 	fix p3_u, p3_v, p3_l;
 	fix p3_sx, p3_sy;		//screen x&y
-	ubyte p3_codes;		//clipping codes
-	ubyte p3_flags;		//projected?
+	uint8_t p3_codes;		//clipping codes
+	uint8_t p3_flags;		//projected?
 	short p3_pad;			//keep structure longwork aligned
 } g3s_point;
 
@@ -161,7 +161,7 @@ dbool g3_check_normal_facing(vms_vector* v, vms_vector* norm);
 g3s_codes g3_check_codes(int nv, g3s_point** pointlist);
 
 //rotates a point. returns codes.  does not check if already rotated
-ubyte g3_rotate_point(g3s_point* dest, vms_vector* src);
+uint8_t g3_rotate_point(g3s_point* dest, vms_vector* src);
 
 //projects a point
 void g3_project_point(g3s_point* point);
@@ -173,14 +173,14 @@ fix g3_calc_point_depth(vms_vector* pnt);
 void g3_point_2_vec(vms_vector* v, short sx, short sy);
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
-ubyte g3_code_point(g3s_point* point);
+uint8_t g3_code_point(g3s_point* point);
 
 //delta rotation functions
 vms_vector* g3_rotate_delta_x(vms_vector* dest, fix dx);
 vms_vector* g3_rotate_delta_y(vms_vector* dest, fix dy);
 vms_vector* g3_rotate_delta_z(vms_vector* dest, fix dz);
 vms_vector* g3_rotate_delta_vec(vms_vector* dest, vms_vector* src);
-ubyte g3_add_delta_vec(g3s_point* dest, g3s_point* src, vms_vector* deltav);
+uint8_t g3_add_delta_vec(g3s_point* dest, g3s_point* src, vms_vector* deltav);
 
 //Drawing functions:
 
@@ -244,6 +244,6 @@ void g3_init_polygon_model(void* model_ptr);
 dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_angvec* anim_angles, fix light, vms_vector* new_points);
 
 // routine to convert little to big endian in polygon model data
-void swap_polygon_model_data(ubyte* data);
+void swap_polygon_model_data(uint8_t* data);
 
 #endif

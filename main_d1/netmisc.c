@@ -26,9 +26,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bios/mono.h"
 
 // Calculates the checksum of a block of memory.
-ushort netmisc_calc_checksum(void* vptr, int len)
+uint16_t netmisc_calc_checksum(void* vptr, int len)
 {
-	ubyte* ptr = (ubyte*)vptr;
+	uint8_t* ptr = (uint8_t*)vptr;
 	unsigned int sum1, sum2;
 
 	sum1 = sum2 = 0;
@@ -48,13 +48,13 @@ ushort netmisc_calc_checksum(void* vptr, int len)
 //--unused-- int netmisc_find_diff( void *block1, void *block2, int block_size, void *diff_buffer )
 //--unused-- {
 //--unused-- 	int mode;
-//--unused-- 	ushort *c1, *c2, *diff_start, *c3;
+//--unused-- 	uint16_t *c1, *c2, *diff_start, *c3;
 //--unused-- 	int i, j, size, diff, n , same;
 //--unused-- 
-//--unused-- 	size=(block_size+1)/sizeof(ushort);
-//--unused-- 	c1 = (ushort *)block1;
-//--unused-- 	c2 = (ushort *)block2;
-//--unused-- 	c3 = (ushort *)diff_buffer;
+//--unused-- 	size=(block_size+1)/sizeof(uint16_t);
+//--unused-- 	c1 = (uint16_t *)block1;
+//--unused-- 	c2 = (uint16_t *)block2;
+//--unused-- 	c3 = (uint16_t *)diff_buffer;
 //--unused-- 
 //--unused-- 	mode = same = diff = n = 0;
 //--unused-- 
@@ -129,11 +129,11 @@ ushort netmisc_calc_checksum(void* vptr, int len)
 //--unused-- int netmisc_apply_diff(void *block1, void *diff_buffer, int diff_size )	
 //--unused-- {
 //--unused-- 	unsigned int i, j, n, size;
-//--unused-- 	ushort *c1, *c2;
+//--unused-- 	uint16_t *c1, *c2;
 //--unused-- 
 //--unused-- 	//mprintf( 0, "=================================\n" );
-//--unused-- 	c1 = (ushort *)diff_buffer;
-//--unused-- 	c2 = (ushort *)block1;
+//--unused-- 	c1 = (uint16_t *)diff_buffer;
+//--unused-- 	c2 = (uint16_t *)block1;
 //--unused-- 
 //--unused-- 	size = diff_size/2;
 //--unused-- 

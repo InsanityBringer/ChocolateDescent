@@ -178,11 +178,11 @@ grs_bitmap* texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top)
 	return Cache[least_recently_used].bitmap;
 }
 
-void merge_textures_new(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, ubyte* dest_data)
+void merge_textures_new(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, uint8_t* dest_data)
 {
-	//	ubyte c;
+	//	uint8_t c;
 	//	int x,y;
-	ubyte* top_data, * bottom_data;
+	uint8_t* top_data, * bottom_data;
 
 	if (top_bmp->bm_flags & BM_FLAG_RLE)
 		top_bmp = rle_expand_texture(top_bmp);
@@ -213,12 +213,12 @@ void merge_textures_new(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, u
 	}
 }
 
-void merge_textures_super_xparent(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, ubyte* dest_data)
+void merge_textures_super_xparent(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, uint8_t* dest_data)
 {
-	ubyte c;
+	uint8_t c;
 	int x, y;
 
-	ubyte* top_data, * bottom_data;
+	uint8_t* top_data, * bottom_data;
 
 	if (top_bmp->bm_flags & BM_FLAG_RLE)
 		top_bmp = rle_expand_texture(top_bmp);

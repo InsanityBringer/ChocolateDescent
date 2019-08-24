@@ -56,10 +56,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "fix/fix.h"
 
-extern ubyte guess_table[];
+extern uint8_t guess_table[];
 extern short sincos_table[];
-extern ushort asin_table[];
-extern ushort acos_table[];
+extern uint16_t asin_table[];
+extern uint16_t acos_table[];
 extern fix isqrt_guess_table[];
 
 #if !(defined(__WATCOMC__) && defined(USE_INLINE))
@@ -124,17 +124,17 @@ fix fixmul(fix a, fix b)
 }
 
 //divide a quad by a fix, returning a fix
-long fixdivquadlong(long long n, ulong d)
+long fixdivquadlong(long long n, uint32_t d)
 {
 	if (d == 0) return 1;
 	return (long)(n / d);
 }
 
 //divide a quad by a fix, returning a fix
-ulong ufixdivquadlong(ulong nl, ulong nh, ulong d)
+uint32_t ufixdivquadlong(uint32_t nl, uint32_t nh, uint32_t d)
 {
 	unsigned long long num = (((unsigned long long)nh << 32) + (unsigned long long)nl);
-	return (ulong)(num / d);
+	return (uint32_t)(num / d);
 }
 
 fix fixdiv(fix a, fix b)
@@ -143,8 +143,8 @@ fix fixdiv(fix a, fix b)
 	//	return (fix)FixDiv((Fixed)a,(Fixed)b);
 	//[ISB] horrible hack that probably won't work
 	if (b == 0) return 1;
-	uint ia = (uint)a >> 16; if (a < 0) ia |= 0xFFFF0000;
-	uint ib = a << 16;
+	uint32_t ia = (uint32_t)a >> 16; if (a < 0) ia |= 0xFFFF0000;
+	uint32_t ib = a << 16;
 	int64_t ic = ((int64_t)ia << 32) + (int64_t)ib;
 
 	return (fix)(ic / b);
@@ -197,10 +197,10 @@ fixang fix_atan2(fix cos, fix sin)
 }
 
 //computes the square root of a quad, returning a long 
-ulong quad_sqrt(long long q)
+uint32_t quad_sqrt(long long q)
 {
-	ulong cnt, r, old_r, t;
-	ulong firstr, secondr, thirdr;
+	uint32_t cnt, r, old_r, t;
+	uint32_t firstr, secondr, thirdr;
 	long high = (q >> 32) & 0xFFFFFFFF;
 	int iterLimit = 0;
 	quad tq;
@@ -261,8 +261,8 @@ ulong quad_sqrt(long long q)
 	long long tq2;
 	fixmulaccum(&tq2, r, t);
 	long high2 = (tq2 >> 32) & 0xFFFFFFFF;
-	ulong low2 = (ulong)(tq2 & 0xFFFFFFFFF);
-	ulong low = (ulong)(q & 0xFFFFFFFFF);
+	uint32_t low2 = (uint32_t)(tq2 & 0xFFFFFFFFF);
+	uint32_t low = (uint32_t)(q & 0xFFFFFFFFF);
 	if (low2 != low || high2 != high)
 		r++;
 
@@ -342,13 +342,13 @@ fixang fix_atan2(fix cos, fix sin)
 }
 
 //divide a quad by a fix, returning a fix
-long fixdivquadlong(ulong nl, ulong nh, ulong d)
+long fixdivquadlong(uint32_t nl, uint32_t nh, uint32_t d)
 {
 	int i;
-	ulong tmp0;
-	ubyte tmp1;
-	ulong r;
-	ubyte T, Q, M;
+	uint32_t tmp0;
+	uint8_t tmp1;
+	uint32_t r;
+	uint8_t T, Q, M;
 
 	r = 0;
 
@@ -440,7 +440,7 @@ long fixdivquadlong(ulong nl, ulong nh, ulong d)
 	return r;
 }
 
-ulong quad_sqrt(long low, long high)
+uint32_t quad_sqrt(long low, long high)
 {
 	long cnt, r, old_r, t;
 	quad tq;
@@ -500,10 +500,10 @@ fix fixdiv(fix a, fix b)
 fix fixmuldiv(fix a, fix b, fix c)
 {
 	quad q;
-	ulong t, old;
+	uint32_t t, old;
 	int neg;
-	ulong aa, bb;
-	ulong ah, al, bh, bl;
+	uint32_t aa, bb;
+	uint32_t ah, al, bh, bl;
 
 	neg = ((a ^ b) < 0);
 
@@ -534,7 +534,7 @@ fix fixmuldiv(fix a, fix b, fix c)
 
 
 //computes the square root of a long, returning a short
-ushort long_sqrt(long a)
+uint16_t long_sqrt(long a)
 {
 	int cnt, r, old_r, t;
 

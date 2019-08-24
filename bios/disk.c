@@ -18,7 +18,7 @@ unsigned int GetFreeDiskSpace()
 		&free_clusters,
 		&total_clusters)) return 0x7fffffff;
 
-	return (uint)(free_clusters * sec_per_cluster * bytes_per_sec);
+	return (uint32_t)(free_clusters * sec_per_cluster * bytes_per_sec);
 }
 
 #endif

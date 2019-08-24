@@ -124,7 +124,7 @@ g3s_point* clip_edge(int plane_flag, g3s_point* on_pnt, g3s_point* off_pnt)
 }
 
 //clips a line to the viewing pyramid.
-void clip_line(g3s_point** p0, g3s_point** p1, ubyte codes_or)
+void clip_line(g3s_point** p0, g3s_point** p1, uint8_t codes_or)
 {
 	int plane_flag;
 	g3s_point* old_p1;

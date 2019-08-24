@@ -51,30 +51,30 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /* PCX Header data type */
 typedef struct {
-	ubyte		Manufacturer;
-	ubyte		Version;
-	ubyte		Encoding;
-	ubyte		BitsPerPixel;
+	uint8_t		Manufacturer;
+	uint8_t		Version;
+	uint8_t		Encoding;
+	uint8_t		BitsPerPixel;
 	short		Xmin;
 	short		Ymin;
 	short		Xmax;
 	short		Ymax;
 	short		Hdpi;
 	short		Vdpi;
-	ubyte		ColorMap[16][3];
-	ubyte		Reserved;
-	ubyte		Nplanes;
+	uint8_t		ColorMap[16][3];
+	uint8_t		Reserved;
+	uint8_t		Nplanes;
 	short		BytesPerLine;
-	ubyte		filler[60];
+	uint8_t		filler[60];
 } PCXHeader;
 
 
-int pcx_read_bitmap(char* filename, grs_bitmap* bmp, int bitmap_type, ubyte* palette)
+int pcx_read_bitmap(char* filename, grs_bitmap* bmp, int bitmap_type, uint8_t* palette)
 {
 	PCXHeader header;
 	CFILE* PCXfile;
 	int i, row, col, count, xsize, ysize;
-	ubyte data, * pixdata;
+	uint8_t data, * pixdata;
 
 	PCXfile = cfopen(filename, "rb");
 	if (!PCXfile)
@@ -182,13 +182,13 @@ int pcx_read_bitmap(char* filename, grs_bitmap* bmp, int bitmap_type, ubyte* pal
 	return PCX_ERROR_NONE;
 }
 
-int pcx_encode_line(ubyte* inBuff, int inLen, FILE* fp);
+int pcx_encode_line(uint8_t* inBuff, int inLen, FILE* fp);
 
-int pcx_write_bitmap(char* filename, grs_bitmap* bmp, ubyte* palette)
+int pcx_write_bitmap(char* filename, grs_bitmap* bmp, uint8_t* palette)
 {
 	int retval;
 	int i;
-	ubyte data;
+	uint8_t data;
 	PCXHeader header;
 	FILE* PCXfile;
 
@@ -251,15 +251,15 @@ int pcx_write_bitmap(char* filename, grs_bitmap* bmp, ubyte* palette)
 
 }
 
-int pcx_encode_byte(ubyte byt, ubyte cnt, FILE* fid);
+int pcx_encode_byte(uint8_t byt, uint8_t cnt, FILE* fid);
 
 // returns number of bytes written into outBuff, 0 if failed 
-int pcx_encode_line(ubyte* inBuff, int inLen, FILE* fp)
+int pcx_encode_line(uint8_t* inBuff, int inLen, FILE* fp)
 {
-	ubyte this, last;
+	uint8_t this, last;
 	int srcIndex, i;
 	register int total;
-	register ubyte runCount; 	// max single runlength is 63
+	register uint8_t runCount; 	// max single runlength is 63
 	total = 0;
 	last = *(inBuff);
 	runCount = 1;
@@ -296,7 +296,7 @@ int pcx_encode_line(ubyte* inBuff, int inLen, FILE* fp)
 
 // subroutine for writing an encoded byte pair 
 // returns count of bytes written, 0 if error
-int pcx_encode_byte(ubyte byt, ubyte cnt, FILE* fid)
+int pcx_encode_byte(uint8_t byt, uint8_t cnt, FILE* fid)
 {
 	if (cnt) {
 		if ((cnt == 1) && (0xc0 != (0xc0 & byt))) {

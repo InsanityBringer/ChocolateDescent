@@ -171,10 +171,10 @@ typedef struct {
 		char* text;
 	size_t			textLen;
 	short 		    width, height;
-	byte            flag;
-	byte            pressed;
-	byte            position;
-	byte            oldposition;
+	int8_t            flag;
+	int8_t            pressed;
+	int8_t            position;
+	int8_t            oldposition;
 	int             trap_key;
 	int          	(*user_function)(void);
 } UI_GADGET_ICON;

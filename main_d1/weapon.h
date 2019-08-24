@@ -138,28 +138,28 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 typedef struct weapon_info {
-	byte	render_type;				// How to draw 0=laser, 1=blob, 2=object
-	byte	model_num;					// Model num if rendertype==2.
-	byte	model_num_inner;			// Model num of inner part if rendertype==2.
-	byte	persistent;					//	0 = dies when it hits something, 1 = continues (eg, fusion cannon)
+	int8_t	render_type;				// How to draw 0=laser, 1=blob, 2=object
+	int8_t	model_num;					// Model num if rendertype==2.
+	int8_t	model_num_inner;			// Model num of inner part if rendertype==2.
+	int8_t	persistent;					//	0 = dies when it hits something, 1 = continues (eg, fusion cannon)
 
-	byte	flash_vclip;				// What vclip to use for muzzle flash
+	int8_t	flash_vclip;				// What vclip to use for muzzle flash
 	short	flash_sound;				// What sound to play when fired
-	byte	robot_hit_vclip;			// What vclip for impact with robot
+	int8_t	robot_hit_vclip;			// What vclip for impact with robot
 	short	robot_hit_sound;			// What sound for impact with robot
 
-	byte	wall_hit_vclip;			// What vclip for impact with wall
+	int8_t	wall_hit_vclip;			// What vclip for impact with wall
 	short	wall_hit_sound;			// What sound for impact with wall
-	byte	fire_count;					//	Number of bursts fired from EACH GUN per firing.  For weapons which fire from both sides, 3*fire_count shots will be fired.
-	byte	ammo_usage;					//	How many units of ammunition it uses.
+	int8_t	fire_count;					//	Number of bursts fired from EACH GUN per firing.  For weapons which fire from both sides, 3*fire_count shots will be fired.
+	int8_t	ammo_usage;					//	How many units of ammunition it uses.
 
-	byte	weapon_vclip;				//	Vclip to render for the weapon, itself.
-	byte	destroyable;				//	If !0, this weapon can be destroyed by another weapon.
-	byte	matter;						//	Flag: set if this object is matter (as opposed to energy)
-	byte	bounce;						//	Flag: set if this object bounces off walls
+	int8_t	weapon_vclip;				//	Vclip to render for the weapon, itself.
+	int8_t	destroyable;				//	If !0, this weapon can be destroyed by another weapon.
+	int8_t	matter;						//	Flag: set if this object is matter (as opposed to energy)
+	int8_t	bounce;						//	Flag: set if this object bounces off walls
 
-	byte	homing_flag;				//	Set if this weapon can home in on a target.
-	byte	dum1, dum2, dum3;
+	int8_t	homing_flag;				//	Set if this weapon can home in on a target.
+	int8_t	dum1, dum2, dum3;
 
 	fix	energy_usage;				//	How much fuel is consumed to fire this weapon.
 	fix	fire_wait;					//	Time until this weapon can be fired again.
@@ -239,10 +239,10 @@ extern int N_weapon_types;
 extern void do_weapon_select(int weapon_num, int secondary_flag);
 extern void show_weapon_status(void);
 
-extern byte	Primary_weapon, Secondary_weapon;
+extern int8_t	Primary_weapon, Secondary_weapon;
 
-extern ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
-extern ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
+extern uint8_t Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
+extern uint8_t Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
 extern void auto_select_weapon(int weapon_type);		//parm is primary or secondary
 extern void select_weapon(int weapon_num, int secondary_flag, int print_message, int wait_for_rearm);
 
@@ -251,7 +251,7 @@ extern char* Secondary_weapon_names_short[];
 extern char* Primary_weapon_names[];
 extern char* Secondary_weapon_names[];
 extern int	Primary_ammo_max[MAX_PRIMARY_WEAPONS];
-extern ubyte	Secondary_ammo_max[MAX_PRIMARY_WEAPONS];
+extern uint8_t	Secondary_ammo_max[MAX_PRIMARY_WEAPONS];
 
 #define	HAS_WEAPON_FLAG	1
 #define	HAS_ENERGY_FLAG	2

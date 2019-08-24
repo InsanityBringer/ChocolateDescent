@@ -212,9 +212,9 @@ extern int Game_turbo_mode;
 #define VR_AREA_DET		1	//viewing with the stereo area determined method
 #define VR_INTERLACED	2	//viewing with the stereo interlaced method
 
-extern ubyte		VR_use_paging;
-extern ubyte		VR_current_page;
-extern ubyte		VR_switch_eyes;
+extern uint8_t		VR_use_paging;
+extern uint8_t		VR_current_page;
+extern uint8_t		VR_switch_eyes;
 extern fix			VR_eye_width;
 extern int			VR_screen_mode;
 extern int			VR_render_width;

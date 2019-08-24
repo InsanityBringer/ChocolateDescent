@@ -15,7 +15,7 @@
 #include "object.h"
 #include "game.h"
 
-#define MAX_GUNS 8		//should be multiple of 4 for ubyte array
+#define MAX_GUNS 8		//should be multiple of 4 for uint8_t array
 
  //Animation states
 #define AS_REST			0
@@ -46,16 +46,16 @@ typedef struct robot_info {
 	int			model_num;							// which polygon model?
 	int			n_guns;								// how many different gun positions
 	vms_vector	gun_points[MAX_GUNS];			// where each gun model is
-	ubyte			gun_submodels[MAX_GUNS];		// which submodel is each gun in?
+	uint8_t			gun_submodels[MAX_GUNS];		// which submodel is each gun in?
 	short 		exp1_vclip_num;
 	short			exp1_sound_num;
 	short 		exp2_vclip_num;
 	short			exp2_sound_num;
 	short			weapon_type;
-	byte			contains_id;						//	ID of powerup this robot can contain.
-	byte			contains_count;					//	Max number of things this instance can contain.
-	byte			contains_prob;						//	Probability that this instance will contain something in N/16
-	byte			contains_type;						//	Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
+	int8_t			contains_id;						//	ID of powerup this robot can contain.
+	int8_t			contains_count;					//	Max number of things this instance can contain.
+	int8_t			contains_prob;						//	Probability that this instance will contain something in N/16
+	int8_t			contains_type;						//	Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
 	int			score_value;						//	Score from this robot.
 	fix			lighting;							// should this be here or with polygon model?
 	fix			strength;							// Initial shields of robot
@@ -71,14 +71,14 @@ typedef struct robot_info {
 	fix		max_speed[NDL];						//	maximum speed attainable by this robot
 	fix		circle_distance[NDL];				//	distance at which robot circles player
 
-	byte		rapidfire_count[NDL];				//	number of shots fired rapidly
-	byte		evade_speed[NDL];						//	rate at which robot can evade shots, 0=none, 4=very fast
-	byte		cloak_type;								//	0=never, 1=always, 2=except-when-firing
-	byte		attack_type;							//	0=firing, 1=charge (like green guy)
-	byte		boss_flag;								//	0 = not boss, 1 = boss.  Is that surprising?
-	ubyte		see_sound;								//	sound robot makes when it first sees the player
-	ubyte		attack_sound;							//	sound robot makes when it attacks the player
-	ubyte		claw_sound;								//	sound robot makes as it claws you (attack_type should be 1)
+	int8_t		rapidfire_count[NDL];				//	number of shots fired rapidly
+	int8_t		evade_speed[NDL];						//	rate at which robot can evade shots, 0=none, 4=very fast
+	int8_t		cloak_type;								//	0=never, 1=always, 2=except-when-firing
+	int8_t		attack_type;							//	0=firing, 1=charge (like green guy)
+	int8_t		boss_flag;								//	0 = not boss, 1 = boss.  Is that surprising?
+	uint8_t		see_sound;								//	sound robot makes when it first sees the player
+	uint8_t		attack_sound;							//	sound robot makes when it attacks the player
+	uint8_t		claw_sound;								//	sound robot makes as it claws you (attack_type should be 1)
 
 	//animation info
 	jointlist anim_states[MAX_GUNS + 1][N_ANIM_STATES];

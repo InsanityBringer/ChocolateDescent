@@ -158,16 +158,16 @@ extern int joy_get_button_down_cnt(int btn);
 // it, and held it down for 6 more ticks. The time returned would be 9.
 extern fix joy_get_button_down_time(int btn);
 
-extern ubyte joy_read_raw_buttons();
-extern ubyte joystick_read_raw_axis(ubyte mask, int* axis);
+extern uint8_t joy_read_raw_buttons();
+extern uint8_t joystick_read_raw_axis(uint8_t mask, int* axis);
 extern void joy_flush();
-extern ubyte joy_get_present_mask();
+extern uint8_t joy_get_present_mask();
 extern void joy_set_timer_rate(int max_value);
 extern int joy_get_timer_rate();
 
 extern int joy_get_button_state(int btn);
 extern void joy_set_cen_fake(int channel);
-extern ubyte joy_read_stick(ubyte masks, int* axis);
+extern uint8_t joy_read_stick(uint8_t masks, int* axis);
 extern void joy_get_cal_vals(int* axis_min, int* axis_center, int* axis_max);
 extern void joy_set_cal_vals(int* axis_min, int* axis_center, int* axis_max);
 extern void joy_set_btn_values(int btn, int state, fix timedown, int downcount, int upcount);

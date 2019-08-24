@@ -51,11 +51,11 @@ static short start_points[MAX_SCANLINES][MAX_HOLES];
 static short hole_length[MAX_SCANLINES][MAX_HOLES];
 //static double* scanline = NULL;
 
-void gr_ibitblt(grs_bitmap* src_bmp, grs_bitmap* dest_bmp, ubyte *mask)
+void gr_ibitblt(grs_bitmap* src_bmp, grs_bitmap* dest_bmp, uint8_t *mask)
 {
 	int x, y, sw, sh, srowsize, drowsize, dstart, sy;// , dy;
-	ubyte* src, * dest;
-	ubyte* scan;
+	uint8_t* src, * dest;
+	uint8_t* scan;
 	//short* current_hole, * current_hole_length;
 
 	// variable setup
@@ -92,10 +92,10 @@ void gr_ibitblt(grs_bitmap* src_bmp, grs_bitmap* dest_bmp, ubyte *mask)
 	}
 }
 
-ubyte* gr_ibitblt_create_mask(grs_bitmap* mask_bmp, int sx, int sy, int sw, int sh, int srowsize)
+uint8_t* gr_ibitblt_create_mask(grs_bitmap* mask_bmp, int sx, int sy, int sw, int sh, int srowsize)
 {
 	int x, y;// , dest_offset;
-	ubyte /*pixel,*/ mode;
+	uint8_t /*pixel,*/ mode;
 	int count = 0;
 
 	Assert((!(mask_bmp->bm_flags & BM_FLAG_RLE)));
@@ -142,7 +142,7 @@ ubyte* gr_ibitblt_create_mask(grs_bitmap* mask_bmp, int sx, int sy, int sw, int 
 
 void gr_ibitblt_find_hole_size(grs_bitmap* mask_bmp, int* minx, int* miny, int* maxx, int* maxy)
 {
-	ubyte c;
+	uint8_t c;
 	int x, y, count = 0;
 
 	Assert((!(mask_bmp->bm_flags & BM_FLAG_RLE)));

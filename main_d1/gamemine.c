@@ -461,9 +461,9 @@ int load_mine_data_compiled_new(CFILE* LoadFile);
 int load_mine_data_compiled(CFILE* LoadFile)
 {
 	int i, segnum, sidenum;
-	ubyte version;
+	uint8_t version;
 	short temp_short;
-	ushort temp_ushort;
+	uint16_t temp_ushort;
 
 #ifndef SHAREWARE
 	if (New_file_format_load)
@@ -483,7 +483,7 @@ int load_mine_data_compiled(CFILE* LoadFile)
 	fuelcen_reset();
 
 	//=============================== Reading part ==============================
-	cfread(&version, sizeof(ubyte), 1, LoadFile);						// 1 byte = compiled version
+	cfread(&version, sizeof(uint8_t), 1, LoadFile);						// 1 byte = compiled version
 	Assert(version == COMPILED_MINE_VERSION);
 	cfread(&Num_vertices, sizeof(int), 1, LoadFile);					// 4 bytes = Num_vertices
 	Assert(Num_vertices <= MAX_VERTICES);
@@ -503,10 +503,10 @@ int load_mine_data_compiled(CFILE* LoadFile)
 		cfread(Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, LoadFile);
 		Segments[segnum].objects = -1;
 
-		// Read ubyte	Segments[segnum].special
-		cfread(&Segments[segnum].special, sizeof(ubyte), 1, LoadFile);
-		// Read byte	Segments[segnum].matcen_num
-		cfread(&Segments[segnum].matcen_num, sizeof(ubyte), 1, LoadFile);
+		// Read uint8_t	Segments[segnum].special
+		cfread(&Segments[segnum].special, sizeof(uint8_t), 1, LoadFile);
+		// Read int8_t	Segments[segnum].matcen_num
+		cfread(&Segments[segnum].matcen_num, sizeof(uint8_t), 1, LoadFile);
 		// Read short	Segments[segnum].value
 		cfread(&Segments[segnum].value, sizeof(short), 1, LoadFile);
 
@@ -515,11 +515,11 @@ int load_mine_data_compiled(CFILE* LoadFile)
 		Segments[segnum].static_light = ((fix)temp_ushort) << 4;
 		//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
 
-		// Read the walls as a 6 byte array
+		// Read the walls as a 6 int8_t array
 		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-			ubyte byte_wallnum;
+			uint8_t byte_wallnum;
 			Segments[segnum].sides[sidenum].pad = 0;
-			cfread(&byte_wallnum, sizeof(ubyte), 1, LoadFile);
+			cfread(&byte_wallnum, sizeof(uint8_t), 1, LoadFile);
 			if (byte_wallnum == 255)
 				Segments[segnum].sides[sidenum].wall_num = -1;
 			else
@@ -575,10 +575,10 @@ int load_mine_data_compiled(CFILE* LoadFile)
 int load_mine_data_compiled_new(CFILE* LoadFile)
 {
 	int		i, segnum, sidenum;
-	ubyte		version;
+	uint8_t		version;
 	short		temp_short;
-	ushort	temp_ushort;
-	ubyte		bit_mask;
+	uint16_t	temp_ushort;
+	uint8_t		bit_mask;
 
 	//	For compiled levels, textures map to themselves, prevent tmap_override always being gray,
 	//	bug which Matt and John refused to acknowledge, so here is Mike, fixing it.
@@ -591,14 +591,14 @@ int load_mine_data_compiled_new(CFILE* LoadFile)
 	fuelcen_reset();
 
 	//=============================== Reading part ==============================
-	cfread(&version, sizeof(ubyte), 1, LoadFile);						// 1 byte = compiled version
+	cfread(&version, sizeof(uint8_t), 1, LoadFile);						// 1 byte = compiled version
 	Assert(version == COMPILED_MINE_VERSION);
 
-	cfread(&temp_ushort, sizeof(ushort), 1, LoadFile);					// 2 bytes = Num_vertices
+	cfread(&temp_ushort, sizeof(uint16_t), 1, LoadFile);					// 2 bytes = Num_vertices
 	Num_vertices = temp_ushort;
 	Assert(Num_vertices <= MAX_VERTICES);
 
-	cfread(&temp_ushort, sizeof(ushort), 1, LoadFile);					// 2 bytes = Num_segments
+	cfread(&temp_ushort, sizeof(uint16_t), 1, LoadFile);					// 2 bytes = Num_segments
 	Num_segments = temp_ushort;
 	Assert(Num_segments <= MAX_SEGMENTS);
 
@@ -612,7 +612,7 @@ int load_mine_data_compiled_new(CFILE* LoadFile)
 		Segments[segnum].group = 0;
 #endif
 
-		cfread(&bit_mask, sizeof(ubyte), 1, LoadFile);
+		cfread(&bit_mask, sizeof(uint8_t), 1, LoadFile);
 
 		for (bit = 0; bit < MAX_SIDES_PER_SEGMENT; bit++) {
 			if (bit_mask & (1 << bit))
@@ -626,10 +626,10 @@ int load_mine_data_compiled_new(CFILE* LoadFile)
 		Segments[segnum].objects = -1;
 
 		if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-			// Read ubyte	Segments[segnum].special
-			cfread(&Segments[segnum].special, sizeof(ubyte), 1, LoadFile);
-			// Read byte	Segments[segnum].matcen_num
-			cfread(&Segments[segnum].matcen_num, sizeof(ubyte), 1, LoadFile);
+			// Read uint8_t	Segments[segnum].special
+			cfread(&Segments[segnum].special, sizeof(uint8_t), 1, LoadFile);
+			// Read int8_t	Segments[segnum].matcen_num
+			cfread(&Segments[segnum].matcen_num, sizeof(uint8_t), 1, LoadFile);
 			// Read short	Segments[segnum].value
 			cfread(&Segments[segnum].value, sizeof(short), 1, LoadFile);
 		}
@@ -644,17 +644,17 @@ int load_mine_data_compiled_new(CFILE* LoadFile)
 		Segments[segnum].static_light = ((fix)temp_ushort) << 4;
 		//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
 
-		// Read the walls as a 6 byte array
+		// Read the walls as a 6 int8_t array
 		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 			Segments[segnum].sides[sidenum].pad = 0;
 		}
 
-		cfread(&bit_mask, sizeof(ubyte), 1, LoadFile);
+		cfread(&bit_mask, sizeof(uint8_t), 1, LoadFile);
 		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-			ubyte byte_wallnum;
+			uint8_t byte_wallnum;
 
 			if (bit_mask & (1 << sidenum)) {
-				cfread(&byte_wallnum, sizeof(ubyte), 1, LoadFile);
+				cfread(&byte_wallnum, sizeof(uint8_t), 1, LoadFile);
 				if (byte_wallnum == 255)
 					Segments[segnum].sides[sidenum].wall_num = -1;
 				else
@@ -668,7 +668,7 @@ int load_mine_data_compiled_new(CFILE* LoadFile)
 
 			if ((Segments[segnum].children[sidenum] == -1) || (Segments[segnum].sides[sidenum].wall_num != -1)) {
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-				cfread(&temp_ushort, sizeof(ushort), 1, LoadFile);
+				cfread(&temp_ushort, sizeof(uint16_t), 1, LoadFile);
 
 				Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
 

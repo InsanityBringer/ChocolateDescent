@@ -48,7 +48,7 @@ g3s_uvl uvl_list[4] = { 0x0200,0x0200,0,
 int calc_rod_corners(g3s_point* bot_point, fix bot_width, g3s_point* top_point, fix top_width)
 {
 	vms_vector delta_vec, top, tempv, rod_norm;
-	ubyte codes_and;
+	uint8_t codes_and;
 	int i;
 
 	//compute vector from one point to other, do cross product with vector

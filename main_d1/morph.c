@@ -61,11 +61,11 @@ morph_data* find_morph_data(object* obj)
 //takes pm, fills in min & max
 void find_min_max(polymodel* pm, int submodel_num, vms_vector* minv, vms_vector* maxv)
 {
-	ushort nverts;
+	uint16_t nverts;
 	vms_vector* vp;
-	ushort* data, type;
+	uint16_t* data, type;
 
-	data = (ushort*)& pm->model_data[pm->submodel_ptrs[submodel_num]];
+	data = (uint16_t*)& pm->model_data[pm->submodel_ptrs[submodel_num]];
 
 	type = *data++;
 
@@ -101,14 +101,14 @@ fix morph_rate = MORPH_RATE;
 
 void init_points(polymodel* pm, vms_vector* box_size, int submodel_num, morph_data* md)
 {
-	ushort nverts;
+	uint16_t nverts;
 	vms_vector* vp;
-	ushort* data, type;
+	uint16_t* data, type;
 	int i;
 
 	//printf("initing %d ",submodel_num);
 
-	data = (ushort*)& pm->model_data[pm->submodel_ptrs[submodel_num]];
+	data = (uint16_t*)& pm->model_data[pm->submodel_ptrs[submodel_num]];
 
 	type = *data++;
 	Assert(type == 7 || type == 1);
@@ -167,14 +167,14 @@ void init_points(polymodel* pm, vms_vector* box_size, int submodel_num, morph_da
 
 void update_points(polymodel* pm, int submodel_num, morph_data* md)
 {
-	ushort nverts;
+	uint16_t nverts;
 	vms_vector* vp;
-	ushort* data, type;
+	uint16_t* data, type;
 	int i;
 
 	//printf("updating %d ",submodel_num);
 
-	data = (ushort*)& pm->model_data[pm->submodel_ptrs[submodel_num]];
+	data = (uint16_t*)& pm->model_data[pm->submodel_ptrs[submodel_num]];
 
 	type = *data++;
 

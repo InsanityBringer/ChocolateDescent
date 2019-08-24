@@ -50,7 +50,7 @@ typedef struct newmenu_item
 	short	x, y;
 	short w, h;
 	short right_offset;
-	ubyte redraw;
+	uint8_t redraw;
 	unsigned char	saved_text[NM_MAX_TEXT_LEN + 1];
 } newmenu_item;
 

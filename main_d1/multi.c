@@ -116,7 +116,7 @@ char multibuf[MAX_MULTI_MESSAGE_LEN + 4];                // This is where multip
 
 short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
 short local_to_remote[MAX_OBJECTS];
-byte  object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
+int8_t  object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
 
 int 	Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int 	Net_create_loc = 0;  // pointer into previous array
@@ -141,17 +141,17 @@ netgame_info Netgame;
 bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
 typedef struct netplayer_stats {
-	ubyte		message_type;
-	ubyte		Player_num;						// Who am i?
-	uint		flags;							// Powerup flags, see below...
+	uint8_t		message_type;
+	uint8_t		Player_num;						// Who am i?
+	uint32_t		flags;							// Powerup flags, see below...
 	fix		energy;							// Amount of energy remaining.
 	fix		shields;							// shields remaining (protection) 
-	ubyte		lives;							// Lives remaining, 0 = game over.
-	ubyte		laser_level;					//	Current level of the laser.
-	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
-	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
-	ushort	primary_ammo[MAX_PRIMARY_WEAPONS];	// How much ammo of each type.
-	ushort	secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
+	uint8_t		lives;							// Lives remaining, 0 = game over.
+	uint8_t		laser_level;					//	Current level of the laser.
+	uint8_t		primary_weapon_flags;					//	bit set indicates the player has this weapon.
+	uint8_t		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
+	uint16_t	primary_ammo[MAX_PRIMARY_WEAPONS];	// How much ammo of each type.
+	uint16_t	secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 	int		last_score;					// Score at beginning of current level.
 	int		score;							// Current score.
 	fix		cloak_time;						// Time cloaked
@@ -163,10 +163,10 @@ typedef struct netplayer_stats {
 	short		num_kills_total;				// Number of kills total
 	short		num_robots_level; 			// Number of initial robots this level
 	short		num_robots_total; 			// Number of robots total
-	ushort 	hostages_rescued_total;		// Total number of hostages rescued.
-	ushort	hostages_total;				// Total number of hostages.
-	ubyte		hostages_on_board;			//	Number of hostages on ship.
-	ubyte		unused[16];
+	uint16_t 	hostages_rescued_total;		// Total number of hostages rescued.
+	uint16_t	hostages_total;				// Total number of hostages.
+	uint8_t		hostages_on_board;			//	Number of hostages on ship.
+	uint8_t		unused[16];
 } netplayer_stats;
 
 int message_length[MULTI_MAX_TYPE + 1] = {
@@ -237,8 +237,8 @@ int message_length[MULTI_MAX_TYPE + 1] = {
 #else
 	2,	 // MENU_CHOICE
 #endif
-	2 + 24,   //SAVE_GAME 		(ubyte slot, uint id, char name[20])
-	2 + 4,   //RESTORE_GAME	(ubyte slot, uint id)
+	2 + 24,   //SAVE_GAME 		(uint8_t slot, uint32_t id, char name[20])
+	2 + 4,   //RESTORE_GAME	(uint8_t slot, uint32_t id)
 	1 + 1, 	// MULTI_REQ_PLAYER
 	sizeof(netplayer_stats),			// MULTI_SEND_PLAYER
 };
@@ -283,7 +283,7 @@ int objnum_remote_to_local(int remote_objnum, int owner)
 	return(result);
 }
 
-int objnum_local_to_remote(int local_objnum, byte* owner)
+int objnum_local_to_remote(int local_objnum, int8_t* owner)
 {
 	// Map a local object number to a remote + owner
 
@@ -1179,9 +1179,9 @@ multi_do_death(int objnum)
 void
 multi_do_fire(char* buf)
 {
-	ubyte weapon;
+	uint8_t weapon;
 	char pnum;
-	byte flags;
+	int8_t flags;
 	fix save_charge = Fusion_charge;
 
 	// Act out the actual shooting
@@ -1320,8 +1320,8 @@ multi_do_player_explode(char* buf)
 	Players[pnum].secondary_ammo[SMART_INDEX] = buf[count];		count++;
 	Players[pnum].secondary_ammo[MEGA_INDEX] = buf[count];		count++;
 	Players[pnum].secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
-	Players[pnum].primary_ammo[VULCAN_INDEX] = *(ushort*)(buf + count); count += 2;
-	Players[pnum].flags = *(uint*)(buf + count);						count += 4;
+	Players[pnum].primary_ammo[VULCAN_INDEX] = *(uint16_t*)(buf + count); count += 2;
+	Players[pnum].flags = *(uint32_t*)(buf + count);						count += 4;
 
 	objp = Objects + Players[pnum].objnum;
 
@@ -1395,12 +1395,12 @@ multi_do_kill(char* buf)
 	killed = Players[pnum].objnum;
 	count += 1;
 #else
-	killed = objnum_remote_to_local(*(short*)(buf + count), (byte)buf[count + 2]);
+	killed = objnum_remote_to_local(*(short*)(buf + count), (int8_t)buf[count + 2]);
 	count += 3;
 #endif
 	killer = *(short*)(buf + count);
 	if (killer > 0)
-		killer = objnum_remote_to_local(killer, (byte)buf[count + 2]);
+		killer = objnum_remote_to_local(killer, (int8_t)buf[count + 2]);
 
 #ifdef SHAREWARE
 	if ((Objects[killed].type != OBJ_PLAYER) && (Objects[killed].type != OBJ_GHOST))
@@ -1420,7 +1420,7 @@ multi_do_kill(char* buf)
 // which means not a controlcen object, but contained in another object
 void multi_do_controlcen_destroy(char* buf)
 {
-	byte who;
+	int8_t who;
 	short objnum;
 
 	objnum = *(short*)(buf + 1);
@@ -1482,7 +1482,7 @@ multi_do_remobj(char* buf)
 {
 	short objnum; // which object to remove
 	short local_objnum;
-	byte obj_owner; // which remote list is it entered in
+	int8_t obj_owner; // which remote list is it entered in
 
 	objnum = *(short*)(buf + 1);
 	obj_owner = buf[3];
@@ -1812,12 +1812,12 @@ void multi_do_hostage_door_status(char* buf)
 void multi_do_save_game(char* buf)
 {
 	int count = 1;
-	ubyte slot;
-	uint id;
+	uint8_t slot;
+	uint32_t id;
 	char desc[25];
 
-	slot = *(ubyte*)(buf + count);		count += 1;
-	id = *(uint*)(buf + count);		count += 4;
+	slot = *(uint8_t*)(buf + count);		count += 1;
+	id = *(uint32_t*)(buf + count);		count += 4;
 	memcpy(desc, &buf[count], 20);	count += 20;
 
 	multi_save_game(slot, id, desc);
@@ -1826,11 +1826,11 @@ void multi_do_save_game(char* buf)
 void multi_do_restore_game(char* buf)
 {
 	int count = 1;
-	ubyte slot;
-	uint id;
+	uint8_t slot;
+	uint32_t id;
 
-	slot = *(ubyte*)(buf + count);		count += 1;
-	id = *(uint*)(buf + count);		count += 4;
+	slot = *(uint8_t*)(buf + count);		count += 1;
+	id = *(uint32_t*)(buf + count);		count += 4;
 
 	multi_restore_game(slot, id);
 }
@@ -1839,14 +1839,14 @@ void multi_do_restore_game(char* buf)
 void multi_do_req_player(char* buf)
 {
 	netplayer_stats ps;
-	ubyte player_n;
+	uint8_t player_n;
 	// Send my netplayer_stats to everyone!
-	player_n = *(ubyte*)(buf + 1);
+	player_n = *(uint8_t*)(buf + 1);
 	if ((player_n == Player_num) || (player_n == 255)) {
 		extract_netplayer_stats(&ps, &Players[Player_num]);
 		ps.Player_num = Player_num;
 		ps.message_type = MULTI_SEND_PLAYER;		// SET
-		multi_send_data((ubyte*)& ps, sizeof(netplayer_stats), 1);
+		multi_send_data((uint8_t*)& ps, sizeof(netplayer_stats), 1);
 	}
 }
 
@@ -2104,7 +2104,7 @@ multi_send_destroy_controlcen(int objnum, int player)
 		HUD_init_message(TXT_CONTROL_DESTROYED);
 
 	multibuf[0] = (char)MULTI_CONTROLCEN;
-	*(ushort*)(multibuf + 1) = objnum;
+	*(uint16_t*)(multibuf + 1) = objnum;
 	multibuf[3] = player;
 	multi_send_data(multibuf, 4, 2);
 }
@@ -2155,9 +2155,9 @@ multi_send_player_explode(char type)
 	multibuf[count++] = (char)Players[Player_num].secondary_ammo[SMART_INDEX];
 	multibuf[count++] = (char)Players[Player_num].secondary_ammo[MEGA_INDEX];
 	multibuf[count++] = (char)Players[Player_num].secondary_ammo[PROXIMITY_INDEX];
-	*(ushort*)(multibuf + count) = (ushort)Players[Player_num].primary_ammo[VULCAN_INDEX];
+	*(uint16_t*)(multibuf + count) = (uint16_t)Players[Player_num].primary_ammo[VULCAN_INDEX];
 	count += 2;
-	*(uint*)(multibuf + count) = (uint)Players[Player_num].flags;
+	*(uint32_t*)(multibuf + count) = (uint32_t)Players[Player_num].flags;
 	count += 4;
 
 	multibuf[count++] = Net_create_loc;
@@ -2252,14 +2252,14 @@ multi_send_kill(int objnum)
 #ifndef SHAREWARE
 	multibuf[1] = Player_num;					count += 1;
 #else
-	* (short*)(multibuf + count) = (short)objnum_local_to_remote(objnum, (byte*)& multibuf[count + 2]);
+	* (short*)(multibuf + count) = (short)objnum_local_to_remote(objnum, (int8_t*)& multibuf[count + 2]);
 	count += 3;
 #endif
 
 	Assert(Objects[objnum].id == Player_num);
 	killer_objnum = Players[Player_num].killer_objnum;
 	if (killer_objnum > -1)
-		* (short*)(multibuf + count) = (short)objnum_local_to_remote(killer_objnum, (byte*)& multibuf[count + 2]);
+		* (short*)(multibuf + count) = (short)objnum_local_to_remote(killer_objnum, (int8_t*)& multibuf[count + 2]);
 	else
 	{
 		*(short*)(multibuf + count) = -1;
@@ -2281,7 +2281,7 @@ multi_send_remobj(int objnum)
 {
 	// Tell the other guy to remove an object from his list
 
-	byte obj_owner;
+	int8_t obj_owner;
 	short remote_objnum;
 
 	multibuf[0] = (char)MULTI_REMOVE_OBJECT;
@@ -2355,7 +2355,7 @@ multi_send_door_open(int segnum, int side)
 	multi_send_data(multibuf, 7, 1);
 #else
 	* (short*)(multibuf + 1) = (short)segnum;
-	multibuf[3] = (byte)side;
+	multibuf[3] = (int8_t)side;
 	multi_send_data(multibuf, 4, 1);
 #endif
 
@@ -2375,7 +2375,7 @@ multi_send_create_explosion(int pnum)
 	int count = 0;
 
 	multibuf[count] = MULTI_CREATE_EXPLOSION; 	count += 1;
-	multibuf[count] = (byte)pnum;					count += 1;
+	multibuf[count] = (int8_t)pnum;					count += 1;
 	//													-----------
 	//													Total size = 2
 
@@ -2488,32 +2488,32 @@ multi_send_score(void)
 
 
 void
-multi_send_save_game(ubyte slot, uint id, char* desc)
+multi_send_save_game(uint8_t slot, uint32_t id, char* desc)
 {
 	int count = 0;
 
 	multibuf[count] = MULTI_SAVE_GAME;		count += 1;
 	multibuf[count] = slot;							count += 1;		// Save slot=0
-	*(uint*)(multibuf + count) = id; 	count += 4;		// Save id
+	*(uint32_t*)(multibuf + count) = id; 	count += 4;		// Save id
 	memcpy(&multibuf[count], desc, 20); count += 20;
 
 	multi_send_data(multibuf, count, 2);
 }
 
 void
-multi_send_restore_game(ubyte slot, uint id)
+multi_send_restore_game(uint8_t slot, uint32_t id)
 {
 	int count = 0;
 
 	multibuf[count] = MULTI_RESTORE_GAME;	count += 1;
 	multibuf[count] = slot;							count += 1;		// Save slot=0
-	*(uint*)(multibuf + count) = id; 	count += 4;		// Save id
+	*(uint32_t*)(multibuf + count) = id; 	count += 4;		// Save id
 
 	multi_send_data(multibuf, count, 2);
 }
 
 void
-multi_send_netplayer_stats_request(ubyte player_num)
+multi_send_netplayer_stats_request(uint8_t player_num)
 {
 	int count = 0;
 
@@ -2534,7 +2534,7 @@ multi_send_trigger(int triggernum)
 
 	multibuf[count] = MULTI_TRIGGER;				count += 1;
 	multibuf[count] = Player_num;					count += 1;
-	multibuf[count] = (ubyte)triggernum;		count += 1;
+	multibuf[count] = (uint8_t)triggernum;		count += 1;
 
 	multi_send_data(multibuf, count, 2);
 }
@@ -2750,7 +2750,7 @@ void change_playernum_to(int new_Player_num)
 
 void multi_initiate_save_game()
 {
-	uint game_id;
+	uint32_t game_id;
 	int i, slot;
 	char filename[128];
 	char desc[24];
@@ -2775,7 +2775,7 @@ void multi_initiate_save_game()
 	game_id = timer_get_fixed_seconds();
 	game_id ^= N_players << 4;
 	for (i = 0; i < N_players; i++)
-		game_id ^= *(uint*)Players[i].callsign;
+		game_id ^= *(uint32_t*)Players[i].callsign;
 	if (game_id == 0) game_id = 1;		// 0 is invalid
 
 	mprintf((1, "Game_id = %8x\n", game_id));
@@ -2805,7 +2805,7 @@ void multi_initiate_restore_game()
 	multi_restore_game(slot, state_game_id);
 }
 
-void multi_save_game(ubyte slot, uint id, char* desc)
+void multi_save_game(uint8_t slot, uint32_t id, char* desc)
 {
 	char filename[128];
 
@@ -2820,7 +2820,7 @@ void multi_save_game(ubyte slot, uint id, char* desc)
 	state_save_all_sub(filename, desc, 0);
 }
 
-void multi_restore_game(ubyte slot, uint id)
+void multi_restore_game(uint8_t slot, uint32_t id)
 {
 	char filename[128];
 	player saved_player;

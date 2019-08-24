@@ -79,11 +79,11 @@ typedef struct Edge_info {
 		short	verts[2];		// 4 bytes
 		long vv;
 	};
-	ubyte sides[4];			// 4 bytes
+	uint8_t sides[4];			// 4 bytes
 	short segnum[4];			// 8 bytes	// This might not need to be stored... If you can access the normals of a side.
-	ubyte flags;				// 1 bytes 	// See the EF_??? defines above.
-	ubyte color;				// 1 bytes
-	ubyte num_faces;			// 1 bytes	// 19 bytes...
+	uint8_t flags;				// 1 bytes 	// See the EF_??? defines above.
+	uint8_t color;				// 1 bytes
+	uint8_t num_faces;			// 1 bytes	// 19 bytes...
 } Edge_info;
 
 //OLD BUT GOOD -- #define MAX_EDGES_FROM_VERTS(v)   ((v*5)/2)
@@ -102,7 +102,7 @@ typedef struct Edge_info {
 #define	WALL_DOOR_RED						BM_XRGB( 31, 0, 0)
 
 // Segment visited list
-ubyte Automap_visited[MAX_SEGMENTS];
+uint8_t Automap_visited[MAX_SEGMENTS];
 
 // Edge list variables
 static int Num_edges = 0;
@@ -273,7 +273,7 @@ void draw_automap()
 grs_canvas * print_to_canvas(char* s, grs_font * font, int fc, int bc)
 {
 	int y;
-	ubyte* data;
+	uint8_t* data;
 	int rs;
 	grs_canvas* temp_canv, * save_canv;
 
@@ -345,7 +345,7 @@ void modex_print_message(int x, int y, char* str)
 }
 
 extern void GameLoop(int, int);
-extern int set_segment_depths(int start_seg, ubyte* segbuf);
+extern int set_segment_depths(int start_seg, uint8_t* segbuf);
 
 void do_automap(int key_code) 
 {
@@ -458,7 +458,7 @@ void do_automap(int key_code)
 
 		if (!pause_game) 
 		{
-			ushort old_wiggle;
+			uint16_t old_wiggle;
 			saved_control_info = Controls;				// Save controls so we can zero them
 			memset(&Controls, 0, sizeof(control_info));	// Clear everything...
 			old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
@@ -497,7 +497,7 @@ void do_automap(int key_code)
 			case KEY_ALTED + KEY_F:		// Alt+F shows full map, if cheats enabled
 				if (Cheats_enabled)
 				{
-					uint t;
+					uint32_t t;
 					t = Players[Player_num].flags;
 					Players[Player_num].flags |= PLAYER_FLAGS_MAP_ALL_CHEAT;
 					automap_build_edge_list();
@@ -625,7 +625,7 @@ void draw_all_edges()
 {
 	g3s_codes cc;
 	int i, j, nbright;
-	ubyte nfacing, nnfacing;
+	uint8_t nfacing, nnfacing;
 	Edge_info* e;
 	vms_vector* tv1;
 	fix distance;
@@ -802,7 +802,7 @@ static int automap_find_edge(int v0, int v1, Edge_info** edge_ptr)
 }
 
 
-void add_one_edge(short va, short vb, ubyte color, ubyte side, short segnum, int hidden, int grate, int no_fade) 
+void add_one_edge(short va, short vb, uint8_t color, uint8_t side, short segnum, int hidden, int grate, int no_fade) 
 {
 	int found;
 	Edge_info* e;
@@ -888,7 +888,7 @@ extern obj_position Player_init[];
 void add_segment_edges(segment* seg)
 {
 	int 	is_grate, no_fade;
-	ubyte	color;
+	uint8_t	color;
 	int	sn;
 	int	segnum = seg - Segments;
 	int	hidden_flag;

@@ -85,7 +85,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *  Global variables
  */
 
-ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
+uint8_t CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
 
 object* ConsoleObject;					//the object that is the player
 
@@ -604,7 +604,7 @@ void render_object(object* obj)
 //091494: void object_render_targets()
 //091494: {
 //091494: 	g3s_point pt;
-//091494: 	ubyte codes;
+//091494: 	uint8_t codes;
 //091494: 	int i;
 //091494: 	int radius,x,y;
 //091494: 
@@ -633,7 +633,7 @@ void render_object(object* obj)
 //--unused-- void object_render_id(object * obj)
 //--unused-- {
 //--unused-- 	g3s_point pt;
-//--unused-- 	ubyte codes;
+//--unused-- 	uint8_t codes;
 //--unused-- 	int x,y;
 //--unused-- 	int w, h, aw;
 //--unused-- 	char s[20], *s1;
@@ -1079,8 +1079,8 @@ void free_object_slots(int num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-int obj_create(ubyte type, ubyte id, int segnum, vms_vector* pos,
-	vms_matrix* orient, fix size, ubyte ctype, ubyte mtype, ubyte rtype)
+int obj_create(uint8_t type, uint8_t id, int segnum, vms_vector* pos,
+	vms_matrix* orient, fix size, uint8_t ctype, uint8_t mtype, uint8_t rtype)
 {
 	int objnum;
 	object* obj;
@@ -1266,7 +1266,7 @@ int		Death_sequence_aborted = 0;
 int		Player_eggs_dropped = 0;
 fix		Camera_to_player_dist_goal = F1_0 * 4;
 
-ubyte		Control_type_save, Render_type_save, cockpit_mode_save;
+uint8_t		Control_type_save, Render_type_save, cockpit_mode_save;
 
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_end(void)
@@ -1666,7 +1666,7 @@ void object_move_one(object* obj)
 		if (keyd_pressed[KEY_PAD5]) slew_stop(obj);
 		if (keyd_pressed[KEY_NUMLOCK]) {
 			slew_reset_orient(obj);
-			*(ubyte*)0x417 &= ~0x20;		//kill numlock
+			*(uint8_t*)0x417 &= ~0x20;		//kill numlock
 		}
 		slew_frame(0);		// Does velocity addition for us.
 		break;
@@ -2219,8 +2219,8 @@ void P_WriteObject(object* obj, FILE* f)
 {
 	//Pad shorter structures by this much
 	int bytesLeft;
-	ubyte hack[76];
-	memset(&hack[0], 0, 76 * sizeof(ubyte));
+	uint8_t hack[76];
+	memset(&hack[0], 0, 76 * sizeof(uint8_t));
 	F_WriteInt(f, obj->signature);
 	F_WriteByte(f, obj->type);
 	F_WriteByte(f, obj->id);

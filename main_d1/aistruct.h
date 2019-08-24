@@ -96,10 +96,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	AIE_HURT		3
 
 //typedef struct opath {
-//	byte			path_index;					// current index of path
-//	byte			path_direction;			// current path direction
-//	byte			path_length;				//	length of current path
-//	byte			nothing;
+//	int8_t			path_index;					// current index of path
+//	int8_t			path_direction;			// current path direction
+//	int8_t			path_length;				//	length of current path
+//	int8_t			nothing;
 //	short			path[MAX_SEGMENTS_PER_PATH];
 //	short			always_0xabc;				//	If this is ever not 0xabc, then someone overwrote
 //} opath;
@@ -128,8 +128,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //	This is the stuff that is permanent for an AI object and is therefore saved to disk.
 typedef struct ai_static {
-	ubyte			behavior;					// 
-	byte			flags[MAX_AI_FLAGS];		// various flags, meaning defined by constants
+	uint8_t			behavior;					// 
+	int8_t			flags[MAX_AI_FLAGS];		// various flags, meaning defined by constants
 	short			hide_segment;				//	Segment to go to for hiding.
 	short			hide_index;					//	Index in Path_seg_points
 	short			path_length;				//	Length of hide path.
@@ -141,18 +141,18 @@ typedef struct ai_static {
 	int			danger_laser_signature;
 	short			danger_laser_num;
 
-	//	byte			extras[28];					//	32 extra bytes for storing stuff so we don't have to change versions on disk
+	//	int8_t			extras[28];					//	32 extra bytes for storing stuff so we don't have to change versions on disk
 } ai_static;
 
 //	This is the stuff which doesn't need to be saved to disk.
 typedef struct ai_local {
 	//	These used to be bytes, changed to ints so I could set watchpoints on them.
-	byte			player_awareness_type;	//	type of awareness of player
-	byte			retry_count;				//	number of retries in physics last time this object got moved.
-	byte			consecutive_retries;		//	number of retries in consecutive frames (ie, without a retry_count of 0)
-	byte			mode;							//	current mode within behavior
-	byte			previous_visibility;		//	Visibility of player last time we checked.
-	byte			rapidfire_count;			//	number of shots fired rapidly
+	int8_t			player_awareness_type;	//	type of awareness of player
+	int8_t			retry_count;				//	number of retries in physics last time this object got moved.
+	int8_t			consecutive_retries;		//	number of retries in consecutive frames (ie, without a retry_count of 0)
+	int8_t			mode;							//	current mode within behavior
+	int8_t			previous_visibility;		//	Visibility of player last time we checked.
+	int8_t			rapidfire_count;			//	number of shots fired rapidly
 	short			goal_segment;				//	goal segment for current path
 	fix			last_see_time, last_attack_time;	//	For sound effects, time at which player last seen, attacked
 
@@ -165,8 +165,8 @@ typedef struct ai_local {
 	fix			time_since_processed;	//	time since this robot last processed in do_ai_frame
 	vms_angvec	goal_angles[MAX_SUBMODELS];	//angles for each subobject
 	vms_angvec	delta_angles[MAX_SUBMODELS];	//angles for each subobject
-	byte			goal_state[MAX_SUBMODELS];	// Goal state for this sub-object
-	byte			achieved_state[MAX_SUBMODELS];	// Last achieved state
+	int8_t			goal_state[MAX_SUBMODELS];	// Goal state for this sub-object
+	int8_t			achieved_state[MAX_SUBMODELS];	// Last achieved state
 } ai_local;
 
 typedef struct {

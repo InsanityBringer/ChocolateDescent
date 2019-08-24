@@ -101,7 +101,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //I think it would be nice to have a scrape sound... 
 //#define SOUND_PLAYER_SCRAPE_WALL						72
 
-extern ubyte Sounds[MAX_SOUNDS];
-extern ubyte AltSounds[MAX_SOUNDS];
+extern uint8_t Sounds[MAX_SOUNDS];
+extern uint8_t AltSounds[MAX_SOUNDS];
 
 #endif

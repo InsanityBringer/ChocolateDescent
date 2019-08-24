@@ -83,7 +83,7 @@ void trigger_init()
 // Executes a link, attached to a trigger.
 // Toggles all walls linked to the switch.
 // Opens doors, Blasts blast walls, turns off illusions.
-void do_link(byte trigger_num)
+void do_link(int8_t trigger_num)
 {
 	int i;
 
@@ -100,7 +100,7 @@ void do_link(byte trigger_num)
 	}
 }
 
-void do_matcen(byte trigger_num)
+void do_matcen(int8_t trigger_num)
 {
 	int i;
 
@@ -118,7 +118,7 @@ void do_matcen(byte trigger_num)
 }
 
 
-void do_il_on(byte trigger_num)
+void do_il_on(int8_t trigger_num)
 {
 	int i;
 
@@ -135,7 +135,7 @@ void do_il_on(byte trigger_num)
 	}
 }
 
-void do_il_off(byte trigger_num)
+void do_il_off(int8_t trigger_num)
 {
 	int i;
 

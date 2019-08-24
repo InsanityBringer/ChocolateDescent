@@ -30,7 +30,7 @@ extern int Cyberman_installed;	//SWIFT device present
 
 void read_flying_controls(object* obj);
 
-extern ubyte Controls_stopped;
-extern ubyte Controls_always_move;
+extern uint8_t Controls_stopped;
+extern uint8_t Controls_always_move;
 
 #endif

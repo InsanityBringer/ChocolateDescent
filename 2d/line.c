@@ -71,7 +71,7 @@ int modex_line_x1;
 int modex_line_y1;
 int modex_line_x2;
 int modex_line_y2;
-ubyte modex_line_Color;
+uint8_t modex_line_Color;
 
 /*
 Symmetric Double Step Line Algorithm

@@ -83,7 +83,7 @@ typedef long fix;				//16 bits int, 16 bits frac
 typedef short fixang;		//angles
 
 typedef struct quad {
-	ulong low;
+	uint32_t low;
 	long high;
 } quad;
 
@@ -145,7 +145,7 @@ void fixmulaccum(long long *q, fix a, fix b);
 fix fixquadadjust(long long q);
 
 //divide a quad by a long
-long fixdivquadlong(long long n, ulong d);
+long fixdivquadlong(long long n, uint32_t d);
 
 //negate a quad
 void fixquadnegate(quad* q);
@@ -187,10 +187,10 @@ void fixquadnegate(quad* q);
 #endif
 
 //computes the square root of a long, returning a short
-ushort long_sqrt(long a);
+uint16_t long_sqrt(long a);
 
 //computes the square root of a quad, returning a long
-ulong quad_sqrt(long long q);
+uint32_t quad_sqrt(long long q);
 
 //computes the square root of a fix, returning a fix
 fix fix_sqrt(fix a);

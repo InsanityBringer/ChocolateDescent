@@ -535,8 +535,8 @@ void robotmaker_proc(FuelCenter* robotcen)
 			if (RobotCenters[matcen_num].robot_flags != 0)
 			{
 				int	type;
-				uint	flags;
-				byte	legal_types[32];		//	32 bits in a word, the width of robot_flags.
+				uint32_t	flags;
+				int8_t	legal_types[32];		//	32 bits in a word, the width of robot_flags.
 				int	num_types, robot_index;
 
 				robot_index = 0;
@@ -870,7 +870,7 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 //--repair-- fix repair_rate;
 //--repair-- #define FULL_REPAIR_RATE i2f(10)
 
-//--unused-- ubyte save_control_type,save_movement_type;
+//--unused-- uint8_t save_control_type,save_movement_type;
 
 //--unused-- int SideOrderBack[] = {WFRONT, WRIGHT, WTOP, WLEFT, WBOTTOM, WBACK};
 //--unused-- int SideOrderFront[] =  {WBACK, WLEFT, WTOP, WRIGHT, WBOTTOM, WFRONT};

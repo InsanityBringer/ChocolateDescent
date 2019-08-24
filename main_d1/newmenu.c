@@ -119,7 +119,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2)
 	if (Newmenu_first_time) 
 	{
 		int pcx_error;
-		ubyte newpal[768];
+		uint8_t newpal[768];
 		atexit(newmenu_close);
 		Newmenu_first_time = 0;
 

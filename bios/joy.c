@@ -14,21 +14,21 @@ char joy_present = 0;
 
 typedef struct Button_info 
 {
-	ubyte		ignore;
-	ubyte		state;
-	ubyte		last_state;
+	uint8_t		ignore;
+	uint8_t		state;
+	uint8_t		last_state;
 	fix		timedown; //[ISB] okay fuck all of this seriously. no ticks. 
-	ubyte		downcount;
-	ubyte		upcount;
+	uint8_t		downcount;
+	uint8_t		upcount;
 } Button_info;
 
 typedef struct Joy_info 
 {
-	ubyte			present_mask;
-	ubyte			slow_read;
+	uint8_t			present_mask;
+	uint8_t			slow_read;
 	int			max_timer;
 	int			read_count;
-	ubyte			last_value;
+	uint8_t			last_value;
 	Button_info	buttons[MAX_BUTTONS];
 	int			axis_min[4];
 	int			axis_center[4];
@@ -66,7 +66,7 @@ void joy_set_cal_vals(int* axis_min, int* axis_center, int* axis_max)
 
 //[ISB] useless stubs
 //[ISB] TODO clean up all this useless shit
-ubyte joy_get_present_mask()
+uint8_t joy_get_present_mask()
 {
 	return joystick.present_mask;
 }
@@ -98,7 +98,7 @@ void joy_flush()
 
 void I_JoyHandler(int buttons, dbool down)
 {
-	ubyte value;
+	uint8_t value;
 	int i, state;
 	Button_info* button;
 
@@ -142,7 +142,7 @@ void I_JoyHandler(int buttons, dbool down)
 }
 
 
-ubyte joy_read_raw_buttons() 
+uint8_t joy_read_raw_buttons() 
 {
 	//Warning("joy_read_raw_buttons: STUB\n");
 	return 0;
@@ -153,7 +153,7 @@ void joy_set_slow_reading(int flag)
 	//Warning("joy_set_slow_reading: STUB\n");
 }
 
-ubyte joystick_read_raw_axis(ubyte mask, int* axis)
+uint8_t joystick_read_raw_axis(uint8_t mask, int* axis)
 {
 	//Warning("joystick_read_raw_axis: STUB\n");
 	return 0;
@@ -205,7 +205,7 @@ void joy_get_pos(int* x, int* y)
 	//Warning("joy_get_pos: STUB\n");
 }
 
-ubyte joy_read_stick(ubyte masks, int* axis)
+uint8_t joy_read_stick(uint8_t masks, int* axis)
 {
 	//Warning("joy_read_stick: STUB\n");
 	return 0;
@@ -277,16 +277,16 @@ int joy_get_button_up_cnt(int btn) { return 0; }
 int joy_get_button_down_cnt(int btn) { return 0; }
 fix joy_get_button_down_time(int btn) { return 0; }
 
-ubyte joy_read_raw_buttons() { return 0; }
-ubyte joystick_read_raw_axis(ubyte mask, int* axis) { return 0; }
+uint8_t joy_read_raw_buttons() { return 0; }
+uint8_t joystick_read_raw_axis(uint8_t mask, int* axis) { return 0; }
 void joy_flush() { }
-ubyte joy_get_present_mask() { return 0; }
+uint8_t joy_get_present_mask() { return 0; }
 void joy_set_timer_rate(int max_value) { }
 int joy_get_timer_rate() { return 0; }
 
 int joy_get_button_state(int btn) { return 0; }
 void joy_set_cen_fake(int channel) { }
-ubyte joy_read_stick(ubyte masks, int* axis) { return 0; }
+uint8_t joy_read_stick(uint8_t masks, int* axis) { return 0; }
 void joy_get_cal_vals(int* axis_min, int* axis_center, int* axis_max) { }
 void joy_set_cal_vals(int* axis_min, int* axis_center, int* axis_max) { }
 void joy_set_btn_values(int btn, int state, fix timedown, int downcount, int upcount) { }

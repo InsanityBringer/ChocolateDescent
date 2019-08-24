@@ -23,11 +23,11 @@ int scale_adj_down;
 int scale_final_pixel_count;
 int scale_ydelta_minus_1;
 int scale_whole_step;
-ubyte* scale_source_ptr;
-ubyte* scale_dest_ptr;
+uint8_t* scale_source_ptr;
+uint8_t* scale_dest_ptr;
 
 
-ubyte scale_rle_data[640];
+uint8_t scale_rle_data[640];
 
 void scale_up_bitmap(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0, fix u1, fix v1);
 void scale_up_bitmap_rle(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0, fix u1, fix v1);
@@ -138,7 +138,7 @@ void rls_stretch_scanline_setup(int XDelta, int YDelta)
 
 void rls_stretch_scanline()
 {
-	ubyte	c;
+	uint8_t	c;
 	int i, j, len, ErrorTerm, x;
 
 	// Setup initial variables
@@ -205,7 +205,7 @@ void scale_bitmap_c(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0
 {
 	fix u, v, du, dv;
 	int x, y;
-	ubyte* sbits, * dbits;
+	uint8_t* sbits, * dbits;
 
 	du = (u1 - u0) / (x1 - x0);
 	dv = (v1 - v0) / (y1 - y0);
@@ -224,11 +224,11 @@ void scale_bitmap_c(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0
 	}
 }
 
-void scale_row_asm_transparent(ubyte* sbits, ubyte* dbits, int width, fix u, fix du)
+void scale_row_asm_transparent(uint8_t* sbits, uint8_t* dbits, int width, fix u, fix du)
 {
 #if 0
 	int i;
-	ubyte c;
+	uint8_t c;
 
 	for (i = 0; i < width; i++) {
 		c = sbits[u >> 16];
@@ -239,8 +239,8 @@ void scale_row_asm_transparent(ubyte* sbits, ubyte* dbits, int width, fix u, fix
 	}
 #endif
 	int i;
-	ubyte c;
-	ubyte* dbits_end = &dbits[width - 1];
+	uint8_t c;
+	uint8_t* dbits_end = &dbits[width - 1];
 
 	if (du < F1_0) {
 		// Scaling up.

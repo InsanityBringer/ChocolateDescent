@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct mle {
 	char	filename[9];							//filename without extension
 	char	mission_name[MISSION_NAME_LEN + 1];
-	ubyte	anarchy_only_flag;					//if true, mission is anarchy only
+	uint8_t	anarchy_only_flag;					//if true, mission is anarchy only
 } mle;
 
 extern mle Mission_list[MAX_MISSIONS];

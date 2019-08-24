@@ -360,79 +360,79 @@ void cfclose(CFILE* fp)
 	return;
 }
 
-ubyte CF_ReadByte(CFILE* fp)
+uint8_t CF_ReadByte(CFILE* fp)
 {
-	ubyte b;
-	cfread(&b, sizeof(ubyte), 1, fp);
+	uint8_t b;
+	cfread(&b, sizeof(uint8_t), 1, fp);
 	return b;
 }
 
 short CF_ReadShort(CFILE* fp)
 {
-	ubyte b[2];
+	uint8_t b[2];
 	short v;
-	cfread(&b[0], sizeof(ubyte), 2, fp);
+	cfread(&b[0], sizeof(uint8_t), 2, fp);
 	v = b[0] + (b[1] << 8);
 	return v;
 }
 
 int CF_ReadInt(CFILE* fp)
 {
-	ubyte b[4];
+	uint8_t b[4];
 	int v;
-	cfread(&b[0], sizeof(ubyte), 4, fp);
+	cfread(&b[0], sizeof(uint8_t), 4, fp);
 	v = b[0] + (b[1] << 8) + (b[2] << 16) + (b[3] << 24);
 	return v;
 }
 
-ubyte F_ReadByte(FILE* fp)
+uint8_t F_ReadByte(FILE* fp)
 {
-	ubyte b;
-	fread(&b, sizeof(ubyte), 1, fp);
+	uint8_t b;
+	fread(&b, sizeof(uint8_t), 1, fp);
 	return b;
 }
 
 short F_ReadShort(FILE* fp)
 {
-	ubyte b[2];
+	uint8_t b[2];
 	short v;
-	fread(&b[0], sizeof(ubyte), 2, fp);
+	fread(&b[0], sizeof(uint8_t), 2, fp);
 	v = b[0] + (b[1] << 8);
 	return v;
 }
 
 int F_ReadInt(FILE* fp)
 {
-	ubyte b[4];
+	uint8_t b[4];
 	int v;
-	fread(&b[0], sizeof(ubyte), 4, fp);
+	fread(&b[0], sizeof(uint8_t), 4, fp);
 	v = b[0] + (b[1] << 8) + (b[2] << 16) + (b[3] << 24);
 	return v;
 }
 
-void F_WriteByte(FILE* fp, ubyte b)
+void F_WriteByte(FILE* fp, uint8_t b)
 {
-	fwrite(&b, sizeof(ubyte), 1, fp);
+	fwrite(&b, sizeof(uint8_t), 1, fp);
 }
 
 void F_WriteShort(FILE* fp, short s)
 {
-	ubyte b1 = s & 255;
-	ubyte b2 = (s >> 8) & 255;
-	fwrite(&b1, sizeof(ubyte), 1, fp);
-	fwrite(&b2, sizeof(ubyte), 1, fp);
+	uint8_t b1 = s & 255;
+	uint8_t b2 = (s >> 8) & 255;
+	fwrite(&b1, sizeof(uint8_t), 1, fp);
+	fwrite(&b2, sizeof(uint8_t), 1, fp);
 }
 
 void F_WriteInt(FILE* fp, int i)
 {
-	ubyte b1 = i & 255;
-	ubyte b2 = (i >> 8) & 255;
-	ubyte b3 = (i >> 16) & 255;
-	ubyte b4 = (i >> 24) & 255;
-	fwrite(&b1, sizeof(ubyte), 1, fp);
-	fwrite(&b2, sizeof(ubyte), 1, fp);
-	fwrite(&b3, sizeof(ubyte), 1, fp);
-	fwrite(&b4, sizeof(ubyte), 1, fp);
+	uint8_t b1 = i & 255;
+	uint8_t b2 = (i >> 8) & 255;
+	uint8_t b3 = (i >> 16) & 255;
+	uint8_t b4 = (i >> 24) & 255;
+	fwrite(&b1, sizeof(uint8_t), 1, fp);
+	fwrite(&b2, sizeof(uint8_t), 1, fp);
+	fwrite(&b3, sizeof(uint8_t), 1, fp);
+	fwrite(&b4, sizeof(uint8_t), 1, fp);
 }
 
 //[ISB] so it turns out there was already a cfgets. OOPS. This is still needed for the level name loader though

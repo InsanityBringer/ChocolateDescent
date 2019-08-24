@@ -58,7 +58,7 @@ int gr_internal_string_clipped_m(int x, int y, unsigned char* s);
 
 char* find_kern_entry(grs_font* font, unsigned char first, unsigned char second)
 {
-	ubyte* p = font->ft_kerndata;
+	uint8_t* p = font->ft_kerndata;
 
 	while (*p != 255)
 		if (p[0] == first && p[1] == second)
@@ -98,7 +98,7 @@ void get_char_width(int c, int c2, int* width, int* spacing)
 
 	if (FFLAGS & FT_KERNED) 
 	{
-		ubyte* p;
+		uint8_t* p;
 
 		if (!(c2 == 0 || c2 == '\n')) 
 		{
@@ -564,9 +564,9 @@ void gr_close_font(grs_font* font)
 	}
 }
 
-void build_colormap_good(ubyte* palette, ubyte* colormap, int* freq);
+void build_colormap_good(uint8_t* palette, uint8_t* colormap, int* freq);
 
-extern void decode_data_asm(ubyte* data, int num_pixels, ubyte* colormap, int* count); //[ISB] fucking hack
+extern void decode_data_asm(uint8_t* data, int num_pixels, uint8_t* colormap, int* count); //[ISB] fucking hack
 
 //[ISB] saner font handling
 //implying that there's anything sane about this font format, sadly...
@@ -575,9 +575,9 @@ void GR_ReadFont(grs_font* font, CFILE* fp, int len)
 	int dataPtr, charPtr, widthPtr, kernPtr;
 	int nchars;
 	int i;
-	ubyte* ptr;
+	uint8_t* ptr;
 
-	font->ft_datablock = (ubyte*)malloc(len);
+	font->ft_datablock = (uint8_t*)malloc(len);
 
 	font->ft_w = CF_ReadShort(fp);
 	font->ft_h = CF_ReadShort(fp);
@@ -603,7 +603,7 @@ void GR_ReadFont(grs_font* font, CFILE* fp, int len)
 
 	if (font->ft_flags & FT_PROPORTIONAL)
 	{
-		//font->ft_widths = (short*)(((int)font->ft_widths) + ((ubyte*)font));
+		//font->ft_widths = (short*)(((int)font->ft_widths) + ((uint8_t*)font));
 		font->ft_widths = (short*)&font->ft_datablock[widthPtr];
 		font->ft_data = &font->ft_datablock[dataPtr];
 		font->ft_chars = (unsigned char**)malloc(nchars * sizeof(unsigned char*));
@@ -633,8 +633,8 @@ void GR_ReadFont(grs_font* font, CFILE* fp, int len)
 
 	if (font->ft_flags & FT_COLOR) //remap palette
 	{
-		ubyte palette[256 * 3];
-		ubyte colormap[256];
+		uint8_t palette[256 * 3];
+		uint8_t colormap[256];
 		int freq[256];
 
 		cfread(palette, 3, 256, fp);		//read the palette

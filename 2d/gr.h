@@ -202,14 +202,14 @@ typedef struct _grs_font {
 	short		ft_w, ft_h;		// Width and height in pixels
 	short		ft_flags;		// Proportional?
 	short		ft_baseline;	//
-	ubyte		ft_minchar,		// The first and last chars defined by
+	uint8_t		ft_minchar,		// The first and last chars defined by
 		ft_maxchar;		// This font
 	short		ft_bytewidth;	// Width in unsigned chars
-	ubyte* ft_data;			// Ptr to raw data.
-	ubyte** ft_chars;		// Ptrs to data for each char (required for prop font)
+	uint8_t* ft_data;			// Ptr to raw data.
+	uint8_t** ft_chars;		// Ptrs to data for each char (required for prop font)
 	short* ft_widths;		// Array of widths (required for prop font)
-	ubyte* ft_kerndata;	// Array of kerning triplet data
-	ubyte* ft_datablock; //this format sucks aaaaaaaaaaaaaaaaaaaaaa
+	uint8_t* ft_kerndata;	// Array of kerning triplet data
+	uint8_t* ft_datablock; //this format sucks aaaaaaaaaaaaaaaaaaaaaa
 } grs_font;
 
 #define BM_LINEAR   0
@@ -227,8 +227,8 @@ typedef struct _grs_font {
 typedef struct _grs_bitmap {
 	short       bm_x, bm_y;      // Offset from parent's origin
 	short       bm_w, bm_h;      // width,height
-	byte       	bm_type;        // 0=Linear, 1=ModeX, 2=SVGA
-	byte		bm_flags;		// bit 0 on means it has transparency.
+	int8_t       	bm_type;        // 0=Linear, 1=ModeX, 2=SVGA
+	int8_t		bm_flags;		// bit 0 on means it has transparency.
 								// bit 1 on means it has supertransparency
 								// bit 2 on means it doesn't get passed through lighting.
 	short	    bm_rowsize;     // unsigned char offset to next row
@@ -237,8 +237,8 @@ typedef struct _grs_bitmap {
 								//   ModeX = *parent+(rowsize*y+x/4)
 								//   SVGA = *parent+(rowsize*y+x)
 	unsigned short bm_selector;
-	ubyte			avg_color;	//	Average color of all pixels in texture map.
-	byte			unused;		//	to 4-byte align.
+	uint8_t			avg_color;	//	Average color of all pixels in texture map.
+	int8_t			unused;		//	to 4-byte align.
 } grs_bitmap;
 
 typedef struct _grs_canvas {
@@ -521,13 +521,13 @@ extern void gr_set_current_canvas(grs_canvas* canv);
 //extern void test_rotate_bitmap(void); //[ISB] not used?
 extern void rotate_bitmap(grs_bitmap* bp, grs_point* vertbuf, int light_value);
 
-extern ubyte gr_palette[256 * 3];
-extern ubyte gr_fade_table[256 * GR_FADE_LEVELS];
-extern ubyte gr_inverse_table[32 * 32 * 32];
+extern uint8_t gr_palette[256 * 3];
+extern uint8_t gr_fade_table[256 * GR_FADE_LEVELS];
+extern uint8_t gr_inverse_table[32 * 32 * 32];
 
-extern ushort gr_palette_selector;
-extern ushort gr_inverse_table_selector;
-extern ushort gr_fade_table_selector;
+extern uint16_t gr_palette_selector;
+extern uint16_t gr_inverse_table_selector;
+extern uint16_t gr_fade_table_selector;
 
 // Remaps a bitmap into the current palette. If transparent_color is between 0 and 255
 // then all occurances of that color are mapped to whatever color the 2d uses for 
@@ -539,11 +539,11 @@ extern ushort gr_fade_table_selector;
 //			gr_remap_bitmap( new, newpal, iff_transparent_color );
 //		else
 //			gr_remap_bitmap( new, newpal, -1 );
-extern void gr_remap_bitmap(grs_bitmap* bmp, ubyte* palette, int transparent_color, int super_transparent_color);
+extern void gr_remap_bitmap(grs_bitmap* bmp, uint8_t* palette, int transparent_color, int super_transparent_color);
 
 // Same as above, but searches using gr_find_closest_color which uses 18-bit accurracy
 // instaed of 15bit when translating colors.
-extern void gr_remap_bitmap_good(grs_bitmap* bmp, ubyte* palette, int transparent_color, int super_transparent_color);
+extern void gr_remap_bitmap_good(grs_bitmap* bmp, uint8_t* palette, int transparent_color, int super_transparent_color);
 
 extern void gr_palette_step_up(int r, int g, int b);
 
@@ -573,10 +573,10 @@ extern int gr_bitmap_assign_selector(grs_bitmap* bmp);
 // best matches the input.
 int gr_find_closest_color(int r, int g, int b);
 
-extern void gr_merge_textures(ubyte* lower, ubyte* upper, ubyte* dest);
-extern void gr_merge_textures_1(ubyte* lower, ubyte* upper, ubyte* dest);
-extern void gr_merge_textures_2(ubyte* lower, ubyte* upper, ubyte* dest);
-extern void gr_merge_textures_3(ubyte* lower, ubyte* upper, ubyte* dest);
+extern void gr_merge_textures(uint8_t* lower, uint8_t* upper, uint8_t* dest);
+extern void gr_merge_textures_1(uint8_t* lower, uint8_t* upper, uint8_t* dest);
+extern void gr_merge_textures_2(uint8_t* lower, uint8_t* upper, uint8_t* dest);
+extern void gr_merge_textures_3(uint8_t* lower, uint8_t* upper, uint8_t* dest);
 
 //tbh no idea why this wasn't in the header
 void gr_sync_display();

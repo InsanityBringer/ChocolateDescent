@@ -57,11 +57,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	CONTROL_LIGHTS_OFF		  32	// If Trigger turns off lights in a certain area
 
 typedef struct trigger {
-	byte		type;
+	int8_t		type;
 	short		flags;
 	fix		value;
 	fix		time;
-	byte		link_num;
+	int8_t		link_num;
 	short 	num_links;
 	short 	seg[MAX_WALLS_PER_LINK];
 	short		side[MAX_WALLS_PER_LINK];

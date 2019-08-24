@@ -89,9 +89,9 @@ char digi_last_drum_bank[16] = "";
 char* digi_driver_path = NULL;//Was _NULL -KRB
 
 //[ISB] not windows types
-static uint						hSOSDigiDriver = 0xffff;			// handle for the SOS driver being used 
-static uint     				hSOSMidiDriver = 0xffff;			// handle for the loaded MIDI driver
-static uint						hTimerEventHandle = 0xffff;		// handle for the timer function
+static uint32_t						hSOSDigiDriver = 0xffff;			// handle for the SOS driver being used 
+static uint32_t     				hSOSMidiDriver = 0xffff;			// handle for the loaded MIDI driver
+static uint32_t						hTimerEventHandle = 0xffff;		// handle for the timer function
 
 static void* lpInstruments = NULL;		// pointer to the instrument file
 static int InstrumentSize = 0;
@@ -114,8 +114,8 @@ static _SOS_MIDI_TRACK_DEVICE   sSOSTrackMap = {
 };
 */
 // handle for the initialized MIDI song
-uint     wSongHandle = 0xffff;
-ubyte* SongData = NULL;
+uint32_t     wSongHandle = 0xffff;
+uint8_t* SongData = NULL;
 int		SongSize;
 
 
@@ -128,12 +128,12 @@ int		SongSize;
 typedef struct sound_object 
 {
 	short			signature;		// A unique signature to this sound
-	ubyte			flags;			// Used to tell if this slot is used and/or currently playing, and how long.
+	uint8_t			flags;			// Used to tell if this slot is used and/or currently playing, and how long.
 	fix			max_volume;		// Max volume that this sound is playing at
 	fix			max_distance;	// The max distance that this sound can be heard at...
 	int			volume;			// Volume that this sound is playing at
 	int			pan;				// Pan value that this sound is playing at
-	uint			handle;			// What handle this sound is playing on.  Valid only if SOF_PLAYING is set.
+	uint32_t			handle;			// What handle this sound is playing on.  Valid only if SOF_PLAYING is set.
 	short			soundnum;		// The sound number that is playing
 	union {
 		struct {
@@ -155,7 +155,7 @@ typedef struct
 	int angle;
 	int loop;
 
-	ubyte* data;
+	uint8_t* data;
 	
 } sampledata_t;
 
@@ -168,7 +168,7 @@ int digi_sounds_initialized = 0;
 void* testLoadFile(char* szFileName, int* length);
 
 void digi_reset_digi_sounds();
-uint sosMIDICallback(uint PassedSongHandle);
+uint32_t sosMIDICallback(uint32_t PassedSongHandle);
 void sosEndMIDICallback();
 
 int digi_xlat_sound(int soundno)
@@ -525,7 +525,7 @@ int digi_total_locks = 0;
 //[ISB] In practice, in this modern era of linear address spaces and sound APIs,
 //these aren't needed, but for now I'm keeping them in case they do important bookkeeping.
 //I guess. 
-ubyte* digi_lock_sound_data(int soundnum)
+uint8_t* digi_lock_sound_data(int soundnum)
 {
 	if ( !Digi_initialized ) return NULL;
 	if ( digi_driver_board <= 0 )	return NULL;
@@ -559,9 +559,9 @@ void digi_unlock_sound_data(int soundnum)
 }
 
 static int next_handle = 0;
-static ushort SampleHandles[32] = { 0xffff, 0xffff, 0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff };
+static uint16_t SampleHandles[32] = { 0xffff, 0xffff, 0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff };
 static int SoundNums[32] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
-static uint SoundVolumes[32] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
+static uint32_t SoundVolumes[32] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
 
 void digi_reset_digi_sounds()
 {
@@ -637,10 +637,10 @@ int digi_get_max_channels()
 	return digi_max_channels;
 }
 
-ushort digi_start_sound(sampledata_t* sampledata, short soundnum)
+uint16_t digi_start_sound(sampledata_t* sampledata, short soundnum)
 {
 	int i, ntries;
-	ushort sHandle = 0xFFFF;
+	uint16_t sHandle = 0xFFFF;
 
 	if (!Digi_initialized) return 0xFFFF;
 	if (digi_driver_board <= 0)	return 0xFFFF;
@@ -651,7 +651,7 @@ ushort digi_start_sound(sampledata_t* sampledata, short soundnum)
 TryNextChannel:
 	if ((SampleHandles[next_handle] < _MAX_VOICES)  && !I_CheckSoundDone(SampleHandles[next_handle]) /*&& (!sosDIGISampleDone( hSOSDigiDriver, SampleHandles[next_handle]))*/)		
 	{
-		if ( (SoundVolumes[next_handle] > (uint)digi_volume) && (ntries<digi_max_channels) )	
+		if ( (SoundVolumes[next_handle] > (uint32_t)digi_volume) && (ntries<digi_max_channels) )	
 		{
 			//mprintf(( 0, "Not stopping loud sound %d.\n", next_handle ));
 			next_handle++;
@@ -712,7 +712,7 @@ TryNextChannel:
 	SoundNums[next_handle] = soundnum;
 	SoundVolumes[next_handle] = sampledata->volume;
 //	mprintf(( 0, "Starting sample %d at volume %d\n", next_handle, sampledata->wVolume  ));
-	if (SoundVolumes[next_handle] > (uint)digi_volume)
+	if (SoundVolumes[next_handle] > (uint32_t)digi_volume)
 		mprintf(( 0, "Starting loud sample %d\n", next_handle ));
 	next_handle++;
 	if ( next_handle >= digi_max_channels )
@@ -724,7 +724,7 @@ TryNextChannel:
 //[ISB] this isn't called ever, which saves me having to do the bookkeeping for it. Yay.
 int digi_is_sound_playing(int soundno)
 {
-	/*ushort SampleHandle = 0xFFFF;
+	/*uint16_t SampleHandle = 0xFFFF;
 	soundno = digi_xlat_sound(soundno);
 
 	if (!Digi_initialized) return 0;
@@ -745,7 +745,7 @@ int digi_is_sound_playing(int soundno)
 
 void digi_play_sample_once(int soundno, fix max_volume)
 {
-	ushort SampleHandle;
+	uint16_t SampleHandle;
 	digi_sound *snd;
 	sampledata_t DigiSampleData;
 	//_SOS_START_SAMPLE sSOSSampleData;
@@ -984,7 +984,7 @@ void* testLoadFile(char* szFileName, int* length)
 
 // ALL VARIABLES IN HERE MUST BE LOCKED DOWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //[ISB] well they did at one point...
-uint sosMIDICallback(uint PassedSongHandle)
+uint32_t sosMIDICallback(uint32_t PassedSongHandle)
 {
 	//sosMIDIStartSong(PassedSongHandle);
 	return 0;
@@ -1473,7 +1473,7 @@ void digi_sync_sounds()
 	if (digi_driver_board<1) return;
 
 //NOT_MIDI_CHECK	if (SongData)	{
-//NOT_MIDI_CHECK		ushort new_crc;
+//NOT_MIDI_CHECK		uint16_t new_crc;
 //NOT_MIDI_CHECK		new_crc = netmisc_calc_checksum( &SongData, SongSize );
 //NOT_MIDI_CHECK		if ( new_crc != MIDI_CRC )	{
 //NOT_MIDI_CHECK			for (i=0; i<SongSize; i++ )	{

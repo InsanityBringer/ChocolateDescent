@@ -98,12 +98,12 @@ typedef struct wall
 	int	segnum, sidenum;	// Seg & side for this wall
 	fix   hps;				  	// "Hit points" of the wall. 
 	int	linked_wall;		// number of linked wall
-	ubyte	type; 			  	// What kind of special wall.
-	ubyte	flags;				// Flags for the wall.		
-	ubyte	state;				// Opening, closing, etc.
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	ubyte	keys;					// which keys are required
+	uint8_t	type; 			  	// What kind of special wall.
+	uint8_t	flags;				// Flags for the wall.		
+	uint8_t	state;				// Opening, closing, etc.
+	int8_t	trigger;				// Which trigger is associated with the wall.
+	int8_t	clip_num;			// Which	animation associated with the wall. 
+	uint8_t	keys;					// which keys are required
 	short	pad;					// keep longword aligned
 } wall;
 

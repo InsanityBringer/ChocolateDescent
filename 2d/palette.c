@@ -168,16 +168,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int gr_installed;
 
-ubyte gr_palette[256 * 3];
-ubyte gr_current_pal[256 * 3];
-ubyte gr_fade_table[256 * 34];
+uint8_t gr_palette[256 * 3];
+uint8_t gr_current_pal[256 * 3];
+uint8_t gr_fade_table[256 * 34];
 
-ushort gr_palette_selector;
-ushort gr_fade_table_selector;
+uint16_t gr_palette_selector;
+uint16_t gr_fade_table_selector;
 
-ubyte gr_palette_gamma = 0;
+uint8_t gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
-ubyte gr_palette_faded_out = 1;
+uint8_t gr_palette_faded_out = 1;
 
 void gr_palette_set_gamma(int gamma)
 {
@@ -228,7 +228,7 @@ void gr_use_palette_table(char* filename)
 int	Num_computed_colors = 0;
 
 typedef struct {
-	ubyte	r, g, b, color_num;
+	uint8_t	r, g, b, color_num;
 } color_record;
 
 color_record Computed_colors[MAX_COMPUTED_COLORS];
@@ -361,9 +361,9 @@ static int last_r = 0, last_g = 0, last_b = 0;
 void gr_palette_step_up(int r, int g, int b)
 {
 	int i;
-	ubyte* p;
+	uint8_t* p;
 	int temp;
-	ubyte temp_pal[768];
+	uint8_t temp_pal[768];
 
 	if (gr_palette_faded_out) return;
 
@@ -398,10 +398,10 @@ void gr_palette_clear()
 	gr_palette_faded_out = 1;
 }
 
-void gr_palette_load(ubyte* pal)
+void gr_palette_load(uint8_t* pal)
 {
 	int i;
-	ubyte c;
+	uint8_t c;
 	for (i = 0; i < 768; i++) 
 	{
 		c = pal[i] + gr_palette_gamma;
@@ -414,13 +414,13 @@ void gr_palette_load(ubyte* pal)
 	init_computed_colors();
 }
 
-int gr_palette_fade_out(ubyte* pal, int nsteps, int allow_keys)
+int gr_palette_fade_out(uint8_t* pal, int nsteps, int allow_keys)
 {
-	ubyte c;
+	uint8_t c;
 	int i, j;
 	fix fade_palette[768];
 	fix fade_palette_delta[768];
-	ubyte fade_palette_raw[768];
+	uint8_t fade_palette_raw[768];
 
 //	allow_keys = allow_keys;
 
@@ -441,7 +441,7 @@ int gr_palette_fade_out(ubyte* pal, int nsteps, int allow_keys)
 			fade_palette[i] -= fade_palette_delta[i];
 			if (fade_palette[i] < 0)
 				fade_palette[i] = 0;
-			c = (ubyte)f2i(fade_palette[i]);
+			c = (uint8_t)f2i(fade_palette[i]);
 			if (c > 63) c = 63;
 			fade_palette_raw[i] = c;
 		}
@@ -451,13 +451,13 @@ int gr_palette_fade_out(ubyte* pal, int nsteps, int allow_keys)
 	return 0;
 }
 
-int gr_palette_fade_in(ubyte* pal, int nsteps, int allow_keys)
+int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys)
 {
 	int i, j;
-	ubyte c;
+	uint8_t c;
 	fix fade_palette[768];
 	fix fade_palette_delta[768];
-	ubyte fade_palette_raw[768];
+	uint8_t fade_palette_raw[768];
 
 //	allow_keys = allow_keys;
 
@@ -480,7 +480,7 @@ int gr_palette_fade_in(ubyte* pal, int nsteps, int allow_keys)
 			fade_palette[i] += fade_palette_delta[i];
 			if (fade_palette[i] > i2f(pal[i] + gr_palette_gamma))
 				fade_palette[i] = i2f(pal[i] + gr_palette_gamma);
-			c = (ubyte)f2i(fade_palette[i]);
+			c = (uint8_t)f2i(fade_palette[i]);
 			if (c > 63) c = 63;
 			fade_palette_raw[i] = c;
 		}
@@ -490,10 +490,10 @@ int gr_palette_fade_in(ubyte* pal, int nsteps, int allow_keys)
 	return 0;
 }
 
-void gr_make_cthru_table(ubyte* table, ubyte r, ubyte g, ubyte b)
+void gr_make_cthru_table(uint8_t* table, uint8_t r, uint8_t g, uint8_t b)
 {
 	int i;
-	ubyte r1, g1, b1;
+	uint8_t r1, g1, b1;
 
 	for (i = 0; i < 256; i++)
 	{
@@ -507,7 +507,7 @@ void gr_make_cthru_table(ubyte* table, ubyte r, ubyte g, ubyte b)
 	}
 }
 
-void gr_palette_read(ubyte* palette)
+void gr_palette_read(uint8_t* palette)
 {
 	I_ReadPalette(palette);
 }

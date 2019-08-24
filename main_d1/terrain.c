@@ -48,8 +48,8 @@ int grid_w, grid_h;
 g3s_uvl uvl_list1[] = { {0,0,0}, {f1_0,0,0},  {0,f1_0,0} };
 g3s_uvl uvl_list2[] = { {f1_0,0,0}, {f1_0,f1_0,0},  {0,f1_0,0} };
 
-ubyte* height_array;
-ubyte* light_array;
+uint8_t* height_array;
+uint8_t* light_array;
 
 #define HEIGHT(_i,_j) (height_array[(_i)*grid_w+(_j)])
 #define LIGHT(_i,_j) light_array[(_i)*grid_w+(_j)]
@@ -145,7 +145,7 @@ void draw_cell(int i, int j, g3s_point* p0, g3s_point* p1, g3s_point* p2, g3s_po
 }
 
 vms_vector y_cache[256];
-ubyte yc_flags[256];
+uint8_t yc_flags[256];
 
 extern vms_matrix surface_orient;
 
@@ -350,7 +350,7 @@ void load_terrain(char* filename)
 	grs_bitmap height_bitmap;
 	int iff_error;
 	int i, j;
-	ubyte h, min_h, max_h;
+	uint8_t h, min_h, max_h;
 
 	iff_error = iff_read_bitmap(filename, &height_bitmap, BM_LINEAR, NULL);
 	if (iff_error != IFF_NO_ERROR) {
@@ -453,8 +453,8 @@ void build_light_table()
 	else
 		atexit(free_light_table);		//first time
 
-	//MALLOC(light_array,ubyte,grid_w*grid_h); //Won't comile -KRB
-	light_array = (ubyte*)malloc(grid_w * grid_h + (sizeof(ubyte))); //my hack -KRB
+	//MALLOC(light_array,uint8_t,grid_w*grid_h); //Won't comile -KRB
+	light_array = (uint8_t*)malloc(grid_w * grid_h + (sizeof(uint8_t))); //my hack -KRB
 	for (i = 1; i < grid_w; i++)
 		for (j = 1; j < grid_h; j++) {
 			l = get_avg_light(i, j);
@@ -475,7 +475,7 @@ void build_light_table()
 			l = get_avg_light(i, j);
 
 			if (min_l == max_l) {
-				LIGHT(i, j) = (ubyte)(l >> 8);
+				LIGHT(i, j) = (uint8_t)(l >> 8);
 				continue;
 			}
 
@@ -484,7 +484,7 @@ void build_light_table()
 			if (l2 == f1_0)
 				l2--;
 
-			LIGHT(i, j) = (ubyte)(l2 >> 8);
+			LIGHT(i, j) = (uint8_t)(l2 >> 8);
 
 			//printf("light %2d,%2d = %4x\n",i,j,l2>>8);
 		}

@@ -67,7 +67,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
  //Prototypes for IFF library functions
 
-int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, ubyte* palette);
+int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, uint8_t* palette);
 //reads an IFF file into a grs_bitmap structure. fills in palette if not null
 //returns error codes - see IFF.H.  see GR.H for bitmap_type
 //MEM DETAILS:  This routines assumes that you already have the grs_bitmap
@@ -82,18 +82,18 @@ int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, ubyte* pal
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
 //without allocating memory for the bitmap. 
-int iff_read_into_bitmap(char* ifilename, grs_bitmap* bm, byte* palette);
+int iff_read_into_bitmap(char* ifilename, grs_bitmap* bm, int8_t* palette);
 
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.
 //returns iff error codes. max_bitmaps is size of array.
-int iff_read_animbrush(char* ifilename, grs_bitmap** bm, int max_bitmaps, int* n_bitmaps, ubyte* palette);
+int iff_read_animbrush(char* ifilename, grs_bitmap** bm, int max_bitmaps, int* n_bitmaps, uint8_t* palette);
 
 // After a read
-extern ubyte iff_transparent_color;
-extern ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is valid
+extern uint8_t iff_transparent_color;
+extern uint8_t iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is valid
 
-int iff_write_bitmap(char* ofilename, grs_bitmap* bm, ubyte* palette);
+int iff_write_bitmap(char* ofilename, grs_bitmap* bm, uint8_t* palette);
 //writes an IFF file from a grs_bitmap structure. writes palette if not null
 //returns error codes - see IFF.H.
 

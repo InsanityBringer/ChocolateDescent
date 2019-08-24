@@ -40,15 +40,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //attempts to build this on a big-endian machine, it would be more worthwhile
 //to have functions in cfile that read a little endian number with 2/4 byte reads and shifts.
 
-ushort swapshort(ushort s)
+uint16_t swapshort(uint16_t s)
 {
 	//return ((s >> 8) & 0x00ff) | ((s << 8) & 0xff00);
 	return s; 
 }
 
-uint swapint(uint i)
+uint32_t swapint(uint32_t i)
 {
-	/*ushort s1, s2;
+	/*uint16_t s1, s2;
 
 	s1 = (i >> 16) & 0x0000ffff;
 	s2 = i & 0x0000ffff;

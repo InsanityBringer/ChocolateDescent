@@ -99,19 +99,19 @@ int default_irq[4] = { 4, 3, 4, 3 };
 
 typedef struct com_sync_pack {
 	char type;
-	byte proto_version;
+	int8_t proto_version;
 	long sync_time;
-	byte level_num;
+	int8_t level_num;
 	char difficulty;
 	char game_mode;
 	char callsign[CALLSIGN_LEN + 1];
 	short kills[2];
-	ushort seg_checksum;
+	uint16_t seg_checksum;
 #ifndef SHAREWARE
-	byte sync_id;
+	int8_t sync_id;
 	char mission_name[9];
 	short killed;
-	byte game_flags;
+	int8_t game_flags;
 #endif
 	char	dummy[3]; // Extra space for checksum & sequence number
 } com_sync_pack;
@@ -126,8 +126,8 @@ int other_got_sync = 0;
 int carrier_on = 0;
 long com_type = -1; /* What type of UART is available */
 static long synccnt;
-static ubyte rx_seqnum = 0xff;
-static ubyte tx_seqnum = 0;
+static uint8_t rx_seqnum = 0xff;
+static uint8_t tx_seqnum = 0;
 int OtherPlayer; // Player num for modem opponent
 int com_process_mode = COM_PROCESS_NORMAL;
 int master = -1; // Am I the master or is the other guy the master?
@@ -482,7 +482,7 @@ com_carrier_lost(void)
 
 codex(code_05s, code_05e)
 
-extern ubyte cockpit_mode_save; // From object.c
+extern uint8_t cockpit_mode_save; // From object.c
 extern int old_cockpit_mode; // From game.c
 
 com_reset_game(void)
@@ -698,10 +698,10 @@ com_send_data(char* ptr, int len, int repeat)
 
 	len += 3; // Checksum data is 3 bytes
 
-	*(ubyte*)(ptr + (len - 3)) = (tx_seqnum + 1) % 256;
+	*(uint8_t*)(ptr + (len - 3)) = (tx_seqnum + 1) % 256;
 	tx_seqnum = (tx_seqnum + 1) % 256;
 
-	*(ushort*)(ptr + (len - 2)) = netmisc_calc_checksum(ptr, len - 2);
+	*(uint16_t*)(ptr + (len - 2)) = netmisc_calc_checksum(ptr, len - 2);
 
 	com_send_ptr(ptr, len);
 	if (repeat)
@@ -853,7 +853,7 @@ com_do_frame(void)
 int
 com_check_message(char* checkbuf, int len)
 {
-	ushort check;
+	uint16_t check;
 	int seqnum;
 
 	if (len < 4)
@@ -881,10 +881,10 @@ com_check_message(char* checkbuf, int len)
 	}
 
 	check = netmisc_calc_checksum(checkbuf, len - 2);
-	if (check != *(ushort*)(checkbuf + (len - 2)))
+	if (check != *(uint16_t*)(checkbuf + (len - 2)))
 	{
 #ifndef NDEBUG
-		mprintf((0, "error in message type %d, length %d, checksum %d != %d\n", checkbuf[0], len, check, *(ushort*)(checkbuf + (len - 2))));
+		mprintf((0, "error in message type %d, length %d, checksum %d != %d\n", checkbuf[0], len, check, *(uint16_t*)(checkbuf + (len - 2))));
 #endif
 		goto error;
 	}
@@ -2348,7 +2348,7 @@ com_send_begin_sync(void)
 }
 
 void
-com_process_end_sync(byte* buf)
+com_process_end_sync(int8_t* buf)
 {
 	// Process incoming end-sync packet
 

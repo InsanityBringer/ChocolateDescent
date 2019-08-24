@@ -131,9 +131,9 @@ extern	int	Interlacing_on;
 
 extern	short	_pixel_data_selector;
 
-extern ubyte* tmap_flat_cthru_table;
-extern ubyte tmap_flat_color;
-extern ubyte tmap_flat_shade_value;
+extern uint8_t* tmap_flat_cthru_table;
+extern uint8_t tmap_flat_color;
+extern uint8_t tmap_flat_shade_value;
 
 
 extern fix fix_recip[];

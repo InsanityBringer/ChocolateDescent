@@ -62,7 +62,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "2d/i_gr.h"
 
-ubyte New_pal[768];
+uint8_t New_pal[768];
 int	New_pal_254_bash;
 
 char* Briefing_text;
@@ -156,8 +156,8 @@ int show_title_screen(char* filename, int allow_keys)
 typedef struct 
 {
 	char	bs_name[14];						//	filename, eg merc01.  Assumes .lbm suffix.
-	byte	level_num;
-	byte	message_num;
+	int8_t	level_num;
+	int8_t	message_num;
 	short	text_ulx, text_uly;		 	//	upper left x,y of text window
 	short	text_width, text_height; 	//	width and height of text window
 } briefing_screen;
@@ -278,7 +278,7 @@ char	Bitmap_name[32] = "";
 #define	EXIT_DOOR_MAX	14
 #define	OTHER_THING_MAX	10		//	Adam: This is the number of frames in your new animating thing.
 #define	DOOR_DIV_INIT	6
-byte	Door_dir = 1, Door_div_count = 0, Animating_bitmap_type = 0;
+int8_t	Door_dir = 1, Door_div_count = 0, Animating_bitmap_type = 0;
 
 //	-----------------------------------------------------------------------------
 void show_bitmap_frame(void)
@@ -545,7 +545,7 @@ void title_save_game()
 	grs_canvas* save_canv;
 	grs_canvas* save_canv_data;
 	grs_font* save_font;
-	ubyte palette[768];
+	uint8_t palette[768];
 
 	if (Next_level_num == 0) return;
 
@@ -696,7 +696,7 @@ int show_briefing_message(int screen_num, char* message)
 			{
 				char			bitmap_name[32];
 				grs_bitmap	guy_bitmap;
-				ubyte			temp_palette[768];
+				uint8_t			temp_palette[768];
 				int			iff_error;
 
 				if (Robot_canv != NULL)

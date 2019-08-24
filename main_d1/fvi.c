@@ -180,7 +180,7 @@ int ij_table[3][2] = {
 #define IT_POINT        3       //touches vertex
 
 //see if a point in inside a face by projecting into 2d
-uint check_point_to_face(vms_vector * checkp, segment * sp, side * s, int facenum, int nv, int* vertex_list)
+uint32_t check_point_to_face(vms_vector * checkp, segment * sp, side * s, int facenum, int nv, int* vertex_list)
 {
 	vms_vector_array checkp_array;
 	vms_vector_array norm;
@@ -188,7 +188,7 @@ uint check_point_to_face(vms_vector * checkp, segment * sp, side * s, int facenu
 	int biggest;
 	///
 	int i, j, edge;
-	uint edgemask;
+	uint32_t edgemask;
 	fix check_i, check_j;
 	vms_vector_array v0, v1;
 
@@ -258,7 +258,7 @@ uint check_point_to_face(vms_vector * checkp, segment * sp, side * s, int facenu
 int check_sphere_to_face(vms_vector* pnt, segment* sp, side* s, int facenum, int nv, fix rad, int* vertex_list)
 {
 	vms_vector checkp = *pnt;
-	uint edgemask;
+	uint32_t edgemask;
 
 	//now do 2d check to see if point is in side
 
@@ -434,7 +434,7 @@ int special_check_line_to_face(vms_vector * newp, vms_vector * p0, vms_vector * 
 	fix edge_len, move_len;
 	int vertex_list[6];
 	int num_faces, edgenum;
-	uint edgemask;
+	uint32_t edgemask;
 	vms_vector* edge_v0, * edge_v1, edge_vec;
 	struct side* s = &seg->sides[side];
 	vms_vector closest_point_edge, closest_point_move;

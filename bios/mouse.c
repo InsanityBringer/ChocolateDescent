@@ -31,34 +31,34 @@ typedef struct event_info {
 	short pitch;
 	short bank;
 	short heading;
-	ushort button_status;
-	ushort device_dependant;
+	uint16_t button_status;
+	uint16_t device_dependant;
 } event_info;
 
 typedef struct mouse_info {
 	fix		ctime;
-	ubyte		cyberman;
+	uint8_t		cyberman;
 	int		num_buttons;
-	ubyte		pressed[MOUSE_MAX_BUTTONS];
+	uint8_t		pressed[MOUSE_MAX_BUTTONS];
 	fix		time_went_down[MOUSE_MAX_BUTTONS];
 	fix		time_held_down[MOUSE_MAX_BUTTONS];
-	uint		num_downs[MOUSE_MAX_BUTTONS];
-	uint		num_ups[MOUSE_MAX_BUTTONS];
+	uint32_t		num_downs[MOUSE_MAX_BUTTONS];
+	uint32_t		num_ups[MOUSE_MAX_BUTTONS];
 	event_info* x_info;
-	ushort	button_status;
+	uint16_t	button_status;
 } mouse_info;
 
 typedef struct cyberman_info {
-	ubyte device_type;
-	ubyte major_version;
-	ubyte minor_version;
-	ubyte x_descriptor;
-	ubyte y_descriptor;
-	ubyte z_descriptor;
-	ubyte pitch_descriptor;
-	ubyte roll_descriptor;
-	ubyte yaw_descriptor;
-	ubyte reserved;
+	uint8_t device_type;
+	uint8_t major_version;
+	uint8_t minor_version;
+	uint8_t x_descriptor;
+	uint8_t y_descriptor;
+	uint8_t z_descriptor;
+	uint8_t pitch_descriptor;
+	uint8_t roll_descriptor;
+	uint8_t yaw_descriptor;
+	uint8_t reserved;
 } cyberman_info;
 
 static mouse_info Mouse;
@@ -131,7 +131,7 @@ void mouse_set_pos(int x, int y)
 }
 
 //Adaption of Parallax's mouse handler
-void I_MouseHandler(uint button, dbool down)
+void I_MouseHandler(uint32_t button, dbool down)
 {
 	Mouse.ctime = timer_get_fixed_secondsX();
 
@@ -286,6 +286,6 @@ fix mouse_button_down_time(int button) { return 0; }
 int mouse_button_down_count(int button) { return 0; }
 int mouse_button_state(int button) { return 0; }
 
-void I_MouseHandler(uint button, dbool down) { }
+void I_MouseHandler(uint32_t button, dbool down) { }
 
 #endif

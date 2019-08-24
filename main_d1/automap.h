@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void do_automap(int key_code);
 extern void automap_clear_visited();
-extern ubyte Automap_visited[MAX_SEGMENTS];
+extern uint8_t Automap_visited[MAX_SEGMENTS];
 extern void modex_print_message(int x, int y, char* str);
 
 void adjust_segment_limit(int SegmentLimit); 

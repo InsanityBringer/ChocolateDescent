@@ -261,7 +261,7 @@ void I_SetRelative(int state)
 	SDL_SetRelativeMouseMode(state);
 }
 
-void I_WritePalette(int start, int end, ubyte* data)
+void I_WritePalette(int start, int end, uint8_t* data)
 {
 	SDL_Palette *pal;
 	SDL_Color colors[256];
@@ -281,12 +281,12 @@ void I_WritePalette(int start, int end, ubyte* data)
 
 void I_BlankPalette()
 {
-	ubyte pal[768];
-	memset(&pal[0], 0, 768 * sizeof(ubyte));
+	uint8_t pal[768];
+	memset(&pal[0], 0, 768 * sizeof(uint8_t));
 	I_WritePalette(0, 255, &pal[0]);
 }
 
-void I_ReadPalette(ubyte* dest)
+void I_ReadPalette(uint8_t* dest)
 {
 	int i;
 	SDL_Palette* pal;
@@ -297,9 +297,9 @@ void I_ReadPalette(ubyte* dest)
 	for (i = 0; i < 256; i++)
 	{
 		color = pal->colors[i];
-		dest[i * 3 + 0] = (ubyte)(color.r * 63 / 255);
-		dest[i * 3 + 1] = (ubyte)(color.g * 63 / 255);
-		dest[i * 3 + 2] = (ubyte)(color.b * 63 / 255);
+		dest[i * 3 + 0] = (uint8_t)(color.r * 63 / 255);
+		dest[i * 3 + 1] = (uint8_t)(color.g * 63 / 255);
+		dest[i * 3 + 2] = (uint8_t)(color.b * 63 / 255);
 	}
 }
 
@@ -401,9 +401,9 @@ void I_SetScreenCanvas(grs_canvas* canv) { }
 int I_SetMode(int mode) { return 0; }
 void I_DoEvents() { }
 void I_SetRelative(int state) { }
-void I_WritePalette(int start, int end, ubyte* data) { }
+void I_WritePalette(int start, int end, uint8_t* data) { }
 void I_BlankPalette() { }
-void I_ReadPalette(ubyte* dest) { }
+void I_ReadPalette(uint8_t* dest) { }
 void I_WaitVBL() { }
 void I_DrawCurrentCanvas(int sync) { }
 void I_BlitCurrentCanvas() { }

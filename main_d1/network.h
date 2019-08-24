@@ -281,7 +281,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CONNECT_END_MENU			6
 
 typedef struct sequence_packet {
-	ubyte					type;
+	uint8_t					type;
 	netplayer_info		player;
 } sequence_packet;
 
@@ -293,34 +293,34 @@ typedef struct sequence_packet {
 
 #ifdef SHAREWARE
 typedef struct frame_info {
-	ubyte				type;						// What type of p
+	uint8_t				type;						// What type of p
 	int				numpackets;
 	short				objnum;
-	ubyte				playernum;
+	uint8_t				playernum;
 	short				obj_segnum;
 	vms_vector		obj_pos;
 	vms_matrix		obj_orient;
 	physics_info	obj_phys_info;
-	ubyte				obj_render_type;
-	ubyte				level_num;
-	ushort			data_size;		// Size of data appended to the net packet
-	ubyte				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
+	uint8_t				obj_render_type;
+	uint8_t				level_num;
+	uint16_t			data_size;		// Size of data appended to the net packet
+	uint8_t				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
 } frame_info;
 #else
 typedef struct frame_info {
-	ubyte				type;						// What type of packet
-	ubyte				pad[3];					// Pad out length of frame_info packet
+	uint8_t				type;						// What type of packet
+	uint8_t				pad[3];					// Pad out length of frame_info packet
 	int				numpackets;
 	vms_vector		obj_pos;
 	vms_matrix		obj_orient;
 	vms_vector		phys_velocity;
 	vms_vector		phys_rotvel;
 	short				obj_segnum;
-	ushort			data_size;		// Size of data appended to the net packet
-	ubyte				playernum;
-	ubyte				obj_render_type;
-	ubyte				level_num;
-	ubyte				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
+	uint16_t			data_size;		// Size of data appended to the net packet
+	uint8_t				playernum;
+	uint8_t				obj_render_type;
+	uint8_t				level_num;
+	uint8_t				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
 } frame_info;
 #endif
 
@@ -355,7 +355,7 @@ extern int Network_status;
 
 extern fix LastPacketTime[MAX_PLAYERS];
 
-extern ushort my_segments_checksum;
+extern uint16_t my_segments_checksum;
 // By putting an up-to-20-char-message into Network_message and 
 // setting Network_message_reciever to the player num you want to
 // send it to (100 for broadcast) the next frame the player will
@@ -366,7 +366,7 @@ void network_do_frame(int force, int listen);
 
 // Tacks data of length 'len' onto the end of the next
 // packet that we're transmitting.
-void network_send_data(ubyte* ptr, int len, int urgent);
+void network_send_data(uint8_t* ptr, int len, int urgent);
 
 #endif
 #endif

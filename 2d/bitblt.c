@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int gr_bitblt_dest_step_shift = 0;
 int gr_bitblt_double = 0;
-ubyte* gr_bitblt_fade_table = NULL;
+uint8_t* gr_bitblt_fade_table = NULL;
 
 //extern void gr_vesa_bitmap(grs_bitmap* source, grs_bitmap* dest, int x, int y); [ISB] seems unused too
 
@@ -38,17 +38,17 @@ ubyte* gr_bitblt_fade_table = NULL;
 void gr_linear_movsd(void* src, void* dest, unsigned short num_pixels)
 {
 	int i;
-	ubyte* ldest = (ubyte*)dest;
-	ubyte* lsrc = (ubyte*)src;
+	uint8_t* ldest = (uint8_t*)dest;
+	uint8_t* lsrc = (uint8_t*)src;
 	for (i = 0; i < num_pixels; i++)
 		*ldest++ = *lsrc++;
 }
 
-void gr_linear_rep_movsd_faded(void* src, void* dest, unsigned short num_pixels, ubyte fade_value)
+void gr_linear_rep_movsd_faded(void* src, void* dest, unsigned short num_pixels, uint8_t fade_value)
 {
 	int i;
-	ubyte* ldest = (ubyte*)dest;
-	ubyte* lsrc = (ubyte*)src;
+	uint8_t* ldest = (uint8_t*)dest;
+	uint8_t* lsrc = (uint8_t*)src;
 	for (i = 0; i < num_pixels; i++)
 	{
 		*ldest++ = gr_fade_table[*lsrc++ + (256 * fade_value)];
@@ -58,8 +58,8 @@ void gr_linear_rep_movsd_faded(void* src, void* dest, unsigned short num_pixels,
 void gr_linear_movsdm(void* src, void* dest, unsigned short num_pixels)
 {
 	int i;
-	ubyte* ldest = (ubyte*)dest;
-	ubyte* lsrc = (ubyte*)src;
+	uint8_t* ldest = (uint8_t*)dest;
+	uint8_t* lsrc = (uint8_t*)src;
 	for (i = 0; i < num_pixels; i++)
 	{
 		if (*lsrc != TRANSPARENCY_COLOR)
@@ -71,11 +71,11 @@ void gr_linear_movsdm(void* src, void* dest, unsigned short num_pixels)
 	}
 }
 
-void gr_linear_rep_movsdm_faded(void* src, void* dest, unsigned short num_pixels, ubyte fade_value)
+void gr_linear_rep_movsdm_faded(void* src, void* dest, unsigned short num_pixels, uint8_t fade_value)
 {
 	int i;
-	ubyte* ldest = (ubyte*)dest;
-	ubyte* lsrc = (ubyte*)src;
+	uint8_t* ldest = (uint8_t*)dest;
+	uint8_t* lsrc = (uint8_t*)src;
 	for (i = 0; i < num_pixels; i++)
 	{
 		if (*lsrc != TRANSPARENCY_COLOR)
@@ -174,7 +174,7 @@ void gr_ubitmapGENERIC(int x, int y, grs_bitmap* bm)
 void gr_ubitmapGENERICm(int x, int y, grs_bitmap* bm)
 {
 	register int x1, y1;
-	ubyte c;
+	uint8_t c;
 
 	for (y1 = 0; y1 < bm->bm_h; y1++) {
 		for (x1 = 0; x1 < bm->bm_w; x1++) {
@@ -396,7 +396,7 @@ void gr_bitmapm(int x, int y, grs_bitmap* bm)
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
 {
 	register int x1, y1;
-	ubyte c;
+	uint8_t c;
 
 	for (y1 = 0; y1 < h; y1++) {
 		for (x1 = 0; x1 < w; x1++) {
@@ -452,7 +452,7 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 }
 
 // in rle.c
-extern void gr_rle_expand_scanline_generic(grs_bitmap* dest, int dx, int dy, ubyte* src, int x1, int x2);
+extern void gr_rle_expand_scanline_generic(grs_bitmap* dest, int dx, int dy, uint8_t* src, int x1, int x2);
 
 void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
 {

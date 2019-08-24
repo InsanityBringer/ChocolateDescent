@@ -60,9 +60,9 @@ typedef struct stats_info
 {
 	char		name[CALLSIGN_LEN + 1];
 	int		score;
-	byte		starting_level;
-	byte		ending_level;
-	byte  	diff_level;
+	int8_t		starting_level;
+	int8_t		ending_level;
+	int8_t  	diff_level;
 	short 	kill_ratio;	// 0-100
 	short		hostage_ratio;   // 
 	int		seconds;			// How long it took in seconds...
@@ -71,7 +71,7 @@ typedef struct stats_info
 typedef struct all_scores 
 {
 	char			signature[3];			// DHS
-	byte			version;					// version
+	int8_t			version;					// version
 	char			cool_saying[COOL_MESSAGE_LEN];
 	stats_info	stats[MAX_HIGH_SCORES];
 } all_scores;
@@ -358,7 +358,7 @@ void scores_view(int citem)
 	fix t1;
 	int i, done, looper;
 	int k;
-	byte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
+	int8_t fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
 ReshowScores:
 	scores_read();

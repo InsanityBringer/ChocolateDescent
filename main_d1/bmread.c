@@ -128,7 +128,7 @@ static short 		sound_num;
 static short 		frames;
 static float 		time;
 static int			hit_sound = -1;
-static byte 		bm_flag = BM_NONE;
+static int8_t 		bm_flag = BM_NONE;
 static int 			abm_flag = 0;
 static int 			rod_flag = 0;
 static short		wall_open_sound, wall_close_sound, wall_explodes, wall_blastable, wall_hidden;
@@ -198,7 +198,7 @@ bitmap_index bm_load_sub(char* filename)
 {
 	bitmap_index bitmap_num;
 	grs_bitmap* new;
-	ubyte newpal[256 * 3];
+	uint8_t newpal[256 * 3];
 	int iff_error;		//reference parm to avoid warning message
 	char fname[20];
 
@@ -247,7 +247,7 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 	bitmap_index bi;
 	int i;
 	int iff_error;		//reference parm to avoid warning message
-	ubyte newpal[768];
+	uint8_t newpal[768];
 	char fname[20];
 	char tempname[20];
 
@@ -327,8 +327,8 @@ int ds_load(char* filename) {
 
 	if (cfp != NULL) {
 		new.length = cfilelength(cfp);
-		//MALLOC( new.data, ubyte, new.length );//hack by KRB
-		new.data = (ubyte*)malloc(new.length * sizeof(ubyte));
+		//MALLOC( new.data, uint8_t, new.length );//hack by KRB
+		new.data = (uint8_t*)malloc(new.length * sizeof(uint8_t));
 		cfread(new.data, 1, new.length, cfp);
 		cfclose(cfp);
 		mprintf((0, "S"));
@@ -635,7 +635,7 @@ void verify_textures()
 //--unused-- {
 //--unused-- 	FILE * fp;
 //--unused-- 	int i,j,k;
-//--unused-- 	ubyte * p;
+//--unused-- 	uint8_t * p;
 //--unused-- 	fp = fopen( "XPARENT.LST", "wt" );
 //--unused-- 	for (i=0; i<Num_tmaps; i++ )	{
 //--unused-- 		k = 0; 
@@ -659,7 +659,7 @@ void bm_close()
 	}
 }
 
-void set_lighting_flag(byte* bp)
+void set_lighting_flag(int8_t* bp)
 {
 	if (vlighting < 0)
 		* bp |= BM_FLAG_NO_LIGHTING;
@@ -951,7 +951,7 @@ void get4fix(fix* fixp)
 }
 
 // ------------------------------------------------------------------------------
-void get4byte(byte* bytep)
+void get4byte(int8_t* bytep)
 {
 	char* curtext;
 	int	i;
@@ -2011,8 +2011,8 @@ void bm_write_all(FILE* fp)
 	fwrite(Textures, sizeof(bitmap_index), MAX_TEXTURES, fp);
 	fwrite(TmapInfo, sizeof(tmap_info), MAX_TEXTURES, fp);
 
-	fwrite(Sounds, sizeof(ubyte), MAX_SOUNDS, fp);
-	fwrite(AltSounds, sizeof(ubyte), MAX_SOUNDS, fp);
+	fwrite(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
+	fwrite(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
 	fwrite(&Num_vclips, sizeof(int), 1, fp);
 	fwrite(Vclip, sizeof(vclip), VCLIP_MAXNUM, fp);
@@ -2039,7 +2039,7 @@ void bm_write_all(FILE* fp)
 	fwrite(Polygon_models, sizeof(polymodel), N_polygon_models, fp);
 
 	for (i = 0; i < N_polygon_models; i++) {
-		fwrite(Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp);
+		fwrite(Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp);
 	}
 
 	fwrite(Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS, fp);
@@ -2048,19 +2048,19 @@ void bm_write_all(FILE* fp)
 	fwrite(Dead_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp);
 
 	fwrite(ObjBitmaps, sizeof(bitmap_index), MAX_OBJ_BITMAPS, fp);
-	fwrite(ObjBitmapPtrs, sizeof(ushort), MAX_OBJ_BITMAPS, fp);
+	fwrite(ObjBitmapPtrs, sizeof(uint16_t), MAX_OBJ_BITMAPS, fp);
 
 	fwrite(&only_player_ship, sizeof(player_ship), 1, fp);
 
 	fwrite(&Num_cockpits, sizeof(int), 1, fp);
 	fwrite(cockpit_bitmap, sizeof(bitmap_index), N_COCKPIT_BITMAPS, fp);
 
-	fwrite(Sounds, sizeof(ubyte), MAX_SOUNDS, fp);
-	fwrite(AltSounds, sizeof(ubyte), MAX_SOUNDS, fp);
+	fwrite(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
+	fwrite(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
 	fwrite(&Num_total_object_types, sizeof(int), 1, fp);
-	fwrite(ObjType, sizeof(byte), MAX_OBJTYPE, fp);
-	fwrite(ObjId, sizeof(byte), MAX_OBJTYPE, fp);
+	fwrite(ObjType, sizeof(int8_t), MAX_OBJTYPE, fp);
+	fwrite(ObjId, sizeof(int8_t), MAX_OBJTYPE, fp);
 	fwrite(ObjStrength, sizeof(fix), MAX_OBJTYPE, fp);
 
 	fwrite(&First_multi_bitmap_num, sizeof(int), 1, fp);

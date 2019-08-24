@@ -70,7 +70,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int Gr_scanline_darkening_level = GR_FADE_LEVELS;
 
-void gr_linear_darken(ubyte* dest, int darkening_level, int count, ubyte* fade_table)
+void gr_linear_darken(uint8_t* dest, int darkening_level, int count, uint8_t* fade_table)
 {
 	int i;
 
@@ -80,7 +80,7 @@ void gr_linear_darken(ubyte* dest, int darkening_level, int count, ubyte* fade_t
 	}
 }
 
-void gr_linear_stosd(ubyte* dest, ubyte color, int count)
+void gr_linear_stosd(uint8_t* dest, uint8_t color, int count)
 {
 	int i, x;
 
@@ -103,7 +103,7 @@ void gr_uscanline(int x1, int x2, int y)
 	//	memset(DATA + ROWSIZE*y + x1, COLOR, x2-x1+0);
 	//
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
-		gr_linear_stosd(DATA + ROWSIZE * y + x1, (ubyte)COLOR, x2 - x1 + 1);
+		gr_linear_stosd(DATA + ROWSIZE * y + x1, (uint8_t)COLOR, x2 - x1 + 1);
 	}
 	else {
 		gr_linear_darken(DATA + ROWSIZE * y + x1, Gr_scanline_darkening_level, x2 - x1 + 1, gr_fade_table);
@@ -125,7 +125,7 @@ void gr_scanline(int x1, int x2, int y)
 	//	memset(DATA + ROWSIZE*y + x1, COLOR, x2-x1+1);
 	//	
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
-		gr_linear_stosd(DATA + ROWSIZE * y + x1, (ubyte)COLOR, x2 - x1 + 1);
+		gr_linear_stosd(DATA + ROWSIZE * y + x1, (uint8_t)COLOR, x2 - x1 + 1);
 	}
 	else {
 		gr_linear_darken(DATA + ROWSIZE * y + x1, Gr_scanline_darkening_level, x2 - x1 + 1, gr_fade_table);

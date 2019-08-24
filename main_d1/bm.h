@@ -234,7 +234,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 typedef struct {
 	char			filename[13];
-	ubyte			flags;
+	uint8_t			flags;
 	fix			lighting;		// 0 to 1
 	fix			damage;			//how much damage being against this does
 	int			eclip_num;		//if not -1, the eclip that changes this   
@@ -275,13 +275,13 @@ void bm_close();
 #define	MAX_OBJTYPE			100
 
 extern int Num_total_object_types;		//	Total number of object types, including robots, hostages, powerups, control centers, faces
-extern byte	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if ObjType[11] == OL_ROBOT, then object #11 is a robot
-extern byte	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
+extern int8_t	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if ObjType[11] == OL_ROBOT, then object #11 is a robot
+extern int8_t	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 #define MAX_OBJ_BITMAPS				210
 extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
-extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
+extern uint16_t ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;
 
 

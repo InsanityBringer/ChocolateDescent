@@ -132,7 +132,7 @@ extern int Num_rendered_objects;
 
  //	A compressed form for sending crucial data about via slow devices, such as modems and buggies.
 typedef struct shortpos {
-	byte	bytemat[9];
+	int8_t	bytemat[9];
 	short	xo, yo, zo;
 	short	segment;
 	short velx, vely, velz;
@@ -153,7 +153,7 @@ typedef struct physics_info {
 	vms_vector	rotvel;			//rotational velecity (angles)
 	vms_vector	rotthrust;		//rotational acceleration
 	fixang		turnroll;		//rotation caused by turn banking
-	ushort		flags;			//misc physics flags
+	uint16_t		flags;			//misc physics flags
 } physics_info;
 
 //stuctures for different kinds of simulation
@@ -188,7 +188,7 @@ typedef struct powerup_info {
 typedef struct vclip_info {
 	int			vclip_num;
 	fix			frametime;
-	byte			framenum;
+	int8_t			framenum;
 } vclip_info;
 
 //structures for different kinds of rendering
@@ -203,13 +203,13 @@ typedef struct polyobj_info {
 
 typedef struct object {
 	int			signature;		// Every object ever has a unique signature...
-	ubyte			type;				// what type of object this is... robot, weapon, hostage, powerup, fireball
-	ubyte			id;				// which form of object...which powerup, robot, etc.
+	uint8_t			type;				// what type of object this is... robot, weapon, hostage, powerup, fireball
+	uint8_t			id;				// which form of object...which powerup, robot, etc.
 	short			next, prev;		// id of next and previous connected object in Objects, -1 = no connection
-	ubyte			control_type;  // how this object is controlled
-	ubyte			movement_type; // how this object moves
-	ubyte			render_type;	//	how this object renders
-	ubyte			flags;			// misc flags
+	uint8_t			control_type;  // how this object is controlled
+	uint8_t			movement_type; // how this object moves
+	uint8_t			render_type;	//	how this object renders
+	uint8_t			flags;			// misc flags
 	short			segnum;			// segment number containing object
 	short			attached_obj;	// number of attached fireball object
 	vms_vector  pos;				// absolute x,y,z coordinate of center of object
@@ -217,10 +217,10 @@ typedef struct object {
 	fix			size;				// 3d size of object - for collision detection
 	fix			shields; 		// Starts at maximum, when <0, object dies..
 	vms_vector  last_pos;		// where object was last frame
-	byte			contains_type;	//	Type of object this object contains (eg, spider contains powerup)
-	byte			contains_id;	//	ID of object this object contains (eg, id = blue type = key)
-	byte			contains_count;// number of objects of type:id this object contains
-	byte			matcen_creator;//	Materialization center that created this object, high bit set if matcen-created
+	int8_t			contains_type;	//	Type of object this object contains (eg, spider contains powerup)
+	int8_t			contains_id;	//	ID of object this object contains (eg, id = blue type = key)
+	int8_t			contains_count;// number of objects of type:id this object contains
+	int8_t			matcen_creator;//	Materialization center that created this object, high bit set if matcen-created
 	fix			lifeleft;		// how long until goes away, or 7fff if immortal
 
 
@@ -262,7 +262,7 @@ typedef struct obj_position {
 
 extern int Object_next_signature;		// The next signature for the next newly created object
 
-extern ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
+extern uint8_t CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
 // ie CollisionResult[a][b]==  what happens to a when it collides with b
 
 extern object Objects[];
@@ -310,8 +310,8 @@ void obj_unlink(int objnum);
 
 //initialize a new object.  adds to the list for the given segment
 //returns the object number
-int obj_create(ubyte type, ubyte id, int segnum, vms_vector* pos,
-	vms_matrix* orient, fix size, ubyte ctype, ubyte mtype, ubyte rtype);
+int obj_create(uint8_t type, uint8_t id, int segnum, vms_vector* pos,
+	vms_matrix* orient, fix size, uint8_t ctype, uint8_t mtype, uint8_t rtype);
 
 //make a copy of an object. returs num of new object
 int obj_create_copy(int objnum, vms_vector* new_pos, int newsegnum);

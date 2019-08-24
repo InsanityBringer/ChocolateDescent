@@ -122,22 +122,22 @@ char Gamesave_current_filename[128];
 //Start old wall structures
 
 typedef struct v16_wall {
-	byte  type; 			  	// What kind of special wall.
-	byte	flags;				// Flags for the wall.		
+	int8_t  type; 			  	// What kind of special wall.
+	int8_t	flags;				// Flags for the wall.		
 	fix   hps;				  	// "Hit points" of the wall. 
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	byte	keys;
+	int8_t	trigger;				// Which trigger is associated with the wall.
+	int8_t	clip_num;			// Which	animation associated with the wall. 
+	int8_t	keys;
 } v16_wall;
 
 typedef struct v19_wall {
 	int	segnum, sidenum;	// Seg & side for this wall
-	byte	type; 			  	// What kind of special wall.
-	byte	flags;				// Flags for the wall.		
+	int8_t	type; 			  	// What kind of special wall.
+	int8_t	flags;				// Flags for the wall.		
 	fix   hps;				  	// "Hit points" of the wall. 
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	byte	keys;
+	int8_t	trigger;				// Which trigger is associated with the wall.
+	int8_t	clip_num;			// Which	animation associated with the wall. 
+	int8_t	keys;
 	int	linked_wall;		// number of linked wall
 } v19_wall;
 
@@ -152,14 +152,14 @@ typedef struct v19_door {
 //End old wall structures
 
 struct {
-	ushort 	fileinfo_signature;
-	ushort	fileinfo_version;
+	uint16_t 	fileinfo_signature;
+	uint16_t	fileinfo_version;
 	int		fileinfo_sizeof;
 } game_top_fileinfo;    // Should be same as first two fields below...
 
 struct {
-	ushort 	fileinfo_signature;
-	ushort	fileinfo_version;
+	uint16_t 	fileinfo_signature;
+	uint16_t	fileinfo_version;
 	int		fileinfo_sizeof;
 	char		mine_filename[15];
 	int		level;
@@ -454,9 +454,9 @@ static short read_fixang(CFILE* file)
 	return f;
 }
 
-static byte read_byte(CFILE* file)
+static int8_t read_byte(CFILE* file)
 {
-	byte b;
+	int8_t b;
 
 	if (cfread(&b, sizeof(b), 1, file) != 1)
 		Error("Error reading byte in gamesave.c");
@@ -617,7 +617,7 @@ static void gs_write_fixang(fixang f, FILE* file)
 
 }
 
-static void gs_write_byte(byte b, FILE* file)
+static void gs_write_byte(int8_t b, FILE* file)
 {
 	if (fwrite(&b, sizeof(b), 1, file) != 1)
 		Error("Error reading byte in gamesave.c");
