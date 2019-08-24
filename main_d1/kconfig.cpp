@@ -1339,8 +1339,8 @@ void controls_read_all()
 
 		// From Cyberman...
 		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			kp += mouse_button_down_time(MB_PITCH_FORWARD) / (PH_SCALE * 2);
-			kp -= mouse_button_down_time(MB_PITCH_BACKWARD) / (PH_SCALE * 2);
+			kp += mouse_button_down_time(MBUTTON_PITCH_FORWARD) / (PH_SCALE * 2);
+			kp -= mouse_button_down_time(MBUTTON_PITCH_BACKWARD) / (PH_SCALE * 2);
 		}
 
 		if (kp == 0)
@@ -1392,8 +1392,8 @@ void controls_read_all()
 
 		// From Cyberman...
 		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			Controls.vertical_thrust_time -= mouse_button_down_time(MB_PITCH_FORWARD);
-			Controls.vertical_thrust_time += mouse_button_down_time(MB_PITCH_BACKWARD);
+			Controls.vertical_thrust_time -= mouse_button_down_time(MBUTTON_PITCH_FORWARD);
+			Controls.vertical_thrust_time += mouse_button_down_time(MBUTTON_PITCH_BACKWARD);
 		}
 
 		// From joystick...
@@ -1445,8 +1445,8 @@ void controls_read_all()
 
 	// From Cyberman...
 	if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-		Controls.vertical_thrust_time += mouse_button_down_time(MB_Z_UP) / 2;
-		Controls.vertical_thrust_time -= mouse_button_down_time(MB_Z_DOWN) / 2;
+		Controls.vertical_thrust_time += mouse_button_down_time(MBUTTON_Z_UP) / 2;
+		Controls.vertical_thrust_time -= mouse_button_down_time(MBUTTON_Z_DOWN) / 2;
 	}
 
 	//---------- Read heading_time -----------
@@ -1467,8 +1467,8 @@ void controls_read_all()
 
 		// From Cyberman...
 		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			kh -= mouse_button_down_time(MB_HEAD_LEFT) / PH_SCALE;
-			kh += mouse_button_down_time(MB_HEAD_RIGHT) / PH_SCALE;
+			kh -= mouse_button_down_time(MBUTTON_HEAD_LEFT) / PH_SCALE;
+			kh += mouse_button_down_time(MBUTTON_HEAD_RIGHT) / PH_SCALE;
 		}
 
 		if (kh == 0)
@@ -1526,8 +1526,8 @@ void controls_read_all()
 
 		// From cyberman
 		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			Controls.sideways_thrust_time -= mouse_button_down_time(MB_HEAD_LEFT);
-			Controls.sideways_thrust_time += mouse_button_down_time(MB_HEAD_RIGHT);
+			Controls.sideways_thrust_time -= mouse_button_down_time(MBUTTON_HEAD_LEFT);
+			Controls.sideways_thrust_time += mouse_button_down_time(MBUTTON_HEAD_RIGHT);
 		}
 
 		// From mouse...
@@ -1585,8 +1585,8 @@ void controls_read_all()
 
 		// From Cyberman...
 		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			Controls.bank_time -= mouse_button_down_time(MB_HEAD_LEFT);
-			Controls.bank_time += mouse_button_down_time(MB_HEAD_RIGHT);
+			Controls.bank_time -= mouse_button_down_time(MBUTTON_HEAD_LEFT);
+			Controls.bank_time += mouse_button_down_time(MBUTTON_HEAD_RIGHT);
 		}
 
 		// From joystick...
@@ -1638,8 +1638,8 @@ void controls_read_all()
 
 	// From Cyberman
 	if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-		Controls.bank_time += mouse_button_down_time(MB_BANK_LEFT);
-		Controls.bank_time -= mouse_button_down_time(MB_BANK_RIGHT);
+		Controls.bank_time += mouse_button_down_time(MBUTTON_BANK_LEFT);
+		Controls.bank_time -= mouse_button_down_time(MBUTTON_BANK_RIGHT);
 	}
 
 	//----------- Read forward_thrust_time -------------

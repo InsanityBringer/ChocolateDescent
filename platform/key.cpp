@@ -6,11 +6,6 @@
 //[ISB] goddamnit we need a dependency on 2d just for I_DoEvents aaa
 #include "2d/i_gr.h"
 
-#ifdef USE_SDL
-
-#include "SDL_events.h"
-#include "SDL_keyboard.h"
-
 #define KEY_BUFFER_SIZE 16
 
 //-------- Variable accessed by outside functions ---------
@@ -39,22 +34,6 @@ typedef struct keyboard {
 static keyboard key_data;
 
 static unsigned char Installed = 0;
-
-//holy crap this sucks
-int translationTable[] =
-{ -1, -1, -1, -1, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I,
-KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T,
-KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5,
-KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_ENTER, KEY_ESC, KEY_BACKSP, KEY_TAB,
-KEY_SPACEBAR, KEY_MINUS, KEY_EQUAL, KEY_LBRACKET, KEY_RBRACKET, KEY_SLASH,
--1 /*what the fuck is NONUSHASH?*/, KEY_SEMICOL, KEY_RAPOSTRO, KEY_LAPOSTRO,
-KEY_COMMA, KEY_PERIOD, KEY_DIVIDE, KEY_CAPSLOCK, KEY_F1, KEY_F2, KEY_F3, KEY_F4,
-KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_PRINT_SCREEN, 
-KEY_SCROLLOCK, KEY_PAUSE, KEY_INSERT, KEY_HOME, KEY_PAGEUP, KEY_DELETE, KEY_END, KEY_PAGEDOWN, KEY_RIGHT,
-KEY_LEFT, KEY_DOWN, KEY_UP, KEY_NUMLOCK, KEY_PADDIVIDE, KEY_PADMULTIPLY, KEY_PADMINUS, KEY_PADPLUS,
-KEY_PADENTER, KEY_PAD1, KEY_PAD2, KEY_PAD3, KEY_PAD4, KEY_PAD5, KEY_PAD6, KEY_PAD7,
-KEY_PAD8, KEY_PAD9, KEY_PAD0, KEY_PADPERIOD, -1, -1, -1, KEY_EQUAL, -1, -1, -1, -1, -1
--1, -1, -1, -1, -1 ,-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 unsigned char ascii_table[128] =
 { 255, 255, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',255,255,
@@ -263,105 +242,78 @@ unsigned int key_up_count(int scancode) {
 	return n;
 }
 
-void I_KeyHandler(int sc, dbool down)
+void KeyPressed(int scancode)
 {
-	int scancode, keycode;
-	unsigned char temp;
-
-	//First of all, translate the SDL key scancode into a Descent key scancode. Holy crap this code sucks
-	if (sc >= 128) //another goddamned hack to avoid having to expand the annoying table
+	// Key going down
+	keyd_last_pressed = scancode;
+	keyd_time_when_last_pressed = timer_get_fixed_seconds();
+	if (!keyd_pressed[scancode]) 
 	{
-		if (sc == SDL_SCANCODE_LCTRL)
-			scancode = KEY_LCTRL;
-		else if (sc == SDL_SCANCODE_RCTRL)
-			scancode = KEY_RCTRL;
-		else if (sc == SDL_SCANCODE_LALT)
-			scancode = KEY_LALT;
-		else if (sc == SDL_SCANCODE_RALT)
-			scancode = KEY_RALT;
-		else if (sc == SDL_SCANCODE_LSHIFT)
-			scancode = KEY_LSHIFT;
-		else if (sc == SDL_SCANCODE_RSHIFT)
-			scancode = KEY_RSHIFT;
-		else
-			return;
-	}
-	else
-	{
-		scancode = translationTable[sc];
-	}
-
-	//Now invoke Descent's processing for the key code
-	if (down == SDL_PRESSED)
-	{
-		// Key going down
-		keyd_last_pressed = scancode;
-		keyd_time_when_last_pressed = timer_get_fixed_seconds();
-		if (!keyd_pressed[scancode]) 
-		{
-			// First time down
-			key_data.TimeKeyWentDown[scancode] = timer_get_fixed_seconds();
-			keyd_pressed[scancode] = 1;
-			key_data.NumDowns[scancode]++;
+		// First time down
+		key_data.TimeKeyWentDown[scancode] = timer_get_fixed_seconds();
+		keyd_pressed[scancode] = 1;
+		key_data.NumDowns[scancode]++;
 #ifndef NDEBUG
-			if ((keyd_pressed[KEY_LSHIFT]) && (scancode == KEY_BACKSP)) 
-			{
-				keyd_pressed[KEY_LSHIFT] = 0;
-				//Int5(); //the hell is int 5h tbh
-				//there's no obvious effect pressing LSHIFT+BACKSPACE in an editor build, so...
-			}
+		if ((keyd_pressed[KEY_LSHIFT]) && (scancode == KEY_BACKSP)) 
+		{
+			keyd_pressed[KEY_LSHIFT] = 0;
+			//Int5(); //the hell is int 5h tbh
+			//there's no obvious effect pressing LSHIFT+BACKSPACE in an editor build, so...
+		}
 #endif
-		}
-		else if (!keyd_repeat) 
-		{
-			// Don't buffer repeating key if repeat mode is off
-			scancode = 0xAA;
-		}
+	}
+	else if (!keyd_repeat) 
+	{
+		// Don't buffer repeating key if repeat mode is off
+		scancode = 0xAA;
+	}
 
-		if (scancode != 0xAA) 
-		{
-			keycode = scancode;
+	if (scancode != 0xAA) 
+	{
+		int keycode = scancode;
 
-			if (keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
-				keycode |= KEY_SHIFTED;
+		if (keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
+			keycode |= KEY_SHIFTED;
 
-			if (keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT])
-				keycode |= KEY_ALTED;
+		if (keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT])
+			keycode |= KEY_ALTED;
 
-			if (keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
-				keycode |= KEY_CTRLED;
+		if (keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
+			keycode |= KEY_CTRLED;
 
 #ifndef NDEBUG
-			if (keyd_pressed[KEY_DELETE])
-				keycode |= KEY_DEBUGGED;
+		if (keyd_pressed[KEY_DELETE])
+			keycode |= KEY_DEBUGGED;
 #endif
 
-			temp = key_data.keytail + 1;
-			if (temp >= KEY_BUFFER_SIZE) temp = 0;
+		unsigned char temp = key_data.keytail + 1;
+		if (temp >= KEY_BUFFER_SIZE) temp = 0;
 
-			if (temp != key_data.keyhead) {
-				key_data.keybuffer[key_data.keytail] = keycode;
-				key_data.time_pressed[key_data.keytail] = keyd_time_when_last_pressed;
-				key_data.keytail = temp;
-			}
+		if (temp != key_data.keyhead) {
+			key_data.keybuffer[key_data.keytail] = keycode;
+			key_data.time_pressed[key_data.keytail] = keyd_time_when_last_pressed;
+			key_data.keytail = temp;
 		}
 	}
-	else if (down == SDL_RELEASED)
-	{
-		// Key going up
-		keyd_last_released = scancode;
-		keyd_pressed[scancode] = 0;
-		key_data.NumUps[scancode]++;
-		temp = 0;
-		temp |= keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT];
-		temp |= keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT];
-		temp |= keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL];
+}
+
+void KeyReleased(int scancode)
+{
+	// Key going up
+	keyd_last_released = scancode;
+	keyd_pressed[scancode] = 0;
+	key_data.NumUps[scancode]++;
+	unsigned char temp = 0;
+	temp |= keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT];
+	temp |= keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT];
+	temp |= keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL];
 #ifndef NDEBUG
-		temp |= keyd_pressed[KEY_DELETE];
-		if (!(keyd_editor_mode && temp))
-#endif		// NOTICE LINK TO ABOVE IF!!!!
-			key_data.TimeKeyHeldDown[scancode] += timer_get_fixed_seconds() - key_data.TimeKeyWentDown[scancode];
-	}
+	temp |= keyd_pressed[KEY_DELETE];
+	if (!(keyd_editor_mode && temp))
+		key_data.TimeKeyHeldDown[scancode] += timer_get_fixed_seconds() - key_data.TimeKeyWentDown[scancode];
+#else
+	key_data.TimeKeyHeldDown[scancode] += timer_get_fixed_seconds() - key_data.TimeKeyWentDown[scancode];
+#endif
 }
 
 void key_init()
@@ -388,32 +340,3 @@ void key_close()
 {
 	//[ISB] heh
 }
-
-#else
-
-void I_KeyHandler(int sc, dbool down) { }
-
-void key_init() { }
-void key_close() { }
-
-void key_flush() { }
-int key_checkch() { return 0; }
-int key_getch() { return 0; }
-int key_inkey() { return 0; }
-int key_inkey_time(fix* time) { return 0; }
-int key_peekkey() { return 0; }
-fix key_down_time(int scancode) { return 0; }
-unsigned int key_down_count(int scancode) { return 0; }
-unsigned int key_up_count(int scancode) { return 0; }
-unsigned char key_to_ascii(int keycode) { return 0; }
-
-unsigned char keyd_buffer_type;
-unsigned char keyd_repeat;
-unsigned char keyd_editor_mode;
-int keyd_time_when_last_pressed;
-
-unsigned char keyd_pressed[256];
-unsigned char keyd_last_pressed;
-unsigned char keyd_last_released;
-
-#endif

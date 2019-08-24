@@ -8,7 +8,7 @@ Instead, it is released under the terms of the MIT License.
 #include <stdio.h>
 #include <math.h>
 
-#ifdef USE_SDL
+#ifdef USE_OPENAL
 
 #include "AL/al.h"
 #include "AL/alc.h"

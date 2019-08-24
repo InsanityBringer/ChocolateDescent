@@ -378,36 +378,4 @@ void I_Shutdown()
 	SDL_Quit();
 }
 
-#else
-
-#include "2d/gr.h"
-#include "2d/i_gr.h"
-#include "misc/error.h"
-#include "misc/types.h"
-
-#include "platform/mouse.h"
-#include "platform/key.h"
-
-int WindowWidth = 1600;
-int WindowHeight = 900;
-int BestFit = 0;
-int Fullscreen = 0;
-
-int I_Init() { return 0; }
-int I_InitWindow() { return 0; }
-void I_ShutdownGraphics() { }
-int I_CheckMode(int mode) { return 0; }
-void I_SetScreenCanvas(grs_canvas* canv) { }
-int I_SetMode(int mode) { return 0; }
-void I_DoEvents() { }
-void I_SetRelative(int state) { }
-void I_WritePalette(int start, int end, uint8_t* data) { }
-void I_BlankPalette() { }
-void I_ReadPalette(uint8_t* dest) { }
-void I_WaitVBL() { }
-void I_DrawCurrentCanvas(int sync) { }
-void I_BlitCurrentCanvas() { }
-void I_BlitCanvas(grs_canvas* canv) { }
-void I_Shutdown() { }
-
 #endif

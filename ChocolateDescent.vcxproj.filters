@@ -75,9 +75,6 @@
     <ClCompile Include="2d\gr.cpp">
       <Filter>2d</Filter>
     </ClCompile>
-    <ClCompile Include="2d\gr_sdl.cpp">
-      <Filter>2d</Filter>
-    </ClCompile>
     <ClCompile Include="2d\ibitblt.cpp">
       <Filter>2d</Filter>
     </ClCompile>
@@ -486,14 +483,26 @@
     <ClCompile Include="platform\openal\i_sound.cpp">
       <Filter>platform\openal</Filter>
     </ClCompile>
-    <ClCompile Include="platform\sdl\joy.cpp">
+    <ClCompile Include="platform\win32\win32window.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sdl\gr_sdl.cpp">
       <Filter>platform\sdl</Filter>
     </ClCompile>
-    <ClCompile Include="platform\sdl\key.cpp">
+    <ClCompile Include="platform\key.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sdl\key_sdl.cpp">
       <Filter>platform\sdl</Filter>
     </ClCompile>
-    <ClCompile Include="platform\sdl\mouse.cpp">
+    <ClCompile Include="platform\sdl\mouse_sdl.cpp">
       <Filter>platform\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\mouse.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\joy.cpp">
+      <Filter>platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

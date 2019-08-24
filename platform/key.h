@@ -76,6 +76,8 @@ extern unsigned int key_up_count(int scancode);
 //[ISB] new key handler
 void I_KeyHandler(int sc, dbool down);
 
+void KeyPressed(int scancode);
+void KeyReleased(int scancode);
 
 #define KEY_SHIFTED     0x100
 #define KEY_ALTED       0x200

@@ -17,21 +17,21 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 #include "fix/fix.h"
 
-#define MB_LEFT			0
-#define MB_RIGHT			1
-#define MB_MIDDLE			2
-#define MB_4				3
-#define MB_5				4
+#define MBUTTON_LEFT			0
+#define MBUTTON_RIGHT			1
+#define MBUTTON_MIDDLE			2
+#define MBUTTON_4				3
+#define MBUTTON_5				4
 
 //Unused Cyberman things
-#define MB_Z_UP			3
-#define MB_Z_DOWN			4
-#define MB_PITCH_BACKWARD	5
-#define MB_PITCH_FORWARD 6
-#define MB_BANK_LEFT		7
-#define MB_BANK_RIGHT	8
-#define MB_HEAD_LEFT		9
-#define MB_HEAD_RIGHT	10
+#define MBUTTON_Z_UP			3
+#define MBUTTON_Z_DOWN			4
+#define MBUTTON_PITCH_BACKWARD	5
+#define MBUTTON_PITCH_FORWARD 6
+#define MBUTTON_BANK_LEFT		7
+#define MBUTTON_BANK_RIGHT	8
+#define MBUTTON_HEAD_LEFT		9
+#define MBUTTON_HEAD_RIGHT	10
 
 #define MOUSE_LBTN 1
 #define MOUSE_RBTN 2
@@ -69,5 +69,8 @@ extern int mouse_button_state(int button);
 
 //Replace the interrupt callback with a proper handler. 
 void I_MouseHandler(uint32_t button, dbool down);
+
+void MousePressed(int button);
+void MouseReleased(int button);
 
 #endif
