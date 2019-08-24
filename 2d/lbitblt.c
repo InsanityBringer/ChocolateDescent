@@ -1,6 +1,6 @@
 //quick 'n dirty texmerge
-#include "gr.h"
-#include "types.h"
+#include "2d/gr.h"
+#include "misc/types.h"
 
 void gr_merge_textures(ubyte* lower, ubyte* upper, ubyte* dest)
 {

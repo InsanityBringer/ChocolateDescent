@@ -26,24 +26,24 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "findfile.h"
-#include "error.h"
-#include "types.h"
-#include "gr.h"
-#include "mono.h"
-#include "key.h"
-#include "palette.h"
+#include "bios/findfile.h"
+#include "misc/error.h"
+#include "misc/types.h"
+#include "2d/gr.h"
+#include "bios/mono.h"
+#include "bios/key.h"
+#include "2d/palette.h"
 #include "game.h"
 #include "text.h"
 
 #include "newmenu.h"
 #include "gamefont.h"
 #include "network.h"
-#include "iff.h"
-#include "pcx.h"
-#include "mem.h"
-#include "mouse.h"
-#include "joy.h"
+#include "iff/iff.h"
+#include "2d/pcx.h"
+#include "mem/mem.h"
+#include "bios/mouse.h"
+#include "bios/joy.h"
 #include "digi.h"
 
 #include "multi.h"
@@ -53,7 +53,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "player.h"
 
-#include "i_gr.h"
+#include "2d/i_gr.h"
 
 #define TITLE_FONT  		(Gamefonts[GFONT_BIG_1])
 
@@ -289,7 +289,7 @@ void nm_rstring(bkg* b, int w1, int x, int y, unsigned char* s)
 	gr_string(x - w, y, s);
 }
 
-#include "timer.h"
+#include "bios/timer.h"
 
 //for text items, constantly redraw cursor (to achieve flash)
 void update_cursor(newmenu_item* item)

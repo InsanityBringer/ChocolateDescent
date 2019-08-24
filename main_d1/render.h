@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _RENDER_H
 #define _RENDER_H
 
-#include "3d.h"
+#include "3d/3d.h"
 
 #include "object.h"
 

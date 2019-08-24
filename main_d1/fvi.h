@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _FVI_H
 #define _FVI_H
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 #include "segment.h"
 #include "object.h"
 

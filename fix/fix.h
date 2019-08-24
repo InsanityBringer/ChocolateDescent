@@ -77,7 +77,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
  //#define USE_INLINE 1
 
-#include "types.h"
+#include "misc/types.h"
 
 typedef long fix;				//16 bits int, 16 bits frac
 typedef short fixang;		//angles

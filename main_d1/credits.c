@@ -26,32 +26,32 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "error.h"
-#include "types.h"
-#include "gr.h"
-#include "mono.h"
-#include "key.h"
-#include "palette.h"
+#include "misc/error.h"
+#include "misc/types.h"
+#include "2d/gr.h"
+#include "bios/mono.h"
+#include "bios/key.h"
+#include "2d/palette.h"
 #include "game.h"
-#include "timer.h"
+#include "bios/timer.h"
 
 #include "newmenu.h"
 #include "gamefont.h"
 #include "network.h"
-#include "iff.h"
-#include "pcx.h"
-#include "mem.h"
-#include "mouse.h"
-#include "joy.h"
+#include "iff/iff.h"
+#include "2d/pcx.h"
+#include "mem/mem.h"
+#include "bios/mouse.h"
+#include "bios/joy.h"
 #include "screens.h"
 #include "digi.h"
 
-#include "cfile.h"
+#include "cfile/cfile.h"
 #include "compbit.h"
 //#include "vfx.h"
 #include "songs.h"
 
-#include "i_gr.h"
+#include "2d/i_gr.h"
 
 #define ROW_SPACING 11
 #define NUM_LINES 20			//19

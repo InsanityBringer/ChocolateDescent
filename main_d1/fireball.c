@@ -23,14 +23,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include "error.h"
-#include "3d.h"
+#include "misc/error.h"
+#include "3d/3d.h"
 
 #include "inferno.h"
 #include "object.h"
 #include "vclip.h"
 #include "game.h"
-#include "mono.h"
+#include "bios/mono.h"
 #include "polyobj.h"
 #include "sounds.h"
 #include "player.h"
@@ -50,7 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "multi.h"
 #include "endlevel.h"
-#include "timer.h"
+#include "bios/timer.h"
 #include "fuelcen.h"
 #include "gameseg.h"
 

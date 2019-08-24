@@ -32,12 +32,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
 */
 
-#include "types.h"
-#include "gr.h"
-#include "grdef.h"
-#include "ibitblt.h"
-#include "error.h"
-#include "mem.h"
+#include "misc/types.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "2d/ibitblt.h"
+#include "misc/error.h"
+#include "mem/mem.h"
 
 
 #define FIND_START		1

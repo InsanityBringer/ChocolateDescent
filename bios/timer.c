@@ -7,9 +7,9 @@
 *
 */
 
-#include "timer.h"
-#include "error.h"
-#include "fix.h"
+#include "bios/timer.h"
+#include "misc/error.h"
+#include "fix/fix.h"
 
 #ifdef USE_SDL
 

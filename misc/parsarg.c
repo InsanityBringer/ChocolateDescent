@@ -30,8 +30,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 //#include <dos.h>
 
-#include "parsarg.h"
-#include "error.h" //[ISB]
+#include "misc/parsarg.h"
+#include "misc/error.h" //[ISB]
 
 #define ARGBUF_SIZE 500
 #define MAX_ARGS 100

@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "3d.h"
+#include "3d/3d.h"
 
 //draw a horizon
 void g3_draw_horizon(int sky_color, int ground_color)

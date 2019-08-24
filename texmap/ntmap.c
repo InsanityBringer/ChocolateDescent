@@ -134,16 +134,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conio.h>
 #include <stdlib.h>
 
-#include "mono.h"
-#include "fix.h"
-#include "3d.h"
-#include "gr.h"
-#include "error.h"
-//#include "key.h" //[ISB] i'm sure there's some good reason why the texture mapping code needs the keyboard API
+#include "bios/mono.h"
+#include "fix/fix.h"
+#include "3d/3d.h"
+#include "2d/gr.h"
+#include "misc/error.h"
+//#include "bios/key.h" //[ISB] i'm sure there's some good reason why the texture mapping code needs the keyboard API
 
-#include "texmap.h"
+#include "texmap/texmap.h"
 #include "texmapl.h"
-#include "rle.h"
+#include "2d/rle.h"
 #include "scanline.h"
 //[ISB] WHAT IS PROJECT DESIGN
 //#include "..\main\textures.h" //[ISB] cherry on top: unused
@@ -475,11 +475,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, fix xleft, fix xright, fix 
 		if (fx_xright > Window_clip_right)
 			fx_xright = Window_clip_right;
 
-#ifdef NASM
 		c_tmap_scanline_per_nolight();
-#else
-		asm_tmap_scanline_per();
-#endif
 		break;
 	case 1: 
 	{
@@ -507,11 +503,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, fix xleft, fix xright, fix 
 		if (fx_xright > Window_clip_right)
 			fx_xright = Window_clip_right;
 
-#ifdef NASM
 		c_tmap_scanline_per();
-#else
-		asm_tmap_scanline_per();
-#endif
 		break;
 	}
 	case 2:
@@ -772,11 +764,7 @@ void ntmap_scanline_lighted_linear(grs_bitmap* srcb, int y, fix xleft, fix xrigh
 	switch (Lighting_enabled) 
 	{
 	case 0:
-#ifdef NASM
 		c_tmap_scanline_lin_nolight();
-#else
-		asm_tmap_scanline_lin();
-#endif
 		break;
 	case 1:
 		if (lleft < F1_0 / 2)
@@ -792,11 +780,7 @@ void ntmap_scanline_lighted_linear(grs_bitmap* srcb, int y, fix xleft, fix xrigh
 		fx_l = lleft;
 		dl_dx = fixmul(lright - lleft, recip_dx);
 		fx_dl_dx = dl_dx;
-#ifdef NASM
 		c_tmap_scanline_lin();
-#else
-		asm_tmap_scanline_lin_lighted();
-#endif
 		break;
 	case 2:
 #ifdef EDITOR_TMAP

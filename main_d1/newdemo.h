@@ -25,8 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _NEWDEMO_H
 #define _NEWDEMO_H
 
-#ifdef NEWDEMO
-
 #include "morph.h"
 
 #define ND_STATE_NORMAL				0
@@ -116,7 +114,5 @@ extern void newdemo_start_recording();
 extern void newdemo_stop_recording();
 
 extern int newdemo_get_percent_done(); //[ISB] did I accidently give this void type?
-
-#endif
 
 #endif

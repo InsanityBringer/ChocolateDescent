@@ -22,12 +22,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
-#include "gr.h"
-#include "error.h"
+#include "2d/gr.h"
+#include "misc/error.h"
 #include "game.h"
 #include "textures.h"
-#include "mono.h"
-#include "rle.h"
+#include "bios/mono.h"
+#include "2d/rle.h"
 #include "piggy.h"
 #include "texmerge.h"
 
@@ -144,7 +144,6 @@ grs_bitmap* texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top)
 	cache_misses++;
 
 	// Make sure the bitmaps are paged in...
-#ifdef PIGGY_USE_PAGING
 	piggy_page_flushed = 0;
 
 	PIGGY_PAGE_IN(Textures[tmap_top & 0x3FFF]);
@@ -157,7 +156,6 @@ grs_bitmap* texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top)
 		PIGGY_PAGE_IN(Textures[tmap_bottom]);
 	}
 	Assert(piggy_page_flushed == 0);
-#endif
 
 	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT) 
 	{

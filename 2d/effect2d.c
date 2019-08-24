@@ -41,10 +41,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 
 
-#include "mem.h"
-#include "gr.h"
-#include "grdef.h"
-#include "effect2d.h"
+#include "mem/mem.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "2d/effect2d.h"
 
 int bitwidth(unsigned int n)
 {

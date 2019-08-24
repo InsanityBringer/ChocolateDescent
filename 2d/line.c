@@ -55,11 +55,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
-#include "mem.h"
+#include "mem/mem.h"
 
-#include "gr.h"
-#include "grdef.h"
-#include "fix.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "fix/fix.h"
 
 #include "clip.h"
 

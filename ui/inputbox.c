@@ -43,12 +43,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include "mem.h"
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
+#include "mem/mem.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 #include "ui.h"
-#include "key.h"
+#include "bios/key.h"
 
 // insert character c into string s at position p.
 void strcins(char* s, int p, char c)

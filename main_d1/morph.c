@@ -24,8 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include "texmap.h"
-#include "error.h"
+#include "texmap/texmap.h"
+#include "misc/error.h"
 
 #include "inferno.h"
 #include "morph.h"
@@ -35,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "piggy.h"
 
-#include "mono.h"
+#include "bios/mono.h"
 #include "bm.h"
 
 morph_data morph_objects[MAX_MORPH_OBJECTS];
@@ -45,12 +45,10 @@ morph_data* find_morph_data(object* obj)
 {
 	int i;
 
-#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		morph_objects[0].obj = obj;
 		return &morph_objects[0];
 	}
-#endif
 
 	for (i = 0; i < MAX_MORPH_OBJECTS; i++)
 		if (morph_objects[i].obj == obj)
@@ -392,7 +390,6 @@ void draw_model(polymodel* pm, int submodel_num, vms_angvec* anim_angles, fix li
 				texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[pm->first_texture + i]].index];
 			}
 
-#ifdef PIGGY_USE_PAGING			
 			// Make sure the textures for this object are paged in...
 			piggy_page_flushed = 0;
 			for (i = 0; i < pm->n_textures; i++)
@@ -407,7 +404,7 @@ void draw_model(polymodel* pm, int submodel_num, vms_angvec* anim_angles, fix li
 			}
 			// Make sure that they can all fit in memory.
 			Assert(piggy_page_flushed == 0);
-#endif
+
 			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]], texture_list, anim_angles, light, &md->morph_vecs[md->submodel_startpoints[submodel_num]]);
 
 		}
@@ -445,10 +442,8 @@ void draw_morph_object(object* obj)
 
 	g3_done_instance();
 
-#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_morph_frame(md);
-#endif
 
 }
 

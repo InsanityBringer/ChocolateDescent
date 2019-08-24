@@ -26,10 +26,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "inferno.h"
 #include "segment.h"
-#include "error.h"
+#include "misc/error.h"
 #include "bm.h"
-#include "texmap.h"
-#include "mono.h"
+#include "texmap/texmap.h"
+#include "bios/mono.h"
 #include "render.h"
 #include "game.h"
 #include "object.h"
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "texmerge.h"
 #include "physics.h"
-#include "3d.h"
+#include "3d/3d.h"
 #include "gameseg.h"
 #include "vclip.h"
 #include "lighting.h"
@@ -48,9 +48,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "automap.h"
 #include "endlevel.h"
-#include "key.h"
+#include "bios/key.h"
 #include "newmenu.h"
-#include "mem.h"
+#include "mem/mem.h"
 #include "piggy.h"
 
 #define	INITIAL_LOCAL_LIGHT	(F1_0/4)		// local light value in segment of occurence (of light emission)
@@ -1331,7 +1331,6 @@ void render_frame(fix eye_offset)
 		return;
 	}
 
-#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_RECORDING) 
 	{
 		if (eye_offset >= 0) 
@@ -1340,7 +1339,6 @@ void render_frame(fix eye_offset)
 			newdemo_record_viewer_object(Viewer);
 		}
 	}
-#endif
 
 	g3_start_frame();
 

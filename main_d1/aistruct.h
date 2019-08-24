@@ -31,9 +31,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 
 #include "inferno.h"
-#include "types.h"
-#include "fix.h"
-#include "vecmat.h"
+#include "misc/types.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
  //#include "polyobj.h"
 
 #define	GREEN_GUY	1

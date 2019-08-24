@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _STATE_H
 #define _STATE_H
 
-#include "types.h"
+#include "misc/types.h"
 #include "player.h"
 
 int state_save_all(int between_levels);

@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PHYSICS_H
 #define _PHYSICS_H
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 #include "fvi.h"
 
  //#define FL_NORMAL  0

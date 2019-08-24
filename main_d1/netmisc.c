@@ -22,8 +22,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <string.h>
 
-#include "types.h"
-#include "mono.h"
+#include "misc/types.h"
+#include "bios/mono.h"
 
 // Calculates the checksum of a block of memory.
 ushort netmisc_calc_checksum(void* vptr, int len)

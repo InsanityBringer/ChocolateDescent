@@ -77,9 +77,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TEXMAP_H
 #define _TEXMAP_H
 
-#include "fix.h"
-#include "3d.h"
-#include "gr.h"
+#include "fix/fix.h"
+#include "3d/3d.h"
+#include "2d/gr.h"
 
 #define	NUM_LIGHTING_LEVELS 32
 #define MAX_TMAP_VERTS 25

@@ -23,8 +23,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAUGES_H
 #define _GAUGES_H
 
-#include "fix.h"
-#include "gr.h"
+#include "fix/fix.h"
+#include "2d/gr.h"
 #include "piggy.h"
 
  //from gauges.c

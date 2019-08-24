@@ -27,8 +27,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <malloc.h>
 #include <string.h>
 
-#include "error.h"
-#include "mono.h"
+#include "misc/error.h"
+#include "bios/mono.h"
 
 #include "inferno.h"
 #include "fvi.h"
@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "wall.h"
 #include "laser.h"
-#include "rle.h"
+#include "2d/rle.h"
 #include "robot.h"
 #include "piggy.h"
 #include "player.h"

@@ -24,25 +24,25 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <errno.h>
 
-#include "error.h"
+#include "misc/error.h"
 
 #include "inferno.h"
 #include "gameseq.h"
 #include "player.h"
 #include "playsave.h"
-#include "joy.h"
+#include "bios/joy.h"
 #include "kconfig.h"
 #include "digi.h"
 #include "newmenu.h"
 #include "joydefs.h"
-#include "palette.h"
+#include "2d/palette.h"
 #include "multi.h"
 #include "menu.h"
 #include "config.h"
 #include "text.h"
-#include "mono.h"
+#include "bios/mono.h"
 #include "state.h"
-#include "cfile.h"
+#include "cfile/cfile.h"
 
 #define SAVE_FILE_ID			'DPLR'
 

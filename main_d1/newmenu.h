@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _NEWMENU_H
 #define _NEWMENU_H
 
-#include "types.h"
+#include "misc/types.h"
 
 #define NM_TYPE_MENU  	0		// A menu item... when enter is hit on this, newmenu_do returns this item number
 #define NM_TYPE_INPUT 	1		// An input box... fills the text field in, and you need to fill in text_len field.

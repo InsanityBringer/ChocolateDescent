@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _EFFECT2D_H
 #define _EFFECT2D_H
 
-#include "gr.h" //[ISB] you probably were going to anyways...
+#include "2d/gr.h" //[ISB] you probably were going to anyways...
 
 extern void gr_fade_canvas(int fade);
 extern void gr_deaccent_canvas();

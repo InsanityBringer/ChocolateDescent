@@ -28,12 +28,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 
 // #include "hack3df.h"
-#include "fix.h"
-#include "mono.h"
-#include "gr.h"
-#include "grdef.h"
+#include "fix/fix.h"
+#include "bios/mono.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
 // #include "ui.h"
-#include "texmap.h"
+#include "texmap/texmap.h"
 #include "texmapl.h"
 #include "scanline.h"
 
@@ -65,19 +65,11 @@ void tmap_scanline_flat(int y, fix xleft, fix xright)
 		fx_xright = Window_clip_right;
 
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
-#ifdef NASM
 		c_tmap_scanline_flat();
-#else
-		asm_tmap_scanline_flat();
-#endif
 	else 
 	{
 		tmap_flat_shade_value = Gr_scanline_darkening_level;
-#ifdef NASM
 		c_tmap_scanline_shaded();
-#else
-		asm_tmap_scanline_shaded();
-#endif
 	}
 }
 
@@ -203,8 +195,8 @@ void gr_upoly_tmap(int nverts, int* vert)
 	gr_upoly_tmap_ylr(nverts, vert, tmap_scanline_flat);
 }
 
-#include "3d.h"
-#include "error.h"
+#include "3d/3d.h"
+#include "misc/error.h"
 
 typedef struct pnt2d {
 	fix x, y;

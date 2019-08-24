@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TERRAIN_H
 #define _TERRAIN_H
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 
 void load_terrain(char* filename);
 void render_terrain(vms_vector* org, int org_i, int org_j);

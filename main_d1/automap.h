@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AUTOMAP_H
 #define _AUTOMAP_H
 
-#include "types.h"
+#include "misc/types.h"
 #include "segment.h"
 
 extern void do_automap(int key_code);

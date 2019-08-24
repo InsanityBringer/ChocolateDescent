@@ -24,13 +24,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include "3d.h"
-#include "error.h"
-#include "gr.h"
-#include "texmap.h"
-#include "iff.h"
-#include "mem.h"
-#include "mono.h"
+#include "3d/3d.h"
+#include "misc/error.h"
+#include "2d/gr.h"
+#include "texmap/texmap.h"
+#include "iff/iff.h"
+#include "mem/mem.h"
+#include "bios/mono.h"
 
 #include "inferno.h"
 #include "textures.h"

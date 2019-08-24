@@ -25,9 +25,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMESEG_H
 #define _GAMESEG_H
 
-#include "types.h"
-#include "fix.h"
-#include "vecmat.h"
+#include "misc/types.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 #include "segment.h"
 
  //figure out what seg the given point is in, tracing through segments

@@ -59,18 +59,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-#include "mem.h"
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
+#include "mem/mem.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 #include "ui.h"
-#include "key.h"
+#include "bios/key.h"
 
-#include "mono.h"
+#include "bios/mono.h"
 
 #include "func.h"
 
-#include "error.h"
+#include "misc/error.h"
 
 
 #define MAXMENUS 30

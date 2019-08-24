@@ -22,10 +22,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "game.h"
 #include "weapon.h"
-#include "mono.h"
+#include "bios/mono.h"
 #include "player.h"
 #include "gauges.h"
-#include "error.h"
+#include "misc/error.h"
 #include "sounds.h"
 #include "text.h"
 #include "powerup.h"

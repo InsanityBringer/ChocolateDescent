@@ -20,7 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "error.h"
+#include "misc/error.h"
 
 #include "inferno.h"
 #include "vclip.h"

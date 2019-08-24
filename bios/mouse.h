@@ -56,8 +56,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef MOUSE_H
 #define MOUSE_H
 
-#include "types.h"
-#include "fix.h"
+#include "misc/types.h"
+#include "fix/fix.h"
 
 #define MB_LEFT			0
 #define MB_RIGHT			1

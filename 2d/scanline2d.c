@@ -64,9 +64,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "mem.h"
-#include "gr.h"
-#include "grdef.h"
+#include "mem/mem.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
 
 int Gr_scanline_darkening_level = GR_FADE_LEVELS;
 

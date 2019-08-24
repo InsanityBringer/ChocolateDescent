@@ -54,18 +54,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <sys\types.h>
 #include <sys\stat.h>
 
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
-#include "key.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
+#include "bios/key.h"
 
 #include "ui.h"
-#include "mono.h"
-#include "timer.h"
+#include "bios/mono.h"
+#include "bios/timer.h"
 
-#include "mem.h"
+#include "mem/mem.h"
 
-#include "error.h"
+#include "misc/error.h"
 
 //#define TICKER (*(volatile int *)0x46C)
 

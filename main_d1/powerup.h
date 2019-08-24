@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "object.h"
 #include "vclip.h"
-#include "fix.h"
+#include "fix/fix.h"
 
 #define	POW_EXTRA_LIFE 			0
 #define	POW_ENERGY					1

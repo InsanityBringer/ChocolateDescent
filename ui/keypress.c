@@ -32,11 +32,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 #include "ui.h"
-#include "key.h"
+#include "bios/key.h"
 
 char* KeyDesc[256] = { \
 "","{Esc}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{0}","{-}",           \

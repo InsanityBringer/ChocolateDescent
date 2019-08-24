@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MINE_VERSION					17	// Current version expected
 #define COMPATIBLE_VERSION 		16 // Oldest version that can safely be loaded.
 
-#include "types.h"
+#include "misc/types.h"
 
 struct mtfi 
 {

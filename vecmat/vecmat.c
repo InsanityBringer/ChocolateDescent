@@ -46,9 +46,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>			// for sqrt
 
-#include "fix.h"
-#include "vecmat.h"
-#include "error.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
+#include "misc/error.h"
 
 //#define USE_ISQRT 1
 

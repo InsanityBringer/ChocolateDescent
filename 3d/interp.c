@@ -37,13 +37,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "error.h"
+#include "misc/error.h"
 
-#include "3d.h"
+#include "3d/3d.h"
 #include "globvars.h"
-#include "gr.h"
+#include "2d/gr.h"
 
-#include "byteswap.h"
+#include "misc/byteswap.h"
 
 #define OP_EOF				0	//eof
 #define OP_DEFPOINTS		1	//defpoints

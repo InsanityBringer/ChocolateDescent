@@ -16,16 +16,16 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "mono.h"
-#include "key.h"
-#include "gr.h"
-#include "palette.h"
+#include "bios/mono.h"
+#include "bios/key.h"
+#include "2d/gr.h"
+#include "2d/palette.h"
 
 #include "inferno.h"
 #ifdef EDITOR
 #include "editor\editor.h"
 #endif
-#include "error.h"
+#include "misc/error.h"
 #include "object.h"
 //#include "game.h"
 //#include "screens.h"

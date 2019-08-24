@@ -19,19 +19,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <direct.h>
 
 
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
-#include "key.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
+#include "bios/key.h"
 
-#include "mono.h"
+#include "bios/mono.h"
 
 #include "ui.h"
 
-#include "mem.h"
-#include "cfile.h"
+#include "mem/mem.h"
+#include "cfile/cfile.h"
 #include "func.h"
-#include "error.h"
+#include "misc/error.h"
 
 #define MAX_NUM_PADS 20
 

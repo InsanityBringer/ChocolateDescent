@@ -34,11 +34,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conio.h>
 #include <stdlib.h>
 
-#include "fix.h"
-#include "mono.h"
-#include "gr.h"
-#include "grdef.h"
-#include "texmap.h"
+#include "fix/fix.h"
+#include "bios/mono.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "texmap/texmap.h"
 #include "texmapl.h"
 #include "scanline.h"
 

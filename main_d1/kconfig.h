@@ -23,8 +23,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _KCONFIG_H
 #define _KCONFIG_H
 
-#include "types.h"
-#include "fix.h"
+#include "misc/types.h"
+#include "fix/fix.h"
 
 typedef struct control_info 
 {

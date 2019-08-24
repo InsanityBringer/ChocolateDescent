@@ -37,11 +37,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 #include "ui.h"
-#include "mouse.h"
+#include "bios/mouse.h"
 
 
 #define MENU_BORDER 2

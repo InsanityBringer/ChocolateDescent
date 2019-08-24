@@ -33,11 +33,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor\editor.h"
 #endif
 #include "segment.h"
-#include "error.h"
+#include "misc/error.h"
 #include "gameseg.h"
-#include "mono.h"
+#include "bios/mono.h"
 #include "wall.h"
-#include "texmap.h"
+#include "texmap/texmap.h"
 #include "fuelcen.h"
 #include "newdemo.h"
 #include "player.h"
@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "multi.h"
 #include "network.h"
-#include "palette.h"
+#include "2d/palette.h"
 
 trigger Triggers[MAX_TRIGGERS];
 int Num_triggers;

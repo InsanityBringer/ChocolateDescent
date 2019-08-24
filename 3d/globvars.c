@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "3d.h"
+#include "3d/3d.h"
 #include "globvars.h"
 
 vms_vector	View_position;

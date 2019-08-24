@@ -50,14 +50,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <io.h>
 
-#include "types.h"
+#include "misc/types.h"
 #include "inferno.h"
-#include "gr.h"
+#include "2d/gr.h"
 #include "bm.h"
-#include "mem.h"
+#include "mem/mem.h"
 #include "cflib.h"
-#include "mono.h"
-#include "error.h"
+#include "bios/mono.h"
+#include "misc/error.h"
 #include "object.h"
 #include "vclip.h"
 #include "effects.h"
@@ -67,8 +67,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "multi.h"
 
-#include "iff.h"
-#include "cfile.h"
+#include "iff/iff.h"
+#include "cfile/cfile.h"
 
 #include "hostage.h"
 #include "powerup.h"

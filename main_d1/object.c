@@ -23,20 +23,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>	// for memset
 #include <stdio.h>
 
-#include "cfile.h"
+#include "cfile/cfile.h"
 
 #include "inferno.h"
 #include "game.h"
-#include "gr.h"
+#include "2d/gr.h"
 #include "stdlib.h"
 #include "bm.h"
-//#include "error.h"
-#include "mono.h"
-#include "3d.h"
+//#include "misc/error.h"
+#include "bios/mono.h"
+#include "3d/3d.h"
 #include "segment.h"
-#include "texmap.h"
+#include "texmap/texmap.h"
 #include "laser.h"
-#include "key.h"
+#include "bios/key.h"
 #include "gameseg.h"
 #include "textures.h"
 
@@ -49,7 +49,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "fireball.h"
 #include "laser.h"
-#include "error.h"
+#include "misc/error.h"
 #include "ai.h"
 #include "hostage.h"
 #include "morph.h"
@@ -588,11 +588,9 @@ void render_object(object* obj)
 	default: Error("Unknown render_type <%d>", obj->render_type);
 	}
 
-#ifdef NEWDEMO
 	if (obj->render_type != RT_NONE)
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_render_object(obj);
-#endif
 
 	Max_linear_depth = mld_save;
 

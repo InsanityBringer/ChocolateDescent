@@ -25,9 +25,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _OUTSIDE_H
 #define _OUTSIDE_H
 
-#include "gr.h"
+#include "2d/gr.h"
 #include "object.h"
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 
 extern int Endlevel_sequence;
 

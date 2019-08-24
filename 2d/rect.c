@@ -31,10 +31,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "mem.h"
+#include "mem/mem.h"
 
-#include "gr.h"
-#include "grdef.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
 
 void gr_urect(int left, int top, int right, int bot)
 {

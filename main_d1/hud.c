@@ -30,10 +30,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "gauges.h"
 #include "physics.h"
-#include "error.h"
+#include "misc/error.h"
 
 #include "menu.h"			// For the font.
-#include "mono.h"
+#include "bios/mono.h"
 #include "collide.h"
 #include "newdemo.h"
 #include "player.h"
@@ -216,10 +216,8 @@ void HUD_init_message(char* format, ...)
 	// Check if memory has been overwritten at this point.
 	if (strlen(message) >= HUD_MESSAGE_LENGTH)
 		Error("Your message to HUD is too long.  Limit is %i characters.\n", HUD_MESSAGE_LENGTH);
-#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_hud_message(message);
-#endif
 	HUD_message_timer = F1_0 * 3;		// 1 second per 5 characters
 	HUD_nmessages++;
 }

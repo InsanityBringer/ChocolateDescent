@@ -1,5 +1,5 @@
-#include "disk.h"
-#include "types.h"
+#include "bios/disk.h"
+#include "misc/types.h"
 
 #ifdef WIN32
 #include <windows.h>

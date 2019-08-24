@@ -20,13 +20,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "mem.h"
-#include "gr.h"
-#include "grdef.h"
-#include "rle.h"
-#include "mono.h"
+#include "mem/mem.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "2d/rle.h"
+#include "bios/mono.h"
 
-#include "error.h"
+#include "misc/error.h"
 
 int gr_bitblt_dest_step_shift = 0;
 int gr_bitblt_double = 0;

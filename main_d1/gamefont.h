@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMEFONT_H
 #define _GAMEFONT_H
 
-#include "gr.h"
+#include "2d/gr.h"
 
  // When adding a new font, don't forget to change the
  // filename in gamefont.c!!!!!!!!!!!!!!!!!!!!!!!!!!!

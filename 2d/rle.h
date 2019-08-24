@@ -42,8 +42,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _RLE_H
 #define _RLE_H
 
-#include "types.h"
-#include "gr.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 
 ubyte* gr_rle_decode(ubyte* src, ubyte* dest); //[ISB] aaaaa.
 int gr_rle_encode(int org_size, ubyte* src, ubyte* dest);

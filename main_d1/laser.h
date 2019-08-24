@@ -23,8 +23,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _LASER_H
 #define _LASER_H
 
-#include "fix.h"
-#include "vecmat.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 #include "object.h"
 
 #define	CONCUSSION_ID	8

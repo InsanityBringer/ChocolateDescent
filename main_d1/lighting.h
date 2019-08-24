@@ -23,8 +23,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _LIGHTING_H
 #define _LIGHTING_H
 
-#include "fix.h"
-#include "vecmat.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 #include "object.h"
 
 #define MAX_DIST		0x400000		//no light beyond this dist

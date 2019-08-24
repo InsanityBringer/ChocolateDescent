@@ -23,10 +23,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#include "error.h"
-#include "mono.h"
+#include "misc/error.h"
+#include "bios/mono.h"
 #include "hash.h"
-#include "key.h"
+#include "bios/key.h"
 
 int hashtable_init(hashtable* ht, int size)
 {

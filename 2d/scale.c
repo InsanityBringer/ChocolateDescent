@@ -10,9 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-#include "gr.h"
-#include "grdef.h"
-#include "rle.h" //[ISB] compiler warning
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "2d/rle.h" //[ISB] compiler warning
 
 // John's new stuff below here....
 

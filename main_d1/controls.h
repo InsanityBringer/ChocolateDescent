@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CONTROLS_H
 #define _CONTROLS_H
 
-#include "types.h"
+#include "misc/types.h"
 #include "object.h"
 
 extern int Cyberman_installed;	//SWIFT device present

@@ -31,11 +31,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 #include "ui.h"
-#include "key.h"
+#include "bios/key.h"
 
 
 static UI_WINDOW* wnd = NULL;

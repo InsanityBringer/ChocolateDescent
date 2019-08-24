@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "types.h"
-#include "gr.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 
 extern int WindowWidth, WindowHeight;
 extern int BestFit;

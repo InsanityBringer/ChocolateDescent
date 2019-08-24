@@ -32,20 +32,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "polyobj.h"
 
-#include "vecmat.h"
-#include "3d.h"
-#include "error.h"
-#include "mono.h"
-#include "mem.h"
+#include "vecmat/vecmat.h"
+#include "3d/3d.h"
+#include "misc/error.h"
+#include "bios/mono.h"
+#include "mem/mem.h"
 #include "args.h"
 
 #ifndef DRIVE
-#include "texmap.h"
+#include "texmap/texmap.h"
 #include "bm.h"
 #include "textures.h"
 #include "object.h"
 #include "lighting.h"
-#include "cfile.h"
+#include "cfile/cfile.h"
 #include "piggy.h"
 #endif
 
@@ -495,7 +495,6 @@ void draw_polygon_model(vms_vector* pos, vms_matrix* orient, vms_angvec* anim_an
 			texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture + i]].index];
 		}
 
-#ifdef PIGGY_USE_PAGING
 	// Make sure the textures for this object are paged in...
 	piggy_page_flushed = 0;
 	for (i = 0; i < po->n_textures; i++)
@@ -510,7 +509,6 @@ void draw_polygon_model(vms_vector* pos, vms_matrix* orient, vms_angvec* anim_an
 	}
 	// Make sure that they can all fit in memory.
 	Assert(piggy_page_flushed == 0);
-#endif
 
 	g3_start_instance_matrix(pos, orient);
 

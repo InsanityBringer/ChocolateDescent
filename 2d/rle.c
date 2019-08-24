@@ -90,16 +90,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#include "mem.h"
-#include "mono.h"
+#include "mem/mem.h"
+#include "bios/mono.h"
 
 
-#include "gr.h"
-#include "grdef.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
 //#include "dpmi.h"
-#include "error.h"
-//#include "key.h"
-#include "rle.h"
+#include "misc/error.h"
+//#include "bios/key.h"
+#include "2d/rle.h"
 
 //#define RLE_CODE 		0xC0
 //#define NOT_RLE_CODE	63

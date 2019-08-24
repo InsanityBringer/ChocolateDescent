@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SCREEN_H
 #define _SCREEN_H
 
-#include "gr.h"
+#include "2d/gr.h"
 
  //What graphics modes the game & editor open
 

@@ -25,17 +25,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "mono.h"
-#include "key.h"
-#include "gr.h"
-#include "palette.h"
+#include "bios/mono.h"
+#include "bios/key.h"
+#include "2d/gr.h"
+#include "2d/palette.h"
 #include "newmenu.h"
 
 #include "inferno.h"
 #ifdef EDITOR
 #include "editor\editor.h"
 #endif
-#include "error.h"
+#include "misc/error.h"
 #include "object.h"
 #include "game.h"
 #include "screens.h"
@@ -43,7 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamemine.h"
 #include "robot.h"
 
-#include "cfile.h"
+#include "cfile/cfile.h"
 #include "bm.h"
 #include "menu.h"
 #include "switch.h"

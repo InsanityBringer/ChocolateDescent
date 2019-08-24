@@ -41,13 +41,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "error.h"
+#include "misc/error.h"
 
-#include "3d.h"
+#include "3d/3d.h"
 #include "globvars.h"
-#include "texmap.h"
+#include "texmap/texmap.h"
 #include "clipper.h"
-#include "types.h"
+#include "misc/types.h"
 
 void (*tmap_drawer_ptr)(grs_bitmap* bm, int nv, g3s_point** vertlist) = draw_tmap;
 void (*flat_drawer_ptr)(int nv, int* vertlist) = gr_upoly_tmap;

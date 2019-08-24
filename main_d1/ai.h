@@ -143,8 +143,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _AI_H
 
 #include "object.h"
-#include "fix.h"
-#include "vecmat.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 
 #define	PLAYER_AWARENESS_INITIAL_TIME		(3*F1_0)
 #define	MAX_PATH_LENGTH						30			//	Maximum length of path in ai path following.

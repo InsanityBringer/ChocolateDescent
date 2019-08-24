@@ -153,7 +153,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _VECMAT_H
 #define _VECMAT_H
 
-#include "fix.h"
+#include "fix/fix.h"
 
  //#define INLINE 1		//are some of these functions inline?
 

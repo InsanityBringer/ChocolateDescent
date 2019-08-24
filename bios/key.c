@@ -1,10 +1,10 @@
 #include <conio.h>
 
-#include "key.h"
-#include "timer.h"
+#include "bios/key.h"
+#include "bios/timer.h"
 
 //[ISB] goddamnit we need a dependency on 2d just for I_DoEvents aaa
-#include "i_gr.h"
+#include "2d/i_gr.h"
 
 #ifdef USE_SDL
 

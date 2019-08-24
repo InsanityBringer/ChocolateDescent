@@ -15,7 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 
-#include "cfile.h"
+#include "cfile/cfile.h"
 
 #include "ai.h"
 #include "aistruct.h"

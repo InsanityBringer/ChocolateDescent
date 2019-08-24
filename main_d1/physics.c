@@ -24,20 +24,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "joy.h"
-#include "mono.h"
-#include "error.h"
+#include "bios/joy.h"
+#include "bios/mono.h"
+#include "misc/error.h"
 
 #include "inferno.h"
 #include "segment.h"
 #include "object.h"
 #include "physics.h"
-#include "key.h"
+#include "bios/key.h"
 #include "game.h"
 #include "collide.h"
 #include "fvi.h"
 #include "newdemo.h"
-#include "timer.h"
+#include "bios/timer.h"
 #include "ai.h"
 #include "wall.h"
 #include "laser.h"

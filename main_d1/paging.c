@@ -25,14 +25,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "mono.h"
+#include "bios/mono.h"
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"
 #include "wall.h"
 #include "object.h"
 #include "gamemine.h"
-#include "error.h"
+#include "misc/error.h"
 #include "gameseg.h"
 #include "game.h"
 #include "piggy.h"
@@ -42,15 +42,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "fireball.h"
 #include "weapon.h"
-#include "palette.h"
-#include "timer.h"
+#include "2d/palette.h"
+#include "bios/timer.h"
 #include "text.h"
 #include "cntrlcen.h"
 #include "gauges.h"
 #include "powerup.h"
 #include "fuelcen.h"
 
-#include "i_gr.h" //[ISB] ugh;
+#include "2d/i_gr.h" //[ISB] ugh;
 
 void paging_touch_vclip(vclip* vc)
 {

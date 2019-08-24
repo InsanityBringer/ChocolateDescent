@@ -78,11 +78,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <malloc.h>
 #include <stdio.h>
 
-#include "mem.h"
-#include "error.h"
+#include "mem/mem.h"
+#include "misc/error.h"
 
-#include "gr.h"
-#include "grdef.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
 //#include "dpmi.h"
 
 grs_bitmap* gr_create_bitmap(int w, int h)

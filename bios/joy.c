@@ -1,7 +1,7 @@
-#include "types.h"
-#include "joy.h"
-#include "timer.h"
-#include "error.h"
+#include "misc/types.h"
+#include "bios/joy.h"
+#include "bios/timer.h"
+#include "misc/error.h"
 
 #ifdef USE_SDL
 

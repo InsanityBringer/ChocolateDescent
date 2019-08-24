@@ -17,7 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-#include "i_gr.h"
+#include "2d/i_gr.h"
 
 static char* WindowWidthStr = "WindowWidth";
 static char* WindowHeightStr = "WindowHeight";

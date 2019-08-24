@@ -26,16 +26,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-#include "types.h"
+#include "misc/types.h"
 #include "game.h"
 #include "digi.h"
 #include "kconfig.h"
-#include "palette.h"
-#include "joy.h"
+#include "2d/palette.h"
+#include "bios/joy.h"
 #include "args.h"
 #include "player.h"
 #include "mission.h"
-#include "error.h"
+#include "misc/error.h"
 
  //#include "sos.h"//These sos headers are part of a commercial library, and aren't included-KRB
  //#include "sosm.h"

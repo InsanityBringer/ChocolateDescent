@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CNTRLCEN_H
 #define _CNTRLCEN_H
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 #include "object.h"
 
 #define MAX_CONTROLCEN_GUNS 4

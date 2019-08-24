@@ -26,17 +26,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
-#include "gr.h"
+#include "2d/gr.h"
 #include "inferno.h"
 #include "game.h"
 #include "vclip.h"
 #include "effects.h"
 #include "bm.h"
-#include "mono.h"
-#include "mem.h"
+#include "bios/mono.h"
+#include "mem/mem.h"
 #include "textures.h"
 #include "fuelcen.h"
-#include "error.h"
+#include "misc/error.h"
 
 int Num_effects;
 eclip Effects[MAX_EFFECTS];

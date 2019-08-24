@@ -23,12 +23,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
-#include "types.h"
-#include "vecmat.h"
+#include "misc/types.h"
+#include "vecmat/vecmat.h"
 #include "segment.h"
 #include "gameseg.h"
 #include "aistruct.h"
-#include "gr.h"
+#include "2d/gr.h"
 #include "piggy.h"
 
  /*

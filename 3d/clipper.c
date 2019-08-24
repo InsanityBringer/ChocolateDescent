@@ -10,10 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-#include "3d.h"
+#include "3d/3d.h"
 #include "globvars.h"
 #include "clipper.h"
-#include "error.h"
+#include "misc/error.h"
 
 int free_point_num = 0;
 

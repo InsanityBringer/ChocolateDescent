@@ -183,8 +183,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _GR_H
 
 //#include <QDOffscreen.h>
-#include "types.h"
-#include "fix.h"
+#include "misc/types.h"
+#include "fix/fix.h"
 
 #define SWAP_0_255			0			// swap black and white
 #define TRANSPARENCY_COLOR	255			// palette entry of transparency color -- 255 on the PC

@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MISSION_H
 #define _MISSION_H
 
-#include <types.h>
+#include "misc/types.h"
 
 #define MAX_MISSIONS 						100
 #define MAX_LEVELS_PER_MISSION			30

@@ -44,10 +44,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#include "gr.h"
-#include "mem.h"
-#include "pcx.h"
-#include "cfile.h"
+#include "2d/gr.h"
+#include "mem/mem.h"
+#include "2d/pcx.h"
+#include "cfile/cfile.h"
 
 /* PCX Header data type */
 typedef struct {

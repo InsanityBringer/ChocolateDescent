@@ -13,11 +13,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 #include "ui.h"
-#include "key.h"
+#include "bios/key.h"
 
 
 UI_GADGET_KEYTRAP* ui_add_gadget_keytrap(UI_WINDOW* wnd, int key_to_trap, int (*function_to_call)(void))

@@ -32,25 +32,25 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 //#include <dos.h>
 #include <direct.h>
 
-#include "gr.h"
-#include "ui.h"
-#include "mono.h"
-#include "key.h"
-#include "timer.h"
-#include "3d.h"
+#include "2d/gr.h"
+#include "ui/ui.h"
+#include "bios/mono.h"
+#include "bios/key.h"
+#include "bios/timer.h"
+#include "3d/3d.h"
 #include "bm.h"
 #include "inferno.h"
-#include "error.h"
+#include "misc/error.h"
 //#include "cflib.h"
-#include "cfile.h"
+#include "cfile/cfile.h"
 //#include "div0.h" //[ISB] one worry
 #include "game.h"
 #include "segment.h"		//for Side_to_verts
-#include "mem.h"
+#include "mem/mem.h"
 #include "textures.h"
 #include "segpoint.h"
 #include "screens.h"
-#include "texmap.h"
+#include "texmap/texmap.h"
 #include "texmerge.h"
 #include "menu.h"
 #include "wall.h"
@@ -58,9 +58,9 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "polyobj.h"
 #include "effects.h"
 #include "digi.h"
-#include "iff.h"
-#include "pcx.h"
-#include "palette.h"
+#include "iff/iff.h"
+#include "2d/pcx.h"
+#include "2d/palette.h"
 #include "args.h"
 #include "sounds.h"
 #include "titles.h"
@@ -79,8 +79,8 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "arcade.h"
 #include "coindev.h"
 #endif
-#include "mouse.h"
-#include "joy.h"
+#include "bios/mouse.h"
+#include "bios/joy.h"
 //#include "dpmi.h"
 #include "newmenu.h"
 #include "desc_id.h"
@@ -89,7 +89,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "multi.h"
 //#include "iglasses.h"
 #include "songs.h"
-#include "cfile.h"
+#include "cfile/cfile.h"
 #ifdef USE_CDROM
 #include "cdrom.h"
 #endif
@@ -101,7 +101,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #endif
 
 #include "vers_id.h"
-#include "i_gr.h"
+#include "2d/i_gr.h"
 
 extern int Game_simuleyes_flag;
 

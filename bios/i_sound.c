@@ -12,7 +12,7 @@ Instead, it is released under the terms of the MIT License.
 
 #include "AL/al.h"
 #include "AL/alc.h"
-#include "i_sound.h"
+#include "bios/i_sound.h"
 
 ALCdevice *ALDevice = NULL;
 ALCcontext *ALContext = NULL;
@@ -171,7 +171,7 @@ int I_CheckSoundDone(int handle)
 
 #else
 
-#include "i_sound.h"
+#include "bios/i_sound.h"
 
 void I_ErrorCheck(char* context) { }
 int I_InitAudio() { return 0; }

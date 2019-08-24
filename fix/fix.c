@@ -53,8 +53,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdint.h>
 #include <math.h>
 
-#include "error.h"
-#include "fix.h"
+#include "misc/error.h"
+#include "fix/fix.h"
 
 extern ubyte guess_table[];
 extern short sincos_table[];

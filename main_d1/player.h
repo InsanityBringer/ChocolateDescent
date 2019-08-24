@@ -26,8 +26,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _PLAYER_H
 
 #include "inferno.h"
-#include "fix.h"
-#include "vecmat.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 #include "weapon.h"
 
 #define MAX_PLAYERS 8

@@ -51,16 +51,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <dos.h>
 
-#include "mem.h"
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
+#include "mem/mem.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 #include "ui.h"
-#include "key.h"
+#include "bios/key.h"
 
-#include "mono.h"
-#include "mouse.h"
-#include "timer.h"
+#include "bios/mono.h"
+#include "bios/mouse.h"
+#include "bios/timer.h"
 
 
 #define W_BACKGROUND    (wnd->background )

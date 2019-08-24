@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdlib.h>
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 #include "multibot.h"
 #include "game.h"
 #include "modem.h"
@@ -34,9 +34,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "object.h"
 #include "laser.h"
-#include "error.h"
-#include "mono.h"
-#include "timer.h"
+#include "misc/error.h"
+#include "bios/mono.h"
+#include "bios/timer.h"
 #include "text.h"
 #include "ai.h"
 #include "fireball.h"

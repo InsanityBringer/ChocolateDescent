@@ -151,19 +151,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <io.h>
 #include <string.h>
 
-#include "types.h"
-#include "mem.h"
-#include "gr.h"
-#include "grdef.h"
-#include "i_gr.h"
-#include "cfile.h"
-#include "error.h"
-#include "mono.h"
-#include "fix.h"
-//#include "key.h"
+#include "misc/types.h"
+#include "mem/mem.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "2d/i_gr.h"
+#include "cfile/cfile.h"
+#include "misc/error.h"
+#include "bios/mono.h"
+#include "fix/fix.h"
+//#include "bios/key.h"
 
 //[ISB] seriously?
-#include "palette.h"
+#include "2d/palette.h"
 
 
 extern int gr_installed;

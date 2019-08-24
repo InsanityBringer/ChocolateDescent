@@ -29,8 +29,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _COLLIDE_H
 
 #include "object.h"
-#include "fix.h"
-#include "vecmat.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 
 void collide_init();
 void collide_two_objects(object* A, object* B, vms_vector* collision_point);

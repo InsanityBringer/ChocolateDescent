@@ -27,17 +27,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conio.h>
 #include <string.h>
 
-#include "types.h"
-#include "mem.h"
-#include "gr.h"
-#include "grdef.h"
-#include "error.h"
-#include "mono.h"
+#include "misc/types.h"
+#include "mem/mem.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "misc/error.h"
+#include "bios/mono.h"
 //#include "dpmi.h"
-#include "palette.h"
+#include "2d/palette.h"
 //#include "dpmi.h" [ISB] heh
 
-#include "i_gr.h"
+#include "2d/i_gr.h"
 
 unsigned char* gr_video_memory = (unsigned char*)0xA0000;
 

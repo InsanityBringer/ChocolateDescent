@@ -20,13 +20,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "fix.h"
-#include "vecmat.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 #include "inferno.h"
 #include "segment.h"
 #include "object.h"
 #include "bm.h"
-#include "3d.h"
+#include "3d/3d.h"
 #include "game.h"
 
 // Global array of vertices, common to one mine.

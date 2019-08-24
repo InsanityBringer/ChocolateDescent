@@ -25,13 +25,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "cfile.h"
+#include "cfile/cfile.h"
 
 #include "fuelcen.h"
 #include "gameseg.h"
 #include "game.h"		// For FrameTime
-#include "error.h"
-#include "mono.h"
+#include "misc/error.h"
+#include "bios/mono.h"
 #include "gauges.h"
 #include "vclip.h"
 #include "fireball.h"
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "sounds.h"
 #include "morph.h"
-#include "3d.h"
+#include "3d/3d.h"
 #include "bm.h"
 #include "polyobj.h"
 #include "ai.h"

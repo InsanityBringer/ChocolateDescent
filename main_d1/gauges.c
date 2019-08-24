@@ -30,10 +30,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "gauges.h"
 #include "physics.h"
-#include "error.h"
+#include "misc/error.h"
 
 #include "menu.h"			// For the font.
-#include "mono.h"
+#include "bios/mono.h"
 #include "collide.h"
 #include "newdemo.h"
 #include "player.h"
@@ -958,9 +958,7 @@ void sb_show_lives()
 
 #ifndef RELEASE
 
-#ifdef PIGGY_USE_PAGING
 extern int Piggy_bitmap_cache_next;
-#endif
 
 void show_time()
 {
@@ -975,7 +973,6 @@ void show_time()
 
 	gr_printf(grd_curcanv->cv_w - 25, grd_curcanv->cv_h - 28, "%d:%02d", mins, secs);
 
-#ifdef PIGGY_USE_PAGING
 	{
 		char text[25];
 		int w, h, aw;
@@ -983,7 +980,6 @@ void show_time()
 		gr_get_string_size(text, &w, &h, &aw);
 		gr_printf(grd_curcanv->cv_w - 10 - w, grd_curcanv->cv_h / 2, text);
 	}
-#endif
 
 }
 #endif

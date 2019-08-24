@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _NETMISC_H
 #define _NETMISC_H
 
-#include "types.h"
+#include "misc/types.h"
 
  //Returns a checksum of a block of memory.
 extern ushort netmisc_calc_checksum(void* vptr, int len);

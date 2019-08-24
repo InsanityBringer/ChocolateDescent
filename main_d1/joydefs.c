@@ -27,11 +27,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 //#include <dos.h>
 
-#include "mono.h"
-#include "key.h"
-#include "joy.h"
-#include "timer.h"
-#include "error.h"
+#include "bios/mono.h"
+#include "bios/key.h"
+#include "bios/joy.h"
+#include "bios/timer.h"
+#include "misc/error.h"
 
 #include "inferno.h"
 #include "game.h"
@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "joydefs.h"
 #include "render.h"
-#include "palette.h"
+#include "2d/palette.h"
 #include "newmenu.h"
 #include "args.h"
 #include "text.h"

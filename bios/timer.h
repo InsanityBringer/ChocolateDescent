@@ -56,8 +56,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TIMER_H
 #define _TIMER_H
 
-#include "types.h"
-#include "fix.h"
+#include "misc/types.h"
+#include "fix/fix.h"
 
  //==========================================================================
  // This installs the timer services and interrupts at the rate specified by

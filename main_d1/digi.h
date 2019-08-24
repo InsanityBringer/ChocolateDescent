@@ -25,8 +25,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _DIGI_H
 #define _DIGI_H
 
-#include "types.h"
-#include "vecmat.h"
+#include "misc/types.h"
+#include "vecmat/vecmat.h"
 
 typedef struct digi_sound {
 	int length;

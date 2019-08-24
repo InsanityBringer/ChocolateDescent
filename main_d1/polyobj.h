@@ -25,9 +25,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _POLYOBJ_H
 #define _POLYOBJ_H
 
-#include "vecmat.h"
-#include "gr.h"
-#include "3d.h"
+#include "vecmat/vecmat.h"
+#include "2d/gr.h"
+#include "3d/3d.h"
 
 #ifndef DRIVE
 #include "robot.h"

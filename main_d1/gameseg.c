@@ -27,9 +27,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "inferno.h"
 #include "game.h"
-#include "error.h"
-#include "mono.h"
-#include "vecmat.h"
+#include "misc/error.h"
+#include "bios/mono.h"
+#include "vecmat/vecmat.h"
 #include "gameseg.h"
 #include "wall.h"
 #include "fuelcen.h"

@@ -18,9 +18,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "SDL_video.h"
 #include "SDL_mouse.h"
 
-#include "mouse.h"
-#include "timer.h"
-#include "error.h"
+#include "bios/mouse.h"
+#include "bios/timer.h"
+#include "misc/error.h"
 
 #define MOUSE_MAX_BUTTONS	11
 
@@ -269,9 +269,9 @@ void mouse_get_cyberman_pos(int* x, int* y)
 
 #else
 
-#include "mouse.h"
-#include "timer.h"
-#include "error.h"
+#include "bios/mouse.h"
+#include "bios/timer.h"
+#include "misc/error.h"
 
 int mouse_init(int enable_cyberman) { return 0; }
 int mouse_set_limits(int x1, int y1, int x2, int y2) { return 0; }

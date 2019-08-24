@@ -60,7 +60,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _UI_H
 
 #include <stdlib.h>
-#include "gr.h"
+#include "2d/gr.h"
 
 typedef struct {
 	char	description[100];

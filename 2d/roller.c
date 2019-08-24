@@ -76,11 +76,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conio.h>
 #include <stdlib.h>
 
-#include "mono.h"
-#include "fix.h"
-//#include "3d.h"
-#include "gr.h"
-#include "error.h"
+#include "bios/mono.h"
+#include "fix/fix.h"
+//#include "3d/3d.h"
+#include "2d/gr.h"
+#include "misc/error.h"
 
 //#define USE_ROLLER 1
 

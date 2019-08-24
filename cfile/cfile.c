@@ -28,10 +28,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <io.h>
 
-#include "cfile.h"
-#include "mem.h"
-#include "error.h"
-//#include "byteswap.h"
+#include "cfile/cfile.h"
+#include "mem/mem.h"
+#include "misc/error.h"
+//#include "misc/byteswap.h"
 
 typedef struct hogfile {
 	char	name[13];

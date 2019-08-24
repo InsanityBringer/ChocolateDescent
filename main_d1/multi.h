@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef NETWORK
 
-#include "types.h"
+#include "misc/types.h"
  // Defines
 #include "gameseq.h"
 #include "piggy.h"

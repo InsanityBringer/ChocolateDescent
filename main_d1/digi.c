@@ -31,22 +31,22 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-#include "i_sound.h"
+#include "bios/i_sound.h"
 
-#include "fix.h"
+#include "fix/fix.h"
 #include "object.h"
-#include "mono.h"
-#include "timer.h"
-#include "joy.h"
+#include "bios/mono.h"
+#include "bios/timer.h"
+#include "bios/joy.h"
 #include "digi.h"
 #include "sounds.h"
 #include "args.h"
-#include "key.h"
+#include "bios/key.h"
 #include "newdemo.h"
 #include "game.h"
-#include "error.h"
+#include "misc/error.h"
 #include "wall.h"
-#include "cfile.h"
+#include "cfile/cfile.h"
 #include "piggy.h"
 #include "text.h"
 
@@ -750,10 +750,8 @@ void digi_play_sample_once(int soundno, fix max_volume)
 	sampledata_t DigiSampleData;
 	//_SOS_START_SAMPLE sSOSSampleData;
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
-#endif
 	soundno = digi_xlat_sound(soundno);
 
 	if (!Digi_initialized) return;
@@ -811,10 +809,8 @@ void digi_play_sample(int soundno, fix max_volume)
 	sampledata_t DigiSampleData;
 	//_SOS_START_SAMPLE sSOSSampleData;
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
-#endif
 	soundno = digi_xlat_sound(soundno);
 
 	if (!Digi_initialized) return;
@@ -862,7 +858,6 @@ void digi_play_sample_3d(int soundno, int angle, int volume, int no_dups)
 
 	no_dups = 1;
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )		
 	{
 		if ( no_dups )
@@ -870,7 +865,6 @@ void digi_play_sample_3d(int soundno, int angle, int volume, int no_dups)
 		else
 			newdemo_record_sound_3d( soundno, angle, volume );
 	}
-#endif
 	soundno = digi_xlat_sound(soundno);
 
 	if (!Digi_initialized) return;

@@ -30,15 +30,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <string.h>
 
-#include "3d.h"
-#include "error.h"
-#include "gr.h"
-#include "palette.h"
-#include "iff.h"
-#include "mono.h"
-#include "texmap.h"
+#include "3d/3d.h"
+#include "misc/error.h"
+#include "2d/gr.h"
+#include "2d/palette.h"
+#include "iff/iff.h"
+#include "bios/mono.h"
+#include "texmap/texmap.h"
 #include "fvi.h"
-#include "mem.h"
+#include "mem/mem.h"
 #include "sounds.h"
 
 #include "inferno.h"
@@ -58,7 +58,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "network.h"
 #include "text.h"
 #include "digi.h"
-#include "cfile.h"
+#include "cfile/cfile.h"
 #include "compbit.h"
 #include "songs.h"
 
@@ -1228,8 +1228,8 @@ void do_endlevel_flythrough(int n)
 
 extern short old_joy_x, old_joy_y;	//position last time around
 
-#include "key.h"
-#include "joy.h"
+#include "bios/key.h"
+#include "bios/joy.h"
 
 #ifdef SLEW_ON		//this is a special routine for slewing around external scene
 int _do_slew_movement(object* obj, int check_keys, int check_joy)

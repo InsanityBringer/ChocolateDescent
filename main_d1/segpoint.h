@@ -35,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SEGPOINTS_H
 #define _SEGPOINTS_H
 
-#include "3d.h"
+#include "3d/3d.h"
 
 extern	g3s_point	Segment_points[];
 

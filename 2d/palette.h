@@ -58,7 +58,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PALETTE_H
 #define _PALETTE_H
 
-#include "types.h" //[ISB] don't need to explicitly include types.h before palette i guess
+#include "misc/types.h" //[ISB] don't need to explicitly include types.h before palette i guess
 
 void gr_palette_set_gamma(int gamma);
 int gr_palette_get_gamma();

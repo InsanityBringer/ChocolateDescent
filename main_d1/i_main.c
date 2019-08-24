@@ -4,10 +4,10 @@
 #include <stdio.h>
 
 #include "inferno.h"
-#include "fix.h"
-#include "vecmat.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 
-#include "i_gr.h"
+#include "2d/i_gr.h"
 
 int main(int argc, char** argv)
 {

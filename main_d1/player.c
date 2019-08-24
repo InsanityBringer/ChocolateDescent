@@ -6,7 +6,7 @@ Instead, it is released under the terms of the MIT License.
 //[ISB] To be fair though, all it's doing is reading and writing a struct...
 #include <stdio.h>
 
-#include "cfile.h"
+#include "cfile/cfile.h"
 
 #include "player.h"
 

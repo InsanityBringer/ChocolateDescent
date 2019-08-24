@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "mono.h"
+#include "bios/mono.h"
 
 int windowStates[32];
 

@@ -24,8 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#include "3d.h"
-#include "mono.h"
+#include "3d/3d.h"
+#include "bios/mono.h"
 
 #include "inferno.h"
 #include "object.h"
@@ -48,7 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 
 #ifdef EDITOR
-#include "gr.h"	//	for powerup outline drawing
+#include "2d/gr.h"	//	for powerup outline drawing
 #include "editor\editor.h"
 #endif
 

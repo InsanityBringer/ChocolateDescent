@@ -19,13 +19,13 @@ Instead, it is released under the terms of the MIT License.
 #include "sdl_mouse.h"
 #include "sdl_render.h"
 
-#include "gr.h"
-#include "i_gr.h"
-#include "error.h"
-#include "types.h"
+#include "2d/gr.h"
+#include "2d/i_gr.h"
+#include "misc/error.h"
+#include "misc/types.h"
 
-#include "mouse.h"
-#include "key.h"
+#include "bios/mouse.h"
+#include "bios/key.h"
 
 int WindowWidth = 1600, WindowHeight = 900;
 SDL_Window* gameWindow = NULL;
@@ -380,13 +380,18 @@ void I_Shutdown()
 
 #else
 
-#include "gr.h"
-#include "i_gr.h"
-#include "error.h"
-#include "types.h"
+#include "2d/gr.h"
+#include "2d/i_gr.h"
+#include "misc/error.h"
+#include "misc/types.h"
 
-#include "mouse.h"
-#include "key.h"
+#include "bios/mouse.h"
+#include "bios/key.h"
+
+int WindowWidth = 1600;
+int WindowHeight = 900;
+int BestFit = 0;
+int Fullscreen = 0;
 
 int I_Init() { return 0; }
 int I_InitWindow() { return 0; }

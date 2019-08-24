@@ -23,11 +23,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include "error.h"
-#include "types.h"
+#include "misc/error.h"
+#include "misc/types.h"
 #include "songs.h"
-#include "mono.h"
-#include "cfile.h"
+#include "bios/mono.h"
+#include "cfile/cfile.h"
 #include "digi.h"
 
 song_info Songs[MAX_SONGS];

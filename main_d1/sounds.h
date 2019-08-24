@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SOUNDS_H
 #define _SOUNDS_H
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 #include "digi.h"
 
  //------------------- List of sound effects --------------------

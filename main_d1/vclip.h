@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _VCLIP_H
 #define _VCLIP_H
 
-#include "gr.h"
+#include "2d/gr.h"
 #include "object.h"
 #include "piggy.h"
 

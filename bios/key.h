@@ -81,8 +81,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _KEY_H
 #define _KEY_H 
 
-#include "fix.h"
-#include "types.h"
+#include "fix/fix.h"
+#include "misc/types.h"
 
  //==========================================================================
  // This installs the int9 vector and initializes the keyboard in buffered

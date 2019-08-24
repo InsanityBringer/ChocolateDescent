@@ -27,7 +27,7 @@
 #ifndef _PCX_H
 #define _PCX_H
 
-#include "gr.h"
+#include "2d/gr.h"
 
 #define PCX_ERROR_NONE 				0
 #define PCX_ERROR_OPENING			1

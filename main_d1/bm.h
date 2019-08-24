@@ -223,7 +223,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _BM_H
 #define _BM_H
 
-#include "gr.h"
+#include "2d/gr.h"
 #include "piggy.h"
 
 #define MAX_TEXTURES		800

@@ -25,11 +25,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>		// for memset()
 
 #include "inferno.h"
-#include "mono.h"
-#include "3d.h"
+#include "bios/mono.h"
+#include "3d/3d.h"
 
 #include "object.h"
-#include "error.h"
+#include "misc/error.h"
 #include "ai.h"
 #include "robot.h"
 #include "fvi.h"

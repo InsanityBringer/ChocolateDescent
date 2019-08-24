@@ -20,14 +20,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "error.h"
+#include "misc/error.h"
 
 #include "inferno.h"
 
 #include "robot.h"
 #include "object.h"
 #include "polyobj.h"
-#include "mono.h"
+#include "bios/mono.h"
 
 int	N_robot_types = 0;
 int	N_robot_joints = 0;
@@ -173,7 +173,7 @@ void set_robot_state(object* obj, int state)
 	}
 }
 
-#include "mono.h"
+#include "bios/mono.h"
 
 //--unused-- int cur_state=0;
 

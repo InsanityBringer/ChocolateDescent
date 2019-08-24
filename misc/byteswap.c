@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "types.h"
+#include "misc/types.h"
 
 //[ISB]: Frankly, swaps totally suck. This is a stopgap measure to enable
 //some mac code to compile. In the insane off-chance someone actually

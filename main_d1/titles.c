@@ -25,25 +25,25 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 //#include <process.h> //[ISB] joyous, more unportable crap. Seems unused, though... thankfully.
 
-#include "types.h"
-#include "timer.h"
-#include "key.h"
-#include "gr.h"
-#include "palette.h"
-#include "iff.h"
-#include "pcx.h"
-#include "mem.h"
-#include "joy.h"
+#include "misc/types.h"
+#include "bios/timer.h"
+#include "bios/key.h"
+#include "2d/gr.h"
+#include "2d/palette.h"
+#include "iff/iff.h"
+#include "2d/pcx.h"
+#include "mem/mem.h"
+#include "bios/joy.h"
 #include "arcade.h"
 #include "gameseq.h"
 #ifdef ARCADE
 #include "coindev.h"
 #endif
-#include "mono.h"
+#include "bios/mono.h"
 #include "gamefont.h"
-#include "cfile.h"
-#include "mem.h"
-#include "error.h"
+#include "cfile/cfile.h"
+#include "mem/mem.h"
+#include "misc/error.h"
 #include "polyobj.h"
 #include "textures.h"
 #include "screens.h"
@@ -60,7 +60,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "titles.h"
 #include "vfx.h"
 
-#include "i_gr.h"
+#include "2d/i_gr.h"
 
 ubyte New_pal[768];
 int	New_pal_254_bash;

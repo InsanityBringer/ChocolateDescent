@@ -63,7 +63,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _CFILE_H
 
 #include <stdio.h>
-#include "types.h"
+#include "misc/types.h"
 
 typedef struct CFILE
 {

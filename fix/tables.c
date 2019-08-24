@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
 */
 
-#include "fix.h"
+#include "fix/fix.h"
 
 ubyte guess_table[] = {
 	1,

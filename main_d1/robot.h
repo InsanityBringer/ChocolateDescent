@@ -11,7 +11,7 @@
 #ifndef _ROBOT_H
 #define _ROBOT_H
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 #include "object.h"
 #include "game.h"
 

@@ -170,12 +170,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conio.h>
 #include <string.h>
 
-#include "mem.h"
-#include "iff.h"
+#include "mem/mem.h"
+#include "iff/iff.h"
 
 //#include "nocfile.h"
-#include "cfile.h"
-#include "error.h"
+#include "cfile/cfile.h"
+#include "misc/error.h"
 
 //Internal constants and structures for this library
 

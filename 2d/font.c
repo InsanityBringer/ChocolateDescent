@@ -29,14 +29,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <sys\types.h>
 #include <sys\stat.h>
 
-#include "mem.h"
+#include "mem/mem.h"
 
-#include "gr.h"
-#include "grdef.h"
-#include "error.h"
+#include "2d/gr.h"
+#include "2d/grdef.h"
+#include "misc/error.h"
 
-#include "cfile.h"
-#include "mono.h"
+#include "cfile/cfile.h"
+#include "bios/mono.h"
 
 #define FONT        grd_curcanv->cv_font
 #define FG_COLOR    grd_curcanv->cv_font_fg_color

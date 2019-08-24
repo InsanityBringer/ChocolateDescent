@@ -25,10 +25,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 //#include <io.h>
 
-//#include "cfile.h"
-#include "cfile.h"
-#include "mem.h"
-#include "error.h"
+//#include "cfile/cfile.h"
+#include "cfile/cfile.h"
+#include "mem/mem.h"
+#include "misc/error.h"
 
 #include "inferno.h"
 #include "text.h"

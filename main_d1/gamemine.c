@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "mono.h"
+#include "bios/mono.h"
 
 #include "inferno.h"
 #include "segment.h"
@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "object.h"
 #include "gamemine.h"
-#include "error.h"
+#include "misc/error.h"
 #include "gameseg.h"
 #include "switch.h"
 
@@ -44,11 +44,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor\editor.h"
 #endif
 
-#include "cfile.h"		
+#include "cfile/cfile.h"		
 #include "fuelcen.h"
 
 #include "hash.h"
-#include "key.h"
+#include "bios/key.h"
 #include "piggy.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')

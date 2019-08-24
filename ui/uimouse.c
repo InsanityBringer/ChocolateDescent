@@ -48,14 +48,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
-#include "mem.h"
-#include "fix.h"
-#include "types.h"
-#include "gr.h"
-#include "mouse.h"
+#include "mem/mem.h"
+#include "fix/fix.h"
+#include "misc/types.h"
+#include "2d/gr.h"
+#include "bios/mouse.h"
 
 #include "ui.h"
-#include "timer.h"
+#include "bios/timer.h"
 
 // 16x16
 
