@@ -17,3 +17,5 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern uint16_t swapshort(uint16_t s);
 extern uint32_t swapint(uint32_t i);
+
+int BS_MakeInt(uint8_t* bytes);

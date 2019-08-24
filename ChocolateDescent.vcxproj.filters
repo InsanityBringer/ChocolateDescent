@@ -504,6 +504,9 @@
     <ClCompile Include="platform\joy.cpp">
       <Filter>platform</Filter>
     </ClCompile>
+    <ClCompile Include="platform\s_midi.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cfile\cfile.h">
@@ -828,6 +831,9 @@
       <Filter>platform</Filter>
     </ClInclude>
     <ClInclude Include="platform\timer.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\s_midi.h">
       <Filter>platform</Filter>
     </ClInclude>
   </ItemGroup>

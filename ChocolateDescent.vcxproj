@@ -272,6 +272,7 @@
     <ClCompile Include="platform\sdl\gr_sdl.cpp" />
     <ClCompile Include="platform\sdl\key_sdl.cpp" />
     <ClCompile Include="platform\sdl\mouse_sdl.cpp" />
+    <ClCompile Include="platform\s_midi.cpp" />
     <ClCompile Include="platform\timer.cpp" />
     <ClCompile Include="platform\win32\disk.cpp" />
     <ClCompile Include="platform\win32\findfile.cpp" />
@@ -407,6 +408,7 @@
     <ClInclude Include="platform\key.h" />
     <ClInclude Include="platform\mono.h" />
     <ClInclude Include="platform\mouse.h" />
+    <ClInclude Include="platform\s_midi.h" />
     <ClInclude Include="platform\timer.h" />
     <ClInclude Include="texmap\scanline.h" />
     <ClInclude Include="texmap\texmap.h" />
