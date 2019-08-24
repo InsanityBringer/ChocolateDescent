@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/morph.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:32:19 $
- *
- * Header for morph.c
- *
- */
 
-
-
-#ifndef _MORPH_H
-#define _MORPH_H
+#pragma once
 
 #include "object.h"
 
@@ -39,8 +27,8 @@ typedef struct morph_data
 	int n_morphing_points[MAX_SUBMODELS];	//how many active points in each part
 	int submodel_startpoints[MAX_SUBMODELS];	//first point for each submodel
 	int n_submodels_active;
-	ubyte morph_save_control_type;
-	ubyte morph_save_movement_type;
+	uint8_t morph_save_control_type;
+	uint8_t morph_save_movement_type;
 	physics_info morph_save_phys_info;
 	int Morph_sig;
 } morph_data;
@@ -59,5 +47,3 @@ void do_morph_frame(object* obj);
 void init_morphs();
 
 extern morph_data* find_morph_data(object* obj);
-
-#endif

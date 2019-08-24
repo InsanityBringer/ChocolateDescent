@@ -10,26 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/game.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/06 15:23:22 $
- *
- * Constants & prototypes which pertain to the game only
- *
- */
 
-#ifndef _GAME_H
-#define _GAME_H
+#pragma once
 
-#include <setjmp.h>
+#include <csetjmp>
 
-#include "gr.h"
-#include "vecmat.h"
+#include "2d/gr.h"
+#include "vecmat/vecmat.h"
 #include "object.h"
-
- //#include "segment.h"
+#include "misc/types.h"
 
  //from mglobal.c
 extern fix FrameTime;					//time in seconds since last frame
@@ -212,9 +201,9 @@ extern int Game_turbo_mode;
 #define VR_AREA_DET		1	//viewing with the stereo area determined method
 #define VR_INTERLACED	2	//viewing with the stereo interlaced method
 
-extern ubyte		VR_use_paging;
-extern ubyte		VR_current_page;
-extern ubyte		VR_switch_eyes;
+extern uint8_t		VR_use_paging;
+extern uint8_t		VR_current_page;
+extern uint8_t		VR_switch_eyes;
 extern fix			VR_eye_width;
 extern int			VR_screen_mode;
 extern int			VR_render_width;
@@ -233,5 +222,3 @@ void fill_background(int x, int y, int w, int h, int dx, int dy);
 void game_init_render_sub_buffers(int x, int y, int w, int h);
 void GameLoop(int RenderFlag, int ReadControlsFlag);
 void powerup_grab_cheat_all(void);
-
-#endif

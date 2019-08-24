@@ -10,27 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/digi.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:28:40 $
- *
- * Include file for sound hardware.
- *
- */
 
+#pragma once
 
-
-#ifndef _DIGI_H
-#define _DIGI_H
-
-#include "types.h"
-#include "vecmat.h"
+#include "misc/types.h"
+#include "vecmat/vecmat.h"
 
 typedef struct digi_sound {
 	int length;
-	ubyte* data;
+	uint8_t* data;
 } digi_sound;
 
 extern int digi_driver_board;
@@ -77,5 +65,3 @@ extern void digi_set_max_channels(int n);
 extern int digi_get_max_channels();
 
 extern int digi_lomem;
-
-#endif

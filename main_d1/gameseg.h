@@ -10,24 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gameseg.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:20 $
- *
- * Header file for stuff moved from segment.c to gameseg.c.
- *
- */
 
+#pragma once
 
-
-#ifndef _GAMESEG_H
-#define _GAMESEG_H
-
-#include "types.h"
-#include "fix.h"
-#include "vecmat.h"
+#include "misc/types.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 #include "segment.h"
 
  //figure out what seg the given point is in, tracing through segments
@@ -36,8 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct segmasks 
 {
 	short facemask;     //which faces sphere pokes through (12 bits)
-	byte  sidemask;     //which sides sphere pokes through (6 bits)
-	byte  centermask;   //which sides center point is on back of (6 bits)
+	int8_t  sidemask;     //which sides sphere pokes through (6 bits)
+	int8_t  centermask;   //which sides center point is on back of (6 bits)
 } segmasks;
 
 extern int	Highest_vertex_index;			// Highest index in Vertices and Vertex_active, an efficiency hack
@@ -134,5 +122,3 @@ extern	void extract_up_vector_from_segment(segment* sp, vms_vector* vp);
 extern void create_walls_on_side(segment* sp, int sidenum);
 
 extern void pick_random_point_in_seg(vms_vector* new_pos, int segnum);
-
-#endif

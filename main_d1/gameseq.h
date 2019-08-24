@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gameseq.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:32:03 $
- *
- * Prototypes for functions for game sequencing.
- *
- */
 
-
-
-#ifndef _GAMESEQ_H
-#define _GAMESEQ_H
+#pragma once
 
 #include "player.h"
 #include "mission.h"
@@ -129,5 +117,3 @@ extern int NumNetPlayerPositions;
 void init_player_stats_new_ship();
 void copy_defaults_to_robot_all(void);
 void StartLevel(int random);
-
-#endif

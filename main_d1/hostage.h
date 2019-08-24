@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/hostage.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:50 $
- *
- * Header for hostage.c
- *
- */
 
-
-
-#ifndef _HOSTAGE_H
-#define _HOSTAGE_H
+#pragma once
 
 #include "vclip.h"
 #include "object.h"
@@ -41,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct hostage_data {
 	short		objnum;
 	int		objsig;
-	//ubyte		type;
+	//uint8_t		type;
 	short		vclip_num;
 	//short		sound_num;
 	char		text[HOSTAGE_MESSAGE_LEN];
@@ -79,7 +67,4 @@ int hostage_is_vclip_playing();
 void stop_all_hostage_clips();
 #else
 #define hostage_is_vclip_playing() (0)
-#endif
-
-
 #endif

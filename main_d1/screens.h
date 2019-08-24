@@ -10,24 +10,14 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/screens.h $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/14 12:14:00 $
- *
- * Info on canvases, screens, etc.
- *
- */
 
-#ifndef _SCREEN_H
-#define _SCREEN_H
+#pragma once
 
-#include "gr.h"
+#include "2d/gr.h"
 
- //What graphics modes the game & editor open
+//What graphics modes the game & editor open
 
- //for Screen_mode variable
+//for Screen_mode variable
 #define SCREEN_MENU				0	//viewing the menu screen
 #define SCREEN_GAME				1	//viewing the menu screen
 #define SCREEN_EDITOR			2	//viewing the editor screen
@@ -40,5 +30,3 @@ extern grs_canvas* Canv_editor_game;	//the game window on the editor screen
 
 //from game.c
 extern int set_screen_mode(int sm);		// True = editor screen
-
-#endif

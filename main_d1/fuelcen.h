@@ -10,23 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/fuelcen.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:28:43 $
- *
- * Definitions for fueling centers.
- *
- * $Log: fuelcen.h $
- * Revision 2.0  1995/02/27  11:28:43  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- */
 
-#ifndef _FUELCEN_H
-#define _FUELCEN_H
+#pragma once
 
 #include "segment.h"
 #include "object.h"
@@ -122,10 +107,10 @@ typedef struct control_center_triggers {
 typedef struct FuelCenter {
 	int			Type;
 	int			segnum;
-	byte			Flag;
-	byte			Enabled;
-	byte			Lives;			//	Number of times this can be enabled.
-	byte			dum1;
+	int8_t			Flag;
+	int8_t			Enabled;
+	int8_t			Lives;			//	Number of times this can be enabled.
+	int8_t			dum1;
 	fix 			Capacity;
 	fix			MaxCapacity;
 	fix			Timer;
@@ -176,5 +161,3 @@ void P_WriteFuelCenter(FuelCenter* center, FILE* fp);
 void P_WriteReactorTrigger(control_center_triggers* trigger, FILE* fp);
 
 extern fix EnergyToCreateOneRobot;
-
-#endif

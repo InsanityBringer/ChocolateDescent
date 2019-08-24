@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/fireball.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:03 $
- *
- * Header for fireball.c
- *
- */
 
-
-
-#ifndef _FIREBALL_H
-#define _FIREBALL_H
+#pragma once
 
 #include "object.h"
 
@@ -60,5 +48,3 @@ extern void maybe_drop_net_powerup(int powerup_type);
 extern void maybe_replace_powerup_with_energy(object* del_obj);
 
 extern int get_explosion_vclip(object* obj, int stage);
-
-#endif

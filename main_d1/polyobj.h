@@ -10,24 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/polyobj.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/02/27 18:21:54 $
- *
- * Header for polyobj.c, the polygon object code
- *
- */
 
+#pragma once
 
-
-#ifndef _POLYOBJ_H
-#define _POLYOBJ_H
-
-#include "vecmat.h"
-#include "gr.h"
-#include "3d.h"
+#include "vecmat/vecmat.h"
+#include "2d/gr.h"
+#include "3d/3d.h"
 
 #ifndef DRIVE
 #include "robot.h"
@@ -46,20 +34,20 @@ typedef struct polymodel
 {
 	int n_models;
 	int model_data_size;
-	ubyte* model_data;
+	uint8_t* model_data;
 	int submodel_ptrs[MAX_SUBMODELS];
 	vms_vector submodel_offsets[MAX_SUBMODELS];
 	vms_vector submodel_norms[MAX_SUBMODELS];		//norm for sep plane
 	vms_vector submodel_pnts[MAX_SUBMODELS];		//point on sep plane 
 	fix submodel_rads[MAX_SUBMODELS];				//radius for each submodel
-	ubyte submodel_parents[MAX_SUBMODELS];		//what is parent for each submodel
+	uint8_t submodel_parents[MAX_SUBMODELS];		//what is parent for each submodel
 	vms_vector submodel_mins[MAX_SUBMODELS];
 	vms_vector submodel_maxs[MAX_SUBMODELS];
 	vms_vector mins, maxs;							//min,max for whole model
 	fix rad;
-	ubyte		n_textures;
-	ushort	first_texture;
-	ubyte		simpler_model;		//alternate model with less detail (0 if none, model_num+1 else)
+	uint8_t		n_textures;
+	uint16_t	first_texture;
+	uint8_t		simpler_model;		//alternate model with less detail (0 if none, model_num+1 else)
 //	vms_vector min,max;
 } polymodel;
 
@@ -101,5 +89,3 @@ void draw_model_picture(int mn, vms_angvec* orient_angles);
 extern grs_bitmap * texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 extern g3s_point robot_points[];
-
-#endif

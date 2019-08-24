@@ -10,23 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/wall.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:36 $
- *
- */
 
-#ifndef _WALL_H
-#define _WALL_H
+#pragma once
 
 #include "inferno.h"
 #include "segment.h"
 #include "object.h"
 #include "switch.h"
-
- //#include "vclip.h"
 
 #define MAX_WALLS					175	// Maximum number of walls
 #define MAX_WALL_ANIMS			30		// Maximum different types of doors
@@ -98,12 +88,12 @@ typedef struct wall
 	int	segnum, sidenum;	// Seg & side for this wall
 	fix   hps;				  	// "Hit points" of the wall. 
 	int	linked_wall;		// number of linked wall
-	ubyte	type; 			  	// What kind of special wall.
-	ubyte	flags;				// Flags for the wall.		
-	ubyte	state;				// Opening, closing, etc.
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	ubyte	keys;					// which keys are required
+	uint8_t	type; 			  	// What kind of special wall.
+	uint8_t	flags;				// Flags for the wall.		
+	uint8_t	state;				// Opening, closing, etc.
+	int8_t	trigger;				// Which trigger is associated with the wall.
+	int8_t	clip_num;			// Which	animation associated with the wall. 
+	uint8_t	keys;					// which keys are required
 	short	pad;					// keep longword aligned
 } wall;
 
@@ -215,5 +205,3 @@ void P_ReadTrigger(trigger* trig, FILE* fp);
 void P_WriteWall(wall* nwall, FILE* fp);
 void P_WriteActiveDoor(active_door* door, FILE* fp);
 void P_WriteTrigger(trigger* trig, FILE* fp);
-
-#endif

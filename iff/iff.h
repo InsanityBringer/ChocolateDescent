@@ -10,64 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/iff/rcs/iff.h $
- * $Revision: 1.12 $
- * $Author: matt $
- * $Date: 1994/11/07 21:26:53 $
- *
- * Header for IFF routines
- *
- * $Log: iff.h $
- * Revision 1.12  1994/11/07  21:26:53  matt
- * Added new function iff_read_into_bitmap()
- *
- * Revision 1.11  1994/05/06  19:37:38  matt
- * Improved error handling and checking
- *
- * Revision 1.10  1994/04/16  20:12:54  matt
- * Made masked (stenciled) bitmaps work
- *
- * Revision 1.9  1994/04/13  23:46:00  matt
- * Added function, iff_errormsg(), which returns ptr to error message.
- *
- * Revision 1.8  1994/04/13  23:27:10  matt
- * Put in support for anim brushes (.abm files)
- *
- * Revision 1.7  1994/04/06  23:08:02  matt
- * Cleaned up code; added prototype (but no new code) for anim brush read
- *
- * Revision 1.6  1994/01/22  14:40:59  john
- * Fixed bug with declareations.
- *
- * Revision 1.5  1994/01/22  14:23:13  john
- * Added global vars to check transparency
- *
- * Revision 1.4  1993/10/27  12:47:42  john
- * Extended the comments
- *
- * Revision 1.3  1993/09/22  19:17:20  matt
- * Fixed handling of pad byte in ILBM/PPB body - was writing pad byte to
- * destination buffer.
- *
- * Revision 1.2  1993/09/08  19:23:25  matt
- * Added additional return code, IFF_BAD_BM_TYPE
- *
- * Revision 1.1  1993/09/08  14:24:21  matt
- * Initial revision
- *
- *
- */
 
-#ifndef _IFF_H
-#define _IFF_H
+#pragma once
 
-#include "types.h"
-#include "gr.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 
  //Prototypes for IFF library functions
 
-int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, ubyte* palette);
+int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, uint8_t* palette);
 //reads an IFF file into a grs_bitmap structure. fills in palette if not null
 //returns error codes - see IFF.H.  see GR.H for bitmap_type
 //MEM DETAILS:  This routines assumes that you already have the grs_bitmap
@@ -82,18 +33,18 @@ int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, ubyte* pal
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
 //without allocating memory for the bitmap. 
-int iff_read_into_bitmap(char* ifilename, grs_bitmap* bm, byte* palette);
+int iff_read_into_bitmap(char* ifilename, grs_bitmap* bm, int8_t* palette);
 
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.
 //returns iff error codes. max_bitmaps is size of array.
-int iff_read_animbrush(char* ifilename, grs_bitmap** bm, int max_bitmaps, int* n_bitmaps, ubyte* palette);
+int iff_read_animbrush(char* ifilename, grs_bitmap** bm, int max_bitmaps, int* n_bitmaps, uint8_t* palette);
 
 // After a read
-extern ubyte iff_transparent_color;
-extern ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is valid
+extern uint8_t iff_transparent_color;
+extern uint8_t iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is valid
 
-int iff_write_bitmap(char* ofilename, grs_bitmap* bm, ubyte* palette);
+int iff_write_bitmap(char* ofilename, grs_bitmap* bm, uint8_t* palette);
 //writes an IFF file from a grs_bitmap structure. writes palette if not null
 //returns error codes - see IFF.H.
 
@@ -116,5 +67,3 @@ char* iff_errormsg(int error_number);
 #define IFF_UNKNOWN_MASK	10		//unknown masking type
 #define IFF_READ_ERROR		11		//error reading from file
 #define IFF_BM_MISMATCH		12		//bm being loaded doesn't match bm loaded into
-
-#endif

@@ -10,20 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/fvi.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/20 18:15:58 $
- *
- * Header for fvi.c
- *
- */
 
-#ifndef _FVI_H
-#define _FVI_H
+#pragma once
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 #include "segment.h"
 #include "object.h"
 
@@ -82,5 +72,3 @@ void find_hitpoint_uv(fix* u, fix* v, vms_vector* pnt, segment* seg, int sidenum
 
 //Returns true if the object is through any walls
 int object_intersects_wall(object* objp);
-
-#endif

@@ -340,3 +340,7 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/*.HOG
+/*.PIG
+/*.cfg
+/*.plr

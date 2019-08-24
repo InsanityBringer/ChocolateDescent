@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{B644098C-04AA-4344-9E20-A01AF06F25A6}</ProjectGuid>
+    <RootNamespace>ChocolateDescent</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\obj\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\obj\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\obj\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\obj\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="2d\bitblt.cpp" />
+    <ClCompile Include="2d\bitmap.cpp" />
+    <ClCompile Include="2d\box.cpp" />
+    <ClCompile Include="2d\canvas.cpp" />
+    <ClCompile Include="2d\circle.cpp" />
+    <ClCompile Include="2d\disc.cpp" />
+    <ClCompile Include="2d\effect2d.cpp" />
+    <ClCompile Include="2d\font.cpp" />
+    <ClCompile Include="2d\gpixel.cpp" />
+    <ClCompile Include="2d\gr.cpp" />
+    <ClCompile Include="2d\ibitblt.cpp" />
+    <ClCompile Include="2d\lbitblt.cpp" />
+    <ClCompile Include="2d\line.cpp" />
+    <ClCompile Include="2d\palette.cpp" />
+    <ClCompile Include="2d\pcx.cpp" />
+    <ClCompile Include="2d\pixel.cpp" />
+    <ClCompile Include="2d\poly.cpp" />
+    <ClCompile Include="2d\rect.cpp" />
+    <ClCompile Include="2d\rle.cpp" />
+    <ClCompile Include="2d\roller.cpp" />
+    <ClCompile Include="2d\scale.cpp" />
+    <ClCompile Include="2d\scanline2d.cpp" />
+    <ClCompile Include="2d\sdl_conf.cpp" />
+    <ClCompile Include="3d\clipper.cpp" />
+    <ClCompile Include="3d\draw.cpp" />
+    <ClCompile Include="3d\globvars.cpp" />
+    <ClCompile Include="3d\horizon.cpp" />
+    <ClCompile Include="3d\instance.cpp" />
+    <ClCompile Include="3d\interp.cpp" />
+    <ClCompile Include="3d\matrix.cpp" />
+    <ClCompile Include="3d\points.cpp" />
+    <ClCompile Include="3d\rod.cpp" />
+    <ClCompile Include="3d\setup.cpp" />
+    <ClCompile Include="cfile\cfile.cpp" />
+    <ClCompile Include="fix\fix.cpp" />
+    <ClCompile Include="fix\tables.cpp" />
+    <ClCompile Include="iff\iff.cpp" />
+    <ClCompile Include="main_d1\ai.cpp" />
+    <ClCompile Include="main_d1\aipath.cpp" />
+    <ClCompile Include="main_d1\aistruct.cpp" />
+    <ClCompile Include="main_d1\args.cpp" />
+    <ClCompile Include="main_d1\automap.cpp" />
+    <ClCompile Include="main_d1\bm.cpp" />
+    <ClCompile Include="main_d1\bmread.cpp" />
+    <ClCompile Include="main_d1\cntrlcen.cpp" />
+    <ClCompile Include="main_d1\collide.cpp" />
+    <ClCompile Include="main_d1\config.cpp" />
+    <ClCompile Include="main_d1\controls.cpp" />
+    <ClCompile Include="main_d1\credits.cpp" />
+    <ClCompile Include="main_d1\digi.cpp" />
+    <ClCompile Include="main_d1\dumpmine.cpp" />
+    <ClCompile Include="main_d1\effects.cpp" />
+    <ClCompile Include="main_d1\endlevel.cpp" />
+    <ClCompile Include="main_d1\fireball.cpp" />
+    <ClCompile Include="main_d1\fuelcen.cpp" />
+    <ClCompile Include="main_d1\fvi.cpp" />
+    <ClCompile Include="main_d1\game.cpp" />
+    <ClCompile Include="main_d1\gamefont.cpp" />
+    <ClCompile Include="main_d1\gamemine.cpp" />
+    <ClCompile Include="main_d1\gamesave.cpp" />
+    <ClCompile Include="main_d1\gameseg.cpp" />
+    <ClCompile Include="main_d1\gameseq.cpp" />
+    <ClCompile Include="main_d1\gauges.cpp" />
+    <ClCompile Include="main_d1\hash.cpp" />
+    <ClCompile Include="main_d1\hostage.cpp" />
+    <ClCompile Include="main_d1\hud.cpp" />
+    <ClCompile Include="main_d1\inferno.cpp" />
+    <ClCompile Include="main_d1\i_main.cpp" />
+    <ClCompile Include="main_d1\joydefs.cpp" />
+    <ClCompile Include="main_d1\kconfig.cpp" />
+    <ClCompile Include="main_d1\kmatrix.cpp" />
+    <ClCompile Include="main_d1\laser.cpp" />
+    <ClCompile Include="main_d1\lighting.cpp" />
+    <ClCompile Include="main_d1\menu.cpp" />
+    <ClCompile Include="main_d1\mglobal.cpp" />
+    <ClCompile Include="main_d1\mission.cpp" />
+    <ClCompile Include="main_d1\modem.cpp" />
+    <ClCompile Include="main_d1\morph.cpp" />
+    <ClCompile Include="main_d1\multi.cpp" />
+    <ClCompile Include="main_d1\multibot.cpp" />
+    <ClCompile Include="main_d1\netmisc.cpp" />
+    <ClCompile Include="main_d1\network.cpp" />
+    <ClCompile Include="main_d1\newdemo.cpp" />
+    <ClCompile Include="main_d1\newmenu.cpp" />
+    <ClCompile Include="main_d1\nocomlib.cpp" />
+    <ClCompile Include="main_d1\object.cpp" />
+    <ClCompile Include="main_d1\paging.cpp" />
+    <ClCompile Include="main_d1\physics.cpp" />
+    <ClCompile Include="main_d1\piggy.cpp" />
+    <ClCompile Include="main_d1\player.cpp" />
+    <ClCompile Include="main_d1\playsave.cpp" />
+    <ClCompile Include="main_d1\polyobj.cpp" />
+    <ClCompile Include="main_d1\powerup.cpp" />
+    <ClCompile Include="main_d1\render.cpp" />
+    <ClCompile Include="main_d1\robot.cpp" />
+    <ClCompile Include="main_d1\scores.cpp" />
+    <ClCompile Include="main_d1\slew.cpp" />
+    <ClCompile Include="main_d1\songs.cpp" />
+    <ClCompile Include="main_d1\state.cpp" />
+    <ClCompile Include="main_d1\switch.cpp" />
+    <ClCompile Include="main_d1\terrain.cpp" />
+    <ClCompile Include="main_d1\texmerge.cpp" />
+    <ClCompile Include="main_d1\text.cpp" />
+    <ClCompile Include="main_d1\titles.cpp" />
+    <ClCompile Include="main_d1\vclip.cpp" />
+    <ClCompile Include="main_d1\vfx.cpp" />
+    <ClCompile Include="main_d1\wall.cpp" />
+    <ClCompile Include="main_d1\weapon.cpp" />
+    <ClCompile Include="mem\mem.cpp" />
+    <ClCompile Include="misc\byteswap.cpp" />
+    <ClCompile Include="misc\error.cpp" />
+    <ClCompile Include="misc\parsarg.cpp" />
+    <ClCompile Include="platform\joy.cpp" />
+    <ClCompile Include="platform\key.cpp" />
+    <ClCompile Include="platform\mono.cpp" />
+    <ClCompile Include="platform\mouse.cpp" />
+    <ClCompile Include="platform\openal\i_sound.cpp" />
+    <ClCompile Include="platform\sdl\gr_sdl.cpp" />
+    <ClCompile Include="platform\sdl\key_sdl.cpp" />
+    <ClCompile Include="platform\sdl\mouse_sdl.cpp" />
+    <ClCompile Include="platform\timer.cpp" />
+    <ClCompile Include="platform\win32\disk.cpp" />
+    <ClCompile Include="platform\win32\findfile.cpp" />
+    <ClCompile Include="platform\win32\win32window.cpp" />
+    <ClCompile Include="texmap\ntmap.cpp" />
+    <ClCompile Include="texmap\scanline.cpp" />
+    <ClCompile Include="texmap\tmapflat.cpp" />
+    <ClCompile Include="texmap\tmapsky.cpp" />
+    <ClCompile Include="ui\barbox.cpp" />
+    <ClCompile Include="ui\button.cpp" />
+    <ClCompile Include="ui\checkbox.cpp" />
+    <ClCompile Include="ui\file.cpp" />
+    <ClCompile Include="ui\func.cpp" />
+    <ClCompile Include="ui\gadget.cpp" />
+    <ClCompile Include="ui\icon.cpp" />
+    <ClCompile Include="ui\inputbox.cpp" />
+    <ClCompile Include="ui\keypad.cpp" />
+    <ClCompile Include="ui\keypress.cpp" />
+    <ClCompile Include="ui\keytrap.cpp" />
+    <ClCompile Include="ui\listbox.cpp" />
+    <ClCompile Include="ui\menubar.cpp" />
+    <ClCompile Include="ui\message.cpp" />
+    <ClCompile Include="ui\popup.cpp" />
+    <ClCompile Include="ui\radio.cpp" />
+    <ClCompile Include="ui\scroll.cpp" />
+    <ClCompile Include="ui\ui.cpp" />
+    <ClCompile Include="ui\uidraw.cpp" />
+    <ClCompile Include="ui\uimenu.cpp" />
+    <ClCompile Include="ui\uimouse.cpp" />
+    <ClCompile Include="ui\userbox.cpp" />
+    <ClCompile Include="ui\window.cpp" />
+    <ClCompile Include="vecmat\vecmat.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="2d\clip.h" />
+    <ClInclude Include="2d\effect2d.h" />
+    <ClInclude Include="2d\gr.h" />
+    <ClInclude Include="2d\grdef.h" />
+    <ClInclude Include="2d\ibitblt.h" />
+    <ClInclude Include="2d\i_gr.h" />
+    <ClInclude Include="2d\palette.h" />
+    <ClInclude Include="2d\pcx.h" />
+    <ClInclude Include="2d\rle.h" />
+    <ClInclude Include="3d\3d.h" />
+    <ClInclude Include="3d\clipper.h" />
+    <ClInclude Include="3d\globvars.h" />
+    <ClInclude Include="cfile\cfile.h" />
+    <ClInclude Include="fix\fix.h" />
+    <ClInclude Include="iff\iff.h" />
+    <ClInclude Include="main_d1\ai.h" />
+    <ClInclude Include="main_d1\aistruct.h" />
+    <ClInclude Include="main_d1\arcade.h" />
+    <ClInclude Include="main_d1\args.h" />
+    <ClInclude Include="main_d1\automap.h" />
+    <ClInclude Include="main_d1\bm.h" />
+    <ClInclude Include="main_d1\cntrlcen.h" />
+    <ClInclude Include="main_d1\collide.h" />
+    <ClInclude Include="main_d1\compbit.h" />
+    <ClInclude Include="main_d1\config.h" />
+    <ClInclude Include="main_d1\controls.h" />
+    <ClInclude Include="main_d1\credits.h" />
+    <ClInclude Include="main_d1\desc_id.h" />
+    <ClInclude Include="main_d1\digi.h" />
+    <ClInclude Include="main_d1\effects.h" />
+    <ClInclude Include="main_d1\endlevel.h" />
+    <ClInclude Include="main_d1\fireball.h" />
+    <ClInclude Include="main_d1\fuelcen.h" />
+    <ClInclude Include="main_d1\fvi.h" />
+    <ClInclude Include="main_d1\game.h" />
+    <ClInclude Include="main_d1\gamefont.h" />
+    <ClInclude Include="main_d1\gamemine.h" />
+    <ClInclude Include="main_d1\gamesave.h" />
+    <ClInclude Include="main_d1\gameseg.h" />
+    <ClInclude Include="main_d1\gameseq.h" />
+    <ClInclude Include="main_d1\gauges.h" />
+    <ClInclude Include="main_d1\hash.h" />
+    <ClInclude Include="main_d1\hostage.h" />
+    <ClInclude Include="main_d1\inferno.h" />
+    <ClInclude Include="main_d1\joydefs.h" />
+    <ClInclude Include="main_d1\kconfig.h" />
+    <ClInclude Include="main_d1\kmatrix.h" />
+    <ClInclude Include="main_d1\laser.h" />
+    <ClInclude Include="main_d1\lighting.h" />
+    <ClInclude Include="main_d1\menu.h" />
+    <ClInclude Include="main_d1\mission.h" />
+    <ClInclude Include="main_d1\modem.h" />
+    <ClInclude Include="main_d1\morph.h" />
+    <ClInclude Include="main_d1\multi.h" />
+    <ClInclude Include="main_d1\multibot.h" />
+    <ClInclude Include="main_d1\netmisc.h" />
+    <ClInclude Include="main_d1\network.h" />
+    <ClInclude Include="main_d1\newdemo.h" />
+    <ClInclude Include="main_d1\newmenu.h" />
+    <ClInclude Include="main_d1\nocomlib.h" />
+    <ClInclude Include="main_d1\object.h" />
+    <ClInclude Include="main_d1\paging.h" />
+    <ClInclude Include="main_d1\physics.h" />
+    <ClInclude Include="main_d1\piggy.h" />
+    <ClInclude Include="main_d1\player.h" />
+    <ClInclude Include="main_d1\playsave.h" />
+    <ClInclude Include="main_d1\polyobj.h" />
+    <ClInclude Include="main_d1\powerup.h" />
+    <ClInclude Include="main_d1\render.h" />
+    <ClInclude Include="main_d1\robot.h" />
+    <ClInclude Include="main_d1\scores.h" />
+    <ClInclude Include="main_d1\screens.h" />
+    <ClInclude Include="main_d1\segment.h" />
+    <ClInclude Include="main_d1\segpoint.h" />
+    <ClInclude Include="main_d1\slew.h" />
+    <ClInclude Include="main_d1\songs.h" />
+    <ClInclude Include="main_d1\sounds.h" />
+    <ClInclude Include="main_d1\state.h" />
+    <ClInclude Include="main_d1\switch.h" />
+    <ClInclude Include="main_d1\terrain.h" />
+    <ClInclude Include="main_d1\texmerge.h" />
+    <ClInclude Include="main_d1\text.h" />
+    <ClInclude Include="main_d1\textures.h" />
+    <ClInclude Include="main_d1\titles.h" />
+    <ClInclude Include="main_d1\vclip.h" />
+    <ClInclude Include="main_d1\vers_id.h" />
+    <ClInclude Include="main_d1\vfx.h" />
+    <ClInclude Include="main_d1\wall.h" />
+    <ClInclude Include="main_d1\weapon.h" />
+    <ClInclude Include="mem\mem.h" />
+    <ClInclude Include="misc\byteswap.h" />
+    <ClInclude Include="misc\error.h" />
+    <ClInclude Include="misc\parsarg.h" />
+    <ClInclude Include="misc\types.h" />
+    <ClInclude Include="platform\disk.h" />
+    <ClInclude Include="platform\findfile.h" />
+    <ClInclude Include="platform\i_sound.h" />
+    <ClInclude Include="platform\joy.h" />
+    <ClInclude Include="platform\key.h" />
+    <ClInclude Include="platform\mono.h" />
+    <ClInclude Include="platform\mouse.h" />
+    <ClInclude Include="platform\timer.h" />
+    <ClInclude Include="texmap\scanline.h" />
+    <ClInclude Include="texmap\texmap.h" />
+    <ClInclude Include="texmap\texmapl.h" />
+    <ClInclude Include="ui\func.h" />
+    <ClInclude Include="ui\ui.h" />
+    <ClInclude Include="vecmat\vecmat.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="main_d1\descent.cfg" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

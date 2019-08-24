@@ -10,76 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/texmap/rcs/texmap.h $
- * $Revision: 1.17 $
- * $Author: mike $
- * $Date: 1994/11/10 11:09:16 $
- *
- * Include file for entities using texture mapper library.
- *
- * $Log: texmap.h $
- * Revision 1.17  1994/11/10  11:09:16  mike
- * detail level stuff.
- *
- * Revision 1.16  1994/11/09  22:55:32  matt
- * Added variable Current_seg_depth for detail level optimization
- *
- * Revision 1.15  1994/06/09  16:10:04  mike
- * Add prototype for SC2000
- *
- * Revision 1.14  1994/05/25  18:46:16  matt
- * Added gr_upoly_tmap_ylr(), which generates ylr's for a polygon
- *
- * Revision 1.13  1994/05/25  09:47:12  mike
- * Added interface support for linear texture mapper (Mike change, Matt commnet)
- *
- * Revision 1.12  1994/05/24  17:30:43  mike
- * Prototype a bunch of linear, vertical scanning functions.
- *
- * Revision 1.11  1994/05/19  23:26:14  mike
- * Add constants NUM_LIGHTING_VALUES, MAX_LIGHTING_VALUE, MIN_LIGHTING_VALUE,
- * all part of new lighting_values_in_0_to_1 system.
- *
- * Revision 1.10  1994/05/14  17:19:21  matt
- * Added externs
- *
- * Revision 1.9  1994/04/13  23:55:44  matt
- * Increased max_tmap_verts from 16 to 25
- *
- * Revision 1.8  1994/03/31  08:35:43  mike
- * Prototype for gr_upoly_tmap.
- *
- * Revision 1.7  1994/02/08  15:17:54  mike
- * define label for MAX_TMAP_VERTS
- *
- * Revision 1.6  1994/01/31  15:41:51  mike
- * Add texture_map_lin_lin_sky_v
- *
- * Revision 1.5  1994/01/18  10:49:40  mike
- * prototype for texture_map_lin_lin_sky
- *
- * Revision 1.4  1993/11/30  17:09:46  mike
- * prototype for compute_lighting_value.
- *
- * Revision 1.3  1993/11/22  10:50:38  matt
- * Add ifndef around body of file
- *
- * Revision 1.2  1993/10/06  12:41:25  mike
- * Change prototype for draw_tmap.
- *
- * Revision 1.1  1993/09/08  17:29:11  mike
- * Initial revision
- *
- *
- */
 
-#ifndef _TEXMAP_H
-#define _TEXMAP_H
+#pragma once
 
-#include "fix.h"
-#include "3d.h"
-#include "gr.h"
+#include "fix/fix.h"
+#include "3d/3d.h"
+#include "2d/gr.h"
 
 #define	NUM_LIGHTING_LEVELS 32
 #define MAX_TMAP_VERTS 25
@@ -150,11 +86,9 @@ void gr_upoly_tmap(int nverts, int* vert);
 
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
 //function with ylr values
-void gr_upoly_tmap_ylr(int nverts, int* vert, void* ylr_func());
+void gr_upoly_tmap_ylr(int nverts, int* vert, void(*ylr_func)(int, fix, fix));
 
 extern int Transparency_on, per2_flag;
 
 //	Set to !0 to enable Sim City 2000 (or Eric's Drive Through, or Eric's Game) specific code.
 extern	int	SC2000;
-
-#endif

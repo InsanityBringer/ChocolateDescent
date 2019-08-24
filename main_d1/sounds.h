@@ -10,20 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/sounds.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:32 $
- *
- * Numbering system for the sounds.
- *
- */
 
-#ifndef _SOUNDS_H
-#define _SOUNDS_H
+#pragma once
 
-#include "vecmat.h"
+#include "vecmat/vecmat.h"
 #include "digi.h"
 
  //------------------- List of sound effects --------------------
@@ -101,7 +91,5 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //I think it would be nice to have a scrape sound... 
 //#define SOUND_PLAYER_SCRAPE_WALL						72
 
-extern ubyte Sounds[MAX_SOUNDS];
-extern ubyte AltSounds[MAX_SOUNDS];
-
-#endif
+extern uint8_t Sounds[MAX_SOUNDS];
+extern uint8_t AltSounds[MAX_SOUNDS];

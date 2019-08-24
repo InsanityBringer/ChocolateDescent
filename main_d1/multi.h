@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/multi.h $
- * $Revision: 2.3 $
- * $Author: john $
- * $Date: 1995/04/03 08:49:50 $
- *
- * Defines and exported variables for multi.c
- *
- */
 
-
-
-#ifndef _MULTI_H
-#define _MULTI_H
+#pragma once
 
 #ifdef SHAREWARE
 #define MAX_MESSAGE_LEN 25
@@ -34,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef NETWORK
 
-#include "types.h"
+#include "misc/types.h"
  // Defines
 #include "gameseq.h"
 #include "piggy.h"
@@ -110,7 +98,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Exported functions
 
 int objnum_remote_to_local(int remote_obj, int owner);
-int objnum_local_to_remote(int local_obj, byte* owner);
+int objnum_local_to_remote(int local_obj, int8_t* owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(int objnum);
 
@@ -139,7 +127,7 @@ void multi_send_audio_taunt(int taunt_num);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);
-void multi_send_netplayer_stats_request(ubyte player_num);
+void multi_send_netplayer_stats_request(uint8_t player_num);
 
 void multi_endlevel_score(void);
 void multi_prep_level(void);
@@ -202,7 +190,7 @@ extern int Network_message_reciever;
 
 extern short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Network object num for each 
 extern short local_to_remote[MAX_OBJECTS];   // Local object num for each network objnum
-extern byte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
+extern int8_t object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
 
 extern int multi_in_menu; // Flag to tell if we're executing GameLoop from within a newmenu.
 extern int multi_leave_menu;
@@ -227,29 +215,29 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 
 typedef struct netplayer_info {
 	char		callsign[CALLSIGN_LEN + 1];
-	ubyte		server[4];
-	ubyte		node[6];
-	ushort	socket;
-	byte 		connected;
+	uint8_t		server[4];
+	uint8_t		node[6];
+	uint16_t	socket;
+	int8_t 		connected;
 } netplayer_info;
 
 typedef struct netgame_info {
-	ubyte					type;
+	uint8_t					type;
 	char					game_name[NETGAME_NAME_LEN + 1];
 	char					team_name[2][CALLSIGN_LEN + 1];
-	ubyte					gamemode;
-	ubyte					difficulty;
-	ubyte 				game_status;
-	ubyte					numplayers;
-	ubyte					max_numplayers;
-	ubyte					game_flags;
+	uint8_t					gamemode;
+	uint8_t					difficulty;
+	uint8_t 				game_status;
+	uint8_t					numplayers;
+	uint8_t					max_numplayers;
+	uint8_t					game_flags;
 	netplayer_info		players[MAX_PLAYERS];
 	int					locations[MAX_PLAYERS];
 	short					kills[MAX_PLAYERS][MAX_PLAYERS];
 	int					levelnum;
-	ubyte					protocol_version;
-	ubyte					team_vector;
-	ushort				segments_checksum;
+	uint8_t					protocol_version;
+	uint8_t					team_vector;
+	uint16_t				segments_checksum;
 	short					team_kills[2];
 	short					killed[MAX_PLAYERS];
 	short					player_kills[MAX_PLAYERS];
@@ -258,7 +246,7 @@ typedef struct netgame_info {
 	int					control_invul_time;
 	int 					monitor_vector;
 	int					player_score[MAX_PLAYERS];
-	ubyte					player_flags[MAX_PLAYERS];
+	uint8_t					player_flags[MAX_PLAYERS];
 	char					mission_name[9];
 	char					mission_title[MISSION_NAME_LEN + 1];
 #endif
@@ -268,7 +256,5 @@ extern struct netgame_info Netgame;
 
 int network_i_am_master(void);
 void change_playernum_to(int new_pnum);
-
-#endif
 
 #endif

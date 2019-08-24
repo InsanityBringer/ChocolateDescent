@@ -10,26 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/inferno.h $
- * $Revision: 2.4 $
- * $Author: john $
- * $Date: 1995/05/26 16:16:17 $
- *
- * Header file for Inferno.  Should be included in all source files.
- *
- */
 
-#ifndef _INFERNO_H
-#define _INFERNO_H
+#pragma once
 
-//#include	"settings.h"	//include personal settings //[ISB] For now, I'm doing this in the build configuration
-
- /**
-  **	Constants
-  **/
-
-  //	How close two points must be in all dimensions to be considered the same point.
+ //	How close two points must be in all dimensions to be considered the same point.
 #define	FIX_EPSILON	10
 
 //for Function_mode variable
@@ -44,21 +28,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define FILENAME_LEN 13
 
-/**
- **	Global variables
- **/
-
 extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?
 extern char Menu_pcx_name[13];
 
-#ifdef USE_CD
-extern char destsat_cdpath[128];
-#endif
-
 void check_joystick_calibration();
 void show_order_form();
 
-int D_DescentMain(int argc, char** argv);
-
-#endif
+int D_DescentMain(int argc, const char** argv);

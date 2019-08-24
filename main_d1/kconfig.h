@@ -10,21 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/kconfig.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:29:38 $
- *
- * Prototypes for reading controls
- *
- */
 
-#ifndef _KCONFIG_H
-#define _KCONFIG_H
+#pragma once
 
-#include "types.h"
-#include "fix.h"
+#include "misc/types.h"
+#include "fix/fix.h"
 
 typedef struct control_info 
 {
@@ -38,19 +28,19 @@ typedef struct control_info
 	fix afterburner_time;
 #endif
 
-	ubyte	rear_view_down_count;
-	ubyte	rear_view_down_state;
+	uint8_t	rear_view_down_count;
+	uint8_t	rear_view_down_state;
 
-	ubyte	fire_primary_down_count;
-	ubyte	fire_primary_state;
-	ubyte	fire_secondary_state;
-	ubyte	fire_secondary_down_count;
-	ubyte	fire_flare_down_count;
+	uint8_t	fire_primary_down_count;
+	uint8_t	fire_primary_state;
+	uint8_t	fire_secondary_state;
+	uint8_t	fire_secondary_down_count;
+	uint8_t	fire_flare_down_count;
 
-	ubyte	drop_bomb_down_count;
+	uint8_t	drop_bomb_down_count;
 
-	ubyte	automap_down_count;
-	ubyte	automap_state;
+	uint8_t	automap_down_count;
+	uint8_t	automap_state;
 
 } control_info;
 
@@ -62,19 +52,19 @@ typedef struct kc_item
 	short w2;
 	short u, d, l, r;
 	short text_num1;
-	ubyte type;
-	ubyte value;		// what key,button,etc
+	uint8_t type;
+	uint8_t value;		// what key,button,etc
 } kc_item;
 
 extern control_info Controls;
 extern void controls_read_all();
 extern void kconfig(int n, char* title);
 
-extern ubyte Config_digi_volume;
-extern ubyte Config_midi_volume;
-extern ubyte Config_control_type;
-extern ubyte Config_channels_reversed;
-extern ubyte Config_joystick_sensitivity;
+extern uint8_t Config_digi_volume;
+extern uint8_t Config_midi_volume;
+extern uint8_t Config_control_type;
+extern uint8_t Config_channels_reversed;
+extern uint8_t Config_joystick_sensitivity;
 
 #define CONTROL_NONE 0
 #define CONTROL_JOYSTICK 1
@@ -89,8 +79,8 @@ extern ubyte Config_joystick_sensitivity;
 #define NUM_OTHER_CONTROLS 27
 #define MAX_CONTROLS 50
 
-extern ubyte kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
-extern ubyte default_kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
+extern uint8_t kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
+extern uint8_t default_kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
 
 extern char* control_text[CONTROL_MAX_TYPES];
 
@@ -115,5 +105,3 @@ void kc_change_mouseaxis(kc_item* item);
 void kc_change_invert(kc_item* item);
 void kconfig_read_fcs(int raw_axis);
 void kconfig_set_fcs_button(int btn, int button);
-
-#endif

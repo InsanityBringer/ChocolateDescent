@@ -1,8 +1,6 @@
-#ifndef _VFX_H
-#define _VFX_H
 
-#include "types.h"
+#pragma once
 
-void vfx_set_palette_sub(ubyte* pal);
+#include "misc/types.h"
 
-#endif
+void vfx_set_palette_sub(uint8_t* pal);

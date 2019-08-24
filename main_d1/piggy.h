@@ -10,37 +10,24 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/piggy.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:21 $
- *
- * Interface to piggy functions.
- *
- */
 
-
-
-#ifndef _PIGGY_H
-#define _PIGGY_H
+#pragma once
 
 #include "digi.h"
 #include "sounds.h"
 
 typedef struct bitmap_index {
-	ushort	index;
+	uint16_t	index;
 } bitmap_index;
 
 int piggy_init();
 void piggy_close();
 void piggy_dump_all();
-bitmap_index piggy_register_bitmap(grs_bitmap* bmp, char* name, int in_file);
+bitmap_index piggy_register_bitmap(grs_bitmap* bmp, const char* name, int in_file);
 int piggy_register_sound(digi_sound* snd, char* name, int in_file);
 bitmap_index piggy_find_bitmap(char* name);
 int piggy_find_sound(char* name);
 
-#ifdef PIGGY_USE_PAGING
 #define PIGGY_PAGE_IN(bmp) 							\
 do { 																\
 	if ( GameBitmaps[(bmp).index].bm_flags & BM_FLAG_PAGED_OUT )	{	\
@@ -52,9 +39,6 @@ do { 																\
 extern void piggy_bitmap_page_in(bitmap_index bmp);
 extern void piggy_bitmap_page_out_all();
 extern int piggy_page_flushed;
-#else
-#define PIGGY_PAGE_IN(bmp) 
-#endif
 
 //void piggy_read_bitmap_data(grs_bitmap* bmp);
 //void piggy_read_sound_data(digi_sound* snd);
@@ -73,7 +57,3 @@ extern digi_sound GameSounds[MAX_SOUND_FILES];
 extern grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
 
 void piggy_read_sounds();
-
-
-#endif
-

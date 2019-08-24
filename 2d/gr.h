@@ -10,181 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:2d::RCS:gr.h $
- * $Revision: 1.7 $
- * $Author: allender $
- * $Date: 1995/09/13 08:39:44 $
- *
- * Definitions for graphics lib.
- *
- * $Log: gr.h $
- * Revision 1.7  1995/09/13  08:39:44  allender
- * added prototype for gr_bitblt_cockpit
- *
- * Revision 1.6  1995/08/23  18:47:01  allender
- * fixed compiler warnings on mcc
- *
- * Revision 1.5  1995/08/14  15:51:01  allender
- * added #define for transparency color
- *
- * Revision 1.4  1995/06/13  13:03:55  allender
- * added graphics mode
- *
- * Revision 1.3  1995/04/18  09:50:16  allender
- * *** empty log message ***
- *
- * Revision 1.2  1995/04/07  07:32:33  allender
- * *** empty log message ***
- *
- * Revision 1.1  1995/03/09  09:04:16  allender
- * Initial revision
- *
- *
- * --- PC RCS information ---
- * Revision 1.45  1994/11/18  22:50:21  john
- * Changed shorts to ints in parameters.
- *
- * Revision 1.44  1994/11/13  13:04:07  john
- * Added paged out bit in bitmap structure.  Commented out the
- * poly code that is never used.
- *
- * Revision 1.43  1994/11/09  23:04:56  mike
- * Add avg_color field.
- *
- * Revision 1.42  1994/10/27  00:53:35  john
- * Added RLE Flag to bitmap structere.
- *
- * Revision 1.41  1994/10/26  23:55:52  john
- * Took out roller; Took out inverse table.
- *
- * Revision 1.40  1994/08/11  17:59:12  mike
- * Assembler merge functions written for 3 rotations of bitmaps.
- *
- * Revision 1.39  1994/08/10  12:24:56  matt
- * Added support for colors fonts & kerned fonts
- * Made our own font file format
- *
- * Revision 1.38  1994/07/27  18:30:18  john
- * Took away the blending table.
- *
- * Revision 1.37  1994/06/16  15:25:06  mike
- * Add flag BM_FLAG_NO_LIGHTING.
- *
- * Revision 1.36  1994/05/31  10:01:22  john
- * *** empty log message ***
- *
- * Revision 1.35  1994/05/31  07:53:34  john
- * *** empty log message ***
- *
- * Revision 1.34  1994/05/14  17:19:41  matt
- * Added externs
- *
- * Revision 1.33  1994/05/12  17:33:09  john
- * Added circle code.
- *
- * Revision 1.32  1994/05/06  12:50:16  john
- * Added supertransparency; neatend things up; took out warnings.
- *
- * Revision 1.31  1994/05/04  10:06:06  john
- * Added flag for bitmap super-transparency.
- *
- * Revision 1.30  1994/05/03  19:38:56  john
- * *** empty log message ***
- *
- * Revision 1.29  1994/04/22  11:16:05  john
- * *** empty log message ***
- *
- * Revision 1.28  1994/04/08  16:59:32  john
- * Add fading poly's; Made palette fade 32 instead of 16.
- *
- * Revision 1.27  1994/03/16  17:29:52  john
- * *** empty log message ***
- *
- * Revision 1.26  1994/03/16  17:20:51  john
- * Added slow palette searching options.
- *
- * Revision 1.25  1994/03/14  17:59:20  john
- * Added function to check bitmap's transparency.
- *
- * Revision 1.24  1994/03/14  16:56:26  john
- * Changed grs_bitmap structure to include bm_flags.
- *
- * Revision 1.23  1994/02/18  15:32:30  john
- * *** empty log message ***
- *
- * Revision 1.22  1994/01/25  11:40:48  john
- * Added gr_check_mode function.
- *
- * Revision 1.21  1994/01/12  13:45:24  john
- * Added scaler.
- *
- * Revision 1.20  1993/12/21  19:58:24  john
- * added selector stuff
- *
- * Revision 1.19  1993/12/21  11:40:40  john
- * *** empty log message ***
- *
- * Revision 1.18  1993/12/09  15:02:08  john
- * Changed palette stuff majorly
- *
- * Revision 1.17  1993/12/07  12:32:05  john
- * moved bmd_palette to gr_palette
- *
- * Revision 1.16  1993/11/28  12:08:06  mike
- * Change prototype for rotate_bitmap.
- *
- * Revision 1.15  1993/11/18  14:22:51  mike
- * Add prototype for rotate_bitmap.
- *
- * Revision 1.14  1993/11/17  19:00:59  mike
- * Add prototype for test_rotate_bitmap
- *
- * Revision 1.13  1993/11/16  11:28:58  john
- * *** empty log message ***
- *
- * Revision 1.12  1993/10/26  13:17:43  john
- * *** empty log message ***
- *
- * Revision 1.11  1993/10/15  16:23:37  john
- * y
- *
- * Revision 1.10  1993/09/28  15:32:33  john
- * added def for save/restore vidmode
- *
- * Revision 1.9  1993/09/28  12:51:46  matt
- * Added aspect ratio to grs_screen structure
- *
- * Revision 1.8  1993/09/26  22:45:12  matt
- * Changed prototypes for line functions to take fixes, not ints.
- *
- * Revision 1.7  1993/09/26  18:58:16  john
- * fadein/out stuff
- *
- * Revision 1.6  1993/09/14  16:26:44  matt
- * Changed gr_change_mode() to be gr_set_mode()
- *
- * Revision 1.4  1993/09/14  13:08:45  john
- * added gr_change_mode
- *
- * Revision 1.3  1993/09/08  13:56:03  matt
- * Put 'if' block around body of file; added bitmap type BM_RGB15
- *
- * Revision 1.2  1993/09/08  13:02:14  john
- * Changed structure definitions a bit.
- *
- * Revision 1.1  1993/09/08  11:25:15  john
- * Initial revision
- *
- *
- */
 
-#ifndef _GR_H
-#define _GR_H
+#pragma once
 
-//#include <QDOffscreen.h>
-#include "types.h"
-#include "fix.h"
+#include "misc/types.h"
+#include "fix/fix.h"
 
 #define SWAP_0_255			0			// swap black and white
 #define TRANSPARENCY_COLOR	255			// palette entry of transparency color -- 255 on the PC
@@ -202,14 +32,14 @@ typedef struct _grs_font {
 	short		ft_w, ft_h;		// Width and height in pixels
 	short		ft_flags;		// Proportional?
 	short		ft_baseline;	//
-	ubyte		ft_minchar,		// The first and last chars defined by
+	uint8_t		ft_minchar,		// The first and last chars defined by
 		ft_maxchar;		// This font
 	short		ft_bytewidth;	// Width in unsigned chars
-	ubyte* ft_data;			// Ptr to raw data.
-	ubyte** ft_chars;		// Ptrs to data for each char (required for prop font)
+	uint8_t* ft_data;			// Ptr to raw data.
+	uint8_t** ft_chars;		// Ptrs to data for each char (required for prop font)
 	short* ft_widths;		// Array of widths (required for prop font)
-	ubyte* ft_kerndata;	// Array of kerning triplet data
-	ubyte* ft_datablock; //this format sucks aaaaaaaaaaaaaaaaaaaaaa
+	uint8_t* ft_kerndata;	// Array of kerning triplet data
+	uint8_t* ft_datablock; //this format sucks aaaaaaaaaaaaaaaaaaaaaa
 } grs_font;
 
 #define BM_LINEAR   0
@@ -227,8 +57,8 @@ typedef struct _grs_font {
 typedef struct _grs_bitmap {
 	short       bm_x, bm_y;      // Offset from parent's origin
 	short       bm_w, bm_h;      // width,height
-	byte       	bm_type;        // 0=Linear, 1=ModeX, 2=SVGA
-	byte		bm_flags;		// bit 0 on means it has transparency.
+	int8_t       	bm_type;        // 0=Linear, 1=ModeX, 2=SVGA
+	int8_t		bm_flags;		// bit 0 on means it has transparency.
 								// bit 1 on means it has supertransparency
 								// bit 2 on means it doesn't get passed through lighting.
 	short	    bm_rowsize;     // unsigned char offset to next row
@@ -237,8 +67,8 @@ typedef struct _grs_bitmap {
 								//   ModeX = *parent+(rowsize*y+x/4)
 								//   SVGA = *parent+(rowsize*y+x)
 	unsigned short bm_selector;
-	ubyte			avg_color;	//	Average color of all pixels in texture map.
-	byte			unused;		//	to 4-byte align.
+	uint8_t			avg_color;	//	Average color of all pixels in texture map.
+	int8_t			unused;		//	to 4-byte align.
 } grs_bitmap;
 
 typedef struct _grs_canvas {
@@ -326,7 +156,7 @@ extern void gr_pal_getblock(int start, int number, unsigned char* pal);*/
 //[ISB] also uncalled apparently
 
 //shut down the 2d.  Restore the screen mode.
-int gr_close(void);
+void gr_close();
 
 //  0=Mode set OK
 //  1=No VGA adapter installed
@@ -413,7 +243,7 @@ void gr_bitblt_cockpit(grs_bitmap* bm);
 // When this function is called, the guns are set to gr_palette, and
 // the palette stays the same until gr_close is called
 
-void gr_use_palette_table(char* filename);
+void gr_use_palette_table(const char* filename);
 
 //=========================================================================
 // Drawing functions:
@@ -480,17 +310,17 @@ void gr_uscanline(int x1, int x2, int y);
 
 
 // Reads in a font file... current font set to this one.
-grs_font* gr_init_font(char* fontfile);
+grs_font* gr_init_font(const char* fontfile);
 void gr_close_font(grs_font* font);
 
 // Writes a string using current font. Returns the next column after last char.
 void gr_set_fontcolor(int fg, int bg);
 void gr_set_curfont(grs_font* newfont);
-int gr_string(int x, int y, unsigned char* s);
-int gr_ustring(int x, int y, unsigned char* s);
-int gr_printf(int x, int y, unsigned char* format, ...);
-int gr_uprintf(int x, int y, unsigned char* format, ...);
-void gr_get_string_size(unsigned char* s, int* string_width, int* string_height, int* average_width);
+int gr_string(int x, int y, const char* s);
+int gr_ustring(int x, int y, const char* s);
+int gr_printf(int x, int y, const char* format, ...);
+int gr_uprintf(int x, int y, const char* format, ...);
+void gr_get_string_size(const char* s, int* string_width, int* string_height, int* average_width);
 
 
 //	From roller.c
@@ -521,13 +351,13 @@ extern void gr_set_current_canvas(grs_canvas* canv);
 //extern void test_rotate_bitmap(void); //[ISB] not used?
 extern void rotate_bitmap(grs_bitmap* bp, grs_point* vertbuf, int light_value);
 
-extern ubyte gr_palette[256 * 3];
-extern ubyte gr_fade_table[256 * GR_FADE_LEVELS];
-extern ubyte gr_inverse_table[32 * 32 * 32];
+extern uint8_t gr_palette[256 * 3];
+extern uint8_t gr_fade_table[256 * GR_FADE_LEVELS];
+extern uint8_t gr_inverse_table[32 * 32 * 32];
 
-extern ushort gr_palette_selector;
-extern ushort gr_inverse_table_selector;
-extern ushort gr_fade_table_selector;
+extern uint16_t gr_palette_selector;
+extern uint16_t gr_inverse_table_selector;
+extern uint16_t gr_fade_table_selector;
 
 // Remaps a bitmap into the current palette. If transparent_color is between 0 and 255
 // then all occurances of that color are mapped to whatever color the 2d uses for 
@@ -539,11 +369,11 @@ extern ushort gr_fade_table_selector;
 //			gr_remap_bitmap( new, newpal, iff_transparent_color );
 //		else
 //			gr_remap_bitmap( new, newpal, -1 );
-extern void gr_remap_bitmap(grs_bitmap* bmp, ubyte* palette, int transparent_color, int super_transparent_color);
+extern void gr_remap_bitmap(grs_bitmap* bmp, uint8_t* palette, int transparent_color, int super_transparent_color);
 
 // Same as above, but searches using gr_find_closest_color which uses 18-bit accurracy
 // instaed of 15bit when translating colors.
-extern void gr_remap_bitmap_good(grs_bitmap* bmp, ubyte* palette, int transparent_color, int super_transparent_color);
+extern void gr_remap_bitmap_good(grs_bitmap* bmp, uint8_t* palette, int transparent_color, int super_transparent_color);
 
 extern void gr_palette_step_up(int r, int g, int b);
 
@@ -573,12 +403,10 @@ extern int gr_bitmap_assign_selector(grs_bitmap* bmp);
 // best matches the input.
 int gr_find_closest_color(int r, int g, int b);
 
-extern void gr_merge_textures(ubyte* lower, ubyte* upper, ubyte* dest);
-extern void gr_merge_textures_1(ubyte* lower, ubyte* upper, ubyte* dest);
-extern void gr_merge_textures_2(ubyte* lower, ubyte* upper, ubyte* dest);
-extern void gr_merge_textures_3(ubyte* lower, ubyte* upper, ubyte* dest);
+extern void gr_merge_textures(uint8_t* lower, uint8_t* upper, uint8_t* dest);
+extern void gr_merge_textures_1(uint8_t* lower, uint8_t* upper, uint8_t* dest);
+extern void gr_merge_textures_2(uint8_t* lower, uint8_t* upper, uint8_t* dest);
+extern void gr_merge_textures_3(uint8_t* lower, uint8_t* upper, uint8_t* dest);
 
-//tbh no idea why this wasn't in the header
 void gr_sync_display();
-
-#endif
+int gr_set_mode(int mode);

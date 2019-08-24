@@ -10,24 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/segment.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/20 18:15:22 $
- *
- * Include file for functions which need to access segment data structure.
- *
- */
 
-#ifndef _SEGMENT_H
-#define _SEGMENT_H
+#pragma once
 
-#include	"types.h"
-#include	"fix.h"
-#include "vecmat.h"
- //#include "3d.h"
- //#include "inferno.h"
+#include "misc/types.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 
  // Version 1 - Initial version
  // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
@@ -82,8 +70,8 @@ typedef struct uvl {
 
 #ifdef COMPACT_SEGS
 typedef struct side {
-	byte		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
-	ubyte		pad;									//keep us longword alligned
+	int8_t		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+	uint8_t		pad;									//keep us longword alligned
 	short		wall_num;
 	short		tmap_num;
 	short		tmap_num2;
@@ -92,8 +80,8 @@ typedef struct side {
 } side;
 #else
 typedef struct side {
-	byte		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
-	ubyte		pad;									//keep us longword alligned
+	int8_t		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+	uint8_t		pad;									//keep us longword alligned
 	short		wall_num;
 	short		tmap_num;
 	short		tmap_num2;
@@ -113,8 +101,8 @@ typedef struct segment {
 	short		group;								// group number to which the segment belongs.
 #endif
 	short		objects;								// pointer to objects in this segment
-	ubyte		special;								// special property of a segment (such as damaging, trigger, etc.)
-	byte		matcen_num;							//	which center segment is associated with.
+	uint8_t		special;								// special property of a segment (such as damaging, trigger, etc.)
+	int8_t		matcen_num;							//	which center segment is associated with.
 	short		value;
 	fix		static_light;						//average static light in segment
 #ifndef	EDITOR
@@ -152,7 +140,7 @@ extern	segment		Segments[];
 extern	int			Num_segments;
 extern	int			Num_vertices;
 
-extern	byte		Side_to_verts[MAX_SIDES_PER_SEGMENT][4];	// Side_to_verts[my_side] is list of vertices forming side my_side.
+extern	int8_t		Side_to_verts[MAX_SIDES_PER_SEGMENT][4];	// Side_to_verts[my_side] is list of vertices forming side my_side.
 extern	int		Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];	// Side_to_verts[my_side] is list of vertices forming side my_side.
 extern	char		Side_opposite[];									// Side_opposite[my_side] returns side opposite cube from my_side.
 
@@ -188,6 +176,4 @@ extern void add_segment_to_group(int segment_num, int group_num);
 
 // Verify that all vertices are legal.
 extern void med_check_all_vertices();
-#endif
-
 #endif

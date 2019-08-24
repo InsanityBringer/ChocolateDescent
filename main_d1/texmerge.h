@@ -10,27 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/texmerge.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:28:05 $
- *
- * Definitions for texture merging caching stuff.
- *
- */
 
-#ifndef _TEXMERGE_H
-#define _TEXMERGE_H
+#pragma once
 
-#include "gr.h"
+#include "2d/gr.h"
 
 int texmerge_init(int num_cached_textures);
 grs_bitmap* texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top);
 void texmerge_close(void);
 void texmerge_flush();
 
-void merge_textures_new(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, ubyte* dest_data);
-void merge_textures_super_xparent(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, ubyte* dest_data);
-
-#endif
+void merge_textures_new(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, uint8_t* dest_data);
+void merge_textures_super_xparent(int type, grs_bitmap* bottom_bmp, grs_bitmap* top_bmp, uint8_t* dest_data);

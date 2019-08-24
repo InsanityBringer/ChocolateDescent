@@ -1,0 +1,839 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="2d">
+      <UniqueIdentifier>{ca3521c9-bf54-4ce1-bec4-7ba6118c2027}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3d">
+      <UniqueIdentifier>{d1188ad5-cf93-47e5-b0e6-65d2e7ba3696}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cfile">
+      <UniqueIdentifier>{339da718-f125-4075-ab2d-93893ff66fc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fix">
+      <UniqueIdentifier>{597213ba-67df-445c-9357-dabc4a5fd111}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="iff">
+      <UniqueIdentifier>{52aa07d8-ad43-43df-a4db-57b17f66f641}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="main_d1">
+      <UniqueIdentifier>{b4802536-28e0-4080-a40a-d82997583ec0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mem">
+      <UniqueIdentifier>{2d6a42f1-4a41-46a8-8ff8-e09d25b91025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc">
+      <UniqueIdentifier>{17ca9013-60e2-4b84-8f11-00b219739f57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="texmap">
+      <UniqueIdentifier>{e53693fd-800d-45a8-afbc-12be8e30f482}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{f90ec5b0-faa2-41cf-b5c5-099dc1835fa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vecmat">
+      <UniqueIdentifier>{0b481941-ffcf-460a-a072-de168b9ec57c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{19cc90c4-a84a-4e8e-91de-c7862c891aac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\sdl">
+      <UniqueIdentifier>{da3cde58-aa7a-4d60-86e5-faa24a522ada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{8a9fff1d-459c-4b78-be30-3aaf3a943530}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\openal">
+      <UniqueIdentifier>{876d41ab-3664-46e6-b103-786b44564661}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="2d\bitblt.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\bitmap.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\box.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\canvas.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\circle.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\disc.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\font.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\gpixel.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\gr.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\ibitblt.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\lbitblt.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\line.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\palette.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\pcx.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\pixel.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\poly.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\rect.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\rle.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\roller.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\scale.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\scanline2d.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\sdl_conf.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\clipper.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\draw.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\globvars.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\horizon.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\instance.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\interp.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\matrix.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\points.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\rod.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="3d\setup.cpp">
+      <Filter>3d</Filter>
+    </ClCompile>
+    <ClCompile Include="cfile\cfile.cpp">
+      <Filter>cfile</Filter>
+    </ClCompile>
+    <ClCompile Include="fix\fix.cpp">
+      <Filter>fix</Filter>
+    </ClCompile>
+    <ClCompile Include="fix\tables.cpp">
+      <Filter>fix</Filter>
+    </ClCompile>
+    <ClCompile Include="iff\iff.cpp">
+      <Filter>iff</Filter>
+    </ClCompile>
+    <ClCompile Include="mem\mem.cpp">
+      <Filter>mem</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\byteswap.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\error.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\parsarg.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="texmap\ntmap.cpp">
+      <Filter>texmap</Filter>
+    </ClCompile>
+    <ClCompile Include="texmap\scanline.cpp">
+      <Filter>texmap</Filter>
+    </ClCompile>
+    <ClCompile Include="texmap\tmapflat.cpp">
+      <Filter>texmap</Filter>
+    </ClCompile>
+    <ClCompile Include="texmap\tmapsky.cpp">
+      <Filter>texmap</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\barbox.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\button.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\checkbox.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\file.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\func.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\gadget.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\icon.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\inputbox.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\keypad.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\keypress.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\keytrap.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\listbox.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\menubar.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\message.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\popup.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\radio.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\scroll.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\uidraw.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\uimenu.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\uimouse.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\userbox.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\window.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="vecmat\vecmat.cpp">
+      <Filter>vecmat</Filter>
+    </ClCompile>
+    <ClCompile Include="2d\effect2d.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\ai.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\aipath.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\aistruct.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\args.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\automap.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\bm.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\bmread.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\cntrlcen.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\collide.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\config.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\controls.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\credits.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\digi.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\dumpmine.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\effects.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\endlevel.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\fireball.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\fuelcen.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\fvi.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\game.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\gamefont.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\gamemine.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\gamesave.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\gameseg.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\gameseq.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\gauges.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\hash.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\hostage.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\hud.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\i_main.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\inferno.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\joydefs.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\kconfig.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\kmatrix.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\laser.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\lighting.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\menu.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\mglobal.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\mission.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\modem.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\morph.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\multi.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\multibot.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\netmisc.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\network.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\newdemo.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\newmenu.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\nocomlib.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\object.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\paging.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\physics.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\piggy.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\player.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\playsave.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\polyobj.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\powerup.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\render.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\robot.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\scores.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\slew.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\songs.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\state.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\switch.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\terrain.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\texmerge.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\text.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\titles.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\vclip.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\vfx.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\wall.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="main_d1\weapon.cpp">
+      <Filter>main_d1</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\mono.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\timer.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\disk.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\findfile.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\openal\i_sound.cpp">
+      <Filter>platform\openal</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\win32window.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sdl\gr_sdl.cpp">
+      <Filter>platform\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\key.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sdl\key_sdl.cpp">
+      <Filter>platform\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sdl\mouse_sdl.cpp">
+      <Filter>platform\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\mouse.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\joy.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cfile\cfile.h">
+      <Filter>cfile</Filter>
+    </ClInclude>
+    <ClInclude Include="fix\fix.h">
+      <Filter>fix</Filter>
+    </ClInclude>
+    <ClInclude Include="iff\iff.h">
+      <Filter>iff</Filter>
+    </ClInclude>
+    <ClInclude Include="mem\mem.h">
+      <Filter>mem</Filter>
+    </ClInclude>
+    <ClInclude Include="texmap\scanline.h">
+      <Filter>texmap</Filter>
+    </ClInclude>
+    <ClInclude Include="texmap\texmap.h">
+      <Filter>texmap</Filter>
+    </ClInclude>
+    <ClInclude Include="texmap\texmapl.h">
+      <Filter>texmap</Filter>
+    </ClInclude>
+    <ClInclude Include="vecmat\vecmat.h">
+      <Filter>vecmat</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\clip.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\effect2d.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\gr.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\grdef.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\i_gr.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\ibitblt.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\palette.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\pcx.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="2d\rle.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="3d\3d.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="3d\clipper.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="3d\globvars.h">
+      <Filter>3d</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\byteswap.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\error.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\parsarg.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\types.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\func.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\ai.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\aistruct.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\arcade.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\args.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\automap.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\bm.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\cntrlcen.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\collide.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\compbit.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\config.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\controls.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\credits.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\desc_id.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\digi.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\effects.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\endlevel.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\fireball.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\fuelcen.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\fvi.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\game.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\gamefont.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\gamemine.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\gamesave.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\gameseg.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\gameseq.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\gauges.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\hash.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\hostage.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\inferno.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\joydefs.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\kconfig.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\kmatrix.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\laser.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\lighting.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\menu.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\mission.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\modem.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\morph.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\multi.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\multibot.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\netmisc.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\network.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\newdemo.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\newmenu.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\nocomlib.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\object.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\paging.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\physics.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\piggy.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\player.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\playsave.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\polyobj.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\powerup.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\render.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\robot.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\scores.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\screens.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\segment.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\segpoint.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\slew.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\songs.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\sounds.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\state.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\switch.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\terrain.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\texmerge.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\text.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\textures.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\titles.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\vclip.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\vers_id.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\vfx.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\wall.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="main_d1\weapon.h">
+      <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\disk.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\findfile.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\i_sound.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\joy.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\key.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\mono.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\mouse.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\timer.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="main_d1\descent.cfg">
+      <Filter>main_d1</Filter>
+    </None>
+  </ItemGroup>
+</Project>

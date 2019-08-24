@@ -10,21 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/lighting.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:52 $
- *
- * Lighting system prototypes, structures, etc.
- *
- */
 
-#ifndef _LIGHTING_H
-#define _LIGHTING_H
+#pragma once
 
-#include "fix.h"
-#include "vecmat.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 #include "object.h"
 
 #define MAX_DIST		0x400000		//no light beyond this dist
@@ -55,5 +45,3 @@ fix compute_seg_dynamic_light(int segnum);
 //and possibly a rotated 3d point.  If the point isn't specified, the
 //object's center point is rotated.
 fix compute_object_light(object* obj, vms_vector* rotated_pnt);
-
-#endif

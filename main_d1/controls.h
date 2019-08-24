@@ -10,27 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/controls.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:17 $
- *
- * Header for controls.c
- *
- */
 
-#ifndef _CONTROLS_H
-#define _CONTROLS_H
+#pragma once
 
-#include "types.h"
+#include "misc/types.h"
 #include "object.h"
 
 extern int Cyberman_installed;	//SWIFT device present
 
 void read_flying_controls(object* obj);
 
-extern ubyte Controls_stopped;
-extern ubyte Controls_always_move;
-
-#endif
+extern uint8_t Controls_stopped;
+extern uint8_t Controls_always_move;

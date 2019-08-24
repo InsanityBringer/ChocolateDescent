@@ -10,29 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/func.h $
- * $Revision: 1.1 $
- * $Author: matt $
- * $Date: 1994/11/27 14:52:03 $
- *
- * .
- *
- * $Log: func.h $
- * Revision 1.1  1994/11/27  14:52:03  matt
- * Initial revision
- *
- * Revision 1.1  1994/11/21  14:13:31  matt
- * Initial revision
- *
- * Revision 1.1  1993/11/15  12:28:13  john
- * Initial revision
- *
- *
- */
 
-#ifndef _FUNC_H
-#define _FUNC_H
+#pragma once
 
 typedef struct {
 	char* name;
@@ -48,5 +27,3 @@ int (*func_nget(int func_number, int* numparams, char** name))(void);
 void func_set_param(int n, int value);
 int func_get_param(int n);
 int func_get_index(char* name);
-
-#endif

@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/playsave.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:24 $
- *
- * Header for playsave.c
- *
- */
 
-#ifndef _PLAYSAVE_H
-#define _PLAYSAVE_H
+#pragma once
 
 #define N_SAVE_SLOTS		10
 #define GAME_NAME_LEN	25		//+1 for terminating zero = 26
@@ -34,7 +24,7 @@ extern int Default_leveling_on;
 int get_game_list(char* game_text[N_SAVE_SLOTS]);
 
 //returns errno (0 == no error)
-int save_player_game(int slot_num, char* text);
+int save_player_game(int slot_num, const char* text);
 
 //returns errno (0 == no error)
 int load_player_game(int slot_num);
@@ -55,5 +45,3 @@ void set_highest_level(int levelnum);
 
 //gets the player's highest level from the file for this mission
 int get_highest_level(void);
-
-#endif

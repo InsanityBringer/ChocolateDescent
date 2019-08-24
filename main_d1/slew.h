@@ -10,22 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/slew.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:33:05 $
- *
- * Prototypes, etc., for slew system
- *
- */
 
-#ifndef _SLEW_H
-#define _SLEW_H
+#pragma once
 
 #include "object.h"
-
- //from slew.c
 
 #ifndef RELEASE
 
@@ -41,6 +29,4 @@ int	slew_frame(int dont_check_keys);		// Does slew frame
 #define slew_reset_orient()
 //#define slew_frame(dont_check_keys) //KRB hack
 int	slew_frame(int dont_check_keys);		// Does slew frame
-#endif
-
 #endif

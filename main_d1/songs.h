@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/songs.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:30:52 $
- *
- * .
- *
- */
 
-#ifndef _SONGS_H
-#define _SONGS_H
+#pragma once
 
 typedef struct song_info {
 	char	filename[16];
@@ -43,5 +33,3 @@ extern song_info Songs[];
 
 void songs_play_song(int songnum, int repeat);
 void songs_play_level_song(int levelnum);
-
-#endif

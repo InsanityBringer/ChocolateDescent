@@ -10,19 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/arcade.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:27 $
- *
- * Routines for arcade version.
- *
- */
 
-
-#ifndef _ARCADE_H
-#define _ARCADE_H
+#pragma once
 
 #ifdef ARCADE
 
@@ -38,7 +27,5 @@ extern void arcade_read_controls();
 
 #define arcade_init()
 #define arcade_read_controls()
-
-#endif
 
 #endif

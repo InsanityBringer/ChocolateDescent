@@ -10,80 +10,18 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:fix::RCS:fix.h $
- * $Revision: 1.2 $
- * $Author: allender $
- * $Date: 1995/08/31 15:44:01 $
- *
- * FIX.H - prototypes and macros for fixed-point functions
- *
- * Copyright (c) 1993  Matt Toschlog & Mike Kulas
- *
- * $Log: fix.h $
- * Revision 1.2  1995/08/31  15:44:01  allender
- * *** empty log message ***
- *
- * Revision 1.1  1995/04/17  11:37:59  allender
- * Initial revision
- *
- *
- * --- PC RCS Info ---
- * Revision 1.13  1994/12/06  13:52:34  matt
- * Added f2ir(), which is fix-to-int with rounding
- *
- * Revision 1.12  1994/05/18  21:45:16  matt
- * Added comments
- *
- * Revision 1.11  1994/01/19  23:12:02  matt
- * Made fix_atan2() left-handed, like our coordinate system
- *
- * Revision 1.10  1993/10/20  01:09:00  matt
- * Add fix_asin(), improved fix_atan2()
- *
- * Revision 1.9  1993/10/19  23:53:46  matt
- * Added fix_atan2()
- *
- * Revision 1.8  1993/10/19  22:22:40  matt
- * Added fix_acos()
- *
- * Revision 1.7  1993/09/17  11:37:01  mike
- * Add capitalized versions of "some handy constants", eg:
- * #define F1_0 f1_0
- *
- * Revision 1.6  1993/08/24  13:00:48  matt
- * Adopted new standard, and made assembly-callable routines not trash any regs
- *
- * Revision 1.5  1993/08/12  13:12:45  matt
- * Changed fixmul() to use SHRD instead of shl,shr,or
- *
- * Revision 1.4  1993/08/04  19:57:18  matt
- * Added parens in fix/float conversion macros
- *
- * Revision 1.3  1993/08/04  11:41:45  matt
- * Fixed bogus constants
- *
- * Revision 1.2  1993/08/04  09:30:11  matt
- * Added more constants
- *
- * Revision 1.1  1993/08/03  17:45:53  matt
- * Initial revision
- *
- *
- */
 
-#ifndef _FIX_H
-#define _FIX_H
+#pragma once
 
  //#define USE_INLINE 1
 
-#include "types.h"
+#include "misc/types.h"
 
 typedef long fix;				//16 bits int, 16 bits frac
 typedef short fixang;		//angles
 
 typedef struct quad {
-	ulong low;
+	uint32_t low;
 	long high;
 } quad;
 
@@ -145,7 +83,7 @@ void fixmulaccum(long long *q, fix a, fix b);
 fix fixquadadjust(long long q);
 
 //divide a quad by a long
-long fixdivquadlong(long long n, ulong d);
+long fixdivquadlong(long long n, uint32_t d);
 
 //negate a quad
 void fixquadnegate(quad* q);
@@ -187,10 +125,10 @@ void fixquadnegate(quad* q);
 #endif
 
 //computes the square root of a long, returning a short
-ushort long_sqrt(long a);
+uint16_t long_sqrt(long a);
 
 //computes the square root of a quad, returning a long
-ulong quad_sqrt(long long q);
+uint32_t quad_sqrt(long long q);
 
 //computes the square root of a fix, returning a fix
 fix fix_sqrt(fix a);
@@ -213,6 +151,3 @@ fixang fix_atan2(fix cos, fix sin);
 
 //for passed value a, returns 1/sqrt(a) 
 fix fix_isqrt(fix a);
-
-
-#endif

@@ -10,31 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:3d::RCS:globvars.h $
- * $Revision: 1.2 $
- * $Author: allender $
- * $Date: 1995/09/13 11:31:19 $
- *
- * Private (internal) header for 3d library
- *
- * $Log: globvars.h $
- * Revision 1.2  1995/09/13  11:31:19  allender
- * added fCanv_w2 and vCanv_h2 for PPC implementation
- *
- * Revision 1.1  1995/05/05  08:51:02  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  04:07:58  matt
- * Initial revision
- *
- *
- */
 
-
-
-#ifndef _GLOBVARS_H
-#define _GLOBVARS_H
+#pragma once
 
 #define MAX_POINTS_IN_POLY 100
 
@@ -59,5 +36,3 @@ extern g3s_point* Vbuf1[];
 
 //list of 2d coords
 extern fix Vertex_list[];
-
-#endif

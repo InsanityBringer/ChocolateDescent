@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "types.h"
-#include "gr.h"
+#include "misc/types.h"
+#include "2d/gr.h"
 
 extern int WindowWidth, WindowHeight;
 extern int BestFit;
@@ -46,16 +46,16 @@ int I_SetMode(int mode);
 //-----------------------------------------------------------------------------
 
 //Copy a block of palette information into the current palette
-void I_WritePalette(int start, int end, ubyte* data);
+void I_WritePalette(int start, int end, uint8_t* data);
 
 //Blank the palette in screen memory
 void I_BlankPalette();
 
 //Read the palette back from screen memory.
-void I_ReadPalette(ubyte* dest);
+void I_ReadPalette(uint8_t* dest);
 
 //TODO: Investigate if I actually need this
-//void I_PalettePush(ubyte b);
+//void I_PalettePush(uint8_t b);
 
 //-----------------------------------------------------------------------------
 //	Screen operations

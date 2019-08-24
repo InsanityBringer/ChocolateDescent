@@ -10,29 +10,14 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/misc/rcs/error.h $
- * $Revision: 1.12 $
- * $Author: matt $
- * $Date: 1994/06/17 15:22:46 $
- *
- * Header for error handling/printing/exiting code
- *
- */
 
-int error_init(char* fmt, ...);			//init error system, set default message, returns 0=ok
-void set_exit_message(char* fmt, ...);	//specify message to print at exit
-void Warning(char* fmt, ...);				//print out warning message to user
-void set_warn_func(void (*f)(char* s));//specifies the function to call with warning messages
-void clear_warn_func(void (*f)(char* s));//say this function no longer valid
-void _Assert(int expr, char* expr_text, char* filename, int linenum);	//assert func
-void Error(char* fmt, ...);					//exit with error code=1, print message
-
-//void Assert(int expr);
+int error_init(const char* fmt, ...);			//init error system, set default message, returns 0=ok
+void set_exit_message(const char* fmt, ...);	//specify message to print at exit
+void Warning(const char* fmt, ...);				//print out warning message to user
+void set_warn_func(void (*f)(const char* s));//specifies the function to call with warning messages
+void clear_warn_func(void (*f)(const char* s));//say this function no longer valid
+void _Assert(int expr, const char* expr_text, const char* filename, int linenum);	//assert func
+void Error(const char* fmt, ...);					//exit with error code=1, print message
 
 #define Assert(expr) _Assert(expr,#expr,__FILE__,__LINE__)
 void Int3();
-
-
-
-

@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/text.h $
- * $Revision: 2.2 $
- * $Author: mike $
- * $Date: 1995/03/30 16:36:22 $
- *
- * Header for text.c, including symbolics for text messages
- *
- */
 
-
-
-#ifndef _TEXT_H
-#define _TEXT_H
+#pragma once
 
  //Array of pointers to text
 extern char* Text_string[];
@@ -736,5 +724,3 @@ extern char* Text_string[];
 //Load function
 
 void load_text(void);
-
-#endif

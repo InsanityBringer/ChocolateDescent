@@ -10,22 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/newdemo.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:18 $
- *
- * .
- *
- */
 
-
-
-#ifndef _NEWDEMO_H
-#define _NEWDEMO_H
-
-#ifdef NEWDEMO
+#pragma once
 
 #include "morph.h"
 
@@ -45,7 +31,7 @@ extern int NewdemoFrameCount;
 extern int Newdemo_game_mode;
 
 extern int Newdemo_vcr_state;
-extern byte Newdemo_do_interpolate;
+extern int8_t Newdemo_do_interpolate;
 
 //Does demo start automatically?
 extern int Auto_demo;
@@ -75,15 +61,15 @@ extern void newdemo_record_player_shields(int);
 extern void newdemo_record_player_energy(int, int);
 extern void newdemo_record_player_shields(int, int);
 #endif
-extern void newdemo_record_player_flags(uint, uint);
+extern void newdemo_record_player_flags(uint32_t, uint32_t);
 extern void newdemo_record_player_weapon(int, int);
 extern void newdemo_record_effect_blowup(short, int, vms_vector*);
 extern void newdemo_record_homing_distance(fix);
 extern void newdemo_record_letterbox(void);
 extern void newdemo_record_rearview(void);
 extern void newdemo_record_restore_cockpit(void);
-extern void newdemo_record_wall_set_tmap_num1(short seg, ubyte side, short cseg, ubyte cside, short tmap);
-extern void newdemo_record_wall_set_tmap_num2(short seg, ubyte side, short cseg, ubyte cside, short tmap);
+extern void newdemo_record_wall_set_tmap_num1(short seg, uint8_t side, short cseg, uint8_t cside, short tmap);
+extern void newdemo_record_wall_set_tmap_num2(short seg, uint8_t side, short cseg, uint8_t cside, short tmap);
 extern void newdemo_record_multi_cloak(int pnum);
 extern void newdemo_record_multi_decloak(int pnum);
 extern void newdemo_set_new_level(int level_num);
@@ -91,7 +77,7 @@ extern void newdemo_record_restore_rearview(void);
 
 #ifndef SHAREWARE
 extern void newdemo_record_multi_death(int pnum);
-extern void newdemo_record_multi_kill(int pnum, byte kill);
+extern void newdemo_record_multi_kill(int pnum, int8_t kill);
 extern void newdemo_record_multi_connect(int pnum, int new_player, char* new_callsign);
 extern void newdemo_record_multi_reconnect(int pnum);
 extern void newdemo_record_multi_disconnect(int pnum);
@@ -100,7 +86,7 @@ extern void newdemo_record_multi_score(int pnum, int score);
 extern void newdemo_record_primary_ammo(int old_ammo, int new_ammo);
 extern void newdemo_record_secondary_ammo(int old_ammo, int new_ammo);
 extern void newdemo_record_door_opening(int segnum, int side);
-extern void newdemo_record_laser_level(byte old_level, byte new_level);
+extern void newdemo_record_laser_level(int8_t old_level, int8_t new_level);
 #endif
 
 // Functions called during playback process...
@@ -110,13 +96,9 @@ extern void newdemo_goto_end();
 extern void newdemo_goto_beginning();
 
 // Interactive functions to control playback/record;
-extern void newdemo_start_playback(char* filename);
+extern void newdemo_start_playback(const char* filename);
 extern void newdemo_stop_playback();
 extern void newdemo_start_recording();
 extern void newdemo_stop_recording();
 
 extern int newdemo_get_percent_done(); //[ISB] did I accidently give this void type?
-
-#endif
-
-#endif

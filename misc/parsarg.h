@@ -10,21 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/misc/rcs/parsarg.h $
- * $Revision: 1.1 $
- * $Author: matt $
- * $Date: 1993/09/09 17:32:14 $
- *
- * Header for parse_args() function
- *
- * $Log: parsarg.h $
- * Revision 1.1  1993/09/09  17:32:14  matt
- * Initial revision
- *
- *
- */
-
 
  /*
 

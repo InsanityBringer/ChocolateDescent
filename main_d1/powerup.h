@@ -10,22 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/powerup.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:35 $
- *
- * Powerup header file.
- *
- */
 
-#ifndef _POWERUP_H
-#define _POWERUP_H
+#pragma once
 
 #include "object.h"
 #include "vclip.h"
-#include "fix.h"
+#include "fix/fix.h"
 
 #define	POW_EXTRA_LIFE 			0
 #define	POW_ENERGY					1
@@ -119,6 +109,4 @@ void do_powerup_frame(object* obj);
 
 extern void do_megawow_powerup(int quantity);
 
-extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, char* format, ...);
-
-#endif
+extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char* format, ...);
