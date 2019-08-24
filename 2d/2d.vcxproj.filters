@@ -1,120 +1,40 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClInclude Include="rle.h" />
+    <ClInclude Include="clip.h" />
+    <ClInclude Include="effect2d.h" />
+    <ClInclude Include="gr.h" />
+    <ClInclude Include="grdef.h" />
+    <ClInclude Include="i_gr.h" />
+    <ClInclude Include="ibitblt.h" />
+    <ClInclude Include="palette.h" />
+    <ClInclude Include="pcx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="palette.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="grdef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="clip.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="effect2d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ibitblt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pcx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="i_gr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="palette.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bitmap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="canvas.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="box.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bitblt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rle.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="font.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gpixel.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="circle.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="disc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="effects.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ibitblt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="pcx.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="line.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="poly.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rect.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="roller.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scale.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scanline.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lbitblt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="pixel.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gr_sdl.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sdl_conf.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="sdl_conf.c" />
+    <ClCompile Include="bitblt.c" />
+    <ClCompile Include="bitmap.c" />
+    <ClCompile Include="box.c" />
+    <ClCompile Include="canvas.c" />
+    <ClCompile Include="circle.c" />
+    <ClCompile Include="disc.c" />
+    <ClCompile Include="effects.c" />
+    <ClCompile Include="font.c" />
+    <ClCompile Include="gpixel.c" />
+    <ClCompile Include="gr.c" />
+    <ClCompile Include="gr_sdl.c" />
+    <ClCompile Include="ibitblt.c" />
+    <ClCompile Include="lbitblt.c" />
+    <ClCompile Include="line.c" />
+    <ClCompile Include="palette.c" />
+    <ClCompile Include="pcx.c" />
+    <ClCompile Include="pixel.c" />
+    <ClCompile Include="poly.c" />
+    <ClCompile Include="rect.c" />
+    <ClCompile Include="rle.c" />
+    <ClCompile Include="roller.c" />
+    <ClCompile Include="scale.c" />
+    <ClCompile Include="scanline.c" />
   </ItemGroup>
 </Project>
