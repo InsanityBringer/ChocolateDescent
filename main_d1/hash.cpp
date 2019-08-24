@@ -24,9 +24,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "misc/error.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "hash.h"
-#include "bios/key.h"
+#include "platform/key.h"
 
 int hashtable_init(hashtable* ht, int size)
 {

@@ -98,7 +98,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include <dos.h> [ISB] does every last file really need to include DOS
 #include <malloc.h>
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "misc/error.h"
 
 #define FULL_MEM_CHECKING

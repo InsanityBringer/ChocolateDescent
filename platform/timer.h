@@ -11,7 +11,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: f:/miner/source/bios/rcs/timer.h $
+ * $Source: f:/miner/source/platform/rcs/timer.h $
  * $Revision: 1.8 $
  * $Author: john $
  * $Date: 1994/12/10 12:27:23 $

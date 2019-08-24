@@ -91,14 +91,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "mem/mem.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 
 
 #include "2d/gr.h"
 #include "2d/grdef.h"
 //#include "dpmi.h"
 #include "misc/error.h"
-//#include "bios/key.h"
+//#include "platform/key.h"
 #include "2d/rle.h"
 
 //#define RLE_CODE 		0xC0

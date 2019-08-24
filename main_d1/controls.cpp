@@ -22,10 +22,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
-#include "bios/mono.h"
-#include "bios/key.h"
-#include "bios/joy.h"
-#include "bios/timer.h"
+#include "platform/mono.h"
+#include "platform/key.h"
+#include "platform/joy.h"
+#include "platform/timer.h"
 #include "misc/error.h"
 
 #include "inferno.h"
@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "args.h"
 #include "2d/palette.h"
-#include "bios/mouse.h"
+#include "platform/mouse.h"
 #include "kconfig.h"
 
 //look at keyboard, mouse, joystick, CyberMan, whatever, and set 

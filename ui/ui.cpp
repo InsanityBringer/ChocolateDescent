@@ -58,12 +58,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
-#include "bios/key.h"
+#include "platform/key.h"
 #include "ui.h"
 
-#include "bios/mouse.h"
+#include "platform/mouse.h"
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 
 //extern void InstallErrorHandler();
 

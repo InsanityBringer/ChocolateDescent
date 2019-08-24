@@ -24,7 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 #include "2d/grdef.h"
 #include "2d/rle.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 
 #include "misc/error.h"
 

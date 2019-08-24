@@ -1,4 +1,4 @@
-#include "bios/disk.h"
+#include "platform/disk.h"
 #include "misc/types.h"
 
 #ifdef WIN32

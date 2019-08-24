@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "2d/gr.h"
 #include "wall.h"
 #include "switch.h"

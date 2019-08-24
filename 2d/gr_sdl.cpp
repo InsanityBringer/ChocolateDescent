@@ -24,8 +24,8 @@ Instead, it is released under the terms of the MIT License.
 #include "misc/error.h"
 #include "misc/types.h"
 
-#include "bios/mouse.h"
-#include "bios/key.h"
+#include "platform/mouse.h"
+#include "platform/key.h"
 
 int WindowWidth = 1600, WindowHeight = 900;
 SDL_Window* gameWindow = NULL;
@@ -385,8 +385,8 @@ void I_Shutdown()
 #include "misc/error.h"
 #include "misc/types.h"
 
-#include "bios/mouse.h"
-#include "bios/key.h"
+#include "platform/mouse.h"
+#include "platform/key.h"
 
 int WindowWidth = 1600;
 int WindowHeight = 900;

@@ -35,12 +35,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat/vecmat.h"
 #include "3d/3d.h"
 #include "misc/error.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "mem/mem.h"
 #include "args.h"
 
 #ifndef DRIVE
-#include "texmap/texmap.h"
 #include "bm.h"
 #include "textures.h"
 #include "object.h"

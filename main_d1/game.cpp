@@ -29,15 +29,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "inferno.h"
 #include "game.h"
-#include "bios/key.h"
+#include "platform/key.h"
 #include "object.h"
 #include "physics.h"
 #include "misc/error.h"
-#include "bios/joy.h"
-#include "bios/mono.h"
+#include "platform/joy.h"
+#include "platform/mono.h"
 #include "iff/iff.h"
 #include "2d/pcx.h"
-#include "bios/timer.h"
+#include "platform/timer.h"
 #include "render.h"
 #include "laser.h"
 #include "screens.h"
@@ -81,7 +81,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "joydefs.h"
 #include "kconfig.h"
-#include "bios/mouse.h"
+#include "platform/mouse.h"
 #ifdef ARCADE
 #include "coindev.h"
 #endif

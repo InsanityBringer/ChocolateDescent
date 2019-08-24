@@ -1,7 +1,7 @@
 #include <conio.h>
 
-#include "bios/key.h"
-#include "bios/timer.h"
+#include "platform/key.h"
+#include "platform/timer.h"
 
 //[ISB] goddamnit we need a dependency on 2d just for I_DoEvents aaa
 #include "2d/i_gr.h"

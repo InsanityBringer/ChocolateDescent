@@ -28,8 +28,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <limits.h>
 #include <io.h>
 
-#include "bios/findfile.h"
-#include "bios/disk.h"
+#include "platform/findfile.h"
+#include "platform/disk.h"
 
 #include "inferno.h"
 #include "game.h"
@@ -37,12 +37,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "stdlib.h"
 #include "bm.h"
 //#include "misc/error.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "3d/3d.h"
 #include "segment.h"
-#include "texmap/texmap.h"
 #include "laser.h"
-#include "bios/key.h"
+#include "platform/key.h"
 #include "gameseg.h"
 
 #include "object.h"

@@ -57,11 +57,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
-#include "bios/key.h"
+#include "platform/key.h"
 
 #include "ui.h"
-#include "bios/mono.h"
-#include "bios/timer.h"
+#include "platform/mono.h"
+#include "platform/timer.h"
 
 #include "mem/mem.h"
 

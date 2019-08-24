@@ -16,8 +16,8 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "bios/mono.h"
-#include "bios/key.h"
+#include "platform/mono.h"
+#include "platform/key.h"
 #include "2d/gr.h"
 #include "2d/palette.h"
 

@@ -7,7 +7,7 @@
 *
 */
 
-#include "bios/timer.h"
+#include "platform/timer.h"
 #include "misc/error.h"
 #include "fix/fix.h"
 

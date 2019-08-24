@@ -34,9 +34,9 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 
 #include "2d/gr.h"
 #include "ui/ui.h"
-#include "bios/mono.h"
-#include "bios/key.h"
-#include "bios/timer.h"
+#include "platform/mono.h"
+#include "platform/key.h"
+#include "platform/timer.h"
 #include "3d/3d.h"
 #include "bm.h"
 #include "inferno.h"
@@ -79,8 +79,8 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "arcade.h"
 #include "coindev.h"
 #endif
-#include "bios/mouse.h"
-#include "bios/joy.h"
+#include "platform/mouse.h"
+#include "platform/joy.h"
 //#include "dpmi.h"
 #include "newmenu.h"
 #include "desc_id.h"

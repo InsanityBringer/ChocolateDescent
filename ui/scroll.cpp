@@ -43,8 +43,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "ui.h"
-#include "bios/key.h"
-#include "bios/timer.h"
+#include "platform/key.h"
+#include "platform/timer.h"
 //[ISB] horray more shitty timing code to squash
 //#define TICKER (*(volatile int *)0x46C)
 

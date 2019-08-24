@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "kconfig.h"
 #include "2d/palette.h"
-#include "bios/joy.h"
+#include "platform/joy.h"
 #include "args.h"
 #include "player.h"
 #include "mission.h"

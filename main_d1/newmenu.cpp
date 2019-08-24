@@ -26,12 +26,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "bios/findfile.h"
+#include "platform/findfile.h"
 #include "misc/error.h"
 #include "misc/types.h"
 #include "2d/gr.h"
-#include "bios/mono.h"
-#include "bios/key.h"
+#include "platform/mono.h"
+#include "platform/key.h"
 #include "2d/palette.h"
 #include "game.h"
 #include "text.h"
@@ -42,8 +42,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "iff/iff.h"
 #include "2d/pcx.h"
 #include "mem/mem.h"
-#include "bios/mouse.h"
-#include "bios/joy.h"
+#include "platform/mouse.h"
+#include "platform/joy.h"
 #include "digi.h"
 
 #include "multi.h"
@@ -289,7 +289,7 @@ void nm_rstring(bkg* b, int w1, int x, int y, const char* s)
 	gr_string(x - w, y, s);
 }
 
-#include "bios/timer.h"
+#include "platform/timer.h"
 
 //for text items, constantly redraw cursor (to achieve flash)
 void update_cursor(newmenu_item* item)

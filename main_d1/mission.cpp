@@ -26,12 +26,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 #include "cfile/cfile.h"
-#include "bios/findfile.h" //[ISB] port descent 2 directory iteration code. 
+#include "platform/findfile.h" //[ISB] port descent 2 directory iteration code. 
 #include "inferno.h"
 #include "mission.h"
 #include "gameseq.h"
 #include "titles.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "misc/error.h"
 
 mle Mission_list[MAX_MISSIONS];

@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <algorithm>
 
-#include "texmap/texmap.h"
 #include "misc/error.h"
 
 #include "inferno.h"
@@ -36,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "piggy.h"
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "bm.h"
 
 morph_data morph_objects[MAX_MORPH_OBJECTS];

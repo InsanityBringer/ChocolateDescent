@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"
@@ -43,7 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "weapon.h"
 #include "2d/palette.h"
-#include "bios/timer.h"
+#include "platform/timer.h"
 #include "text.h"
 #include "cntrlcen.h"
 #include "gauges.h"

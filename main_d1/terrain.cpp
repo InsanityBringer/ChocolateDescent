@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap/texmap.h"
 #include "iff/iff.h"
 #include "mem/mem.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 
 #include "inferno.h"
 #include "textures.h"

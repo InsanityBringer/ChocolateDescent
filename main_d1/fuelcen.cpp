@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "game.h"		// For FrameTime
 #include "misc/error.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "gauges.h"
 #include "vclip.h"
 #include "fireball.h"

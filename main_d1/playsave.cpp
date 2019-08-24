@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "player.h"
 #include "playsave.h"
-#include "bios/joy.h"
+#include "platform/joy.h"
 #include "kconfig.h"
 #include "digi.h"
 #include "newmenu.h"
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "config.h"
 #include "text.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "state.h"
 #include "cfile/cfile.h"
 

@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "misc/error.h"
 
 #define MAX_MSG_LEN 256

@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 
 #include "menu.h"			// For the font.
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "collide.h"
 #include "newdemo.h"
 #include "player.h"

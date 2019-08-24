@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"
@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile/cfile.h"		
 #include "fuelcen.h"
 #include "hash.h"
-#include "bios/key.h"
+#include "platform/key.h"
 #include "piggy.h"
 #include "player.h"
 #include "cntrlcen.h"

@@ -26,20 +26,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include <process.h> //[ISB] joyous, more unportable crap. Seems unused, though... thankfully.
 
 #include "misc/types.h"
-#include "bios/timer.h"
-#include "bios/key.h"
+#include "platform/timer.h"
+#include "platform/key.h"
 #include "2d/gr.h"
 #include "2d/palette.h"
 #include "iff/iff.h"
 #include "2d/pcx.h"
 #include "mem/mem.h"
-#include "bios/joy.h"
+#include "platform/joy.h"
 #include "arcade.h"
 #include "gameseq.h"
 #ifdef ARCADE
 #include "coindev.h"
 #endif
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "gamefont.h"
 #include "cfile/cfile.h"
 #include "mem/mem.h"

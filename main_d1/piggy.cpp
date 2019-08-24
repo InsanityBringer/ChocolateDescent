@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 //#include "mem/mem.h"
 #include "cfile/cfile.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "misc/error.h"
 #include "sounds.h"
 #include "bm.h"

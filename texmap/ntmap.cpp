@@ -134,12 +134,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conio.h>
 #include <stdlib.h>
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "fix/fix.h"
 #include "3d/3d.h"
 #include "2d/gr.h"
 #include "misc/error.h"
-//#include "bios/key.h" //[ISB] i'm sure there's some good reason why the texture mapping code needs the keyboard API
+//#include "platform/key.h" //[ISB] i'm sure there's some good reason why the texture mapping code needs the keyboard API
 
 #include "texmap/texmap.h"
 #include "texmapl.h"

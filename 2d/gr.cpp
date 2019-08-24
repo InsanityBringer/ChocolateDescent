@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 #include "2d/grdef.h"
 #include "misc/error.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 //#include "dpmi.h"
 #include "2d/palette.h"
 //#include "dpmi.h" [ISB] heh

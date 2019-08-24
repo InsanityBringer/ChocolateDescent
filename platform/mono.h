@@ -12,7 +12,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: f:/miner/source/bios/rcs/mono.h $
+ * $Source: f:/miner/source/platform/rcs/mono.h $
  * $Revision: 1.6 $
  * $Author: matt $
  * $Date: 1994/12/03 17:07:37 $

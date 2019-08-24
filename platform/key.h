@@ -11,7 +11,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: f:/miner/source/bios/rcs/key.h $
+ * $Source: f:/miner/source/platform/rcs/key.h $
  * $Revision: 1.19 $
  * $Author: john $
  * $Date: 1994/10/24 13:58:12 $

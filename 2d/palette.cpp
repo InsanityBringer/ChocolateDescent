@@ -158,9 +158,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/i_gr.h"
 #include "cfile/cfile.h"
 #include "misc/error.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "fix/fix.h"
-//#include "bios/key.h"
+//#include "platform/key.h"
 
 //[ISB] seriously?
 #include "2d/palette.h"

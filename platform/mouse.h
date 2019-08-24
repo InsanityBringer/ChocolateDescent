@@ -11,7 +11,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: f:/miner/source/bios/rcs/mouse.h $
+ * $Source: f:/miner/source/platform/rcs/mouse.h $
  * $Revision: 1.10 $
  * $Author: john $
  * $Date: 1995/02/02 10:22:29 $

@@ -76,7 +76,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conio.h>
 #include <stdlib.h>
 
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "fix/fix.h"
 //#include "3d/3d.h"
 #include "2d/gr.h"

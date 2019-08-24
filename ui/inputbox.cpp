@@ -48,7 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "ui.h"
-#include "bios/key.h"
+#include "platform/key.h"
 
 // insert character c into string s at position p.
 void strcins(char* s, int p, char c)

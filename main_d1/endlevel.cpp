@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 #include "2d/palette.h"
 #include "iff/iff.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "texmap/texmap.h"
 #include "fvi.h"
 #include "mem/mem.h"
@@ -1229,8 +1229,8 @@ void do_endlevel_flythrough(int n)
 
 extern short old_joy_x, old_joy_y;	//position last time around
 
-#include "bios/key.h"
-#include "bios/joy.h"
+#include "platform/key.h"
+#include "platform/joy.h"
 
 #ifdef SLEW_ON		//this is a special routine for slewing around external scene
 int _do_slew_movement(object* obj, int check_keys, int check_joy)

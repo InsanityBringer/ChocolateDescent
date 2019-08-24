@@ -11,7 +11,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: f:/miner/source/bios/rcs/joy.h $
+ * $Source: f:/miner/source/platform/rcs/joy.h $
  * $Revision: 1.17 $
  * $Author: john $
  * $Date: 1995/10/07 13:22:30 $

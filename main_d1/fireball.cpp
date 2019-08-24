@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "vclip.h"
 #include "game.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "polyobj.h"
 #include "sounds.h"
 #include "player.h"
@@ -50,7 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "multi.h"
 #include "endlevel.h"
-#include "bios/timer.h"
+#include "platform/timer.h"
 #include "fuelcen.h"
 #include "gameseg.h"
 

@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "endlevel.h"
 #include "network.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "gauges.h"
 #include "newmenu.h"
 #include "menu.h"
@@ -56,7 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include "commlib.h" -Don't have these either! -KRB
 //#include "glfmodem.h" -Don't have these either! -KRB
 #include "multi.h"
-#include "bios/timer.h"
+#include "platform/timer.h"
 #include "text.h"
 #include "2d/pcx.h"
 #include "2d/palette.h"

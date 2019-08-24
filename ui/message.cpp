@@ -55,7 +55,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "ui.h"
-#include "bios/key.h"
+#include "platform/key.h"
 
 // ts = total span
 // w = width of each item

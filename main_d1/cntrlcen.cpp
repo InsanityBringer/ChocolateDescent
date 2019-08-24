@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 
 #include "misc/error.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 
 #include "inferno.h"
 #include "cntrlcen.h"

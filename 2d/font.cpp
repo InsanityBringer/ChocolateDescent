@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 
 #include "cfile/cfile.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 
 #define FONT        grd_curcanv->cv_font
 #define FG_COLOR    grd_curcanv->cv_font_fg_color

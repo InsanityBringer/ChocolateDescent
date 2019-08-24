@@ -31,17 +31,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-#include "bios/i_sound.h"
+#include "platform/i_sound.h"
 
 #include "fix/fix.h"
 #include "object.h"
-#include "bios/mono.h"
-#include "bios/timer.h"
-#include "bios/joy.h"
+#include "platform/mono.h"
+#include "platform/timer.h"
+#include "platform/joy.h"
 #include "digi.h"
 #include "sounds.h"
 #include "args.h"
-#include "bios/key.h"
+#include "platform/key.h"
 #include "newdemo.h"
 #include "game.h"
 #include "misc/error.h"

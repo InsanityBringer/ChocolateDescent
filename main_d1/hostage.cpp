@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/error.h"
 #include "3d/3d.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 
 #include "inferno.h"
 #include "object.h"

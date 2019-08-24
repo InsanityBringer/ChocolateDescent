@@ -7,9 +7,6 @@
     <Filter Include="3d">
       <UniqueIdentifier>{d1188ad5-cf93-47e5-b0e6-65d2e7ba3696}</UniqueIdentifier>
     </Filter>
-    <Filter Include="bios">
-      <UniqueIdentifier>{4d91984a-20ea-4045-9f6c-0c5efc284667}</UniqueIdentifier>
-    </Filter>
     <Filter Include="cfile">
       <UniqueIdentifier>{339da718-f125-4075-ab2d-93893ff66fc7}</UniqueIdentifier>
     </Filter>
@@ -36,6 +33,9 @@
     </Filter>
     <Filter Include="vecmat">
       <UniqueIdentifier>{0b481941-ffcf-460a-a072-de168b9ec57c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{19cc90c4-a84a-4e8e-91de-c7862c891aac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -137,30 +137,6 @@
     </ClCompile>
     <ClCompile Include="3d\setup.cpp">
       <Filter>3d</Filter>
-    </ClCompile>
-    <ClCompile Include="bios\disk.cpp">
-      <Filter>bios</Filter>
-    </ClCompile>
-    <ClCompile Include="bios\findfile.cpp">
-      <Filter>bios</Filter>
-    </ClCompile>
-    <ClCompile Include="bios\i_sound.cpp">
-      <Filter>bios</Filter>
-    </ClCompile>
-    <ClCompile Include="bios\joy.cpp">
-      <Filter>bios</Filter>
-    </ClCompile>
-    <ClCompile Include="bios\key.cpp">
-      <Filter>bios</Filter>
-    </ClCompile>
-    <ClCompile Include="bios\mono.cpp">
-      <Filter>bios</Filter>
-    </ClCompile>
-    <ClCompile Include="bios\mouse.cpp">
-      <Filter>bios</Filter>
-    </ClCompile>
-    <ClCompile Include="bios\timer.cpp">
-      <Filter>bios</Filter>
     </ClCompile>
     <ClCompile Include="cfile\cfile.cpp">
       <Filter>cfile</Filter>
@@ -486,6 +462,30 @@
     <ClCompile Include="main_d1\weapon.cpp">
       <Filter>main_d1</Filter>
     </ClCompile>
+    <ClCompile Include="platform\disk.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\findfile.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\i_sound.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\joy.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\key.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\mono.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\mouse.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\timer.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cfile\cfile.h">
@@ -547,30 +547,6 @@
     </ClInclude>
     <ClInclude Include="3d\globvars.h">
       <Filter>3d</Filter>
-    </ClInclude>
-    <ClInclude Include="bios\disk.h">
-      <Filter>bios</Filter>
-    </ClInclude>
-    <ClInclude Include="bios\findfile.h">
-      <Filter>bios</Filter>
-    </ClInclude>
-    <ClInclude Include="bios\i_sound.h">
-      <Filter>bios</Filter>
-    </ClInclude>
-    <ClInclude Include="bios\joy.h">
-      <Filter>bios</Filter>
-    </ClInclude>
-    <ClInclude Include="bios\key.h">
-      <Filter>bios</Filter>
-    </ClInclude>
-    <ClInclude Include="bios\mono.h">
-      <Filter>bios</Filter>
-    </ClInclude>
-    <ClInclude Include="bios\mouse.h">
-      <Filter>bios</Filter>
-    </ClInclude>
-    <ClInclude Include="bios\timer.h">
-      <Filter>bios</Filter>
     </ClInclude>
     <ClInclude Include="misc\byteswap.h">
       <Filter>misc</Filter>
@@ -811,6 +787,30 @@
     </ClInclude>
     <ClInclude Include="main_d1\weapon.h">
       <Filter>main_d1</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\disk.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\findfile.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\i_sound.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\joy.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\key.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\mono.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\mouse.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\timer.h">
+      <Filter>platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

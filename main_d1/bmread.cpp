@@ -56,7 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "mem/mem.h"
 #include "cflib.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "misc/error.h"
 #include "object.h"
 #include "vclip.h"

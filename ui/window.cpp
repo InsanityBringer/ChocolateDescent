@@ -56,11 +56,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "ui.h"
-#include "bios/key.h"
+#include "platform/key.h"
 
-#include "bios/mono.h"
-#include "bios/mouse.h"
-#include "bios/timer.h"
+#include "platform/mono.h"
+#include "platform/mouse.h"
+#include "platform/timer.h"
 
 
 #define W_BACKGROUND    (wnd->background )

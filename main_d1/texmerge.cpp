@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "game.h"
 #include "textures.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "2d/rle.h"
 #include "piggy.h"
 #include "texmerge.h"

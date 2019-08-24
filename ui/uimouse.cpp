@@ -52,10 +52,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
-#include "bios/mouse.h"
+#include "platform/mouse.h"
 
 #include "ui.h"
-#include "bios/timer.h"
+#include "platform/timer.h"
 
 // 16x16
 

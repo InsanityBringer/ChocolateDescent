@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "effects.h"
 #include "bm.h"
-#include "bios/mono.h"
+#include "platform/mono.h"
 #include "mem/mem.h"
 #include "textures.h"
 #include "fuelcen.h"

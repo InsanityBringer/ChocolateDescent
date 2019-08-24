@@ -49,7 +49,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 #include "ui.h"
 
-#include "bios/key.h"
+#include "platform/key.h"
 
 UI_GADGET* selected_gadget;
 

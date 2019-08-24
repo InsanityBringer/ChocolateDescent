@@ -27,10 +27,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 //#include <dos.h>
 
-#include "bios/mono.h"
-#include "bios/key.h"
-#include "bios/joy.h"
-#include "bios/timer.h"
+#include "platform/mono.h"
+#include "platform/key.h"
+#include "platform/joy.h"
+#include "platform/timer.h"
 #include "misc/error.h"
 
 #include "inferno.h"

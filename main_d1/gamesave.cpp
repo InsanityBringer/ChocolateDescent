@@ -25,8 +25,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
-#include "bios/mono.h"
-#include "bios/key.h"
+#include "platform/mono.h"
+#include "platform/key.h"
 #include "2d/gr.h"
 #include "2d/palette.h"
 #include "newmenu.h"
