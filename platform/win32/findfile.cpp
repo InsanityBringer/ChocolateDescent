@@ -12,17 +12,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 //[ISB] BIG TODO: Implement a linux compatible version of this, using dirent perhaps
 
-#ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "platform/findfile.h"
 
-
-//	Global Variables	----------------------------------------------------------
-
 static HANDLE	_FindFileHandle = INVALID_HANDLE_VALUE;
-
-//	Functions
 
 int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 {
@@ -36,7 +30,6 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 		return 0;
 	}
 }
-
 
 int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 {
@@ -56,37 +49,8 @@ int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 	}
 }
 
-
 int	FileFindClose(void)
 {
 	if (!FindClose(_FindFileHandle)) return 1;
 	else return 0;
 }
-
-
-int GetFileDateTime(int filehandle, FILETIMESTRUCT* ftstruct)
-{
-	FILETIME filetime;
-	int retval;
-
-	retval = GetFileTime((HANDLE)filehandle, NULL, NULL, &filetime);
-	if (retval) {
-		FileTimeToDosDateTime(&filetime, &ftstruct->date, &ftstruct->time);
-		return 0;
-	}
-	else return 1;
-}
-
-
-//returns 0 if no error
-int SetFileDateTime(int filehandle, FILETIMESTRUCT* ftstruct)
-{
-	FILETIME ft;
-	int retval;
-
-	DosDateTimeToFileTime(ftstruct->date, ftstruct->time, &ft);
-	retval = SetFileTime((HANDLE)filehandle, NULL, NULL, &ft);
-	if (retval) return 0;
-	else return 1;
-}
-#endif

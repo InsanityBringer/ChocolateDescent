@@ -21,15 +21,6 @@ typedef struct FILEFINDSTRUCT
 	char name[FF_PATHSIZE];
 } FILEFINDSTRUCT;
 
-
 int FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct);
 int FileFindNext(FILEFINDSTRUCT* ffstruct);
 int FileFindClose(void);
-
-typedef struct FILETIMESTRUCT {
-	unsigned short date, time;
-} FILETIMESTRUCT;
-
-//the both return 0 if no error
-int GetFileDateTime(int filehandle, FILETIMESTRUCT* ftstruct);
-int SetFileDateTime(int filehandle, FILETIMESTRUCT* ftstruct);
