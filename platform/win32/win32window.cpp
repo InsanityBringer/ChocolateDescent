@@ -90,10 +90,12 @@ namespace
 #endif
 		else if (message == WM_SETFOCUS)
 		{
+			ShowCursor(FALSE);
 			return 0;
 		}
 		else if (message == WM_KILLFOCUS)
 		{
+			ShowCursor(TRUE);
 			return 0;
 		}
 		else if (message == WM_KEYDOWN)
@@ -251,7 +253,7 @@ namespace
 		return (uint8_t*)lockrect.pBits;
 	}
 
-	void PresentUnlock(int x, int y, int width, int height)
+	void PresentUnlock(int x, int y, int width, int height, bool linearfilter)
 	{
 		surface->UnlockRect();
 
@@ -307,7 +309,7 @@ namespace
 			dstrect.top = y;
 			dstrect.right = x + width;
 			dstrect.bottom = y + height;
-			device->StretchRect(surface, &srcrect, backbuffer, &dstrect, D3DTEXF_LINEAR);
+			device->StretchRect(surface, &srcrect, backbuffer, &dstrect, linearfilter ? D3DTEXF_LINEAR : D3DTEXF_POINT);
 
 			result = device->EndScene();
 			if (SUCCEEDED(result))
@@ -606,7 +608,7 @@ void I_DrawCurrentCanvas(int sync)
 		}
 
 		auto box = FindLetterbox();
-		PresentUnlock(box.left, box.top, box.width, box.height);
+		PresentUnlock(box.left, box.top, box.width, box.height, false);
 	}
 }
 
