@@ -90,10 +90,12 @@ namespace
 #endif
 		else if (message == WM_SETFOCUS)
 		{
+			ShowCursor(FALSE);
 			return 0;
 		}
 		else if (message == WM_KILLFOCUS)
 		{
+			ShowCursor(TRUE);
 			return 0;
 		}
 		else if (message == WM_KEYDOWN)
@@ -251,7 +253,7 @@ namespace
 		return (uint8_t*)lockrect.pBits;
 	}
 
-	void PresentUnlock(int x, int y, int width, int height)
+	void PresentUnlock(int x, int y, int width, int height, bool linearfilter)
 	{
 		surface->UnlockRect();
 
@@ -307,7 +309,7 @@ namespace
 			dstrect.top = y;
 			dstrect.right = x + width;
 			dstrect.bottom = y + height;
-			device->StretchRect(surface, &srcrect, backbuffer, &dstrect, D3DTEXF_LINEAR);
+			device->StretchRect(surface, &srcrect, backbuffer, &dstrect, linearfilter ? D3DTEXF_LINEAR : D3DTEXF_POINT);
 
 			result = device->EndScene();
 			if (SUCCEEDED(result))
@@ -542,6 +544,45 @@ void I_WaitVBL()
 {
 }
 
+struct LetterboxRect { int left, top, width, height; };
+
+static LetterboxRect FindLetterbox()
+{
+	RECT box = { 0 };
+	GetClientRect(Window, &box);
+
+	// Back buffer letterbox for the final output
+	int clientWidth = box.right - box.left;
+	int clientHeight = box.bottom - box.top;
+	if (clientWidth == 0 || clientHeight == 0)
+	{
+		// When window is minimized there may not be any client area.
+		// Pretend to the rest of the render code that we just have a very small window.
+		clientWidth = 320;
+		clientHeight = 200;
+	}
+	int screenWidth = screenBuffer->cv_bitmap.bm_w;
+	int screenHeight = screenBuffer->cv_bitmap.bm_h;
+	float scaleX, scaleY;
+	if (screenHeight == 200)
+	{
+		scaleX = min(clientWidth / (float)screenWidth, clientHeight / (screenHeight * 1.2f));
+		scaleY = scaleX * 1.2f;
+	}
+	else
+	{
+		scaleX = min(clientWidth / (float)screenWidth, clientHeight / (float)screenHeight);
+		scaleY = scaleX;
+	}
+
+	LetterboxRect result;
+	result.width = (int)round(screenWidth * scaleX);
+	result.height = (int)round(screenHeight * scaleY);
+	result.left = (clientWidth - result.width) / 2;
+	result.top = (clientHeight - result.height) / 2;
+	return result;
+}
+
 void I_DrawCurrentCanvas(int sync)
 {
 	if (!screenBuffer)
@@ -566,9 +607,8 @@ void I_DrawCurrentCanvas(int sync)
 			}
 		}
 
-		RECT box = { 0 };
-		GetClientRect(Window, &box);
-		PresentUnlock(box.left, box.top, box.right - box.top, box.bottom - box.top);
+		auto box = FindLetterbox();
+		PresentUnlock(box.left, box.top, box.width, box.height, false);
 	}
 }
 
