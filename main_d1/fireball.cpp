@@ -10,22 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/fireball.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/21 14:39:57 $
- *
- * Code for rendering & otherwise dealing with explosions
- *
- */
 
 #include <stdlib.h>
 #include <string.h>
-
 #include "misc/error.h"
 #include "3d/3d.h"
-
 #include "inferno.h"
 #include "object.h"
 #include "vclip.h"
@@ -55,8 +44,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 
 #define EXPLOSION_SCALE fl2f(2.5)		//explosion is the obj size times this  
-
-//--unused-- uint8_t	Frame_processed[MAX_OBJECTS];
 
 object* object_create_explosion_sub(object* objp, short segnum, vms_vector* position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, int parent)
 {

@@ -10,33 +10,21 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/fuelcen.c $
- * $Revision: 2.3 $
- * $Author: john $
- * $Date: 1995/03/21 14:38:40 $
- *
- * Functions for refueling centers.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 #include "cfile/cfile.h"
-
 #include "fuelcen.h"
 #include "gameseg.h"
-#include "game.h"		// For FrameTime
+#include "game.h"
 #include "misc/error.h"
 #include "platform/mono.h"
 #include "gauges.h"
 #include "vclip.h"
 #include "fireball.h"
 #include "robot.h"
-
 #include "wall.h"
 #include "sounds.h"
 #include "morph.h"

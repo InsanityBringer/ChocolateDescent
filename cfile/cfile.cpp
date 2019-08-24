@@ -10,13 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: BigRed:miner:source:cfile::RCS:cfile.c $
- * $Revision: 1.7 $
- * $Author: allender $
- * $Date: 1995/10/27 15:18:20 $
- *
- */
 
 #include <time.h>
 #include <stdio.h>
@@ -27,11 +20,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #include <string.h>
 #include <io.h>
-
 #include "cfile/cfile.h"
 #include "mem/mem.h"
 #include "misc/error.h"
-//#include "misc/byteswap.h"
 
 typedef struct hogfile {
 	char	name[13];

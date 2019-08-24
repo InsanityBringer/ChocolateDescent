@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gamemine.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/06 15:23:14 $
- *
- * Functions for loading mines in the game
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>

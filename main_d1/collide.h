@@ -10,23 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/collide.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:28:59 $
- *
- * .
- *
- * $Log: collide.h $
- * Revision 2.0  1995/02/27  11:28:59  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- */
 
-#ifndef _COLLIDE_H
-#define _COLLIDE_H
+#pragma once
 
 #include "object.h"
 #include "fix/fix.h"
@@ -56,6 +41,3 @@ extern void collide_player_and_powerup(object* player, object* powerup, vms_vect
 extern int check_effect_blowup(segment* seg, int side, vms_vector* pnt);
 extern void apply_damage_to_controlcen(object* controlcen, fix damage, short who);
 extern void bump_one_object(object* obj0, vms_vector* hit_dir, fix damage);
-
-
-#endif

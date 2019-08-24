@@ -10,14 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/* $Source: f:/miner/source/2d/rcs/font.c $
- * $Revision: 1.30 $
- * $Author: john $
- * $Date: 1995/01/25 20:02:03 $
- *
- * Graphical routines for drawing fonts.
- *
- */
 
 #include <stdarg.h>
 #include <stdio.h>

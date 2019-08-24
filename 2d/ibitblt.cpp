@@ -10,27 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:2d::RCS:ibitblt.c $
- * $Revision: 1.3 $
- * $Author: allender $
- * $Date: 1995/09/13 11:43:22 $
- *
- *  Routines to to inverse bitblitting -- well not really.
- *  We don't inverse bitblt like in the PC, but this code
- *  does set up a structure that blits around the cockpit
- *
- * $Log: ibitblt.c $
- * Revision 1.3  1995/09/13  11:43:22  allender
- * start on optimizing cockpit copy code
- *
- * Revision 1.2  1995/09/07  10:16:57  allender
- * fixed up cockpit and rearview hole blitting
- *
- * Revision 1.1  1995/08/18  15:50:48  allender
- * Initial revision
- *
-*/
 
 #include "misc/types.h"
 #include "2d/gr.h"
@@ -38,7 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/ibitblt.h"
 #include "misc/error.h"
 #include "mem/mem.h"
-
 
 #define FIND_START		1
 #define FIND_STOP		2
@@ -49,7 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static short start_points[MAX_SCANLINES][MAX_HOLES];
 static short hole_length[MAX_SCANLINES][MAX_HOLES];
-//static double* scanline = NULL;
 
 void gr_ibitblt(grs_bitmap* src_bmp, grs_bitmap* dest_bmp, uint8_t *mask)
 {

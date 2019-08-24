@@ -10,49 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:misc::RCS:byteswap.h $
- * $Revision: 1.4 $
- * $Author: allender $
- * $Date: 1995/08/23 21:28:15 $
- *
- * code to swap bytes because of big/little endian problems.
- *
- * $Log: byteswap.h $
- * Revision 1.4  1995/08/23  21:28:15  allender
- * fix mcc compiler warning
- *
- * Revision 1.3  1995/08/18  15:51:42  allender
- * put back in old byteswapping code
- *
- * Revision 1.2  1995/05/04  20:10:18  allender
- * proper prototypes
- *
- * Revision 1.1  1995/03/30  15:02:11  allender
- * Initial revision
- *
-*/
 
-#ifndef _BYTESWAP_
-#define _BYTESWAP_
+#pragma once
 
 #include "misc/types.h"
 
 extern uint16_t swapshort(uint16_t s);
 extern uint32_t swapint(uint32_t i);
-
-#if 0
-#define swapshort(x)	(							\
-						(x << 8) |					\
-						(((uint16_t)x) >> 8)			\
-						)
-
-#define swapint(x)		(							\
-						(x << 24) |					\
-						(((uint32_t)x) >> 24) |		\
-						((x & 0x0000ff00) << 8) |	\
-						((x & 0x00ff0000) >> 8)		\
-						)
-#endif
-
-#endif

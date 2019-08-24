@@ -10,30 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/texmap/rcs/scanline.c $
- * $Revision: 1.2 $
- * $Author: john $
- * $Date: 1995/02/20 18:23:39 $
- *
- * Routines to draw the texture mapped scanlines.
- *
- * $Log: scanline.c $
- * Revision 1.2  1995/02/20  18:23:39  john
- * Added new module for C versions of inner loops.
- *
- * Revision 1.1  1995/02/20  17:42:27  john
- * Initial revision
- *
- *
- */
 
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
-
 #include "fix/fix.h"
 #include "platform/mono.h"
 #include "2d/gr.h"

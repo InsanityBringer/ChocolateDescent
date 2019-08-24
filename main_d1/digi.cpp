@@ -10,29 +10,14 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/digi.c $
- * $Revision: 2.5 $
- * $Author: john $
- * $Date: 1996/01/05 16:51:51 $
- *
- * Routines to access digital sound hardware
- *
- */
 
 #include <stdlib.h>
 #include <stdio.h>
-//#include <dos.h>
 #include <fcntl.h> 
 #include <malloc.h> 
-//#include <bios.h>
-//#include <io.h>
-//#include <conio.h> 
 #include <string.h>
 #include <ctype.h>
-
 #include "platform/i_sound.h"
-
 #include "fix/fix.h"
 #include "object.h"
 #include "platform/mono.h"
@@ -49,7 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile/cfile.h"
 #include "piggy.h"
 #include "text.h"
-
 #include "kconfig.h"
 
 #define DIGI_PAUSE_BROKEN 1		//if this is defined, don't pause MIDI songs

@@ -10,62 +10,19 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
-* $Source: f:/miner/source/ui/rcs/ui.c $
-* $Revision: 1.9 $
-* $Author: john $
-* $Date: 1994/11/13 15:37:18 $
-*
-* UI init and close functions.
-*
-* $Log: ui.c $
-* Revision 1.9  1994/11/13  15:37:18  john
-* Made ui_close not close key and mouse.
-*
-* Revision 1.8  1994/10/27  09:58:53  john
-* *** empty log message ***
-*
-* Revision 1.7  1994/10/27  09:43:00  john
-* Fixed colors after removing gr_inverse_table.
-*
-* Revision 1.6  1994/09/23  14:57:41  john
-* Took out calls to init_mouse and init_keyboard.
-*
-* Revision 1.5  1993/12/10  14:16:45  john
-* made buttons have 2 user-functions.
-*
-* Revision 1.4  1993/12/07  12:31:32  john
-* new version.
-*
-* Revision 1.3  1993/10/26  13:46:12  john
-* *** empty log message ***
-*
-* Revision 1.2  1993/10/05  17:31:55  john
-* *** empty log message ***
-*
-* Revision 1.1  1993/09/20  10:35:49  john
-* Initial revision
-*
-*
-*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <dos.h>
-
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "platform/key.h"
 #include "ui.h"
-
 #include "platform/mouse.h"
-
 #include "platform/mono.h"
-
-//extern void InstallErrorHandler();
 
 static int Initialized = 0;
 

@@ -10,61 +10,25 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/file.c $
- * $Revision: 1.6 $
- * $Author: john $
- * $Date: 1994/06/09 12:18:29 $
- *
- * File dialog box stuff.
- *
- * $Log: file.c $
- * Revision 1.6  1994/06/09  12:18:29  john
- * Took out keyboard flushes.
- *
- * Revision 1.5  1994/04/27  18:30:49  john
- * Fixed bug with enter a directory without a slash on
- * the end not working.
- *  .
- *
- * Revision 1.4  1994/04/22  11:09:47  john
- * Speed up directory loading by only searching for *. instead of *.*
- *
- * Revision 1.3  1993/12/07  12:30:18  john
- * new version.
- *
- * Revision 1.2  1993/10/26  13:46:22  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/10/06  11:10:23  john
- * Initial revision
- *
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <direct.h>
-//#include <dos.h>
 #include <ctype.h>
 #include <conio.h>
 #include <fcntl.h>
 #include <io.h>
 #include <sys\types.h>
 #include <sys\stat.h>
-
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "platform/key.h"
-
 #include "ui.h"
 #include "platform/mono.h"
 #include "platform/timer.h"
-
 #include "mem/mem.h"
-
 #include "misc/error.h"
 
 //#define TICKER (*(volatile int *)0x46C)

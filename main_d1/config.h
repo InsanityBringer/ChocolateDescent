@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/config.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:32:48 $
- *
- * prototype definitions for descent.cfg reading/writing
- *
- */
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#pragma once
 
 #include "player.h"
 
@@ -31,5 +21,3 @@ extern int WriteConfigFile(void);
 extern char config_last_player[CALLSIGN_LEN + 1];
 
 extern char config_last_mission[];
-
-#endif

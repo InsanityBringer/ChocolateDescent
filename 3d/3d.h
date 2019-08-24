@@ -10,30 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:3d::RCS:3d.h $
- * $Revision: 1.2 $
- * $Author: allender $
- * $Date: 1995/09/14 14:08:58 $
- *
- * Header file for 3d library
- *
- * $Log: 3d.h $
- * Revision 1.2  1995/09/14  14:08:58  allender
- * return value for g3_draw_sphere
- *
- * Revision 1.1  1995/05/05  08:48:41  allender
- * Initial revision
- *
- *
- *
- */
 
-#ifndef _3D_H
-#define _3D_H
+#pragma once
 
 #include "fix/fix.h"
-#include "vecmat/vecmat.h"	//the vector/matrix library
+#include "vecmat/vecmat.h"
 #include "2d/gr.h"
 
 extern int g3d_interp_outline;		//if on, polygon models outlined in white
@@ -245,5 +226,3 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(uint8_t* data);
-
-#endif

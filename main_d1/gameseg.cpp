@@ -10,22 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gameseg.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/20 18:15:39 $
- *
- * Functions moved from segment.c to make editor separable from game.
- *
- */
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <malloc.h>	//for stackavail()
-#include <string.h>	//	for memset()
+#include <malloc.h>
+#include <string.h>
 #include <algorithm>
-
 #include "inferno.h"
 #include "game.h"
 #include "misc/error.h"

@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/wall.c $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/21 14:39:04 $
- *
- * Destroyable wall stuff
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>

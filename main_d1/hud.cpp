@@ -10,35 +10,23 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/hud.c $
- * $Revision: 2.2 $
- * $Author: mike $
- * $Date: 1995/03/30 16:36:40 $
- *
- * Routines for displaying HUD messages...
- *
- */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
 #include "inferno.h"
 #include "game.h"
 #include "screens.h"
 #include "gauges.h"
 #include "physics.h"
 #include "misc/error.h"
-
-#include "menu.h"			// For the font.
+#include "menu.h"
 #include "platform/mono.h"
 #include "collide.h"
 #include "newdemo.h"
 #include "player.h"
 #include "gamefont.h"
-
 #include "wall.h"
 #include "arcade.h"
 #include "screens.h"

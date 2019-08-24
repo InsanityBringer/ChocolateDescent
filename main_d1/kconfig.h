@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/kconfig.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:29:38 $
- *
- * Prototypes for reading controls
- *
- */
 
-#ifndef _KCONFIG_H
-#define _KCONFIG_H
+#pragma once
 
 #include "misc/types.h"
 #include "fix/fix.h"
@@ -115,5 +105,3 @@ void kc_change_mouseaxis(kc_item* item);
 void kc_change_invert(kc_item* item);
 void kconfig_read_fcs(int raw_axis);
 void kconfig_set_fcs_button(int btn, int button);
-
-#endif

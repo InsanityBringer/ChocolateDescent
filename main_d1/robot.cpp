@@ -10,20 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/robot.c $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/07 16:52:02 $
- *
- * Code for handling robots
- *
- */
 
 #include "misc/error.h"
-
 #include "inferno.h"
-
 #include "robot.h"
 #include "object.h"
 #include "polyobj.h"

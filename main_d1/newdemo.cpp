@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/newdemo.c $
- * $Revision: 2.7 $
- * $Author: john $
- * $Date: 1995/05/26 16:16:06 $
- *
- * Code to make a complete demo playback system.
- *
- */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,23 +18,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <malloc.h>
 #include <limits.h>
 #include <io.h>
-
 #include "platform/findfile.h"
 #include "platform/disk.h"
-
 #include "inferno.h"
 #include "game.h"
 #include "2d/gr.h"
 #include "stdlib.h"
 #include "bm.h"
-//#include "misc/error.h"
 #include "platform/mono.h"
 #include "3d/3d.h"
 #include "segment.h"
 #include "laser.h"
 #include "platform/key.h"
 #include "gameseg.h"
-
 #include "object.h"
 #include "physics.h"
 #include "slew.h"		
@@ -57,13 +44,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "hostage.h"
 #include "morph.h"
-
 #include "powerup.h"
 #include "fuelcen.h"
-
 #include "sounds.h"
 #include "collide.h"
-
 #include "lighting.h"
 #include "newdemo.h"
 #include "gameseq.h"
@@ -87,8 +71,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #include "editor\editor.h"
 #endif
-
-//#include "nocfile.h"
 
 //Does demo start automatically?
 int Auto_demo = 0;

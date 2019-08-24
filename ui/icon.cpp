@@ -10,27 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/icon.c $
- * $Revision: 1.2 $
- * $Author: john $
- * $Date: 1994/11/18 23:07:33 $
- *
- * An icon class.
- *
- * $Log: icon.c $
- * Revision 1.2  1994/11/18  23:07:33  john
- * Changed a bunch of shorts to ints.
- *
- * Revision 1.1  1993/12/07  12:30:23  john
- * Initial revision
- *
- *
- */
 
 #include <stdlib.h>
 #include <string.h>
-
 #include "mem/mem.h"
 #include "fix/fix.h"
 #include "misc/types.h"

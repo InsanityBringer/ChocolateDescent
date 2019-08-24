@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gamefont.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:09 $
- *
- * Font declarations for the game,.
- *
- */
 
-#ifndef _GAMEFONT_H
-#define _GAMEFONT_H
+#pragma once
 
 #include "2d/gr.h"
 
@@ -45,5 +35,3 @@ extern grs_font * Gamefonts[MAX_FONTS];
 
 void gamefont_init();
 void gamefont_close(void);
-
-#endif

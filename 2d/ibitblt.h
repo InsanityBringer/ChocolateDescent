@@ -10,26 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/ibitblt.h $
- * $Revision: 1.2 $
- * $Author: john $
- * $Date: 1994/05/31 11:10:56 $
- *
- * Prototypes for the ibitblt functions.
- *
- * $Log: ibitblt.h $
- * Revision 1.2  1994/05/31  11:10:56  john
- * *** empty log message ***
- *
- * Revision 1.1  1994/05/30  16:08:46  john
- * Initial revision
- *
- *
- */
 
-#ifndef _IBITBLT_H
-#define _IBITBLT_H
+#pragma once
 
 #include "2d/gr.h"
 
@@ -44,5 +26,3 @@ uint8_t* gr_ibitblt_create_mask(grs_bitmap* mask_bmp, int sx, int sy, int sw, in
 // Copy source bitmap onto destination bitmap, not copying pixels that are defined
 // transparent by the mask
 void 		gr_ibitblt(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, uint8_t* mask);
-
-#endif

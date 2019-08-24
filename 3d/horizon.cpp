@@ -10,28 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Buggin:miner:source:3d::RCS:horizon.c $
- * $Revision: 1.1 $
- * $Author: allender $
- * $Date: 1995/05/05 08:51:14 $
- *
- * Horizon drawer
- *
- * $Log: horizon.c $
- * Revision 1.1  1995/05/05  08:51:14  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  06:38:57  matt
- * Initial revision
- *
- *
- */
 
 #include "3d/3d.h"
 
-//draw a horizon
 void g3_draw_horizon(int sky_color, int ground_color)
 {
-	//[ISB] crackets dadadadadadaaa. crackets dadadadadadaaa.
 }

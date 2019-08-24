@@ -10,41 +10,26 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/powerup.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/24 13:50:36 $
- *
- * Code for powerup objects.
- *
- */
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "3d/3d.h"
 #include "platform/mono.h"
-
 #include "inferno.h"
 #include "object.h"
 #include "game.h"
-
 #include "fireball.h"
 #include "powerup.h"
 #include "gauges.h"
-
 #include "sounds.h"
 #include "player.h"
-
 #include "wall.h"
 #include "text.h"
 #include "weapon.h"
 #include "laser.h"
 #include "scores.h"
 #include "multi.h"
-
 #include "newdemo.h"
 
 #ifdef EDITOR

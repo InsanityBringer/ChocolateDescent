@@ -10,26 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/text.c $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:33:09 $
- *
- * Code for localizable text
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <io.h>
-
-//#include "cfile/cfile.h"
 #include "cfile/cfile.h"
 #include "mem/mem.h"
 #include "misc/error.h"
-
 #include "inferno.h"
 #include "text.h"
 #include "args.h"

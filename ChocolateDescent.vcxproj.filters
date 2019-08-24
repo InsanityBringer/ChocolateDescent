@@ -37,6 +37,15 @@
     <Filter Include="platform">
       <UniqueIdentifier>{19cc90c4-a84a-4e8e-91de-c7862c891aac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="platform\sdl">
+      <UniqueIdentifier>{da3cde58-aa7a-4d60-86e5-faa24a522ada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{8a9fff1d-459c-4b78-be30-3aaf3a943530}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\openal">
+      <UniqueIdentifier>{876d41ab-3664-46e6-b103-786b44564661}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="2d\bitblt.cpp">
@@ -462,29 +471,29 @@
     <ClCompile Include="main_d1\weapon.cpp">
       <Filter>main_d1</Filter>
     </ClCompile>
-    <ClCompile Include="platform\disk.cpp">
-      <Filter>platform</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\findfile.cpp">
-      <Filter>platform</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\i_sound.cpp">
-      <Filter>platform</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\joy.cpp">
-      <Filter>platform</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\key.cpp">
-      <Filter>platform</Filter>
-    </ClCompile>
     <ClCompile Include="platform\mono.cpp">
-      <Filter>platform</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\mouse.cpp">
       <Filter>platform</Filter>
     </ClCompile>
     <ClCompile Include="platform\timer.cpp">
       <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\disk.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\findfile.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\openal\i_sound.cpp">
+      <Filter>platform\openal</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sdl\joy.cpp">
+      <Filter>platform\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sdl\key.cpp">
+      <Filter>platform\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sdl\mouse.cpp">
+      <Filter>platform\sdl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

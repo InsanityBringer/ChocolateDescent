@@ -10,16 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/config.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/27 09:42:59 $
- *
- * contains routine(s) to read in the configuration file which contains
- * game configuration stuff like detail level, sound card, etc
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>

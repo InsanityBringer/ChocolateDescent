@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/polyobj.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/02/27 18:21:54 $
- *
- * Header for polyobj.c, the polygon object code
- *
- */
 
-
-
-#ifndef _POLYOBJ_H
-#define _POLYOBJ_H
+#pragma once
 
 #include "vecmat/vecmat.h"
 #include "2d/gr.h"
@@ -101,5 +89,3 @@ void draw_model_picture(int mn, vms_angvec* orient_angles);
 extern grs_bitmap * texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 extern g3s_point robot_points[];
-
-#endif

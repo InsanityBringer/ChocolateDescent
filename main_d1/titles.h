@@ -10,19 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/titles.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:40 $
- *
- * .
- *
- *
- */
 
-#ifndef _TITLES_H
-#define _TITLES_H
+#pragma once
 
 #ifndef RELEASE
 extern int	Skip_briefing_screens;
@@ -41,5 +30,3 @@ extern void do_end_game(void);
 extern char* get_briefing_screen(int level_num);
 
 void title_save_game();
-
-#endif

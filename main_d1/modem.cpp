@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/modem.c $
- * $Revision: 2.13 $
- * $Author: john $
- * $Date: 1995/11/28 16:25:05 $
- *
- * Modem support code
- *
- */
 
 //[ISB] sigh, the integrated networking code is going to be a goddamned nightmare to untangle
 //[ISB] I envy Doom and its really reasonable networking system. 

@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/morph.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:32:19 $
- *
- * Header for morph.c
- *
- */
 
-
-
-#ifndef _MORPH_H
-#define _MORPH_H
+#pragma once
 
 #include "object.h"
 
@@ -59,5 +47,3 @@ void do_morph_frame(object* obj);
 void init_morphs();
 
 extern morph_data* find_morph_data(object* obj);
-
-#endif

@@ -10,50 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/mouse.c $
- * $Revision: 1.8 $
- * $Author: john $
- * $Date: 1995/03/06 17:54:17 $
- *
- * Mouse interface routines.
- *
- * $Log: mouse.c $
- * Revision 1.8  1995/03/06  17:54:17  john
- * fixed bug with mouse color being wrong.
- *
- * Revision 1.7  1994/09/23  14:57:52  john
- * Took out calls to init_mouse and init_keyboard.
- *
- * Revision 1.6  1994/04/22  11:10:06  john
- * *** empty log message ***
- *
- * Revision 1.5  1993/12/07  12:30:44  john
- * new version.
- *
- * Revision 1.4  1993/10/26  13:46:04  john
- * *** empty log message ***
- *
- * Revision 1.3  1993/10/05  17:55:27  matt
- * Changed default pointer
- *
- * Revision 1.2  1993/10/05  17:31:33  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/20  10:35:25  john
- * Initial revision
- *
- *
- */
 
 #include <stdlib.h>
-
 #include "mem/mem.h"
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "platform/mouse.h"
-
 #include "ui.h"
 #include "platform/timer.h"
 

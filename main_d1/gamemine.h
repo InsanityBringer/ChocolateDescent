@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gamemine.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:28:50 $
- *
- * Header for gamemine.c
- *
- */
 
-
-
-#ifndef _GAMEMINE_H
-#define _GAMEMINE_H
+#pragma once
 
 #define MINE_VERSION					17	// Current version expected
 #define COMPATIBLE_VERSION 		16 // Oldest version that can safely be loaded.
@@ -106,5 +94,3 @@ extern struct me mine_editor;
 //int game_load_mine(char* filename); //[ISB] cut from current gamemine.c
 
 extern short tmap_xlate_table[];
-
-#endif

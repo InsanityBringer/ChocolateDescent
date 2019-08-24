@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/bitblt.c $
- * $Revision: 1.29 $
- * $Author: john $
- * $Date: 1995/03/14 12:14:28 $
- *
- * Routines for bitblt's.
- *
- */
 
 #include "mem/mem.h"
 #include "2d/gr.h"

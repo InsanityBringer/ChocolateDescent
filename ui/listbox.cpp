@@ -10,35 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/listbox.c $
- * $Revision: 1.5 $
- * $Author: john $
- * $Date: 1994/11/18 23:07:32 $
- *
- * Routines for doing listbox gadgets.
- *
- * $Log: listbox.c $
- * Revision 1.5  1994/11/18  23:07:32  john
- * Changed a bunch of shorts to ints.
- *
- * Revision 1.4  1993/12/07  12:31:02  john
- * new version.
- *
- * Revision 1.3  1993/10/26  13:46:16  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/10/05  17:30:15  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/20  10:34:45  john
- * Initial revision
- *
- *
- */
 
 #include <stdlib.h>
-
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"

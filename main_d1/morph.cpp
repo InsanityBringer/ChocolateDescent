@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/morph.c $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/02/27 18:26:33 $
- *
- * Morphing code
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -10,99 +10,17 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/rle.c $
- * $Revision: 1.19 $
- * $Author: john $
- * $Date: 1995/01/14 19:18:31 $
- *
- * Routines to do run length encoding/decoding
- * on bitmaps.
- *
- * $Log: rle.c $
- * Revision 1.19  1995/01/14  19:18:31  john
- * Added assert to check for paged out bitmap.
- *
- * Revision 1.18  1995/01/14  11:32:07  john
- * Added rle_cache_flush function.
- *
- * Revision 1.17  1994/12/13  10:58:27  john
- * Fixed bug with 2 consecutive calls to get_expanded_Texture
- * with 2 different bitmaps, returning the same rle texture,
- * causing doors to disapper.
- *
- * Revision 1.16  1994/11/30  00:55:03  mike
- * optimization
- *
- * Revision 1.15  1994/11/24  13:24:44  john
- * Made sure that some rep movs had the cld set first.
- * Took some unused functions out.
- *
- * Revision 1.14  1994/11/23  16:03:46  john
- * Fixed generic rle'ing to use new bit method.
- *
- * Revision 1.13  1994/11/23  15:45:51  john
- * Changed to a 3 bit rle scheme.
- *
- * Revision 1.12  1994/11/18  22:50:24  john
- * Changed shorts to ints in parameters.
- *
- * Revision 1.11  1994/11/14  17:06:13  john
- * Took out Key_f12.
- *
- * Revision 1.10  1994/11/14  15:54:09  john
- * Put code in for maybe checking bogus rle data.
- *
- * Revision 1.9  1994/11/14  15:51:58  john
- * Added rle_disable_caching variable to prove the stability of my rle caching code
- * to any non-believers.
- *
- * Revision 1.8  1994/11/10  10:31:20  john
- * Reduce cache buffers to 16.
- *
- * Revision 1.7  1994/11/09  19:53:43  john
- * Added texture rle caching.
- *
- * Revision 1.6  1994/11/09  17:41:44  john
- * Made a slow version of rle bitblt to svga, modex.
- *
- * Revision 1.5  1994/11/09  17:07:50  john
- * Fixed bug with bitmap that gets bigger with rle.
- *
- * Revision 1.4  1994/11/09  16:35:17  john
- * First version with working RLE bitmaps.
- *
- * Revision 1.3  1994/10/26  12:54:47  john
- * Fixed bug with decode that used rep movsd instead of
- * rep stosd.
- *
- * Revision 1.2  1994/10/06  17:05:25  john
- * First version of rle stuff.
- *
- * Revision 1.1  1994/10/06  16:53:34  john
- * Initial revision
- *
- *
- */
 
 #include <stdlib.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "mem/mem.h"
 #include "platform/mono.h"
-
-
 #include "2d/gr.h"
 #include "2d/grdef.h"
-//#include "dpmi.h"
 #include "misc/error.h"
-//#include "platform/key.h"
 #include "2d/rle.h"
-
-//#define RLE_CODE 		0xC0
-//#define NOT_RLE_CODE	63
 
 #define RLE_CODE 			0xE0
 #define NOT_RLE_CODE		31

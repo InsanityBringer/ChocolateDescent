@@ -10,39 +10,24 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/hostage.c $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:28:36 $
- *
- * Code to render and manipulate hostages
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "misc/error.h"
 #include "3d/3d.h"
 #include "platform/mono.h"
-
 #include "inferno.h"
 #include "object.h"
 #include "game.h"
 #include "player.h"
-
 #include "fireball.h"
 #include "gauges.h"
 #include "hostage.h"
-
 #include "lighting.h"
-
 #include "sounds.h"
 #include "vclip.h"
 #include "newdemo.h"
-
 #include "text.h"
 #include "piggy.h"
 

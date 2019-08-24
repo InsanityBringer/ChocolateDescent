@@ -10,29 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/texmap/rcs/tmapsky.c $
- * $Revision: 1.4 $
- * $Author: mike $
- * $Date: 1994/11/28 13:34:33 $
- *
- * Sky texture mapper for Sim City 2000 Drive Through
- *
- * $Log: tmapsky.c $
- * Revision 1.4  1994/11/28  13:34:33  mike
- * optimizations.
- *
- * Revision 1.3  1994/06/09  16:10:10  mike
- * Kill definition of SC2000.
- *
- * Revision 1.2  1994/03/15  14:49:58  mike
- * *** empty log message ***
- *
- * Revision 1.1  1994/03/15  10:30:53  mike
- * Initial revision
- *
- *
- */
 
 // This is evil and it's all Matt's fault, and it is only here so Assert will work, but that
 // should work off ifdef, not if, so there!

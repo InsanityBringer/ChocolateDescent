@@ -10,27 +10,16 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gamesave.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/04/23 14:53:12 $
- *
- * Save game information
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 #include "platform/mono.h"
 #include "platform/key.h"
 #include "2d/gr.h"
 #include "2d/palette.h"
 #include "newmenu.h"
-
 #include "inferno.h"
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -42,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "gamemine.h"
 #include "robot.h"
-
 #include "cfile/cfile.h"
 #include "bm.h"
 #include "menu.h"

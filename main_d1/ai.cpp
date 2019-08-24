@@ -10,26 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/ai.c $
- * $Revision: 2.11 $
- * $Author: john $
- * $Date: 1995/07/09 11:15:48 $
- *
- * Autonomous Individual movement.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
-
 #include "inferno.h"
 #include "game.h"
 #include "platform/mono.h"
 #include "3d/3d.h"
 #include "cfile/cfile.h"
-
 #include "object.h"
 #include "render.h"
 #include "misc/error.h"

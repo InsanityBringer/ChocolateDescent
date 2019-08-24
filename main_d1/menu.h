@@ -10,19 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/menu.h $
- * $Revision: 2.1 $
- * $Author: mike $
- * $Date: 1995/03/06 16:47:41 $
- *
- * Menu prototypes and variables
- *
- */
 
-
-#ifndef _MENU_H
-#define _MENU_H
+#pragma once
 
  //returns number of item chosen
 extern int DoMenu();
@@ -39,5 +28,3 @@ void do_option(int select);
 void do_detail_level_menu_custom(void);
 void do_new_game_menu();
 void do_multi_player_menu();
-
-#endif

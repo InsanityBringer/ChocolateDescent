@@ -10,20 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Buggin:miner:source:3d::RCS:matrix.c $
- * $Revision: 1.1 $
- * $Author: allender $
- * $Date: 1995/05/05 08:52:11 $
- *
- * Matrix setup & manipulation routines
- *
- */
 
 #include "3d/3d.h"
 #include "globvars.h"
 
-void scale_matrix(void);
+void scale_matrix();
 
 //set view from x,y,z & p,b,h, zoom.  Must call one of g3_set_view_*() 
 void g3_set_view_angles(vms_vector* view_pos, vms_angvec* view_orient, fix zoom)

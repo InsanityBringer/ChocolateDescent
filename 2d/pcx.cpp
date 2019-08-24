@@ -10,40 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/pcx.c $
- * $Revision: 1.6 $
- * $Author: john $
- * $Date: 1995/03/01 15:38:12 $
- *
- * Routines to read/write pcx images.
- *
- * $Log: pcx.c $
- * Revision 1.6  1995/03/01  15:38:12  john
- * Better ModeX support.
- *
- * Revision 1.5  1995/01/21  17:54:17  john
- * Added pcx reader for modes other than modex.
- *
- * Revision 1.4  1994/12/08  19:03:56  john
- * Made functions use cfile.
- *
- * Revision 1.3  1994/11/29  02:53:24  john
- * Added error messages; made call be more similiar to iff.
- *
- * Revision 1.2  1994/11/28  20:03:50  john
- * Added PCX functions.
- *
- * Revision 1.1  1994/11/28  19:57:56  john
- * Initial revision
- *
- *
- */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "2d/gr.h"
 #include "mem/mem.h"
 #include "2d/pcx.h"

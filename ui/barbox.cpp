@@ -10,33 +10,14 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/barbox.c $
- * $Revision: 1.2 $
- * $Author: john $
- * $Date: 1994/01/18 11:07:45 $
- *
- * File for creating a barbox...
- *
- * $Log: barbox.c $
- * Revision 1.2  1994/01/18  11:07:45  john
- * *** empty log message ***
- *
- * Revision 1.1  1994/01/10  15:24:32  john
- * Initial revision
- *
- *
- */
 
 #include <stdio.h>
 #include <stdarg.h>
-
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "ui.h"
 #include "platform/key.h"
-
 
 static UI_WINDOW* wnd = NULL;
 static int bar_width, bar_height, bar_x, bar_y, bar_maxlength;

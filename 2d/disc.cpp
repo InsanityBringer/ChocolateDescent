@@ -10,35 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/disc.c $
- * $Revision: 1.5 $
- * $Author: john $
- * $Date: 1994/11/18 22:50:16 $
- *
- * Graphical routines for drawing a disk.
- *
- * $Log: disc.c $
- * Revision 1.5  1994/11/18  22:50:16  john
- * Changed shorts to ints in parameters.
- *
- * Revision 1.4  1994/05/06  12:50:12  john
- * Added supertransparency; neatend things up; took out warnings.
- *
- * Revision 1.3  1994/04/22  11:16:04  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/10/15  16:22:24  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/08  11:43:24  john
- * Initial revision
- *
- *
- */
 
 #include "mem/mem.h"
-
 #include "2d/gr.h"
 #include "2d/grdef.h"
 

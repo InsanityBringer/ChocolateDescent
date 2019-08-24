@@ -10,21 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/titles.c $
- * $Revision: 2.10 $
- * $Author: john $
- * $Date: 1995/06/15 12:14:16 $
- *
- * Routines to display title screens...
- *
- */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-//#include <process.h> //[ISB] joyous, more unportable crap. Seems unused, though... thankfully.
-
 #include "misc/types.h"
 #include "platform/timer.h"
 #include "platform/key.h"
@@ -59,7 +48,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "titles.h"
 #include "vfx.h"
-
 #include "2d/i_gr.h"
 
 uint8_t New_pal[768];

@@ -10,22 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/playsave.c $
- * $Revision: 2.3 $
- * $Author: john $
- * $Date: 1995/05/26 16:16:23 $
- *
- * Functions to load & save player games
- *
- */
 
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
 #include "misc/error.h"
-
 #include "inferno.h"
 #include "gameseq.h"
 #include "player.h"

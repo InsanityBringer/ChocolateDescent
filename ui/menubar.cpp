@@ -10,68 +10,20 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/menubar.c $
- * $Revision: 1.10 $
- * $Author: matt $
- * $Date: 1994/11/27 14:53:11 $
- *
- * .
- *
- * $Log: menubar.c $
- * Revision 1.10  1994/11/27  14:53:11  matt
- * Took out include of medlisp.h
- *
- * Revision 1.9  1994/11/18  23:07:28  john
- * Changed a bunch of shorts to ints.
- *
- * Revision 1.8  1994/05/31  18:18:41  john
- * Fixed bug with F pulling up file menu,
- *
- * Revision 1.7  1994/05/30  12:03:37  john
- * Fixed bug with Alt+F not getting accepted in state 0.
- *
- * Revision 1.6  1994/05/25  10:05:54  yuan
- * Tracking down strange bug with do-wall-dialog.
- *
- * Revision 1.5  1994/05/24  17:52:22  yuan
- * Testing.
- *
- * Revision 1.4  1994/02/01  13:29:53  john
- * *** empty log message ***
- *
- * Revision 1.3  1993/12/22  17:26:49  john
- * made it so that you can hold down Alt key and
- * type menu letters to select an item.
- *
- * Revision 1.2  1993/12/15  11:18:15  yuan
- * Changed width of menubar to 700 so that we could squeeze
- * in the clock
- *
- * Revision 1.1  1993/12/07  12:31:09  john
- * Initial revision
- *
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
 #include "mem/mem.h"
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "ui.h"
 #include "platform/key.h"
-
 #include "platform/mono.h"
-
 #include "func.h"
-
 #include "misc/error.h"
-
 
 #define MAXMENUS 30
 #define MAXITEMS 30

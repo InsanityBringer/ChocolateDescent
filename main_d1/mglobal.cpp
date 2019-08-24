@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/mglobal.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/14 18:24:37 $
- *
- * Global variables for main directory
- *
- */
 
 #include "fix/fix.h"
 #include "vecmat/vecmat.h"

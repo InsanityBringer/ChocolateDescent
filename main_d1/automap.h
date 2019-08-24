@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/automap.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:29:35 $
- *
- * Prototypes for auto-map stuff.
- *
- */
 
-#ifndef _AUTOMAP_H
-#define _AUTOMAP_H
+#pragma once
 
 #include "misc/types.h"
 #include "segment.h"
@@ -34,6 +24,3 @@ extern void modex_print_message(int x, int y, char* str);
 void adjust_segment_limit(int SegmentLimit); 
 void draw_all_edges();
 void automap_build_edge_list();
-
-
-#endif

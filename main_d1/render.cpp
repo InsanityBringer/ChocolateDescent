@@ -10,21 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/render.c $
- * $Revision: 2.5 $
- * $Author: john $
- * $Date: 1995/12/19 15:31:36 $
- *
- * Sample setup for RCS header
- * And by that, we mean things to render the mine. 
- *
- */
 
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
-
 #include "inferno.h"
 #include "segment.h"
 #include "misc/error.h"

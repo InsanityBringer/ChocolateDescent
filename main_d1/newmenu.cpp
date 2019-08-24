@@ -10,22 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/newmenu.c $
- * $Revision: 2.8 $
- * $Author: john $
- * $Date: 1995/05/26 16:16:28 $
- *
- * Routines for menus.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-
 #include "platform/findfile.h"
 #include "misc/error.h"
 #include "misc/types.h"
@@ -35,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/palette.h"
 #include "game.h"
 #include "text.h"
-
 #include "newmenu.h"
 #include "gamefont.h"
 #include "network.h"
@@ -45,14 +34,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "platform/joy.h"
 #include "digi.h"
-
 #include "multi.h"
 #include "endlevel.h"
 #include "screens.h"
-//#include "vfx.h"
 #include "kconfig.h"
 #include "player.h"
-
 #include "2d/i_gr.h"
 
 #define TITLE_FONT  		(Gamefonts[GFONT_BIG_1])

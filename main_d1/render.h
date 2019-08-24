@@ -10,21 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/render.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:33:00 $
- *
- * Header for rendering-based functions
- *
- */
 
-#ifndef _RENDER_H
-#define _RENDER_H
+#pragma once
 
 #include "3d/3d.h"
-
 #include "object.h"
 
 #define MAX_RENDER_SEGS		500
@@ -93,5 +82,3 @@ g3s_codes rotate_list(int nv, short* pointnumlist);
 void project_list(int nv, short* pointnumlist);
 
 void render_mine(int start_seg_num, fix eye_offset);
-
-#endif

@@ -10,21 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/misc/rcs/error.c $
- * $Revision: 1.12 $
- * $Author: matt $
- * $Date: 1994/12/07 18:49:39 $
- *
- * Error handling/printing/exiting code
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
 #include "platform/mono.h"
 #include "misc/error.h"
 

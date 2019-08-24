@@ -10,19 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/bm.c $
- * $Revision: 2.3 $
- * $Author: john $
- * $Date: 1995/03/14 16:22:04 $
- *
- * Bitmap and palette loading functions.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "misc/types.h"
 #include "inferno.h"
 #include "2d/gr.h"
@@ -54,7 +44,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "cntrlcen.h"
 
-//[ISB] heeh
 #define CF_ReadFix(a) ((fix)CF_ReadInt(a))
 
 uint8_t Sounds[MAX_SOUNDS];

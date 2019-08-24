@@ -10,25 +10,14 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/automap.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/21 14:41:26 $
- *
- * Routines for displaying the auto-map.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <algorithm>
-
 #include "2d/gr.h"
 #include "2d/i_gr.h"
-
 #include "automap.h"
 #include "misc/error.h"
 #include "3d/3d.h"

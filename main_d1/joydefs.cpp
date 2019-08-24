@@ -10,22 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/joydefs.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/06/30 12:30:22 $
- *
- * .
- *
- */
 
-//#include <conio.h>
 #include <stdlib.h>
 #include <stdio.h>
-//#include <io.h>
 #include <string.h>
-//#include <dos.h>
 
 #include "platform/mono.h"
 #include "platform/key.h"

@@ -10,24 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/segment.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/20 18:15:22 $
- *
- * Include file for functions which need to access segment data structure.
- *
- */
 
-#ifndef _SEGMENT_H
-#define _SEGMENT_H
+#pragma once
 
-#include	"misc/types.h"
-#include	"fix/fix.h"
+#include "misc/types.h"
+#include "fix/fix.h"
 #include "vecmat/vecmat.h"
- //#include "3d/3d.h"
- //#include "inferno.h"
 
  // Version 1 - Initial version
  // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
@@ -188,6 +176,4 @@ extern void add_segment_to_group(int segment_num, int group_num);
 
 // Verify that all vertices are legal.
 extern void med_check_all_vertices();
-#endif
-
 #endif

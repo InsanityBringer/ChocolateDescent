@@ -10,25 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:misc::RCS:byteswap.c $
- * $Revision: 1.3 $
- * $Author: allender $
- * $Date: 1995/08/18 15:51:17 $
- *
- * code to swap bytes because of big/little endian problems.
- *
- * $Log: byteswap.c $
- * Revision 1.3  1995/08/18  15:51:17  allender
- * put back in old byteswapping code
- *
- * Revision 1.2  1995/05/04  20:10:06  allender
- * use unsigned to prevent sign problems
- *
- * Revision 1.1  1995/03/30  15:01:49  allender
- * Initial revision
- *
-*/
 
 #include <stdio.h>
 #include <stdlib.h>

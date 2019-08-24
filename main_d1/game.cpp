@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/game.c $
- * $Revision: 2.36 $
- * $Author: john $
- * $Date: 1996/01/05 16:52:05 $
- *
- * Game loop for Inferno
- *
- */
 
 #include <stdio.h>
 #include <malloc.h>
@@ -26,7 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <algorithm>
-
 #include "inferno.h"
 #include "game.h"
 #include "platform/key.h"
@@ -89,7 +79,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "desc_id.h"
 #include "cntrlcen.h"
 #include "2d/pcx.h"
-//#include "dpmi.h"
 #include "state.h"
 #include "piggy.h"
 #include "multibot.h"
@@ -107,10 +96,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define Arcade_mode 0
 #endif
-
-//#include "victor.h"
-
-//#include "vfx.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"

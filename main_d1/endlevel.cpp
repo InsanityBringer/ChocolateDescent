@@ -10,27 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/endlevel.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/21 14:40:14 $
- *
- * Code for rendering external scenes
- *
- */
 
 //#define SLEW_ON 1
-
 //#define _MARK_ON
 
 #include <stdlib.h>
-//#include <wsample.h> //This file not included in public domain release -KRB
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <algorithm>
-
 #include "3d/3d.h"
 #include "misc/error.h"
 #include "2d/gr.h"
@@ -41,7 +29,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fvi.h"
 #include "mem/mem.h"
 #include "sounds.h"
-
 #include "inferno.h"
 #include "endlevel.h"
 #include "object.h"

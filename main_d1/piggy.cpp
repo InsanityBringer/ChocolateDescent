@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/piggy.c $
- * $Revision: 2.10 $
- * $Author: john $
- * $Date: 1995/10/07 13:17:26 $
- *
- * Functions for managing the pig files.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +19,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 #include "inferno.h"
 #include "2d/gr.h"
-//#include "mem/mem.h"
 #include "cfile/cfile.h"
 #include "platform/mono.h"
 #include "misc/error.h"
@@ -36,18 +26,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "hash.h"
 #include "args.h"
-//#include "dpmi.h"
 #include "2d/palette.h"
 #include "gamefont.h"
 #include "2d/rle.h"
 #include "screens.h"
-
-//#include "soscomp.h"
-//The above include is part of a commercial 
-//sound library, so it cannot be included in a public 
-//release of the source code. -KRB
-//#include "no_sos.h" //Added by KRB
-
 #include "piggy.h"
 #include "texmerge.h"
 #include "paging.h"

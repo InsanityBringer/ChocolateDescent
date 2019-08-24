@@ -10,69 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/bitmap.c $
- * $Revision: 1.17 $
- * $Author: john $
- * $Date: 1994/11/18 22:50:25 $
- *
- * Graphical routines for manipulating grs_bitmaps.
- *
- * $Log: bitmap.c $
- * Revision 1.17  1994/11/18  22:50:25  john
- * Changed shorts to ints in parameters.
- *
- * Revision 1.16  1994/11/10  15:59:46  john
- * Fixed bugs with canvas's being created with bogus bm_flags.
- *
- * Revision 1.15  1994/10/26  23:55:53  john
- * Took out roller; Took out inverse table.
- *
- * Revision 1.14  1994/09/19  14:40:21  john
- * Changed dpmi stuff.
- *
- * Revision 1.13  1994/09/19  11:44:04  john
- * Changed call to allocate selector to the dpmi module.
- *
- * Revision 1.12  1994/06/09  13:14:57  john
- * Made selectors zero our
- * out, I meant.
- *
- * Revision 1.11  1994/05/06  12:50:07  john
- * Added supertransparency; neatend things up; took out warnings.
- *
- * Revision 1.10  1994/04/08  16:59:39  john
- * Add fading poly's; Made palette fade 32 instead of 16.
- *
- * Revision 1.9  1994/03/16  17:21:09  john
- * Added slow palette searching options.
- *
- * Revision 1.8  1994/03/14  17:59:35  john
- * Added function to check bitmap's transparency.
- *
- * Revision 1.7  1994/03/14  17:16:21  john
- * fixed bug with counting freq of pixels.
- *
- * Revision 1.6  1994/03/14  16:55:47  john
- * Changed grs_bitmap structure to include bm_flags.
- *
- * Revision 1.5  1994/02/18  15:32:22  john
- * *** empty log message ***
- *
- * Revision 1.4  1993/10/15  16:22:49  john
- * *** empty log message ***
- *
- * Revision 1.3  1993/09/08  17:37:11  john
- * Checking for errors with Yuan...
- *
- * Revision 1.2  1993/09/08  14:46:27  john
- * looking for possible bugs...
- *
- * Revision 1.1  1993/09/08  11:43:05  john
- * Initial revision
- *
- *
- */
 
 #include <stdlib.h>
 #include <malloc.h>
@@ -83,7 +20,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "2d/gr.h"
 #include "2d/grdef.h"
-//#include "dpmi.h"
 
 grs_bitmap* gr_create_bitmap(int w, int h)
 {

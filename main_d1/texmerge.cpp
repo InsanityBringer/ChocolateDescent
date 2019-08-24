@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/texmerge.c $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:08 $
- *
- * Routines to cache merged textures.
- *
- */
 
 #include <stdlib.h>
 

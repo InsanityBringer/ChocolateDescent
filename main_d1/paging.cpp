@@ -10,21 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/paging.c $
- * $Revision: 2.5 $
- * $Author: john $
- * $Date: 1995/10/07 13:18:21 $
- *
- * Routines for paging in/out textures.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 #include "platform/mono.h"
 #include "inferno.h"
 #include "segment.h"
@@ -49,8 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "powerup.h"
 #include "fuelcen.h"
-
-#include "2d/i_gr.h" //[ISB] ugh;
+#include "2d/i_gr.h"
 
 void paging_touch_vclip(vclip* vc)
 {

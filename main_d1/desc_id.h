@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/desc_id.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:29:38 $
- *
- * Header file which contains string for id and timestamp information
- *
- */
 
-#ifndef _DESC_ID_H
-#define _DESC_ID_H
+#pragma once
 
 #include <time.h>
 
@@ -30,5 +20,3 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DESC_DEAD_TIME "from the straight road and woke to find myself 000000000000"
 
 extern char desc_id_exit_num;
-
-#endif

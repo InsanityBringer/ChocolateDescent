@@ -11,10 +11,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-
-#ifndef _FINDFILE_H
-#define _FINDFILE_H
+#pragma once
 
 #define FF_PATHSIZE 256
 
@@ -36,5 +33,3 @@ typedef struct FILETIMESTRUCT {
 //the both return 0 if no error
 int GetFileDateTime(int filehandle, FILETIMESTRUCT* ftstruct);
 int SetFileDateTime(int filehandle, FILETIMESTRUCT* ftstruct);
-
-#endif

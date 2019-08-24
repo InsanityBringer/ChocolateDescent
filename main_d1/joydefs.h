@@ -10,21 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/joydefs.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:32:12 $
- *
- * Variables for joystick settings.
- *
- */
-#ifndef _JOYDEFS_H
-#define _JOYDEFS_H
+
+#pragma once
 
 void joydefs_calibrate();
 void joydefs_config();
 
 extern int joydefs_calibrate_flag;
-
-#endif

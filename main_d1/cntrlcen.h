@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/cntrlcen.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:30:40 $
- *
- * Header for cntrlcen.c
- *
- */
 
-#ifndef _CNTRLCEN_H
-#define _CNTRLCEN_H
+#pragma once
 
 #include "vecmat/vecmat.h"
 #include "object.h"
@@ -52,5 +42,3 @@ extern void init_controlcen_for_level(void);
 
 extern void do_controlcen_destroyed_stuff(object* objp);
 extern void do_controlcen_dead_frame(void);
-
-#endif

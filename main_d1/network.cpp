@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/network.c $
- * $Revision: 2.11 $
- * $Author: john $
- * $Date: 1995/07/18 10:57:56 $
- *
- * Routines for managing network play.
- *
- */
 
 #ifdef NETWORK
 

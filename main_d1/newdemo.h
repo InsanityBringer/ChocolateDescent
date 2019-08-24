@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/newdemo.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:18 $
- *
- * .
- *
- */
 
-
-
-#ifndef _NEWDEMO_H
-#define _NEWDEMO_H
+#pragma once
 
 #include "morph.h"
 
@@ -114,5 +102,3 @@ extern void newdemo_start_recording();
 extern void newdemo_stop_recording();
 
 extern int newdemo_get_percent_done(); //[ISB] did I accidently give this void type?
-
-#endif

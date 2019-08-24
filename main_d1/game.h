@@ -10,27 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/game.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/06 15:23:22 $
- *
- * Constants & prototypes which pertain to the game only
- *
- */
 
-#ifndef _GAME_H
-#define _GAME_H
+#pragma once
 
-#include <setjmp.h>
+#include <csetjmp>
 
 #include "2d/gr.h"
 #include "vecmat/vecmat.h"
 #include "object.h"
 #include "misc/types.h"
-
- //#include "segment.h"
 
  //from mglobal.c
 extern fix FrameTime;					//time in seconds since last frame
@@ -234,5 +222,3 @@ void fill_background(int x, int y, int w, int h, int dx, int dy);
 void game_init_render_sub_buffers(int x, int y, int w, int h);
 void GameLoop(int RenderFlag, int ReadControlsFlag);
 void powerup_grab_cheat_all(void);
-
-#endif

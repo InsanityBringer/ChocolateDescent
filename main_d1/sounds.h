@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/sounds.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:27:32 $
- *
- * Numbering system for the sounds.
- *
- */
 
-#ifndef _SOUNDS_H
-#define _SOUNDS_H
+#pragma once
 
 #include "vecmat/vecmat.h"
 #include "digi.h"
@@ -103,5 +93,3 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern uint8_t Sounds[MAX_SOUNDS];
 extern uint8_t AltSounds[MAX_SOUNDS];
-
-#endif

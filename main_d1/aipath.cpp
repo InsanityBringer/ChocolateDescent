@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/aipath.c $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:30:48 $
- *
- * AI path forming stuff.
- *
- */
 
 #include <stdio.h>		//	for printf()
 #include <stdlib.h>		// for rand() and qsort()

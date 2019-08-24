@@ -1,31 +1,5 @@
-/*
- * $Source: f:/miner/source/2d/rcs/pcx.h $
- * $Revision: 1.4 $
- * $Author: john $
- * $Date: 1995/01/21 17:07:34 $
- *
- * Routines to read/write pcx images.
- *
- * $Log: pcx.h $
- * Revision 1.4  1995/01/21  17:07:34  john
- * Added out of memory error.
- *
- * Revision 1.3  1994/11/29  02:53:10  john
- * Added error messages; made call be more similiar to iff.
- *
- * Revision 1.2  1994/11/28  20:03:48  john
- * Added PCX functions.
- *
- * Revision 1.1  1994/11/28  19:57:45  john
- * Initial revision
- *
- *
- */
 
-
-
-#ifndef _PCX_H
-#define _PCX_H
+#pragma once
 
 #include "2d/gr.h"
 
@@ -49,6 +23,3 @@ extern int pcx_read_bitmap(const char* filename, grs_bitmap * bmp, int bitmap_ty
 extern int pcx_write_bitmap(const char* filename, grs_bitmap* bmp, uint8_t* palette);
 
 extern char* pcx_errormsg(int error_number);
-
-#endif
-

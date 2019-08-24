@@ -10,20 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/lighting.c $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/07/24 13:21:56 $
- *
- * Lighting functions.
- *
- */
 
 #include <stdlib.h>
-#include <string.h>	// for memset()
+#include <string.h>
 #include <algorithm>
-
 #include "inferno.h"
 #include "segment.h"
 #include "misc/error.h"

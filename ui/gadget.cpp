@@ -10,45 +10,14 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/gadget.c $
- * $Revision: 1.6 $
- * $Author: matt $
- * $Date: 1994/08/09 09:56:48 $
- *
- * General routines for all the low-level gadgets.
- *
- * $Log: gadget.c $
- * Revision 1.6  1994/08/09  09:56:48  matt
- * Save & restore curwindow around button processing
- *
- * Revision 1.5  1994/04/22  11:10:13  john
- * *** empty log message ***
- *
- * Revision 1.4  1993/12/07  12:31:11  john
- * new version.
- *
- * Revision 1.3  1993/10/26  13:46:19  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/10/05  17:30:06  john
- * ,
- *
- * Revision 1.1  1993/09/20  10:34:54  john
- * Initial revision
- *
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "mem/mem.h"
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "ui.h"
-
 #include "platform/key.h"
 
 UI_GADGET* selected_gadget;

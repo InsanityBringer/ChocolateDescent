@@ -10,21 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/cntrlcen.c $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/21 14:40:25 $
- *
- * Code for the control center
- *
- */
 
 #include <stdlib.h>
-
 #include "misc/error.h"
 #include "platform/mono.h"
-
 #include "inferno.h"
 #include "cntrlcen.h"
 #include "game.h"

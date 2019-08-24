@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/menu.c $
- * $Revision: 2.5 $
- * $Author: john $
- * $Date: 1995/10/07 13:19:09 $
- *
- * Inferno main menu.
- *
- */
 
 #include <time.h>
 #include <stdio.h>
@@ -27,7 +18,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <stdarg.h>
 #include <errno.h>
-
 #include "menu.h"
 #include "inferno.h"
 #include "game.h"

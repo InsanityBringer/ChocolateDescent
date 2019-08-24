@@ -10,62 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/roller.c $
- * $Revision: 1.15 $
- * $Author: john $
- * $Date: 1994/10/26 23:55:54 $
- *
- * bitmap scaler, roller
- *
- * $Log: roller.c $
- * Revision 1.15  1994/10/26  23:55:54  john
- * Took out roller; Took out inverse table.
- *
- * Revision 1.14  1994/05/06  12:49:48  john
- * Added supertransparency; neatend things up; took out warnings.
- *
- * Revision 1.13  1994/02/04  13:21:38  matt
- * Took out test code
- *
- * Revision 1.12  1994/02/01  17:25:31  john
- * Made transparency color be 255 all the time.
- *
- * Revision 1.11  1993/12/08  16:40:47  mike
- * Prevent blowup bug when xright < xleft.
- *
- * Revision 1.10  1993/12/07  12:32:19  john
- * moved bmd_palette to gr_palette
- *
- * Revision 1.9  1993/12/03  18:41:10  unknown
- * Put in check for trying to render_scanline wider than compiled code.
- *
- * Revision 1.8  1993/12/03  15:13:49  mike
- * Fix transparency problem by moving setting of Transparency_color.
- *
- * Revision 1.7  1993/12/03  12:05:13  mike
- * Make compiled code bitmaps clip.
- *
- * Revision 1.6  1993/12/02  18:40:38  mike
- * Suppress "Too many compiled code pointers" Error.
- *
- * Revision 1.5  1993/11/28  12:07:35  mike
- * Fix bugs in compiled code roller
- *
- * Revision 1.4  1993/11/23  13:03:17  mike
- * Add compiled code roller.
- *
- * Revision 1.3  1993/11/18  14:22:44  mike
- * fix bugs
- *
- * Revision 1.2  1993/11/17  19:01:10  mike
- * Add roller.
- *
- * Revision 1.1  1993/11/16  09:36:51  mike
- * Initial revision
- *
- *
- */
 
 #define COMPILED_CODE 1
 #define TRANSPARENCY_COLOR 255
@@ -78,7 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "platform/mono.h"
 #include "fix/fix.h"
-//#include "3d/3d.h"
 #include "2d/gr.h"
 #include "misc/error.h"
 

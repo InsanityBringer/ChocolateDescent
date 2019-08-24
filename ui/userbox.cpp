@@ -10,33 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/userbox.c $
- * $Revision: 1.4 $
- * $Author: john $
- * $Date: 1993/12/07 12:30:05 $
- *
- * Routines for user-boxes.
- *
- * $Log: userbox.c $
- * Revision 1.4  1993/12/07  12:30:05  john
- * new version.
- *
- * Revision 1.3  1993/10/26  13:46:13  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/10/05  17:32:01  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/20  10:35:53  john
- * Initial revision
- *
- *
- */
 
 #include <stdlib.h>
 #include <string.h>
-
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
@@ -45,7 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void ui_draw_userbox(UI_GADGET_USERBOX* userbox)
 {
-
 	if (userbox->status == 1)
 	{
 		userbox->status = 0;

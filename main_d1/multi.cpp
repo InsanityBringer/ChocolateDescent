@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/multi.c $
- * $Revision: 2.10 $
- * $Author: john $
- * $Date: 1995/05/29 16:18:26 $
- *
- * Multiplayer code shared by serial and network play.
- *
- */
 
 #ifdef NETWORK
 

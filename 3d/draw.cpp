@@ -10,39 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:3d::RCS:draw.c $
- * $Revision: 1.5 $
- * $Author: allender $
- * $Date: 1995/10/11 00:27:17 $
- *
- * Drawing routines
- *
- * $Log: draw.c $
- * Revision 1.5  1995/10/11  00:27:17  allender
- * remove free_num_point settings to 0
- *
- * Revision 1.4  1995/09/14  14:08:27  allender
- * co -l 3d.h
- * g3_draw_sphere need to return value in new PPC stuff
- *
- * Revision 1.3  1995/09/13  11:30:35  allender
- * removed checkmuldiv in PPC implementation
- *
- * Revision 1.2  1995/06/25  21:57:41  allender
- * free_point_num problem
- *
- * Revision 1.1  1995/05/05  08:50:26  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  05:13:45  matt
- * Initial revision
- *
- *
- */
 
 #include "misc/error.h"
-
 #include "3d/3d.h"
 #include "globvars.h"
 #include "texmap/texmap.h"

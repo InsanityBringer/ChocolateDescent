@@ -10,39 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/popup.c $
- * $Revision: 1.5 $
- * $Author: john $
- * $Date: 1994/11/18 23:07:31 $
- *
- * Routines for a popup menu.
- *
- * $Log: popup.c $
- * Revision 1.5  1994/11/18  23:07:31  john
- * Changed a bunch of shorts to ints.
- *
- * Revision 1.4  1993/12/07  12:30:03  john
- * new version.
- *
- * Revision 1.3  1993/10/26  13:45:58  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/10/05  17:30:36  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/20  10:34:41  john
- * Initial revision
- *
- *
- */
 
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "ui.h"
 #include "platform/mouse.h"
-
 
 #define MENU_BORDER 2
 #define MENU_VERT_SPACING 2

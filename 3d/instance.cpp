@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:3d::RCS:instance.c $
- * $Revision: 1.2 $
- * $Author: allender $
- * $Date: 1995/06/12 12:36:57 $
- *
- * Instancing routines
- *
- */
 
 #include "misc/error.h"
 

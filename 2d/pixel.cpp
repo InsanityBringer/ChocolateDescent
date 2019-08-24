@@ -10,38 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/pixel.c $
- * $Revision: 1.5 $
- * $Author: john $
- * $Date: 1994/11/18 22:50:26 $
- *
- * Graphical routines for setting a pixel.
- *
- * $Log: pixel.c $
- * Revision 1.5  1994/11/18  22:50:26  john
- * Changed shorts to ints in parameters.
- *
- * Revision 1.4  1993/10/15  16:22:26  john
- * *** empty log message ***
- *
- * Revision 1.3  1993/09/29  17:31:27  john
- * optimized vesa pixel stuff
- *
- * Revision 1.2  1993/09/29  16:15:15  john
- * optimized
- *
- * Revision 1.1  1993/09/08  11:44:09  john
- * Initial revision
- *
- *
- */
 
 #include "mem/mem.h"
-
 #include "2d/gr.h"
 #include "2d/grdef.h"
-
 
 void gr_upixel(int x, int y)
 {

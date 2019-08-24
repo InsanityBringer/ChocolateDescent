@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/multi.h $
- * $Revision: 2.3 $
- * $Author: john $
- * $Date: 1995/04/03 08:49:50 $
- *
- * Defines and exported variables for multi.c
- *
- */
 
-
-
-#ifndef _MULTI_H
-#define _MULTI_H
+#pragma once
 
 #ifdef SHAREWARE
 #define MAX_MESSAGE_LEN 25
@@ -268,7 +256,5 @@ extern struct netgame_info Netgame;
 
 int network_i_am_master(void);
 void change_playernum_to(int new_pnum);
-
-#endif
 
 #endif

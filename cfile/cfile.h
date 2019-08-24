@@ -10,57 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Buggin:miner:source:cfile::RCS:cfile.h $
- * $Revision: 1.1 $
- * $Author: allender $
- * $Date: 1995/03/30 10:25:08 $
- *
- * Prototypes for compressed file functions...
- *
- * $Log: cfile.h $
- * Revision 1.1  1995/03/30  10:25:08  allender
- * Initial revision
- *
- *
- * -- PC RCS Information ---
- * Revision 1.9  1995/02/01  20:56:40  john
- * Added cfexist function
- *
- * Revision 1.8  1995/01/21  17:53:41  john
- * Added alternate pig file thing.
- *
- * Revision 1.7  1994/12/12  13:19:47  john
- * Made cfile work with fiellentth.
- *
- * Revision 1.6  1994/12/08  19:02:52  john
- * Added cfgets.
- *
- * Revision 1.5  1994/12/07  21:34:07  john
- * Stripped out compression stuff...
- *
- * Revision 1.4  1994/07/13  00:16:53  matt
- * Added include
- *
- * Revision 1.3  1994/02/17  17:36:19  john
- * Added CF_READ_MODE and CF_WRITE_MODE constants.
- *
- * Revision 1.2  1994/02/15  12:52:08  john
- * Crappy inbetween version
- *
- * Revision 1.1  1994/02/15  10:54:23  john
- * Initial revision
- *
- * Revision 1.1  1994/02/10  15:50:54  john
- * Initial revision
- *
- *
- */
 
-
-
-#ifndef _CFILE_H
-#define _CFILE_H
+#pragma once
 
 #include <stdio.h>
 #include "misc/types.h"
@@ -101,5 +52,3 @@ void CF_GetString(char* buffer, int count, CFILE* fp);
 // Allows files to be gotten from an alternate hog file.
 // Passing NULL disables this.
 void cfile_use_alternate_hogfile(const char* name);
-
-#endif

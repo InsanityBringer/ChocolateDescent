@@ -10,26 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:3d::RCS:globvars.c $
- * $Revision: 1.2 $
- * $Author: allender $
- * $Date: 1995/09/13 11:30:47 $
- *
- * Global variables for 3d
- *
- * $Log: globvars.c $
- * Revision 1.2  1995/09/13  11:30:47  allender
- * added fCanv_w2 and vCanv_h2 for PPC implementation
- *
- * Revision 1.1  1995/05/05  08:50:48  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  04:24:57  matt
- * Initial revision
- *
- *
- */
 
 #include "3d/3d.h"
 #include "globvars.h"

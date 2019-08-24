@@ -11,22 +11,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/aistruct.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:30:19 $
- *
- * Structs and constants for AI system.
- * object.h depends on this.
- * ai.h depends on object.h.
- * Get it?
- *
- */
 
-
-#ifndef _AISTRUCT_H
-#define _AISTRUCT_H
+#pragma once
 
 #include <stdio.h>
 
@@ -203,5 +189,3 @@ void P_WriteCloakInfo(ai_cloak_info* info, FILE* fp);
 void P_ReadAILocals(ai_local* info, FILE* fp);
 void P_ReadSegPoint(point_seg* point, FILE* fp);
 void P_ReadCloakInfo(ai_cloak_info* info, FILE* fp);
-
-#endif

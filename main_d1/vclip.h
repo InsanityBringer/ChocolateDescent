@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/vclip.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:32:42 $
- *
- * Stuff for video clips.
- *
- */
 
-#ifndef _VCLIP_H
-#define _VCLIP_H
+#pragma once
 
 #include "2d/gr.h"
 #include "object.h"
@@ -56,5 +46,3 @@ extern vclip Vclip[VCLIP_MAXNUM];
 //draw an object which renders as a vclip.
 void draw_vclip_object(object* obj, fix timeleft, int lighted, int vclip_num);
 extern void draw_weapon_vclip(object* obj);
-
-#endif

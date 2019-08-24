@@ -10,25 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/textures.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:54 $
- *
- * Array of textures, and other stuff
- *
- */
 
-#ifndef _TEXTURES_H
-#define _TEXTURES_H
+#pragma once
 
 #include "bm.h"
 #include "piggy.h"
 
- //Texture stuff... in mglobal.c
-
 extern int NumTextures;
 extern bitmap_index Textures[MAX_TEXTURES];	// Array of all texture tmaps.
-
-#endif

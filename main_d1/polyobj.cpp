@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/polyobj.c $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/05/26 16:10:37 $
- *
- * Hacked-in polygon objects
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>

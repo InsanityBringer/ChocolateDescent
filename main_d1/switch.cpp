@@ -10,21 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/switch.c $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/21 14:39:08 $
- *
- * New Triggers and Switches.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 #include "gauges.h"
 #include "game.h"
 #include "switch.h"

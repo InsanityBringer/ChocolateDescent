@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/gr.c $
- * $Revision: 1.56 $
- * $Author: john $
- * $Date: 1995/05/08 11:22:47 $
- *
- * Graphical routines for setting video modes, etc.
- *
- */
 
 #include <dos.h>
 #include <stdlib.h>
@@ -26,17 +17,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <conio.h>
 #include <string.h>
-
 #include "misc/types.h"
 #include "mem/mem.h"
 #include "2d/gr.h"
 #include "2d/grdef.h"
 #include "misc/error.h"
 #include "platform/mono.h"
-//#include "dpmi.h"
 #include "2d/palette.h"
-//#include "dpmi.h" [ISB] heh
-
 #include "2d/i_gr.h"
 
 unsigned char* gr_video_memory = (unsigned char*)0xA0000;

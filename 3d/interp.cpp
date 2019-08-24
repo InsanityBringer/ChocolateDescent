@@ -10,39 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:3d::RCS:interp.c $
- * $Revision: 1.4 $
- * $Author: allender $
- * $Date: 1995/10/10 22:20:09 $
- *
- * Polygon object interpreter
- *
- * $Log: interp.c $
- * Revision 1.4  1995/10/10  22:20:09  allender
- * new morphing code from Matt
- *
- * Revision 1.3  1995/08/31  15:40:24  allender
- * swap color data correctly
- *
- * Revision 1.2  1995/05/11  13:06:38  allender
- * fix int --> short problem
- *
- * Revision 1.1  1995/05/05  08:51:41  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  06:44:33  matt
- * Initial revision
- *
- *
- */
 
 #include "misc/error.h"
-
 #include "3d/3d.h"
 #include "globvars.h"
 #include "2d/gr.h"
-
 #include "misc/byteswap.h"
 
 #define OP_EOF				0	//eof

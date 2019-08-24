@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/object.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/31 12:24:10 $
- *
- * object system definitions
- *
- */
 
-#ifndef _OBJECT_H
-#define _OBJECT_H
+#pragma once
 
 #include "misc/types.h"
 #include "vecmat/vecmat.h"
@@ -31,13 +21,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 #include "piggy.h"
 
- /*
-  *		CONSTANTS
-  */
-
 #define MAX_OBJECTS			350		//increased on 01/24/95 for multiplayer. --MK;  total number of objects in world
 
-  //Object types
+//Object types
 #define OBJ_NONE		255	//unused object
 #define OBJ_WALL		0		//A wall... not really an object, but used for collisions
 #define OBJ_FIREBALL	1		//a fireball, part of an explosion
@@ -420,5 +406,3 @@ void obj_detach_all(object* parent);
 //Reads an object from disk. This code is my absolute nightmare. Thanks, unions.
 void P_ReadObject(object* obj, FILE* f);
 void P_WriteObject(object* obj, FILE* f);
-
-#endif

@@ -10,22 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/kconfig.c $
- * $Revision: 2.11 $
- * $Author: john $
- * $Date: 1995/08/23 16:08:04 $
- *
- * Routines to configure keyboard, joystick, etc..
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-
 #include "misc/error.h"
 #include "misc/types.h"
 #include "2d/gr.h"
@@ -52,7 +42,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "menu.h"
 #include "args.h"
-
 #include "2d/i_gr.h"
 
 //#define TABLE_CREATION 1

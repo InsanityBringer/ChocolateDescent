@@ -10,26 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:3d::RCS:rod.c $
- * $Revision: 1.2 $
- * $Author: allender $
- * $Date: 1995/09/13 11:31:46 $
- *
- * Rod routines
- *
- * $Log: rod.c $
- * Revision 1.2  1995/09/13  11:31:46  allender
- * removed checkmuldiv in PPC implemenation
- *
- * Revision 1.1  1995/05/05  08:52:45  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  06:42:08  matt
- * Initial revision
- *
- *
- */
 
 #include "3d/3d.h"
 #include "globvars.h"

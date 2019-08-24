@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/netmisc.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:30:18 $
- *
- * .
- *
- */
 
-
-
-#ifndef _NETMISC_H
-#define _NETMISC_H
+#pragma once
 
 #include "misc/types.h"
 
@@ -36,5 +24,3 @@ extern uint16_t netmisc_calc_checksum(void* vptr, int len);
 
 //Applies diff_buffer to block1 to create a new block1.  Returns the final size of block1.
 //extern int netmisc_apply_diff(void* block1, void* diff_buffer, int diff_size);
-
-#endif

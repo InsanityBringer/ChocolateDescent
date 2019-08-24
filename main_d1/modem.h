@@ -10,20 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/modem.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/21 14:40:38 $
- *
- * Header file for modem support
- *
- */
+
+#pragma once
 
 #ifdef NETWORK
-
-#ifndef _MODEM_H
-#define _MODEM_H
 
 #define MISSILE_ADJUST 6
 
@@ -44,5 +34,5 @@ extern int com_port_num;
 extern int serial_active;
 extern int com_speed;
 extern int com_baud_rate;
-#endif
+
 #endif

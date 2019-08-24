@@ -10,23 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/wall.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:36 $
- *
- */
 
-#ifndef _WALL_H
-#define _WALL_H
+#pragma once
 
 #include "inferno.h"
 #include "segment.h"
 #include "object.h"
 #include "switch.h"
-
- //#include "vclip.h"
 
 #define MAX_WALLS					175	// Maximum number of walls
 #define MAX_WALL_ANIMS			30		// Maximum different types of doors
@@ -215,5 +205,3 @@ void P_ReadTrigger(trigger* trig, FILE* fp);
 void P_WriteWall(wall* nwall, FILE* fp);
 void P_WriteActiveDoor(active_door* door, FILE* fp);
 void P_WriteTrigger(trigger* trig, FILE* fp);
-
-#endif

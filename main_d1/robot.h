@@ -1,15 +1,5 @@
-/*
- * $Source: f:/miner/source/main/rcs/robot.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/07 16:52:00 $
- *
- * Header for robot.c
- *
- */
 
-#ifndef _ROBOT_H
-#define _ROBOT_H
+#pragma once
 
 #include "vecmat/vecmat.h"
 #include "object.h"
@@ -129,5 +119,3 @@ void calc_gun_point(vms_vector* gun_point, object* obj, int gun_num);
 //		Returns number of joints in list.
 //		jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
 extern int robot_get_anim_state(jointpos** jp_list_ptr, int robot_type, int gun_num, int state);
-
-#endif

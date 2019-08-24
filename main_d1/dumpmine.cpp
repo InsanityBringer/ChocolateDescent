@@ -1,58 +1,32 @@
-/*
- * $Source: f:/miner/source/main/rcs/dumpmine.c $
- * $Revision: 2.1 $
- * $Author: mike $
- * $Date: 1995/04/06 12:21:50 $
- *
- * Functions to dump text description of mine.
- * An editor-only function, called at mine load time.
- * To be read by a human to verify the correctness and completeness of a mine.
- *
- */
 
 #include <stdio.h>
-//#include <stdlib.h>
-//#include <math.h>
 #include <string.h>
 #include <stdarg.h>
-
 #include "platform/mono.h"
 #include "platform/key.h"
 #include "2d/gr.h"
 #include "2d/palette.h"
-
 #include "inferno.h"
 #ifdef EDITOR
 #include "editor\editor.h"
 #endif
 #include "misc/error.h"
 #include "object.h"
-//#include "game.h"
-//#include "screens.h"
 #include "wall.h"
 #include "gamemine.h"
 #include "robot.h"
 #include "player.h"
 #include "newmenu.h"
 #include "textures.h"
-
-//#include "cflib.h"
-//#include "nocfile.h"
 #include "bm.h"
 #include "menu.h"
 #include "switch.h"
 #include "fuelcen.h"
 #include "powerup.h"
 #include "hostage.h"
-//#include "weapon.h"
-//#include "newdemo.h"
 #include "gameseq.h"
-//#include "automap.h"
 #include "polyobj.h"
-//#include "text.h"
-//#include "gamefont.h"
 #include "gamesave.h"
-
 
 #ifdef EDITOR
 

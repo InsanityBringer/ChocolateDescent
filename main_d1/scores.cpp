@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/scores.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/06/15 12:13:54 $
- *
- * Inferno High Scores and Statistics System
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,9 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <stdarg.h>
 #include <io.h> //[ISB] TODO: a file that actually fucking uses IO.H. need to make portable
-
 #include "2d/i_gr.h"
-
 #include "misc/error.h"
 #include "misc/types.h"
 #include "2d/gr.h"
@@ -48,8 +37,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/timer.h"
 #include "text.h"
 #include "scores.h"
-//#include "vfx.h"
-
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"DESCENT.HI"

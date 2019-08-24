@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/switch.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:26:52 $
- *
- * Triggers and Switches.
- *
- */
 
-#ifndef _SWITCH_H
-#define _SWITCH_H
+#pragma once
 
 #include "inferno.h"
 #include "segment.h"
@@ -85,5 +75,3 @@ extern void check_trigger(segment* seg, short side, short objnum);
 extern int check_trigger_sub(int trigger_num, int player_num);
 
 extern void triggers_frame_process();
-
-#endif

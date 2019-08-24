@@ -10,29 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/2d/rcs/circle.c $
- * $Revision: 1.3 $
- * $Author: john $
- * $Date: 1994/11/18 22:51:01 $
- *
- * .
- *
- * $Log: circle.c $
- * Revision 1.3  1994/11/18  22:51:01  john
- * Changed a bunch of shorts to ints in calls.
- *
- * Revision 1.2  1994/05/12  17:33:18  john
- * Added circle code.
- *
- * Revision 1.1  1994/05/12  17:21:49  john
- * Initial revision
- *
- *
- */
 
 #include "mem/mem.h"
-
 #include "2d/gr.h"
 #include "2d/grdef.h"
 

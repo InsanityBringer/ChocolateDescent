@@ -10,40 +10,24 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/texmap/rcs/tmapflat.c $
- * $Revision: 1.13 $
- * $Author: john $
- * $Date: 1995/02/20 18:23:24 $
- *
- * Flat shader derived from texture mapper (a little slow)
- *
- */
 
 #include <math.h>
-// #include <graph.h>
 #include <limits.h>
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
 
-// #include "hack3df.h"
 #include "fix/fix.h"
 #include "platform/mono.h"
 #include "2d/gr.h"
 #include "2d/grdef.h"
-// #include "ui.h"
 #include "texmap/texmap.h"
 #include "texmapl.h"
 #include "scanline.h"
 
-//#include "tmapext.h"
-
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
 
 void (*scanline_func)(int, fix, fix);
-
-//extern void asm_tmap_scanline_shaded();	// In tmapfade.asm
 
 // -------------------------------------------------------------------------------------
 //	Texture map current scanline.

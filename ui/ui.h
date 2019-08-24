@@ -10,54 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/ui.h $
- * $Revision: 1.11 $
- * $Author: john $
- * $Date: 1994/11/18 23:07:33 $
- *
- * Header file for user interface
- *
- * $Log: ui.h $
- * Revision 1.11  1994/11/18  23:07:33  john
- * Changed a bunch of shorts to ints.
- *
- * Revision 1.10  1994/05/14  17:44:36  matt
- * Added extern.
- *
- * Revision 1.9  1994/05/14  17:20:33  matt
- * Added externs
- *
- * Revision 1.8  1994/02/01  13:29:56  john
- * *** empty log message ***
- *
- * Revision 1.7  1994/01/10  16:25:03  john
- * Fixed bug in 800x600 mode with restoring
- * bogus font.
- *
- * Revision 1.6  1993/12/10  14:22:30  john
- * Made buttons have up to 2 keys/functions.
- *
- * Revision 1.5  1993/12/07  12:30:11  john
- * new version.
- *
- * Revision 1.4  1993/10/26  13:46:15  john
- * *** empty log message ***
- *
- * Revision 1.3  1993/10/07  11:23:30  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/10/05  17:31:15  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/20  10:36:36  john
- * Initial revision
- *
- *
- */
 
-#ifndef _UI_H
-#define _UI_H
+#pragma once
 
 #include <stdlib.h>
 #include "2d/gr.h"
@@ -457,5 +411,3 @@ extern char filename_list[300][13];
 extern char directory_list[100][13];
 
 extern int ui_button_any_drawn;
-
-#endif

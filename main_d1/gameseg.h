@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gameseg.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:20 $
- *
- * Header file for stuff moved from segment.c to gameseg.c.
- *
- */
 
-
-
-#ifndef _GAMESEG_H
-#define _GAMESEG_H
+#pragma once
 
 #include "misc/types.h"
 #include "fix/fix.h"
@@ -134,5 +122,3 @@ extern	void extract_up_vector_from_segment(segment* sp, vms_vector* vp);
 extern void create_walls_on_side(segment* sp, int sidenum);
 
 extern void pick_random_point_in_seg(vms_vector* new_pos, int segnum);
-
-#endif

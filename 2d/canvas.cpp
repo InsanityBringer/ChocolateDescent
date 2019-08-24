@@ -10,68 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
-* $Source: f:/miner/source/2d/rcs/canvas.c $
-* $Revision: 1.14 $
-* $Author: john $
-* $Date: 1995/03/06 09:18:45 $
-*
-* Graphical routines for manipulating grs_canvas's.
-*
-* $Log: canvas.c $
-* Revision 1.14  1995/03/06  09:18:45  john
-* Made modex page flipping wait for retrace be default.
-*
-* Revision 1.13  1995/03/01  15:37:40  john
-* Better ModeX support.
-*
-* Revision 1.12  1994/11/28  17:08:29  john
-* Took out some unused functions in linear.asm, moved
-* gr_linear_movsd from linear.asm to bitblt.c, made sure that
-* the code in ibiblt.c sets the direction flags before rep movsing.
-*
-* Revision 1.11  1994/11/18  22:50:24  john
-* Changed shorts to ints in parameters.
-*
-* Revision 1.10  1994/11/10  15:59:33  john
-* Fixed bugs with canvas's being created with bogus bm_flags.
-*
-* Revision 1.9  1994/06/24  17:26:34  john
-* Made rowsizes bigger than actual screen work with SVGA.
-*
-* Revision 1.8  1994/05/06  12:50:41  john
-* Added supertransparency; neatend things up; took out warnings.
-*
-* Revision 1.7  1993/12/08  16:41:26  john
-* fixed color = -1 bug
-*
-* Revision 1.6  1993/10/15  16:22:25  john
-* *** empty log message ***
-*
-* Revision 1.5  1993/09/29  16:14:07  john
-* added globol variables describing current canvas
-*
-* Revision 1.4  1993/09/14  16:03:40  matt
-* Added new function, gr_clear_canvas()
-*
-* Revision 1.3  1993/09/14  13:51:38  matt
-* in gr_init_sub_canvas(), copy bm_rowsize from source canvas
-*
-* Revision 1.2  1993/09/08  17:37:34  john
-* Checking for potential errors
-*
-* Revision 1.1  1993/09/08  11:43:18  john
-* Initial revision
-*
-*
-*/
 
 #include <stdlib.h>
 #include <malloc.h>
 #include <stdio.h>
-
 #include "mem/mem.h"
-
 #include "misc/error.h"
 #include "2d/gr.h"
 #include "2d/grdef.h"

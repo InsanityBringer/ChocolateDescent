@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/physics.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:33:06 $
- *
- * Headers for physics functions and data
- *
- */
 
-#ifndef _PHYSICS_H
-#define _PHYSICS_H
+#pragma once
 
 #include "vecmat/vecmat.h"
 #include "fvi.h"
@@ -58,5 +48,3 @@ void phys_apply_rot(object* obj, vms_vector* force_vec);
 //this routine will set the thrust for an object to a value that will
 //(hopefully) maintain the object's current velocity
 void set_thrust_from_velocity(object* obj);
-
-#endif

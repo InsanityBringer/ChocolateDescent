@@ -13,16 +13,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define NEW_FVI_STUFF 1
 
-/*
- * $Source: f:/miner/source/main/rcs/fvi.c $
- * $Revision: 2.3 $
- * $Author: john $
- * $Date: 1995/03/24 14:49:04 $
- *
- * New home for find_vector_intersection()
- *
- */
-
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>

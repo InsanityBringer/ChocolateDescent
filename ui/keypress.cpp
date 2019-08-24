@@ -10,28 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/keypress.c $
- * $Revision: 1.2 $
- * $Author: john $
- * $Date: 1994/06/09 12:18:27 $
- *
- *
- *
- * $Log: keypress.c $
- * Revision 1.2  1994/06/09  12:18:27  john
- * Took out keyboard flushes.
- *
- * Revision 1.1  1993/12/07  12:30:14  john
- * Initial revision
- *
- *
- */
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
@@ -59,9 +41,6 @@ const char* KeyDesc[256] = { \
 "{Delete}","","","","","","","","","","","","","","","","","",     \
 "","","","","","","","","","","","","","","","","","","","",     \
 "","","","","","","" };
-
-
-
 
 void GetKeyDescription(char* text, size_t len, int keypress)
 {

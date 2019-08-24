@@ -10,24 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/physics.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/24 14:48:54 $
- *
- * Code for flying through the mines
- *
- */
 
-//@@#include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "platform/joy.h"
 #include "platform/mono.h"
 #include "misc/error.h"
-
 #include "inferno.h"
 #include "segment.h"
 #include "object.h"

@@ -10,26 +10,17 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/collide.c $
- * $Revision: 2.5 $
- * $Author: john $
- * $Date: 1995/07/26 12:07:46 $
- *
- */
 
 #include <string.h>	// for memset
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
-
 #include "2d/rle.h"
 #include "inferno.h"
 #include "game.h"
 #include "2d/gr.h"
 #include "stdlib.h"
 #include "bm.h"
-//#include "misc/error.h"
 #include "platform/mono.h"
 #include "3d/3d.h"
 #include "segment.h"

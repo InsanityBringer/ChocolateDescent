@@ -10,19 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: Smoke:miner:source:3d::RCS:points.c $
- * $Revision: 1.3 $
- * $Author: allender $
- * $Date: 1995/09/21 17:29:40 $
- *
- * Routines for point definition, rotation, etc.
- *
- */
 
 #include "3d/3d.h"
 #include "globvars.h"
-
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
 uint8_t g3_code_point(g3s_point* p)

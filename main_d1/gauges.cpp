@@ -10,28 +10,17 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gauges.c $
- * $Revision: 2.7 $
- * $Author: john $
- * $Date: 1995/12/19 16:18:33 $
- *
- * Inferno gauge drivers
- *
- */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
 #include "inferno.h"
 #include "game.h"
 #include "screens.h"
 #include "gauges.h"
 #include "physics.h"
 #include "misc/error.h"
-
 #include "menu.h"			// For the font.
 #include "platform/mono.h"
 #include "collide.h"
@@ -46,7 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "network.h"
 #include "endlevel.h"
-
 #include "wall.h"
 #include "text.h"
 #include "render.h"

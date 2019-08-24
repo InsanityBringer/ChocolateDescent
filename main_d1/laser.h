@@ -10,18 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/laser.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:32:27 $
- *
- * Definitions for the laser code.
- *
- */
 
-#ifndef _LASER_H
-#define _LASER_H
+#pragma once
 
 #include "fix/fix.h"
 #include "vecmat/vecmat.h"
@@ -104,6 +94,3 @@ typedef struct muzzle_info {
 }	muzzle_info;
 
 extern muzzle_info		Muzzle_data[MUZZLE_QUEUE_MAX];
-
-
-#endif

@@ -10,20 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/piggy.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:31:21 $
- *
- * Interface to piggy functions.
- *
- */
 
-
-
-#ifndef _PIGGY_H
-#define _PIGGY_H
+#pragma once
 
 #include "digi.h"
 #include "sounds.h"
@@ -69,7 +57,3 @@ extern digi_sound GameSounds[MAX_SOUND_FILES];
 extern grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
 
 void piggy_read_sounds();
-
-
-#endif
-

@@ -10,22 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/effects.c $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:32:49 $
- *
- * Special effects, such as rotating fans, electrical walls, and
- * other cool animations.
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
 #include "2d/gr.h"
 #include "inferno.h"
 #include "game.h"

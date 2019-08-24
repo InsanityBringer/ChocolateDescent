@@ -10,15 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/multibot.c $
- * $Revision: 2.2 $
- * $Author: john $
- * $Date: 1995/03/21 14:39:10 $
- *
- * Multiplayer robot code
- *
- */
+
 //[ISB] I kinda want to get MP working at some point...
 #ifdef NETWORK
 #ifndef SHAREWARE

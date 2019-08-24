@@ -10,24 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gauges.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:28:45 $
- *
- * Prototypes and defines for gauges
- *
- */
 
-#ifndef _GAUGES_H
-#define _GAUGES_H
+#pragma once
 
 #include "fix/fix.h"
 #include "2d/gr.h"
 #include "piggy.h"
-
- //from gauges.c
 
 #define MAX_GAUGE_BMS 80	//	increased from 56 to 80 by a very unhappy MK on 10/24/94.
 
@@ -75,5 +63,3 @@ typedef struct {
 } rgb;
 
 extern rgb player_rgb[];
-
-#endif

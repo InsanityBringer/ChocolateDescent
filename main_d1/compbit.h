@@ -10,21 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/compbit.h $
- * $Revision: 2.0 $
- * $Author: john $
- * $Date: 1995/02/27 11:28:46 $
- *
- * Contains encryption key for bitmaps.tbl
- *
- */
 
-#ifndef _COMPBIT_H
-#define _COMPBIT_H
+#pragma once
 
 #define BITMAP_TBL_XOR 0xD3
 
 extern void encode_rotate_left(char*);
-
-#endif

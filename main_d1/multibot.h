@@ -10,20 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/multibot.h $
- * $Revision: 2.1 $
- * $Author: john $
- * $Date: 1995/03/21 14:40:18 $
- *
- * Header file for multiplayer robot support.
- *
- */
+
+#pragma once
 
 #ifdef NETWORK
-
-#ifndef _MULTIBOT_H
-#define _MULTIBOT_H
 
 #ifndef SHAREWARE
 
@@ -62,6 +52,5 @@ void multi_strip_robots(int playernum);
 void multi_check_robot_timeout(void);
 
 void multi_robot_request_change(struct object* robot, int playernum);
-#endif
 #endif
 #endif

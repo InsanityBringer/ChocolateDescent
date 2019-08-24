@@ -10,28 +10,16 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/object.c $
- * $Revision: 2.3 $
- * $Author: john $
- * $Date: 1995/06/15 12:30:51 $
- *
- * object rendering
- *
- */
 
-#include <string.h>	// for memset
+#include <string.h>
 #include <stdio.h>
 #include <algorithm>
-
 #include "cfile/cfile.h"
-
 #include "inferno.h"
 #include "game.h"
 #include "2d/gr.h"
 #include "stdlib.h"
 #include "bm.h"
-//#include "misc/error.h"
 #include "platform/mono.h"
 #include "3d/3d.h"
 #include "segment.h"
@@ -40,7 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "textures.h"
 #include "texmap/texmap.h"
-
 #include "object.h"
 #include "physics.h"
 #include "slew.h"		
@@ -57,10 +44,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "powerup.h"
 #include "fuelcen.h"
-
 #include "sounds.h"
 #include "collide.h"
-
 #include "lighting.h"
 #include "newdemo.h"
 #include "player.h"

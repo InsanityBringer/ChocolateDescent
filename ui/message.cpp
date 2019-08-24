@@ -10,47 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/ui/rcs/message.c $
- * $Revision: 1.8 $
- * $Author: john $
- * $Date: 1994/11/18 23:07:31 $
- *
- * Routines for doing a popup messagebox
- *
- * $Log: message.c $
- * Revision 1.8  1994/11/18  23:07:31  john
- * Changed a bunch of shorts to ints.
- *
- * Revision 1.7  1994/06/09  12:18:31  john
- * Took out keyboard flushes.
- *
- * Revision 1.6  1994/01/10  16:24:37  john
- * Fixed bug in 800x600 mode with restoring
- * bogus font.
- *
- * Revision 1.5  1994/01/10  15:10:34  john
- * made messagebox use smallfont in modes with
- * with < 640.
- *
- * Revision 1.4  1993/12/07  12:30:00  john
- * new version.
- *
- * Revision 1.3  1993/10/26  13:46:01  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/10/05  17:31:29  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/20  10:35:22  john
- * Initial revision
- *
- *
- */
 
 #include <stdio.h>
 #include <stdarg.h>
-
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"

@@ -10,15 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: f:/miner/source/main/rcs/gameseq.c $
- * $Revision: 2.10 $
- * $Author: john $
- * $Date: 1995/12/19 15:48:25 $
- *
- * Routines for EndGame, EndLevel, etc.
- *
- */
 
 #include <stdio.h>
 #include <malloc.h>
@@ -27,7 +18,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <errno.h>
 #include <time.h>
-
 #include "inferno.h"
 #include "game.h"
 #include "platform/key.h"
