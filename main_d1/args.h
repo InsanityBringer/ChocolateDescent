@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int Num_args;
 extern char* Args[];
-extern int FindArg(char* s);
-extern void InitArgs(int argc, char** argv);
+extern int FindArg(const char* s);
+extern void InitArgs(int argc, const char** argv);
 
 #endif

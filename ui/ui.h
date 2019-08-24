@@ -295,7 +295,7 @@ extern int last_keypress;
 
 extern void Hline(short x1, short x2, short y);
 extern void Vline(short y1, short y2, short x);
-extern void ui_string_centered(short x, short y, char* s);
+extern void ui_string_centered(short x, short y, const char* s);
 extern void ui_draw_box_out(short x1, short y1, short x2, short y2);
 extern void ui_draw_box_in(short x1, short y1, short x2, short y2);
 extern void ui_draw_line_in(short x1, short y1, short x2, short y2);
@@ -303,9 +303,9 @@ extern void ui_draw_line_in(short x1, short y1, short x2, short y2);
 
 void ui_init();
 void ui_close();
-int MessageBox(short x, short y, int NumButtons, char* text, ...);
-void ui_string_centered(short x, short y, char* s);
-int PopupMenu(int NumItems, char* text[]);
+int MessageBox(short x, short y, int NumButtons, const char* text, ...);
+void ui_string_centered(short x, short y, const char* s);
+int PopupMenu(int NumItems, const char* text[]);
 
 extern void ui_mouse_init();
 extern grs_bitmap* ui_mouse_set_pointer(grs_bitmap* newbm);
@@ -323,7 +323,7 @@ extern UI_WINDOW * ui_open_window(short x, short y, short w, short h, int flags)
 extern void ui_close_window(UI_WINDOW* wnd);
 
 extern UI_GADGET* ui_gadget_add(UI_WINDOW* wnd, short kind, short x1, short y1, short x2, short y2);
-extern UI_GADGET_BUTTON* ui_add_gadget_button(UI_WINDOW* wnd, short x, short y, short w, short h, char* text, int (*function_to_call)(void));
+extern UI_GADGET_BUTTON* ui_add_gadget_button(UI_WINDOW* wnd, short x, short y, short w, short h, const char* text, int (*function_to_call)(void));
 extern void ui_gadget_delete_all(UI_WINDOW* wnd);
 extern void ui_window_do_gadgets(UI_WINDOW* wnd);
 extern void ui_draw_button(UI_GADGET_BUTTON* button);
@@ -338,22 +338,22 @@ extern UI_GADGET_LISTBOX* ui_add_gadget_listbox(UI_WINDOW* wnd, short x, short y
 
 extern void ui_mega_process();
 
-extern void ui_get_button_size(char* text, int* width, int* height);
+extern void ui_get_button_size(const char* text, int* width, int* height);
 
 extern UI_GADGET_SCROLLBAR* ui_add_gadget_scrollbar(UI_WINDOW* wnd, short x, short y, short w, short h, int start, int stop, int position, int window_size);
 extern void ui_scrollbar_do(UI_GADGET_SCROLLBAR* scrollbar, int keypress);
 extern void ui_draw_scrollbar(UI_GADGET_SCROLLBAR* scrollbar);
 
 
-extern void ui_wprintf(UI_WINDOW* wnd, char* format, ...);
-extern void ui_wprintf_at(UI_WINDOW* wnd, short x, short y, char* format, ...);
+extern void ui_wprintf(UI_WINDOW* wnd, const char* format, ...);
+extern void ui_wprintf_at(UI_WINDOW* wnd, short x, short y, const char* format, ...);
 
 extern void ui_draw_radio(UI_GADGET_RADIO* radio);
-extern UI_GADGET_RADIO* ui_add_gadget_radio(UI_WINDOW* wnd, short x, short y, short w, short h, short group, char* text);
+extern UI_GADGET_RADIO* ui_add_gadget_radio(UI_WINDOW* wnd, short x, short y, short w, short h, short group, const char* text);
 extern void ui_radio_do(UI_GADGET_RADIO* radio, int keypress);
 
 extern void ui_draw_checkbox(UI_GADGET_CHECKBOX* checkbox);
-extern UI_GADGET_CHECKBOX* ui_add_gadget_checkbox(UI_WINDOW* wnd, short x, short y, short w, short h, short group, char* text);
+extern UI_GADGET_CHECKBOX* ui_add_gadget_checkbox(UI_WINDOW* wnd, short x, short y, short w, short h, short group, const char* text);
 extern void ui_checkbox_do(UI_GADGET_CHECKBOX* checkbox, int keypress);
 
 extern UI_GADGET* ui_gadget_get_prev(UI_GADGET* gadget);
@@ -364,7 +364,7 @@ extern void ui_listbox_change(UI_WINDOW* wnd, UI_GADGET_LISTBOX* listbox, short 
 
 
 extern void ui_draw_inputbox(UI_GADGET_INPUTBOX* inputbox);
-extern UI_GADGET_INPUTBOX* ui_add_gadget_inputbox(UI_WINDOW* wnd, short x, short y, short w, short h, char* text);
+extern UI_GADGET_INPUTBOX* ui_add_gadget_inputbox(UI_WINDOW* wnd, short x, short y, short w, short h, const char* text);
 extern void ui_inputbox_do(UI_GADGET_INPUTBOX* inputbox, int keypress);
 
 
@@ -386,11 +386,11 @@ int file_chdrive(int DriveNum, int flag);
 //  1 = Invalid disk drive.
 //  2 = Invalid directory.
 
-int file_chdir(char* dir);
+int file_chdir(const char* dir);
 
 int file_getdirlist(int MaxNum, char list[][13]);
-int file_getfilelist(int MaxNum, char list[][13], char* filespec);
-int ui_get_filename(char* filename, char* Filespec, char* message);
+int file_getfilelist(int MaxNum, char list[][13], const char* filespec);
+int ui_get_filename(const char* filename, const char* Filespec, const char* message);
 
 //[ISB] unused
 //void* ui_malloc(int size);
@@ -418,19 +418,19 @@ extern unsigned int ui_number_of_events;
 extern unsigned int ui_event_counter;
 
 
-int ui_get_file(char* filename, char* Filespec);
+int ui_get_file(const char* filename, const char* Filespec);
 
-int MessageBoxN(short xc, short yc, int NumButtons, char* text, char* Button[]);
+int MessageBoxN(short xc, short yc, int NumButtons, const char* text, const char* Button[]);
 
 void ui_draw_icon(UI_GADGET_ICON* icon);
 void ui_icon_do(UI_GADGET_ICON* icon, int keypress);
-UI_GADGET_ICON* ui_add_gadget_icon(UI_WINDOW* wnd, char* text, short x, short y, short w, short h, int k, int (*f)(void));
+UI_GADGET_ICON* ui_add_gadget_icon(UI_WINDOW* wnd, const char* text, short x, short y, short w, short h, int k, int (*f)(void));
 
-int GetKeyCode(char* text);
-int DecodeKeyText(char* text);
-void GetKeyDescription(char* text, size_t len, int keypress);
+int GetKeyCode(const char* text);
+int DecodeKeyText(const char* text);
+void GetKeyDescription(const char* text, size_t len, int keypress);
 
-extern void menubar_init(char* filename);
+extern void menubar_init(const char* filename);
 extern void menubar_do(int keypress);
 extern void menubar_close();
 extern void menubar_hide();
@@ -443,10 +443,10 @@ void ui_pad_deactivate();
 void ui_pad_goto(int n);
 void ui_pad_goto_next();
 void ui_pad_goto_prev();
-void ui_pad_read(int n, char* filename);
+void ui_pad_read(int n, const char* filename);
 int ui_pad_get_current();
 
-void ui_barbox_open(char* text, int length);
+void ui_barbox_open(const char* text, int length);
 int ui_barbox_update(int position);
 void ui_barbox_close();
 

@@ -48,7 +48,7 @@ extern int show_mem_info;//moved out of the ifdef by KRB
 //extern int show_mem_info;
 
 void* mem_display_blocks(void);
-extern void* mem_malloc(unsigned int size, char* var, char* file, int line, int fill_zero);
+extern void* mem_malloc(unsigned int size, const char* var, const char* file, int line, int fill_zero);
 extern void mem_free(void* buffer);
 
 #define malloc(size)    mem_malloc((size),"Unknown", __FILE__,__LINE__, 0 )

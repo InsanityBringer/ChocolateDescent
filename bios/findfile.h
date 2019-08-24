@@ -25,7 +25,7 @@ typedef struct FILEFINDSTRUCT
 } FILEFINDSTRUCT;
 
 
-int FileFindFirst(char* search_str, FILEFINDSTRUCT* ffstruct);
+int FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct);
 int FileFindNext(FILEFINDSTRUCT* ffstruct);
 int FileFindClose(void);
 

@@ -150,7 +150,7 @@ void gr_upoly_tmap(int nverts, int* vert);
 
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
 //function with ylr values
-void gr_upoly_tmap_ylr(int nverts, int* vert, void* ylr_func());
+void gr_upoly_tmap_ylr(int nverts, int* vert, void(*ylr_func)(int, fix, fix));
 
 extern int Transparency_on, per2_flag;
 

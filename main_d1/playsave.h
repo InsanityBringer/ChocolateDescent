@@ -34,7 +34,7 @@ extern int Default_leveling_on;
 int get_game_list(char* game_text[N_SAVE_SLOTS]);
 
 //returns errno (0 == no error)
-int save_player_game(int slot_num, char* text);
+int save_player_game(int slot_num, const char* text);
 
 //returns errno (0 == no error)
 int load_player_game(int slot_num);

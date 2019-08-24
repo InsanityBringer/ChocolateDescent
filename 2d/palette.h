@@ -62,7 +62,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void gr_palette_set_gamma(int gamma);
 int gr_palette_get_gamma();
-uint8_t gr_palette_faded_out;
+extern uint8_t gr_palette_faded_out;
 void gr_palette_clear();
 int gr_palette_fade_out(uint8_t* pal, int nsteps, int allow_keys);
 int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys);

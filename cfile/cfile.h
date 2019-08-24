@@ -73,7 +73,7 @@ typedef struct CFILE
 	int				raw_position;
 } CFILE;
 
-CFILE* cfopen(char* filename, char* mode);
+CFILE* cfopen(const char* filename, const char* mode);
 int cfilelength(CFILE* fp);							// Returns actual size of file...
 size_t cfread(void* buf, size_t elsize, size_t nelem, CFILE* fp);
 void cfclose(CFILE* cfile);
@@ -82,7 +82,7 @@ int cfseek(CFILE* fp, long int offset, int where);
 int cftell(CFILE* fp);
 char* cfgets(char* buf, size_t n, CFILE* fp);
 
-int cfexist(char* filename);	// Returns true if file exists on disk (1) or in hog (2).
+int cfexist(const char* filename);	// Returns true if file exists on disk (1) or in hog (2).
 
 //[ISB] little endian reading functions
 uint8_t CF_ReadByte(CFILE* fp);
@@ -100,6 +100,6 @@ void CF_GetString(char* buffer, int count, CFILE* fp);
 
 // Allows files to be gotten from an alternate hog file.
 // Passing NULL disables this.
-void cfile_use_alternate_hogfile(char* name);
+void cfile_use_alternate_hogfile(const char* name);
 
 #endif

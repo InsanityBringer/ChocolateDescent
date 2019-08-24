@@ -56,7 +56,7 @@ extern void mclose(int n);
 
 //==========================================================================
 // Opens a scrollable window on the monochrome screen.
-extern void mopen(int n, int row, int col, int width, int height, char* title);
+extern void mopen(int n, int row, int col, int width, int height, const char* title);
 
 //==========================================================================
 // Displays a integer variable and what it is equal to on window n.
@@ -71,13 +71,13 @@ extern void mclear(int n);
 
 //==========================================================================
 // Prints a formatted string on window n
-extern void _mprintf(int n, char* format, ...);
+extern void _mprintf(int n, const char* format, ...);
 
 #define mprintf(args) _mprintf args
 
 //==========================================================================
 // Prints a formatted string on window n at row, col.
-extern void _mprintf_at(int n, int row, int col, char* format, ...);
+extern void _mprintf_at(int n, int row, int col, const char* format, ...);
 
 #define mprintf_at(args) _mprintf_at args
 

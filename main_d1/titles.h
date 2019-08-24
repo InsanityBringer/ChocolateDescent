@@ -33,9 +33,9 @@ extern int	Skip_briefing_screens;
 extern char Briefing_text_filename[13];
 extern char Ending_text_filename[13];
 
-extern int show_title_screen(char* filename, int allow_keys);
-//extern int show_briefing_screen(char* filename, int allow_keys); //[ISB] these don't match definition in C file
-//extern void show_title_flick(char* name, int allow_keys);
+extern int show_title_screen(const char* filename, int allow_keys);
+//extern int show_briefing_screen(const char* filename, int allow_keys); //[ISB] these don't match definition in C file
+//extern void show_title_flick(const char* name, int allow_keys);
 extern void do_briefing_screens(int level_num);
 extern void do_end_game(void);
 extern char* get_briefing_screen(int level_num);

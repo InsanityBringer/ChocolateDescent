@@ -212,7 +212,7 @@ extern void ai_reset_all_paths(void);	//	Reset all paths.  Call at the start of 
 extern int ai_multiplayer_awareness(object* objp, int awareness_level);
 
 #ifndef NDEBUG
-extern void force_dump_ai_objects_all(char* msg);
+extern void force_dump_ai_objects_all(const char* msg);
 #else
 #define force_dump_ai_objects_all(msg)
 #endif

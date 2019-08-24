@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 #include "vecmat/vecmat.h"
 #include "object.h"
+#include "misc/types.h"
 
  //#include "segment.h"
 

@@ -326,7 +326,7 @@ extern void gr_pal_getblock(int start, int number, unsigned char* pal);*/
 //[ISB] also uncalled apparently
 
 //shut down the 2d.  Restore the screen mode.
-int gr_close(void);
+void gr_close();
 
 //  0=Mode set OK
 //  1=No VGA adapter installed
@@ -413,7 +413,7 @@ void gr_bitblt_cockpit(grs_bitmap* bm);
 // When this function is called, the guns are set to gr_palette, and
 // the palette stays the same until gr_close is called
 
-void gr_use_palette_table(char* filename);
+void gr_use_palette_table(const char* filename);
 
 //=========================================================================
 // Drawing functions:
@@ -480,17 +480,17 @@ void gr_uscanline(int x1, int x2, int y);
 
 
 // Reads in a font file... current font set to this one.
-grs_font* gr_init_font(char* fontfile);
+grs_font* gr_init_font(const char* fontfile);
 void gr_close_font(grs_font* font);
 
 // Writes a string using current font. Returns the next column after last char.
 void gr_set_fontcolor(int fg, int bg);
 void gr_set_curfont(grs_font* newfont);
-int gr_string(int x, int y, unsigned char* s);
-int gr_ustring(int x, int y, unsigned char* s);
-int gr_printf(int x, int y, unsigned char* format, ...);
-int gr_uprintf(int x, int y, unsigned char* format, ...);
-void gr_get_string_size(unsigned char* s, int* string_width, int* string_height, int* average_width);
+int gr_string(int x, int y, const char* s);
+int gr_ustring(int x, int y, const char* s);
+int gr_printf(int x, int y, const char* format, ...);
+int gr_uprintf(int x, int y, const char* format, ...);
+void gr_get_string_size(const char* s, int* string_width, int* string_height, int* average_width);
 
 
 //	From roller.c
@@ -578,7 +578,7 @@ extern void gr_merge_textures_1(uint8_t* lower, uint8_t* upper, uint8_t* dest);
 extern void gr_merge_textures_2(uint8_t* lower, uint8_t* upper, uint8_t* dest);
 extern void gr_merge_textures_3(uint8_t* lower, uint8_t* upper, uint8_t* dest);
 
-//tbh no idea why this wasn't in the header
 void gr_sync_display();
+int gr_set_mode(int mode);
 
 #endif

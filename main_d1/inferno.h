@@ -59,6 +59,6 @@ extern char destsat_cdpath[128];
 void check_joystick_calibration();
 void show_order_form();
 
-int D_DescentMain(int argc, char** argv);
+int D_DescentMain(int argc, const char** argv);
 
 #endif

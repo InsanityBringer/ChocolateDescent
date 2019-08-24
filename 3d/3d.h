@@ -226,7 +226,7 @@ dbool g3_draw_bitmap(vms_vector* pos, fix width, fix height, grs_bitmap* bm);
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
-void g3_set_special_render(void (*tmap_drawer)(), void (*flat_drawer)(), int (*line_drawer)());
+void g3_set_special_render(void (*tmap_drawer)(grs_bitmap* bm, int nv, g3s_point** vertlist), void (*flat_drawer)(int nv, int* vertlist), int (*line_drawer)(fix x0, fix y0, fix x1, fix y1));
 
 //Object functions:
 
