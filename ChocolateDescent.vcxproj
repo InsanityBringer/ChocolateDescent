@@ -276,6 +276,7 @@
     <ClCompile Include="platform\timer.cpp" />
     <ClCompile Include="platform\win32\disk.cpp" />
     <ClCompile Include="platform\win32\findfile.cpp" />
+    <ClCompile Include="platform\win32\win32audio.cpp" />
     <ClCompile Include="platform\win32\win32window.cpp" />
     <ClCompile Include="texmap\ntmap.cpp" />
     <ClCompile Include="texmap\scanline.cpp" />

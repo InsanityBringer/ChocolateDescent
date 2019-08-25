@@ -8,8 +8,6 @@ Instead, it is released under the terms of the MIT License.
 #include <stdio.h>
 #include <math.h>
 
-#define USE_OPENAL
-
 #ifdef USE_OPENAL
 
 #include "AL/al.h"
@@ -171,22 +169,5 @@ int I_CheckSoundDone(int handle)
 	alGetSourcei(sourceNames[handle], AL_SOURCE_STATE, &playing);
 	return playing == AL_STOPPED;
 }
-
-#else
-
-#include "platform/i_sound.h"
-
-void I_ErrorCheck(char* context) { }
-int I_InitAudio() { return 0; }
-void I_ShutdownAudio() { }
-int I_GetSoundHandle() { return 0; }
-void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate) { }
-void I_SetSoundInformation(int handle, int volume, int angle) { }
-void I_SetAngle(int handle, int angle) { }
-void I_SetVolume(int handle, int volume) { }
-void I_PlaySound(int handle, int loop) { }
-void I_StopSound(int handle) { }
-int I_CheckSoundPlaying(int handle) { return 0; }
-int I_CheckSoundDone(int handle) { return 0; }
 
 #endif

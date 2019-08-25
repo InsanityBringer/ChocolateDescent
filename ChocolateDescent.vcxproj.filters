@@ -504,6 +504,9 @@
     <ClCompile Include="platform\joy.cpp">
       <Filter>platform</Filter>
     </ClCompile>
+    <ClCompile Include="platform\win32\win32audio.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
     <ClCompile Include="platform\s_midi.cpp">
       <Filter>platform</Filter>
     </ClCompile>
