@@ -170,4 +170,12 @@ int I_CheckSoundDone(int handle)
 	return playing == AL_STOPPED;
 }
 
+void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
+{
+}
+
+void I_StopHQSong()
+{
+}
+
 #endif
