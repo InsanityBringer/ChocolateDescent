@@ -5,10 +5,12 @@
 #include "platform/timer.h"
 #include "platform/mouse.h"
 #include "platform/key.h"
+#include "platform/joy.h"
 #include "2d/gr.h"
 #include "2d/i_gr.h"
 #include "misc/error.h"
 #include "misc/types.h"
+#include "win32joystick.h"
 #include <string>
 #include <vector>
 
@@ -17,26 +19,6 @@
 #include <d3d9.h>
 
 #pragma comment(lib, "d3d9.lib")
-
-#ifndef HID_USAGE_PAGE_GENERIC
-#define HID_USAGE_PAGE_GENERIC		((USHORT) 0x01)
-#endif
-
-#ifndef HID_USAGE_GENERIC_MOUSE
-#define HID_USAGE_GENERIC_MOUSE	((USHORT) 0x02)
-#endif
-
-#ifndef HID_USAGE_GENERIC_JOYSTICK
-#define HID_USAGE_GENERIC_JOYSTICK	((USHORT) 0x04)
-#endif
-
-#ifndef HID_USAGE_GENERIC_GAMEPAD
-#define HID_USAGE_GENERIC_GAMEPAD	((USHORT) 0x05)
-#endif
-
-#ifndef RIDEV_INPUTSINK
-#define RIDEV_INPUTSINK	(0x100)
-#endif
 
 #define APART(x) (static_cast<uint32_t>(x) >> 24)
 #define RPART(x) ((static_cast<uint32_t>(x) >> 16) & 0xff)
@@ -51,6 +33,8 @@ namespace
 	HWND Window;
 	grs_canvas* screenBuffer;
 	uint32_t palette[256];
+
+	std::vector<std::unique_ptr<Win32HidDevice>> joysticks;
 
 	int mousedx = 0;
 	int mousedy = 0;
@@ -122,10 +106,74 @@ namespace
 				if (result >= 0)
 				{
 					RAWINPUT* rawinput = (RAWINPUT*)buf.data();
-					if (rawinput->header.dwType == RIM_TYPEMOUSE && GetFocus() == handle)
+					if (rawinput->header.dwType == RIM_TYPEMOUSE)
 					{
 						mousedx += rawinput->data.mouse.lLastX;
 						mousedy += rawinput->data.mouse.lLastY;
+					}
+					else if (rawinput->header.dwType == RIM_TYPEHID)
+					{
+						for (auto &joystick : joysticks)
+						{
+							joystick->update(rawinput);
+						}
+
+						if (joysticks.size() >= 1 && joysticks[0]->get_hat_count() > 0)
+						{
+							// Simulate CONTROL_THRUSTMASTER_FCS behavior
+
+							int buttons = 0;
+							int count = min(joysticks[0]->get_button_count(), 32);
+							for (int i = 0; i < count; i++)
+								if (joysticks[0]->get_keycode(i)) buttons |= 1 << i;
+
+							int axes[4] = { 0, 0, 0, 0 };
+							axes[0] = (int)(joysticks[0]->get_axis(Win32HidDevice::joystick_x) * 127.0f);
+							axes[1] = (int)(joysticks[0]->get_axis(Win32HidDevice::joystick_y) * 127.0f);
+							axes[2] = (int)(joysticks[0]->get_axis(Win32HidDevice::joystick_rz) * 127.0f);
+
+							int hatdir = joysticks[0]->get_hat(0);
+							if (hatdir != -1)
+								axes[3] = 111 * hatdir / 360;
+							else
+								axes[3] = 127;
+
+							JoystickInput(buttons, axes, JOY_ALL_AXIS);
+						}
+						else if (joysticks.size() > 1)
+						{
+							// Simulate two joysticks
+
+							int buttons = 0;
+							int axes[4] = { 0, 0, 0, 0 };
+
+							int count = min(joysticks[0]->get_button_count(), 32);
+							for (int i = 0; i < count; i++)
+								if (joysticks[0]->get_keycode(i)) buttons |= 1 << i;
+
+							axes[0] = (int)(joysticks[0]->get_axis(Win32HidDevice::joystick_x) * 127.0f);
+							axes[1] = (int)(joysticks[0]->get_axis(Win32HidDevice::joystick_y) * 127.0f);
+							axes[2] = (int)(joysticks[1]->get_axis(Win32HidDevice::joystick_x) * 127.0f);
+							axes[3] = (int)(joysticks[1]->get_axis(Win32HidDevice::joystick_y) * 127.0f);
+
+							JoystickInput(buttons, axes, JOY_ALL_AXIS);
+						}
+						else if (joysticks.size() == 1)
+						{
+							// Simulate one joystick
+
+							int buttons = 0;
+							int axes[4] = { 0, 0, 0, 0 };
+
+							int count = min(joysticks[0]->get_button_count(), 32);
+							for (int i = 0; i < count; i++)
+								if (joysticks[0]->get_keycode(i)) buttons |= 1 << i;
+
+							axes[0] = (int)(joysticks[0]->get_axis(Win32HidDevice::joystick_x) * 127.0f);
+							axes[1] = (int)(joysticks[0]->get_axis(Win32HidDevice::joystick_y) * 127.0f);
+
+							JoystickInput(buttons, axes, JOY_1_X_AXIS | JOY_1_Y_AXIS);
+						}
 					}
 				}
 			}
@@ -361,6 +409,8 @@ int I_InitWindow()
 		if (Window == 0)
 			return 1;
 
+		joysticks = Win32HidDevice::create_devices(Window);
+
 		RECT rect = {};
 		GetClientRect(Window, &rect);
 
@@ -380,6 +430,7 @@ int I_InitWindow()
 		HRESULT result = d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, Window, D3DCREATE_HARDWARE_VERTEXPROCESSING, &pp, &device);
 		if (FAILED(result))
 		{
+			joysticks.clear();
 			DestroyWindow(Window);
 			Window = 0;
 			Error("IDirect3D9.CreateDevice failed\n");
@@ -391,6 +442,7 @@ int I_InitWindow()
 
 void I_ShutdownGraphics()
 {
+	joysticks.clear();
 	if (surface) surface->Release();
 	if (device) device->Release();
 	if (Window) DestroyWindow(Window);

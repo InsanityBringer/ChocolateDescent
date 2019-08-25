@@ -103,3 +103,5 @@ extern void joy_set_cal_vals(int* axis_min, int* axis_center, int* axis_max);
 extern void joy_set_btn_values(int btn, int state, fix timedown, int downcount, int upcount);
 extern int joy_get_scaled_reading(int raw, int axn);
 extern void joy_set_slow_reading(int flag);
+
+void JoystickInput(int buttons, int axes[4], int presentmask);
