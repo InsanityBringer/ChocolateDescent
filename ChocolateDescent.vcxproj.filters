@@ -510,6 +510,12 @@
     <ClCompile Include="platform\s_midi.cpp">
       <Filter>platform</Filter>
     </ClCompile>
+    <ClCompile Include="platform\win32\hid.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\win32joystick.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cfile\cfile.h">
@@ -838,6 +844,12 @@
     </ClInclude>
     <ClInclude Include="platform\s_midi.h">
       <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\hid.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\win32joystick.h">
+      <Filter>platform\win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
