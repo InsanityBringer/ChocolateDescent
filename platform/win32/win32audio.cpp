@@ -46,6 +46,16 @@ namespace
 		bool loop = false;
 	} sources[_MAX_VOICES];
 
+	struct MusicSource
+	{
+		bool playing = false;
+		int pos = 0;
+		uint32_t frac = 0;
+		int sample_rate = 0;
+		std::vector<float> song_data;
+		bool loop = false;
+	} music;
+
 	void mix_fragment()
 	{
 		std::unique_lock<std::mutex> lock(mixer_mutex);
@@ -100,6 +110,43 @@ namespace
 				src.pos = pos;
 				src.frac = frac;
 			}
+		}
+
+		if (music.playing)
+		{
+			output = next_fragment;
+			uint32_t speed = static_cast<uint32_t>(music.sample_rate * static_cast<uint64_t>(1 << 16) / mixing_frequency);
+			int pos = music.pos;
+			uint32_t frac = music.frac;
+			int length = music.song_data.size() / 2;
+			const float* data = music.song_data.data();
+			for (int i = 0; i < count; i++)
+			{
+				float sample = (static_cast<int>(data[pos]) - 127) * (1.0f / 127.0f);
+				sample = std::max(sample, -1.0f);
+				sample = std::min(sample, 1.0f);
+
+				output[0] += data[pos << 1];
+				output[1] += data[(pos << 1) + 1];
+				output += 2;
+
+				frac += speed;
+				pos += frac >> 16;
+				frac &= 0xffff;
+				if (pos >= length)
+				{
+					pos = pos % length;
+					if (!music.loop)
+					{
+						pos = 0;
+						frac = 0;
+						music.playing = false;
+						break;
+					}
+				}
+			}
+			music.pos = pos;
+			music.frac = frac;
 		}
 	}
 
@@ -417,6 +464,28 @@ int I_CheckSoundPlaying(int handle)
 int I_CheckSoundDone(int handle)
 {
 	return !I_CheckSoundPlaying(handle);
+}
+
+void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
+{
+	std::unique_lock<std::mutex> lock(mixer_mutex);
+	music.sample_rate = sample_rate;
+	music.song_data = std::move(song_data);
+	music.loop = loop;
+	music.pos = 0;
+	music.frac = 0;
+	music.playing = true;
+}
+
+void I_StopHQSong()
+{
+	std::unique_lock<std::mutex> lock(mixer_mutex);
+	music.sample_rate = 0;
+	music.song_data.clear();
+	music.loop = false;
+	music.pos = 0;
+	music.frac = 0;
+	music.playing = false;
 }
 
 #endif

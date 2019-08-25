@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 //-----------------------------------------------------------------------------
 // Constants
 //-----------------------------------------------------------------------------
@@ -46,3 +48,7 @@ void I_StopSound(int handle);
 int I_CheckSoundPlaying(int handle);
 
 int I_CheckSoundDone(int handle);
+
+
+void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop);
+void I_StopHQSong();

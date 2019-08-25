@@ -65,3 +65,6 @@ extern void digi_set_max_channels(int n);
 extern int digi_get_max_channels();
 
 extern int digi_lomem;
+
+bool PlayHQSong(const char* filename, bool loop);
+void StopHQSong();
