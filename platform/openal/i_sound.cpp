@@ -13,6 +13,7 @@ Instead, it is released under the terms of the MIT License.
 #include "AL/al.h"
 #include "AL/alc.h"
 #include "platform/i_sound.h"
+#include "misc/error.h"
 
 ALCdevice *ALDevice = NULL;
 ALCcontext *ALContext = NULL;
@@ -20,7 +21,7 @@ ALCcontext *ALContext = NULL;
 ALuint bufferNames[_MAX_VOICES];
 ALuint sourceNames[_MAX_VOICES];
 
-void I_ErrorCheck(char* context)
+void I_ErrorCheck(const char* context)
 {
 	int error;
 	error = alGetError();
