@@ -69,7 +69,8 @@ extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top
 //	They should be set only when they change, which is generally when the window bounds change.  And, even still, it's
 //	a pretty bad interface.
 int	bytes_per_row = -1;
-int	write_buffer;
+//int	write_buffer;
+uint8_t* write_buffer;
 int  	window_left;
 int	window_right;
 int	window_top;
@@ -145,7 +146,7 @@ void init_interface_vars_to_assembler(void)
 		}
 	}
 
-	write_buffer = (int)bp->bm_data;
+	write_buffer = bp->bm_data;
 
 	window_left = 0;
 	window_right = (int)bp->bm_w - 1;
