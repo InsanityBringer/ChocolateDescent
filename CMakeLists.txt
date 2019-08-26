@@ -21,7 +21,6 @@ macro(add_file)
     foreach(_src ${ARGN})
         list(APPEND SRCS "${_src}")
     endforeach()
-    message("hello world?")
     set_property(GLOBAL PROPERTY KEX_ENGINE_SRCS ${SRCS})
 endmacro()
 
@@ -57,9 +56,6 @@ macro(add_sources)
             else()
                 source_group("" FILES ${ARG})
             endif()
-            
-            message("got file")
-            message(${_current_source_group_var})
             
             if(EXISTS ${ARG})
                 add_file(${ARG})
