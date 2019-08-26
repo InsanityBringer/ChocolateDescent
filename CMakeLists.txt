@@ -68,7 +68,7 @@ endmacro()
 find_package(SDL2)
 #[ISB] if we got SDL2, set the USE_SDL definition
 if (SDL2_FOUND)
-    add_defintions(-DUSE_SDL)
+    add_compile_defintions(-DUSE_SDL)
 endif()
 
 add_subdirectory(2d)
@@ -85,7 +85,11 @@ add_subdirectory(ui)
 add_subdirectory(vecmat)
 
 get_property(PROJECT_FILES GLOBAL PROPERTY KEX_ENGINE_SRCS)
-add_executable(ChocolateDescent ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
+if (WIN32) #[ISB] there's probably a way a million times better to do this, but I'm having trouble wrapping my head around cmake variables ATM...............
+    add_executable(ChocolateDescent WIN32 ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
+else()
+    add_executable(ChocolateDescent ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
+endif()
 
 include_directories(.) #When I asked about it, I was told once that "All cmake projects are bad." I think this is evidence of it.
 
