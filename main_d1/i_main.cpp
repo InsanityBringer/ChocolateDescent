@@ -8,9 +8,9 @@
 
 #include "SDL.h" //[ISB] required for main replacement macro
 
-int main(int argc, const char** argv)
+int main(int argc, char** argv) //[ISB] oops, must be called with c linkage...
 {
-	return D_DescentMain(argc, argv);
+	return D_DescentMain(argc, (const char**)argv);
 }
 
 #else
