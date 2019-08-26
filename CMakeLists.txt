@@ -66,10 +66,6 @@ endmacro()
 
 
 find_package(SDL2)
-#[ISB] if we got SDL2, set the USE_SDL definition
-if (SDL2_FOUND)
-    add_compile_defintions(-DUSE_SDL)
-endif()
 
 add_subdirectory(2d)
 add_subdirectory(3d)
@@ -89,6 +85,11 @@ if (WIN32) #[ISB] there's probably a way a million times better to do this, but 
     add_executable(ChocolateDescent WIN32 ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
 else()
     add_executable(ChocolateDescent ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
+endif()
+
+#[ISB] if we got SDL2, set the USE_SDL definition
+if (SDL2_FOUND)
+    target_compile_definitions(ChocolateDescent PUBLIC USE_SDL)
 endif()
 
 include_directories(.) #When I asked about it, I was told once that "All cmake projects are bad." I think this is evidence of it.

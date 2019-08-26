@@ -58,9 +58,6 @@ typedef struct cyberman_info {
 
 static mouse_info Mouse;
 
-//variables for relative reads
-int lastReadX = 0, lastReadY = 0;
-
 //--------------------------------------------------------
 // returns 0 if no mouse
 //           else number of buttons

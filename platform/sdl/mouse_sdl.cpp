@@ -8,6 +8,9 @@
 #include "SDL_video.h"
 #include "SDL_mouse.h"
 
+//variables for relative reads
+int lastReadX = 0, lastReadY = 0;
+
 void mouse_get_pos(int* x, int* y)
 {
 	SDL_GetMouseState(x, y);

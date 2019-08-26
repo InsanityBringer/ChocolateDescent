@@ -4,12 +4,11 @@
 #include <stdio.h>
 
 #include "inferno.h"
-#include "fix/fix.h"
-#include "vecmat/vecmat.h"
-
 #include "2d/i_gr.h"
 
-int main(int argc, char** argv)
+#include "SDL.h" //[ISB] required for main replacement macro
+
+int main(int argc, const char** argv)
 {
 	return D_DescentMain(argc, argv);
 }
