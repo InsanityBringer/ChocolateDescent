@@ -104,3 +104,8 @@ if (SDL2_FOUND)
     )
 endif()
 
+if (SDL2_MAIN_FOUND)
+    target_link_libraries(ChocolateDescent PRIVATE
+        ${SDL2_MAIN_LIBRARIES}
+    )
+endif()
