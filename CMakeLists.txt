@@ -6,12 +6,12 @@ cmake_minimum_required(VERSION 3.11)
 project(ChocolateDescent LANGUAGES CXX)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-cmake_policy(SET CMP0076 NEW)
+cmake_policy(SET CMP0076 OLD)
 
 set_property(GLOBAL PROPERTY KEX_ENGINE_SRCS "")
 set_property(GLOBAL PROPERTY SOURCE_GROUPS "")
 
-set(METADATA_BASE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" CACHE STRING "Base path for project")
+set(METADATA_BASE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Base path for project")
 
 # The following macros are provided by Kaiser and Altazimuth, from the Kex Engine project.
 # ---------------------------------------------------------------------------------
@@ -66,6 +66,7 @@ endmacro()
 
 
 find_package(SDL2)
+find_package(OPENAL)
 
 add_subdirectory(2d)
 add_subdirectory(3d)
@@ -87,9 +88,30 @@ else()
     add_executable(ChocolateDescent ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
 endif()
 
+#[ISB] so I somehow messed up Kaiser's really cool grouping macro and I honestly have no clue why, so do this the hard way for now
+source_group("2d" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/2d/.+")
+source_group("3d" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/3d/.+")
+source_group("cfile" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/cfile/.+")
+source_group("fix" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/fix/.+")
+source_group("iff" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/iff/.+")
+source_group("main_d1" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/main_d1/.+")
+source_group("mem" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/mem/.+")
+source_group("misc" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/misc/.+")
+source_group("platform" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/.+")
+source_group("platform\\openal" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/openal/.+")
+source_group("platform\\sdl" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/sdl/.+")
+source_group("platform\\win32" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/win32/.+")
+source_group("ui" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/ui/.+")
+source_group("texmap" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/texmap/.+")
+source_group("vecmat" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/vecmat/.+")
+
 #[ISB] if we got SDL2, set the USE_SDL definition
 if (SDL2_FOUND)
     target_compile_definitions(ChocolateDescent PUBLIC USE_SDL)
+endif()
+
+if (OPENAL_FOUND)
+    target_compile_definitions(ChocolateDescent PUBLIC USE_OPENAL)
 endif()
 
 include_directories(.) #When I asked about it, I was told once that "All cmake projects are bad." I think this is evidence of it.
@@ -107,5 +129,15 @@ endif()
 if (SDL2_MAIN_FOUND)
     target_link_libraries(ChocolateDescent PRIVATE
         ${SDL2_MAIN_LIBRARIES}
+    )
+endif()
+
+if (OPENAL_FOUND)
+    target_link_libraries(ChocolateDescent PRIVATE
+        ${OPENAL_LIBRARIES}
+    )
+
+    target_include_directories(ChocolateDescent SYSTEM PRIVATE
+        ${OPENAL_INCLUDE_DIRS}
     )
 endif()
