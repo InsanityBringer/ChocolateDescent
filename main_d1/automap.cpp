@@ -570,9 +570,21 @@ void do_automap(int key_code)
 			gr_palette_load(gr_palette);
 		}
 
+		int numMS = 1000 / FPSLimit;
 		t2 = timer_get_fixed_seconds();
 		if (pause_game)
+		{
 			FrameTime = t2 - t1;
+			if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
+			{
+				int ms = (FrameTime * 1000) >> 16;
+				I_Delay(numMS - ms);
+
+				//Recalculate
+				t2 = timer_get_fixed_seconds();
+				FrameTime = t2 - t1;
+			}
+		}
 		t1 = t2;
 	}
 
