@@ -65,6 +65,9 @@ int I_InitAudio()
 	{
 		alSourcef(sourceNames[i], AL_ROLLOFF_FACTOR, 0.0f);
 	}
+	float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
+	alListenerfv(AL_ORIENTATION, &orientation[0]);
+	I_ErrorCheck("Listener hack");
 	return 0;
 }
 
@@ -119,12 +122,12 @@ void I_SetAngle(int handle, int angle)
 	if (handle >= _MAX_VOICES) return;
 
 	float x, y;
-	float flang = (angle / 65536.0f) * (3.1415927f * 2);
+	float flang = (angle / 65536.0f) * (3.1415927f);
 
-	x = (float)cos(flang) * .05f;
-	y = (float)sin(flang) * .05f;
+	x = (float)cos(flang);
+	y = (float)sin(flang);
 
-	alSource3f(sourceNames[handle], AL_POSITION, -y, 0.0f, x);
+	alSource3f(sourceNames[handle], AL_POSITION, -x, 0.0f, y);
 	I_ErrorCheck("Setting sound angle");
 }
 

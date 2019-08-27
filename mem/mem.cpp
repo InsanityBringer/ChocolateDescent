@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 //#include <dos.h> [ISB] does every last file really need to include DOS
 #include <malloc.h>
+#include <inttypes.h>
 
 #include "platform/mono.h"
 #include "misc/error.h"
@@ -45,10 +46,10 @@ static unsigned char Present[MAX_INDEX];
 static char* Filename[MAX_INDEX];
 static char* Varname[MAX_INDEX];
 static int Line[MAX_INDEX];
-static int BytesMalloced = 0;
+static uint64_t BytesMalloced = 0;
 
-static unsigned int SmallestAddress = 0xFFFFFFFF;
-static unsigned int LargestAddress = 0x0;
+static uint64_t SmallestAddress = 0xFFFFFFFFFFFFFFFF;
+static uint64_t LargestAddress = 0x0;
 
 int show_mem_info = 1;
 
