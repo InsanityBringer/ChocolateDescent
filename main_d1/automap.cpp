@@ -179,7 +179,7 @@ void draw_automap()
 	vms_vector viewer_position;
 	g3s_point sphere_point;
 
-	current_page ^= 1;
+	//current_page ^= 1; //[ISB] cut paging for the moment
 	gr_set_current_canvas(&DrawingPages[current_page]);
 
 	gr_clear_canvas(0);
@@ -438,7 +438,6 @@ void do_automap(int key_code)
 
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
 		I_DoEvents();
 		if (leave_mode == 0 && Controls.automap_state && (timer_get_fixed_seconds() - entry_time) > LEAVE_TIME)
 			leave_mode = 1;
@@ -563,6 +562,7 @@ void do_automap(int key_code)
 		if (ViewDist > ZOOM_MAX_VALUE) ViewDist = ZOOM_MAX_VALUE;
 
 		draw_automap();
+		I_DrawCurrentCanvas(0);
 
 		if (first_time) 
 		{
