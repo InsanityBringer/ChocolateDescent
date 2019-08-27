@@ -562,7 +562,8 @@ void do_automap(int key_code)
 		if (ViewDist > ZOOM_MAX_VALUE) ViewDist = ZOOM_MAX_VALUE;
 
 		draw_automap();
-		I_DrawCurrentCanvas(0);
+		if (!done) //[ISB] don't swap twice if we're getting outta here
+			I_DrawCurrentCanvas(0);
 
 		if (first_time) 
 		{
