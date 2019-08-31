@@ -12,6 +12,8 @@ add_sources(SOURCE_GROUP "ChocolateDescent\\\\platform"
     "${METADATA_BASE_PATH}/platform/mouse.h"
     "${METADATA_BASE_PATH}/platform/s_midi.cpp"
     "${METADATA_BASE_PATH}/platform/s_midi.h"
+    "${METADATA_BASE_PATH}/platform/s_sequencer.cpp"
+    "${METADATA_BASE_PATH}/platform/s_sequencer.h"
     "${METADATA_BASE_PATH}/platform/timer.cpp"
     "${METADATA_BASE_PATH}/platform/timer.h"
 )

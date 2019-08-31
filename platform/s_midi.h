@@ -38,6 +38,10 @@ typedef struct
 
 	int numEvents;
 	midievent_t* events;
+
+	//Track sequencing data
+	int nextEvent; //Next event to play, -1 if this track is finished
+	int nextEventTime; //At what MIDI tick should this event be played?
 } midichunk_t;
 
 typedef struct
@@ -53,4 +57,4 @@ typedef struct
 
 int S_InitMusic(int device);
 
-int S_LoadHMP(int length, uint8_t* data);
+int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song);

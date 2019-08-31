@@ -194,6 +194,13 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 #endif
 	}
 
+	//Ready the chunk for sequencing
+	if (chunk->numEvents != 0)
+	{
+		chunk->nextEvent = 0;
+		chunk->nextEventTime = chunk->events[0].delta;
+	}
+
 	return pointer;
 }
 
