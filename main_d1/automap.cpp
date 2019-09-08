@@ -179,7 +179,7 @@ void draw_automap()
 	vms_vector viewer_position;
 	g3s_point sphere_point;
 
-	current_page ^= 1;
+	//current_page ^= 1; //[ISB] cut paging for the moment
 	gr_set_current_canvas(&DrawingPages[current_page]);
 
 	gr_clear_canvas(0);
@@ -438,7 +438,6 @@ void do_automap(int key_code)
 
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
 		I_DoEvents();
 		if (leave_mode == 0 && Controls.automap_state && (timer_get_fixed_seconds() - entry_time) > LEAVE_TIME)
 			leave_mode = 1;
@@ -563,6 +562,8 @@ void do_automap(int key_code)
 		if (ViewDist > ZOOM_MAX_VALUE) ViewDist = ZOOM_MAX_VALUE;
 
 		draw_automap();
+		if (!done) //[ISB] don't swap twice if we're getting outta here
+			I_DrawCurrentCanvas(0);
 
 		if (first_time) 
 		{
@@ -570,9 +571,21 @@ void do_automap(int key_code)
 			gr_palette_load(gr_palette);
 		}
 
+		int numMS = 1000 / FPSLimit;
 		t2 = timer_get_fixed_seconds();
 		if (pause_game)
+		{
 			FrameTime = t2 - t1;
+			if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
+			{
+				int ms = (FrameTime * 1000) >> 16;
+				I_Delay(numMS - ms);
+
+				//Recalculate
+				t2 = timer_get_fixed_seconds();
+				FrameTime = t2 - t1;
+			}
+		}
 		t1 = t2;
 	}
 

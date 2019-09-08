@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 //#include <dos.h> [ISB] does every last file really need to include DOS
 #include <malloc.h>
+#include <inttypes.h>
 
 #include "platform/mono.h"
 #include "misc/error.h"
@@ -45,10 +46,7 @@ static unsigned char Present[MAX_INDEX];
 static char* Filename[MAX_INDEX];
 static char* Varname[MAX_INDEX];
 static int Line[MAX_INDEX];
-static int BytesMalloced = 0;
-
-static unsigned int SmallestAddress = 0xFFFFFFFF;
-static unsigned int LargestAddress = 0x0;
+static uint64_t BytesMalloced = 0;
 
 int show_mem_info = 1;
 
@@ -82,9 +80,6 @@ void mem_init()
 		Line[i] = 0;
 	}
 
-	SmallestAddress = 0xFFFFFFF;
-	LargestAddress = 0x0;
-
 	num_blocks = 0;
 	LargestIndex = 0;
 
@@ -100,7 +95,6 @@ void PrintInfo(int id)
 
 void* mem_malloc(unsigned int size, const char* var, const char* filename, int line, int fill_zero)
 {
-	unsigned int base;
 	int i, j, id;
 	void* ptr;
 	unsigned char* pc;
@@ -153,10 +147,6 @@ void* mem_malloc(unsigned int size, const char* var, const char* filename, int l
 		Int3();
 		return nullptr;
 	}
-
-	base = (unsigned int)ptr;
-	if (base < SmallestAddress) SmallestAddress = base;
-	if ((base + size) > LargestAddress) LargestAddress = base + size;
 
 	MallocBase[id] = (void*)ptr;
 	//data = (int*)((int)MallocBase[id] - sizeof(int));
@@ -308,14 +298,6 @@ void mem_display_blocks()
 	{
 		Warning("MEM: %d blocks were left allocated!", numleft);
 	}
-
-	if (show_mem_info) {
-		fprintf(stderr, "\n\nMEMORY USAGE:\n");
-		fprintf(stderr, "  %u Kbytes dynamic data\n", (LargestAddress - SmallestAddress + 512) / 1024);
-		fprintf(stderr, "  %u Kbytes code/static data.\n", (SmallestAddress - (4 * 1024 * 1024) + 512) / 1024);
-		fprintf(stderr, "  ---------------------------\n");
-		fprintf(stderr, "  %u Kbytes required.\n\n", (LargestAddress - (4 * 1024 * 1024) + 512) / 1024);
-	}
 }
 
 void mem_validate_heap()
@@ -354,9 +336,7 @@ void mem_print_all()
 #else
 
 static int Initialized = 0;
-static unsigned int SmallestAddress = 0xFFFFFFF;
-static unsigned int LargestAddress = 0x0;
-static unsigned int BytesMalloced = 0;
+static uint64_t BytesMalloced = 0;
 
 void mem_display_blocks(void);
 
@@ -369,9 +349,6 @@ void mem_init()
 {
 	Initialized = 1;
 
-	SmallestAddress = 0xFFFFFFFF;
-	LargestAddress = 0x0;
-
 	atexit(mem_display_blocks);
 }
 
@@ -379,12 +356,11 @@ void* mem_malloc(unsigned int size, const char* var, const char* filename, int l
 {
 	unsigned int base;
 	void* ptr;
-	int* psize;
 
 	if (Initialized == 0)
 		mem_init();
 
-	fprintf(stderr, "Allocation: Var %s, file %s, line %d. Amount %d\n", var, filename, line, size);
+	//fprintf(stderr, "Allocation: Var %s, file %s, line %d. Amount %d\n", var, filename, line, size);
 
 	if (size == 0) {
 		fprintf(stderr, "\nMEM_MALLOC_ZERO: Attempting to malloc 0 bytes.\n");
@@ -406,15 +382,6 @@ void* mem_malloc(unsigned int size, const char* var, const char* filename, int l
 		return NULL; //[ISB] solve C6011
 	}
 
-	base = (unsigned int)ptr;
-	if (base < SmallestAddress) SmallestAddress = base;
-	if ((base + size) > LargestAddress) LargestAddress = base + size;
-
-
-	psize = (int*)ptr;
-	psize--;
-	BytesMalloced += *psize;
-
 	if (fill_zero)
 		memset(ptr, 0, size);
 
@@ -424,13 +391,12 @@ void* mem_malloc(unsigned int size, const char* var, const char* filename, int l
 void mem_free(void* buffer)
 {
 	int ErrorCount;
-	int* psize = (int*)buffer;
-	psize--;
 
 	if (Initialized == 0)
 		mem_init();
 
-	if (buffer == NULL) {
+	if (buffer == NULL)
+	{
 		fprintf(stderr, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n");
 		Warning("MEM: Freeing the NULL pointer!");
 		Int3();
@@ -439,13 +405,12 @@ void mem_free(void* buffer)
 
 	ErrorCount = 0;
 
-	if (ErrorCount) {
+	if (ErrorCount) 
+	{
 		fprintf(stderr, "\nMEM_OVERWRITE: Memory after the end of allocated block overwritten.\n");
-		fprintf(stderr, "\tBlock at 0x%p, size %d\n", buffer, (int)*psize); //[ISB] trying %p
+		fprintf(stderr, "\tBlock at 0x%p\n", buffer); //[ISB] trying %p
 		fprintf(stderr, "\t%d/%d check bytes were overwritten.\n", ErrorCount, CHECKSIZE);
 	}
-
-	BytesMalloced -= *psize;
 
 	free(buffer);
 }
@@ -454,16 +419,9 @@ void mem_display_blocks(void)
 {
 	if (Initialized == 0) return;
 
-	if (BytesMalloced != 0) {
-		fprintf(stderr, "\nMEM_LEAKAGE: %d bytes of memory have not been freed.\n", BytesMalloced);
-	}
-
-	if (show_mem_info) {
-		fprintf(stderr, "\n\nMEMORY USAGE:\n");
-		fprintf(stderr, "  %u Kbytes dynamic data\n", (LargestAddress - SmallestAddress + 512) / 1024);
-		fprintf(stderr, "  %u Kbytes code/static data.\n", (SmallestAddress - (4 * 1024 * 1024) + 512) / 1024);
-		fprintf(stderr, "  ---------------------------\n");
-		fprintf(stderr, "  %u Kbytes required.\n", (LargestAddress - (4 * 1024 * 1024) + 512) / 1024);
+	if (BytesMalloced != 0)
+	{
+		fprintf(stderr, "\nMEM_LEAKAGE: %lld bytes of memory have not been freed.\n", BytesMalloced);
 	}
 }
 

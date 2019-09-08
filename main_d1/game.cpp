@@ -449,9 +449,12 @@ void init_cockpit()
 		bm = &VR_offscreen_buffer->cv_bitmap;
 		bm->bm_flags = BM_FLAG_TRANSPARENT;
 		gr_ibitblt_find_hole_size(bm, &minx, &miny, &maxx, &maxy);
+		if (Cockpit_mode == CM_REAR_VIEW)
+			printf("%d %d %d %d\n", minx, miny, maxx, maxy);
 		Game_cockpit_copy_code = gr_ibitblt_create_mask(bm, minx, miny, maxx - minx + 1, maxy - miny + 1, VR_offscreen_buffer->cv_bitmap.bm_rowsize);
 		bm->bm_flags = 0;		// Clear all flags for offscreen canvas
-		game_init_render_sub_buffers(0, 0, maxx - minx + 1, maxy - miny + 1);
+		//game_init_render_sub_buffers(0, 0, maxx - minx + 1, maxy - miny + 1);
+		game_init_render_sub_buffers(minx, 0, maxx - minx + 1, maxy - miny + 1); //[ISB] honestly not sure why this works with y set to 0.....
 		break;
 	}
 	case CM_FULL_SCREEN:

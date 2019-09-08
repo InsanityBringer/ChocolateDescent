@@ -1,0 +1,11 @@
+Credits and contributors to the project
+
+SaladBadger: uh i started this mess I guess?
+
+Parabolicus: Some optimizations and ports from the original ASM code.
+
+btb: quad_sqrt infinite loop fix from d2x. Also thanks to zico to tipping me off on this.
+
+dpJudas: Wrote the native backend for Windows, as well as providing much-needed code cleanup and readibility, and ported the project to c++. 
+
+Altazimuth and Kaiser: Provided plenty of assistance and macros to assemble the CMakeLists files

@@ -9,6 +9,7 @@ Instead, it is released under the terms of the MIT License.
 */
 
 #include <string.h>
+#include <stdio.h>
 
 #ifdef USE_SDL
 
@@ -258,7 +259,7 @@ void I_SetRelative(int state)
 	{
 		SDL_WarpMouseInWindow(gameWindow, WindowWidth / 2, WindowHeight / 2);
 	}
-	SDL_SetRelativeMouseMode(state);
+	SDL_SetRelativeMouseMode((SDL_bool)state);
 }
 
 void I_WritePalette(int start, int end, uint8_t* data)
@@ -340,7 +341,7 @@ void I_DrawCurrentCanvas(int sync)
 	//I hate this
 	unsigned char* texPixels;
 	int pitch;
-	SDL_LockTexture(gameTexture, NULL, &texPixels, &pitch);
+	SDL_LockTexture(gameTexture, NULL, (void**)&texPixels, &pitch);
 	SDL_LockSurface(hackSurface);
 	pixels = (unsigned char*)hackSurface->pixels;
 	for (int i = 0; i < screenBuffer->cv_bitmap.bm_h; i++)

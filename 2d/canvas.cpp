@@ -137,19 +137,7 @@ int gr_wait_for_retrace = 1;
 
 void gr_show_canvas(grs_canvas* canv)
 {
-	//Error("gr_show_canvas: STUB\n");
-	I_BlitCanvas(canv);
-#if 0
-	if (canv->cv_bitmap.bm_type == BM_MODEX)
-		gr_modex_setstart(canv->cv_bitmap.bm_x, canv->cv_bitmap.bm_y, gr_wait_for_retrace);
-
-	else if (canv->cv_bitmap.bm_type == BM_SVGA)
-		gr_vesa_setstart(canv->cv_bitmap.bm_x, canv->cv_bitmap.bm_y);
-#endif
-
-	//	else if (canv->cv_bitmap.bm_type == BM_LINEAR )
-	// Int3();		// Get JOHN!
-	//gr_linear_movsd( canv->cv_bitmap.bm_data, (void *)0xA0000, 320*200);
+	//[ISB] I dunno...
 }
 
 void gr_set_current_canvas(grs_canvas* canv)
