@@ -6,7 +6,7 @@ as described in copying.txt
 */
 #pragma once
 
-#include "misc/types.h"
+#include "stdint.h"
 
 #define EVENT_NOTEOFF 8
 #define EVENT_NOTEON 9

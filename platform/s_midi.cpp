@@ -68,7 +68,7 @@ int S_InitMusic(int device)
 
 int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 {
-	int done, oldpointer, position, value, i;
+	int done, oldpointer, position, value, i, shift;
 	int command;
 	uint8_t b;
 	int eventCount = 0;
@@ -123,7 +123,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 			value = data[pointer]; pointer += value + 1;
 			break;
 		default:
-			Warning("Unknown event %d in hmp file", command);
+			fprintf(stderr, "Unknown event %d in hmp file", command);
 			break;
 		}
 
@@ -133,6 +133,12 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 	//Actually allocate and read events now
 	chunk->numEvents = eventCount;
 	chunk->events = (midievent_t*)malloc(sizeof(midievent_t) * eventCount);
+
+	if (chunk->events == nullptr)
+	{
+		fprintf(stderr, "Can't allocate MIDI events");
+		exit(1);
+	}
 
 	pointer = oldpointer;
 
@@ -146,10 +152,10 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 			if (b & 0x80) //We're done now
 			{
 				done = 1;
-				b &= 0x7F;
+				//b &= 0x7F;
 			}
-			value += (b << (position * 8));
-			position++;
+			value += ((b & 0x7F) << position);
+			position+=7;
 			pointer++;
 		}
 		chunk->events[i].delta = value;
@@ -185,7 +191,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 			}
 			break;
 		default:
-			Warning("Unknown event %d in hmp file", command);
+			fprintf(stderr, "Unknown event %d in hmp file", command);
 			break;
 		}
 
@@ -199,12 +205,13 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 	{
 		chunk->nextEvent = 0;
 		chunk->nextEventTime = chunk->events[0].delta;
+		//chunk->nextEventTime = 0;
 	}
 
 	return pointer;
 }
 
-void S_FreeHMPData(hmpheader_t *song)
+void S_FreeHMPData(hmpheader_t* song)
 {
 	int i, j;
 	midichunk_t* chunk;
@@ -225,7 +232,7 @@ void S_FreeHMPData(hmpheader_t *song)
 	}
 }
 
-int S_LoadHMP(int length, uint8_t* data, hmpheader_t *song)
+int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 {
 	int i, pointer;
 	memcpy(song->header, data, 16); //Check for version 1 HMP
@@ -239,6 +246,12 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t *song)
 	song->seconds = BS_MakeInt(&data[60]);
 
 	song->chunks = (midichunk_t*)malloc(sizeof(midichunk_t) * song->numChunks);
+
+	if (song->chunks == nullptr)
+	{
+		fprintf(stderr, "Can't allocate MIDI chunk list");
+		exit(1);
+	}
 
 	pointer = 776;
 	for (i = 0; i < song->numChunks; i++)

@@ -2,6 +2,7 @@ add_sources(SOURCE_GROUP "ChocolateDescent\\\\platform"
     "${METADATA_BASE_PATH}/platform/disk.h"
     "${METADATA_BASE_PATH}/platform/findfile.h"
     "${METADATA_BASE_PATH}/platform/i_sound.h"
+    "${METADATA_BASE_PATH}/platform/i_midi.h"
     "${METADATA_BASE_PATH}/platform/joy.cpp"
     "${METADATA_BASE_PATH}/platform/joy.h"
     "${METADATA_BASE_PATH}/platform/key.cpp"
@@ -29,6 +30,12 @@ endif()
 if (OPENAL_FOUND)
     add_sources(SOURCE_GROUP "ChocolateDescent\\\\platform\\\\openal"
         "${METADATA_BASE_PATH}/platform/openal/i_sound.cpp"
+    )
+endif()
+
+if (FLUIDSYNTH_FOUND)
+    add_sources(SOURCE_GROUP "ChocolateDescent\\\\platform\\\\fluidsynth"
+        "${METADATA_BASE_PATH}/platform/fluidsynth/fluid_midi.cpp"
     )
 endif()
 
