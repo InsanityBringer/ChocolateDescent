@@ -29,7 +29,7 @@ endif()
 
 if (OPENAL_FOUND)
     add_sources(SOURCE_GROUP "ChocolateDescent\\\\platform\\\\openal"
-        "${METADATA_BASE_PATH}/platform/openal/i_sound.cpp"
+        "${METADATA_BASE_PATH}/platform/openal/al_sound.cpp"
     )
 endif()
 
