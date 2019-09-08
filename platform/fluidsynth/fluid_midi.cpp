@@ -4,8 +4,10 @@
 
 #include "fluidsynth.h"
 
-#include "i_midi.h"
-#include "s_midi.h"
+#include "platform/i_midi.h"
+#include "platform/s_midi.h"
+
+#ifdef USE_FLUIDSYNTH
 
 fluid_settings_t *FluidSynthSettings;
 fluid_synth_t *FluidSynth;
@@ -69,3 +71,5 @@ void I_MidiEvent(midievent_t *ev)
 		//[ISB] TODO: Sysex
 	}
 }
+
+#endif

@@ -67,6 +67,7 @@ endmacro()
 
 find_package(SDL2)
 find_package(OPENAL)
+find_package(FLUIDSYNTH)
 
 add_subdirectory(2d)
 add_subdirectory(3d)
@@ -98,6 +99,7 @@ source_group("main_d1" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/main_d1/.+")
 source_group("mem" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/mem/.+")
 source_group("misc" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/misc/.+")
 source_group("platform" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/.+")
+source_group("platform\\fluidsynth" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/fluidsynth/.+")
 source_group("platform\\openal" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/openal/.+")
 source_group("platform\\sdl" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/sdl/.+")
 source_group("platform\\win32" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/win32/.+")
@@ -112,6 +114,10 @@ endif()
 
 if (OPENAL_FOUND)
     target_compile_definitions(ChocolateDescent PUBLIC USE_OPENAL)
+endif()
+
+if (FLUIDSYNTH_FOUND)
+    target_compile_definitions(ChocolateDescent PUBLIC USE_FLUIDSYNTH)
 endif()
 
 include_directories(.) #When I asked about it, I was told once that "All cmake projects are bad." I think this is evidence of it.
@@ -139,5 +145,15 @@ if (OPENAL_FOUND)
 
     target_include_directories(ChocolateDescent SYSTEM PRIVATE
         ${OPENAL_INCLUDE_DIRS}
+    )
+endif()
+
+if (FLUIDSYNTH_FOUND)
+    target_link_libraries(ChocolateDescent PRIVATE
+        ${FLUIDSYNTH_LIBRARIES}
+    )
+
+    target_include_directories(ChocolateDescent SYSTEM PRIVATE
+        ${FLUIDSYNTH_INCLUDE_DIRS}
     )
 endif()
