@@ -888,26 +888,26 @@ void digi_play_sample_3d(int soundno, int angle, int volume, int no_dups)
 
 void digi_set_midi_volume(int mvolume)
 {
-	/*
-		int old_volume = midi_volume;
+	int old_volume = midi_volume;
 
-		if ( mvolume > 127 )
-			midi_volume = 127;
-		else if ( mvolume < 0 )
-			midi_volume = 0;
-		else
-			midi_volume = mvolume;
+	if ( mvolume > 127 )
+		midi_volume = 127;
+	else if ( mvolume < 0 )
+		midi_volume = 0;
+	else
+		midi_volume = mvolume;
 
-		if ( (digi_midi_type > 0) && (hSOSMidiDriver < 0xffff) )		{
-			if (  (old_volume < 1) && ( midi_volume > 1 ) )	{
-				if (wSongHandle == 0xffff )
-					digi_play_midi_song( digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1 );
-			}
-			_disable();
-			sosMIDISetMasterVolume(midi_volume);
-			_enable();
+	if (digi_midi_type > 0)	
+	{
+		if ((old_volume < 1) && (midi_volume > 1))	
+		{
+			if (wSongHandle == 0xffff )
+				digi_play_midi_song(digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1);
 		}
-	*/
+		//sosMIDISetMasterVolume(midi_volume);
+		I_SetMusicVolume(midi_volume);
+	}
+	
 }
 
 void digi_set_digi_volume(int dvolume)
@@ -1006,9 +1006,6 @@ void digi_stop_current_song()
 
 void digi_play_midi_song(char* filename, char* melodic_bank, char* drum_bank, int loop)
 {
-	if (PlayHQSong(filename, loop))
-		return;
-
 	int i;
 	char fname[128];
 	uint16_t wError;                 // error code returned from functions
@@ -1023,6 +1020,9 @@ void digi_play_midi_song(char* filename, char* melodic_bank, char* drum_bank, in
 	digi_stop_current_song();
 
 	if (filename == NULL)	return;
+
+	if (PlayHQSong(filename, loop)) //[ISB] moved here to prevent a null pointer problem
+		return;
 
 	strcpy(digi_last_midi_song, filename);
 	strcpy(digi_last_melodic_bank, melodic_bank);

@@ -131,7 +131,7 @@ int S_SequencerRender(int ticksToRender, unsigned short* buffer)
 			nextTick = S_SequencerTick();
 			if (nextTick == INT_MAX)
 			{
-				printf("Song end hit, looping!\n");
+				//printf("Song end hit, looping!\n");
 				numTicks = Sequencer.ticks - Sequencer.lastRenderedTick; //Render as much as possible
 				if (numTicks > 0)
 				{
@@ -149,6 +149,6 @@ int S_SequencerRender(int ticksToRender, unsigned short* buffer)
 
 		currentTick = Sequencer.ticks;
 	}
-	printf("Renderer ended at tick %d, sequencer at tick %d. %d ticks rendered.\n", Sequencer.lastRenderedTick, Sequencer.ticks, numTicksRendered);
+	//printf("Renderer ended at tick %d, sequencer at tick %d. %d ticks rendered.\n", Sequencer.lastRenderedTick, Sequencer.ticks, numTicksRendered);
 	return numTicksRendered;
 }

@@ -20,7 +20,6 @@ int I_InitMIDI()
 	//AudioDriver = new_fluid_audio_driver(FluidSynthSettings, FluidSynth);
 
 	if (FluidSynth == nullptr) return 1;
-	printf("GOLIATH ONLINE\n");
 
 	return 0;
 }
@@ -35,7 +34,6 @@ void I_ShutdownMIDI()
 void I_SetSoundfontFilename(const char* filename)
 {
 	fluid_synth_sfload(FluidSynth, filename, 1);
-	printf("SYSTEMS FUNCTIONAL\n");
 }
 
 void I_RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer)

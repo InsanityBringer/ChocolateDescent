@@ -55,6 +55,8 @@ int I_CheckSoundDone(int handle);
 // Emitting pleasing rythmic sequences at player
 //-----------------------------------------------------------------------------
 
+void I_SetMusicVolume(int volume);
+
 void I_StartMIDISong(hmpheader_t* song, bool loop);
 void I_StopMIDISong();
 

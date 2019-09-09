@@ -42,6 +42,8 @@ int CurrentBuffers = 0;
 
 ALushort* MusicBufferData;
 
+int MusicVolume;
+
 void I_ErrorCheck(const char* context)
 {
 	int error;
@@ -194,6 +196,16 @@ int I_CheckSoundDone(int handle)
 	return playing == AL_STOPPED;
 }
 
+void I_SetMusicVolume(int volume)
+{
+	//printf("Music volume %d\n", volume);
+	MusicVolume = volume;
+	if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
+	{
+		alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
+	}
+}
+
 void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
 {
 }
@@ -207,6 +219,7 @@ void I_CreateMusicSource()
 	alGenSources(1, &MusicSource);
 	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
 	alSource3f(MusicSource, AL_POSITION, 1.0f, 0.0f, 0.0f);
+	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	MusicBufferData = (ALushort*)malloc(sizeof(ALushort) * S_GetSamplesPerTick() * S_GetTicksPerSecond() * 2);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
 	I_ErrorCheck("Creating music source");
@@ -263,7 +276,6 @@ void I_QueueMusicBuffer()
 
 void I_MIDIThread()
 {
-	printf("Alright, bring it on!\n");
 	std::unique_lock<std::mutex> lock(MIDIMutex);
 	S_StartMIDISong(CurrentSong);
 	I_CreateMusicSource();
@@ -275,7 +287,6 @@ void I_MIDIThread()
 	}
 	S_StopSequencer();
 	I_DestroyMusicSource();
-	printf("I'm goin'\n");
 }
 
 void I_StartMIDISong(hmpheader_t* song, bool loop)
@@ -293,13 +304,10 @@ void I_StopMIDISong()
 	StopMIDI = true;
 	lock.unlock();
 	MIDIThread.join();
-	printf("Oh, is that it?\n");
 	if (CurrentSong != NULL)
 	{
 		S_FreeHMPData(CurrentSong);
-		printf("Freeing song\n");
 		free(CurrentSong);
-		printf("It is done\n");
 		CurrentSong = NULL;
 	}
 }
