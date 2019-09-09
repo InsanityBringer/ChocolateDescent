@@ -213,9 +213,9 @@ void I_CreateMusicSource()
 
 	//Immediately kick off the first buffer if possible
 	int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
-	alGenBuffers(1, &BufferQueue[CurrentBuffers]);
-	alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, MusicBufferData, finalTicks * S_GetSamplesPerTick() * sizeof(ALushort) * 2, 44100);
-	alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
+	alGenBuffers(1, &BufferQueue[0]);
+	alBufferData(BufferQueue[0], AL_FORMAT_STEREO16, MusicBufferData, finalTicks * S_GetSamplesPerTick() * sizeof(ALushort) * 2, 44100);
+	alSourceQueueBuffers(MusicSource, 1, &BufferQueue[0]);
 	alSourcePlay(MusicSource);
 	I_ErrorCheck("Queueing music buffers");
 }
@@ -273,6 +273,7 @@ void I_MIDIThread()
 		I_QueueMusicBuffer();
 		lock.lock();
 	}
+	S_StopSequencer();
 	I_DestroyMusicSource();
 	printf("I'm goin'\n");
 }

@@ -43,6 +43,11 @@ void S_RewindSequencer()
 	}
 }
 
+void S_StopSequencer()
+{
+	I_StopAllNotes();
+}
+
 void S_SetSequencerTick(int hack)
 {
 	Sequencer.ticks = hack;

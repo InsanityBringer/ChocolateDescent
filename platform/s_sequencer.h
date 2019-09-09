@@ -22,6 +22,7 @@ typedef struct
 } sequencerstate_t;
 
 int S_StartMIDISong(hmpheader_t* song);
+void S_StopSequencer();
 void S_RewindSequencer();
 int S_GetTicksPerSecond();
 int S_GetSamplesPerTick();

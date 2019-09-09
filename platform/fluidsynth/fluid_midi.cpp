@@ -74,4 +74,12 @@ void I_MidiEvent(midievent_t *ev)
 	}
 }
 
+void I_StopAllNotes()
+{
+	for (int chan = 0; chan < 16; chan++)
+	{
+		fluid_synth_cc(FluidSynth, chan, 0x7B, 0);
+	}
+}
+
 #endif
