@@ -76,6 +76,7 @@ void I_StopAllNotes()
 {
 	for (int chan = 0; chan < 16; chan++)
 	{
+		fluid_synth_cc(FluidSynth, chan, 0x79, 0);
 		fluid_synth_cc(FluidSynth, chan, 0x7B, 0);
 	}
 }
