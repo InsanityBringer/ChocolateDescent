@@ -302,7 +302,7 @@ int Laser_create_new(vms_vector* direction, vms_vector* position, int segnum, in
 			//[ISB] Okay, I'm going to try a hack to work around with this
 			//It's not in the spirit of Chocolate, but to some degree, I'd rather replicate bugs with an obvious effect (something goes weird in game, or an error message appears)
 			//Something like the game freezing doesn't come off the way I'd prefer. Ugh
-			if (highest_parent == objnum) break;
+			if (highest_parent == objnum || highest_parent == -1) break;
 			obj->ctype.laser_info.parent_num = highest_parent;
 			obj->ctype.laser_info.parent_type = Objects[highest_parent].type;
 			obj->ctype.laser_info.parent_signature = Objects[highest_parent].signature;
