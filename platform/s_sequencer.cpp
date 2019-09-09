@@ -18,9 +18,10 @@ as described in copying.txt.
 
 sequencerstate_t Sequencer;
 
-int S_StartMIDISong(hmpheader_t* song)
+int S_StartMIDISong(hmpheader_t* song, bool loop)
 {
 	Sequencer.song = song;
+	Sequencer.loop = loop;
 	Sequencer.samplesPerTick = 367; //[ISB] aaaaaa
 	S_RewindSequencer();
 
@@ -129,7 +130,7 @@ int S_SequencerRender(int ticksToRender, unsigned short* buffer)
 		if (currentTick == Sequencer.ticks) //Still ticks to render
 		{
 			nextTick = S_SequencerTick();
-			if (nextTick == INT_MAX)
+			if (nextTick == INT_MAX && Sequencer.loop)
 			{
 				//printf("Song end hit, looping!\n");
 				numTicks = Sequencer.ticks - Sequencer.lastRenderedTick; //Render as much as possible

@@ -32,6 +32,7 @@ ALuint sourceNames[_MAX_VOICES];
 
 hmpheader_t* CurrentSong;
 bool StopMIDI = true;
+bool LoopMusic;
 
 std::mutex MIDIMutex;
 std::thread MIDIThread;
@@ -277,7 +278,7 @@ void I_QueueMusicBuffer()
 void I_MIDIThread()
 {
 	std::unique_lock<std::mutex> lock(MIDIMutex);
-	S_StartMIDISong(CurrentSong);
+	S_StartMIDISong(CurrentSong, LoopMusic);
 	I_CreateMusicSource();
 	while (!StopMIDI)
 	{
@@ -293,6 +294,7 @@ void I_StartMIDISong(hmpheader_t* song, bool loop)
 {
 	std::unique_lock<std::mutex> lock(MIDIMutex);
 	CurrentSong = song;
+	LoopMusic = loop;
 	StopMIDI = false;
 	lock.unlock();
 	MIDIThread = std::thread(I_MIDIThread);

@@ -19,9 +19,10 @@ typedef struct
 	int sampleRate; //Sample rate of the current song
 	//[ISB] TODO: This is imprecise, ugh. Song is slightly faster than it should be...
 	int samplesPerTick; //Amount of samples per each MIDI tick
+	bool loop; //Whether or not the song should loop at the end or not
 } sequencerstate_t;
 
-int S_StartMIDISong(hmpheader_t* song);
+int S_StartMIDISong(hmpheader_t* song, bool loop);
 void S_StopSequencer();
 void S_RewindSequencer();
 int S_GetTicksPerSecond();
