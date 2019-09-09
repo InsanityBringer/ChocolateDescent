@@ -8,14 +8,18 @@ as described in copying.txt.
 #include <stdlib.h>
 #include <string.h>
 
+#include "platform/i_sound.h"
+#include "platform/i_midi.h"
 #include "s_midi.h"
-#include "mem/mem.h"
+//#include "mem/mem.h" //[ISB] not thread safe
 #include "misc/byteswap.h"
 #include "misc/error.h"
 
 //[ISB] Uncomment to enable MIDI file diagonstics. Extremely slow on windows. And probably linux tbh.
 //Will probably overflow your console buffer, so make it really long if you must
 //#define DEBUG_MIDI_READING
+
+int CurrentDevice = 0;
 
 #ifdef DEBUG_MIDI_READING
 char* EventNames[] = { "Unknown 0", "Unknown 1", "Unknown 2", "Unknown 3", "Unknown 4", "Unknown 5",
@@ -63,7 +67,16 @@ void S_PrintEvent(midievent_t* ev)
 
 int S_InitMusic(int device)
 {
+	//[ISB] TODO: I really need to add a switcher to allow the use of multiple synths. Agh
+	I_InitMIDI();
+	I_SetSoundfontFilename("C:/dev/soundfonts/gm.sf2"); //[ISB] get rid of this fixed path ASAP (so of course you'll forget about it...)
+	CurrentDevice = device;
 	return 0;
+}
+
+void S_ShutdownMusic()
+{
+	I_ShutdownMIDI();
 }
 
 int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
@@ -133,6 +146,12 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 	//Actually allocate and read events now
 	chunk->numEvents = eventCount;
 	chunk->events = (midievent_t*)malloc(sizeof(midievent_t) * eventCount);
+	if (chunk->events == NULL)
+	{
+		Error("Out of memory allocating a chunk's events");
+		return pointer;
+	}
+	memset(chunk->events, 0, sizeof(midievent_t) * eventCount);
 
 	if (chunk->events == nullptr)
 	{
@@ -222,14 +241,38 @@ void S_FreeHMPData(hmpheader_t* song)
 		//Need to check for special events. Agh
 		for (j = 0; j < chunk->numEvents; j++)
 		{
-			ev = &chunk->events[i];
+			ev = &chunk->events[j];
 			if (ev->dataLength != 0)
 			{
 				free(ev->data);
 			}
 		}
-		free(chunk);
+		free(chunk->events);
 	}
+	free(song->chunks);
+}
+
+uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle)
+{
+	if (CurrentDevice == 0) return 1;
+	hmpheader_t* song = (hmpheader_t*)malloc(sizeof(hmpheader_t));
+	if (S_LoadHMP(length, data, song)) 
+	{
+		*handle = 0xFFFF;
+		//Failed to load MIDI, oops
+		free(song);
+		return 1;
+	}
+	*handle = 0; //heh
+	I_StartMIDISong(song, loop);
+	return 0;
+}
+
+uint16_t S_StopSong()
+{
+	if (CurrentDevice == 0) return 1;
+	I_StopMIDISong();
+	return 0;
 }
 
 int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
@@ -246,12 +289,12 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 	song->seconds = BS_MakeInt(&data[60]);
 
 	song->chunks = (midichunk_t*)malloc(sizeof(midichunk_t) * song->numChunks);
-
 	if (song->chunks == nullptr)
 	{
-		fprintf(stderr, "Can't allocate MIDI chunk list");
-		exit(1);
+		Error("Can't allocate MIDI chunk list\n");
+		return 1;
 	}
+	memset(song->chunks, 0, sizeof(midichunk_t) * song->numChunks);
 
 	pointer = 776;
 	for (i = 0; i < song->numChunks; i++)

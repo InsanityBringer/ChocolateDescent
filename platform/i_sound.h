@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "s_midi.h"
+
 //-----------------------------------------------------------------------------
 // Constants
 //-----------------------------------------------------------------------------
@@ -49,6 +51,16 @@ int I_CheckSoundPlaying(int handle);
 
 int I_CheckSoundDone(int handle);
 
+//-----------------------------------------------------------------------------
+// Emitting pleasing rythmic sequences at player
+//-----------------------------------------------------------------------------
+
+void I_StartMIDISong(hmpheader_t* song, bool loop);
+void I_StopMIDISong();
+
+//-----------------------------------------------------------------------------
+// Emitting recordings of pleasing rythmic sequences at player
+//-----------------------------------------------------------------------------
 
 void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop);
 void I_StopHQSong();

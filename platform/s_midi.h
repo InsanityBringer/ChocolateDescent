@@ -17,6 +17,10 @@ as described in copying.txt
 #define EVENT_PITCH 14
 #define EVENT_SYSEX 15
 
+//[ISB] TODO: These need to be checked against the descent.cfg constants
+#define _MIDI_FM 2
+#define _MIDI_OPL3 3
+
 typedef struct
 {
 	int delta;
@@ -56,5 +60,10 @@ typedef struct
 } hmpheader_t;
 
 int S_InitMusic(int device);
+void S_ShutdownMusic();
+
+uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle);
+uint16_t S_StopSong();
 
 int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song);
+void S_FreeHMPData(hmpheader_t* song);

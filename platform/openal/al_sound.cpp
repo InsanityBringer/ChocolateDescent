@@ -7,19 +7,40 @@ Instead, it is released under the terms of the MIT License.
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <thread>
+#include <mutex>
 
 #ifdef USE_OPENAL
 
 #include "AL/al.h"
 #include "AL/alc.h"
 #include "platform/i_sound.h"
+#include "platform/s_midi.h"
+#include "platform/s_sequencer.h"
 #include "misc/error.h"
+//#include "mem/mem.h" //[ISB] mem.h isn't thread safe so uh
 
 ALCdevice *ALDevice = NULL;
 ALCcontext *ALContext = NULL;
 
 ALuint bufferNames[_MAX_VOICES];
 ALuint sourceNames[_MAX_VOICES];
+
+//MIDI fields
+
+#define MAX_BUFFERS_QUEUED 5
+
+hmpheader_t* CurrentSong;
+bool StopMIDI = true;
+
+std::mutex MIDIMutex;
+std::thread MIDIThread;
+
+ALuint BufferQueue[MAX_BUFFERS_QUEUED];
+ALuint MusicSource;
+int CurrentBuffers = 0;
+
+ALushort* MusicBufferData;
 
 void I_ErrorCheck(const char* context)
 {
@@ -179,6 +200,107 @@ void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
 
 void I_StopHQSong()
 {
+}
+
+void I_CreateMusicSource()
+{
+	alGenSources(1, &MusicSource);
+	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
+	alSource3f(MusicSource, AL_POSITION, 1.0f, 0.0f, 0.0f);
+	MusicBufferData = (ALushort*)malloc(sizeof(ALushort) * S_GetSamplesPerTick() * S_GetTicksPerSecond() * 2);
+	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
+	I_ErrorCheck("Creating music source");
+
+	//Immediately kick off the first buffer if possible
+	int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
+	alGenBuffers(1, &BufferQueue[CurrentBuffers]);
+	alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, MusicBufferData, finalTicks * S_GetSamplesPerTick() * sizeof(ALushort) * 2, 44100);
+	alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
+	alSourcePlay(MusicSource);
+	I_ErrorCheck("Queueing music buffers");
+}
+
+void I_DestroyMusicSource()
+{
+	int BuffersProcessed;
+	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
+	if (BuffersProcessed > 0) //Free any lingering buffers
+	{
+		alSourceUnqueueBuffers(MusicSource, BuffersProcessed, &BufferQueue[0]);
+		alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
+	}
+	I_ErrorCheck("Destroying lingering music buffers");
+	alDeleteSources(1, &MusicSource);
+	free(MusicBufferData);
+	I_ErrorCheck("Destroying music source");
+}
+
+void I_QueueMusicBuffer()
+{
+	std::unique_lock<std::mutex> lock(MIDIMutex);
+	int BuffersProcessed;
+	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
+	if (BuffersProcessed > 0)
+	{
+		alSourceUnqueueBuffers(MusicSource, BuffersProcessed, &BufferQueue[0]);
+		alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
+		for (int i = 0; i < MAX_BUFFERS_QUEUED - BuffersProcessed; i++)
+		{
+			BufferQueue[i] = BufferQueue[i + BuffersProcessed];
+		}
+		I_ErrorCheck("Unqueueing music buffers");
+	}
+	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
+	if (CurrentBuffers < MAX_BUFFERS_QUEUED)
+	{
+		int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
+		alGenBuffers(1, &BufferQueue[CurrentBuffers]);
+		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, MusicBufferData, finalTicks * S_GetSamplesPerTick() * sizeof(ALushort) * 2, 44100);
+		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
+		I_ErrorCheck("Queueing music buffers");
+	}
+}
+
+void I_MIDIThread()
+{
+	printf("Alright, bring it on!\n");
+	std::unique_lock<std::mutex> lock(MIDIMutex);
+	S_StartMIDISong(CurrentSong);
+	I_CreateMusicSource();
+	while (!StopMIDI)
+	{
+		lock.unlock();
+		I_QueueMusicBuffer();
+		lock.lock();
+	}
+	I_DestroyMusicSource();
+	printf("I'm goin'\n");
+}
+
+void I_StartMIDISong(hmpheader_t* song, bool loop)
+{
+	std::unique_lock<std::mutex> lock(MIDIMutex);
+	CurrentSong = song;
+	StopMIDI = false;
+	lock.unlock();
+	MIDIThread = std::thread(I_MIDIThread);
+}
+
+void I_StopMIDISong()
+{
+	std::unique_lock<std::mutex> lock(MIDIMutex);
+	StopMIDI = true;
+	lock.unlock();
+	MIDIThread.join();
+	printf("Oh, is that it?\n");
+	if (CurrentSong != NULL)
+	{
+		S_FreeHMPData(CurrentSong);
+		printf("Freeing song\n");
+		free(CurrentSong);
+		printf("It is done\n");
+		CurrentSong = NULL;
+	}
 }
 
 #endif

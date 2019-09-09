@@ -48,6 +48,16 @@ void S_SetSequencerTick(int hack)
 	Sequencer.ticks = hack;
 }
 
+int S_GetTicksPerSecond()
+{
+	return 120; //[ISB] todo: different tempos?
+}
+
+int S_GetSamplesPerTick()
+{
+	return Sequencer.samplesPerTick;
+}
+
 //Returns the next tick that an event has to be performed
 int S_SequencerTick()
 {
@@ -82,7 +92,7 @@ int S_SequencerTick()
 	return nextTick;
 }
 
-int S_SequencerRender(int ticksToRender, float* lbuffer, float* rbuffer)
+int S_SequencerRender(int ticksToRender, unsigned short* buffer)
 {
 	int currentTick = Sequencer.lastRenderedTick;
 	int destinationTick = Sequencer.lastRenderedTick + ticksToRender;
@@ -105,11 +115,10 @@ int S_SequencerRender(int ticksToRender, float* lbuffer, float* rbuffer)
 		//If there's still ticks to render, render them
 		if (numTicks > 0)
 		{
-			I_RenderMIDI(numTicks, Sequencer.samplesPerTick, lbuffer, rbuffer);
+			I_RenderMIDI(numTicks, Sequencer.samplesPerTick, buffer);
 			numTicksRendered += numTicks;
 			Sequencer.lastRenderedTick = currentTick;
-			lbuffer += Sequencer.samplesPerTick * numTicks;
-			rbuffer += Sequencer.samplesPerTick * numTicks;
+			buffer += Sequencer.samplesPerTick * numTicks * 2;
 		}
 
 		if (currentTick == Sequencer.ticks) //Still ticks to render
@@ -121,11 +130,10 @@ int S_SequencerRender(int ticksToRender, float* lbuffer, float* rbuffer)
 				numTicks = Sequencer.ticks - Sequencer.lastRenderedTick; //Render as much as possible
 				if (numTicks > 0)
 				{
-					I_RenderMIDI(numTicks, Sequencer.samplesPerTick, lbuffer, rbuffer);
+					I_RenderMIDI(numTicks, Sequencer.samplesPerTick, buffer);
 					numTicksRendered += numTicks;
 					Sequencer.lastRenderedTick = currentTick;
-					lbuffer += Sequencer.samplesPerTick * numTicks;
-					rbuffer += Sequencer.samplesPerTick * numTicks;
+					buffer += Sequencer.samplesPerTick * numTicks * 2;
 				}
 				S_RewindSequencer();
 				done = true;

@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 #include "platform/i_sound.h"
+#include "platform/s_midi.h"
 #include "fix/fix.h"
 #include "object.h"
 #include "platform/mono.h"
@@ -177,6 +178,7 @@ void digi_close_midi()
 		{
 			// stop the last MIDI song from playing
 			//sosMIDIStopSong( wSongHandle );
+			S_StopSong();
 			// uninitialize the last MIDI song
 			//sosMIDIUnInitSong( wSongHandle );
 			wSongHandle = 0xffff;
@@ -204,6 +206,7 @@ void digi_close_midi()
 		{
 			// uninitialize the MIDI system
 			//sosMIDIUnInitSystem();
+			S_ShutdownMusic();
 			midi_system_initialized = 0;
 		}
 	}
@@ -213,6 +216,7 @@ void digi_close_digi()
 {
 	if (digi_driver_board>0)	
 	{
+		I_ShutdownAudio();
 		if ( hTimerEventHandle < 0xffff )	
 		{
 			//sosTIMERRemoveEvent( hTimerEventHandle );
@@ -235,22 +239,13 @@ void digi_close()
 		//timer_set_function( NULL );
 	}
 
-	/*if ( digi_driver_board == _GUS_8_ST )	
-	{
-		digi_close_digi();
-		digi_close_midi();
-	} 
-	else 
-	{
-		digi_close_midi();
-		digi_close_digi();
-	}*/
+	digi_close_midi();
+	digi_close_digi();
 
 	if ( digi_system_initialized )	
 	{
 		// uninitialize the DIGI system
 		//sosDIGIUnInitSystem();
-		I_ShutdownAudio();
 		digi_system_initialized = 0;
 	}
 
@@ -367,8 +362,10 @@ int digi_init_midi()
 		}
 		return 0;
 	*/
-	return 0;//KRB Comment out...
+	if (digi_midi_type > 0)
+		return S_InitMusic(digi_midi_type);
 
+	return 0;
 }
 
 int digi_init_digi()
@@ -414,6 +411,7 @@ int digi_init_digi()
 int digi_init()
 {
 	digi_driver_board = 1; //[ISB] hackhack
+	digi_midi_type = 1; //[ISB] hackhackhack
 	int i;
 #ifdef USE_CD
 	{
@@ -989,6 +987,7 @@ void digi_stop_current_song()
 	{
 		// stop the last MIDI song from playing
 		//sosMIDIStopSong( wSongHandle );
+		S_StopSong();
 		// uninitialize the last MIDI song
 		//sosMIDIUnInitSong( wSongHandle );
 		wSongHandle = 0xffff;
@@ -1010,109 +1009,113 @@ void digi_play_midi_song(char* filename, char* melodic_bank, char* drum_bank, in
 	if (PlayHQSong(filename, loop))
 		return;
 
-	/*
-		int i;
-		char fname[128];
-	   WORD     wError;                 // error code returned from functions
-		CFILE		*fp;
+	int i;
+	char fname[128];
+	uint16_t wError;                 // error code returned from functions
+	CFILE *fp;
 
-		// structure to pass sosMIDIInitSong
-		_SOS_MIDI_INIT_SONG     sSOSInitSong;
+	// structure to pass sosMIDIInitSong
+	//_SOS_MIDI_INIT_SONG     sSOSInitSong;
 
-		if (!Digi_initialized) return;
-		if ( digi_midi_type <= 0 )	return;
+	if (!Digi_initialized) return;
+	if (digi_midi_type <= 0)	return;
 
-		digi_stop_current_song();
+	digi_stop_current_song();
 
-		if ( filename == NULL )	return;
+	if (filename == NULL)	return;
 
-		strcpy( digi_last_midi_song, filename );
-		strcpy( digi_last_melodic_bank, melodic_bank );
-		strcpy( digi_last_drum_bank, drum_bank );
+	strcpy(digi_last_midi_song, filename);
+	strcpy(digi_last_melodic_bank, melodic_bank);
+	strcpy(digi_last_drum_bank, drum_bank);
 
-		fp = NULL;
+	fp = NULL;
 
-		if ( (digi_midi_type==_MIDI_FM)||(digi_midi_type==_MIDI_OPL3) )	{
-			int sl;
-			sl = strlen( filename );
-			strcpy( fname, filename );
-			fname[sl-1] = 'q';
-			fp = cfopen( fname, "rb" );
-		}
+	if ((digi_midi_type==_MIDI_FM)||(digi_midi_type==_MIDI_OPL3))
+	{
+		int sl;
+		sl = strlen(filename);
+		strcpy(fname, filename);
+		fname[sl-1] = 'q';
+		fp = cfopen(fname, "rb");
+	}
 
-		if ( !fp  )	{
-			fp = cfopen( filename, "rb" );
-			if (!fp) {
-				mprintf( (1, "Error opening midi file, '%s'", filename ));
-				return;
-			}
-		}
-		if ( midi_volume < 1 )		{
-			cfclose(fp);
-			return;				// Don't play song if volume == 0;
-		}
-		SongSize = cfilelength( fp );
-		SongData	= malloc( SongSize );
-		if (SongData==NULL)	{
-			cfclose(fp);
-			mprintf( (1, "Error mallocing %d bytes for '%s'", SongSize, filename ));
+	if (!fp)	
+	{
+		fp = cfopen( filename, "rb" );
+		if (!fp) 
+		{
+			mprintf((1, "Error opening midi file, '%s'", filename));
 			return;
 		}
-		if ( cfread (  SongData, SongSize, 1, fp )!=1)	{
-			mprintf( (1, "Error reading midi file, '%s'", filename ));
-			cfclose(fp);
-			free(SongData);
-			SongData=NULL;
-			return;
-		}
+	}
+	if ( midi_volume < 1 )		
+	{
 		cfclose(fp);
+		return;				// Don't play song if volume == 0;
+	}
+	SongSize = cfilelength(fp);
+	SongData = (uint8_t*)malloc(SongSize);
 
-		if ( (digi_midi_type==_MIDI_FM)||(digi_midi_type==_MIDI_OPL3) )	{
-			if ( !digi_load_fm_banks(melodic_bank, drum_bank) )	{
-				return;
-			}
-		}
+	if (SongData==NULL)
+	{
+		cfclose(fp);
+		mprintf((1, "Error mallocing %d bytes for '%s'", SongSize, filename));
+		return;
+	}
+	if (cfread (SongData, SongSize, 1, fp)!=1)	
+	{
+		mprintf((1, "Error reading midi file, '%s'", filename));
+		cfclose(fp);
+		free(SongData);
+		SongData=NULL;
+		return;
+	}
+	cfclose(fp);
 
-		if (!dpmi_lock_region(SongData, SongSize))	{
-			mprintf( (1, "Error locking midi file, '%s'", filename ));
-			free(SongData);
-			SongData=NULL;
+	if ( (digi_midi_type==_MIDI_FM)||(digi_midi_type==_MIDI_OPL3) )	
+	{
+		if (!digi_load_fm_banks(melodic_bank, drum_bank))	
+		{
 			return;
 		}
+	}
 
-		// setup the song initialization structure
-		sSOSInitSong.lpSongData = SongData;
-		if ( loop )
-			sSOSInitSong.lpSongCallback = sosMIDICallback;
-		else
-			sSOSInitSong.lpSongCallback = _NULL;
+	// setup the song initialization structure
+	/*sSOSInitSong.lpSongData = SongData;
+	if ( loop )
+		sSOSInitSong.lpSongCallback = sosMIDICallback;
+	else
+		sSOSInitSong.lpSongCallback = _NULL;
 
-		for ( i=0; i<32; i++ )
-			sSOSTrackMap.wTrackDevice[i] = _MIDI_MAP_TRACK;
+	for ( i=0; i<32; i++ )
+		sSOSTrackMap.wTrackDevice[i] = _MIDI_MAP_TRACK;
 
-		for ( i=0; i<_SOS_MIDI_MAX_TRACKS; i++ )
-			_lpSOSMIDITrack[0][i] = _NULL;
+	for ( i=0; i<_SOS_MIDI_MAX_TRACKS; i++ )
+		_lpSOSMIDITrack[0][i] = _NULL;*/
 
-		//initialize the song
-		if( ( wError = sosMIDIInitSong( &sSOSInitSong, &sSOSTrackMap, &wSongHandle ) ) )	{
-			mprintf( (1, "\nHMI Error : %s", sosGetErrorString( wError ) ));
-			free(SongData);
-			SongData=NULL;
-			return;
-		}
+	//initialize the song
+	//if((wError = sosMIDIInitSong( &sSOSInitSong, &sSOSTrackMap, &wSongHandle )))
+	if ((wError = S_StartSong(SongSize, SongData, (bool)loop, &wSongHandle)));
+	{
+		//mprintf((1, "\nHMI Error : %s", sosGetErrorString( wError )));
+		free(SongData);
+		SongData=NULL;
+		return;
+	}
 
-		Assert( wSongHandle == 0 );
+	Assert( wSongHandle == 0 );
 
-	  // start the song playing
-	   if( ( wError = sosMIDIStartSong( wSongHandle ) ) ) {
-			mprintf( (1, "\nHMI Error : %s", sosGetErrorString( wError ) ));
-		   // uninitialize the last MIDI song
-			sosMIDIUnInitSong( wSongHandle );
-			free(SongData);
-			SongData=NULL;
-			return;
-	   }
-	   */
+	// start the song playing
+	//[ISB] I hope I don't need to actually do song initalization and playing separately like they did...
+	/*if( ( wError = sosMIDIStartSong( wSongHandle ) ) ) {
+		mprintf( (1, "\nHMI Error : %s", sosGetErrorString( wError ) ));
+		// uninitialize the last MIDI song
+		sosMIDIUnInitSong( wSongHandle );
+		free(SongData);
+		SongData=NULL;
+		return;
+	}*/
+	   
 }
 
 void digi_get_sound_loc(vms_matrix* listener, vms_vector* listener_pos, int listener_seg, vms_vector* sound_pos, int sound_seg, fix max_volume, int* volume, int* pan, fix max_distance)
@@ -1647,6 +1650,7 @@ void digi_stop_all()
 		{
 		   // stop the last MIDI song from playing
 			//sosMIDIStopSong( wSongHandle );
+			S_StopSong();
 		   // uninitialize the last MIDI song
 			//sosMIDIUnInitSong( wSongHandle );
 			wSongHandle = 0xffff;
