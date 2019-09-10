@@ -1006,7 +1006,6 @@ void digi_stop_current_song()
 
 void digi_play_midi_song(char* filename, char* melodic_bank, char* drum_bank, int loop)
 {
-	int i;
 	char fname[128];
 	uint16_t wError;                 // error code returned from functions
 	CFILE *fp;
@@ -1095,7 +1094,7 @@ void digi_play_midi_song(char* filename, char* melodic_bank, char* drum_bank, in
 
 	//initialize the song
 	//if((wError = sosMIDIInitSong( &sSOSInitSong, &sSOSTrackMap, &wSongHandle )))
-	if ((wError = S_StartSong(SongSize, SongData, (bool)loop, &wSongHandle)));
+	if ((wError = S_StartSong(SongSize, SongData, (bool)loop, &wSongHandle)))
 	{
 		//mprintf((1, "\nHMI Error : %s", sosGetErrorString( wError )));
 		free(SongData);

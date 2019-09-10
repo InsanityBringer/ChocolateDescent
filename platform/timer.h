@@ -22,7 +22,7 @@ fix timer_get_fixed_seconds(); // Rolls about every 9 hours...
 fix timer_get_approx_seconds(); // Returns time since program started... accurate to 1/120th of a second
 
 //[ISB] Replacement for the annoying ticker, increments 18 times/sec
-int I_GetTicks();
+uint32_t I_GetTicks();
 
 //[ISB] replacement for delay?
 void I_Delay(int ms);

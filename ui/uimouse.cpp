@@ -25,8 +25,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PTR_W 11
 #define PTR_H 19
 
-char ui_converted_mouse_pointer[PTR_W * PTR_H];
-char ui_mouse_pointer[] = \
+unsigned char ui_converted_mouse_pointer[PTR_W * PTR_H]; //[ISB] why is char signedness not defined. Aaa
+unsigned char ui_mouse_pointer[] = \
 //"1111100000000000"\
 //"1111111111000000"\
 //"1144411111111111"\

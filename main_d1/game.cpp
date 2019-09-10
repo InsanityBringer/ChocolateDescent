@@ -513,7 +513,7 @@ void HUD_clear_messages();
 
 void toggle_cockpit()
 {
-	int new_mode;
+	int new_mode = 0;
 
 	switch (Cockpit_mode) 
 	{

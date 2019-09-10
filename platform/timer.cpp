@@ -37,9 +37,9 @@ fix timer_get_approx_seconds()
 	return timer_get_fixed_seconds();
 }
 
-int I_GetTicks()
+uint32_t I_GetTicks()
 {
-	return (GetClockTimeMS() - baseTick) * 18 / 1000;
+	return (int)((GetClockTimeMS() - baseTick) * 18 / 1000);
 }
 
 void I_Delay(int ms)

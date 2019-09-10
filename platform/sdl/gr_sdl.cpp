@@ -315,8 +315,6 @@ void I_DrawCurrentCanvas(int sync)
 	{
 		SDL_Delay(1000 / 70);
 	}
-	//Uint8* pixels;
-	SDL_Surface* winSurface;
 	SDL_Rect src, dest;
 
 	if (!gameSurface) return;

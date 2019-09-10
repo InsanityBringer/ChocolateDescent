@@ -1102,7 +1102,7 @@ void do_endlevel_flythrough(int n)
 	{
 		vms_vector curcenter, nextcenter;
 		fix step_size, seg_time;
-		short entry_side, exit_side;	//what sides we entry and leave through
+		short entry_side = 0, exit_side;	//what sides we entry and leave through
 		vms_vector dest_point;		//where we are heading (center of exit_side)
 		vms_angvec dest_angles;		//where we want to be pointing
 		vms_matrix dest_orient;
@@ -1319,6 +1319,7 @@ void load_endlevel_data(int level_num)
 	int var, segnum, sidenum;
 	int exit_side, i;
 	int have_binary = 0;
+	int scanres = 0; //[ISB] lets fix some stupid compiler warnings I guess
 
 	endlevel_data_loaded = 0;		//not loaded yet
 
@@ -1408,7 +1409,9 @@ try_again:
 			load_terrain(p);
 			break;
 		case 2:
-			sscanf(p, "%d,%d", &exit_point_bmx, &exit_point_bmy);
+			scanres = sscanf(p, "%d,%d", &exit_point_bmx, &exit_point_bmy);
+			if (scanres != 2)
+				Warning("insufficent arguemnts to line 3 in exit data for level %d\n", level_num);
 			break;
 		case 3: //exit heading
 			exit_angles.h = i2f(atoi(p)) / 360;
@@ -1441,7 +1444,9 @@ try_again:
 			vms_angvec ta;
 			int pitch, head;
 
-			sscanf(p, "%d,%d", &head, &pitch);
+			scanres = sscanf(p, "%d,%d", &head, &pitch);
+			if (scanres != 2)
+				Warning("insufficent arguemnts to line 3 in exit data for level %d\n", level_num);
 
 			ta.h = i2f(head) / 360;
 			ta.p = -i2f(pitch) / 360;
