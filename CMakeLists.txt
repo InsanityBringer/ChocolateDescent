@@ -12,6 +12,7 @@ set_property(GLOBAL PROPERTY KEX_ENGINE_SRCS "")
 set_property(GLOBAL PROPERTY SOURCE_GROUPS "")
 
 set(METADATA_BASE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Base path for project")
+set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor")
 
 # The following macros are provided by Kaiser and Altazimuth, from the Kex Engine project.
 # ---------------------------------------------------------------------------------
@@ -83,11 +84,10 @@ add_subdirectory(ui)
 add_subdirectory(vecmat)
 
 get_property(PROJECT_FILES GLOBAL PROPERTY KEX_ENGINE_SRCS)
-if (WIN32) #[ISB] there's probably a way a million times better to do this, but I'm having trouble wrapping my head around cmake variables ATM...............
-    add_executable(ChocolateDescent WIN32 ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
-else()
-    add_executable(ChocolateDescent ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
-endif()
+
+#[ISB] allegedly don't need to check platform. yay.
+add_executable(ChocolateDescent WIN32 ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
+
 
 #[ISB] so I somehow messed up Kaiser's really cool grouping macro and I honestly have no clue why, so do this the hard way for now
 source_group("2d" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/2d/.+")
