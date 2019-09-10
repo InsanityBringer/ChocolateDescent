@@ -186,11 +186,12 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 
 
 	char OrgDir[128];
+	char* hack; //[ISB] should actually do something with this...
 
-	_getcwd(OrgDir, 128);
+	hack = _getcwd(OrgDir, 128); //[ISB] need to make this portable, and call getcwd on not MSVC shit
 
 	if (FirstTime)
-		_getcwd(CurDir, 128);
+		hack = _getcwd(CurDir, 128);
 	FirstTime = 0;
 
 	file_chdir(CurDir);
@@ -359,7 +360,7 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 				ui_listbox_change(wnd, ListBox2, NumDirs, (char*)directory_list, 13);
 				new_listboxes = 0;
 
-				_getcwd(CurDir, 35);
+				hack = _getcwd(CurDir, 35);
 				ui_wprintf_at(wnd, 20, 60, "%s", Spaces);
 				ui_wprintf_at(wnd, 20, 60, "%s", CurDir);
 
@@ -385,14 +386,14 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 
 	//key_flush();
 
-	_splitpath_s(UserFile->text, drive, 3, dir, 256, fname, 256, ext, 256);
+	_splitpath_s(UserFile->text, drive, 3, dir, 256, fname, 256, ext, 256); //[ISB] make portable
 	sprintf_s(fulldir, 259, "%s%s.", drive, dir);
 	sprintf_s(fullfname, 512, "%s%s", fname, ext);
 
 	if (strlen(fulldir) > 1)
 		file_chdir(fulldir);
 
-	_getcwd(CurDir, 35);
+	hack = _getcwd(CurDir, 35);
 
 	if (strlen(CurDir) > 0)
 	{

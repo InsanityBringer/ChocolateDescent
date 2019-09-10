@@ -81,7 +81,7 @@ void S_ShutdownMusic()
 
 int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 {
-	int done, oldpointer, position, value, i, shift;
+	int done, oldpointer, position, value, i;
 	int command;
 	uint8_t b;
 	int eventCount = 0;

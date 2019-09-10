@@ -167,7 +167,10 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 	uint8_t	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile = cfopen(filename, "rb")) == NULL)
+	{
 		Error("Can't open file <%s>", filename);
+		return NULL;
+	}
 
 	Assert(ifile->size <= MODEL_BUF_SIZE);
 
@@ -376,7 +379,10 @@ int read_model_guns(char* filename, vms_vector* gun_points, vms_vector* gun_dirs
 	uint8_t	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile = cfopen(filename, "rb")) == NULL)
+	{
 		Error("Can't open file <%s>", filename);
+		return 0;
+	}
 
 	Assert(ifile->size <= MODEL_BUF_SIZE);
 
