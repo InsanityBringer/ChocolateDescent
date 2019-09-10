@@ -35,7 +35,7 @@ typedef struct quad {
 #define f2ir(f) (((f)+f0_5)>>16)
 
 //Convert fix to float and float to fix
-#define f2fl(f) (((float) (f)) / 65536.0)
+#define f2fl(f) (((float) (f)) / 65536.0f) //[ISB] add f suffix to try to resolve compiler warnings
 #define fl2f(f) ((fix) ((f) * 65536))
 
 //Some handy constants
