@@ -398,10 +398,7 @@ int gr_set_mode(int mode)
 		w = 320; r = 320; h = 400; t = BM_LINEAR;
 		break;
 	case 19:
-		gr_set_misc_mode(0x13);
-		gr_set_cellheight(3);
-
-		w = 320; r = 320; h = 100; t = BM_LINEAR; data = 0xA0000;
+		w = 320; r = 320; h = 100; t = BM_SVGA; data = 0;
 		break;
 	case 20:
 		//retcode = gr_vesa_setmode(0x102);
@@ -435,8 +432,9 @@ int gr_set_mode(int mode)
 		//h = w & 0xffff; w = w >> 16; r = w / 4; t = BM_MODEX; data = 0;
 		return 1;
 	}
+	//[ISB] Dropping the linearization of all modes, to allow the paged video modes to work. 
 	//[ISB] Linearize all modes
-	t = BM_LINEAR;
+	//t = BM_LINEAR;
 	gr_palette_clear();
 
 	I_SetMode(mode);
@@ -489,7 +487,7 @@ int gr_init(int mode)
 		return 1;
 
 	// Save the current palette, and fade it out to black.
-	gr_palette_read((uint8_t*)gr_pal_default);
+	/*gr_palette_read((uint8_t*)gr_pal_default);
 	gr_palette_faded_out = 0;
 	org_gamma = gr_palette_get_gamma();
 	gr_palette_set_gamma(0);
@@ -497,7 +495,7 @@ int gr_init(int mode)
 	gr_palette_clear();
 	gr_palette_set_gamma(org_gamma);
 	gr_sync_display();
-	gr_sync_display();
+	gr_sync_display();*/
 
 	MALLOC( grd_curscreen,grs_screen,1 );//Hack by KRB
 	//grd_curscreen = (grs_screen*)malloc(1 * sizeof(grs_screen)); //[ISB] unhack? 

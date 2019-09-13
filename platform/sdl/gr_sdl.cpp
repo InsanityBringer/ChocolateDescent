@@ -41,6 +41,9 @@ int Fullscreen = 0;
 
 SDL_Rect screenRectangle;
 
+//A bigass hack, to allow "planar" modes to be paged
+uint8_t* PixelSource = NULL;
+
 int I_Init()
 {
 	int res;
@@ -235,7 +238,6 @@ void I_DoEvents()
 			switch (winEv.event)
 			{
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
-				printf("Hi you clicked my window. Isn't that great?\n");
 				SDL_FlushEvents(SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP);
 				break;
 			}
@@ -320,9 +322,15 @@ void I_DrawCurrentCanvas(int sync)
 	if (!gameSurface) return;
 
 	unsigned char* pixels = (unsigned char*)gameSurface->pixels;
+	unsigned char* srcPixels;
+
+	if (screenBuffer->cv_bitmap.bm_type == BM_LINEAR || PixelSource == NULL)
+		srcPixels = screenBuffer->cv_bitmap.bm_data;
+	else
+		srcPixels = PixelSource;
 
 	SDL_LockSurface(gameSurface);
-	memcpy(pixels, screenBuffer->cv_bitmap.bm_data, screenBuffer->cv_bitmap.bm_w * screenBuffer->cv_bitmap.bm_h); //[ISB] alternate attempt at this nonsense
+	memcpy(pixels, srcPixels, screenBuffer->cv_bitmap.bm_w * screenBuffer->cv_bitmap.bm_h); //[ISB] alternate attempt at this nonsense
 	SDL_UnlockSurface(gameSurface);
 
 	src.x = src.y = 0;
@@ -370,6 +378,8 @@ void I_BlitCurrentCanvas()
 
 void I_BlitCanvas(grs_canvas *canv)
 {
+	//[ISB] TODO: This probably should do a memcpy to ensure the data is sticky even if the original source is destroyed, just in case. 
+	PixelSource = canv->cv_bitmap.bm_data;
 }
 
 void I_Shutdown()

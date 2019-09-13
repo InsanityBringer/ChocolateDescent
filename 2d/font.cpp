@@ -467,19 +467,19 @@ int gr_ustring(int x, int y, const char* s)
 		return gr_internal_color_string(x, y, s);
 	}
 	else
-		switch (TYPE)
+		/*switch (TYPE)
 		{
-		case BM_LINEAR:
+		case BM_LINEAR:*/
 			if (BG_COLOR == -1)
 				return gr_internal_string0m(x, y, (unsigned char*)s);
 			else
 				return gr_internal_string0(x, y, (unsigned char*)s);
-		case BM_SVGA:
+		/*case BM_SVGA:
 			if (BG_COLOR == -1)
 				return gr_internal_string2m(x, y, (char*)s);
 			else
 				return gr_internal_string2(x, y, (char*)s);
-		}
+		}*/
 
 	return 0;
 }
