@@ -157,3 +157,6 @@ if (FLUIDSYNTH_FOUND)
         ${FLUIDSYNTH_INCLUDE_DIRS}
     )
 endif()
+
+#Need some additional definitions in release configuration.
+target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")

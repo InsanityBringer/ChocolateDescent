@@ -1,4 +1,5 @@
 //[ISB]: Stub MDA implemetation for the moment tbh
+#ifndef NDEBUG
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,3 +66,5 @@ void mrefresh(short n)
 {
 	fprintf(stderr, "mrefresh: STUB\n");
 }
+
+#endif
