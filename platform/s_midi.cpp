@@ -21,6 +21,8 @@ as described in copying.txt.
 
 int CurrentDevice = 0;
 
+char SoundFontFilename[256];
+
 #ifdef DEBUG_MIDI_READING
 char* EventNames[] = { "Unknown 0", "Unknown 1", "Unknown 2", "Unknown 3", "Unknown 4", "Unknown 5",
 "Unknown 6", "Unknown 7", "Note Off", "Note On", "Aftertouch", "Controller", "Patch", "Pressure",
@@ -69,7 +71,7 @@ int S_InitMusic(int device)
 {
 	//[ISB] TODO: I really need to add a switcher to allow the use of multiple synths. Agh
 	I_InitMIDI();
-	I_SetSoundfontFilename("C:/dev/soundfonts/gm.sf2"); //[ISB] get rid of this fixed path ASAP (so of course you'll forget about it...)
+	I_SetSoundfontFilename(SoundFontFilename); //[ISB] get rid of this fixed path ASAP (so of course you'll forget about it...)
 	CurrentDevice = device;
 	return 0;
 }

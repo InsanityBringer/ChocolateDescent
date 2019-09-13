@@ -18,16 +18,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 #include "2d/i_gr.h"
+#include "platform/s_midi.h"
 
 static const char* WindowWidthStr = "WindowWidth";
 static const char* WindowHeightStr = "WindowHeight";
 static const char* FitModeStr = "FitMode";
 static const char* FullscreenStr = "Fullscreen";
+static const char* SoundFontPath = "SoundFontPath";
 
+//[ISB] to be honest, I hate this configuration parser. I should try to create something more flexible at some point.
 int I_ReadChocolateConfig()
 {
 	FILE* infile;
-	char line[80], * token, * value, * ptr;
+	char line[512], * token, * value, * ptr;
 
 	char* next = NULL;
 
@@ -42,8 +45,8 @@ int I_ReadChocolateConfig()
 	}
 	while (!feof(infile)) 
 	{
-		memset(line, 0, 80);
-		fgets(line, 80, infile);
+		memset(line, 0, 512);
+		fgets(line, 512, infile);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;
@@ -59,6 +62,11 @@ int I_ReadChocolateConfig()
 				BestFit = strtol(value, NULL, 10);
 			else if (!strcmp(token, FullscreenStr))
 				Fullscreen = strtol(value, NULL, 10);
+			else if (!strcmp(token, SoundFontPath))
+			{
+				memset(&SoundFontFilename[0], 0, 256);
+				strncpy(&SoundFontFilename[0], value, 255);
+			}
 		}
 	}
 

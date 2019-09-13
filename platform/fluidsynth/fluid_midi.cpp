@@ -1,3 +1,10 @@
+/*
+The code contained in this file is not the property of Parallax Software,
+and is not under the terms of the Parallax Software Source license.
+Instead, it is released under the terms of the MIT License,
+as described in copying.txt.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -18,6 +25,7 @@ int I_InitMIDI()
 	FluidSynthSettings = new_fluid_settings();
 	FluidSynth = new_fluid_synth(FluidSynthSettings);
 	//AudioDriver = new_fluid_audio_driver(FluidSynthSettings, FluidSynth);
+	I_SetSoundfontFilename(SoundFontFilename);
 
 	if (FluidSynth == nullptr) return 1;
 

@@ -21,6 +21,8 @@ as described in copying.txt
 #define _MIDI_FM 2
 #define _MIDI_OPL3 3
 
+extern char SoundFontFilename[];
+
 typedef struct
 {
 	int delta;
