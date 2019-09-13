@@ -18,6 +18,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "misc/error.h"
 
+#ifdef WIN32
+#include <Windows.h>
+#include <debugapi.h>
+#endif
+
 #define MAX_MSG_LEN 256
 
 int initialized = 0;
@@ -68,8 +73,12 @@ void _Assert(int expr, const char* expr_text, const char* filename, int linenum)
 void Int3()
 {
 #ifndef NDEBUG
+#ifdef WIN32
+	DebugBreak();
+#else
 	Warning("int3 raised\n");
 	return;
+#endif
 #endif
 }
 
