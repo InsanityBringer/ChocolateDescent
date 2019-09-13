@@ -41,6 +41,17 @@ int I_ReadChocolateConfig()
 	//[ISB] Can't wait for it to cause severe issues down the line when running on linux.......
 	if (infile == NULL) 
 	{
+		//Try creating a default config file
+		err = fopen_s(&infile, "chocolatedescent.cfg", "w");
+		if (infile != NULL)
+		{
+			fprintf(infile, "%s=%d\n", WindowWidthStr, WindowWidth);
+			fprintf(infile, "%s=%d\n", WindowHeightStr, WindowHeight);
+			fprintf(infile, "%s=%d\n", FitModeStr, BestFit);
+			fprintf(infile, "%s=%d\n", FullscreenStr, Fullscreen);
+			fprintf(infile, "%s=%s\n", SoundFontPath, SoundFontFilename);
+			fclose(infile);
+		}
 		return 1;
 	}
 	while (!feof(infile)) 
