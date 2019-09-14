@@ -1,1 +1,17 @@
-investigate quad_sqrt infinite loop
+Large scale changes:
+Integrate editor code.
+    Will require cleaning up the UI code some, in particular getting portable directory iteration code working in file.cpp
+Port to Linux. Known potential hangups so far:
+    Usage of io.h functions. 
+    Nonportable code in findfile.cpp. Make linux implementation, using dirent perhaps?
+    Deal with MS's odd posix-y but not really functions, such as _getcwd. Implement a file of macros that defines them back to getcwd and so on on Windows?
+    Desire to compile with both gcc and clang. 
+        It would also be nice to get it working on macos, but this will require enslaving someone with a Mac I guess...
+Port Descent 2.
+    Some code can remain the same, but will have entirely separate game code.
+        Texmap will probably also be separated, due to the considerable overhaul in it.
+    Will probably require some funky work with the CMakeLists
+    MVE decoder is required. Introduce libmve from D2X?
+
+Small scale changes:
+    User directory based configuration files. Currently assumes data is in working dir. Won't work on Windows if in program files, or Linux if in the proper locations, and so on...
