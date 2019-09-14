@@ -403,9 +403,9 @@ void I_SetSoundInformation(int handle, int volume, int angle)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
-	float flang = (angle / 65536.0f) * (3.1415927f * 2);
-	float x = (float)cos(flang) * .05f;
-	float y = (float)sin(flang) * .05f;
+	float flang = (angle / 65536.0f) * (3.1415927f);
+	float x = (float)cos(flang);
+	float y = (float)sin(flang);
 
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	sources[handle].angle_x = x;
@@ -417,9 +417,9 @@ void I_SetAngle(int handle, int angle)
 {
 	if (handle < 0 ||handle >= _MAX_VOICES) return;
 
-	float flang = (angle / 65536.0f) * (3.1415927f * 2);
-	float x = (float)cos(flang) * .05f;
-	float y = (float)sin(flang) * .05f;
+	float flang = (angle / 65536.0f) * (3.1415927f);
+	float x = (float)cos(flang);
+	float y = (float)sin(flang);
 
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	sources[handle].angle_x = x;
@@ -486,6 +486,19 @@ void I_StopHQSong()
 	music.pos = 0;
 	music.frac = 0;
 	music.playing = false;
+}
+
+//[ISB] Okay I'll confess, I'm not quite sure what to do here. Ugh
+void I_StartMIDISong(hmpheader_t* song, bool loop)
+{
+}
+
+void I_StopMIDISong()
+{
+}
+
+void I_SetMusicVolume(int volume)
+{
 }
 
 #endif
