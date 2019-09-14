@@ -82,8 +82,8 @@ int I_ReadChocolateConfig()
 	}
 
 	//some basic validation
-	if (WindowWidth <= 0) WindowWidth = 800;
-	if (WindowHeight <= 0) WindowHeight = 600;
+	if (WindowWidth <= 320) WindowWidth = 320;
+	if (WindowHeight <= 240) WindowHeight = 240;
 
 	fclose(infile);
 
