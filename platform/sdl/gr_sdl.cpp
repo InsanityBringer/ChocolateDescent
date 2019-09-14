@@ -106,7 +106,8 @@ int I_CheckMode(int mode)
 	case SM_640x480V:
 	case SM_800x600V:
 	case SM_1024x768V:
-	case 19: return 0;
+	case 19:
+	case 21: return 0;
 	}
 	return 11;
 }
@@ -176,6 +177,9 @@ int I_SetMode(int mode)
 		break;
 	case 19:
 		w = 320; h = 100;
+		break;
+	case 21:
+		w = 160; h = 100;
 		break;
 	default:
 		Error("I_SetMode: bad mode %d\n", mode);
