@@ -364,6 +364,9 @@ int gr_set_mode(int mode)
 		//gr_set_misc_mode(0x13);
 		w = 320; r = 320; h = 200; t = BM_LINEAR; data = 0xA0000;
 		break;
+	case SM_320x240U:
+		w = 320; r = 320; h = 240; t = BM_SVGA;
+		break;
 	case SM_640x400V:
 		//retcode = gr_vesa_setmode(0x100);
 		//if (retcode != 0) return retcode;
@@ -395,7 +398,7 @@ int gr_set_mode(int mode)
 		w = 800; r = 800 * 2; h = 600; t = BM_SVGA15; data = 0;
 		break;
 	case SM_320x400U:
-		w = 320; r = 320; h = 400; t = BM_LINEAR;
+		w = 320; r = 320; h = 400; t = BM_SVGA;
 		break;
 	case 19:
 		w = 320; r = 320; h = 100; t = BM_SVGA; data = 0;
