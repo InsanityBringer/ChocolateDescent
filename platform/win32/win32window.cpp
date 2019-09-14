@@ -682,6 +682,11 @@ void I_Shutdown()
 	d3d9 = nullptr;
 }
 
+void I_DisplayError(const char* msg)
+{
+	MessageBoxA(Window, msg, "Game Error", 0);
+}
+
 // Mouse API:
 
 void mouse_get_pos(int* x, int* y)

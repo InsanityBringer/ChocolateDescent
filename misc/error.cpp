@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "platform/mono.h"
 #include "misc/error.h"
+#include "2d/i_gr.h"
 
 #ifdef WIN32
 #include <Windows.h>
@@ -100,6 +101,8 @@ void Error(const char* fmt, ...)
 	va_end(arglist);
 
 	if (!initialized) print_exit_message();
+
+	I_DisplayError(exit_message);
 
 	exit(1);
 }

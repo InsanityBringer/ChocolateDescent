@@ -31,6 +31,9 @@ void I_ShutdownGraphics();
 //Shutdown framework;
 void I_Shutdown();
 
+//Display an error message
+void I_DisplayError(const char* msg);
+
 //-----------------------------------------------------------------------------
 //	Setting graphics modes
 //-----------------------------------------------------------------------------

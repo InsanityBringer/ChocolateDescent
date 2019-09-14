@@ -19,3 +19,6 @@ Warningless compile.
 
 Small scale changes:
     User directory based configuration files. Currently assumes data is in working dir. Won't work on Windows if in program files, or Linux if in the proper locations, and so on...
+
+Changes that I don't know the scale of tbh:
+    MIDI music in the native Win32 audio backend. 

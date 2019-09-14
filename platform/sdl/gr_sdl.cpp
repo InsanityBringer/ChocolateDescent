@@ -309,6 +309,7 @@ void I_ReadPalette(uint8_t* dest)
 void I_WaitVBL()
 {
 	//Now what is a VBL, anyways?
+	SDL_Delay(1000 / 70);
 }
 
 void I_DrawCurrentCanvas(int sync)
@@ -385,6 +386,11 @@ void I_BlitCanvas(grs_canvas *canv)
 void I_Shutdown()
 {
 	SDL_Quit();
+}
+
+void I_DisplayError(const char* msg)
+{
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game Error", msg, gameWindow);
 }
 
 #endif
