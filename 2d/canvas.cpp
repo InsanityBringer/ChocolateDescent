@@ -33,7 +33,7 @@ grs_canvas* gr_create_canvas(int w, int h)
 	grs_canvas* newvar;
 
 	newvar = (grs_canvas*)malloc(sizeof(grs_canvas));
-	data = (unsigned char*)malloc(w * h * sizeof(unsigned char)); //[ISB] hack: Try allocating enough space for two screens?
+	data = (unsigned char*)malloc(w * h * sizeof(unsigned char));
 
 	newvar->cv_bitmap.bm_x = 0;
 	newvar->cv_bitmap.bm_y = 0;

@@ -94,24 +94,10 @@ void gr_box12(int left, int top, int right, int bot)
 
 void gr_ubox(int left, int top, int right, int bot)
 {
-	if (TYPE == BM_LINEAR)
-		gr_ubox0(left, top, right, bot);
-
-	else if (TYPE == BM_MODEX)
-		gr_ubox12(left, top, right, bot);
-
-	else
-		gr_ubox12(left, top, right, bot);
+	gr_ubox0(left, top, right, bot);
 }
 
 void gr_box(int left, int top, int right, int bot)
 {
-	if (TYPE == BM_LINEAR)
-		gr_box0(left, top, right, bot);
-
-	else if (TYPE == BM_MODEX)
-		gr_box12(left, top, right, bot);
-
-	else
-		gr_ubox12(left, top, right, bot);
+	gr_box0(left, top, right, bot);
 }

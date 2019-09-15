@@ -399,6 +399,11 @@ int D_DescentMain(int argc, const char** argv)
 #endif
 #endif
 
+	if (!cfile_init("descent.hog"))
+	{
+		Error("Could not find required file <%s>", "descent.hog");
+	}
+
 	load_text();
 
 	//	set_exit_message("\n\n%s", TXT_THANKS);

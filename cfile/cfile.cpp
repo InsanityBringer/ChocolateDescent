@@ -24,7 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mem/mem.h"
 #include "misc/error.h"
 
-typedef struct hogfile {
+typedef struct hogfile
+{
 	char	name[13];
 	int	offset;
 	int 	length;
@@ -41,6 +42,7 @@ int Num_hogfiles = 0;
 hogfile AltHogFiles[MAX_HOGFILES];
 char AltHogfile_initialized = 0;
 int AltNum_hogfiles = 0;
+char HogFilename[HOG_FILENAME_MAX];
 char AltHogFilename[HOG_FILENAME_MAX];
 
 char AltHogDir[HOG_FILENAME_MAX];
@@ -81,16 +83,16 @@ FILE* cfile_get_filehandle(const char* filename, const char* mode)
 		strcat_s(temp, HOG_FILENAME_MAX * 2, filename);
 		//descent_critical_error = 0; //[ISB] fix me somehow
 		err = fopen_s(&fp, temp, mode);
-		if (fp/* && descent_critical_error*/)
+		/*if (fp&& descent_critical_error)
 		{
 			fclose(fp);
 			fp = NULL;
-		}
+		}*/
 	}
 	return fp;
 }
 
-void cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
+int cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 {
 	char id[4];
 	FILE* fp;
@@ -103,7 +105,7 @@ void cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 	if (fp == NULL)
 	{
 		Warning("cfile_init_hogfile: Can't open hogfile\n");
-		return;
+		return 1;
 	}
 
 	fread(id, 3, 1, fp);
@@ -111,25 +113,28 @@ void cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 	if (strncmp(id, "DHF", 3)) 
 	{
 		fclose(fp);
-		return;
+		return 0;
 	}
 
 	while (1)
 	{
-		if (*nfiles >= MAX_HOGFILES) {
+		if (*nfiles >= MAX_HOGFILES)
+		{
 			Warning("ERROR: HOGFILE IS LIMITED TO %d FILES\n", MAX_HOGFILES);
 			fclose(fp);
 			exit(1);
 		}
 		i = fread(hog_files[*nfiles].name, 13, 1, fp);
-		if (i != 1) {
+		if (i != 1) 
+		{
 			fclose(fp);
-			return;
+			return 1;
 		}
 		i = fread(&len, 4, 1, fp);
-		if (i != 1) {
+		if (i != 1) 
+		{
 			fclose(fp);
-			return;
+			return 0;
 		}
 		hog_files[*nfiles].length = (len);
 		if (hog_files[*nfiles].length < 0)
@@ -139,16 +144,35 @@ void cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 		// Skip over
 		i = fseek(fp, (len), SEEK_CUR);
 	}
+	return 0;
 }
+
+//Specify the name of the hogfile.  Returns 1 if hogfile found & had files
+int cfile_init(char* hogname)
+{
+	Assert(Hogfile_initialized == 0);
+
+	if (cfile_init_hogfile(hogname, HogFiles, &Num_hogfiles)) 
+	{
+		strcpy(HogFilename, hogname);
+		Hogfile_initialized = 1;
+		return 1;
+	}
+	else
+		return 0;	//not loaded!
+	}
 
 FILE* cfile_find_libfile(const char* name, int* length)
 {
 	FILE* fp;
 	int i;
 
-	if (AltHogfile_initialized) {
-		for (i = 0; i < AltNum_hogfiles; i++) {
-			if (!_stricmp(AltHogFiles[i].name, name)) {
+	if (AltHogfile_initialized) 
+	{
+		for (i = 0; i < AltNum_hogfiles; i++) 
+		{
+			if (!_stricmp(AltHogFiles[i].name, name))
+			{
 				fp = cfile_get_filehandle(AltHogFilename, "rb");
 				if (fp == NULL) return NULL;
 				fseek(fp, AltHogFiles[i].offset, SEEK_SET);
@@ -160,13 +184,15 @@ FILE* cfile_find_libfile(const char* name, int* length)
 
 	if (!Hogfile_initialized) 
 	{
-		cfile_init_hogfile("descent.hog", HogFiles, &Num_hogfiles);
-		Hogfile_initialized = 1;
+		//cfile_init_hogfile("descent.hog", HogFiles, &Num_hogfiles);
+		//Hogfile_initialized = 1;
 	}
 
-	for (i = 0; i < Num_hogfiles; i++) {
-		if (!_stricmp(HogFiles[i].name, name)) {
-			fp = cfile_get_filehandle("descent.hog", "rb");
+	for (i = 0; i < Num_hogfiles; i++) 
+	{
+		if (!_stricmp(HogFiles[i].name, name))
+		{
+			fp = cfile_get_filehandle(HogFilename, "rb");
 			if (fp == NULL) return NULL;
 			fseek(fp, HogFiles[i].offset, SEEK_SET);
 			*length = HogFiles[i].length;

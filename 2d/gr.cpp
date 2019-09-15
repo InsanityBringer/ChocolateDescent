@@ -11,12 +11,11 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <dos.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <stdio.h>
-#include <conio.h>
 #include <string.h>
+
 #include "misc/types.h"
 #include "mem/mem.h"
 #include "2d/gr.h"
