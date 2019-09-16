@@ -153,7 +153,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 
 		load_background_bitmap();
 
-		//g3_remap_interp_colors(); //[ISB] todo
+		g3_remap_interp_colors();
 	}
 
 

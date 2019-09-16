@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "globvars.h"
 #include "2d/gr.h"
 #include "misc/byteswap.h"
+#include "2d/palette.h"
 
 #define OP_EOF				0	//eof
 #define OP_DEFPOINTS		1	//defpoints
@@ -42,6 +43,9 @@ g3s_point* Interp_point_list = NULL;
 struct { short pal_entry, rgb15; } interp_color_table[MAX_INTERP_COLORS];
 
 int n_interp_colors = 0;
+int uninit_flag = 0;
+
+extern int gr_find_closest_color_15bpp(int rgb);
 
 //gives the interpreter an array of points to use
 void g3_set_interp_points(g3s_point* pointlist)
@@ -77,6 +81,33 @@ void vms_vector_swap(vms_vector* v)
 	v->z = (fix)swapint((int)v->z);
 }
 
+int find_color_index(short color)
+{
+	Assert(n_interp_colors < MAX_INTERP_COLORS);
+	int i;
+	for (i = 0; i < n_interp_colors; i++)
+	{
+		if (interp_color_table[i].rgb15 == color)
+			return i;
+			//return interp_color_table[i].pal_entry;
+	}
+	//Oops, didn't find color...
+	int index = gr_find_closest_color_15bpp(color);
+	interp_color_table[n_interp_colors].rgb15 = color;
+	interp_color_table[n_interp_colors].pal_entry = index;
+	n_interp_colors++;
+	return n_interp_colors - 1;
+}
+
+void g3_remap_interp_colors()
+{
+	int i;
+	for (i = 0; i < n_interp_colors; i++)
+	{
+		interp_color_table[i].pal_entry = gr_find_closest_color_15bpp(interp_color_table[i].rgb15);
+	}
+}
+
 void swap_polygon_model_data(uint8_t* data)
 {
 	int i;
@@ -86,8 +117,10 @@ void swap_polygon_model_data(uint8_t* data)
 
 	short_swap(wp(p));
 
-	while (w(p) != OP_EOF) {
-		switch (w(p)) {
+	while (w(p) != OP_EOF) 
+	{
+		switch (w(p)) 
+		{
 		case OP_DEFPOINTS:
 			short_swap(wp(p + 2));
 			n = w(p + 2);
@@ -126,7 +159,8 @@ void swap_polygon_model_data(uint8_t* data)
 			n = w(p + 2);
 			vms_vector_swap(vp(p + 4));
 			vms_vector_swap(vp(p + 16));
-			for (i = 0; i < n; i++) {
+			for (i = 0; i < n; i++) 
+			{
 				uvl_val = (g3s_uvl*)((p + 30 + ((n & ~1) + 1) * 2) + (i * sizeof(g3s_uvl)));
 				uvl_val->u = (fix)swapint((int)uvl_val->u);
 				uvl_val->v = (fix)swapint((int)uvl_val->v);
@@ -193,10 +227,8 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 		case OP_DEFPOINTS: 
 		{
 			int n = w(p + 2);
-
 			rotate_point_list(Interp_point_list, vp(p + 4), n);
 			p += n * sizeof(struct vms_vector) + 4;
-
 			break;
 		}
 
@@ -219,8 +251,11 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 			if (g3_check_normal_facing(vp(p + 4), vp(p + 16)) > 0) 
 			{
 				int i;
-
+#ifdef BUILD_DESCENT2
+				gr_setcolor(interp_color_table[w(p + 28)].pal_entry);
+#else
 				gr_setcolor(w(p + 28));
+#endif
 
 				for (i = 0; i < nv; i++)
 					point_list[i] = Interp_point_list + wp(p + 30)[i];
@@ -229,7 +264,6 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 			}
 
 			p += 30 + ((nv & ~1) + 1) * 2;
-
 			break;
 		}
 
@@ -292,9 +326,7 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 			}
 
 			p += 32;
-
 			break;
-
 
 		case OP_RODBM: 
 		{
@@ -338,8 +370,6 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 	return 1;
 }
 
-extern int gr_find_closest_color_15bpp(int rgb);
-
 #ifndef NDEBUG
 int nest_count;
 #endif
@@ -354,9 +384,10 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 
 	while (w(p) != OP_EOF)
 
-		switch (w(p)) {
-
-		case OP_DEFPOINTS: {
+		switch (w(p)) 
+		{
+		case OP_DEFPOINTS: 
+		{
 			int n = w(p + 2);
 
 			rotate_point_list(Interp_point_list, new_points, n);
@@ -365,7 +396,8 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			break;
 		}
 
-		case OP_DEFP_START: {
+		case OP_DEFP_START: 
+		{
 			int n = w(p + 2);
 			int s = w(p + 4);
 
@@ -375,7 +407,8 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			break;
 		}
 
-		case OP_FLATPOLY: {
+		case OP_FLATPOLY: 
+		{
 			int nv = w(p + 2);
 			int i, ntris;
 
@@ -384,14 +417,11 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			for (i = 0; i < 2; i++)
 				point_list[i] = Interp_point_list + wp(p + 30)[i];
 
-			for (ntris = nv - 2; ntris; ntris--) {
-
+			for (ntris = nv - 2; ntris; ntris--) 
+			{
 				point_list[2] = Interp_point_list + wp(p + 30)[i++];
-
 				g3_check_and_draw_poly(3, point_list, NULL, NULL);
-
 				point_list[1] = point_list[2];
-
 			}
 
 			p += 30 + ((nv & ~1) + 1) * 2;
@@ -399,7 +429,8 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			break;
 		}
 
-		case OP_TMAPPOLY: {
+		case OP_TMAPPOLY: 
+		{
 			int nv = w(p + 2);
 			g3s_uvl* uvl_list;
 			g3s_uvl morph_uvls[3];
@@ -408,13 +439,14 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 
 			//calculate light from surface normal
 
-			if (glow_num < 0) {			//no glow
-
+			if (glow_num < 0) //no glow
+			{
 				light = -vm_vec_dot(&View_matrix.fvec, vp(p + 16));
 				light = f1_0 / 4 + (light * 3) / 4;
 				light = fixmul(light, model_light);
 			}
-			else {				//yes glow
+			else //yes glow
+			{
 				light = glow_values[glow_num];
 				glow_num = -1;
 			}
@@ -426,15 +458,16 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			for (i = 0; i < 3; i++)
 				morph_uvls[i].l = light;
 
-			for (i = 0; i < 2; i++) {
+			for (i = 0; i < 2; i++) 
+			{
 				point_list[i] = Interp_point_list + wp(p + 30)[i];
 
 				morph_uvls[i].u = uvl_list[i].u;
 				morph_uvls[i].v = uvl_list[i].v;
 			}
 
-			for (ntris = nv - 2; ntris; ntris--) {
-
+			for (ntris = nv - 2; ntris; ntris--) 
+			{
 				point_list[2] = Interp_point_list + wp(p + 30)[i];
 				morph_uvls[2].u = uvl_list[i].u;
 				morph_uvls[2].v = uvl_list[i].v;
@@ -445,36 +478,30 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 				point_list[1] = point_list[2];
 				morph_uvls[1].u = morph_uvls[2].u;
 				morph_uvls[1].v = morph_uvls[2].v;
-
 			}
 
 			p += 30 + ((nv & ~1) + 1) * 2 + nv * 12;
-
 			break;
 		}
 
 		case OP_SORTNORM:
-
-			if (g3_check_normal_facing(vp(p + 16), vp(p + 4)) > 0) {		//facing
-
+			if (g3_check_normal_facing(vp(p + 16), vp(p + 4)) > 0) //facing
+			{
 				//draw back then front
-
 				g3_draw_morphing_model(p + w(p + 30), model_bitmaps, anim_angles, model_light, new_points);
 				g3_draw_morphing_model(p + w(p + 28), model_bitmaps, anim_angles, model_light, new_points);
-
 			}
-			else {			//not facing.  draw front then back
-
+			else //not facing.  draw front then back
+			{
 				g3_draw_morphing_model(p + w(p + 28), model_bitmaps, anim_angles, model_light, new_points);
 				g3_draw_morphing_model(p + w(p + 30), model_bitmaps, anim_angles, model_light, new_points);
 			}
 
 			p += 32;
-
 			break;
 
-
-		case OP_RODBM: {
+		case OP_RODBM: 
+		{
 			g3s_point rod_bot_p, rod_top_p;
 
 			g3_rotate_point(&rod_bot_p, vp(p + 20));
@@ -486,7 +513,8 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			break;
 		}
 
-		case OP_SUBCALL: {
+		case OP_SUBCALL: 
+		{
 			vms_angvec* a;
 
 			if (anim_angles)
@@ -495,19 +523,14 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 				a = &zero_angles;
 
 			g3_start_instance_angles(vp(p + 4), a);
-
 			g3_draw_polygon_model(p + w(p + 16), model_bitmaps, anim_angles, model_light, glow_values);
-
 			g3_done_instance();
 
 			p += 20;
-
 			break;
-
 		}
 
 		case OP_GLOW:
-
 			if (glow_values)
 				glow_num = w(p + 2);
 			p += 4;
@@ -523,35 +546,45 @@ void init_model_sub(uint8_t* p)
 	Assert(++nest_count < 1000);
 #endif
 
-	while (w(p) != OP_EOF) {
+	while (w(p) != OP_EOF) 
+	{
 
-		switch (w(p)) {
+		switch (w(p)) 
+		{
 
-		case OP_DEFPOINTS: {
+		case OP_DEFPOINTS: 
+		{
 			int n = w(p + 2);
 			p += n * sizeof(struct vms_vector) + 4;
 			break;
 		}
 
-		case OP_DEFP_START: {
+		case OP_DEFP_START: 
+		{
 			int n = w(p + 2);
 			p += n * sizeof(struct vms_vector) + 8;
 			break;
 		}
 
-		case OP_FLATPOLY: {
+		case OP_FLATPOLY: 
+		{
 			int nv = w(p + 2);
 
 			Assert(nv > 2);		//must have 3 or more points
-
+#ifdef BUILD_DESCENT2 //[ISB] just in case
+			if (uninit_flag)
+				*wp(p + 28) = (short)interp_color_table[w(p + 28)].rgb15;
+			else
+				*wp(p + 28) = (short)find_color_index(w(p + 28));
+#else
 			*wp(p + 28) = (short)gr_find_closest_color_15bpp(w(p + 28));
-
+#endif
 			p += 30 + ((nv & ~1) + 1) * 2;
-
 			break;
 		}
 
-		case OP_TMAPPOLY: {
+		case OP_TMAPPOLY: 
+		{
 			int nv = w(p + 2);
 
 			Assert(nv > 2);		//must have 3 or more points
@@ -560,29 +593,24 @@ void init_model_sub(uint8_t* p)
 				highest_texture_num = w(p + 28);
 
 			p += 30 + ((nv & ~1) + 1) * 2 + nv * 12;
-
 			break;
 		}
 
 		case OP_SORTNORM:
-
 			init_model_sub(p + w(p + 28));
 			init_model_sub(p + w(p + 30));
 			p += 32;
-
 			break;
-
 
 		case OP_RODBM:
 			p += 36;
 			break;
 
-
-		case OP_SUBCALL: {
+		case OP_SUBCALL:
+		{
 			init_model_sub(p + w(p + 16));
 			p += 20;
 			break;
-
 		}
 
 		case OP_GLOW:
@@ -607,6 +635,6 @@ void g3_init_polygon_model(void* model_ptr)
 //init code for bitmap models
 void g3_uninit_polygon_model(void* model_ptr)
 {
-	//TODO
+	uninit_flag = 1;
 }
 

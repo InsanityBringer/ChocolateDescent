@@ -230,5 +230,9 @@ void g3_uninit_polygon_model(void* model_ptr);
 //alternate interpreter for morphing object
 dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_angvec* anim_angles, fix light, vms_vector* new_points);
 
+//this remaps the 15bpp colors for the models into a new palette.  It should
+//be called whenever the palette changes
+void g3_remap_interp_colors(void);
+
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(uint8_t* data);

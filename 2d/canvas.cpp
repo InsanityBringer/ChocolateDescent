@@ -170,5 +170,4 @@ void gr_setcolor(int color)
 	grd_curcanv->cv_color = color;
 
 	gr_var_color = color;
-
 }
