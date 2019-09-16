@@ -25,6 +25,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmapl.h"
 #include "scanline.h"
 
+#define DIVIDE_SIG_BITS		12
+#define Z_SHIFTER 			(30-DIVIDE_SIG_BITS)
+#define DIVIDE_TABLE_SIZE	(1<<DIVIDE_SIG_BITS)
+
+
 extern uint8_t * dest_row_data;
 extern int loop_count;
 
@@ -164,31 +169,41 @@ void c_tmap_scanline_per()
 {
 	uint8_t *dest;
 	uint32_t c;
+	fix localz;
 	int x;
 	fix u,v,z,l,dudx, dvdx, dzdx, dldx;
 
 	u = fx_u;
-	v = fx_v*64;
+	v = fx_v;// *64;
 	z = fx_z;
 	dudx = fx_du_dx; 
-	dvdx = fx_dv_dx*64; 
+	dvdx = fx_dv_dx;// *64; //[ISB] changes to make more accurate to ASM tmapper
 	dzdx = fx_dz_dx;
 
 	l = fx_l;
 	dldx = fx_dl_dx;
 	dest = dest_row_data;
 
-	if (!Transparency_on)	{
-		for (x=loop_count; x >= 0; x-- ) {
-			*dest++ = gr_fade_table[ (l&(0xff00)) + (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
+	if (!Transparency_on)	
+	{
+		for (x=loop_count; x >= 0; x-- ) 
+		{
+			localz = z >> Z_SHIFTER;
+			//*dest++ = gr_fade_table[ (l&(0xff00)) + (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
+			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)]];
 			l += dldx;
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
 		}
-	} else {
-		for (x=loop_count; x >= 0; x-- ) {
-			c = (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
+	} 
+	else 
+	{
+		for (x=loop_count; x >= 0; x-- ) 
+		{
+			localz = z >> Z_SHIFTER;
+			//c = (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
+			c = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
 			if ( c!=255)
 				*dest = gr_fade_table[ (l&(0xff00)) + c ];
 			dest++;

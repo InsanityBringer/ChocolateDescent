@@ -124,7 +124,8 @@ void fill_divide_table()
 
 	divide_table[0]=f1_0;
 	divide_table[1]=f1_0;
-	for (i=2; i<DIVIDE_TABLE_SIZE; i++ )	{
+	for (i=2; i<DIVIDE_TABLE_SIZE; i++ )	
+	{
 		// entry[i] = 1.0 / i+0.5;
 		divide_table[i] = fixdiv( F1_0*2, 2*i+1 );
 	}
@@ -161,13 +162,15 @@ void init_interface_vars_to_assembler(void)
 	Assert(bp->bm_h <= MAX_Y_POINTERS);
 
 	//	If bytes_per_row has changed, create new table of pointers.
-	if (bytes_per_row != (int) bp->bm_rowsize) {
+	if (bytes_per_row != (int) bp->bm_rowsize) 
+	{
 		int	y_val, i;
 
 		bytes_per_row = (int) bp->bm_rowsize;
 
 		y_val = 0;
-		for (i=0; i<MAX_Y_POINTERS; i++) {
+		for (i=0; i<MAX_Y_POINTERS; i++) 
+		{
 			y_pointers[i] = y_val;
 			y_val += bytes_per_row;
 		}
@@ -275,34 +278,6 @@ void compute_y_bounds(g3ds_tmap *t, int *vlt, int *vlb, int *vrt, int *vrb,int *
 			*bottom_y_ind = i;
 		}
 	}
-
-//--removed mk, 11/27/94--	//	Check for a non-upright-hourglass polygon and fix, if necessary, by bashing a y coordinate.
-//--removed mk, 11/27/94--	//	min_y_ind = index of minimum y coordinate, *bottom_y_ind = index of maximum y coordinate
-//--removed mk, 11/27/94--{
-//--removed mk, 11/27/94--	int	max_temp, min_temp;
-//--removed mk, 11/27/94--
-//--removed mk, 11/27/94--	max_temp = *bottom_y_ind;
-//--removed mk, 11/27/94--	if (*bottom_y_ind < min_y_ind)
-//--removed mk, 11/27/94--		max_temp += t->nv;
-//--removed mk, 11/27/94--
-//--removed mk, 11/27/94--	for (i=min_y_ind; i<max_temp; i++) {
-//--removed mk, 11/27/94--		if (f2i(t->verts[i%t->nv].y2d) > f2i(t->verts[(i+1)%t->nv].y2d)) {
-//--removed mk, 11/27/94--			Int3();
-//--removed mk, 11/27/94--			t->verts[(i+1)%t->nv].y2d = t->verts[i%t->nv].y2d;
-//--removed mk, 11/27/94--		}
-//--removed mk, 11/27/94--	}
-//--removed mk, 11/27/94--
-//--removed mk, 11/27/94--	min_temp = min_y_ind;
-//--removed mk, 11/27/94--	if (min_y_ind < *bottom_y_ind)
-//--removed mk, 11/27/94--		min_temp += t->nv;
-//--removed mk, 11/27/94--
-//--removed mk, 11/27/94--	for (i=*bottom_y_ind; i<min_temp; i++) {
-//--removed mk, 11/27/94--		if (f2i(t->verts[i%t->nv].y2d) < f2i(t->verts[(i+1)%t->nv].y2d)) {
-//--removed mk, 11/27/94--			Int3();
-//--removed mk, 11/27/94--			t->verts[(i+1)%t->nv].y2d = t->verts[i%t->nv].y2d;
-//--removed mk, 11/27/94--		}
-//--removed mk, 11/27/94--	}
-//--removed mk, 11/27/94--}
 
 	// Set "vertex left top", etc. based on vertex with topmost y coordinate
 	*vlt = min_y_ind;
