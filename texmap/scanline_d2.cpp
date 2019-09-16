@@ -133,28 +133,35 @@ void c_tmap_scanline_per_nolight()
 {
 	uint8_t *dest;
 	uint32_t c;
-	int x;
+	int x, localz;
 	fix u,v,z,dudx, dvdx, dzdx;
 
 	u = fx_u;
-	v = fx_v*64;
+	v = fx_v;
 	z = fx_z;
 	dudx = fx_du_dx; 
-	dvdx = fx_dv_dx*64; 
+	dvdx = fx_dv_dx; 
 	dzdx = fx_dz_dx;
 
 	dest = dest_row_data;
 
-	if (!Transparency_on)	{
-		for (x=loop_count; x >= 0; x-- ) {
-			*dest++ = (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
+	if (!Transparency_on)	
+	{
+		for (x=loop_count; x >= 0; x-- ) 
+		{
+			localz = z >> Z_SHIFTER;
+			*dest++ = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
 		}
-	} else {
-		for (x=loop_count; x >= 0; x-- ) {
-			c = (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
+	} 
+	else 
+	{
+		for (x=loop_count; x >= 0; x-- ) 
+		{
+			localz = z >> Z_SHIFTER;
+			c = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
 			if ( c!=255)
 				*dest = c;
 			dest++;
