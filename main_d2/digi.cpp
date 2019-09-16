@@ -427,7 +427,7 @@ int digi_is_channel_playing( int c )
 	if (!Digi_initialized) return 0;
 	if (digi_driver_board<1) return 0;
 
-	if ( channels[c].used && (!I_CheckSoundPlaying(channels[c].handle) )  )
+	if ( channels[c].used && (I_CheckSoundPlaying(channels[c].handle) )  )
 		return 1;
 	return 0;
 }
