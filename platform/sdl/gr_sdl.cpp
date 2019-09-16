@@ -208,6 +208,7 @@ int I_SetMode(int mode)
 	if (oldTex)
 		SDL_DestroyTexture(oldTex);
 
+	PixelSource = NULL; //i don't understand anything anymore
 
 	//Create the destination rectangle for the game screen
 	int bestWidth = WindowHeight * 4 / 3;
@@ -394,6 +395,10 @@ void I_BlitCanvas(grs_canvas *canv)
 {
 	//[ISB] TODO: This probably should do a memcpy to ensure the data is sticky even if the original source is destroyed, just in case. 
 	PixelSource = canv->cv_bitmap.bm_data;
+	if (PixelSource == (uint8_t*)0x0000a000)
+	{
+		Int3();
+	}
 }
 
 void I_Shutdown()

@@ -71,7 +71,6 @@ int S_InitMusic(int device)
 {
 	//[ISB] TODO: I really need to add a switcher to allow the use of multiple synths. Agh
 	I_InitMIDI();
-	I_SetSoundfontFilename(SoundFontFilename); //[ISB] get rid of this fixed path ASAP (so of course you'll forget about it...)
 	CurrentDevice = device;
 	return 0;
 }

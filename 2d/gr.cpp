@@ -360,7 +360,7 @@ int gr_set_mode(int mode)
 	case 0:
 		//if (!isvga()) return 1;
 		//gr_set_misc_mode(0x13);
-		w = 320; r = 320; h = 200; t = BM_LINEAR; data = 0xA0000;
+		w = 320; r = 320; h = 200; t = BM_LINEAR; data = 0xB0000;
 		break;
 	case SM_320x240U:
 		w = 320; r = 320; h = 240; t = BM_SVGA;

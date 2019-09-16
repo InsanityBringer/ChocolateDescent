@@ -199,7 +199,7 @@ int I_CheckSoundDone(int handle)
 
 void I_SetMusicVolume(int volume)
 {
-	//printf("Music volume %d\n", volume);
+	printf("Music volume %d\n", volume);
 	MusicVolume = volume;
 	if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
 	{

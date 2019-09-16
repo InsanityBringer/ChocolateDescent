@@ -649,12 +649,12 @@ void digi_set_midi_volume( int mvolume )
 	else
 		midi_volume = mvolume;
 
-	if ( (digi_midi_type > 0) && (hSOSMidiDriver < 0xffff) )		
+	if ((digi_midi_type > 0))		
 	{
-		if (!Redbook_playing && (old_volume < 1) && ( midi_volume > 1 ) )	
+		if (!Redbook_playing && (old_volume < 1) && ( midi_volume > 1 ))	
 		{
-			if (wSongHandle == 0xffff )
-				digi_play_midi_song( digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1 );
+			if (wSongHandle == 0xffff)
+				digi_play_midi_song(digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1);
 		}
 		//sosMIDISetMasterVolume(midi_volume);
 		I_SetMusicVolume(midi_volume);

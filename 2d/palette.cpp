@@ -314,7 +314,8 @@ int gr_palette_fade_out(uint8_t* pal, int nsteps, int allow_keys)
 	{
 		gr_sync_display();
 		I_DoEvents();
-		for (i = 0; i < 768; i++) {
+		for (i = 0; i < 768; i++) 
+		{
 			fade_palette[i] -= fade_palette_delta[i];
 			if (fade_palette[i] < 0)
 				fade_palette[i] = 0;

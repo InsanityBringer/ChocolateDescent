@@ -4032,6 +4032,8 @@ abort:;
 	Viewer = viewer_save;
 
 	Rear_view = rear_view_save;
+	//hack
+	gr_set_current_canvas(get_current_game_screen());
 }
 
 #ifdef MACINTOSH
