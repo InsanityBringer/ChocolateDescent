@@ -15,6 +15,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include "misc/types.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 
 typedef struct CFILE
 {
@@ -42,6 +44,11 @@ int cfexist(const char* filename);	// Returns true if file exists on disk (1) or
 uint8_t CF_ReadByte(CFILE* fp);
 short CF_ReadShort(CFILE* fp);
 int CF_ReadInt(CFILE* fp);
+//[ISB] hey I made a mistake
+#define cfile_read_int(a) CF_ReadInt(a)
+#define cfile_read_short(a) CF_ReadShort(a)
+#define cfile_read_byte(a) CF_ReadByte(a)
+#define cfile_read_fix(a) ((fix)CF_ReadInt(a))
 
 //[ISB] normal file versions of these because why not
 uint8_t F_ReadByte(FILE* fp);
@@ -54,4 +61,7 @@ void CF_GetString(char* buffer, int count, CFILE* fp);
 
 // Allows files to be gotten from an alternate hog file.
 // Passing NULL disables this.
-void cfile_use_alternate_hogfile(const char* name);
+int cfile_use_alternate_hogfile(const char* name);
+
+void cfile_read_vector(vms_vector *vec, CFILE* fp);
+void cfile_read_angvec(vms_angvec *vec, CFILE* fp);

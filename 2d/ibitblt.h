@@ -22,6 +22,9 @@ void		gr_ibitblt_find_hole_size(grs_bitmap* mask_bmp, int* minx, int* miny, int*
 // location sx, sy with a rowsize of srowsize onto another bitmap but only copies
 // into pixel locations that are defined as transparent in bitmap bmp.
 uint8_t* gr_ibitblt_create_mask(grs_bitmap* mask_bmp, int sx, int sy, int sw, int sh, int srowsize);
+//[ISB] This is a worrying hack but it should work?
+//It would have worked on the original Mac version, in theory. 
+uint8_t* gr_ibitblt_create_mask_svga(grs_bitmap* mask_bmp, int sx, int sy, int sw, int sh, int srowsize);
 
 // Copy source bitmap onto destination bitmap, not copying pixels that are defined
 // transparent by the mask

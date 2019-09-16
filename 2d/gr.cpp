@@ -344,7 +344,6 @@ int gr_vesa_setmode(int mode)
 	return 0;
 }
 
-
 #define NUMSCREENS 4 
 
 int gr_set_mode(int mode)
@@ -462,7 +461,11 @@ int gr_set_mode(int mode)
 	//[ISB] Set the screen buffer
 	I_SetScreenCanvas(&grd_curscreen->sc_canvas);
 
+#ifndef BUILD_DESCENT2
 	gr_set_current_canvas(NULL);
+#else
+	gr_set_current_canvas(&grd_curscreen->sc_canvas);
+#endif
 
 	//gr_enable_default_palette_loading();
 

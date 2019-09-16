@@ -24,11 +24,25 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int Gr_scanline_darkening_level;
 
-typedef struct _grs_point {
+typedef struct _grs_point 
+{
 	fix	x, y;
 } grs_point;
 
-typedef struct _grs_font {
+//these are control characters that have special meaning in the font code
+
+#define CC_COLOR			1		//next char is new foreground color
+#define CC_LSPACING		2		//next char specifies line spacing
+#define CC_UNDERLINE		3		//next char is underlined
+
+//now have string versions of these control characters (can concat inside a string)
+
+#define CC_COLOR_S	 	"\x1"		//next char is new foreground color
+#define CC_LSPACING_S 	"\x2"		//next char specifies line spacing
+#define CC_UNDERLINE_S	"\x3"		//next char is underlined
+
+typedef struct _grs_font 
+{
 	short		ft_w, ft_h;		// Width and height in pixels
 	short		ft_flags;		// Proportional?
 	short		ft_baseline;	//
@@ -53,6 +67,7 @@ typedef struct _grs_font {
 #define BM_FLAG_NO_LIGHTING			4
 #define BM_FLAG_RLE						8			// A run-length encoded bitmap.
 #define BM_FLAG_PAGED_OUT				16			// This bitmap's data is paged out.
+#define BM_FLAG_RLE_BIG				32			// for bitmaps that RLE to > 255 per row (i.e. cockpits)
 
 typedef struct _grs_bitmap {
 	short       bm_x, bm_y;      // Offset from parent's origin
@@ -71,7 +86,12 @@ typedef struct _grs_bitmap {
 	int8_t			unused;		//	to 4-byte align.
 } grs_bitmap;
 
-typedef struct _grs_canvas {
+//shortcuts
+#define cv_w cv_bitmap.bm_w
+#define cv_h cv_bitmap.bm_h
+
+typedef struct _grs_canvas 
+{
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	short       cv_color;       // current color
 	short       cv_drawmode;    // fill,XOR,etc.
@@ -80,7 +100,8 @@ typedef struct _grs_canvas {
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
 } grs_canvas;
 
-typedef struct _grs_screen {     // This is a video screen
+typedef struct _grs_screen // This is a video screen
+{     
 	grs_canvas  sc_canvas;      // Represents the entire screen
 	short       sc_mode;        // Video mode number
 	short       sc_w, sc_h;     // Actual Width and Height
@@ -129,6 +150,7 @@ typedef struct _grs_screen {     // This is a video screen
 #define SM_1024x768V    16
 #define SM_640x480V15   17
 #define SM_800x600V15   18
+#define SM_1280x1024V   23 //[ISB] h a c k since d1 makes 320x100 mode 19. ugh
 
 #define SM_320x200x8	1
 #define SM_320x200x8UL	2
@@ -232,6 +254,9 @@ void gr_bm_upixel(grs_bitmap* bm, int x, int y, unsigned char color);
 void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest);
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest);
 
+//[ISB] apparently this function was never prototyped anywhere
+void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest);
+
 void gr_bitblt_cockpit(grs_bitmap* bm);
 
 //void gr_update_buffer(void* sbuf1, void* sbuf2, void* dbuf, int size); 
@@ -311,7 +336,9 @@ void gr_uscanline(int x1, int x2, int y);
 
 // Reads in a font file... current font set to this one.
 grs_font* gr_init_font(const char* fontfile);
+void gr_remap_font(grs_font* font, char* fontname);
 void gr_close_font(grs_font* font);
+void gr_remap_color_fonts();
 
 // Writes a string using current font. Returns the next column after last char.
 void gr_set_fontcolor(int fg, int bg);
@@ -321,7 +348,6 @@ int gr_ustring(int x, int y, const char* s);
 int gr_printf(int x, int y, const char* format, ...);
 int gr_uprintf(int x, int y, const char* format, ...);
 void gr_get_string_size(const char* s, int* string_width, int* string_height, int* average_width);
-
 
 //	From roller.c
 void rotate_bitmap(grs_bitmap* bp, grs_point* vertbuf, int light_value);
@@ -410,3 +436,9 @@ extern void gr_merge_textures_3(uint8_t* lower, uint8_t* upper, uint8_t* dest);
 
 void gr_sync_display();
 int gr_set_mode(int mode);
+
+//[ISB] I MADE BAD DECISIONS AGAIN
+#define VGA_current_mode grd_curscreen->sc_mode
+
+//shortcut to look at current font
+#define grd_curfont grd_curcanv->cv_font

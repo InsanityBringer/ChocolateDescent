@@ -403,11 +403,24 @@ void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 	unsigned char* dbits;
 	unsigned char* sbits;
 
-	int i;
+	int i, data_offset;
 
-	sbits = &src->bm_data[4 + src->bm_h];
-	for (i = 0; i < sy; i++)
-		sbits += (int)src->bm_data[4 + i];
+	data_offset = 1;
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+		data_offset = 2;
+
+	sbits = &src->bm_data[4 + src->bm_h * data_offset];
+
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+	{
+		for (i = 0; i < sy; i++)
+			sbits += (int)(src->bm_data[4 + i * data_offset] + (src->bm_data[4 + (i * data_offset) + 1] << 8));
+	}
+	else
+	{
+		for (i = 0; i < sy; i++)
+			sbits += (int)src->bm_data[4 + i];
+	}
 
 	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
 
@@ -415,7 +428,11 @@ void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 	for (i = 0; i < h; i++) 
 	{
 		gr_rle_expand_scanline(dbits, sbits, sx, sx + w - 1);
-		sbits += (int)src->bm_data[4 + i + sy];
+		if (src->bm_flags & BM_FLAG_RLE_BIG) //[ISB] this code gives me a headache
+			sbits += (int)(src->bm_data[4 + ((i + sy) * data_offset)] + (src->bm_data[4 + (((i + sy) * data_offset) + 1)] << 8));
+		else
+			sbits += (int)src->bm_data[4 + i + sy];
+
 		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
 	}
 }
@@ -425,11 +442,24 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 	unsigned char* dbits;
 	unsigned char* sbits;
 
-	int i;
+	int i, data_offset;
 
-	sbits = &src->bm_data[4 + src->bm_h];
-	for (i = 0; i < sy; i++)
-		sbits += (int)src->bm_data[4 + i];
+	data_offset = 1;
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+		data_offset = 2;
+
+	sbits = &src->bm_data[4 + src->bm_h * data_offset];
+
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+	{
+		for (i = 0; i < sy; i++)
+			sbits += (int)(src->bm_data[4 + i * data_offset] + (src->bm_data[4 + (i * data_offset) + 1] << 8));
+	}
+	else
+	{
+		for (i = 0; i < sy; i++)
+			sbits += (int)src->bm_data[4 + i];
+	}
 
 	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
 
@@ -437,7 +467,10 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 	for (i = 0; i < h; i++)
 	{
 		gr_rle_expand_scanline_masked(dbits, sbits, sx, sx + w - 1);
-		sbits += (int)src->bm_data[4 + i + sy];
+		if (src->bm_flags & BM_FLAG_RLE_BIG) //[ISB] this code gives me a headache
+			sbits += (int)(src->bm_data[4 + ((i + sy) * data_offset)] + (src->bm_data[4 + (((i + sy) * data_offset) + 1)] << 8));
+		else
+			sbits += (int)src->bm_data[4 + i + sy];
 		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
 	}
 }

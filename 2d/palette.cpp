@@ -40,6 +40,10 @@ uint8_t gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
 uint8_t gr_palette_faded_out = 1;
 
+int Num_computed_colors = 0;
+
+int grd_fades_disabled = 0;
+
 void gr_palette_set_gamma(int gamma)
 {
 	if (gamma < 0) gamma = 0;
@@ -59,6 +63,11 @@ int gr_palette_get_gamma()
 	return gr_palette_gamma_param;
 }
 
+void gr_copy_palette(uint8_t* gr_palette, uint8_t* pal, int size)
+{
+	memcpy(gr_palette, pal, size);
+	Num_computed_colors = 0;
+}
 
 void gr_use_palette_table(const char* filename)
 {
@@ -76,17 +85,17 @@ void gr_use_palette_table(const char* filename)
 	cfclose(fp);
 
 	// This is the TRANSPARENCY COLOR
-	for (i = 0; i < GR_FADE_LEVELS; i++) {
+	for (i = 0; i < GR_FADE_LEVELS; i++)
+	{
 		gr_fade_table[i * 256 + 255] = 255;
 	}
 
+	Num_computed_colors = 0;	//[ISB] Flush palette cache.
 }
 
 #define SQUARE(x) ((x)*(x))
 
 #define	MAX_COMPUTED_COLORS	32
-
-int	Num_computed_colors = 0;
 
 typedef struct {
 	uint8_t	r, g, b, color_num;
@@ -287,6 +296,14 @@ int gr_palette_fade_out(uint8_t* pal, int nsteps, int allow_keys)
 
 	if (gr_palette_faded_out) return 0;
 
+#ifndef NDEBUG
+	if (grd_fades_disabled)
+	{
+		gr_palette_clear();
+		return 0;
+	}
+#endif
+
 	for (i = 0; i < 768; i++) 
 	{
 		fade_palette[i] = i2f(pal[i] + gr_palette_gamma);
@@ -324,6 +341,14 @@ int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys)
 //	allow_keys = allow_keys;
 
 	if (!gr_palette_faded_out) return 0;
+
+#ifndef NDEBUG
+	if (grd_fades_disabled)
+	{
+		gr_palette_clear();
+		return 0;
+	}
+#endif
 
 	for (i = 0; i < 768; i++) 
 	{

@@ -23,6 +23,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile/cfile.h"
 #include "mem/mem.h"
 #include "misc/error.h"
+#include "fix/fix.h"
+#include "vecmat/vecmat.h"
 
 typedef struct hogfile
 {
@@ -202,17 +204,19 @@ FILE* cfile_find_libfile(const char* name, int* length)
 	return NULL;
 }
 
-void cfile_use_alternate_hogfile(const char* name)
+int cfile_use_alternate_hogfile(const char* name)
 {
 	if (name)
 	{
 		strcpy_s(AltHogFilename, HOG_FILENAME_MAX, name);
 		cfile_init_hogfile(AltHogFilename, AltHogFiles, &AltNum_hogfiles);
 		AltHogfile_initialized = 1;
+		return (AltNum_hogfiles > 0);
 	}
 	else 
 	{
 		AltHogfile_initialized = 0;
+		return 1;
 	}
 }
 
@@ -467,4 +471,18 @@ void CF_GetString(char* buffer, int count, CFILE* fp)
 
 		i++;
 	} while (c != 0);
+}
+
+void cfile_read_vector(vms_vector* vec, CFILE* fp)
+{
+	vec->x = CF_ReadInt(fp);
+	vec->y = CF_ReadInt(fp);
+	vec->z = CF_ReadInt(fp);
+}
+
+void cfile_read_angvec(vms_angvec *vec, CFILE* fp)
+{
+	vec->p = CF_ReadShort(fp);
+	vec->b = CF_ReadShort(fp);
+	vec->h = CF_ReadShort(fp);
 }

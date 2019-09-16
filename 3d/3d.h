@@ -21,7 +21,8 @@ extern int g3d_interp_outline;		//if on, polygon models outlined in white
 
 //Structure for storing u,v,light values.  This structure doesn't have a
 //prefix because it was defined somewhere else before it was moved here
-typedef struct g3s_uvl {
+typedef struct g3s_uvl 
+{
 	fix u, v, l;
 } g3s_uvl;
 
@@ -48,7 +49,8 @@ typedef struct g3s_codes
 
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
-typedef struct g3s_point {
+typedef struct g3s_point 
+{
 	vms_vector p3_vec;         //reference as vector...
 	fix p3_u, p3_v, p3_l;
 	fix p3_sx, p3_sy;		//screen x&y
@@ -63,7 +65,8 @@ typedef struct g3s_point {
 #define p3_z p3_vec.z
 
 //An object, such as a robot
-typedef struct g3s_object {
+typedef struct g3s_object 
+{
 	vms_vector o3_pos;       //location of this object
 	vms_angvec o3_orient;    //orientation of this object
 	int o3_nverts;           //number of points in the object
@@ -220,6 +223,9 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 
 //init code for bitmap models
 void g3_init_polygon_model(void* model_ptr);
+
+//un-initialize, i.e., convert color entries back to RGB15
+void g3_uninit_polygon_model(void* model_ptr);
 
 //alternate interpreter for morphing object
 dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_angvec* anim_angles, fix light, vms_vector* new_points);

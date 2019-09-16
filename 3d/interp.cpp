@@ -603,3 +603,10 @@ void g3_init_polygon_model(void* model_ptr)
 
 	init_model_sub((uint8_t*)model_ptr);
 }
+
+//init code for bitmap models
+void g3_uninit_polygon_model(void* model_ptr)
+{
+	//TODO
+}
+

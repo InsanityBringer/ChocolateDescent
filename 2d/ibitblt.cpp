@@ -117,6 +117,11 @@ uint8_t* gr_ibitblt_create_mask(grs_bitmap* mask_bmp, int sx, int sy, int sw, in
 	return (unsigned char*)mask; //[ISB] hack
 }
 
+uint8_t* gr_ibitblt_create_mask_svga(grs_bitmap* mask_bmp, int sx, int sy, int sw, int sh, int srowsize)
+{
+	return gr_ibitblt_create_mask(mask_bmp, sx, sy, sw, sh, srowsize);
+}
+
 void gr_ibitblt_find_hole_size(grs_bitmap* mask_bmp, int* minx, int* miny, int* maxx, int* maxy)
 {
 	uint8_t c;

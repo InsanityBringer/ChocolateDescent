@@ -70,12 +70,17 @@ find_package(SDL2)
 find_package(OPENAL)
 find_package(FLUIDSYNTH)
 
+#[ISB] allegedly don't need to check platform. yay.
+add_executable(ChocolateDescent WIN32) #[ISB] sources added down the line... i guess?
+add_executable(ChocolateDescent2 WIN32) #[ISB] sources added down the line... for sure
+
 add_subdirectory(2d)
 add_subdirectory(3d)
 add_subdirectory(cfile)
 add_subdirectory(fix)
 add_subdirectory(iff)
 add_subdirectory(main_d1)
+add_subdirectory(main_d2)
 add_subdirectory(mem)
 add_subdirectory(misc)
 add_subdirectory(platform)
@@ -83,10 +88,7 @@ add_subdirectory(texmap)
 add_subdirectory(ui)
 add_subdirectory(vecmat)
 
-get_property(PROJECT_FILES GLOBAL PROPERTY KEX_ENGINE_SRCS)
-
-#[ISB] allegedly don't need to check platform. yay.
-add_executable(ChocolateDescent WIN32 ${PROJECT_FILES}) #[ISB] sources added down the line... i guess?
+#get_property(PROJECT_FILES GLOBAL PROPERTY KEX_ENGINE_SRCS)
 
 
 #[ISB] so I somehow messed up Kaiser's really cool grouping macro and I honestly have no clue why, so do this the hard way for now
@@ -96,6 +98,7 @@ source_group("cfile" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/cfile/.+")
 source_group("fix" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/fix/.+")
 source_group("iff" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/iff/.+")
 source_group("main_d1" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/main_d1/.+")
+source_group("main_d2" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/main_d2/.+")
 source_group("mem" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/mem/.+")
 source_group("misc" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/misc/.+")
 source_group("platform" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/platform/.+")
@@ -110,14 +113,17 @@ source_group("vecmat" REGULAR_EXPRESSION "${METADATA_BASE_PATH}/vecmat/.+")
 #[ISB] if we got SDL2, set the USE_SDL definition
 if (SDL2_FOUND)
     target_compile_definitions(ChocolateDescent PUBLIC USE_SDL)
+    target_compile_definitions(ChocolateDescent2 PUBLIC USE_SDL)
 endif()
 
 if (OPENAL_FOUND)
     target_compile_definitions(ChocolateDescent PUBLIC USE_OPENAL)
+    target_compile_definitions(ChocolateDescent2 PUBLIC USE_OPENAL)
 endif()
 
 if (FLUIDSYNTH_FOUND)
     target_compile_definitions(ChocolateDescent PUBLIC USE_FLUIDSYNTH)
+    target_compile_definitions(ChocolateDescent2 PUBLIC USE_FLUIDSYNTH)
 endif()
 
 include_directories(.) #When I asked about it, I was told once that "All cmake projects are bad." I think this is evidence of it.
@@ -130,10 +136,22 @@ if (SDL2_FOUND)
     target_include_directories(ChocolateDescent SYSTEM PRIVATE
         ${SDL2_INCLUDE_DIRS}
     )
+    
+    target_link_libraries(ChocolateDescent2 PRIVATE
+        ${SDL2_LIBRARIES}
+    )
+
+    target_include_directories(ChocolateDescent2 SYSTEM PRIVATE
+        ${SDL2_INCLUDE_DIRS}
+    )
 endif()
 
 if (SDL2_MAIN_FOUND)
     target_link_libraries(ChocolateDescent PRIVATE
+        ${SDL2_MAIN_LIBRARIES}
+    )
+    
+    target_link_libraries(ChocolateDescent2 PRIVATE
         ${SDL2_MAIN_LIBRARIES}
     )
 endif()
@@ -146,6 +164,14 @@ if (OPENAL_FOUND)
     target_include_directories(ChocolateDescent SYSTEM PRIVATE
         ${OPENAL_INCLUDE_DIRS}
     )
+    
+    target_link_libraries(ChocolateDescent2 PRIVATE
+        ${OPENAL_LIBRARIES}
+    )
+
+    target_include_directories(ChocolateDescent2 SYSTEM PRIVATE
+        ${OPENAL_INCLUDE_DIRS}
+    )
 endif()
 
 if (FLUIDSYNTH_FOUND)
@@ -156,7 +182,19 @@ if (FLUIDSYNTH_FOUND)
     target_include_directories(ChocolateDescent SYSTEM PRIVATE
         ${FLUIDSYNTH_INCLUDE_DIRS}
     )
+    
+    target_link_libraries(ChocolateDescent2 PRIVATE
+        ${FLUIDSYNTH_LIBRARIES}
+    )
+
+    target_include_directories(ChocolateDescent2 SYSTEM PRIVATE
+        ${FLUIDSYNTH_INCLUDE_DIRS}
+    )
 endif()
 
 #Need some additional definitions in release configuration.
 target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")
+target_compile_definitions(ChocolateDescent2 PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")
+
+#extra definitions
+target_compile_definitions(ChocolateDescent2 PUBLIC BUILD_DESCENT2)

@@ -1,4 +1,4 @@
-add_sources(SOURCE_GROUP "ChocolateDescent\\\\main_d1"
+target_sources(ChocolateDescent PRIVATE
     "${METADATA_BASE_PATH}/main_d1/ai.cpp"
     "${METADATA_BASE_PATH}/main_d1/ai.h"
     "${METADATA_BASE_PATH}/main_d1/aipath.cpp"
