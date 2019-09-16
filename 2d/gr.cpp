@@ -385,6 +385,9 @@ int gr_set_mode(int mode)
 		//if (retcode != 0) return retcode;
 		w = 1024; r = 1024; h = 768; t = BM_SVGA; data = 0;
 		break;
+	case SM_1280x1024V:
+		w = 1280; r = 1280; h = 1024; t = BM_SVGA; data = 0;
+		break;
 	case SM_640x480V15:
 		//retcode = gr_vesa_setmode(0x110);
 		//if (retcode != 0) return retcode;

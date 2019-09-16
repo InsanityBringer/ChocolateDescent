@@ -107,7 +107,8 @@ int I_CheckMode(int mode)
 	case SM_800x600V:
 	case SM_1024x768V:
 	case 19:
-	case 21: return 0;
+	case 21:
+	case SM_1280x1024V: return 0;
 	}
 	return 11;
 }
@@ -181,6 +182,9 @@ int I_SetMode(int mode)
 	case 21:
 		w = 160; h = 100;
 		break;
+	case SM_1280x1024V:
+		w = 1280; h = 1024;
+		break;
 	default:
 		Error("I_SetMode: bad mode %d\n", mode);
 		return 0;
@@ -203,6 +207,7 @@ int I_SetMode(int mode)
 		SDL_FreeSurface(oldHackSurf);
 	if (oldTex)
 		SDL_DestroyTexture(oldTex);
+
 
 	//Create the destination rectangle for the game screen
 	int bestWidth = WindowHeight * 4 / 3;
