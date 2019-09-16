@@ -375,6 +375,10 @@ void I_DrawCurrentCanvas(int sync)
 		Warning("Cannot blit screen: %s\n", SDL_GetError());
 	}
 	SDL_UpdateWindowSurface(gameWindow);*/
+
+#ifdef BUILD_DESCENT2 //holy crap this hack fucking sucks. 
+	PixelSource = NULL;
+#endif
 }
 
 void I_BlitCurrentCanvas()

@@ -743,11 +743,13 @@ void game_render_frame_stereo()
 	//if ( Game_vfx_flag )
 	//	vfx_set_page(VR_current_page);		// 0 or 1
 	//else 
-		if ( VR_screen_flags&VRF_USE_PAGING )	{
+		if ( VR_screen_flags&VRF_USE_PAGING )	
+		{
 			gr_wait_for_retrace = 0;
 
 //	Added by Samir from John's code
-		if ( (VR_screen_pages[VR_current_page].cv_bitmap.bm_type == BM_MODEX) && (Game_3dmax_flag==3) )	{
+		if ( (VR_screen_pages[VR_current_page].cv_bitmap.bm_type == BM_MODEX) && (Game_3dmax_flag==3) )	
+		{
 			int old_x, old_y, new_x;
 			old_x = VR_screen_pages[VR_current_page].cv_bitmap.bm_x;
 			old_y = VR_screen_pages[VR_current_page].cv_bitmap.bm_y;
@@ -760,7 +762,9 @@ void game_render_frame_stereo()
 			VR_screen_pages[VR_current_page].cv_bitmap.bm_type = BM_MODEX;
 			VR_screen_pages[VR_current_page].cv_bitmap.bm_x = old_x;
 			VR_screen_pages[VR_current_page].cv_bitmap.bm_y = old_y;
-		} else {
+		}
+		else 
+		{
 			gr_show_canvas( &VR_screen_pages[VR_current_page] );
 		}
 		gr_wait_for_retrace = 1;
