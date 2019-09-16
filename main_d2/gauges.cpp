@@ -2453,6 +2453,8 @@ void draw_weapon_info_sub(int info_index, gauge_box* box, int pic_x, int pic_y, 
 		//PA_DFX(pa_set_backbuffer_current());
 		//NO_DFX(gr_printf(text_x, text_y + Line_spacing, temp_str));
 		//PA_DFX(gr_printf(text_x, text_y + 12, temp_str));
+		//[ISB] TODO PA stuff
+		gr_printf(text_x, text_y + Line_spacing, temp_str);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
 		{
@@ -2461,9 +2463,7 @@ void draw_weapon_info_sub(int info_index, gauge_box* box, int pic_x, int pic_y, 
 			//			PA_DFX (gr_printf(text_x,text_y+2*Line_spacing, temp_str));
 			//PA_DFX(pa_set_backbuffer_current());
 			gr_printf(text_x, text_y + 2 * Line_spacing, temp_str);
-
 		}
-
 	}
 }
 
