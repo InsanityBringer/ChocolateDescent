@@ -240,18 +240,6 @@ int init_graphics()
 	return 0;
 }
 
-void check_dos_version()
-{
-}
-
-void change_to_dir(char* cmd_line)
-{
-}
-
-void dos_check_file_handles(int num_required)
-{
-}
-
 #define NEEDED_DOS_MEMORY   			( 300*1024)		// 300 K
 #define NEEDED_LINEAR_MEMORY 			(7680*1024)		// 7.5 MB
 #define LOW_PHYSICAL_MEMORY_CUTOFF	(5*1024*1024)	// 5.0 MB
@@ -290,52 +278,11 @@ void mem_int_to_string(int number, char* dest)
 
 void check_memory()
 {
-	char text[32];
-
-	/*	printf( "\n%s\n", TXT_AVAILABLE_MEMORY);
-		printf( "----------------\n" );
-		mem_int_to_string( dpmi_dos_memory/1024, text );
-		printf( "Conventional: %7s KB\n", text );
-		mem_int_to_string( dpmi_physical_memory/1024, text );
-		printf( "Extended:     %7s KB\n", text );
-		if ( dpmi_available_memory > dpmi_physical_memory )	{
-			mem_int_to_string( (dpmi_available_memory-dpmi_physical_memory)/1024, text );
-		} else {
-			mem_int_to_string( 0, text );
-		}
-		printf( "Virtual:      %7s KB\n", text );
-		printf( "\n" );
-
-		if ( !FindArg( "-nomemcheck" ))
-			if ( dpmi_dos_memory < NEEDED_DOS_MEMORY )	{
-				Error( "%d %s\n", NEEDED_DOS_MEMORY - dpmi_dos_memory, TXT_MEMORY_CONFIG );
-			}
-
-		if ( dpmi_available_memory < NEEDED_LINEAR_MEMORY )	{
-			if ( dpmi_virtual_memory )	{
-				Error( "%d %s\n", NEEDED_LINEAR_MEMORY - dpmi_available_memory, TXT_RECONFIGURE_VMM );
-			} else {
-				Error( "%d %s\n%s\n", NEEDED_LINEAR_MEMORY - dpmi_available_memory, TXT_MORE_MEMORY, TXT_MORE_MEMORY_2 );
-			}
-		}
-
-		if ( dpmi_physical_memory < NEEDED_PHYSICAL_MEMORY )	{
-			if ( dpmi_virtual_memory )	{
-				Error( "%d %s\n%s\n", NEEDED_PHYSICAL_MEMORY - dpmi_physical_memory, TXT_PHYSICAL_MEMORY, TXT_PHYSICAL_MEMORY_2 );
-			}
-			else
-				Error( "%d %s\n", NEEDED_PHYSICAL_MEMORY - dpmi_physical_memory, TXT_PHYSICAL_MEMORY );
-		}
-
-		if ( dpmi_physical_memory < LOW_PHYSICAL_MEMORY_CUTOFF )	{
-			piggy_low_memory = 1;
-		}*/
-
-	if (/*((dpmi_physical_memory > SOUND_22K_CUTOFF) || */FindArg("-sound22k") && !FindArg("-sound11k") && !FindArg("-lowmem"))
+	//[ISB] heh
+	if (!FindArg("-sound11k") && !FindArg("-lowmem"))
 		digi_sample_rate = SAMPLE_RATE_22K;
 	else
 		digi_sample_rate = SAMPLE_RATE_11K;
-
 }
 
 int Inferno_verbose = 0;
@@ -381,7 +328,7 @@ void print_commandline_help()
 		have_binary = 1;
 	}
 
-	screen_lines = *((uint8_t*)0x484);
+	//screen_lines = *((uint8_t*)0x484);
 
 	line_count = 3 + registered_copy;		//count banner lines, & maybe registration line
 
@@ -772,12 +719,6 @@ int D_DescentMain(int argc, const char** argv)
 
 	Lighting_on = 1;
 
-	if (!FindArg("-nodoscheck"))
-		check_dos_version();
-
-	if (!FindArg("-nofilecheck"))
-		dos_check_file_handles(5);
-
 	check_memory();
 
 	if (init_graphics()) return 1;
@@ -870,8 +811,6 @@ Here:
 	Current_display_mode = -1;
 	game_init_render_buffers(SM_640x480x15xPA, 640, 480, VR_NONE, VRF_COMPATIBLE_MENUS + VRF_ALLOW_COCKPIT);
 #else
-	do_headset_init();
-
 	if (!VR_offscreen_buffer)	//if hasn't been initialied (by headset init)
 		set_display_mode(0);		//..then set default display mode
 #endif
