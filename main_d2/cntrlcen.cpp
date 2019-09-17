@@ -495,3 +495,26 @@ void special_reactor_stuff(void)
 	}
 }
 
+#include "cfile/cfile.h"
+
+void P_ReadReactorTrigger(control_center_triggers* trigger, FILE* fp)
+{
+	int i;
+
+	trigger->num_links = F_ReadShort(fp);
+	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
+		trigger->seg[i] = F_ReadShort(fp);
+	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
+		trigger->side[i] = F_ReadShort(fp);
+}
+
+void P_WriteReactorTrigger(control_center_triggers* trigger, FILE* fp)
+{
+	int i;
+
+	F_WriteShort(fp, trigger->num_links);
+	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
+		F_WriteShort(fp, trigger->seg[i]);
+	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
+		F_WriteShort(fp, trigger->side[i]);
+}

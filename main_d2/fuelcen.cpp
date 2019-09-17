@@ -1122,6 +1122,59 @@ void fuelcen_check_for_hoard_goal(segment *segp)
 
 } 
 
+#include "cfile/cfile.h"
+#include "cntrlcen.h"
 
+void P_ReadMatcen(matcen_info* center, FILE* fp)
+{
+	center->robot_flags[0] = F_ReadInt(fp);
+	center->robot_flags[1] = F_ReadInt(fp);
+	center->hit_points = F_ReadInt(fp);
+	center->interval = F_ReadInt(fp);
+	center->segnum = F_ReadShort(fp);
+	center->fuelcen_num = F_ReadShort(fp);
+}
 
+void P_WriteMatcen(matcen_info* center, FILE* fp)
+{
+	F_WriteInt(fp, center->robot_flags[0]);
+	F_WriteInt(fp, center->robot_flags[1]);
+	F_WriteInt(fp, center->hit_points);
+	F_WriteInt(fp, center->interval);
+	F_WriteShort(fp, center->segnum);
+	F_WriteShort(fp, center->fuelcen_num);
+}
 
+void P_ReadFuelCenter(FuelCenter* center, FILE* fp)
+{
+	center->Type = F_ReadInt(fp);
+	center->segnum = F_ReadInt(fp);
+	center->Flag = F_ReadByte(fp);
+	center->Enabled = F_ReadByte(fp);
+	center->Lives = F_ReadByte(fp);
+	center->dum1 = F_ReadByte(fp);
+	center->Capacity = F_ReadInt(fp);
+	center->MaxCapacity = F_ReadInt(fp);
+	center->Timer = F_ReadInt(fp);
+	center->Disable_time = F_ReadInt(fp);
+	center->Center.x = F_ReadInt(fp);
+	center->Center.y = F_ReadInt(fp);
+	center->Center.z = F_ReadInt(fp);
+}
+
+void P_WriteFuelCenter(FuelCenter* center, FILE* fp)
+{
+	F_WriteInt(fp, center->Type);
+	F_WriteInt(fp, center->segnum);
+	F_WriteByte(fp, center->Flag);
+	F_WriteByte(fp, center->Enabled);
+	F_WriteByte(fp, center->Lives);
+	F_WriteByte(fp, center->dum1);
+	F_WriteInt(fp, center->Capacity);
+	F_WriteInt(fp, center->MaxCapacity);
+	F_WriteInt(fp, center->Timer);
+	F_WriteInt(fp, center->Disable_time);
+	F_WriteInt(fp, center->Center.x);
+	F_WriteInt(fp, center->Center.y);
+	F_WriteInt(fp, center->Center.z);
+}

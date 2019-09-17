@@ -129,7 +129,8 @@ extern fix AI_proc_time;
 #define	OVERALL_AGITATION_MAX	100
 #define	MAX_AI_CLOAK_INFO	8	//	Must be a power of 2!
 
-typedef struct {
+typedef struct 
+{
 	fix			last_time;
 	int			last_segment;
 	vms_vector	last_position;
@@ -330,3 +331,6 @@ extern void buddy_message(char * format, ... );
 
 #define	SPECIAL_REACTOR_ROBOT	65
 extern void special_reactor_stuff(void);
+
+void P_WriteCloakInfo(ai_cloak_info* info, FILE* fp);
+void P_ReadCloakInfo(ai_cloak_info* info, FILE* fp);

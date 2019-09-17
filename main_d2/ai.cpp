@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "misc/error.h"
 #include "ai.h"
+#include "aistruct.h"
 #include "laser.h"
 #include "fvi.h"
 #include "polyobj.h"
@@ -1573,13 +1574,17 @@ void init_robots_for_level(void)
 	Boss_dying_start_time = 0;
 }
 
+#include "cfile/cfile.h"
+
 int ai_save_state(FILE* fp)
 {
-	fwrite(&Ai_initialized, sizeof(int), 1, fp);
+	/*fwrite(&Ai_initialized, sizeof(int), 1, fp);
 	fwrite(&Overall_agitation, sizeof(int), 1, fp);
+
 	fwrite(Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1, fp);
 	fwrite(Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1, fp);
 	fwrite(Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1, fp);
+
 	fwrite(&Boss_cloak_start_time, sizeof(fix), 1, fp);
 	fwrite(&Boss_cloak_end_time, sizeof(fix), 1, fp);
 	fwrite(&Last_teleport_time, sizeof(fix), 1, fp);
@@ -1613,7 +1618,63 @@ int ai_save_state(FILE* fp)
 		fwrite(Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs, fp);
 
 	if (Num_boss_teleport_segs)
-		fwrite(Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs, fp);
+		fwrite(Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs, fp);*/
+
+	int i;
+
+	F_WriteInt(fp, Ai_initialized);
+	F_WriteInt(fp, Overall_agitation);
+	for (i = 0; i < MAX_OBJECTS; i++)
+		P_WriteAILocals(&Ai_local_info[i], fp);
+	for (i = 0; i < MAX_POINT_SEGS; i++)
+		P_WriteSegPoint(&Point_segs[i], fp);
+	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
+		P_WriteCloakInfo(&Ai_cloak_info[i], fp);
+
+	F_WriteInt(fp, Boss_cloak_start_time);
+	F_WriteInt(fp, Boss_cloak_end_time);
+	F_WriteInt(fp, Last_teleport_time);
+	F_WriteInt(fp, Boss_teleport_interval);
+	F_WriteInt(fp, Boss_cloak_interval);
+	F_WriteInt(fp, Boss_cloak_duration);
+	F_WriteInt(fp, Last_gate_time);
+	F_WriteInt(fp, Gate_interval);
+	F_WriteInt(fp, Boss_dying_start_time);
+	F_WriteInt(fp, Boss_dying);
+	F_WriteInt(fp, Boss_dying_sound_playing);
+	F_WriteInt(fp, Boss_hit_time);
+
+	F_WriteInt(fp, Escort_kill_object);
+	F_WriteInt(fp, Escort_last_path_created);
+	F_WriteInt(fp, Escort_goal_object);
+	F_WriteInt(fp, Escort_special_goal);
+	F_WriteInt(fp, Escort_goal_index);
+	for (i = 0; i < MAX_STOLEN_ITEMS; i++)
+		F_WriteByte(fp, Stolen_items[i]);
+
+	{ 
+		int temp;
+		temp = Point_segs_free_ptr - Point_segs;
+		//fwrite(&temp, sizeof(int), 1, fp);
+		F_WriteInt(fp, temp);
+	}
+
+	F_WriteInt(fp, Num_boss_teleport_segs);
+	F_WriteInt(fp, Num_boss_gate_segs);
+
+	//if (Num_boss_gate_segs)
+	for (int i = 0; i < Num_boss_gate_segs; i++)
+	{
+		F_WriteShort(fp, Boss_gate_segs[i]);
+	}
+	for (int i = 0; i < Num_boss_teleport_segs; i++)
+	{
+		F_WriteShort(fp, Boss_teleport_segs[i]);
+	}
+		//fwrite(Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs, fp);
+
+	//if (Num_boss_teleport_segs)
+		//fwrite(Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs, fp);
 
 	return 1;
 }

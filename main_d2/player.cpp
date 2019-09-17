@@ -28,12 +28,13 @@ void P_ReadPlayer(player* plr, FILE* fp)
 	plr->laser_level = F_ReadByte(fp);
 	plr->starting_level = F_ReadByte(fp);
 	plr->killer_objnum = F_ReadShort(fp);
-	plr->primary_weapon_flags = F_ReadByte(fp);
-	plr->secondary_weapon_flags = F_ReadByte(fp);
-	for (i = 0; i < 5; i++)
+	plr->primary_weapon_flags = F_ReadShort(fp);
+	plr->secondary_weapon_flags = F_ReadShort(fp);
+	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		plr->primary_ammo[i] = F_ReadShort(fp);
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		plr->secondary_ammo[i] = F_ReadShort(fp);
+	plr->pad = F_ReadShort(fp);
 
 	plr->last_score = F_ReadInt(fp);
 	plr->score = F_ReadInt(fp);
@@ -43,6 +44,7 @@ void P_ReadPlayer(player* plr, FILE* fp)
 	plr->cloak_time = F_ReadInt(fp);
 	plr->invulnerable_time = F_ReadInt(fp);
 
+	plr->KillGoalCount = F_ReadShort(fp);
 	plr->net_killed_total = F_ReadShort(fp);
 	plr->net_kills_total = F_ReadShort(fp);
 	plr->num_kills_level = F_ReadShort(fp);
@@ -76,12 +78,13 @@ void P_WritePlayer(player* plr, FILE* fp)
 	F_WriteByte(fp, plr->laser_level);
 	F_WriteByte(fp, plr->starting_level);
 	F_WriteShort(fp, plr->killer_objnum);
-	F_WriteByte(fp, plr->primary_weapon_flags);
-	F_WriteByte(fp, plr->secondary_weapon_flags);
-	for (i = 0; i < 5; i++)
+	F_WriteShort(fp, plr->primary_weapon_flags);
+	F_WriteShort(fp, plr->secondary_weapon_flags);
+	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		F_WriteShort(fp, plr->primary_ammo[i]);
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		F_WriteShort(fp, plr->secondary_ammo[i]);
+	F_WriteShort(fp, plr->pad);
 
 	F_WriteInt(fp, plr->last_score);
 	F_WriteInt(fp, plr->score);
@@ -91,6 +94,7 @@ void P_WritePlayer(player* plr, FILE* fp)
 	F_WriteInt(fp, plr->cloak_time);
 	F_WriteInt(fp, plr->invulnerable_time);
 
+	F_WriteShort(fp, plr->KillGoalCount);
 	F_WriteShort(fp, plr->net_killed_total);
 	F_WriteShort(fp, plr->net_kills_total);
 	F_WriteShort(fp, plr->num_kills_level);

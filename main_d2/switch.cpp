@@ -654,3 +654,36 @@ void triggers_frame_process()
 			Triggers[i].time -= FrameTime;
 }
 
+#include "cfile/cfile.h"
+
+void P_ReadTrigger(trigger* trig, FILE* fp)
+{
+	int j;
+	trig->type = F_ReadByte(fp);
+	trig->flags = F_ReadByte(fp);
+	trig->num_links = F_ReadByte(fp);
+	trig->pad = F_ReadByte(fp);
+
+	trig->value = F_ReadInt(fp);
+	trig->time = F_ReadInt(fp);
+	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
+		trig->seg[j] = F_ReadShort(fp);
+	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
+		trig->side[j] = F_ReadShort(fp);
+}
+
+void P_WriteTrigger(trigger* trig, FILE* fp)
+{
+	int j;
+	F_WriteByte(fp, trig->type);
+	F_WriteByte(fp, trig->flags);
+	F_WriteByte(fp, trig->num_links);
+	F_WriteByte(fp, trig->pad);
+
+	F_WriteInt(fp, trig->value);
+	F_WriteInt(fp, trig->time);
+	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
+		F_WriteShort(fp, trig->seg[j]);
+	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
+		F_WriteShort(fp, trig->side[j]);
+}

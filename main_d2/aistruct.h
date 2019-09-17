@@ -194,3 +194,11 @@ extern	int			Overall_agitation;
 
 extern	void	ai_do_cloak_stuff(void);
 
+#include <stdio.h>
+
+void P_WriteAILocals(ai_local* info, FILE* fp);
+void P_WriteSegPoint(point_seg* point, FILE* fp);
+
+void P_ReadAILocals(ai_local* info, FILE* fp);
+void P_ReadSegPoint(point_seg* point, FILE* fp);
+

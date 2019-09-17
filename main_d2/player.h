@@ -11,10 +11,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-
-#ifndef _PLAYER_H
-#define _PLAYER_H
+#pragma once
 
 #include "inferno.h"
 #include "fix/fix.h"
@@ -192,4 +189,7 @@ typedef struct player16
 	int8_t		hours_total;					// Hours played (since time_total can only go up to 9 hours)
 } player16;
 
-#endif
+#include <stdio.h>
+
+void P_ReadPlayer(player* plr, FILE* fp);
+void P_WritePlayer(player* plr, FILE* fp);

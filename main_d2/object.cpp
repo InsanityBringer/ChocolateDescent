@@ -71,6 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "piggy.h"
 #include "switch.h"
+#include "cfile/cfile.h"
 
 #ifdef TACTILE
 #include "tactile.h"
@@ -2352,8 +2353,366 @@ void wake_up_rendered_objects(object* viewer, int window_num)
 	}
 }
 
+static void read_vector(vms_vector* v, FILE* file)
+{
+	//v->x = read_fix(file);
+	//v->y = read_fix(file);
+	//v->z = read_fix(file);
+	v->x = F_ReadInt(file);
+	v->y = F_ReadInt(file);
+	v->z = F_ReadInt(file);
+}
 
+static void read_matrix(vms_matrix* m, FILE* file)
+{
+	read_vector(&m->rvec, file);
+	read_vector(&m->uvec, file);
+	read_vector(&m->fvec, file);
+}
 
+static void read_angvec(vms_angvec* v, FILE* file)
+{
+	v->p = F_ReadShort(file);
+	v->b = F_ReadShort(file);
+	v->h = F_ReadShort(file);
+}
 
+static void write_vector(vms_vector* v, FILE* file)
+{
+	//v->x = read_fix(file);
+	//v->y = read_fix(file);
+	//v->z = read_fix(file);
+	F_WriteInt(file, v->x);
+	F_WriteInt(file, v->y);
+	F_WriteInt(file, v->z);
+}
 
+static void write_matrix(vms_matrix* m, FILE* file)
+{
+	write_vector(&m->rvec, file);
+	write_vector(&m->uvec, file);
+	write_vector(&m->fvec, file);
+}
 
+static void write_angvec(vms_angvec* v, FILE* file)
+{
+	F_WriteShort(file, v->p);
+	F_WriteShort(file, v->b);
+	F_WriteShort(file, v->h);
+}
+
+//Read an object from disk. These unions are going to be the end of me.....
+void P_ReadObject(object* obj, FILE* f)
+{
+	//Pad shorter structures by this much
+	int bytesLeft;
+	obj->signature = F_ReadInt(f);
+	obj->type = F_ReadByte(f);
+	obj->id = F_ReadByte(f);
+
+	obj->next = F_ReadShort(f); obj->prev = F_ReadShort(f);
+
+	obj->control_type = F_ReadByte(f);
+	obj->movement_type = F_ReadByte(f);
+	obj->render_type = F_ReadByte(f);
+	obj->flags = F_ReadByte(f);
+
+	obj->segnum = F_ReadShort(f);
+	obj->attached_obj = F_ReadShort(f);
+
+	read_vector(&obj->pos, f);
+	read_matrix(&obj->orient, f);
+
+	obj->size = F_ReadInt(f);
+	obj->shields = F_ReadInt(f);
+
+	read_vector(&obj->last_pos, f);
+
+	obj->contains_type = F_ReadByte(f);
+	obj->contains_id = F_ReadByte(f);
+	obj->contains_count = F_ReadByte(f);
+	obj->matcen_creator = F_ReadByte(f);
+
+	obj->lifeleft = F_ReadInt(f);
+
+	bytesLeft = 64;
+
+	switch (obj->movement_type)
+	{
+	case MT_PHYSICS:
+		read_vector(&obj->mtype.phys_info.velocity, f);
+		read_vector(&obj->mtype.phys_info.thrust, f);
+		obj->mtype.phys_info.mass = F_ReadInt(f);
+		obj->mtype.phys_info.drag = F_ReadInt(f);
+		obj->mtype.phys_info.brakes = F_ReadInt(f);
+		read_vector(&obj->mtype.phys_info.rotvel, f);
+		read_vector(&obj->mtype.phys_info.rotthrust, f);
+		obj->mtype.phys_info.turnroll = F_ReadShort(f);
+		obj->mtype.phys_info.flags = F_ReadShort(f);
+		bytesLeft = 0;
+		break;
+	case MT_SPINNING:
+		read_vector(&obj->mtype.spin_rate, f);
+		bytesLeft -= 12;
+		break;
+	}
+	fseek(f, bytesLeft, SEEK_CUR);
+
+	bytesLeft = 30;
+	switch (obj->control_type)
+	{
+
+	case CT_AI:
+	{
+		//30 //[ISB] gee, this sturcture is very aligned.
+		int i;
+		obj->ctype.ai_info.behavior = F_ReadByte(f); //1
+
+		for (i = 0; i < MAX_AI_FLAGS; i++)
+			obj->ctype.ai_info.flags[i] = F_ReadByte(f); //12
+
+		obj->ctype.ai_info.hide_segment = F_ReadShort(f); //14
+		obj->ctype.ai_info.hide_index = F_ReadShort(f); //16
+		obj->ctype.ai_info.path_length = F_ReadShort(f); //18
+		obj->ctype.ai_info.cur_path_index = F_ReadByte(f); //19
+		obj->ctype.ai_info.dying_sound_playing = F_ReadByte(f); //20
+
+		obj->ctype.ai_info.danger_laser_num = F_ReadShort(f); //22
+		obj->ctype.ai_info.danger_laser_signature = F_ReadInt(f); //26
+		obj->ctype.ai_info.dying_start_time = F_ReadInt(f); //30
+		
+		bytesLeft = 0;
+		break;
+	}
+	case CT_EXPLOSION:
+	case CT_DEBRIS:
+		//16
+		obj->ctype.expl_info.spawn_time = F_ReadInt(f);
+		obj->ctype.expl_info.delete_time = F_ReadInt(f);
+		obj->ctype.expl_info.delete_objnum = F_ReadShort(f);
+		obj->ctype.expl_info.attach_parent = F_ReadShort(f);
+		obj->ctype.expl_info.next_attach = F_ReadShort(f);
+		obj->ctype.expl_info.prev_attach = F_ReadShort(f);
+		bytesLeft -= 16;
+		break;
+	case CT_WEAPON:
+		//20
+		obj->ctype.laser_info.parent_type = F_ReadShort(f);
+		obj->ctype.laser_info.parent_num = F_ReadShort(f);
+		obj->ctype.laser_info.parent_signature = F_ReadInt(f);
+		obj->ctype.laser_info.creation_time = F_ReadInt(f);
+		obj->ctype.laser_info.last_hitobj = F_ReadShort(f);
+		obj->ctype.laser_info.track_goal = F_ReadShort(f);
+		obj->ctype.laser_info.multiplier = F_ReadInt(f);
+		bytesLeft -= 20;
+		break;
+	case CT_LIGHT:
+		//4
+		obj->ctype.light_info.intensity = F_ReadInt(f);
+		bytesLeft -= 4;
+		break;
+	case CT_POWERUP:
+		//4
+		obj->ctype.powerup_info.count = F_ReadInt(f);
+		obj->ctype.powerup_info.creation_time = F_ReadInt(f);
+		obj->ctype.powerup_info.flags = F_ReadInt(f);
+		bytesLeft -= 12;
+		break;
+	}
+	fseek(f, bytesLeft, SEEK_CUR);
+
+	bytesLeft = 76;
+	switch (obj->render_type)
+	{
+	case RT_NONE:
+		break;
+	case RT_MORPH:
+	case RT_POLYOBJ:
+	{
+		//76
+		int i;
+		obj->rtype.pobj_info.model_num = F_ReadInt(f);
+		for (i = 0; i < MAX_SUBMODELS; i++)
+			read_angvec(&obj->rtype.pobj_info.anim_angles[i], f);
+		obj->rtype.pobj_info.subobj_flags = F_ReadInt(f);
+		obj->rtype.pobj_info.tmap_override = F_ReadInt(f);
+		obj->rtype.pobj_info.alt_textures = F_ReadInt(f);
+		bytesLeft = 0;
+		break;
+	}
+	case RT_WEAPON_VCLIP:
+	case RT_HOSTAGE:
+	case RT_POWERUP:
+	case RT_FIREBALL:
+		//9
+		obj->rtype.vclip_info.vclip_num = F_ReadInt(f);
+		obj->rtype.vclip_info.frametime = F_ReadInt(f);
+		obj->rtype.vclip_info.framenum = F_ReadByte(f);
+		bytesLeft -= 9;
+		break;
+	case RT_LASER:
+		break;
+	}
+	fseek(f, bytesLeft, SEEK_CUR);
+}
+
+void P_WriteObject(object* obj, FILE* f)
+{
+	//Pad shorter structures by this much
+	int bytesLeft;
+	uint8_t hack[76];
+	memset(&hack[0], 0, 76 * sizeof(uint8_t));
+	F_WriteInt(f, obj->signature);
+	F_WriteByte(f, obj->type);
+	F_WriteByte(f, obj->id);
+
+	F_WriteShort(f, obj->next);
+	F_WriteShort(f, obj->prev);
+
+	F_WriteByte(f, obj->control_type);
+	F_WriteByte(f, obj->movement_type);
+	F_WriteByte(f, obj->render_type);
+	F_WriteByte(f, obj->flags);
+
+	F_WriteShort(f, obj->segnum);
+	F_WriteShort(f, obj->attached_obj);
+
+	write_vector(&obj->pos, f);
+	write_matrix(&obj->orient, f);
+
+	F_WriteInt(f, obj->size);
+	F_WriteInt(f, obj->shields);
+
+	write_vector(&obj->last_pos, f);
+
+	F_WriteByte(f, obj->contains_type);
+	F_WriteByte(f, obj->contains_id);
+	F_WriteByte(f, obj->contains_count);
+	F_WriteByte(f, obj->matcen_creator);
+
+	F_WriteInt(f, obj->lifeleft);
+
+	bytesLeft = 64;
+
+	switch (obj->movement_type)
+	{
+	case MT_PHYSICS:
+		write_vector(&obj->mtype.phys_info.velocity, f);
+		write_vector(&obj->mtype.phys_info.thrust, f);
+		F_WriteInt(f, obj->mtype.phys_info.mass);
+		F_WriteInt(f, obj->mtype.phys_info.drag);
+		F_WriteInt(f, obj->mtype.phys_info.brakes);
+		write_vector(&obj->mtype.phys_info.rotvel, f);
+		write_vector(&obj->mtype.phys_info.rotthrust, f);
+		F_WriteShort(f, obj->mtype.phys_info.turnroll);
+		F_WriteShort(f, obj->mtype.phys_info.flags);
+		bytesLeft = 0;
+		break;
+	case MT_SPINNING:
+		write_vector(&obj->mtype.spin_rate, f);
+		bytesLeft -= 12;
+		break;
+	}
+	//fseek(f, bytesLeft, SEEK_CUR);
+	fwrite(&hack[0], 1, bytesLeft, f);
+
+	bytesLeft = 30;
+	switch (obj->control_type)
+	{
+
+	case CT_AI:
+	{
+		//30 very aligned structure
+		mprintf((0, "sizeof ai_info: %d\n", sizeof(ai_static)));
+		int i;
+		F_WriteByte(f, obj->ctype.ai_info.behavior); //1
+
+		for (i = 0; i < MAX_AI_FLAGS; i++)
+			F_WriteByte(f, obj->ctype.ai_info.flags[i]); //12
+
+		F_WriteShort(f, obj->ctype.ai_info.hide_segment); //14
+		F_WriteShort(f, obj->ctype.ai_info.hide_index); //16
+		F_WriteShort(f, obj->ctype.ai_info.path_length); //18
+		F_WriteByte(f, obj->ctype.ai_info.cur_path_index); //19
+		F_WriteByte(f, obj->ctype.ai_info.dying_sound_playing); //20
+
+		F_WriteShort(f, obj->ctype.ai_info.danger_laser_num); //22
+		F_WriteInt(f, obj->ctype.ai_info.danger_laser_signature); //26
+		F_WriteInt(f, obj->ctype.ai_info.dying_start_time); //30
+		
+		bytesLeft = 0;
+		break;
+	}
+	case CT_EXPLOSION:
+	case CT_DEBRIS:
+		//16
+		F_WriteInt(f, obj->ctype.expl_info.spawn_time);
+		F_WriteInt(f, obj->ctype.expl_info.delete_time);
+		F_WriteShort(f, obj->ctype.expl_info.delete_objnum);
+		F_WriteShort(f, obj->ctype.expl_info.attach_parent);
+		F_WriteShort(f, obj->ctype.expl_info.next_attach);
+		F_WriteShort(f, obj->ctype.expl_info.prev_attach);
+		bytesLeft -= 16;
+		break;
+	case CT_WEAPON:
+		//20
+		F_WriteShort(f, obj->ctype.laser_info.parent_type);
+		F_WriteShort(f, obj->ctype.laser_info.parent_num);
+		F_WriteInt(f, obj->ctype.laser_info.parent_signature);
+		F_WriteInt(f, obj->ctype.laser_info.creation_time);
+		F_WriteShort(f, obj->ctype.laser_info.last_hitobj);
+		F_WriteShort(f, obj->ctype.laser_info.track_goal);
+		F_WriteInt(f, obj->ctype.laser_info.multiplier);
+		bytesLeft -= 20;
+		break;
+	case CT_LIGHT:
+		//4
+		F_WriteInt(f, obj->ctype.light_info.intensity);
+		bytesLeft -= 4;
+		break;
+	case CT_POWERUP:
+		//4
+		F_WriteInt(f, obj->ctype.powerup_info.count);
+		F_WriteInt(f, obj->ctype.powerup_info.creation_time);
+		F_WriteInt(f, obj->ctype.powerup_info.flags);
+		bytesLeft -= 12;
+		break;
+	}
+	//fseek(f, bytesLeft, SEEK_CUR);
+	fwrite(&hack[0], 1, bytesLeft, f);
+
+	bytesLeft = 76;
+	switch (obj->render_type)
+	{
+	case RT_NONE:
+		break;
+	case RT_MORPH:
+	case RT_POLYOBJ:
+	{
+		//76
+		int i;
+		F_WriteInt(f, obj->rtype.pobj_info.model_num);
+		for (i = 0; i < MAX_SUBMODELS; i++)
+			write_angvec(&obj->rtype.pobj_info.anim_angles[i], f);
+		F_WriteInt(f, obj->rtype.pobj_info.subobj_flags);
+		F_WriteInt(f, obj->rtype.pobj_info.tmap_override);
+		F_WriteInt(f, obj->rtype.pobj_info.alt_textures);
+		bytesLeft = 0;
+		break;
+	}
+	case RT_WEAPON_VCLIP:
+	case RT_HOSTAGE:
+	case RT_POWERUP:
+	case RT_FIREBALL:
+		//9
+		F_WriteInt(f, obj->rtype.vclip_info.vclip_num);
+		F_WriteInt(f, obj->rtype.vclip_info.frametime);
+		F_WriteByte(f, obj->rtype.vclip_info.framenum);
+		bytesLeft -= 9;
+		break;
+	case RT_LASER:
+		break;
+	}
+	//fseek(f, bytesLeft, SEEK_CUR);
+	fwrite(&hack[0], 1, bytesLeft, f);
+}

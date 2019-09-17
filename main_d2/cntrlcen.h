@@ -74,3 +74,8 @@ extern fix Countdown_timer;
 extern int Control_center_destroyed,Countdown_seconds_left;
 extern int Base_control_center_explosion_time;		//how long to blow up on insane
 extern int Reactor_strength;
+
+#include <stdio.h>
+
+void P_ReadReactorTrigger(control_center_triggers* trigger, FILE* fp);
+void P_WriteReactorTrigger(control_center_triggers* trigger, FILE* fp);

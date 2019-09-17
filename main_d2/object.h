@@ -207,7 +207,8 @@ typedef struct polyobj_info
 	int			alt_textures;					//if not -1, use these textures instead
 } polyobj_info;
 
-typedef struct object {
+typedef struct object
+{
 	int			signature;		// Every object ever has a unique signature...
 	uint8_t			type;				// what type of object this is... robot, weapon, hostage, powerup, fireball
 	uint8_t			id;				// which form of object...which powerup, robot, etc.
@@ -438,3 +439,8 @@ extern void create_small_fireball_on_object(object *objp, fix size_scale, int so
 int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient,int marker_num);
 
 extern void wake_up_rendered_objects(object *gmissp, int window_num);
+
+#include <stdio.h>
+//Reads an object from disk. This code is my absolute nightmare. Thanks, unions.
+void P_ReadObject(object* obj, FILE* f);
+void P_WriteObject(object* obj, FILE* f);

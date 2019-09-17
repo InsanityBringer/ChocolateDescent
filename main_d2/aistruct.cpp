@@ -70,6 +70,7 @@ void P_WriteSegPoint(point_seg* point, FILE* fp)
 void P_WriteCloakInfo(ai_cloak_info* info, FILE* fp)
 {
 	F_WriteInt(fp, info->last_time);
+	F_WriteInt(fp, info->last_segment);
 	F_WriteInt(fp, info->last_position.x);
 	F_WriteInt(fp, info->last_position.y);
 	F_WriteInt(fp, info->last_position.z);
@@ -125,6 +126,7 @@ void P_ReadSegPoint(point_seg* point, FILE* fp)
 void P_ReadCloakInfo(ai_cloak_info *info, FILE* fp)
 {
 	info->last_time = F_ReadInt(fp);
+	info->last_segment = F_ReadInt(fp);
 	info->last_position.x = F_ReadInt(fp);
 	info->last_position.y = F_ReadInt(fp);
 	info->last_position.z = F_ReadInt(fp);

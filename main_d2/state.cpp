@@ -637,7 +637,8 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 
 	//Save version
 	i = STATE_VERSION;
-	fwrite(&i, sizeof(int), 1, fp);
+	//fwrite(&i, sizeof(int), 1, fp);
+	F_WriteInt(fp, i);
 
 	//Save description
 	fwrite(desc, sizeof(char) * DESC_LENGTH, 1, fp);
@@ -738,18 +739,22 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	}
 
 	// Save the Between levels flag...
-	fwrite(&between_levels, sizeof(int), 1, fp);
+	//fwrite(&between_levels, sizeof(int), 1, fp);
+	F_WriteInt(fp, between_levels);
 
 	// Save the mission info...
 	mprintf((0, "HEY! Mission name is %s\n", Mission_list[Current_mission_num].filename));
 	fwrite(&Mission_list[Current_mission_num], sizeof(char) * 9, 1, fp);
 
 	//Save level info
-	fwrite(&Current_level_num, sizeof(int), 1, fp);
-	fwrite(&Next_level_num, sizeof(int), 1, fp);
+	//fwrite(&Current_level_num, sizeof(int), 1, fp);
+	//fwrite(&Next_level_num, sizeof(int), 1, fp);
+	F_WriteInt(fp, Current_level_num);
+	F_WriteInt(fp, Next_level_num);
 
 	//Save GameTime
-	fwrite(&GameTime, sizeof(fix), 1, fp);
+	//fwrite(&GameTime, sizeof(fix), 1, fp);
+	F_WriteInt(fp, GameTime);
 
 #ifdef NETWORK
 	// If coop save, save all
@@ -780,20 +785,26 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 #endif
 
 	//Save player info
-	fwrite(&Players[Player_num], sizeof(player), 1, fp);
+	//fwrite(&Players[Player_num], sizeof(player), 1, fp);
+	P_WritePlayer(&Players[Player_num], fp);
 
 	// Save the current weapon info
-	fwrite(&Primary_weapon, sizeof(int8_t), 1, fp);
-	fwrite(&Secondary_weapon, sizeof(int8_t), 1, fp);
+	//fwrite(&Primary_weapon, sizeof(int8_t), 1, fp);
+	//fwrite(&Secondary_weapon, sizeof(int8_t), 1, fp);
+	F_WriteByte(fp, Primary_weapon);
+	F_WriteByte(fp, Secondary_weapon);
 
 	// Save the difficulty level
-	fwrite(&Difficulty_level, sizeof(int), 1, fp);
+	//fwrite(&Difficulty_level, sizeof(int), 1, fp);
+	F_WriteInt(fp, Difficulty_level);
 	// Save cheats enabled
-	fwrite(&Cheats_enabled, sizeof(int), 1, fp);
+	//fwrite(&Cheats_enabled, sizeof(int), 1, fp);
+	F_WriteInt(fp, Cheats_enabled);
+
+	int elem = 0;
 
 	if (!between_levels)
 	{
-
 		//Finish all morph objects
 		for (i = 0; i <= Highest_object_index; i++)
 		{
@@ -821,23 +832,45 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 
 		//Save object info
 		i = Highest_object_index + 1;
-		fwrite(&i, sizeof(int), 1, fp);
-		fwrite(Objects, sizeof(object) * i, 1, fp);
+		F_WriteInt(fp, i);
+		for (elem = 0; elem < i; elem++)
+		{
+			P_WriteObject(&Objects[elem], fp);
+		}
+		//fwrite(&i, sizeof(int), 1, fp);
+		//fwrite(Objects, sizeof(object) * i, 1, fp);
 
 		//Save wall info
 		i = Num_walls;
-		fwrite(&i, sizeof(int), 1, fp);
-		fwrite(Walls, sizeof(wall) * i, 1, fp);
+		F_WriteInt(fp, i);
+		for (elem = 0; elem < i; elem++)
+		{
+			P_WriteWall(&Walls[elem], fp);
+		}
+		//fwrite(&i, sizeof(int), 1, fp);
+		//fwrite(Walls, sizeof(wall) * i, 1, fp);
 
 		//Save exploding wall info
-		i = MAX_EXPLODING_WALLS;
-		fwrite(&i, sizeof(int), 1, fp);
-		fwrite(expl_wall_list, sizeof(*expl_wall_list), i, fp);
+		i = MAX_EXPLODING_WALLS; //[ISB] i dunno
+		F_WriteInt(fp, i);
+		for (elem = 0; elem < i; elem++)
+		{
+			F_WriteInt(fp, expl_wall_list[elem].segnum);
+			F_WriteInt(fp, expl_wall_list[elem].sidenum);
+			F_WriteInt(fp, expl_wall_list[elem].time);
+		}
+		//fwrite(&i, sizeof(int), 1, fp);
+		//fwrite(expl_wall_list, sizeof(*expl_wall_list), i, fp);
 
 		//Save door info
 		i = Num_open_doors;
-		fwrite(&i, sizeof(int), 1, fp);
-		fwrite(ActiveDoors, sizeof(active_door) * i, 1, fp);
+		F_WriteInt(fp, i);
+		for (elem = 0; elem < i; elem++)
+		{
+			P_WriteActiveDoor(&ActiveDoors[elem], fp);
+		}
+		//fwrite(&i, sizeof(int), 1, fp);
+		//fwrite(ActiveDoors, sizeof(active_door) * i, 1, fp);
 
 		//Save cloaking wall info
 		i = Num_cloaking_walls;
@@ -845,8 +878,13 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 		fwrite(CloakingWalls, sizeof(cloaking_wall), i, fp);
 
 		//Save trigger info
-		fwrite(&Num_triggers, sizeof(int), 1, fp);
-		fwrite(Triggers, sizeof(trigger) * Num_triggers, 1, fp);
+		//fwrite(&Num_triggers, sizeof(int), 1, fp);
+		//fwrite(Triggers, sizeof(trigger) * Num_triggers, 1, fp);
+		F_WriteInt(fp, Num_triggers);
+		for (elem = 0; elem < Num_triggers; elem++)
+		{
+			P_WriteTrigger(&Triggers[elem], fp);
+		}
 
 		//Save tmap info
 		for (i = 0; i <= Highest_segment_index; i++)
@@ -860,20 +898,38 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 		}
 
 		// Save the fuelcen info
-		fwrite(&Control_center_destroyed, sizeof(int), 1, fp);
+		F_WriteInt(fp, Control_center_destroyed);
+		F_WriteInt(fp, Countdown_timer);
+		F_WriteInt(fp, Num_robot_centers);
+		for (elem = 0; elem < Num_robot_centers; elem++)
+		{
+			P_WriteMatcen(&RobotCenters[elem], fp);
+		}
+		P_WriteReactorTrigger(&ControlCenterTriggers, fp);
+		F_WriteInt(fp, Num_fuelcenters);
+		for (elem = 0; elem < Num_fuelcenters; elem++)
+		{
+			P_WriteFuelCenter(&Station[elem], fp);
+		}
+		/*fwrite(&Control_center_destroyed, sizeof(int), 1, fp);
 		fwrite(&Countdown_timer, sizeof(int), 1, fp);
 		fwrite(&Num_robot_centers, sizeof(int), 1, fp);
 		fwrite(RobotCenters, sizeof(matcen_info) * Num_robot_centers, 1, fp);
 		fwrite(&ControlCenterTriggers, sizeof(control_center_triggers), 1, fp);
 		fwrite(&Num_fuelcenters, sizeof(int), 1, fp);
-		fwrite(Station, sizeof(FuelCenter) * Num_fuelcenters, 1, fp);
+		fwrite(Station, sizeof(FuelCenter) * Num_fuelcenters, 1, fp);*/
 
 		// Save the control cen info
-		fwrite(&Control_center_been_hit, sizeof(int), 1, fp);
+		F_WriteInt(fp, Control_center_been_hit);
+		F_WriteInt(fp, Control_center_player_been_seen);
+		F_WriteInt(fp, Control_center_next_fire_time);
+		F_WriteInt(fp, Control_center_present);
+		F_WriteInt(fp, Dead_controlcen_object_num);
+		/*fwrite(&Control_center_been_hit, sizeof(int), 1, fp);
 		fwrite(&Control_center_player_been_seen, sizeof(int), 1, fp);
 		fwrite(&Control_center_next_fire_time, sizeof(int), 1, fp);
 		fwrite(&Control_center_present, sizeof(int), 1, fp);
-		fwrite(&Dead_controlcen_object_num, sizeof(int), 1, fp);
+		fwrite(&Dead_controlcen_object_num, sizeof(int), 1, fp);*/
 
 		// Save the AI state
 		ai_save_state(fp);
@@ -882,35 +938,52 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 		fwrite(Automap_visited, sizeof(uint8_t) * MAX_SEGMENTS, 1, fp);
 
 	}
-	fwrite(&state_game_id, sizeof(uint32_t), 1, fp);
-	fwrite(&Laser_rapid_fire, sizeof(int), 1, fp);
-	fwrite(&Lunacy, sizeof(int), 1, fp);		//	Yes, writing this twice.  Removed the Ugly robot system, but didn't want to change savegame format.
-	fwrite(&Lunacy, sizeof(int), 1, fp);
+	//fwrite(&state_game_id, sizeof(uint32_t), 1, fp);
+	//fwrite(&Laser_rapid_fire, sizeof(int), 1, fp);
+	//fwrite(&Lunacy, sizeof(int), 1, fp);		//	Yes, writing this twice.  Removed the Ugly robot system, but didn't want to change savegame format.
+	//fwrite(&Lunacy, sizeof(int), 1, fp);
+	F_WriteInt(fp, state_game_id);
+	F_WriteInt(fp, Laser_rapid_fire);
+	F_WriteInt(fp, Lunacy); //[ISB]rip pletchxxx
+	F_WriteInt(fp, Lunacy);
 
 	// Save automap marker info
 
-	fwrite(MarkerObject, sizeof(MarkerObject), 1, fp);
+	//fwrite(MarkerObject, sizeof(MarkerObject), 1, fp);
+	for (elem = 0; elem < 16; elem++)
+	{
+		F_WriteInt(fp, MarkerObject[elem]);
+	}
 	fwrite(MarkerOwner, sizeof(MarkerOwner), 1, fp);
 	fwrite(MarkerMessage, sizeof(MarkerMessage), 1, fp);
 
-	fwrite(&Afterburner_charge, sizeof(fix), 1, fp);
+	//fwrite(&Afterburner_charge, sizeof(fix), 1, fp);
+	F_WriteInt(fp, Afterburner_charge);
 
 	//save last was super information
+	//[ISB] its a char array so I'll leave it for now...
 	fwrite(&Primary_last_was_super, sizeof(Primary_last_was_super), 1, fp);
 	fwrite(&Secondary_last_was_super, sizeof(Secondary_last_was_super), 1, fp);
 
 	//	Save flash effect stuff
-	fwrite(&Flash_effect, sizeof(int), 1, fp);
-	fwrite(&Time_flash_last_played, sizeof(int), 1, fp);
-	fwrite(&PaletteRedAdd, sizeof(int), 1, fp);
-	fwrite(&PaletteGreenAdd, sizeof(int), 1, fp);
-	fwrite(&PaletteBlueAdd, sizeof(int), 1, fp);
+	//fwrite(&Flash_effect, sizeof(int), 1, fp);
+	//fwrite(&Time_flash_last_played, sizeof(int), 1, fp);
+	//fwrite(&PaletteRedAdd, sizeof(int), 1, fp);
+	//fwrite(&PaletteGreenAdd, sizeof(int), 1, fp);
+	//fwrite(&PaletteBlueAdd, sizeof(int), 1, fp);
+	F_WriteInt(fp, Flash_effect);
+	F_WriteInt(fp, Time_flash_last_played);
+	F_WriteInt(fp, PaletteRedAdd);
+	F_WriteInt(fp, PaletteGreenAdd);
+	F_WriteInt(fp, PaletteBlueAdd);
 
 	fwrite(Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS, fp);
 
-	fwrite(&First_secret_visit, sizeof(First_secret_visit), 1, fp);
+	//fwrite(&First_secret_visit, sizeof(First_secret_visit), 1, fp);
+	F_WriteInt(fp, First_secret_visit);
+	F_WriteInt(fp, Omega_charge);
 
-	fwrite(&Omega_charge, sizeof(Omega_charge), 1, fp);
+	//fwrite(&Omega_charge, sizeof(Omega_charge), 1, fp);
 
 	if (ferror(fp))
 	{
@@ -924,21 +997,6 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	else
 	{
 		fclose(fp);
-
-#ifdef MACINTOSH		// set the type and creator of the saved game file
-		{
-			FInfo finfo;
-			OSErr err;
-			Str255 pfilename;
-
-			strcpy(pfilename, filename);
-			c2pstr(pfilename);
-			err = HGetFInfo(0, 0, pfilename, &finfo);
-			finfo.fdType = 'SVGM';
-			finfo.fdCreator = 'DCT2';
-			err = HSetFInfo(0, 0, pfilename, &finfo);
-		}
-#endif
 	}
 
 	start_time();
@@ -1102,7 +1160,8 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 	}
 
 	//Read version
-	fread(&version, sizeof(int), 1, fp);
+	//fread(&version, sizeof(int), 1, fp);
+	version = F_ReadInt(fp);
 	if (version < STATE_COMPATIBLE_VERSION)
 	{
 		fclose(fp);
@@ -1119,7 +1178,8 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 	fseek(fp, 768, SEEK_CUR);
 
 	// Read the Between levels flag...
-	fread(&between_levels, sizeof(int), 1, fp);
+	//fread(&between_levels, sizeof(int), 1, fp);
+	between_levels = F_ReadInt(fp);
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
@@ -1135,11 +1195,15 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 	}
 
 	//Read level info
-	fread(&current_level, sizeof(int), 1, fp);
-	fread(&next_level, sizeof(int), 1, fp);
+	//fread(&current_level, sizeof(int), 1, fp);
+	//fread(&next_level, sizeof(int), 1, fp);
+	current_level = F_ReadInt(fp);
+	next_level = F_ReadInt(fp);
 
 	//Restore GameTime
-	fread(&GameTime, sizeof(fix), 1, fp);
+	//fread(&GameTime, sizeof(fix), 1, fp);
+
+	GameTime = F_ReadInt(fp);
 
 	// Start new game....
 	if (!multi)
@@ -1212,10 +1276,7 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 	}
 #endif
 
-
-
 	//Read player info
-
 	{
 		StartNewLevelSub(current_level, 1, secret_restore);
 
@@ -1223,7 +1284,8 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		{
 			player	dummy_player;
 
-			fread(&dummy_player, sizeof(player), 1, fp);
+			//fread(&dummy_player, sizeof(player), 1, fp);
+			P_ReadPlayer(&dummy_player, fp);
 			if (secret_restore == 1) //	This means he didn't die, so he keeps what he got in the secret level.
 			{
 				Players[Player_num].level = dummy_player.level;
@@ -1248,28 +1310,32 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		}
 		else
 		{
-			fread(&Players[Player_num], sizeof(player), 1, fp);
+			//fread(&Players[Player_num], sizeof(player), 1, fp);
+			P_ReadPlayer(&Players[Player_num], fp);
 		}
 	}
-	strcpy(Players[Player_num].callsign, org_callsign);
+	strncpy(Players[Player_num].callsign, org_callsign, CALLSIGN_LEN+1);
 
 	// Set the right level
 	if (between_levels)
 		Players[Player_num].level = next_level;
 
 	// Restore the weapon states
-	fread(&Primary_weapon, sizeof(int8_t), 1, fp);
-	fread(&Secondary_weapon, sizeof(int8_t), 1, fp);
+	//fread(&Primary_weapon, sizeof(int8_t), 1, fp);
+	//fread(&Secondary_weapon, sizeof(int8_t), 1, fp);
+	Primary_weapon = F_ReadByte(fp);
+	Secondary_weapon = F_ReadByte(fp);
 
 	select_weapon(Primary_weapon, 0, 0, 0);
 	select_weapon(Secondary_weapon, 1, 0, 0);
 
 	// Restore the difficulty level
-	fread(&Difficulty_level, sizeof(int), 1, fp);
+	//fread(&Difficulty_level, sizeof(int), 1, fp);
+	Difficulty_level = F_ReadInt(fp);
 
 	// Restore the cheats enabled flag
-
-	fread(&Cheats_enabled, sizeof(int), 1, fp);
+	//fread(&Cheats_enabled, sizeof(int), 1, fp);
+	Cheats_enabled = F_ReadInt(fp);
 
 	if (!between_levels)
 	{
@@ -1282,9 +1348,14 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		reset_objects(1);
 
 		//Read objects, and pop 'em into their respective segments.
-		fread(&i, sizeof(int), 1, fp);
+		//fread(&i, sizeof(int), 1, fp);
+		i = F_ReadInt(fp);
 		Highest_object_index = i - 1;
-		fread(Objects, sizeof(object) * i, 1, fp);
+		//fread(Objects, sizeof(object) * i, 1, fp);
+		for (i = 0; i <= Highest_object_index; i++)
+		{
+			P_ReadObject(&Objects[i], fp);
+		}
 
 		Object_next_signature = 0;
 		for (i = 0; i <= Highest_object_index; i++)
@@ -1328,9 +1399,14 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		}
 
 		//Restore wall info
-		fread(&i, sizeof(int), 1, fp);
-		Num_walls = i;
-		fread(Walls, sizeof(wall) * Num_walls, 1, fp);
+		//fread(&i, sizeof(int), 1, fp);
+		//Num_walls = i;
+		Num_walls = F_ReadInt(fp);
+		for (i = 0; i < Num_walls; i++)
+		{
+			P_ReadWall(&Walls[i], fp);
+		}
+		//fread(Walls, sizeof(wall) * Num_walls, 1, fp);
 
 		//now that we have the walls, check if any sounds are linked to
 		//walls that are now open
@@ -1343,14 +1419,26 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		//Restore exploding wall info
 		if (version >= 10)
 		{
-			fread(&i, sizeof(int), 1, fp);
-			fread(expl_wall_list, sizeof(*expl_wall_list), i, fp);
+			//fread(&i, sizeof(int), 1, fp);
+			int heh = F_ReadInt(fp);
+			for (i = 0; i < heh; i++)
+			{
+				expl_wall_list[i].segnum = F_ReadInt(fp);
+				expl_wall_list[i].sidenum = F_ReadInt(fp);
+				expl_wall_list[i].time = F_ReadInt(fp);
+			}
+			//fread(expl_wall_list, sizeof(*expl_wall_list), i, fp);
 		}
 
 		//Restore door info
-		fread(&i, sizeof(int), 1, fp);
-		Num_open_doors = i;
-		fread(ActiveDoors, sizeof(active_door) * Num_open_doors, 1, fp);
+		//fread(&i, sizeof(int), 1, fp);
+		//Num_open_doors = i;
+		//fread(ActiveDoors, sizeof(active_door) * Num_open_doors, 1, fp);
+		Num_open_doors = F_ReadInt(fp);
+		for (i = 0; i < Num_open_doors; i++)
+		{
+			P_ReadActiveDoor(&ActiveDoors[i], fp);
+		}
 
 		if (version >= 14) //Restore cloaking wall info
 		{
@@ -1360,8 +1448,13 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		}
 
 		//Restore trigger info
-		fread(&Num_triggers, sizeof(int), 1, fp);
-		fread(Triggers, sizeof(trigger) * Num_triggers, 1, fp);
+		//fread(&Num_triggers, sizeof(int), 1, fp);
+		//fread(Triggers, sizeof(trigger) * Num_triggers, 1, fp);
+		Num_triggers = F_ReadInt(fp);
+		for (i = 0; i < Num_triggers; i++)
+		{
+			P_ReadTrigger(&Triggers[i], fp);
+		}
 
 		//Restore tmap info
 		for (i = 0; i <= Highest_segment_index; i++)

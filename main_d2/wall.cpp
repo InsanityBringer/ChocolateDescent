@@ -1532,3 +1532,57 @@ void blast_nearby_glass(object* objp, fix damage)
 	visited[objp->segnum] = 1;
 	bng_process_segment(objp, damage, cursegp, 0, visited);
 }
+
+#include "cfile/cfile.h"
+
+void P_ReadWall(wall* nwall, FILE* fp)
+{
+	nwall->segnum = F_ReadInt(fp);
+	nwall->sidenum = F_ReadInt(fp);
+	nwall->hps = F_ReadInt(fp);
+	nwall->linked_wall = F_ReadInt(fp);
+	nwall->type = F_ReadByte(fp);
+	nwall->flags = F_ReadByte(fp);
+	nwall->state = F_ReadByte(fp);
+	nwall->trigger = F_ReadByte(fp);
+	nwall->clip_num = F_ReadByte(fp);
+	nwall->keys = F_ReadByte(fp);
+	nwall->controlling_trigger = F_ReadByte(fp);
+	nwall->cloak_value = F_ReadByte(fp);
+}
+
+void P_ReadActiveDoor(active_door* door, FILE* fp)
+{
+	door->n_parts = F_ReadInt(fp);
+	door->front_wallnum[0] = F_ReadShort(fp);
+	door->front_wallnum[1] = F_ReadShort(fp);
+	door->back_wallnum[0] = F_ReadShort(fp);
+	door->back_wallnum[1] = F_ReadShort(fp);
+	door->time = F_ReadInt(fp);
+}
+
+void P_WriteWall(wall* nwall, FILE* fp)
+{
+	F_WriteInt(fp, nwall->segnum);
+	F_WriteInt(fp, nwall->sidenum);
+	F_WriteInt(fp, nwall->hps);
+	F_WriteInt(fp, nwall->linked_wall);
+	F_WriteByte(fp, nwall->type);
+	F_WriteByte(fp, nwall->flags);
+	F_WriteByte(fp, nwall->state);
+	F_WriteByte(fp, nwall->trigger);
+	F_WriteByte(fp, nwall->clip_num);
+	F_WriteByte(fp, nwall->keys);
+	F_WriteByte(fp, nwall->controlling_trigger);
+	F_WriteByte(fp, nwall->cloak_value);
+}
+
+void P_WriteActiveDoor(active_door* door, FILE* fp)
+{
+	F_WriteInt(fp, door->n_parts);
+	F_WriteShort(fp, door->front_wallnum[0]);
+	F_WriteShort(fp, door->front_wallnum[1]);
+	F_WriteShort(fp, door->back_wallnum[0]);
+	F_WriteShort(fp, door->back_wallnum[1]);
+	F_WriteInt(fp, door->time);
+}

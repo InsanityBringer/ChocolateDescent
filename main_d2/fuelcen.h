@@ -131,3 +131,9 @@ extern int Num_fuelcenters;
 extern void init_all_matcens(void);
 
 extern fix EnergyToCreateOneRobot;
+
+void P_ReadMatcen(matcen_info* center, FILE* fp);
+void P_ReadFuelCenter(FuelCenter* center, FILE* fp);
+
+void P_WriteMatcen(matcen_info* center, FILE* fp);
+void P_WriteFuelCenter(FuelCenter* center, FILE* fp);
