@@ -759,6 +759,7 @@ int newmenu_do4(char* title, char* subtitle, int nitems, newmenu_item* item, voi
 
 	//	set_screen_mode(SCREEN_MENU);
 	set_popup_screen();
+	I_SetRelative(0);
 
 	if (Function_mode == FMODE_GAME && !(Game_mode & GM_MULTI))
 	{
