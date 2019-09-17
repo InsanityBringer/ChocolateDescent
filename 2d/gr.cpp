@@ -234,7 +234,6 @@ void gr_getcursor(uint8_t* x, uint8_t* y, uint8_t* sline, uint8_t* eline)
 
 int gr_save_mode()
 {
-	Warning("gr_save_mode: stub\n");
 #if 0
 	int i;
 
@@ -287,7 +286,6 @@ int isvga()
 
 void gr_restore_mode()
 {
-	Warning("gr_restore_mode: stub\n");
 #if 0
 	int i;
 
