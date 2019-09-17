@@ -150,6 +150,7 @@ void c_tmap_scanline_per_nolight()
 		for (x=loop_count; x >= 0; x-- ) 
 		{
 			localz = z >> Z_SHIFTER;
+			if (localz == 0) break;
 			*dest++ = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
 			u += dudx;
 			v += dvdx;
@@ -161,6 +162,7 @@ void c_tmap_scanline_per_nolight()
 		for (x=loop_count; x >= 0; x-- ) 
 		{
 			localz = z >> Z_SHIFTER;
+			if (localz == 0) break;
 			c = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
 			if ( c!=255)
 				*dest = c;
@@ -196,6 +198,7 @@ void c_tmap_scanline_per()
 		for (x=loop_count; x >= 0; x-- ) 
 		{
 			localz = z >> Z_SHIFTER;
+			if (localz == 0) break;
 			//*dest++ = gr_fade_table[ (l&(0xff00)) + (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
 			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)]];
 			l += dldx;
@@ -209,6 +212,7 @@ void c_tmap_scanline_per()
 		for (x=loop_count; x >= 0; x-- ) 
 		{
 			localz = z >> Z_SHIFTER;
+			if (localz == 0) break; 
 			//c = (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
 			c = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
 			if ( c!=255)
