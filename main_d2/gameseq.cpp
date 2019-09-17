@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include <unistd.h>
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
+#include "2d/i_gr.h"
 #include "inferno.h"
 #include "game.h"
 #include "player.h"
@@ -953,6 +954,8 @@ void LoadLevel(int level_num, int page_in_textures)
 #else
 	show_boxed_message(TXT_LOADING);
 	gr_palette_load(gr_palette);
+	I_DrawCurrentCanvas(0);
+	
 #endif
 
 	load_ret = load_level(level_name);		//actually load the data from disk!
