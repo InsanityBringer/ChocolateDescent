@@ -2623,7 +2623,6 @@ void P_WriteObject(object* obj, FILE* f)
 	case CT_AI:
 	{
 		//30 very aligned structure
-		mprintf((0, "sizeof ai_info: %d\n", sizeof(ai_static)));
 		int i;
 		F_WriteByte(f, obj->ctype.ai_info.behavior); //1
 
