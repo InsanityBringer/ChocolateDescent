@@ -13,6 +13,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
+//[ISB] stupid stuff
+#include "fix/fix.h"
 #include "inferno.h"
 #include "game.h"
 #include "bm.h"
@@ -1469,30 +1471,35 @@ void Laser_do_weapon_sequence(object *obj)
 		vm_vec_scale(&obj->mtype.phys_info.velocity, Weapon_info[obj->id].speed[Difficulty_level]);
 	}
 
-// -- 	//	The Super Spreadfire (Helix) blobs travel in a sinusoidal path.  That is accomplished
-// -- 	//	by modifying velocity (direction) in the frame interval.
-// -- 	if (obj->id == SSPREADFIRE_ID) {
-// -- 		fix	age, sinval, cosval;
-// -- 		vms_vector	p, newp;
-// -- 		fix	speed;
-// -- 
-// -- 		speed = vm_vec_mag_quick(&obj->phys_info.velocity);
-// -- 
-// -- 		age = Weapon_info[obj->id].lifetime - obj->lifeleft;
-// -- 
-// -- 		fix_fast_sincos(age, &sinval, &cosval);
-// -- 
-// -- 		//	Note: Below code assumes x=1, y=0.  Need to scale this for values around a circle for 5 helix positions.
-// -- 		p.x = cosval << 3;
-// -- 		p.y = sinval << 3;
-// -- 		p.z = 0;
-// -- 
-// -- 		vm_vec_rotate(&newp, &p, &obj->orient);
-// -- 
-// -- 		vm_vec_add(&goal_point, &obj->pos, &newp);
-// -- 
-// -- 		vm_vec_sub(&vec_to_goal, &goal_point, obj
-// -- 	}
+ 	//	The Super Spreadfire (Helix) blobs travel in a sinusoidal path.  That is accomplished
+ 	//	by modifying velocity (direction) in the frame interval.
+#ifdef SPINNING_HELIX
+	if (obj->id == HELIX_ID) 
+	{
+		fix	age, sinval, cosval;
+		vms_vector	p, newp, goal_point, vec_to_goal;
+		fix	speed;
+ 
+		speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
+ 
+ 		age = Weapon_info[obj->id].lifetime - obj->lifeleft;
+ 
+		fix_fastsincos(age, &sinval, &cosval);
+ 
+ 		//	Note: Below code assumes x=1, y=0.  Need to scale this for values around a circle for 5 helix positions.
+		p.x = cosval << 3;
+ 		p.y = sinval << 3;
+ 		p.z = 0;
+ 
+ 		vm_vec_rotate(&newp, &p, &obj->orient);
+ 
+ 		vm_vec_add(&goal_point, &obj->pos, &newp);
+ 
+		vm_vec_sub(&vec_to_goal, &goal_point, &obj->pos); //[ISB] everything from here is just conjecture tbh. It's probably not correct
+
+		vm_vec_add2(&obj->mtype.phys_info.velocity, &vec_to_goal);
+ 	}
+#endif
 
 
 	//	For homing missiles, turn towards target. (unless it's the guided missile)

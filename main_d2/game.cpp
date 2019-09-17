@@ -1658,19 +1658,21 @@ fix Last_afterburner_charge = 0;
 
 int	Ab_scale = 4;
 
-//@@//	------------------------------------------------------------------------------------
-//@@void afterburner_shake(void)
-//@@{
-//@@	int	rx, rz;
-//@@
-//@@	rx = (Ab_scale * fixmul(rand() - 16384, F1_0/8 + (((GameTime + 0x4000)*4) & 0x3fff)))/16;
-//@@	rz = (Ab_scale * fixmul(rand() - 16384, F1_0/2 + ((GameTime*4) & 0xffff)))/16;
-//@@
-//@@	// -- mprintf((0, "AB: %8x %8x\n", rx, rz));
-//@@	ConsoleObject->mtype.phys_info.rotvel.x += rx;
-//@@	ConsoleObject->mtype.phys_info.rotvel.z += rz;
-//@@
-//@@}
+//#define AFTERBURNER_SHAKE
+#ifdef AFTERBURNER_SHAKE
+//	------------------------------------------------------------------------------------
+void afterburner_shake(void)
+{
+	int	rx, rz;
+
+	rx = (Ab_scale * fixmul(rand() - 16384, F1_0/8 + (((GameTime + 0x4000)*4) & 0x3fff)))/16;
+	rz = (Ab_scale * fixmul(rand() - 16384, F1_0/2 + ((GameTime*4) & 0xffff)))/16;
+
+	// -- mprintf((0, "AB: %8x %8x\n", rx, rz));
+	ConsoleObject->mtype.phys_info.rotvel.x += rx;
+	ConsoleObject->mtype.phys_info.rotvel.z += rz;
+}
+#endif
 
 //	------------------------------------------------------------------------------------
 #ifdef NETWORK
@@ -1712,10 +1714,10 @@ void do_afterburner_stuff(void)
 			mprintf((0,"Killing afterburner sound\n"));
 		}
 	}
-
-	//@@if (Controls.afterburner_state && Afterburner_charge)
-	//@@	afterburner_shake();
-
+#ifdef AFTERBURNER_SHAKE
+	if (Controls.afterburner_state && Afterburner_charge)
+		afterburner_shake();
+#endif
 	Last_afterburner_state = Controls.afterburner_state;
 	Last_afterburner_charge = Afterburner_charge;
 }
