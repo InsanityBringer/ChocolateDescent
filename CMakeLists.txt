@@ -13,6 +13,7 @@ set_property(GLOBAL PROPERTY SOURCE_GROUPS "")
 
 set(METADATA_BASE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE STRING "Base path for project")
 set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor")
+set(FORCE_D1_TEXMAP OFF CACHE BOOL "Builds Descent 2 using Descent 1's texture mapper")
 
 # The following macros are provided by Kaiser and Altazimuth, from the Kex Engine project.
 # ---------------------------------------------------------------------------------

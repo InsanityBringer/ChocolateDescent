@@ -63,7 +63,11 @@ int	Max_perspective_depth;
 int	Max_linear_depth;
 int	Max_flat_depth;
 
+#ifndef BUILD_DESCENT2
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
+#else
+int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
+#endif
 
 // These variables are the interface to assembler.  They get set for each texture map, which is a real waste of time.
 //	They should be set only when they change, which is generally when the window bounds change.  And, even still, it's
@@ -78,7 +82,11 @@ int	window_bottom;
 int  	window_width;
 int  	window_height;
 #ifdef EDITOR_TMAP
+#ifdef BUILD_DESCENT2
+#define	MAX_Y_POINTERS	1024
+#else
 #define	MAX_Y_POINTERS	480
+#endif
 #else
 #define	MAX_Y_POINTERS	480
 #endif

@@ -35,14 +35,14 @@ void c_tmap_scanline_flat()
 
 	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 
-	if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) < 0)
+	/*if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) < 0)
 	{
 		printf("Underflow drawing unlit flat scanline\n");
 	}
 	if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
 	{
 		printf("Overflow drawing unlit flat scanline\n");
-	}
+	}*/
 
 	for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 	{
@@ -83,15 +83,19 @@ void c_tmap_scanline_lin_nolight()
 
 	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 
-	if (!Transparency_on) {
-		for (x = fx_xright - fx_xleft + 1; x > 0; --x) {
+	if (!Transparency_on) 
+	{
+		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
+		{
 			*dest++ = (uint32_t)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
 			u += dudx;
 			v += dvdx;
 		}
 	}
-	else {
-		for (x = fx_xright - fx_xleft + 1; x > 0; --x) {
+	else 
+	{
+		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
+		{
 			c = (uint32_t)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
 			if (c != 255)
 				* dest = c;
@@ -122,10 +126,10 @@ void c_tmap_scanline_lin()
 
 	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 
-	if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
+	/*if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
 	{
 		printf("Overflow drawing linear texture scanline\n");
-	}
+	}*/
 
 	if (!Transparency_on) 
 	{
@@ -168,10 +172,10 @@ void c_tmap_scanline_per_nolight()
 	dzdx = fx_dz_dx;
 
 	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
-	if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
+	/*if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
 	{
 		printf("Overflow drawing unlit perspective texture scanline\n");
-	}
+	}*/
 
 	if (!Transparency_on) 
 	{
@@ -220,10 +224,10 @@ void c_tmap_scanline_per()
 	if (dldx < 0)
 		dldx++; //round towards 0 for negative deltas
 
-	if (((fx_xleft) + (bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
+	/*if (((fx_xleft) + (bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
 	{
 		printf("Overflow drawing perspective texture scanline\n");
-	}
+	}*/ //[ISB] hopefully this overflow detector isn't needed anymore
 
 	if (!Transparency_on) 
 	{
