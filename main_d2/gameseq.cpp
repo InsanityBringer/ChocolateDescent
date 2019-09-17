@@ -2011,7 +2011,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	}
 	BigWindowSwitch = 0;
 
-
 	if (Newdemo_state == ND_STATE_PAUSED)
 		Newdemo_state = ND_STATE_RECORDING;
 
@@ -2053,9 +2052,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 #ifndef NDEBUG
 	//-- mprintf((0, "Player_num = %d, N_players = %d.\n", Player_num, N_players)); // DEBUG
 #endif
-
 	HUD_clear_messages();
-
 	automap_clear_visited();
 
 #ifdef NETWORK
@@ -2130,11 +2127,23 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	Last_level_path_created = -1;
 }
 
+#ifdef NETWORK
 extern void bash_to_shield(int, char*);
+#else
+void bash_to_shield(int i, char* s)
+{
+	int type = Objects[i].id;
+
+	mprintf((0, "Bashing %s object #%i to shield.\n", s, i));
+
+	Objects[i].id = POW_SHIELD_BOOST;
+	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
+	Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+}
+#endif
 
 void filter_objects_from_level()
 {
-#ifdef NETWORK
 	int i;
 
 	mprintf((0, "Highest object index=%d\n", Highest_object_index));
@@ -2145,7 +2154,6 @@ void filter_objects_from_level()
 			if (Objects[i].id == POW_FLAG_RED || Objects[i].id == POW_FLAG_BLUE)
 				bash_to_shield(i, "Flag!!!!");
 	}
-#endif
 }
 
 struct {
@@ -2258,16 +2266,14 @@ void StartNewLevel(int level_num, int secret_flag)
 {
 	ThisLevelTime = 0;
 
-	if ((level_num > 0) && (!secret_flag)) {
+	if ((level_num > 0) && (!secret_flag)) 
+	{
 		maybe_set_first_secret_visit(level_num);
 	}
 
 	ShowLevelIntro(level_num);
-
 	WIN(DEFINE_SCREEN(NULL));		// ALT-TAB: no restore of background.
-
 	StartNewLevelSub(level_num, 1, secret_flag);
-
 }
 
 //initialize the player object position & orientation (at start of game, or new ship)

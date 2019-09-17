@@ -319,23 +319,14 @@ void init_game()
 	atexit(close_game);             //for cleanup
 
 	init_objects();
-
 	init_special_effects();
-
 	init_ai_system();
-
 	init_gauge_canvases();
-
 	init_exploding_walls();
-
 	load_background_bitmap();
-
 	Clear_window = 2;		//	do portal only window clear.
-
 	set_detail_level_parameters(Detail_level);
-
 	build_mission_list(0);		// This also loads mission 0.
-
 }
 
 
@@ -2210,7 +2201,6 @@ void game_setup(void)
 	fix_object_segs();
 
 	game_flush_inputs();
-
 }
 
 #ifdef NETWORK
@@ -2231,8 +2221,10 @@ void game()
 	ProfilerSetStatus(1);
 #endif
 
-	if ( setjmp(LeaveGame)==0 )	{
-		while (1) {
+	if ( setjmp(LeaveGame)==0 )
+	{
+		while (1) 
+		{
 			int player_shields;
 
 			// GAME LOOP!
