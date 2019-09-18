@@ -3406,10 +3406,12 @@ void draw_hud()
 			}
 		}
 
-#ifdef NETWORK
 #ifndef RELEASE
+#ifdef NETWORK
 		if (!(Game_mode & GM_MULTI && Show_kill_list) && !Saving_movie_frames)
 			show_time();
+#else
+		show_time();
 #endif
 #endif
 		if (Reticle_on && Cockpit_mode != CM_LETTERBOX && (!Use_player_head_angles))
