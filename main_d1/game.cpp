@@ -1937,7 +1937,7 @@ void show_help()
 {
 	newmenu_item m[14];
 
-	if (VR_render_mode != VR_NONE) 
+	//if (VR_render_mode != VR_NONE) //[ISB] I'm confused
 	{
 		m[0].type = NM_TYPE_TEXT; m[0].text = TXT_HELP_ESC;
 		m[1].type = NM_TYPE_TEXT; m[1].text = TXT_HELP_ALT_F2;
