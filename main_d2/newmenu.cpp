@@ -294,7 +294,15 @@ void nm_string(bkg* b, int w1, int x, int y, char* s)
 {
 	int w, h, aw, tx = 0, t = 0, i;
 	char* p, * s1, measure[2];
+	char* buf; //[ISB] godawful hack
 	int XTabs[] = { 15,87,124,162,228,253 };
+
+	buf = (char*)malloc(strlen(s) * sizeof(char) + 1);
+	if (!buf)
+	{
+		Error("Insufficient memory for menu string hack. Somehow...");
+	}
+	strcpy(buf, s);
 
 	for (i = 0; i < 6; i++)
 	{
@@ -306,7 +314,7 @@ void nm_string(bkg* b, int w1, int x, int y, char* s)
 
 	if (!SurfingNet)
 	{
-		p = strchr(s, '\t');
+		p = strchr(buf, '\t');
 		if (p && (w1 > 0))
 		{
 			*p = '\0';
@@ -314,7 +322,7 @@ void nm_string(bkg* b, int w1, int x, int y, char* s)
 		}
 	}
 
-	gr_get_string_size(s, &w, &h, &aw);
+	gr_get_string_size(buf, &w, &h, &aw);
 
 	if (w1 > 0)
 		w = w1;
@@ -327,19 +335,19 @@ void nm_string(bkg* b, int w1, int x, int y, char* s)
 	{
 		for (i = 0; i < strlen(s); i++)
 		{
-			if (s[i] == '\t' && SurfingNet)
+			if (buf[i] == '\t' && SurfingNet)
 			{
 				x = XTabs[t];
 				t++;
 				continue;
 			}
-			measure[0] = s[i];
+			measure[0] = buf[i];
 			gr_get_string_size(measure, &tx, &h, &aw);
 			gr_string(x, y, measure);
 			x += tx;
 		}
 	}
-	else 	gr_string(x, y, s);
+	else 	gr_string(x, y, buf);
 
 	if (!SurfingNet && p && (w1 > 0))
 	{
@@ -349,6 +357,8 @@ void nm_string(bkg* b, int w1, int x, int y, char* s)
 
 		*p = '\t';
 	}
+
+	if (buf) free(buf);
 }
 
 // Draw a slider and it's string
