@@ -395,7 +395,7 @@ void do_option(int select)
 	case MENU_LOAD_LEVEL:
 	{
 		newmenu_item m;
-		char text[10] = "";
+		char text[11] = "";
 		int new_level_num;
 
 		m.type = NM_TYPE_INPUT; m.text_len = 10; m.text = text;
