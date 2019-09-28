@@ -100,7 +100,7 @@ target_sources(ChocolateDescent2 PRIVATE
     "${METADATA_BASE_PATH}/2d/rle.cpp"
     "${METADATA_BASE_PATH}/2d/rle.h"
     "${METADATA_BASE_PATH}/2d/roller.cpp"
-    "${METADATA_BASE_PATH}/2d/scale.cpp"
+    "${METADATA_BASE_PATH}/2d/scale_d2.cpp"
     "${METADATA_BASE_PATH}/2d/scanline2d.cpp"
     "${METADATA_BASE_PATH}/2d/sdl_conf.cpp"
 )

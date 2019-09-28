@@ -206,7 +206,11 @@ dbool g3_draw_rod_tmap(grs_bitmap* bitmap, g3s_point* bot_point, fix bot_width, 
 
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
+#ifdef BUILD_DESCENT2
+dbool g3_draw_bitmap(vms_vector* pos, fix width, fix height, grs_bitmap* bm, int orientation);
+#else
 dbool g3_draw_bitmap(vms_vector* pos, fix width, fix height, grs_bitmap* bm);
+#endif
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults

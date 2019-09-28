@@ -166,8 +166,8 @@ void state_callback(int nitems, newmenu_item* items, int* last_key, int citem)
 				grs_canvas* temp_canv = gr_create_canvas(THUMBNAIL_W * 2, (THUMBNAIL_H * 24 / 10));
 				grs_point vertbuf[3] = { {0,0}, {0,0}, {i2f(THUMBNAIL_W * 2),i2f(THUMBNAIL_H * 24 / 10)} };
 				gr_set_current_canvas(temp_canv);
-				//scale_bitmap(sc_bmp[citem - 1], vertbuf, 0);
-				scale_bitmap(sc_bmp[citem - 1], vertbuf); //[ISB] TODO orientation
+				scale_bitmap(sc_bmp[citem - 1], vertbuf, 0);
+				//scale_bitmap(sc_bmp[citem - 1], vertbuf); //[ISB] TODO orientation
 				WINDOS(
 					dd_gr_set_current_canvas(save_canv),
 					gr_set_current_canvas(save_canv)
