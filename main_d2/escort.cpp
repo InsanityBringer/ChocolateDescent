@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "3d/3d.h"
 #include "2d/palette.h"
+#include "2d/i_gr.h"
 
 #include "object.h"
 #include "misc/error.h"
@@ -1739,19 +1740,21 @@ void do_escort_menu(void)
 	int	next_goal;
 	char	goal_str[32], tstr[32];
 
-	if (Game_mode & GM_MULTI) {
+	if (Game_mode & GM_MULTI) 
+	{
 		HUD_init_message("No Guide-Bot in Multiplayer!");
 		return;
 	}
 
-	for (i=0; i<=Highest_object_index; i++) {
+	for (i=0; i<=Highest_object_index; i++) 
+	{
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[Objects[i].id].companion)
 				break;
 	}
 
-	if (i > Highest_object_index) {
-
+	if (i > Highest_object_index) 
+	{
 		HUD_init_message("No Guide-Bot present in mine!");
 
 		#ifndef NDEBUG
@@ -1765,7 +1768,8 @@ void do_escort_menu(void)
 
 	ok_for_buddy_to_talk();	//	Needed here or we might not know buddy can talk when he can.
 
-	if (!Buddy_allowed_to_talk) {
+	if (!Buddy_allowed_to_talk) 
+	{
 		HUD_init_message("%s has not been released",guidebot_name);
 		return;
 	}
@@ -1787,16 +1791,19 @@ void do_escort_menu(void)
 
 	//	This prevents the buddy from coming back if you've told him to scram.
 	//	If we don't set next_goal, we get garbage there.
-	if (Escort_special_goal == ESCORT_GOAL_SCRAM) {
+	if (Escort_special_goal == ESCORT_GOAL_SCRAM)
+	{
 		Escort_special_goal = -1;	//	Else setting next goal might fail.
 		next_goal = escort_set_goal_object();
 		Escort_special_goal = ESCORT_GOAL_SCRAM;
-	} else {
+	} else 
+	{
 		Escort_special_goal = -1;	//	Else setting next goal might fail.
 		next_goal = escort_set_goal_object();
 	}
 
-	switch (next_goal) {
+	switch (next_goal) 
+	{
 	#ifndef NDEBUG
 		case ESCORT_GOAL_UNSPECIFIED:
 			Int3();
@@ -1857,8 +1864,10 @@ void do_escort_menu(void)
 				, goal_str, tstr);
 
 	show_escort_menu(msg);		//TXT_PAUSE);
+	I_DrawCurrentCanvas(0);
 
-	while (paused) {
+	while (paused) 
+	{
 	#ifdef WINDOWS
 		while (!(key = key_inkey()))
 		{
@@ -1869,7 +1878,8 @@ void do_escort_menu(void)
 		key = key_getch();
 	#endif
 
-		switch (key) {
+		switch (key) 
+		{
 			case KEY_0:
 			case KEY_1:
 			case KEY_2:
@@ -1908,9 +1918,10 @@ void do_escort_menu(void)
 			case KEY_BACKSP: Int3(); break;
 			#endif
 
-			case KEY_T: {
-				char	msg[32];
-				int	temp;
+			case KEY_T: 
+			{
+				char msg[32];
+				int temp;
 
 				temp = !Buddy_messages_suppressed;
 
@@ -1927,14 +1938,10 @@ void do_escort_menu(void)
 				paused = 0;
 				break;
 			}
-
 			default:
 				break;
-
 		}
-
 	}
-
 	game_flush_inputs();
 
 	palette_restore();
