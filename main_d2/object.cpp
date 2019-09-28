@@ -234,11 +234,11 @@ void draw_object_blob(object* obj, bitmap_index bmi)
 	if (obj->type == OBJ_FIREBALL)
 		orientation = (obj - Objects) & 7;
 
-	orientation = global_orientation;
+	orientation = global_orientation; //[ISB] k
 
 	PIGGY_PAGE_IN(bmi);
 
-	if (bm->bm_w > bm->bm_h) //[ISB] TODO
+	if (bm->bm_w > bm->bm_h)
 		g3_draw_bitmap(&obj->pos, obj->size, fixmuldiv(obj->size, bm->bm_h, bm->bm_w), bm, orientation);
 	else
 		g3_draw_bitmap(&obj->pos, fixmuldiv(obj->size, bm->bm_w, bm->bm_h), obj->size, bm, orientation);

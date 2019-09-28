@@ -154,7 +154,11 @@ dbool g3_draw_bitmap(vms_vector* pos, fix width, fix height, grs_bitmap* bm)
 	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
 	blob_vertices[2].y = pnt.p3_sy + h;
 
+#ifdef BUILD_DESCENT2
 	scale_bitmap(bm, blob_vertices, orientation);
+#else
+	scale_bitmap(bm, blob_vertices);
+#endif
 
 	return 0;
 #else
