@@ -570,7 +570,8 @@ int load_new_briefing_screen(char* fname)
 	WIN(DDGRLOCK(dd_grd_curcanv));
 	if ((pcx_error = pcx_read_bitmap(fname, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, New_pal)) != PCX_ERROR_NONE) {
 		printf("File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n", fname, pcx_errormsg(pcx_error));
-		printf(0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n", fname, pcx_errormsg(pcx_error), pcx_error);
+		//[ISB] this call was to printf, but still had the 0. That makes no sense, so I'm going to assume this was an attempted mprintf call. 
+		mprintf((0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n", fname, pcx_errormsg(pcx_error), pcx_error));
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		Error("Error loading briefing screen <%s>, PCX load error: %s (%i)\n", fname, pcx_errormsg(pcx_error), pcx_error);
 	}

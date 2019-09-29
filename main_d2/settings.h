@@ -8,7 +8,7 @@
 #define NEWDEMO				//Demo is always IN 
 //#define EDITOR				//BUILD_EDITOR not set 
 //#define SHAREWARE				//SHAREWARE not set 
-//#define SANTA				//SANTA not set 
+#define SANTA				//SANTA set //[ISB] it looks like SANTA came early this year.
 //#define ARCADE				//ARCADE not set 
 //#define DEMO_ONLY				//DEMO_ONLY not set 
 //#define _MARK_ON				//MARK_ON not set 

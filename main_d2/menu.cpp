@@ -142,6 +142,8 @@ extern void ReorderPrimary();
 int newdemo_count_demos();
 extern uint8_t Version_major, Version_minor;
 
+extern int HoardEquipped(); //[ISB] godawful hack
+
 // ------------------------------------------------------------------------
 void autodemo_menu_check(int nitems, newmenu_item* items, int* last_key, int citem)
 {

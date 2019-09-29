@@ -6446,12 +6446,13 @@ void network_send_player_names (sequence_packet *their)
 	#endif
  }
  
+#endif
 
 extern int file_exists (char *);
 
 int HoardEquipped ()
 {
-	static checked=-1;
+	static int checked=-1;
 	
 	#ifdef WINDOWS
 		return 0;
@@ -6466,5 +6467,4 @@ int HoardEquipped ()
 	}
 	return (checked);
 }
-	
-#endif
+
