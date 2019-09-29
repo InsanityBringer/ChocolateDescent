@@ -49,7 +49,7 @@ int I_ReadChocolateConfig()
 			fprintf(infile, "%s=%d\n", WindowHeightStr, WindowHeight);
 			fprintf(infile, "%s=%d\n", FitModeStr, BestFit);
 			fprintf(infile, "%s=%d\n", FullscreenStr, Fullscreen);
-			fprintf(infile, "%s=%s\n", SoundFontPath, SoundFontFilename);
+			fprintf(infile, "%s=%s", SoundFontPath, SoundFontFilename);
 			fclose(infile);
 		}
 		return 1;
@@ -75,8 +75,12 @@ int I_ReadChocolateConfig()
 				Fullscreen = strtol(value, NULL, 10);
 			else if (!strcmp(token, SoundFontPath))
 			{
+				char* p;
 				memset(&SoundFontFilename[0], 0, 256);
 				strncpy(&SoundFontFilename[0], value, 255);
+				//[ISB] godawful hack from Descent's config parser, should fix parsing the soundfont path
+				p = strchr(SoundFontFilename, '\n');
+				if (p)* p = 0;
 			}
 		}
 	}
