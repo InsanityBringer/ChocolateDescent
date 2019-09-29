@@ -108,7 +108,8 @@ int Vid_State;
 extern int Digi_initialized;
 extern int digi_timer_rate;
 
-int MovieHires = 0;		//default for now is lores
+//int MovieHires = 0;		//default for now is lores
+int MovieHires = 1; //[ISB] hack, with the lack of a setup program this won't be set to hires. 
 
 #define MOVIE_VOLUME_SCALE  (32767)		//32767 is MAX
 
@@ -1197,19 +1198,19 @@ try_again:;
 		else {
 			if (required) {
 #if defined(RELEASE) && !defined(D2_OEM)		//allow no movies if not release
-				strupr(filename);
-				Error("Cannot open movie file <%s>", filename);
+				strupr(tempBuffer);
+				Error("Cannot open movie file <%s>", tempBuffer);
 #endif
 			}
 #if defined(D2_OEM)		//if couldn't get higres, try low
 			if (is_robots == 1) {	//first try, try again with lowres
-				strchr(filename, '.')[-1] = 'l';
+				strchr(tempBuffer, '.')[-1] = 'l';
 				high_res = 0;
 				is_robots++;
 				goto try_again;
 			}
 			else if (is_robots == 2) {		//failed twice. bail with error
-				strupr(filename);
+				strupr(tempBuffer);
 				Error("Cannot open movie file <%s>", filename);
 			}
 #endif

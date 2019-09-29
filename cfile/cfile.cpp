@@ -225,7 +225,16 @@ int cfexist(const char* filename)
 	int length;
 	FILE* fp;
 
-	fp = cfile_get_filehandle(filename, "rb");		// Check for non-hog file first...
+	//fp = cfile_get_filehandle(filename, "rb");		// Check for non-hog file first...
+	//[ISB] descent 2 code for release
+	if (filename[0] != '\x01')
+		fp = cfile_get_filehandle(filename, "rb");		// Check for non-hog file first...
+	else 
+	{
+		fp = NULL;		//don't look in dir, only in hogfile
+		filename++;
+	}
+
 	if (fp) {
 		fclose(fp);
 		return 1;
@@ -262,7 +271,18 @@ CFILE* cfopen(const char* filename, const char* mode)
 	while ((p = strchr(new_filename, 10)))
 		* p = '\0';
 
-	fp = cfile_get_filehandle(filename, mode);		// Check for non-hog file first...
+	//fp = cfile_get_filehandle(filename, mode);		// Check for non-hog file first...
+
+	//[ISB] descent 2 code for handling '\x01'
+	if (filename[0] != '\x01')
+	{
+		fp = cfile_get_filehandle(filename, mode);		// Check for non-hog file first...
+	}
+	else
+	{
+		fp = NULL;		//don't look in dir, only in hogfile
+		filename++;
+	}
 	if (!fp) 
 	{
 		fp = cfile_find_libfile(filename, &length);
