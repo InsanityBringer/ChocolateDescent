@@ -795,11 +795,7 @@ void load_robot_replacements(char *level_name)
 		i = cfile_read_int(fp);		//read robot number
 	   if (i<0 || i>=N_robot_types)
 			Error("Robots number (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_robot_types-1);
-		#ifdef MACINTOSH
-			read_robot_info(fp, 1, i);
-		#else
-			cfread( &Robot_info[i], sizeof(robot_info), 1, fp );
-		#endif
+		read_robot_info(fp, 1, i);
 	}
 
 	t = cfile_read_int(fp);			//read number of joints
@@ -807,11 +803,7 @@ void load_robot_replacements(char *level_name)
 		i = cfile_read_int(fp);		//read joint number
 		if (i<0 || i>=N_robot_joints)
 			Error("Robots joint (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_robot_joints-1);
-		#ifdef MACINTOSH
-			read_robot_joint_info(fp, 1, i);
-		#else
-			cfread( &Robot_joints[i], sizeof(jointpos), 1, fp );
-		#endif
+		read_robot_joint_info(fp, 1, i);
 	}
 
 	t = cfile_read_int(fp);			//read number of polygon models
@@ -821,20 +813,13 @@ void load_robot_replacements(char *level_name)
 		if (i<0 || i>=N_polygon_models)
 			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_polygon_models-1);
 	
-		#ifdef MACINTOSH
-			read_polygon_models(fp, 1, i);
-		#else
-			cfread( &Polygon_models[i], sizeof(polymodel), 1, fp );
-		#endif
+		read_polygon_models(fp, 1, i);
 	
 		free(Polygon_models[i].model_data);
 		Polygon_models[i].model_data = (uint8_t*)malloc(Polygon_models[i].model_data_size);
 		Assert( Polygon_models[i].model_data != NULL );
 
 		cfread( Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp );
-		#ifdef MACINTOSH
-			swap_polygon_model_data(Polygon_models[i].model_data);
-		#endif
 		g3_init_polygon_model(Polygon_models[i].model_data);
 
 		Dying_modelnums[i] = cfile_read_int(fp);
