@@ -812,10 +812,13 @@ void load_robot_replacements(char *level_name)
 		i = cfile_read_int(fp);		//read model number
 		if (i<0 || i>=N_polygon_models)
 			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_polygon_models-1);
+
+		//[ISB] I'm going to hurt someone
+		//Free the old model data before loading a bogus pointer over it
+		free(Polygon_models[i].model_data);
 	
 		read_polygon_models(fp, 1, i);
 	
-		free(Polygon_models[i].model_data);
 		Polygon_models[i].model_data = (uint8_t*)malloc(Polygon_models[i].model_data_size);
 		Assert( Polygon_models[i].model_data != NULL );
 

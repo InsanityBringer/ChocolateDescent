@@ -487,7 +487,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
 
 	//	Draw cursor if there is some delay and caller says to draw cursor
-	if (cursor_flag && delay) {
+	if (cursor_flag && delay)
+	{
 		WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
 		gr_printf(Briefing_text_x + 1, Briefing_text_y, "_");
@@ -506,6 +507,9 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	while (timer_get_fixed_seconds() < (start_time + delay))
 	{
+		//[ISB] surely this code could have been structured better
+		I_DoEvents();
+		I_DrawCurrentCanvas(0);
 		if (RobotPlaying && delay != 0)
 			RotateRobot();
 	}
@@ -514,7 +518,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	WIN(DDGRLOCK(dd_grd_curcanv));
 	//	Erase cursor
-	if (cursor_flag && delay) {
+	if (cursor_flag && delay)
+	{
 		gr_set_fontcolor(Erase_color, -1);
 		gr_printf(Briefing_text_x + 1, Briefing_text_y, "_");
 	}
@@ -746,8 +751,7 @@ int show_briefing_message(int screen_num, char* message)
 					RobotPlaying = 0;
 				}
 
-				//kludge = *message++;
-				kludge = *(message + 1); //[ISB] i really dunno
+				kludge = *message++;
 				spinRobotName[2] = kludge; // ugly but proud
 
 				RobotPlaying = InitRobotMovie(spinRobotName);
@@ -859,7 +863,8 @@ int show_briefing_message(int screen_num, char* message)
 				//					show_briefing_bitmap(Textures[bitmap_num]);
 				//				prev_ch = 10;							//	read to eoln
 			}
-			else if (ch == 'S') {
+			else if (ch == 'S') 
+			{
 				int	keypress;
 				fix	start_time;
 
@@ -887,11 +892,11 @@ int show_briefing_message(int screen_num, char* message)
 					}
 #endif
 
+					//[ISB] the amount of frames that will get 2 events done is going to be high
+					I_DrawCurrentCanvas(0);
+					I_DoEvents();
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 					{
-						//[ISB] the amount of frames that will get 2 events done is going to be high
-						I_DrawCurrentCanvas(0);
-						I_DoEvents();
 					}
 					flash_cursor(flashing_cursor);
 
@@ -912,7 +917,8 @@ int show_briefing_message(int screen_num, char* message)
 				done = 1;
 				WIN(wpage_done = 0);
 			}
-			else if (ch == 'P') {		//	New page.
+			else if (ch == 'P') //	New page.
+			{		
 				if (!GotZ)
 				{
 					Int3(); // Hey ryan!!!! You gotta load a screen before you start 
@@ -922,47 +928,56 @@ int show_briefing_message(int screen_num, char* message)
 
 
 				new_page = 1;
-				while (*message != 10) {
+				while (*message != 10) 
+				{
 					message++;	//	drop carriage return after special escape sequence
 				}
 				message++;
 				prev_ch = 10;
 			}
 		}
-		else if (ch == '\t') {		//	Tab
+		else if (ch == '\t') //	Tab
+		{		
 			if (Briefing_text_x - bsp->text_ulx < tab_stop)
 				Briefing_text_x = bsp->text_ulx + tab_stop;
 		}
-		else if ((ch == ';') && (prev_ch == 10)) {
+		else if ((ch == ';') && (prev_ch == 10)) 
+		{
 			while (*message++ != 10)
 				;
 			prev_ch = 10;
 		}
-		else if (ch == '\\') {
+		else if (ch == '\\')
+		{
 			prev_ch = ch;
 		}
-		else if (ch == 10) {
-			if (prev_ch != '\\') {
+		else if (ch == 10) 
+		{
+			if (prev_ch != '\\') 
+			{
 				prev_ch = ch;
 				if (DumbAdjust == 0)
 					Briefing_text_y += (8 * (MenuHires + 1));
 				else
 					DumbAdjust--;
 				Briefing_text_x = bsp->text_ulx;
-				if (Briefing_text_y > bsp->text_uly + bsp->text_height) {
+				if (Briefing_text_y > bsp->text_uly + bsp->text_height) 
+				{
 					load_briefing_screen(screen_num);
 					Briefing_text_x = bsp->text_ulx;
 					Briefing_text_y = bsp->text_uly;
 				}
 			}
-			else {
+			else 
+			{
 				if (ch == 13)		//Can this happen? Above says ch==10
 					Int3();
 				prev_ch = ch;
 			}
 
 		}
-		else {
+		else 
+		{
 			if (!GotZ)
 			{
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start 
@@ -994,7 +1009,8 @@ int show_briefing_message(int screen_num, char* message)
 			key_check = KEY_ESC;
 		}
 #endif
-		if (key_check == KEY_ESC) {
+		if (key_check == KEY_ESC) 
+		{
 			rval = 1;
 			done = 1;
 		}
@@ -1002,12 +1018,14 @@ int show_briefing_message(int screen_num, char* message)
 		if ((key_check == KEY_SPACEBAR) || (key_check == KEY_ENTER))
 			delay_count = 0;
 
-		if (Briefing_text_x > bsp->text_ulx + bsp->text_width) {
+		if (Briefing_text_x > bsp->text_ulx + bsp->text_width) 
+		{
 			Briefing_text_x = bsp->text_ulx;
 			Briefing_text_y += bsp->text_uly;
 		}
 
-		if ((new_page) || (Briefing_text_y > bsp->text_uly + bsp->text_height)) {
+		if ((new_page) || (Briefing_text_y > bsp->text_uly + bsp->text_height)) 
+		{
 			fix	start_time = 0;
 			int	keypress;
 
@@ -1037,11 +1055,10 @@ int show_briefing_message(int screen_num, char* message)
 					break;
 				}
 #endif
-
+				I_DrawCurrentCanvas(0);
+				I_DoEvents();
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 				{
-					I_DrawCurrentCanvas(0);
-					I_DoEvents();
 				}
 				flash_cursor(flashing_cursor);
 

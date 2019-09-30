@@ -897,7 +897,8 @@ int MVE_rmStepMovie()
 		cont = mve_play_next_chunk(mve);
 	g_frameUpdated = 0;
 
-	if (micro_frame_delay  && !init_timer) {
+	if (micro_frame_delay  && !init_timer)
+	{
 		timer_start();
 		init_timer = 1;
 	}

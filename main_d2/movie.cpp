@@ -588,7 +588,8 @@ int RotateRobot()
 #else
 		reset_movie_file(RoboFile);
 #if defined(POLY_ACC)
-		if (MVE_rmPrepMovie(RoboFile, 280, 200, 0)) {
+		if (MVE_rmPrepMovie(RoboFile, 280, 200, 0)) 
+		{
 #else
 		if (MVE_rmPrepMovie(RoboFile, -1, -1, 0)) 
 		{
@@ -598,7 +599,8 @@ int RotateRobot()
 		}
 #endif
 		}
-	else if (err) {
+	else if (err) 
+	{
 		Int3();
 		return 0;
 	}
@@ -719,7 +721,8 @@ int InitRobotMovie(char* filename)
 
 	RoboFile = open_movie_file(filename, 1);
 
-	if (RoboFile == -1) {
+	if (RoboFile == -1) 
+	{
 		free(FirstVid);
 		free(SecondVid);
 		FreeRoboBuffer(49);
@@ -737,9 +740,11 @@ int InitRobotMovie(char* filename)
 #endif
 
 #if defined(POLY_ACC)
-	if (MVE_rmPrepMovie(RoboFile, 280, 200, 0)) {
+	if (MVE_rmPrepMovie(RoboFile, 280, 200, 0)) 
+	{
 #else
-	if (MVE_rmPrepMovie(RoboFile, -1, -1, 0)) {
+	if (MVE_rmPrepMovie(RoboFile, -1, -1, 0)) 
+	{
 #endif
 		Int3();
 		free(FirstVid);
