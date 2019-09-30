@@ -11,7 +11,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <dos.h>
+//#include <dos.h>
 #include <io.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
+#include "2d/i_gr.h"
 #include "inferno.h"
 #include "text.h"
 #include "misc/args.h"
@@ -32,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 #include "2d/palette.h"
 #include "config.h"
-//#include "mvelib32.h"
+#include "mve/libmve.h"
 //#include "mvegfx.h"
 #include "platform/mono.h"
 #include "misc/error.h"
@@ -117,7 +118,6 @@ int MovieHires = 1; //[ISB] hack, with the lack of a setup program this won't be
 //returns status.  see values in movie.h
 int PlayMovie(const char* filename, int must_have)
 {
-#if 0
 	char name[FILENAME_LEN], * p;
 	int c, ret;
 	int save_sample_rate;
@@ -155,15 +155,17 @@ int PlayMovie(const char* filename, int must_have)
 	digi_sample_rate = SAMPLE_RATE_22K;		//always 22K for movies
 	digi_reset(); digi_reset();
 
-	// Start sound 
-	if (hSOSDigiDriver < 0xffff) {
+	// Start sound //[ISB] TODO
+	/*
+	if (hSOSDigiDriver < 0xffff) 
+	{
 		MVE_SOS_sndInit(hSOSDigiDriver);
 		MVE_sndVolume((Config_digi_volume * MOVIE_VOLUME_SCALE) / 8);
 	}
 	else
-		MVE_SOS_sndInit(-1);
+		MVE_SOS_sndInit(-1);*/ 
 
-	MVE_rmFastMode(MVE_RM_NORMAL);
+	//MVE_rmFastMode(MVE_RM_NORMAL);
 
 	ret = RunMovie(name, MovieHires, must_have, -1, -1);
 
@@ -184,8 +186,6 @@ int PlayMovie(const char* filename, int must_have)
 #endif
 
 	return ret;
-#endif
-	return MOVIE_NOT_PLAYED;
 }
 
 void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty)
@@ -288,11 +288,11 @@ void clear_pause_message()
 }
 
 int open_movie_file(char* filename, int must_have);
+void draw_subtitles(int frame_num);
 
 //returns status.  see movie.h
 int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 {
-#if 0
 	int filehndl;
 	int result, aborted = 0;
 	int track = 0;
@@ -316,8 +316,8 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 #endif
 	}
 
-	MVE_memCallbacks(MPlayAlloc, MPlayFree);
-	MVE_ioCallbacks(FileRead);
+	//MVE_memCallbacks(MPlayAlloc, MPlayFree);
+	//MVE_ioCallbacks(FileRead);
 
 #if defined(POLY_ACC)
 	Assert(hires_flag);
@@ -333,68 +333,78 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 
 	pa_clear_buffer(0, 0);
 #else
-	if (hires_flag) {
-		vga_set_mode(SM_640x480V);
-		if (!MVE_gfxMode(MVE_GFX_VESA_CURRENT)) {
+	if (hires_flag)
+	{
+		gr_set_mode(SM_640x480V);
+		/*if (!MVE_gfxMode(MVE_GFX_VESA_CURRENT)) 
+		{
 			Int3();
 			close(filehndl);                           // Close Movie File
 			return MOVIE_NOT_PLAYED;
-		}
+		}*/
 	}
-	else {
-		vga_set_mode(SM_320x200C);
-		if (!MVE_gfxMode(MVE_GFX_VGA_CURRENT)) {
+	else
+	{
+		gr_set_mode(SM_320x200C);
+		/*if (!MVE_gfxMode(MVE_GFX_VGA_CURRENT)) //[ISB] todo
+		{
 			Int3();
 			close(filehndl);                           // Close Movie File
 			return MOVIE_NOT_PLAYED;
-		}
+		}*/
 	}
 #endif
 
 	Vid_State = VID_PLAY;                           // Set to PLAY
 
-	if (MVE_rmPrepMovie(filehndl, dx, dy, track)) {
+	if (MVE_rmPrepMovie(filehndl, dx, dy, track)) 
+	{
 		Int3();
 		return MOVIE_NOT_PLAYED;
 	}
 
+	//[ISB] I think these are handled by mvelib. I hope. 
 #if !defined(POLY_ACC)
-	MVE_sfCallbacks((mve_cb_ShowFrame*)MovieShowFrame);
-	MVE_palCallbacks((mve_cb_SetPalette*)MovieSetPalette);
+	//MVE_sfCallbacks((mve_cb_ShowFrame*)MovieShowFrame);
+	//MVE_palCallbacks((mve_cb_SetPalette*)MovieSetPalette);
 #endif
 
 	frame_num = 0;
 
 	FontHires = hires_flag;
 
-	while ((result = MVE_rmStepMovie()) == 0) {
+	while ((result = MVE_rmStepMovie()) == 0) 
+	{
 		int key;
+		I_DoEvents();
 
 		draw_subtitles(frame_num);
 
 		key = key_inkey();
 
 		// If ESCAPE pressed, then quit movie.
-		if (key == KEY_ESC) {
+		if (key == KEY_ESC) 
+		{
 			result = aborted = 1;
 			break;
 		}
 
 		// If PAUSE pressed, then pause movie
-		if (key == KEY_PAUSE) {
+		if (key == KEY_PAUSE) 
+		{
 			MVE_rmHoldMovie();
 			show_pause_message(TXT_PAUSE);
 			while (!key_inkey());
 			clear_pause_message();
 		}
-
+		I_DrawCurrentCanvas(0);
 		frame_num++;
 	}
 
 	Assert(aborted || result == MVE_ERR_EOF);		///movie should be over
 
 	MVE_rmEndMovie();
-	MVE_ReleaseMem();
+	//MVE_ReleaseMem();
 
 	close(filehndl);                           // Close Movie File
 
@@ -410,8 +420,6 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 //@@		vga_set_mode(SM_320x200C);
 
 	return (aborted ? MOVIE_ABORTED : MOVIE_PLAYED_FULL);
-#endif
-	return MOVIE_NOT_PLAYED;
 }
 
 
@@ -541,10 +549,11 @@ void ShowRobotBuffer()
 #endif
 }
 
+int reset_movie_file(int handle); //[ISB] PROTOTYPES PLEASE
+
 //returns 1 if frame updated ok
 int RotateRobot()
 {
-#if 0
 	int err;
 
 	if (!Digi_initialized) 			//we should fix this for full version
@@ -581,7 +590,8 @@ int RotateRobot()
 #if defined(POLY_ACC)
 		if (MVE_rmPrepMovie(RoboFile, 280, 200, 0)) {
 #else
-		if (MVE_rmPrepMovie(RoboFile, -1, -1, 0)) {
+		if (MVE_rmPrepMovie(RoboFile, -1, -1, 0)) 
+		{
 #endif
 			Int3();
 			return 0;
@@ -592,8 +602,6 @@ int RotateRobot()
 		Int3();
 		return 0;
 	}
-#endif
-	return 1;
 }
 
 void FreeRoboBuffer(int n)
@@ -615,7 +623,6 @@ void FreeRoboBuffer(int n)
 
 void DeInitRobotMovie()
 {
-#if 0
 	RobBufCount = 0; PlayingBuf = 0;
 
 #if !defined(POLY_ACC)
@@ -625,20 +632,19 @@ void DeInitRobotMovie()
 #endif
 
 	MVE_rmEndMovie();
-	MVE_ReleaseMem();
+	//MVE_ReleaseMem();
 	free(FirstVid);
 	free(SecondVid);
 
 	FreeRoboBuffer(49);
 
-	MVE_palCallbacks(MVE_SetPalette);
+	//MVE_palCallbacks(MVE_SetPalette);
 	close(RoboFile);                           // Close Movie File
-#endif
 }
-
+//[ISB] unused?
 void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 {
-#if 0
+	/*
 	int i;
 
 	for (i = 0; i < 256; i++)
@@ -648,14 +654,12 @@ void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 	if (i >= 255 && (MVEPaletteCalls++) > 0)
 		return;
 
-	MVE_SetPalette(p, start, count);
-#endif
+	MVE_SetPalette(p, start, count);*/
 }
 
 
 int InitRobotMovie(char* filename)
 {
-#if 0
 #ifdef BUFFER_MOVIE
 	int i;
 #endif
@@ -695,23 +699,23 @@ int InitRobotMovie(char* filename)
 	}
 #endif
 
-	if ((FirstVid = calloc(65000L, 1)) == NULL)
+	if ((FirstVid = (char*)calloc(65000L, 1)) == NULL)
 	{
 		FreeRoboBuffer(49);
 		return (NULL);
 	}
-	if ((SecondVid = calloc(65000L, 1)) == NULL)
+	if ((SecondVid = (char*)calloc(65000L, 1)) == NULL)
 	{
 		free(FirstVid);
 		FreeRoboBuffer(49);
 		return (NULL);
 	}
 
-	MVE_SOS_sndInit(-1);		//tell movies to play no sound for robots
+	//MVE_SOS_sndInit(-1);		//tell movies to play no sound for robots
 
-	MVE_memCallbacks(MPlayAlloc, MPlayFree);
-	MVE_ioCallbacks(FileRead);
-	MVE_memVID(FirstVid, SecondVid, 65000);
+	//MVE_memCallbacks(MPlayAlloc, MPlayFree);
+	//MVE_ioCallbacks(FileRead);
+	//MVE_memVID(FirstVid, SecondVid, 65000);
 
 	RoboFile = open_movie_file(filename, 1);
 
@@ -729,7 +733,7 @@ int InitRobotMovie(char* filename)
 	Vid_State = VID_PLAY;
 
 #if !defined(POLY_ACC)
-	MVE_sfCallbacks((mve_cb_ShowFrame*)MyShowFrame);
+	//MVE_sfCallbacks((mve_cb_ShowFrame*)MyShowFrame);
 #endif
 
 #if defined(POLY_ACC)
@@ -745,15 +749,13 @@ int InitRobotMovie(char* filename)
 	}
 
 #if !defined(POLY_ACC)
-	MVE_palCallbacks(PaletteChecker);
+	//MVE_palCallbacks(PaletteChecker);
 #endif
 
 	RoboFilePos = lseek(RoboFile, 0L, SEEK_CUR);
 
 	mprintf((0, "RoboFilePos=%d!\n", RoboFilePos));
 	return (1);
-#endif
-	return 0;
 }
 
 /*
