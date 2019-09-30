@@ -188,6 +188,8 @@ int PlayMovie(const char* filename, int must_have)
 	return ret;
 }
 
+uint8_t localPal[768];
+
 void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty)
 {
 	grs_bitmap source_bm;
@@ -203,31 +205,33 @@ void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
 
+	gr_palette_load(localPal);
 	gr_bm_ubitblt(bufw, bufh, dstx, dsty, sx, sy, &source_bm, &grd_curcanv->cv_bitmap);
 }
 
 //our routine to set the pallete, called from the movie code
 void __cdecl MovieSetPalette(unsigned char* p, unsigned start, unsigned count)
 {
+	memcpy(localPal, gr_palette, 768); //[ISB] test hack
 	if (count == 0)
 		return;
 
-	//mprintf((0,"SetPalette p=%x, start=%d, count=%d\n",p,start,count));
+	mprintf((0,"SetPalette p=%x, start=%d, count=%d\n",p,start,count));
 
 	//Color 0 should be black, and we get color 255
 	Assert(start >= 1 && start + count - 1 <= 254);
 
 	//Set color 0 to be black
-	gr_palette[0] = gr_palette[1] = gr_palette[2] = 0;
+	localPal[0] = localPal[1] = localPal[2] = 0;
 
 	//Set color 255 to be our subtitle color
-	gr_palette[765] = gr_palette[766] = gr_palette[767] = 50;
+	localPal[765] = localPal[766] = localPal[767] = 50;
 
 	//movie libs palette into our array  
-	memcpy(gr_palette + start * 3, p + start * 3, count * 3);
+	memcpy(localPal + start * 3, p + start * 3, count * 3);
 
 	//finally set the palette in the hardware
-	gr_palette_load(gr_palette);
+	gr_palette_load(localPal);
 
 	//MVE_SetPalette(p, start, count);
 }
@@ -364,9 +368,10 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 	}
 
 	//[ISB] I think these are handled by mvelib. I hope. 
+	//[ISB] why do i make fucking dumb assumptions all the time. Argh.
 #if !defined(POLY_ACC)
-	//MVE_sfCallbacks((mve_cb_ShowFrame*)MovieShowFrame);
-	//MVE_palCallbacks((mve_cb_SetPalette*)MovieSetPalette);
+	MVE_sfCallbacks((mve_cb_ShowFrame*)MovieShowFrame);
+	MVE_palCallbacks((mve_cb_SetPalette*)MovieSetPalette);
 #endif
 
 	frame_num = 0;
@@ -394,7 +399,11 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 		{
 			MVE_rmHoldMovie();
 			show_pause_message(TXT_PAUSE);
-			while (!key_inkey());
+			while (!key_inkey())
+			{
+				I_DoEvents();
+				I_DrawCurrentCanvas(0);
+			}
 			clear_pause_message();
 		}
 		I_DrawCurrentCanvas(0);
@@ -425,7 +434,6 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 
 int InitMovieBriefing()
 {
-#if 0
 #if defined(POLY_ACC)
 	Assert(MenuHires);
 	pa_flush();
@@ -442,23 +450,26 @@ int InitMovieBriefing()
 	return 1;
 #endif
 
-	if (MenuHires) {
-		vga_set_mode(SM_640x480V);
-		if (!MVE_gfxMode(MVE_GFX_VESA_CURRENT)) {
+	if (MenuHires)
+	{
+		gr_set_mode(SM_640x480V);
+		/*if (!MVE_gfxMode(MVE_GFX_VESA_CURRENT))
+		{
 			Int3();
 			return MOVIE_NOT_PLAYED;
-		}
+		}*/
 	}
-	else {
-		vga_set_mode(SM_320x200C);
-		if (!MVE_gfxMode(MVE_GFX_VGA_CURRENT)) {
+	else 
+	{
+		gr_set_mode(SM_320x200C);
+		/*if (!MVE_gfxMode(MVE_GFX_VGA_CURRENT)) 
+		{
 			Int3();
 			return MOVIE_NOT_PLAYED;
-		}
+		}*/
 	}
+	gr_clear_canvas(0); //[ISB] hack
 	return (1);
-#endif
-	return MOVIE_NOT_PLAYED;
 }
 
 int FlipFlop = 0;
@@ -634,19 +645,19 @@ void DeInitRobotMovie()
 #endif
 
 	MVE_rmEndMovie();
-	//MVE_ReleaseMem();
+	MVE_ReleaseMem();
 	free(FirstVid);
 	free(SecondVid);
 
 	FreeRoboBuffer(49);
 
 	//MVE_palCallbacks(MVE_SetPalette);
+	MVE_palCallbacks(NULL);
 	close(RoboFile);                           // Close Movie File
 }
-//[ISB] unused?
+
 void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 {
-	/*
 	int i;
 
 	for (i = 0; i < 256; i++)
@@ -656,7 +667,7 @@ void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 	if (i >= 255 && (MVEPaletteCalls++) > 0)
 		return;
 
-	MVE_SetPalette(p, start, count);*/
+	//MVE_SetPalette(p, start, count); //[ISB] I need to figure out if I should do something here
 }
 
 
@@ -717,7 +728,7 @@ int InitRobotMovie(char* filename)
 
 	//MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	//MVE_ioCallbacks(FileRead);
-	//MVE_memVID(FirstVid, SecondVid, 65000);
+	MVE_memVID(FirstVid, SecondVid, 65000);
 
 	RoboFile = open_movie_file(filename, 1);
 
@@ -736,7 +747,7 @@ int InitRobotMovie(char* filename)
 	Vid_State = VID_PLAY;
 
 #if !defined(POLY_ACC)
-	//MVE_sfCallbacks((mve_cb_ShowFrame*)MyShowFrame);
+	MVE_sfCallbacks((mve_cb_ShowFrame*)MyShowFrame);
 #endif
 
 #if defined(POLY_ACC)
@@ -754,7 +765,7 @@ int InitRobotMovie(char* filename)
 	}
 
 #if !defined(POLY_ACC)
-	//MVE_palCallbacks(PaletteChecker);
+	MVE_palCallbacks(PaletteChecker);
 #endif
 
 	RoboFilePos = lseek(RoboFile, 0L, SEEK_CUR);

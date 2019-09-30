@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "misc/types.h"
 
 /*
  * structure for maintaining info on a MVEFILE stream
@@ -15,6 +16,9 @@ typedef struct MVEFILE
     int             cur_fill;
     int             next_segment;
 } MVEFILE;
+
+typedef void (mve_cb_ShowFrame)(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty);
+typedef void (mve_cb_SetPalette)(unsigned char* p, unsigned start, unsigned count);
 
 /*
  * open a .MVE file

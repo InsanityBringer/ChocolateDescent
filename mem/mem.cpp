@@ -168,7 +168,7 @@ void* mem_malloc(unsigned int size, const char* var, const char* filename, int l
 	}
 
 	if (fill_zero)
-		memset(ptr, 0, size);
+		memset((uint8_t*)ptr+CHECKSIZE, 0, size);
 
 	pc += CHECKSIZE;
 

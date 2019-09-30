@@ -490,6 +490,7 @@ static int videobuf_created = 0;
 static int video_initialized = 0;
 int g_width, g_height;
 void *g_vBuffers = NULL, *g_vBackBuf1, *g_vBackBuf2;
+void* hackBuf1 = NULL, * hackBuf2 = NULL;
 
 #ifdef STANDALONE
 static SDL_Surface *g_screen;
@@ -536,18 +537,21 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	g_width = w << 3;
 	g_height = h << 3;
 
-	/* TODO: * 4 causes crashes on some files */
-	g_vBackBuf1 = g_vBuffers = (uint8_t*)malloc(g_width * g_height * 8);
-	if (truecolor) 
+	if (hackBuf1 == NULL && hackBuf2 == NULL)
 	{
-		g_vBackBuf2 = (unsigned short *)g_vBackBuf1 + (g_width * g_height);
-	} 
-	else 
-	{
-		g_vBackBuf2 = (unsigned char *)g_vBackBuf1 + (g_width * g_height);
-	}
+		/* TODO: * 4 causes crashes on some files */
+		g_vBackBuf1 = g_vBuffers = (uint8_t*)malloc(g_width * g_height * 8);
+		if (truecolor)
+		{
+			g_vBackBuf2 = (unsigned short*)g_vBackBuf1 + (g_width * g_height);
+		}
+		else
+		{
+			g_vBackBuf2 = (unsigned char*)g_vBackBuf1 + (g_width * g_height);
+		}
 
-	memset(g_vBackBuf1, 0, g_width * g_height * 4);
+		memset(g_vBackBuf1, 0, g_width * g_height * 4);
+	}
 
 #ifdef DEBUG
 	fprintf(stderr, "DEBUG: w,h=%d,%d count=%d, tc=%d\n", w, h, count, truecolor);
@@ -660,6 +664,10 @@ static void ConvertAndDraw()
 }
 #endif
 
+//[ISB] godawful hack
+static mve_cb_ShowFrame* ShowFrameCallback = NULL;
+static mve_cb_SetPalette* SetPaletteCallback = NULL;
+
 static int display_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
 #ifdef STANDALONE
@@ -669,20 +677,31 @@ static int display_video_handler(unsigned char major, unsigned char minor, unsig
 
 	do_sdl_events();
 #else
-	grs_bitmap *bitmap;
+	if (ShowFrameCallback == NULL)
+	{
+		grs_bitmap* bitmap;
 
-	bitmap = gr_create_bitmap_raw(g_width, g_height, (uint8_t*)g_vBackBuf1);
+		bitmap = gr_create_bitmap_raw(g_width, g_height, (uint8_t*)g_vBackBuf1);
 
-	if (g_destX == -1) // center it
-		g_destX = (g_screenWidth - g_width) >> 1;
-	if (g_destY == -1) // center it
-		g_destY = (g_screenHeight - g_height) >> 1;
+		if (g_destX == -1) // center it
+			g_destX = (g_screenWidth - g_width) >> 1;
+		if (g_destY == -1) // center it
+			g_destY = (g_screenHeight - g_height) >> 1;
 
-	gr_palette_load(g_palette);
+		gr_palette_load(g_palette);
 
-	gr_bitmap(g_destX, g_destY, bitmap);
+		gr_bitmap(g_destX, g_destY, bitmap);
 
-	gr_free_sub_bitmap(bitmap);
+		gr_free_sub_bitmap(bitmap);
+	}
+	else
+	{
+		if (g_destX == -1) // center it
+			g_destX = (g_screenWidth - g_width) >> 1;
+		if (g_destY == -1) // center it
+			g_destY = (g_screenHeight - g_height) >> 1;
+		(*ShowFrameCallback)((uint8_t*)g_vBackBuf1, g_width, g_height, 0, 0, g_width, g_height, g_destX, g_destY);
+	}
 #endif
 	g_frameUpdated = 1;
 
@@ -717,7 +736,13 @@ static int video_palette_handler(unsigned char major, unsigned char minor, unsig
 	short start, count;
 	start = get_short(data);
 	count = get_short(data+2);
-	memcpy(g_palette + 3*start, data+4, 3*count);
+	if (SetPaletteCallback == NULL)
+		memcpy(g_palette + 3 * start, data + 4, 3 * count);
+	else
+	{
+		//[ISB] offset is a dumb hack to ensure the palette callback works without modification
+		(*SetPaletteCallback)(data + 4 - (start * 3), start, count);
+	}
 
 	return 1;
 }
@@ -943,7 +968,8 @@ void MVE_rmEndMovie()
 	audiobuf_created = 0;
 #endif
 
-	free(g_vBuffers);
+	if (g_vBuffers != NULL)
+		free(g_vBuffers);
 	g_vBuffers = NULL;
 	g_pCurMap=NULL;
 	g_nMapLength=0;
@@ -969,6 +995,34 @@ void MVE_sndInit(int x)
 	else
 		mve_audio_enabled = 1;
 #endif
+}
+
+//[ISB] whoops i made assumptions again. I guess D2X really tweaked how all this crap worked
+void MVE_memVID(void* first, void* second, size_t len)
+{
+	hackBuf1 = first;
+	hackBuf2 = second;
+
+	if (g_vBackBuf1 != NULL && g_vBackBuf2 != NULL)
+	{
+		g_vBackBuf1 = first;
+		g_vBackBuf2 = second;
+	}
+}
+
+void MVE_sfCallbacks(mve_cb_ShowFrame *func)
+{
+	ShowFrameCallback = func;
+}
+
+void MVE_palCallbacks(mve_cb_SetPalette* func)
+{
+	SetPaletteCallback = func;
+}
+
+void MVE_ReleaseMem()
+{
+	hackBuf1 = hackBuf2 = NULL;
 }
 
 #endif
