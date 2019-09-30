@@ -201,6 +201,9 @@ int I_SetMode(int mode)
 	if (!gameTexture)
 		Error("Error creating renderer texture for mode %d: %s\n", mode, SDL_GetError());
 
+	//[ISB] this should hopefully fix all instances of the screen flashing white when changing modes
+	I_WritePalette(0, 255, gr_palette);
+
 	if (oldSurf) 
 		SDL_FreeSurface(oldSurf);
 	if (oldHackSurf)
