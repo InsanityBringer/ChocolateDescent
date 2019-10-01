@@ -682,7 +682,7 @@ int show_briefing_message(int screen_num, char* message)
 	Current_color = 0;
 	RobotPlaying = 0;
 
-	//InitMovieBriefing();
+	InitMovieBriefing();
 
 #ifndef SHAREWARE
 	hum_channel = digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0 / 2, 0xFFFF / 2, 1, -1, -1, -1);
