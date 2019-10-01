@@ -1168,7 +1168,8 @@ int Movie_fixed_frametime;
 void calc_frame_time()
 {
 	fix timer_value,last_frametime = FrameTime;
-	int numMS = 1000 / FPSLimit; //[ISB] TODO: Investigate cleaner timing, this won't round accurately and will give slight variances
+	//int numMS = 1000 / FPSLimit; //[ISB] TODO: Investigate cleaner timing, this won't round accurately and will give slight variances
+	uint64_t numUS = 1000000 / FPSLimit;
 
 	#if defined(TIMER_TEST) && !defined(NDEBUG)
 	_last_frametime = last_frametime;
@@ -1179,8 +1180,10 @@ void calc_frame_time()
 
 	if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
 	{
-		int ms = (FrameTime * 1000) >> 16;
-		I_Delay(numMS - ms);
+		//int ms = (FrameTime * 1000) >> 16;
+		uint64_t us = ((uint64_t)FrameTime * 1000000) >> 16;
+		//I_Delay(numMS - ms);
+		I_DelayUS(numUS - us);
 
 		//Recalculate
 		timer_value = timer_get_fixed_seconds();

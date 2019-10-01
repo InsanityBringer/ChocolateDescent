@@ -46,3 +46,8 @@ void I_Delay(int ms)
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
+
+void I_DelayUS(uint64_t us)
+{
+	std::this_thread::sleep_for(std::chrono::microseconds(us));
+}

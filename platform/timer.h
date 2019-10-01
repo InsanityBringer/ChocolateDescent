@@ -26,3 +26,5 @@ uint32_t I_GetTicks();
 
 //[ISB] replacement for delay?
 void I_Delay(int ms);
+
+void I_DelayUS(uint64_t us);
