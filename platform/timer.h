@@ -24,6 +24,8 @@ fix timer_get_approx_seconds(); // Returns time since program started... accurat
 //[ISB] Replacement for the annoying ticker, increments 18 times/sec
 uint32_t I_GetTicks();
 
+uint32_t I_GetMS();
+
 //[ISB] replacement for delay?
 void I_Delay(int ms);
 

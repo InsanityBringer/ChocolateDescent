@@ -42,6 +42,11 @@ uint32_t I_GetTicks()
 	return (int)((GetClockTimeMS() - baseTick) * 18 / 1000);
 }
 
+uint32_t I_GetMS()
+{
+	return GetClockTimeMS() - baseTick;
+}
+
 void I_Delay(int ms)
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
