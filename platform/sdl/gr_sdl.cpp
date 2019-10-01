@@ -265,11 +265,17 @@ void I_DoEvents()
 
 void I_SetRelative(int state)
 {
-	if (state == 0 && SDL_GetRelativeMouseMode() == SDL_TRUE)
+	SDL_bool formerState = SDL_GetRelativeMouseMode();
+	SDL_SetRelativeMouseMode((SDL_bool)state);
+	if (state)
+	{
+		int bogusX, bogusY;
+		SDL_GetRelativeMouseState(&bogusX, &bogusY);
+	}
+	else if (formerState)
 	{
 		SDL_WarpMouseInWindow(gameWindow, WindowWidth / 2, WindowHeight / 2);
 	}
-	SDL_SetRelativeMouseMode((SDL_bool)state);
 }
 
 void I_WritePalette(int start, int end, uint8_t* data)
