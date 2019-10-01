@@ -41,9 +41,6 @@ int Fullscreen = 0;
 
 SDL_Rect screenRectangle;
 
-//A bigass hack, to allow "planar" modes to be paged
-uint8_t* PixelSource = NULL;
-
 int I_Init()
 {
 	int res;
@@ -211,8 +208,6 @@ int I_SetMode(int mode)
 	if (oldTex)
 		SDL_DestroyTexture(oldTex);
 
-	PixelSource = NULL; //i don't understand anything anymore
-
 	//Create the destination rectangle for the game screen
 	int bestWidth = WindowHeight * 4 / 3;
 	if (WindowWidth < bestWidth) bestWidth = WindowWidth;
@@ -336,15 +331,9 @@ void I_DrawCurrentCanvas(int sync)
 	if (!gameSurface) return;
 
 	unsigned char* pixels = (unsigned char*)gameSurface->pixels;
-	unsigned char* srcPixels;
-
-	if (screenBuffer->cv_bitmap.bm_type == BM_LINEAR || PixelSource == NULL)
-		srcPixels = screenBuffer->cv_bitmap.bm_data;
-	else
-		srcPixels = PixelSource;
 
 	SDL_LockSurface(gameSurface);
-	memcpy(pixels, srcPixels, screenBuffer->cv_bitmap.bm_w * screenBuffer->cv_bitmap.bm_h); //[ISB] alternate attempt at this nonsense
+	memcpy(pixels,  screenBuffer->cv_bitmap.bm_data, screenBuffer->cv_bitmap.bm_w * screenBuffer->cv_bitmap.bm_h); //[ISB] alternate attempt at this nonsense
 	SDL_UnlockSurface(gameSurface);
 
 	src.x = src.y = 0;
@@ -376,32 +365,13 @@ void I_DrawCurrentCanvas(int sync)
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, gameTexture, &src, &screenRectangle);
 	SDL_RenderPresent(renderer);
-
-	/*
-	dest.w = WindowWidth; dest.h = WindowHeight;
-	if (SDL_BlitScaled(hackSurface, &src, winSurface, &dest))
-	{
-		Warning("Cannot blit screen: %s\n", SDL_GetError());
-	}
-	SDL_UpdateWindowSurface(gameWindow);*/
-
-#ifdef BUILD_DESCENT2 //holy crap this hack fucking sucks. 
-	PixelSource = NULL;
-#endif
-}
-
-void I_BlitCurrentCanvas()
-{
 }
 
 void I_BlitCanvas(grs_canvas *canv)
 {
-	//[ISB] TODO: This probably should do a memcpy to ensure the data is sticky even if the original source is destroyed, just in case. 
-	PixelSource = canv->cv_bitmap.bm_data;
-	if (PixelSource == (uint8_t*)0x0000a000)
-	{
-		Int3();
-	}
+	//[ISB] Under the assumption that the screen buffer is always static and valid, memcpy the contents of the canvas into it
+	if (canv->cv_bitmap.bm_type == BM_SVGA)
+		memcpy(screenBuffer->cv_bitmap.bm_data, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
 }
 
 void I_Shutdown()

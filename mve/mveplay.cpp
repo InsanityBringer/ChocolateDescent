@@ -140,6 +140,8 @@ static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
 
+static uint64_t nextTimerTick;
+
  //[ISB] todo: just gotta gut all this timer stuff and replace it with the I_ platform stuff
 #if 0
 #if !HAVE_STRUCT_TIMESPEC
@@ -189,6 +191,7 @@ static int create_timer_handler(unsigned char major, unsigned char minor, unsign
 		timer_created = 1;
 
 	micro_frame_delay = get_int(data) * (int)get_short(data+4);
+	printf("micro_frame_delay: %d\n", micro_frame_delay);
 	if (g_spdFactorNum != 0)
 	{
 		temp = micro_frame_delay;
@@ -198,6 +201,14 @@ static int create_timer_handler(unsigned char major, unsigned char minor, unsign
 	}
 
 	return 1;
+}
+
+//[ISB] TODO: move to timer.cpp perhaps
+#include <chrono>
+static uint64_t GetClockTimeUS()
+{
+	using namespace std::chrono;
+	return static_cast<uint64_t>(duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count());
 }
 
 static void timer_stop(void)
@@ -219,6 +230,7 @@ static void timer_start(void)
 		timer_expire.tv_sec += nsec;
 		timer_expire.tv_usec -= nsec*1000000;
 	}*/
+	nextTimerTick = GetClockTimeUS() + micro_frame_delay;
 	timer_started=1;
 }
 
@@ -260,7 +272,10 @@ static void do_timer_wait(void)
 		timer_expire.tv_usec -= nsec*1000000;
 	}*/
 	//[ISB] godawful hack
-	I_Delay(micro_frame_delay / 1000); //[ISB] should do polling like the above code, perhaps
+	//I_Delay(micro_frame_delay / 1000); //[ISB] should do polling like the above code, perhaps (actually it isn't polling what am I saying...)
+	//[ISB] okay this burns the CPU more but might give more precise results? We'll see...
+	while (GetClockTimeUS() < nextTimerTick);
+	nextTimerTick += micro_frame_delay;
 }
 
 /*************************

@@ -57,9 +57,6 @@ void I_BlankPalette();
 //Read the palette back from screen memory.
 void I_ReadPalette(uint8_t* dest);
 
-//TODO: Investigate if I actually need this
-//void I_PalettePush(uint8_t b);
-
 //-----------------------------------------------------------------------------
 //	Screen operations
 //-----------------------------------------------------------------------------
@@ -71,10 +68,7 @@ void I_WaitVBL();
 //Set sync to wait for v-sync while drawing.
 void I_DrawCurrentCanvas(int sync);
 
-//Composition nightmare: Blit the current canvas into the window buffer, but do not trigger a redraw
-void I_BlitCurrentCanvas();
-
-//Composition nightmare: Blit given canvas to window buffer, don't trigger redraw
+//Composition nightmare: Blit given canvas to window buffer, don't trigger redraw. This is needed for paged graphics modes in Descent 1. 
 void I_BlitCanvas(grs_canvas *canv);
 
 //More nightmare: Set the "screen canvas"
