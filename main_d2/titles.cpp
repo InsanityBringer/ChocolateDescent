@@ -1222,6 +1222,7 @@ int show_briefing_text(int screen_num)
 }
 void DoBriefingColorStuff()
 {
+	printf("hi\n");
 	Briefing_foreground_colors[0] = gr_find_closest_color_current(0, 40, 0);
 	Briefing_background_colors[0] = gr_find_closest_color_current(0, 6, 0);
 

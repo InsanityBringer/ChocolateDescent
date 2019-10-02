@@ -287,7 +287,7 @@ void I_WritePalette(int start, int end, uint8_t* data)
 	pal = gameSurface->format->palette;
 	if (!pal) return;
 
-	for (i = start; i <= end; i++)
+	for (i = 0; i <= end-start; i++)
 	{
 		colors[i].r = (Uint8)(data[i * 3 + 0] * 255 / 63);
 		colors[i].g = (Uint8)(data[i * 3 + 1] * 255 / 63);
