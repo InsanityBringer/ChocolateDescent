@@ -141,7 +141,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #endif
 
+//-----------------------------------------------------------------------------
+// [ISB] timing nonsense
+//-----------------------------------------------------------------------------
+
+//[ISB] FPS limit for the current session, defaults to 30 FPS
 int FPSLimit = 30;
+//[ISB] Enables alternate, potentially more accurate FPS limit via polling loop.
+int PollFPS = 0;
+//[ISB] Start time for the polled FPS loop
+uint64_t startTime = 0;
 
 extern void ReadControls(void);		// located in gamecntl.c
 extern int Current_display_mode;
@@ -1178,7 +1187,7 @@ void calc_frame_time()
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
-	if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
+	if (!PollFPS && FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
 	{
 		//int ms = (FrameTime * 1000) >> 16;
 		uint64_t us = ((uint64_t)FrameTime * 1000000) >> 16;
@@ -2230,6 +2239,7 @@ void game()
 	{
 		while (1) 
 		{
+			startTime = I_GetUS();
 			int player_shields;
 
 			// GAME LOOP!
@@ -2332,6 +2342,13 @@ void game()
 			if ( (keyd_time_when_last_pressed + (F1_0 * 60)) < timer_get_fixed_seconds() )		// idle in game for 1 minutes means exit
 				longjmp(LeaveGame,0);
 			#endif
+
+			//waiting loop for polled fps mode
+			if (PollFPS)
+			{
+				uint64_t numUS = 1000000 / FPSLimit;
+				while (I_GetUS() < startTime + numUS);
+			}
 		}
 	}
 

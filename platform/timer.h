@@ -25,6 +25,7 @@ fix timer_get_approx_seconds(); // Returns time since program started... accurat
 uint32_t I_GetTicks();
 
 uint32_t I_GetMS();
+uint64_t I_GetUS();
 
 //[ISB] replacement for delay?
 void I_Delay(int ms);

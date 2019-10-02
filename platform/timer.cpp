@@ -47,6 +47,12 @@ uint32_t I_GetMS()
 	return GetClockTimeMS() - baseTick;
 }
 
+uint64_t I_GetUS()
+{
+	using namespace std::chrono;
+	return static_cast<uint64_t>(duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count());
+}
+
 void I_Delay(int ms)
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(ms));

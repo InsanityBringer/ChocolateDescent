@@ -717,6 +717,21 @@ int D_DescentMain(int argc, const char** argv)
 		Skip_briefing_screens = 1;
 #endif
 
+	//[ISB] Allow the user to configure the FPS limit, if desired
+	int limitParam = FindArg("-fpslimit");
+	if (limitParam && limitParam < (Num_args - 1))
+	{
+		FPSLimit = atoi(Args[limitParam + 1]);
+		if (FPSLimit < 4) FPSLimit = 4; if (FPSLimit > 150) FPSLimit = 150;
+	}
+	if (Inferno_verbose) printf("Setting FPS Limit %d\n", FPSLimit);
+
+	if (FindArg("-pollfps"))
+	{
+		PollFPS = 1;
+		if (Inferno_verbose) printf("Enabling FPS polling loop");
+	}
+
 	Lighting_on = 1;
 
 	check_memory();

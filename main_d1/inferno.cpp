@@ -490,11 +490,11 @@ int D_DescentMain(int argc, const char** argv)
 	}
 	if (Inferno_verbose) printf("Setting FPS Limit %d\n", FPSLimit);
 
-	/*if (FindArg("-ticktimer"))
+	if (FindArg("-pollfps"))
 	{
-		pollFPS = 1;
-		if (Inferno_verbose) printf("Enabling tick timer");
-	}*/
+		PollFPS = 1;
+		if (Inferno_verbose) printf("Enabling FPS polling loop");
+	}
 
 	Lighting_on = 1;
 

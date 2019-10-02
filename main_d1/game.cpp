@@ -232,12 +232,16 @@ extern void newdemo_strip_frames(char*, int);
 
 #define BACKGROUND_NAME "statback.pcx"
 
-//[ISB] FPS limiting code
-int FPSLimit = 30;
+//-----------------------------------------------------------------------------
+// [ISB] timing nonsense
+//-----------------------------------------------------------------------------
 
-//[ISB] alternate timing mode which attempts to run all frames as fixed length ticks.
-dbool pollFPS = 0;
-fix pollTime = 0; //[ISB]: This is the time that the game should think its at on a given frame
+//[ISB] FPS limit for the current session, defaults to 30 FPS
+int FPSLimit = 30;
+//[ISB] Enables alternate, potentially more accurate FPS limit via polling loop.
+int PollFPS = 0;
+//[ISB] Start time for the polled FPS loop
+uint64_t startTime = 0;
 
 //	==============================================================================================
 
@@ -963,7 +967,6 @@ void game_flush_inputs()
 void reset_time()
 {
 	last_timer_value = timer_get_fixed_seconds();
-	pollTime = last_timer_value;
 }
 
 void calc_frame_time()
@@ -975,27 +978,17 @@ void calc_frame_time()
 	_last_frametime = last_frametime;
 #endif
 
-	if (pollFPS)
-	{
-		timer_value = pollTime = pollTime + (F1_0 / FPSLimit);
-	}
-	else
-	{
-		timer_value = timer_get_fixed_seconds();
-	}
+	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
-	if (!pollFPS)
+	if (!PollFPS && FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
 	{
-		if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
-		{
-			int ms = (FrameTime * 1000) >> 16;
-			I_Delay(numMS - ms);
+		int ms = (FrameTime * 1000) >> 16;
+		I_Delay(numMS - ms);
 
-			//Recalculate
-			timer_value = timer_get_fixed_seconds();
-			FrameTime = timer_value - last_timer_value;
-		}
+		//Recalculate
+		timer_value = timer_get_fixed_seconds();
+		FrameTime = timer_value - last_timer_value;
 	}
 
 #if defined(TIMER_TEST) && !defined(NDEBUG)
@@ -2138,13 +2131,6 @@ void game_disable_cheats()
 	Physics_cheat_flag = 0;
 }
 
-dbool CanRunFrame()
-{
-	fix currentTime = timer_get_fixed_seconds();
-	if (currentTime > pollTime) return 1;
-	return 0;
-}
-
 //	------------------------------------------------------------------------------------
 //this function is the game.  called when game mode selected.  runs until
 //editor mode or exit selected
@@ -2228,17 +2214,11 @@ void game()
 			Automap_flag = 0;
 			Config_menu_flag = 0;
 
+			startTime = I_GetUS();
+
 			Assert(ConsoleObject == &Objects[Players[Player_num].objnum]);
 
-			//[ISB] I hate altering the code this much, but ugh.
-			if (pollFPS)
-			{
-				while (CanRunFrame())
-				{
-					GameLoop(1, 1);		// Do game loop with rendering and reading controls.
-				}
-			}
-			else GameLoop(1, 1);		// Do game loop with rendering and reading controls.
+			GameLoop(1, 1);		// Do game loop with rendering and reading controls.
 
 			if (Config_menu_flag) 
 			{
@@ -2296,6 +2276,13 @@ void game()
 
 			if (Function_mode != FMODE_GAME)
 				longjmp(LeaveGame, 0);
+
+			//waiting loop for polled fps mode
+			if (PollFPS)
+			{
+				uint64_t numUS = 1000000 / FPSLimit;
+				while (I_GetUS() < startTime + numUS);
+			}
 		}
 	}
 
