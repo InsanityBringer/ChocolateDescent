@@ -216,7 +216,7 @@ void __cdecl MovieSetPalette(unsigned char* p, unsigned start, unsigned count)
 	if (count == 0)
 		return;
 
-	mprintf((0,"SetPalette p=%x, start=%d, count=%d\n",p,start,count));
+	//mprintf((0,"SetPalette p=%x, start=%d, count=%d\n",p,start,count));
 
 	//Color 0 should be black, and we get color 255
 	Assert(start >= 1 && start + count - 1 <= 254);
