@@ -9,6 +9,13 @@
 #include "misc/error.h"
 #include "fix/fix.h"
 
+#ifdef WIN32
+#include <Windows.h>
+#include <timeapi.h>
+
+#pragma comment(lib, "Winmm.lib")
+#endif
+
 static uint64_t baseTick;
 
 static uint64_t GetClockTimeMS()
@@ -20,6 +27,14 @@ static uint64_t GetClockTimeMS()
 void timer_init()
 {
 	baseTick = GetClockTimeMS();
+#ifdef WIN32
+	//[ISB] Thie code is provided by dpJudas, and ensures the clock accuracy is increased on Windows. 
+	TIMECAPS tc;
+	if (timeGetDevCaps(&tc, sizeof(tc)) == TIMERR_NOERROR)
+		timeBeginPeriod(tc.wPeriodMin);
+	else
+		timeBeginPeriod(1);
+#endif
 }
 
 fix timer_get_fixed_seconds()
