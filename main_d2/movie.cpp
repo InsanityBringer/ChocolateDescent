@@ -188,7 +188,7 @@ int PlayMovie(const char* filename, int must_have)
 	return ret;
 }
 
-uint8_t localPal[768];
+//uint8_t localPal[768];
 
 void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty)
 {
@@ -205,14 +205,14 @@ void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
 
-	gr_palette_load(localPal);
+	gr_palette_load(gr_palette);
 	gr_bm_ubitblt(bufw, bufh, dstx, dsty, sx, sy, &source_bm, &grd_curcanv->cv_bitmap);
 }
 
 //our routine to set the pallete, called from the movie code
 void __cdecl MovieSetPalette(unsigned char* p, unsigned start, unsigned count)
 {
-	memcpy(localPal, gr_palette, 768); //[ISB] test hack
+	//memcpy(localPal, gr_palette, 768); //[ISB] test hack
 	if (count == 0)
 		return;
 
@@ -222,16 +222,16 @@ void __cdecl MovieSetPalette(unsigned char* p, unsigned start, unsigned count)
 	Assert(start >= 1 && start + count - 1 <= 254);
 
 	//Set color 0 to be black
-	localPal[0] = localPal[1] = localPal[2] = 0;
+	gr_palette[0] = gr_palette[1] = gr_palette[2] = 0;
 
 	//Set color 255 to be our subtitle color
-	localPal[765] = localPal[766] = localPal[767] = 50;
+	gr_palette[765] = gr_palette[766] = gr_palette[767] = 50;
 
 	//movie libs palette into our array  
-	memcpy(localPal + start * 3, p + start * 3, count * 3);
+	memcpy(gr_palette + start * 3, p + start * 3, count * 3);
 
 	//finally set the palette in the hardware
-	gr_palette_load(localPal);
+	gr_palette_load(gr_palette);
 
 	//MVE_SetPalette(p, start, count);
 }
@@ -686,13 +686,6 @@ int InitRobotMovie(char* filename)
 
 	if (FindArg("-nomovies"))
 		return (0);
-
-	//   digi_stop_all();
-
-	//@@   if (MovieHires)
-	//@@		filename[4]='h';
-	//@@	else
-	//@@		filename[4]='l';
 
 	mprintf((0, "RoboFile=%s\n", filename));
 

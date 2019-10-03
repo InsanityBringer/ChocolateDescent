@@ -24,10 +24,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MOVIE_PLAYED_FULL	1	//movie was played all the way through
 #define MOVIE_ABORTED		2	//movie started by was aborted
 
-extern int PlayMovie(const char *filename, int allow_abort);
+int PlayMovie(const char *filename, int allow_abort);
 extern int PlayMovies(int num_files, const char *filename[], int graphmode, int allow_abort);
-extern int InitRobotMovie (char *filename);
+int InitRobotMovie(char *filename);
 extern void DeInitRobotMovie(void);
+int RotateRobot();
 
 //find and initialize the movie libraries
 void init_movies();

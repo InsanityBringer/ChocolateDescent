@@ -469,6 +469,12 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 		start_time = timer_get_fixed_seconds();
 	}
 
+	if (delay != 0) //Don't update if message should progress instantly. 
+	{
+		I_DrawCurrentCanvas(0);
+		I_DoEvents();
+	}
+	//[ISB] draw right before the erase
 	//	Erase cursor
 	if (cursor_flag && delay) 
 	{
@@ -617,11 +623,6 @@ int show_briefing_message(int screen_num, char* message)
 
 	while (!done) 
 	{
-		if (delay_count != 0) //Don't update if message should progress instantly. 
-		{
-			I_DrawCurrentCanvas(0);
-			I_DoEvents();
-		}
 		ch = *message++;
 		if (ch == '$') 
 		{
