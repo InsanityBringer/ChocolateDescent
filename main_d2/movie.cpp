@@ -679,7 +679,6 @@ int InitRobotMovie(char* filename)
 #ifdef BUFFER_MOVIE
 	int i;
 #endif
-
 	FlipFlop = 0;
 
 	RobBufCount = 0; PlayingBuf = 0; RobBufLimit = 0;
@@ -1323,6 +1322,8 @@ int open_movie_file(char* filename, int must_have)
 //sets the file position to the start of this already-open file
 int reset_movie_file(int handle)
 {
+	//[ISB] TODO: I hate making hacks like this. This suggests there's an odd problem in mvelib that doesn't conform to the library's original functionality. I'll work it out later maybe...
+	FlipFlop = 1 - FlipFlop;
 	Assert(handle == movie_handle);
 
 	lseek(handle, movie_start, SEEK_SET);

@@ -808,86 +808,14 @@ static int end_chunk_handler(unsigned char major, unsigned char minor, unsigned 
 	return 1;
 }
 
-
-#ifdef STANDALONE
-void initializeMovie(MVESTREAM *mve)
-{
-	int i;
-
-	for (i = 0; i < 32; i++)
-		mve_set_handler(mve, i, default_seg_handler);
-
-	memset(unhandled_chunks, 0, 32*256);
-
-	mve_set_handler(mve, MVE_OPCODE_ENDOFSTREAM, end_movie_handler);
-	mve_set_handler(mve, MVE_OPCODE_ENDOFCHUNK, end_chunk_handler);
-	mve_set_handler(mve, MVE_OPCODE_CREATETIMER, create_timer_handler);
-	mve_set_handler(mve, MVE_OPCODE_INITAUDIOBUFFERS, create_audiobuf_handler);
-	mve_set_handler(mve, MVE_OPCODE_STARTSTOPAUDIO, play_audio_handler);
-	mve_set_handler(mve, MVE_OPCODE_INITVIDEOBUFFERS, create_videobuf_handler);
-
-	mve_set_handler(mve, MVE_OPCODE_DISPLAYVIDEO, display_video_handler);
-	mve_set_handler(mve, MVE_OPCODE_AUDIOFRAMEDATA, audio_data_handler);
-	mve_set_handler(mve, MVE_OPCODE_AUDIOFRAMESILENCE, audio_data_handler);
-	mve_set_handler(mve, MVE_OPCODE_INITVIDEOMODE, init_video_handler);
-
-	mve_set_handler(mve, MVE_OPCODE_SETPALETTE, video_palette_handler);
-	mve_set_handler(mve, MVE_OPCODE_SETPALETTECOMPRESSED, video_palette_handler);
-	mve_set_handler(mve, MVE_OPCODE_SETDECODINGMAP, video_codemap_handler);
-
-	mve_set_handler(mve, MVE_OPCODE_VIDEODATA, video_data_handler);
-}
-
-void playMovie(MVESTREAM *mve)
-{
-	int init_timer=0;
-	int cont=1;
-
-	mve_audio_enabled = 1;
-
-	while (cont && playing)
-	{
-		cont = mve_play_next_chunk(mve);
-		if (micro_frame_delay  &&  !init_timer)
-		{
-			timer_start();
-			init_timer = 1;
-		}
-
-		do_timer_wait();
-
-		if (g_loop && !cont) {
-			mve_reset(mve);
-			cont = 1;
-		}
-	}
-}
-
-void shutdownMovie(MVESTREAM *mve)
-{
-#ifdef DEBUG
-	int i;
-#endif
-
-	timer_stop();
-
-#ifdef DEBUG
-	for (i = 0; i < 32*256; i++) {
-		if (unhandled_chunks[i]) {
-			fprintf(stderr, "unhandled chunks of type %02x/%02x: %d\n", i>>8, i&0xFF, unhandled_chunks[i]);
-		}
-	}
-#endif
-}
-
-#else
 static MVESTREAM *mve = NULL;
 
 int MVE_rmPrepMovie(int filehandle, int x, int y, int track)
 {
 	int i;
 
-	if (mve) {
+	if (mve) 
+	{
 		mve_reset(mve);
 		return 0;
 	}
@@ -935,7 +863,6 @@ int MVE_rmStepMovie()
 
 	while (cont && !g_frameUpdated) // make a "step" be a frame, not a chunk...
 		cont = mve_play_next_chunk(mve);
-	g_frameUpdated = 0;
 
 	if (micro_frame_delay  && !init_timer)
 	{
@@ -943,7 +870,9 @@ int MVE_rmStepMovie()
 		init_timer = 1;
 	}
 
-	do_timer_wait();
+	if (g_frameUpdated)
+		do_timer_wait();
+	g_frameUpdated = 0;
 
 	if (cont)
 		return 0;
@@ -1039,5 +968,3 @@ void MVE_ReleaseMem()
 {
 	hackBuf1 = hackBuf2 = NULL;
 }
-
-#endif

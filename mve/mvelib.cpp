@@ -337,8 +337,10 @@ int mve_play_next_chunk(MVESTREAM *movie)
             len = mvefile_get_next_segment_size(movie->movie);
             data = mvefile_get_next_segment(movie->movie);
 
-            if (! movie->handlers[major](major, minor, data, len, movie->context))
-                return 0;
+			if (!movie->handlers[major](major, minor, data, len, movie->context))
+			{
+				return 0;
+			}
         }
 
         /* advance to next segment */
@@ -346,8 +348,10 @@ int mve_play_next_chunk(MVESTREAM *movie)
         major = mvefile_get_next_segment_major(movie->movie);
     }
 
-    if (! mvefile_fetch_next_chunk(movie->movie))
-        return 0;
+	if (!mvefile_fetch_next_chunk(movie->movie))
+	{
+		return 0;
+	}
 
     /* return status */
     return 1;
