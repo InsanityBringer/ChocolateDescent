@@ -339,7 +339,7 @@ void I_CreateMovieSource()
 
 void I_InitMovieAudio(int format, int samplerate, int stereo)
 {
-	printf("format: %d, samplerate: %d, stereo: %d\n", format, samplerate, stereo);
+	//printf("format: %d, samplerate: %d, stereo: %d\n", format, samplerate, stereo);
 	switch (format)
 	{
 	case MVESND_U8:

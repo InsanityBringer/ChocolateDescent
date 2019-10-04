@@ -301,7 +301,7 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	sample_rate = get_ushort(data + 4);
 	desired_buffer = get_int(data + 6);
 
-	mprintf((0, "flags: %d, sample rate: %d, desired_buffer: %d\n", flags, sample_rate, desired_buffer));
+	//mprintf((0, "flags: %d, sample rate: %d, desired_buffer: %d\n", flags, sample_rate, desired_buffer));
 
 	stereo = (flags & MVE_AUDIO_FLAGS_STEREO) ? 1 : 0;
 	bitsize = (flags & MVE_AUDIO_FLAGS_16BIT) ? 1 : 0;
