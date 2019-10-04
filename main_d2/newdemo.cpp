@@ -1417,7 +1417,8 @@ void newdemo_set_new_level(int level_num)
 int newdemo_read_demo_start(int rnd_demo)
 {
 	int8_t i, version, game_type, laser_level;
-	char c, energy, shield;
+	char c;
+	uint8_t energy, shield;
 	char text[50], current_mission[9];
 
 	nd_read_byte((int8_t*)&c);
