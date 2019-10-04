@@ -1,0 +1,41 @@
+Everything described in this document is in a very early state, and is subject
+to change. I'll confess I barely know what I'm doing with CMake, so there's
+a number of limitations so far. Things will only build with Visual Studio on
+Windows, and library finding is spotty. Here's a quick rundown of what you will
+need to do to build.
+
+There are three external libraries, but most are optional on Windows
+
+SDL 2.0.10 - Optional
+OpenAL (OpenAL Soft implementation preferred) - Optional
+FluidSynth - Currently Required
+
+There are two Graphics/Input and Audio backends available on Windows. If these
+libraries are not present, a native Windows backend provided by dpJudas will be
+used. This isn't fully featured at the moment, but I try to keep it compilable.
+
+Here's a step by step outline to building on Windows with CMake-gui. I don't 
+know enough about the CLI version to give instructions there, sorry.
+
+1. Point the "Where is the source code" directory at the root ChocolateDescent 
+directory, and point the "Where to build the binaries" file field at a provided
+build directory. You can do a /build/ subdirectory in the root ChocolateDescent
+directory, and it will be properly .gitignored. 
+
+2. Click Generate, and set the generator to a Visual Studio project. Currently,
+only building with 2019 is tested, I can't comment on earlier versions working.
+
+3. Set the platform as needed. Fluidsynth, if built through vcpkg, will only
+be 32-bit, so you'll have to set the platform to Win32 for it.
+
+4. Click Finish, and wait for the configuration to complete. When it does,
+you'll see a number of red fields. Since the library detection code is 
+currently spotty, you'll probably need to fill out the fields manually.
+Provide the library and include directories for which libraries you wish to 
+build with. 
+
+5. When these libraries are filled out, click Configure again to update these
+values, and then click Generate to make the project files.
+
+6. Open up the generated solution file in Visual Studio, and then build the
+projects as desired. 
