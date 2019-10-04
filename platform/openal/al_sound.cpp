@@ -314,4 +314,130 @@ void I_StopMIDISong()
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Emitting buffered movie sound at player
+//-----------------------------------------------------------------------------
+#define NUMMVESNDBUFFERS 100
+
+//Next buffer position, and earliest buffer position still currently queued
+int mveSndBufferHead, mveSndBufferTail;
+//Ring buffer of all the buffer names
+ALuint mveSndRingBuffer[NUMMVESNDBUFFERS];
+
+ALenum mveSndFormat;
+ALint mveSndSampleRate;
+ALuint mveSndSourceName;
+ALboolean mveSndPlaying;
+
+void I_CreateMovieSource()
+{
+	alGenSources(1, &mveSndSourceName);
+	alSourcef(mveSndSourceName, AL_ROLLOFF_FACTOR, 0.0f);
+	alSource3f(mveSndSourceName, AL_POSITION, 1.0f, 0.0f, 0.0f);
+	I_ErrorCheck("Creating movie source");
+}
+
+void I_InitMovieAudio(int format, int samplerate, int stereo)
+{
+	printf("format: %d, samplerate: %d, stereo: %d\n", format, samplerate, stereo);
+	switch (format)
+	{
+	case MVESND_U8:
+		if (stereo)
+			mveSndFormat = AL_FORMAT_STEREO8;
+		else
+			mveSndFormat = AL_FORMAT_MONO8;
+		break;
+	case MVESND_S16LSB:
+		if (stereo)
+			mveSndFormat = AL_FORMAT_STEREO16;
+		else
+			mveSndFormat = AL_FORMAT_MONO16;
+		break;
+	}
+	mveSndSampleRate = samplerate;
+
+	mveSndBufferHead = 0; mveSndBufferTail = 0;
+	mveSndPlaying = AL_FALSE;
+
+	I_CreateMovieSource();
+}
+
+void I_DequeueMovieAudioBuffers(int all)
+{
+	int i, n;
+	//Dequeue processed buffers in the ring buffer
+	alGetSourcei(mveSndSourceName, AL_BUFFERS_PROCESSED, &n);
+	for (i = 0; i < n; i++)
+	{
+		alSourceUnqueueBuffers(mveSndSourceName, 1, &mveSndRingBuffer[mveSndBufferTail]);
+		alDeleteBuffers(1, &mveSndRingBuffer[mveSndBufferTail]);
+
+		mveSndBufferTail++;
+		if (mveSndBufferTail == NUMMVESNDBUFFERS)
+			mveSndBufferTail = 0;
+	}
+	I_ErrorCheck("Dequeing movie buffers");
+	//kill all remaining buffers if we're told to stop
+	if (all)
+	{
+		alGetSourcei(mveSndSourceName, AL_BUFFERS_QUEUED, &n);
+		for (i = 0; i < n; i++)
+		{
+			alSourceUnqueueBuffers(mveSndSourceName, 1, &mveSndRingBuffer[mveSndBufferTail]);
+			alDeleteBuffers(1, &mveSndRingBuffer[mveSndBufferTail]);
+
+			mveSndBufferTail++;
+			if (mveSndBufferTail == NUMMVESNDBUFFERS)
+				mveSndBufferTail = 0;
+		}
+		I_ErrorCheck("Dequeing excess movie buffers");
+	}
+}
+
+void I_QueueMovieAudioBuffer(int len, short* data)
+{
+	//I don't currently have a tick function (should I fix this?), so do this now
+	I_DequeueMovieAudioBuffers(0);
+
+	//Generate and fill out a new buffer
+	alGenBuffers(1, &mveSndRingBuffer[mveSndBufferHead]);
+	alBufferData(mveSndRingBuffer[mveSndBufferHead], mveSndFormat, (ALvoid*)data, len, mveSndSampleRate);
+
+	I_ErrorCheck("Creating movie buffers");
+	//Queue the buffer, and if this source isn't playing, kick it off
+	alSourceQueueBuffers(mveSndSourceName, 1, &mveSndRingBuffer[mveSndBufferHead]);
+	if (mveSndPlaying == AL_FALSE)
+	{
+		alSourcePlay(mveSndSourceName);
+		mveSndPlaying = AL_TRUE;
+	}
+
+	mveSndBufferHead++;
+	if (mveSndBufferHead == NUMMVESNDBUFFERS)
+		mveSndBufferHead = 0;
+
+	I_ErrorCheck("Queuing movie buffers");
+}
+
+void I_DestroyMovieAudio()
+{
+	if (mveSndPlaying)
+		alSourceStop(mveSndSourceName);
+
+	I_DequeueMovieAudioBuffers(1);
+
+	alDeleteSources(1, &mveSndSourceName);
+}
+
+void I_PauseMovieAudio()
+{
+	alSourcePause(mveSndSourceName);
+}
+
+void I_UnPauseMovieAudio()
+{
+	alSourcePlay(mveSndSourceName);
+}
+
 #endif

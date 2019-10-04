@@ -66,3 +66,17 @@ void I_StopMIDISong();
 
 void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop);
 void I_StopHQSong();
+
+//-----------------------------------------------------------------------------
+// Emitting buffered movie sound at player
+//-----------------------------------------------------------------------------
+
+#define MVESND_S16LSB 1
+#define MVESND_U8 2
+
+void I_InitMovieAudio(int format, int samplerate, int stereo);
+void I_QueueMovieAudioBuffer(int len, short* data);
+void I_DestroyMovieAudio();
+
+void I_PauseMovieAudio();
+void I_UnPauseMovieAudio();
