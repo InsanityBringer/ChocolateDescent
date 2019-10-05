@@ -182,7 +182,7 @@ static int create_timer_handler(unsigned char major, unsigned char minor, unsign
 		timer_created = 1;
 
 	micro_frame_delay = get_int(data) * (int)get_short(data+4);
-	printf("micro_frame_delay: %d\n", micro_frame_delay);
+	//printf("micro_frame_delay: %d\n", micro_frame_delay);
 	if (g_spdFactorNum != 0)
 	{
 		temp = micro_frame_delay;
