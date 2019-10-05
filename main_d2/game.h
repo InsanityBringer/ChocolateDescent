@@ -256,4 +256,3 @@ void enable_flicker(int segnum,int sidenum);
 int add_flicker(int segnum,int sidenum,fix delay,uint32_t mask);
 
 extern int FPSLimit;
-extern int PollFPS;

@@ -147,8 +147,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //[ISB] FPS limit for the current session, defaults to 30 FPS
 int FPSLimit = 30;
-//[ISB] Enables alternate, potentially more accurate FPS limit via polling loop.
-int PollFPS = 0;
 //[ISB] Start time for the polled FPS loop
 uint64_t startTime = 0;
 
@@ -1177,8 +1175,6 @@ int Movie_fixed_frametime;
 void calc_frame_time()
 {
 	fix timer_value,last_frametime = FrameTime;
-	//int numMS = 1000 / FPSLimit; //[ISB] TODO: Investigate cleaner timing, this won't round accurately and will give slight variances
-	uint64_t numUS = 1000000 / FPSLimit;
 
 	#if defined(TIMER_TEST) && !defined(NDEBUG)
 	_last_frametime = last_frametime;
@@ -1186,18 +1182,6 @@ void calc_frame_time()
 
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
-
-	if (!PollFPS && FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
-	{
-		//int ms = (FrameTime * 1000) >> 16;
-		uint64_t us = ((uint64_t)FrameTime * 1000000) >> 16;
-		//I_Delay(numMS - ms);
-		I_DelayUS(numUS - us);
-
-		//Recalculate
-		timer_value = timer_get_fixed_seconds();
-		FrameTime = timer_value - last_timer_value;
-	}
 
 	#ifndef RELEASE
 	if (Saving_movie_frames || Movie_fixed_frametime)
@@ -2344,11 +2328,13 @@ void game()
 			#endif
 
 			//waiting loop for polled fps mode
-			if (PollFPS)
-			{
-				uint64_t numUS = 1000000 / FPSLimit;
-				while (I_GetUS() < startTime + numUS);
-			}
+			//With suggestions from dpjudas.
+			uint64_t numUS = 1000000 / FPSLimit;
+			//[ISB] Combine a sleep with the polling loop to try to spare CPU cycles
+			uint64_t diff = (startTime + numUS) - I_GetUS();
+			if (diff > 2000) //[ISB] Sleep only if there's sufficient time to do so, since the scheduler isn't precise enough
+				I_DelayUS(diff - 2000);
+			while (I_GetUS() < startTime + numUS);
 		}
 	}
 

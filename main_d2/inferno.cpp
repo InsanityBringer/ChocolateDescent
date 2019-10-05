@@ -726,12 +726,6 @@ int D_DescentMain(int argc, const char** argv)
 	}
 	if (Inferno_verbose) printf("Setting FPS Limit %d\n", FPSLimit);
 
-	if (FindArg("-pollfps"))
-	{
-		PollFPS = 1;
-		if (Inferno_verbose) printf("Enabling FPS polling loop");
-	}
-
 	Lighting_on = 1;
 
 	check_memory();
