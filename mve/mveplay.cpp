@@ -657,6 +657,8 @@ int MVE_rmPrepMovie(int filehandle, int x, int y, int track)
 		mve_reset(mve);
 		return 0;
 	}
+	//[ISB] make sure it doesn't try to play sound if the previous movie had sound but this one doesn't
+	mve_audio_canplay = 0;
 
 	mve = mve_open_filehandle(filehandle);
 
