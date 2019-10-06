@@ -436,8 +436,11 @@ void do_automap(int key_code)
 
 	adjust_segment_limit(SegmentLimit);
 
+	uint64_t startTime;
+
 	while (!done) 
 	{
+		startTime = I_GetUS();
 		I_DoEvents();
 		if (leave_mode == 0 && Controls.automap_state && (timer_get_fixed_seconds() - entry_time) > LEAVE_TIME)
 			leave_mode = 1;
@@ -571,21 +574,19 @@ void do_automap(int key_code)
 			gr_palette_load(gr_palette);
 		}
 
-		int numMS = 1000 / FPSLimit;
+		//[ISB] framerate limiter 
+		//waiting loop for polled fps mode
+		//With suggestions from dpjudas.
+		uint64_t numUS = 1000000 / FPSLimit;
+		//[ISB] Combine a sleep with the polling loop to try to spare CPU cycles
+		uint64_t diff = (startTime + numUS) - I_GetUS();
+		if (diff > 2000) //[ISB] Sleep only if there's sufficient time to do so, since the scheduler isn't precise enough
+			I_DelayUS(diff - 2000);
+		while (I_GetUS() < startTime + numUS);
+
 		t2 = timer_get_fixed_seconds();
 		if (pause_game)
-		{
 			FrameTime = t2 - t1;
-			if (FrameTime < (F1_0 / FPSLimit)) //[ISB] framerate limiter
-			{
-				int ms = (FrameTime * 1000) >> 16;
-				I_Delay(numMS - ms);
-
-				//Recalculate
-				t2 = timer_get_fixed_seconds();
-				FrameTime = t2 - t1;
-			}
-		}
 		t1 = t2;
 	}
 

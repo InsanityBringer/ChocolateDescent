@@ -265,6 +265,10 @@ static void do_timer_wait(void)
 	//[ISB] godawful hack
 	//I_Delay(micro_frame_delay / 1000); //[ISB] should do polling like the above code, perhaps (actually it isn't polling what am I saying...)
 	//[ISB] okay this burns the CPU more but might give more precise results? We'll see...
+	uint64_t startTick = GetClockTimeUS();
+	uint64_t numTicks = nextTimerTick - startTick;
+	if (numTicks > 2000) //[ISB] again inspired by dpJudas, with 2000 US number from GZDoom
+		I_DelayUS(numTicks - 2000);
 	while (GetClockTimeUS() < nextTimerTick);
 	nextTimerTick += micro_frame_delay;
 }

@@ -1085,8 +1085,11 @@ WIN(})
 
 WIN(if (redraw_screen) redraw_screen = 0);
 
+	uint64_t startTime;
+
 	while(!done)	
 	{
+		startTime = I_GetUS();
 		I_DoEvents();
 		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)
 			leave_mode = 1;
@@ -1094,16 +1097,17 @@ WIN(if (redraw_screen) redraw_screen = 0);
 		if ( !Controls.automap_state && (leave_mode==1) )
 			done=1;
 
-		if (!pause_game)	{
+		if (!pause_game)	
+		{
 			uint16_t old_wiggle;
 			saved_control_info = Controls;				// Save controls so we can zero them
 			memset(&Controls,0,sizeof(control_info));	// Clear everything...
 			old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
 			ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
-			#ifdef NETWORK
+#ifdef NETWORK
 			if (multi_menu_poll())
 				done = 1;
-			#endif
+#endif
 //			GameLoop( 0, 0 );		// Do game loop with no rendering and no reading controls.
 			ConsoleObject->mtype.phys_info.flags |= old_wiggle;	// Restore wiggle
 			Controls = saved_control_info;
@@ -1115,7 +1119,7 @@ WIN(if (redraw_screen) redraw_screen = 0);
 		controls_read_all_win();
 	#endif*/
 
-		if ( Controls.automap_down_count )	
+		if (Controls.automap_down_count)	
 		{
 			if (leave_mode==0)
 				done = 1;
@@ -1140,7 +1144,6 @@ WIN(if (redraw_screen) redraw_screen = 0);
 			DDGRRESTORE;
 		}
 		#endif*/
-
 
 		while( (c=key_inkey()) )	
 		{
@@ -1278,7 +1281,8 @@ WIN(if (redraw_screen) redraw_screen = 0);
 		tangles.h  += fixdiv( Controls.heading_time, ROT_SPEED_DIVISOR );
 		tangles.b  += fixdiv( Controls.bank_time, ROT_SPEED_DIVISOR*2 );
 		
-		if ( Controls.vertical_thrust_time || Controls.sideways_thrust_time )	{
+		if ( Controls.vertical_thrust_time || Controls.sideways_thrust_time )	
+		{
 			vms_angvec	tangles1;
 			vms_vector	old_vt;
 			old_vt = view_target;
@@ -1287,7 +1291,8 @@ WIN(if (redraw_screen) redraw_screen = 0);
 			vm_matrix_x_matrix(&ViewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
 			vm_vec_scale_add2( &view_target, &ViewMatrix.uvec, Controls.vertical_thrust_time*SLIDE_SPEED );
 			vm_vec_scale_add2( &view_target, &ViewMatrix.rvec, Controls.sideways_thrust_time*SLIDE_SPEED );
-			if ( vm_vec_dist_quick( &view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )	{
+			if ( vm_vec_dist_quick( &view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )	
+			{
 				view_target = old_vt;
 			}
 		} 
@@ -1302,10 +1307,21 @@ WIN(if (redraw_screen) redraw_screen = 0);
 		if (!done) //[ISB] don't swap twice if we're getting outta here
 			I_DrawCurrentCanvas(0);
 
-		if ( first_time )	{
+		if ( first_time )	
+		{
 			first_time = 0;
 			gr_palette_load( gr_palette );
 		}
+
+		//[ISB] framerate limiter 
+		//waiting loop for polled fps mode
+		//With suggestions from dpjudas.
+		uint64_t numUS = 1000000 / FPSLimit;
+		//[ISB] Combine a sleep with the polling loop to try to spare CPU cycles
+		uint64_t diff = (startTime + numUS) - I_GetUS();
+		if (diff > 2000) //[ISB] Sleep only if there's sufficient time to do so, since the scheduler isn't precise enough
+			I_DelayUS(diff - 2000);
+		while (I_GetUS() < startTime + numUS);
 
 		t2 = timer_get_fixed_seconds();
 		if (pause_game)
@@ -1319,7 +1335,8 @@ WIN(if (redraw_screen) redraw_screen = 0);
 	gr_free_canvas(name_canv_left);  name_canv_left=NULL;
 	gr_free_canvas(name_canv_right);  name_canv_right=NULL;
 
-	if (must_free_canvas)	{
+	if (must_free_canvas)	
+	{
 	WINDOS(
 		DDFreeSurface(ddPages[0].lpdds),
 		free(Page.cv_bitmap.bm_data)
