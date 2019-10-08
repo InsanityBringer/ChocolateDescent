@@ -742,7 +742,7 @@ void digi_stop_current_song()
 		{
 		   // stop the last MIDI song from playing
 			//sosMIDIStopSong( wSongHandle );
-			I_StopMIDISong();
+			S_StopSong();
 		   // uninitialize the last MIDI song
 			//sosMIDIUnInitSong( wSongHandle );
 			wSongHandle = 0xffff;

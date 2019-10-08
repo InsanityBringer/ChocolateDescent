@@ -118,15 +118,6 @@ void MidiPlayer::Run()
 		std::unique_lock<std::mutex> lock(songMutex);
 		if (shouldEnd)
 			break;
-		if (shouldStop)
-		{
-			if (curSong)
-			{
-				I_StopMIDISong(); //[ISB] TODO: Need a class for this
-				sequencer->StopSong();
-			}
-			shouldStop = false;
-		}
 		if (nextSong)
 		{
 			if (curSong)
@@ -140,6 +131,17 @@ void MidiPlayer::Run()
 			I_StartMIDISong(nextSong, nextLoop);
 			curSong = nextSong;
 			nextSong = nullptr;
+		}
+		if (shouldStop)
+		{
+			if (curSong)
+			{
+				I_StopMIDISong(); //[ISB] TODO: Need a class for this
+				sequencer->StopSong();
+				S_FreeHMPData(curSong);
+			}
+			shouldStop = false;
+			curSong = nullptr;
 		}
 		lock.unlock();
 
@@ -418,6 +420,7 @@ uint16_t S_StopSong()
 {
 	if (CurrentDevice == 0) return 1;
 	
+	player->StopSong();
 	//I_StopMIDISong();
 	return 0;
 }

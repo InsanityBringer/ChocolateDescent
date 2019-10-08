@@ -95,7 +95,6 @@ int I_InitAudio()
 	alListenerfv(AL_ORIENTATION, &orientation[0]);
 	I_ErrorCheck("Listener hack");
 
-	I_CreateMusicSource();
 	return 0;
 }
 
@@ -214,6 +213,7 @@ void I_SetMusicVolume(int volume)
 	{
 		alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	}
+	I_ErrorCheck("Setting music volume");
 }
 
 void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
@@ -245,21 +245,24 @@ void I_CreateMusicSource()
 void I_DestroyMusicSource()
 {
 	int BuffersProcessed;
-	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
-	if (BuffersProcessed > 0) //Free any lingering buffers
+	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &BuffersProcessed);
+	/*if (BuffersProcessed > 0) //Free any lingering buffers
 	{
 		alSourceUnqueueBuffers(MusicSource, BuffersProcessed, &BufferQueue[0]);
 		alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
 	}
-	I_ErrorCheck("Destroying lingering music buffers");
+	I_ErrorCheck("Destroying lingering music buffers");*/
 	alDeleteSources(1, &MusicSource);
-	free(MusicBufferData);
 	I_ErrorCheck("Destroying music source");
+	alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
+	I_ErrorCheck("Destroying lingering buffers");
+	free(MusicBufferData);
 }
 
 bool I_CanQueueMusicBuffer()
 {
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
+	I_ErrorCheck("Checking can queue buffers");
 	return CurrentBuffers < MAX_BUFFERS_QUEUED;
 }
 
@@ -296,6 +299,7 @@ void I_QueueMusicBuffer(int numTicks, uint16_t *data)
 	{
 		playing = true;
 		alSourcePlay(MusicSource);
+		I_ErrorCheck("Playing music source");
 		//printf("Kicking this mess off\n");
 	}
 }
@@ -321,6 +325,8 @@ void I_StartMIDISong(hmpheader_t* song, bool loop)
 	LoopMusic = loop;
 	StopMIDI = false;
 	playing = false;
+	I_CreateMusicSource();
+	I_ErrorCheck("Creating source");
 }
 
 void I_StopMIDISong()
@@ -329,15 +335,8 @@ void I_StopMIDISong()
 	CurrentSong = NULL;
 	alSourceStop(MusicSource);
 	I_DequeueMusicBuffers();
-
-	int BuffersProcessed;
-	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
-	if (BuffersProcessed > 0) //Free any lingering buffers
-	{
-		alSourceUnqueueBuffers(MusicSource, BuffersProcessed, &BufferQueue[0]);
-		alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
-	}
-	I_ErrorCheck("Destroying lingering music buffers");
+	I_DestroyMusicSource();
+	I_ErrorCheck("Destroying source");
 }
 
 //-----------------------------------------------------------------------------
