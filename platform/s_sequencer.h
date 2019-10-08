@@ -22,15 +22,6 @@ typedef struct
 	bool loop; //Whether or not the song should loop at the end or not
 } sequencerstate_t;
 
-int S_StartMIDISong(hmpheader_t* song, bool loop);
-void S_StopSequencer();
-void S_RewindSequencer();
-int S_GetTicksPerSecond();
-int S_GetSamplesPerTick();
-void S_SetSequencerTick(int hack);
-int S_SequencerTick();
-int S_SequencerRender(int ticksToRender, unsigned short* buffer);
-
 class MidiSequencer
 {
 	hmpheader_t* song;

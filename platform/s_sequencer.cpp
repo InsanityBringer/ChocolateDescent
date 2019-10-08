@@ -21,21 +21,20 @@ as described in copying.txt.
 MidiSequencer::MidiSequencer(MidiSynth* newSynth)
 {
 	synth = newSynth;
+	lastRenderedTick = nextTick = ticks = 0;
+	song = nullptr;
+	loop = false;
+	sampleRate = MIDI_SAMPLERATE;
+	samplesPerTick = MIDI_SAMPLESPERTICK;
 }
 
 int MidiSequencer::StartSong(hmpheader_t* newSong, bool newLoop)
 {
 	song = newSong;
 	loop = newLoop;
-	samplesPerTick = 367; //[ISB] aaaaaa
+	samplesPerTick = MIDI_SAMPLESPERTICK; //[ISB] aaaaaa
 	RewindSong();
 
-	return 0;
-}
-
-int S_StartMIDISong(hmpheader_t* song, bool loop)
-{
-	fprintf(stderr, "S_StartMIDISong: STUB\n");
 	return 0;
 }
 
@@ -55,35 +54,9 @@ void MidiSequencer::RewindSong()
 	}
 }
 
-void S_RewindSequencer()
-{
-	fprintf(stderr, "S_RewindSequencer: STUB\n");
-}
-
 void MidiSequencer::StopSong()
 {
 	synth->StopSound();
-}
-
-void S_StopSequencer()
-{
-	fprintf(stderr, "S_StopSequencer: STUB\n");
-}
-
-void S_SetSequencerTick(int hack)
-{
-	fprintf(stderr, "S_SetSequencerTick: STUB\n");
-}
-
-int S_GetTicksPerSecond()
-{
-	return 120; //[ISB] todo: different tempos?
-}
-
-int S_GetSamplesPerTick()
-{
-	fprintf(stderr, "S_GetSamplesPerTick: STUB\n");
-	return 0;//Sequencer.samplesPerTick;
 }
 
 int MidiSequencer::Tick()
@@ -124,12 +97,6 @@ int MidiSequencer::Tick()
 }
 
 //Returns the next tick that an event has to be performed
-int S_SequencerTick()
-{
-	fprintf(stderr, "S_SequencerTick: STUB\n");
-	return 0;
-}
-
 int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 {
 	int currentTick = lastRenderedTick;
@@ -173,7 +140,7 @@ int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 					lastRenderedTick = currentTick;
 					buffer += samplesPerTick * numTicks * 2;
 				}
-				S_RewindSequencer();
+				RewindSong();
 				done = true;
 			}
 			else
@@ -184,10 +151,4 @@ int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 	}
 	//printf("Renderer ended at tick %d, sequencer at tick %d. %d ticks rendered.\n", lastRenderedTick, ticks, numTicksRendered);
 	return numTicksRendered;
-}
-
-int S_SequencerRender(int ticksToRender, unsigned short* buffer)
-{
-	fprintf(stderr, "S_SequencerRender: STUB\n");
-	return 0;
 }
