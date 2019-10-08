@@ -6,7 +6,9 @@ as described in copying.txt
 */
 #pragma once
 
-#include "stdint.h"
+#include <thread>
+#include <mutex>
+#include <stdint.h>
 
 #define EVENT_NOTEOFF 8
 #define EVENT_NOTEON 9
@@ -17,9 +19,15 @@ as described in copying.txt
 #define EVENT_PITCH 14
 #define EVENT_SYSEX 15
 
-//[ISB] TODO: These need to be checked against the descent.cfg constants
-#define _MIDI_FM 2
-#define _MIDI_OPL3 3
+#define _MIDI_GEN 0xA001
+#define _MIDI_FM 0xA002
+#define _MIDI_AWE32 0xA008 //[ISB] no idea what this would entail...
+#define _MIDI_OPL3 0xA009
+#define _MIDI_GUS 0xA00A
+
+#define MIDI_TICKSPERSECOND 120
+#define MIDI_SAMPLERATE 44100
+#define MIDI_SAMPLESPERTICK (MIDI_SAMPLERATE / 120)
 
 extern char SoundFontFilename[];
 
@@ -69,3 +77,47 @@ uint16_t S_StopSong();
 
 int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song);
 void S_FreeHMPData(hmpheader_t* song);
+
+//[ISB] MIDI playback rewrite
+
+//MIDI Synth modes. Affects how the attached Sequencer will work
+#define MIDISYNTH_SOFT 1 //Synth renders out audio into a PCM wave buffer.
+#define MIDISYNTH_LIVE 2 //Synth performs live MIDI events at 120 ticks/sec
+
+class MidiSequencer;
+
+//Class which represents a midi synthesizer. Wraps a Sequencer.
+class MidiSynth
+{
+	MidiSequencer* sequencer;
+public:
+	virtual int ClassifySynth() = 0;
+	virtual void DoMidiEvent(midievent_t* ev) = 0;
+	virtual void RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer) = 0;
+	virtual void StopSound() = 0;
+	virtual void Shutdown() = 0;
+};
+
+//Class which represents the midi thread. Has a Sequencer and a Synthesizer, and invokes the current audio backend to run
+class MidiPlayer
+{
+	MidiSequencer* sequencer;
+	MidiSynth* synth;
+
+	bool shouldStop;
+	hmpheader_t* nextSong;
+	hmpheader_t* curSong;
+	bool nextLoop;
+	std::mutex songMutex;
+
+	uint16_t* songBuffer;
+
+	uint64_t nextTimerTick;
+	bool shouldEnd;
+public:
+	MidiPlayer(MidiSequencer *newSequencer, MidiSynth *newSynth);
+	void SetSong(hmpheader_t* song, bool loop);
+	void StopSong();
+	void Run();
+	void Shutdown();
+};

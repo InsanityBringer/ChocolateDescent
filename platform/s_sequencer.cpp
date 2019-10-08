@@ -16,26 +16,37 @@ as described in copying.txt.
 
 #include "i_midi.h"
 
-sequencerstate_t Sequencer;
+//sequencerstate_t Sequencer;
 
-int S_StartMIDISong(hmpheader_t* song, bool loop)
+MidiSequencer::MidiSequencer(MidiSynth* newSynth)
 {
-	Sequencer.song = song;
-	Sequencer.loop = loop;
-	Sequencer.samplesPerTick = 367; //[ISB] aaaaaa
-	S_RewindSequencer();
+	synth = newSynth;
+}
+
+int MidiSequencer::StartSong(hmpheader_t* newSong, bool newLoop)
+{
+	song = newSong;
+	loop = newLoop;
+	samplesPerTick = 367; //[ISB] aaaaaa
+	RewindSong();
 
 	return 0;
 }
 
-void S_RewindSequencer()
+int S_StartMIDISong(hmpheader_t* song, bool loop)
 {
-	midichunk_t *chunk;
-	Sequencer.ticks = Sequencer.lastRenderedTick = 0;
-	
-	for (int i = 0; i < Sequencer.song->numChunks; i++)
+	fprintf(stderr, "S_StartMIDISong: STUB\n");
+	return 0;
+}
+
+void MidiSequencer::RewindSong()
+{
+	midichunk_t* chunk;
+	ticks = lastRenderedTick = 0;
+
+	for (int i = 0; i < song->numChunks; i++)
 	{
-		chunk = &Sequencer.song->chunks[i];
+		chunk = &song->chunks[i];
 		if (chunk->numEvents > 0)
 		{
 			chunk->nextEvent = 0;
@@ -44,14 +55,24 @@ void S_RewindSequencer()
 	}
 }
 
+void S_RewindSequencer()
+{
+	fprintf(stderr, "S_RewindSequencer: STUB\n");
+}
+
+void MidiSequencer::StopSong()
+{
+	synth->StopSound();
+}
+
 void S_StopSequencer()
 {
-	I_StopAllNotes();
+	fprintf(stderr, "S_StopSequencer: STUB\n");
 }
 
 void S_SetSequencerTick(int hack)
 {
-	Sequencer.ticks = hack;
+	fprintf(stderr, "S_SetSequencerTick: STUB\n");
 }
 
 int S_GetTicksPerSecond()
@@ -61,23 +82,23 @@ int S_GetTicksPerSecond()
 
 int S_GetSamplesPerTick()
 {
-	return Sequencer.samplesPerTick;
+	fprintf(stderr, "S_GetSamplesPerTick: STUB\n");
+	return 0;//Sequencer.samplesPerTick;
 }
 
-//Returns the next tick that an event has to be performed
-int S_SequencerTick()
+int MidiSequencer::Tick()
 {
 	int i;
 	int nextTick = INT_MAX;
 	midichunk_t* chunk;
 
-	for (i = 0; i < Sequencer.song->numChunks; i++)
+	for (i = 0; i < song->numChunks; i++)
 	{
-		chunk = &Sequencer.song->chunks[i];
+		chunk = &song->chunks[i];
 
-		while (chunk->nextEvent != -1 && chunk->nextEventTime == Sequencer.ticks)
+		while (chunk->nextEvent != -1 && chunk->nextEventTime == ticks)
 		{
-			I_MidiEvent(&chunk->events[chunk->nextEvent]);
+			synth->DoMidiEvent(&chunk->events[chunk->nextEvent]);
 			//chunk->nextEventTime += chunk->events[chunk->nextEvent].delta;
 			chunk->nextEvent++;
 			if (chunk->nextEvent >= chunk->numEvents)
@@ -95,13 +116,24 @@ int S_SequencerTick()
 		}
 	}
 
+	//[ISB] hack
+	if (synth->ClassifySynth() == MIDISYNTH_LIVE)
+		ticks = nextTick;
+
 	return nextTick;
 }
 
-int S_SequencerRender(int ticksToRender, unsigned short* buffer)
+//Returns the next tick that an event has to be performed
+int S_SequencerTick()
 {
-	int currentTick = Sequencer.lastRenderedTick;
-	int destinationTick = Sequencer.lastRenderedTick + ticksToRender;
+	fprintf(stderr, "S_SequencerTick: STUB\n");
+	return 0;
+}
+
+int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
+{
+	int currentTick = lastRenderedTick;
+	int destinationTick = lastRenderedTick + ticksToRender;
 
 	int numTicks;
 	int numTicksRendered = 0;
@@ -117,39 +149,45 @@ int S_SequencerRender(int ticksToRender, unsigned short* buffer)
 			currentTick = destinationTick;
 			done = true; //Abort from the loop when the buffer will be filled up
 		}
-		numTicks = currentTick - Sequencer.lastRenderedTick;
+		numTicks = currentTick - lastRenderedTick;
 		//If there's still ticks to render, render them
 		if (numTicks > 0)
 		{
-			I_RenderMIDI(numTicks, Sequencer.samplesPerTick, buffer);
+			synth->RenderMIDI(numTicks, samplesPerTick, buffer);
 			numTicksRendered += numTicks;
-			Sequencer.lastRenderedTick = currentTick;
-			buffer += Sequencer.samplesPerTick * numTicks * 2;
+			lastRenderedTick = currentTick;
+			buffer += samplesPerTick * numTicks * 2;
 		}
 
-		if (currentTick == Sequencer.ticks) //Still ticks to render
+		if (currentTick == ticks) //Still ticks to render
 		{
-			nextTick = S_SequencerTick();
-			if (nextTick == INT_MAX && Sequencer.loop)
+			nextTick = Tick();
+			if (nextTick == INT_MAX && loop)
 			{
 				//printf("Song end hit, looping!\n");
-				numTicks = Sequencer.ticks - Sequencer.lastRenderedTick; //Render as much as possible
+				numTicks = ticks - lastRenderedTick; //Render as much as possible
 				if (numTicks > 0)
 				{
-					I_RenderMIDI(numTicks, Sequencer.samplesPerTick, buffer);
+					synth->RenderMIDI(numTicks, samplesPerTick, buffer);
 					numTicksRendered += numTicks;
-					Sequencer.lastRenderedTick = currentTick;
-					buffer += Sequencer.samplesPerTick * numTicks * 2;
+					lastRenderedTick = currentTick;
+					buffer += samplesPerTick * numTicks * 2;
 				}
 				S_RewindSequencer();
 				done = true;
 			}
 			else
-				Sequencer.ticks = nextTick;
+				ticks = nextTick;
 		}
 
-		currentTick = Sequencer.ticks;
+		currentTick = ticks;
 	}
-	//printf("Renderer ended at tick %d, sequencer at tick %d. %d ticks rendered.\n", Sequencer.lastRenderedTick, Sequencer.ticks, numTicksRendered);
+	//printf("Renderer ended at tick %d, sequencer at tick %d. %d ticks rendered.\n", lastRenderedTick, ticks, numTicksRendered);
 	return numTicksRendered;
+}
+
+int S_SequencerRender(int ticksToRender, unsigned short* buffer)
+{
+	fprintf(stderr, "S_SequencerRender: STUB\n");
+	return 0;
 }

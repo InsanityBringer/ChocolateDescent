@@ -411,7 +411,7 @@ int digi_init_digi()
 int digi_init()
 {
 	digi_driver_board = 1; //[ISB] hackhack
-	digi_midi_type = 1; //[ISB] hackhackhack
+	digi_midi_type = _MIDI_GEN; //[ISB] hackhackhack
 	int i;
 #ifdef USE_CD
 	{

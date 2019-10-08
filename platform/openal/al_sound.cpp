@@ -63,6 +63,8 @@ void I_ErrorCheck(const char* context)
 	}
 }
 
+void I_CreateMusicSource();
+
 int I_InitAudio()
 {
 	int i;
@@ -92,6 +94,8 @@ int I_InitAudio()
 	float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
 	alListenerfv(AL_ORIENTATION, &orientation[0]);
 	I_ErrorCheck("Listener hack");
+
+	I_CreateMusicSource();
 	return 0;
 }
 
@@ -197,6 +201,11 @@ int I_CheckSoundDone(int handle)
 	return playing == AL_STOPPED;
 }
 
+//-----------------------------------------------------------------------------
+// Emitting pleasing rythmic sound at player
+//-----------------------------------------------------------------------------
+bool playing = false;
+
 void I_SetMusicVolume(int volume)
 {
 	//printf("Music volume %d\n", volume);
@@ -221,17 +230,16 @@ void I_CreateMusicSource()
 	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
 	alSource3f(MusicSource, AL_POSITION, 1.0f, 0.0f, 0.0f);
 	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
-	MusicBufferData = (ALushort*)malloc(sizeof(ALushort) * S_GetSamplesPerTick() * S_GetTicksPerSecond() * 2);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
 	I_ErrorCheck("Creating music source");
 
-	//Immediately kick off the first buffer if possible
+/*	//Immediately kick off the first buffer if possible
 	int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
 	alGenBuffers(1, &BufferQueue[0]);
 	alBufferData(BufferQueue[0], AL_FORMAT_STEREO16, MusicBufferData, finalTicks * S_GetSamplesPerTick() * sizeof(ALushort) * 2, 44100);
 	alSourceQueueBuffers(MusicSource, 1, &BufferQueue[0]);
 	alSourcePlay(MusicSource);
-	I_ErrorCheck("Queueing music buffers");
+	I_ErrorCheck("Queueing music buffers");*/
 }
 
 void I_DestroyMusicSource()
@@ -249,9 +257,14 @@ void I_DestroyMusicSource()
 	I_ErrorCheck("Destroying music source");
 }
 
-void I_QueueMusicBuffer()
+bool I_CanQueueMusicBuffer()
 {
-	std::unique_lock<std::mutex> lock(MIDIMutex);
+	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
+	return CurrentBuffers < MAX_BUFFERS_QUEUED;
+}
+
+void I_DequeueMusicBuffers()
+{
 	int BuffersProcessed;
 	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
 	if (BuffersProcessed > 0)
@@ -263,21 +276,33 @@ void I_QueueMusicBuffer()
 			BufferQueue[i] = BufferQueue[i + BuffersProcessed];
 		}
 		I_ErrorCheck("Unqueueing music buffers");
+		//printf("Killing %d buffers\n", BuffersProcessed);
 	}
+}
+
+void I_QueueMusicBuffer(int numTicks, uint16_t *data)
+{
+	//printf("Queuing %d ticks\n", numTicks);
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
 	if (CurrentBuffers < MAX_BUFFERS_QUEUED)
 	{
-		int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
+		//int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
 		alGenBuffers(1, &BufferQueue[CurrentBuffers]);
-		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, MusicBufferData, finalTicks * S_GetSamplesPerTick() * sizeof(ALushort) * 2, 44100);
+		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * MIDI_SAMPLESPERTICK * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
 		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
 		I_ErrorCheck("Queueing music buffers");
+	}
+	if (!playing)
+	{
+		playing = true;
+		alSourcePlay(MusicSource);
+		//printf("Kicking this mess off\n");
 	}
 }
 
 void I_MIDIThread()
 {
-	std::unique_lock<std::mutex> lock(MIDIMutex);
+/*	std::unique_lock<std::mutex> lock(MIDIMutex);
 	S_StartMIDISong(CurrentSong, LoopMusic);
 	I_CreateMusicSource();
 	while (!StopMIDI)
@@ -287,31 +312,32 @@ void I_MIDIThread()
 		lock.lock();
 	}
 	S_StopSequencer();
-	I_DestroyMusicSource();
+	I_DestroyMusicSource();*/
 }
 
 void I_StartMIDISong(hmpheader_t* song, bool loop)
 {
-	std::unique_lock<std::mutex> lock(MIDIMutex);
 	CurrentSong = song;
 	LoopMusic = loop;
 	StopMIDI = false;
-	lock.unlock();
-	MIDIThread = std::thread(I_MIDIThread);
+	playing = false;
 }
 
 void I_StopMIDISong()
 {
-	std::unique_lock<std::mutex> lock(MIDIMutex);
 	StopMIDI = true;
-	lock.unlock();
-	MIDIThread.join();
-	if (CurrentSong != NULL)
+	CurrentSong = NULL;
+	alSourceStop(MusicSource);
+	I_DequeueMusicBuffers();
+
+	int BuffersProcessed;
+	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
+	if (BuffersProcessed > 0) //Free any lingering buffers
 	{
-		S_FreeHMPData(CurrentSong);
-		free(CurrentSong);
-		CurrentSong = NULL;
+		alSourceUnqueueBuffers(MusicSource, BuffersProcessed, &BufferQueue[0]);
+		alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
 	}
+	I_ErrorCheck("Destroying lingering music buffers");
 }
 
 //-----------------------------------------------------------------------------

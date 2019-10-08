@@ -7,13 +7,17 @@ as described in copying.txt.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <thread>
+#include <mutex>
 
 #include "platform/i_sound.h"
 #include "platform/i_midi.h"
 #include "s_midi.h"
+#include "s_sequencer.h"
 //#include "mem/mem.h" //[ISB] not thread safe
 #include "misc/byteswap.h"
 #include "misc/error.h"
+#include "platform/timer.h"
 
 //[ISB] Uncomment to enable MIDI file diagonstics. Extremely slow on windows. And probably linux tbh.
 //Will probably overflow your console buffer, so make it really long if you must
@@ -22,6 +26,10 @@ as described in copying.txt.
 int CurrentDevice = 0;
 
 char SoundFontFilename[256];
+MidiPlayer *player = nullptr;
+MidiSynth* synth = nullptr;
+MidiSequencer* sequencer = nullptr;
+std::thread* midiThread = nullptr;
 
 #ifdef DEBUG_MIDI_READING
 char* EventNames[] = { "Unknown 0", "Unknown 1", "Unknown 2", "Unknown 3", "Unknown 4", "Unknown 5",
@@ -67,17 +75,153 @@ void S_PrintEvent(midievent_t* ev)
 
 #endif
 
+MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
+{
+	sequencer = newSequencer;
+	synth = newSynth;
+	nextSong = curSong = nullptr;
+	nextLoop = false;
+	nextTimerTick = 0;
+	shouldEnd = false;
+	shouldStop = false;
+
+	songBuffer = new uint16_t[MIDI_TICKSPERSECOND * MIDI_SAMPLESPERTICK * 2];
+}
+
+void MidiPlayer::SetSong(hmpheader_t* newSong, bool loop)
+{
+	std::unique_lock<std::mutex> lock(songMutex);
+	nextSong = newSong;
+	nextLoop = loop;
+}
+
+void MidiPlayer::StopSong()
+{
+	std::unique_lock<std::mutex> lock(songMutex);
+	shouldStop = true;
+}
+
+void MidiPlayer::Shutdown()
+{
+	std::unique_lock<std::mutex> lock(songMutex);
+	sequencer->StopSong();
+	synth->Shutdown();
+	shouldEnd = true;
+}
+
+void MidiPlayer::Run()
+{
+	nextTimerTick = I_GetUS();
+	for (;;)
+	{
+		//printf("I'm goin");
+		std::unique_lock<std::mutex> lock(songMutex);
+		if (shouldEnd)
+			break;
+		if (shouldStop)
+		{
+			if (curSong)
+			{
+				I_StopMIDISong(); //[ISB] TODO: Need a class for this
+				sequencer->StopSong();
+			}
+			shouldStop = false;
+		}
+		if (nextSong)
+		{
+			if (curSong)
+			{
+				I_StopMIDISong(); //[ISB] TODO: Need a class for this
+				sequencer->StopSong();
+				S_FreeHMPData(curSong);
+			}
+			printf("Starting new song\n");
+			sequencer->StartSong(nextSong, nextLoop);
+			I_StartMIDISong(nextSong, nextLoop);
+			curSong = nextSong;
+			nextSong = nullptr;
+		}
+		lock.unlock();
+
+		if (curSong)
+		{
+			//Soft synth operation
+			if (synth->ClassifySynth() == MIDISYNTH_SOFT)
+			{
+				I_DequeueMusicBuffers();
+				if (I_CanQueueMusicBuffer())
+				{
+					int ticks = sequencer->Render(20, songBuffer);
+					I_QueueMusicBuffer(ticks, songBuffer);
+				}
+			}
+		}
+
+		uint64_t startTick = I_GetUS();
+		uint64_t numTicks = nextTimerTick - startTick;
+		if (numTicks > 2000) //[ISB] again inspired by dpJudas, with 2000 US number from GZDoom
+			I_DelayUS(numTicks - 2000);
+		while (I_GetUS() < nextTimerTick);
+		nextTimerTick += 8333;
+	}
+}
+
 int S_InitMusic(int device)
 {
+	if (CurrentDevice != 0) return 0; //already initalized
 	//[ISB] TODO: I really need to add a switcher to allow the use of multiple synths. Agh
-	I_InitMIDI();
+	//I_InitMIDI();
+	MidiSynth* synth = nullptr;
+	switch (device)
+	{
+	case _MIDI_GEN:
+	{
+		MidiFluidSynth* fluidSynth = new MidiFluidSynth();
+		if (fluidSynth == nullptr)
+		{
+			Error("S_InitMusic: Cannot allocate fluid synth");
+			return 1;
+		}
+		fluidSynth->SetSoundfont(SoundFontFilename);
+		synth = (MidiSynth*)fluidSynth;
+	}
+		break;
+	}
+	if (synth == nullptr)
+	{
+		Warning("S_InitMusic: Unknown device\n");
+		return 1;
+	}
+
+	sequencer = new MidiSequencer(synth);
+
+	if (sequencer == nullptr)
+	{
+		Error("S_InitMusic: Cannot allocate sequencer");
+		return 1;
+	}
+	player = new MidiPlayer(sequencer, synth);
+
 	CurrentDevice = device;
+
+	//Kick off the MIDI thread
+	midiThread = new std::thread(&MidiPlayer::Run, player);
+
 	return 0;
 }
 
 void S_ShutdownMusic()
 {
-	I_ShutdownMIDI();
+	//I_ShutdownMIDI();
+	if (player != nullptr)
+	{
+		player->Shutdown();
+	}
+	if (midiThread)
+	{
+		midiThread->join();
+		delete midiThread;
+	}
 }
 
 int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
@@ -265,14 +409,16 @@ uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle)
 		return 1;
 	}
 	*handle = 0; //heh
-	I_StartMIDISong(song, loop);
+	player->SetSong(song, loop);
+	//I_StartMIDISong(song, loop);
 	return 0;
 }
 
 uint16_t S_StopSong()
 {
 	if (CurrentDevice == 0) return 1;
-	I_StopMIDISong();
+	
+	//I_StopMIDISong();
 	return 0;
 }
 

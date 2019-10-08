@@ -30,3 +30,28 @@ int S_GetSamplesPerTick();
 void S_SetSequencerTick(int hack);
 int S_SequencerTick();
 int S_SequencerRender(int ticksToRender, unsigned short* buffer);
+
+class MidiSequencer
+{
+	hmpheader_t* song;
+	int ticks;
+	int nextTick;
+	int lastRenderedTick;
+
+	int sampleRate;
+	//[ISB] TODO: This is imprecise, ugh. Song is slightly faster than it should be...
+	int samplesPerTick; //Amount of samples per each MIDI tick
+	bool loop; //Whether or not the song should loop at the end or not
+
+	MidiSynth* synth;
+
+public:
+	MidiSequencer(MidiSynth* newSynth);
+
+	int StartSong(hmpheader_t* song, bool loop);
+	void StopSong();
+	void RewindSong();
+
+	int Tick();
+	int Render(int ticksToRender, unsigned short* buffer);
+};

@@ -16,41 +16,36 @@ as described in copying.txt.
 
 #ifdef USE_FLUIDSYNTH
 
-fluid_settings_t *FluidSynthSettings;
-fluid_synth_t *FluidSynth;
-fluid_audio_driver_t* AudioDriver;
-
-int I_InitMIDI()
+MidiFluidSynth::MidiFluidSynth()
 {
 	FluidSynthSettings = new_fluid_settings();
 	FluidSynth = new_fluid_synth(FluidSynthSettings);
 	//AudioDriver = new_fluid_audio_driver(FluidSynthSettings, FluidSynth);
-	I_SetSoundfontFilename(SoundFontFilename);
+	AudioDriver = nullptr;
+	//I_SetSoundfontFilename(SoundFontFilename);
 
-	if (FluidSynth == nullptr) return 1;
-
-	return 0;
+	//if (FluidSynth == nullptr) return 1;
 }
 
-void I_ShutdownMIDI()
+void MidiFluidSynth::Shutdown()
 {
 	//delete_fluid_audio_driver(AudioDriver);
 	delete_fluid_synth(FluidSynth);
 	delete_fluid_settings(FluidSynthSettings);
 }
 
-void I_SetSoundfontFilename(const char* filename)
+void MidiFluidSynth::SetSoundfont(const char* filename)
 {
 	fluid_synth_sfload(FluidSynth, filename, 1);
 }
 
-void I_RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer)
+void MidiFluidSynth::RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer)
 {
 	fluid_synth_write_s16(FluidSynth, numTicks * samplesPerTick, (void*)buffer, 0, 2, (void*)buffer, 1, 2);
 }
 
 //I_MidiEvent(chunk->events[chunk->nextEvent]);
-void I_MidiEvent(midievent_t *ev)
+void MidiFluidSynth::DoMidiEvent(midievent_t *ev)
 {
 	switch (ev->type)
 	{
@@ -80,7 +75,7 @@ void I_MidiEvent(midievent_t *ev)
 	}
 }
 
-void I_StopAllNotes()
+void MidiFluidSynth::StopSound()
 {
 	for (int chan = 0; chan < 16; chan++)
 	{
