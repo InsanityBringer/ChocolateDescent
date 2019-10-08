@@ -135,7 +135,7 @@ void MidiPlayer::Run()
 				sequencer->StopSong();
 				S_FreeHMPData(curSong);
 			}
-			printf("Starting new song\n");
+			//printf("Starting new song\n");
 			sequencer->StartSong(nextSong, nextLoop);
 			I_StartMIDISong(nextSong, nextLoop);
 			curSong = nextSong;
