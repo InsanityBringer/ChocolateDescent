@@ -546,7 +546,7 @@ int D_DescentMain(int argc, const char** argv)
 		if (digi_init()) 
 		{
 			printf("\n%s\n", TXT_PRESS_ANY_KEY3);
-			key_getch();
+			//key_getch();
 		}
 	}
 	else 
