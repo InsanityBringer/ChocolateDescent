@@ -38,7 +38,6 @@ std::mutex MIDIMutex;
 std::thread MIDIThread;
 
 ALuint BufferQueue[MAX_BUFFERS_QUEUED];
-ALuint wiugh38wr8g83rhguiswdgiuwrhgiuwhgiwrughwr;
 ALuint MusicSource;
 int CurrentBuffers = 0;
 
