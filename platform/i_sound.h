@@ -61,7 +61,7 @@ bool I_CanQueueMusicBuffer();
 void I_DequeueMusicBuffers();
 void I_QueueMusicBuffer(int numTicks, uint16_t* data);
 
-void I_StartMIDISong(hmpheader_t* song, bool loop);
+void I_StartMIDISong();
 void I_StopMIDISong();
 
 //-----------------------------------------------------------------------------

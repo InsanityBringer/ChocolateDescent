@@ -84,6 +84,7 @@ MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 	nextTimerTick = 0;
 	shouldEnd = false;
 	shouldStop = false;
+	initialized = true;
 
 	songBuffer = new uint16_t[MIDI_TICKSPERSECOND * MIDI_SAMPLESPERTICK * 2];
 }
@@ -108,14 +109,18 @@ void MidiPlayer::StopSong()
 void MidiPlayer::Shutdown()
 {
 	std::unique_lock<std::mutex> lock(songMutex);
+	shouldEnd = true;
+	lock.unlock();
+	while (shouldEnd);
+	midiThread->join();
 	sequencer->StopSong();
 	synth->Shutdown();
-	shouldEnd = true;
 }
 
 void MidiPlayer::Run()
 {
 	nextTimerTick = I_GetUS();
+	I_StartMIDISong();
 	for (;;)
 	{
 		//printf("I'm goin");
@@ -126,13 +131,12 @@ void MidiPlayer::Run()
 		{
 			if (curSong)
 			{
-				I_StopMIDISong(); //[ISB] TODO: Need a class for this
 				sequencer->StopSong();
 				S_FreeHMPData(curSong);
 			}
 			//printf("Starting new song\n");
 			sequencer->StartSong(nextSong, nextLoop);
-			I_StartMIDISong(nextSong, nextLoop);
+			//I_StartMIDISong(nextSong, nextLoop);
 			curSong = nextSong;
 			nextSong = nullptr;
 		}
@@ -140,7 +144,6 @@ void MidiPlayer::Run()
 		{
 			if (curSong)
 			{
-				I_StopMIDISong(); //[ISB] TODO: Need a class for this
 				sequencer->StopSong();
 				S_FreeHMPData(curSong);
 			}
@@ -149,17 +152,14 @@ void MidiPlayer::Run()
 		}
 		lock.unlock();
 
-		if (curSong)
+		//Soft synth operation
+		if (synth->ClassifySynth() == MIDISYNTH_SOFT)
 		{
-			//Soft synth operation
-			if (synth->ClassifySynth() == MIDISYNTH_SOFT)
+			I_DequeueMusicBuffers();
+			if (I_CanQueueMusicBuffer())
 			{
-				I_DequeueMusicBuffers();
-				if (I_CanQueueMusicBuffer())
-				{
-					int ticks = sequencer->Render(20, songBuffer);
-					I_QueueMusicBuffer(ticks, songBuffer);
-				}
+				int ticks = sequencer->Render(4, songBuffer);
+				I_QueueMusicBuffer(ticks, songBuffer);
 			}
 		}
 
@@ -170,6 +170,8 @@ void MidiPlayer::Run()
 		while (I_GetUS() < nextTimerTick);
 		nextTimerTick += 8333;
 	}
+	I_StopMIDISong();
+	shouldEnd = false;
 }
 
 int S_InitMusic(int device)
@@ -218,6 +220,7 @@ int S_InitMusic(int device)
 
 void S_ShutdownMusic()
 {
+	if (CurrentDevice == 0) return;
 	//I_ShutdownMIDI();
 	if (player != nullptr)
 	{
@@ -225,9 +228,9 @@ void S_ShutdownMusic()
 	}
 	if (midiThread)
 	{
-		midiThread->join();
 		delete midiThread;
 	}
+	CurrentDevice = 0;
 }
 
 int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)

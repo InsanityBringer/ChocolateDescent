@@ -38,6 +38,7 @@ std::mutex MIDIMutex;
 std::thread MIDIThread;
 
 ALuint BufferQueue[MAX_BUFFERS_QUEUED];
+ALuint wiugh38wr8g83rhguiswdgiuwrhgiuwhgiwrughwr;
 ALuint MusicSource;
 int CurrentBuffers = 0;
 
@@ -85,12 +86,12 @@ int I_InitAudio()
 
 	alGenBuffers(_MAX_VOICES, &bufferNames[0]);
 	I_ErrorCheck("Creating buffers");
-	alGenSources(_MAX_VOICES, &sourceNames[0]);
+	/*alGenSources(_MAX_VOICES, &sourceNames[0]);
 	I_ErrorCheck("Creating sources");
 	for (i = 0; i < _MAX_VOICES; i++)
 	{
 		alSourcef(sourceNames[i], AL_ROLLOFF_FACTOR, 0.0f);
-	}
+	}*/
 	float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
 	alListenerfv(AL_ORIENTATION, &orientation[0]);
 	I_ErrorCheck("Listener hack");
@@ -115,10 +116,18 @@ int I_GetSoundHandle()
 	ALint state;
 	for (i = 0; i < _MAX_VOICES; i++)
 	{
-		alGetSourcei(sourceNames[i], AL_SOURCE_STATE, &state);
-		if (state != AL_PLAYING)
+		if (alIsSource(sourceNames[i]))
 		{
-			alDeleteSources(1, &sourceNames[i]); //[ISB] delete the previous source before using this handle. Fixes problems with distant sounds briefly sounding loud
+			alGetSourcei(sourceNames[i], AL_SOURCE_STATE, &state);
+			if (state != AL_PLAYING)
+			{
+				alDeleteSources(1, &sourceNames[i]); //[ISB] delete the previous source before using this handle. Fixes problems with distant sounds briefly sounding loud
+				alGenSources(1, &sourceNames[i]);
+				return i;
+			}
+		}
+		else
+		{
 			alGenSources(1, &sourceNames[i]);
 			return i;
 		}
@@ -232,6 +241,11 @@ void I_CreateMusicSource()
 	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
 	I_ErrorCheck("Creating music source");
+	if (!alIsSource(MusicSource))
+	{
+		fprintf(stderr, "what the fuck\n");
+		Int3();
+	}
 
 /*	//Immediately kick off the first buffer if possible
 	int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
@@ -257,10 +271,15 @@ void I_DestroyMusicSource()
 	alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
 	I_ErrorCheck("Destroying lingering buffers");
 	free(MusicBufferData);
+	MusicSource = 0;
 }
 
 bool I_CanQueueMusicBuffer()
 {
+	if (!alIsSource(MusicSource))
+	{
+		Int3();
+	}
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
 	I_ErrorCheck("Checking can queue buffers");
 	return CurrentBuffers < MAX_BUFFERS_QUEUED;
@@ -278,9 +297,9 @@ void I_DequeueMusicBuffers()
 		{
 			BufferQueue[i] = BufferQueue[i + BuffersProcessed];
 		}
-		I_ErrorCheck("Unqueueing music buffers");
 		//printf("Killing %d buffers\n", BuffersProcessed);
 	}
+	I_ErrorCheck("Unqueueing music buffers");
 }
 
 void I_QueueMusicBuffer(int numTicks, uint16_t *data)
@@ -319,10 +338,8 @@ void I_MIDIThread()
 	I_DestroyMusicSource();*/
 }
 
-void I_StartMIDISong(hmpheader_t* song, bool loop)
+void I_StartMIDISong()
 {
-	CurrentSong = song;
-	LoopMusic = loop;
 	StopMIDI = false;
 	playing = false;
 	I_CreateMusicSource();
@@ -332,7 +349,6 @@ void I_StartMIDISong(hmpheader_t* song, bool loop)
 void I_StopMIDISong()
 {
 	StopMIDI = true;
-	CurrentSong = NULL;
 	alSourceStop(MusicSource);
 	I_DequeueMusicBuffers();
 	I_DestroyMusicSource();

@@ -257,7 +257,11 @@ int digi_load_fm_banks( char * melodic_file, char * drum_file )
 int digi_init_midi()
 {
 	if (digi_midi_type > 0)
-		return S_InitMusic(digi_midi_type);
+	{
+		int res = S_InitMusic(digi_midi_type);
+		if (!res) midi_system_initialized = 1;
+		return res;
+	}
 
 	return 0;
 }

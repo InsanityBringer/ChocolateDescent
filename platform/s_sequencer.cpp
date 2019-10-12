@@ -57,6 +57,7 @@ void MidiSequencer::RewindSong()
 void MidiSequencer::StopSong()
 {
 	synth->StopSound();
+	song = nullptr;
 }
 
 int MidiSequencer::Tick()
@@ -99,6 +100,13 @@ int MidiSequencer::Tick()
 //Returns the next tick that an event has to be performed
 int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 {
+	//If there's no song, just render out the requested amount of ticks so that lingering notes fade out even over the fade to black
+	if (!song)
+	{
+		synth->RenderMIDI(ticksToRender, samplesPerTick, buffer);
+		return ticksToRender;
+	}
+
 	int currentTick = lastRenderedTick;
 	int destinationTick = lastRenderedTick + ticksToRender;
 

@@ -101,6 +101,8 @@ public:
 //Class which represents the midi thread. Has a Sequencer and a Synthesizer, and invokes the current audio backend to run
 class MidiPlayer
 {
+	//The digi code can call shutdown before an init, so uh...
+	bool initialized; 
 	MidiSequencer* sequencer;
 	MidiSynth* synth;
 
