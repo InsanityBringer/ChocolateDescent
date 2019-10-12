@@ -99,6 +99,10 @@ void MidiPlayer::StopSong()
 {
 	std::unique_lock<std::mutex> lock(songMutex);
 	shouldStop = true;
+	lock.unlock();
+	//[ISB] I need to learn how to write threaded programs tbh
+	//Avoid race condition by waiting for the MIDI thread to get the message
+	while (shouldStop);
 }
 
 void MidiPlayer::Shutdown()
