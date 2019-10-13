@@ -139,7 +139,17 @@ void MidiPlayer::Run()
 			initialized = false;
 			break;
 		}
-		if (nextSong)
+		else if (shouldStop)
+		{
+			if (curSong)
+			{
+				sequencer->StopSong();
+				S_FreeHMPData(curSong);
+			}
+			shouldStop = false;
+			curSong = nullptr;
+		}
+		else if (nextSong)
 		{
 			if (curSong)
 			{
@@ -151,16 +161,6 @@ void MidiPlayer::Run()
 			//I_StartMIDISong(nextSong, nextLoop);
 			curSong = nextSong;
 			nextSong = nullptr;
-		}
-		if (shouldStop)
-		{
-			if (curSong)
-			{
-				sequencer->StopSong();
-				S_FreeHMPData(curSong);
-			}
-			shouldStop = false;
-			curSong = nullptr;
 		}
 		lock.unlock();
 
