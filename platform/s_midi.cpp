@@ -84,7 +84,7 @@ MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 	nextTimerTick = 0;
 	shouldEnd = false;
 	shouldStop = false;
-	initialized = true;
+	initialized = false;
 
 	songBuffer = new uint16_t[MIDI_TICKSPERSECOND * MIDI_SAMPLESPERTICK * 2];
 }
@@ -103,15 +103,23 @@ void MidiPlayer::StopSong()
 	lock.unlock();
 	//[ISB] I need to learn how to write threaded programs tbh
 	//Avoid race condition by waiting for the MIDI thread to get the message
-	while (shouldStop);
+	while (shouldStop)
+	{
+		I_Delay(10); //[ISB] for some reason, if there's no delay here, the optimizer gets drunk and breaks this loop
+		//This probably won't work on certain computers making me want to tear my hair out
+	}
 }
 
 void MidiPlayer::Shutdown()
 {
 	std::unique_lock<std::mutex> lock(songMutex);
+	if (!initialized) return; //already ded
 	shouldEnd = true;
 	lock.unlock();
-	while (shouldEnd);
+	while (shouldEnd)
+	{
+		I_Delay(10);
+	}
 	midiThread->join();
 	sequencer->StopSong();
 	synth->Shutdown();
@@ -119,14 +127,18 @@ void MidiPlayer::Shutdown()
 
 void MidiPlayer::Run()
 {
+	initialized = true;
 	nextTimerTick = I_GetUS();
 	I_StartMIDISong();
 	for (;;)
 	{
-		//printf("I'm goin");
+		//printf("I'm goin\n");
 		std::unique_lock<std::mutex> lock(songMutex);
 		if (shouldEnd)
+		{
+			initialized = false;
 			break;
+		}
 		if (nextSong)
 		{
 			if (curSong)
@@ -172,6 +184,7 @@ void MidiPlayer::Run()
 	}
 	I_StopMIDISong();
 	shouldEnd = false;
+	//printf("Midi thread rip\n");
 }
 
 int S_InitMusic(int device)

@@ -794,12 +794,13 @@ Here:
 	//------------ Init sound ---------------
 	if (!FindArg("-disablesound"))
 	{
-		if (digi_init()) {
+		if (digi_init())
+		{
 			int key;
-			printf("\n%s\n", "Press ESC to exit Descent II, or any other key to continue.");
+			/*printf("\n%s\n", "Press ESC to exit Descent II, or any other key to continue.");
 			key = key_getch();
 			if (key == KEY_ESC)
-				exit(0);
+				exit(0);*/
 		}
 	}
 	else 
