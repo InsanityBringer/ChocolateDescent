@@ -15,6 +15,7 @@ target_sources(ChocolateDescent PRIVATE
     "${METADATA_BASE_PATH}/misc/error.h"
     "${METADATA_BASE_PATH}/misc/parsarg.cpp"
     "${METADATA_BASE_PATH}/misc/parsarg.h"
+    "${METADATA_BASE_PATH}/misc/stb_vorbis.h"
     "${METADATA_BASE_PATH}/misc/types.h"
 )
 
@@ -29,6 +30,7 @@ target_sources(ChocolateDescent2 PRIVATE
     "${METADATA_BASE_PATH}/misc/hash.h"
     "${METADATA_BASE_PATH}/misc/parsarg.cpp"
     "${METADATA_BASE_PATH}/misc/parsarg.h"
+    "${METADATA_BASE_PATH}/misc/stb_vorbis.h"
     "${METADATA_BASE_PATH}/misc/types.h"
 )
 

@@ -123,7 +123,6 @@ target_sources(ChocolateDescent PRIVATE
     "${METADATA_BASE_PATH}/main_d1/sounds.h"
     "${METADATA_BASE_PATH}/main_d1/state.cpp"
     "${METADATA_BASE_PATH}/main_d1/state.h"
-    "${METADATA_BASE_PATH}/main_d1/stb_vorbis.h"
     "${METADATA_BASE_PATH}/main_d1/switch.cpp"
     "${METADATA_BASE_PATH}/main_d1/switch.h"
     "${METADATA_BASE_PATH}/main_d1/terrain.cpp"

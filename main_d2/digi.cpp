@@ -737,6 +737,8 @@ VOID sosEndMIDICallback()		// Used to mark the end of digi_midi_callback
 
 void digi_stop_current_song()
 {
+	StopHQSong();
+
 	if (!Digi_initialized) return;
 
 	if ( digi_midi_type > 0 )	
@@ -780,6 +782,9 @@ void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank
 	digi_stop_current_song();
 
 	if ( filename == NULL )	return;
+
+	if (PlayHQSong(filename, loop)) //[ISB] moved here to prevent a null pointer problem
+		return;
 
 	strcpy( digi_last_midi_song, filename );
 	strcpy( digi_last_melodic_bank, melodic_bank );
@@ -915,3 +920,76 @@ void digi_debug()
 }
 #endif
 
+/////////////////////////////////////////////////////////////////////////////
+
+#include "misc/stb_vorbis.h"
+#include <string>
+
+bool PlayHQSong(const char* filename, bool loop)
+{
+	// Load ogg into memory:
+
+	std::string name = filename;
+	name = name.substr(0, name.size() - 4); // cut off extension
+
+	FILE* file = fopen(("music/" + name + ".ogg").c_str(), "rb");
+	if (!file) return false;
+	fseek(file, 0, SEEK_END);
+	auto size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	std::vector<uint8_t> filedata(size);
+	fread(filedata.data(), filedata.size(), 1, file);
+	fclose(file);
+
+	// Decompress it:
+
+	int error = 0;
+	int stream_byte_offset = 0;
+	stb_vorbis* handle = stb_vorbis_open_pushdata(filedata.data(), filedata.size(), &stream_byte_offset, &error, nullptr);
+	if (handle == nullptr)
+		return false;
+
+	stb_vorbis_info stream_info = stb_vorbis_get_info(handle);
+	int song_sample_rate = stream_info.sample_rate;
+	int song_channels = stream_info.channels;
+	std::vector<float> song_data;
+
+	while (true)
+	{
+		float** pcm = nullptr;
+		int pcm_samples = 0;
+		int bytes_used = stb_vorbis_decode_frame_pushdata(handle, filedata.data() + stream_byte_offset, filedata.size() - stream_byte_offset, nullptr, &pcm, &pcm_samples);
+
+		if (song_channels > 1)
+		{
+			for (int i = 0; i < pcm_samples; i++)
+			{
+				song_data.push_back(pcm[0][i]);
+				song_data.push_back(pcm[1][i]);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < pcm_samples; i++)
+			{
+				song_data.push_back(pcm[0][i]);
+				song_data.push_back(pcm[0][i]);
+			}
+		}
+
+		stream_byte_offset += bytes_used;
+		if (bytes_used == 0 || stream_byte_offset == filedata.size())
+			break;
+	}
+
+	stb_vorbis_close(handle);
+
+	I_PlayHQSong(song_sample_rate, std::move(song_data), loop);
+
+	return true;
+}
+
+void StopHQSong()
+{
+	I_StopHQSong();
+}

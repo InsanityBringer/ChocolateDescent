@@ -1711,7 +1711,7 @@ int verify_sound_channel_free(int channel)
 
 /////////////////////////////////////////////////////////////////////////////
 
-#include "stb_vorbis.h"
+#include "misc/stb_vorbis.h"
 #include <string>
 
 bool PlayHQSong(const char* filename, bool loop)

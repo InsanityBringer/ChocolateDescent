@@ -14,6 +14,7 @@ Instead, it is released under the terms of the MIT License.
 
 #include "AL/al.h"
 #include "AL/alc.h"
+#include "AL/alext.h"
 #include "platform/i_sound.h"
 #include "platform/s_midi.h"
 #include "platform/s_sequencer.h"
@@ -26,8 +27,7 @@ ALCcontext *ALContext = NULL;
 ALuint bufferNames[_MAX_VOICES];
 ALuint sourceNames[_MAX_VOICES];
 
-//MIDI fields
-
+//MIDI audio fields
 #define MAX_BUFFERS_QUEUED 5
 
 hmpheader_t* CurrentSong;
@@ -40,8 +40,12 @@ std::thread MIDIThread;
 ALuint BufferQueue[MAX_BUFFERS_QUEUED];
 ALuint MusicSource;
 int CurrentBuffers = 0;
-
 ALushort* MusicBufferData;
+
+//HQ audio fields
+ALuint HQMusicSource;
+ALuint HQMusicBuffer;
+bool HQMusicPlaying = false;
 
 int MusicVolume;
 
@@ -94,6 +98,11 @@ int I_InitAudio()
 	float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
 	alListenerfv(AL_ORIENTATION, &orientation[0]);
 	I_ErrorCheck("Listener hack");
+
+	if (!alIsExtensionPresent("AL_EXT_FLOAT32"))
+	{
+		printf("oops no float still\n");
+	}
 
 	return 0;
 }
@@ -221,15 +230,41 @@ void I_SetMusicVolume(int volume)
 	{
 		alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	}
+	if (alIsSource(HQMusicSource)) //[ISB] heh
+	{
+		alSourcef(HQMusicSource, AL_GAIN, MusicVolume / 127.0f);
+	}
 	I_ErrorCheck("Setting music volume");
 }
 
 void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
 {
+	alGenSources(1, &HQMusicSource);
+	alSourcef(HQMusicSource, AL_ROLLOFF_FACTOR, 0.0f);
+	alSource3f(HQMusicSource, AL_POSITION, 1.0f, 0.0f, 0.0f);
+	alSourcef(HQMusicSource, AL_GAIN, MusicVolume / 127.0f);
+	alSourcei(HQMusicSource, AL_LOOPING, loop);
+	I_ErrorCheck("Creating HQ music source");
+
+	alGenBuffers(1, &HQMusicBuffer);
+	alBufferData(HQMusicBuffer, AL_FORMAT_STEREO_FLOAT32, (ALvoid*)song_data.data(), song_data.size() * sizeof(float), sample_rate);
+	I_ErrorCheck("Creating HQ music buffer");
+	alSourcei(HQMusicSource, AL_BUFFER, HQMusicBuffer);
+	alSourcePlay(HQMusicSource);
+	I_ErrorCheck("Playing HQ music");
+	HQMusicPlaying = true;
 }
 
 void I_StopHQSong()
 {
+	if (HQMusicPlaying)
+	{
+		alSourceStop(HQMusicSource);
+		alDeleteSources(1, &HQMusicSource);
+		alDeleteBuffers(1, &HQMusicBuffer);
+		I_ErrorCheck("Stopping HQ music");
+		HQMusicPlaying = false;
+	}
 }
 
 void I_CreateMusicSource()

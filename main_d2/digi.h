@@ -109,3 +109,6 @@ extern void digi_stop_looping_sound();
 
 // Plays a queued voice sound.
 extern void digi_start_sound_queued( short soundnum, fix volume );
+
+bool PlayHQSong(const char* filename, bool loop);
+void StopHQSong();
