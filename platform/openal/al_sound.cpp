@@ -89,19 +89,19 @@ int I_InitAudio()
 
 	alGenBuffers(_MAX_VOICES, &bufferNames[0]);
 	I_ErrorCheck("Creating buffers");
-	/*alGenSources(_MAX_VOICES, &sourceNames[0]);
+	alGenSources(_MAX_VOICES, &sourceNames[0]);
 	I_ErrorCheck("Creating sources");
-	for (i = 0; i < _MAX_VOICES; i++)
+	/*for (i = 0; i < _MAX_VOICES; i++)
 	{
 		alSourcef(sourceNames[i], AL_ROLLOFF_FACTOR, 0.0f);
 	}*/
-	float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
-	alListenerfv(AL_ORIENTATION, &orientation[0]);
-	I_ErrorCheck("Listener hack");
+	//float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
+	//alListenerfv(AL_ORIENTATION, &orientation[0]);
+	//I_ErrorCheck("Listener hack");
 
 	if (!alIsExtensionPresent("AL_EXT_FLOAT32"))
 	{
-		printf("oops no float still\n");
+		printf("Well for some reason your OpenAL implementation can't support floating point samples.\n");
 	}
 
 	return 0;
@@ -124,18 +124,10 @@ int I_GetSoundHandle()
 	ALint state;
 	for (i = 0; i < _MAX_VOICES; i++)
 	{
-		if (alIsSource(sourceNames[i]))
+		alGetSourcei(sourceNames[i], AL_SOURCE_STATE, &state);
+		if (state != AL_PLAYING)
 		{
-			alGetSourcei(sourceNames[i], AL_SOURCE_STATE, &state);
-			if (state != AL_PLAYING)
-			{
-				alDeleteSources(1, &sourceNames[i]); //[ISB] delete the previous source before using this handle. Fixes problems with distant sounds briefly sounding loud
-				alGenSources(1, &sourceNames[i]);
-				return i;
-			}
-		}
-		else
-		{
+			alDeleteSources(1, &sourceNames[i]); //[ISB] delete the previous source before using this handle. Fixes problems with distant sounds briefly sounding loud
 			alGenSources(1, &sourceNames[i]);
 			return i;
 		}
@@ -151,6 +143,7 @@ void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
 	alSourcei(sourceNames[handle], AL_BUFFER, NULL);
 	alBufferData(bufferNames[handle], AL_FORMAT_MONO8, data, length, sampleRate);
 	alSourcei(sourceNames[handle], AL_BUFFER, bufferNames[handle]);
+	alSourcef(sourceNames[handle], AL_ROLLOFF_FACTOR, 0.0f);
 	I_ErrorCheck("Setting sound data");
 }
 
