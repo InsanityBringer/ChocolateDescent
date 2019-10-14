@@ -129,6 +129,8 @@ int I_GetSoundHandle()
 		{
 			alDeleteSources(1, &sourceNames[i]); //[ISB] delete the previous source before using this handle. Fixes problems with distant sounds briefly sounding loud
 			alGenSources(1, &sourceNames[i]);
+			alDeleteBuffers(1, &bufferNames[i]);
+			alGenBuffers(1, &bufferNames[i]);
 			return i;
 		}
 	}
@@ -141,9 +143,10 @@ void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
 	if (handle >= _MAX_VOICES) return;
 
 	alSourcei(sourceNames[handle], AL_BUFFER, NULL);
+	alSourcef(sourceNames[handle], AL_ROLLOFF_FACTOR, 0.0f);
 	alBufferData(bufferNames[handle], AL_FORMAT_MONO8, data, length, sampleRate);
 	alSourcei(sourceNames[handle], AL_BUFFER, bufferNames[handle]);
-	alSourcef(sourceNames[handle], AL_ROLLOFF_FACTOR, 0.0f);
+
 	I_ErrorCheck("Setting sound data");
 }
 

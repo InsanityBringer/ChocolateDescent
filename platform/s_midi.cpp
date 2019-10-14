@@ -86,6 +86,9 @@ MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 	shouldStop = false;
 	initialized = false;
 
+	hasEnded = false;
+	hasChangedSong = false;
+
 	songBuffer = new uint16_t[MIDI_TICKSPERSECOND * MIDI_SAMPLESPERTICK * 2];
 }
 
@@ -94,6 +97,11 @@ void MidiPlayer::SetSong(hmpheader_t* newSong, bool loop)
 	std::unique_lock<std::mutex> lock(songMutex);
 	nextSong = newSong;
 	nextLoop = loop;
+	lock.unlock();
+	//[ISB] I don't like this, but I can't think of a better way to do it atm...
+	//This is very contestable, but maybe we can get away with it by merit of this only happening on main thread?
+	while (!hasChangedSong);
+	hasChangedSong = false;
 }
 
 void MidiPlayer::StopSong()
@@ -103,11 +111,8 @@ void MidiPlayer::StopSong()
 	lock.unlock();
 	//[ISB] I need to learn how to write threaded programs tbh
 	//Avoid race condition by waiting for the MIDI thread to get the message
-	while (shouldStop)
-	{
-		I_Delay(10); //[ISB] for some reason, if there's no delay here, the optimizer gets drunk and breaks this loop
-		//This probably won't work on certain computers making me want to tear my hair out
-	}
+	while (!hasChangedSong);
+	hasChangedSong = false;
 }
 
 void MidiPlayer::Shutdown()
@@ -116,10 +121,8 @@ void MidiPlayer::Shutdown()
 	if (!initialized) return; //already ded
 	shouldEnd = true;
 	lock.unlock();
-	while (shouldEnd)
-	{
-		I_Delay(10);
-	}
+	while (!hasEnded);
+	hasEnded = false; 
 	midiThread->join();
 	sequencer->StopSong();
 	synth->Shutdown();
@@ -148,6 +151,7 @@ void MidiPlayer::Run()
 			}
 			shouldStop = false;
 			curSong = nullptr;
+			hasChangedSong = true;
 		}
 		else if (nextSong)
 		{
@@ -161,6 +165,7 @@ void MidiPlayer::Run()
 			//I_StartMIDISong(nextSong, nextLoop);
 			curSong = nextSong;
 			nextSong = nullptr;
+			hasChangedSong = true;
 		}
 		lock.unlock();
 
@@ -184,6 +189,7 @@ void MidiPlayer::Run()
 	}
 	I_StopMIDISong();
 	shouldEnd = false;
+	hasEnded = true;
 	//printf("Midi thread rip\n");
 }
 

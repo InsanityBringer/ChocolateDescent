@@ -116,6 +116,13 @@ class MidiPlayer
 
 	uint64_t nextTimerTick;
 	bool shouldEnd;
+
+	//Status flags, these indicate when an event has happened
+	//Hardly a shining example of how to do communication
+	//between threads, but it works. Volatile to avoid register
+	//caching. Thanks TheZombieKiller for pointing this out
+	volatile bool hasEnded;
+	volatile bool hasChangedSong;
 public:
 	MidiPlayer(MidiSequencer *newSequencer, MidiSynth *newSynth);
 	void SetSong(hmpheader_t* song, bool loop);
