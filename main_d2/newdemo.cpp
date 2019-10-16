@@ -3030,7 +3030,7 @@ void newdemo_start_recording()
 
 	if (outfile == NULL && errno == ENOENT) //dir doesn't exist?
 	{		
-		mkdir(DEMO_DIR);								//try making directory
+		_mkdir(DEMO_DIR);								//try making directory
 		outfile = fopen(DEMO_FILENAME, "wb");
 	}
 
@@ -3303,7 +3303,7 @@ void newdemo_start_playback(char* filename)
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	Newdemo_old_cockpit = Cockpit_mode;
-	Newdemo_size = filelength(fileno(infile));
+	Newdemo_size = _filelength(_fileno(infile));
 	nd_bad_read = 0;
 	Newdemo_at_eof = 0;
 	NewdemoFrameCount = 0;

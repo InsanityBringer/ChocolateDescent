@@ -218,7 +218,7 @@ int is_real_level(char* filename)
 		return 0;
 
 	//mprintf((0, "String = [%s]\n", &filename[len-11]));
-	return !strnicmp(&filename[len - 11], "level", 5);
+	return !_strnicmp(&filename[len - 11], "level", 5);
 
 }
 #endif
@@ -316,7 +316,7 @@ void verify_object(object* obj)
 			char* name = Save_pof_names[obj->rtype.pobj_info.model_num];
 
 			for (i = 0; i < N_polygon_models; i++)
-				if (!stricmp(Pof_names[i], name)) {		//found it!	
+				if (!_stricmp(Pof_names[i], name)) {		//found it!	
 					// mprintf((0,"Mapping <%s> to %d (was %d)\n",name,i,obj->rtype.pobj_info.model_num));
 					obj->rtype.pobj_info.model_num = i;
 					break;
@@ -1675,7 +1675,7 @@ int load_level(char* filename_passed)
 #endif
 
 	strcpy(filename, filename_passed);
-	strupr(filename);
+	_strupr(filename);
 
 #ifdef EDITOR
 	//if we have the editor, try the LVL first, no matter what was passed.

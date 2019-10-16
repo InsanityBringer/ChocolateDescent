@@ -203,6 +203,7 @@ int S_InitMusic(int device)
 	{
 	case _MIDI_GEN:
 	{
+#ifdef USE_FLUIDSYNTH
 		MidiFluidSynth* fluidSynth = new MidiFluidSynth();
 		if (fluidSynth == nullptr)
 		{
@@ -211,6 +212,9 @@ int S_InitMusic(int device)
 		}
 		fluidSynth->SetSoundfont(SoundFontFilename);
 		synth = (MidiSynth*)fluidSynth;
+#else
+		synth = new DummyMidiSynth();
+#endif
 	}
 		break;
 	}

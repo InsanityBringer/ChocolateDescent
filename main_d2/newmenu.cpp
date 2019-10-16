@@ -1455,7 +1455,7 @@ RePaintNewmenu4:
 			{
 				item[choice].group = 1;
 				item[choice].redraw = 1;
-				if (!strnicmp(item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY)))
+				if (!_strnicmp(item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY)))
 				{
 					item[choice].text[0] = 0;
 					item[choice].value = -1;
@@ -1699,7 +1699,7 @@ RePaintNewmenu4:
 		if (!done && !mouse_state && omouse_state && (choice > -1) && (item[choice].type == NM_TYPE_INPUT_MENU) && (item[choice].group == 0)) {
 			item[choice].group = 1;
 			item[choice].redraw = 1;
-			if (!strnicmp(item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY))) {
+			if (!_strnicmp(item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY))) {
 				item[choice].text[0] = 0;
 				item[choice].value = -1;
 			}
@@ -2036,7 +2036,7 @@ void delete_player_saved_games(char* name)
 	for (i = 0; i < 10; i++)
 	{
 		sprintf(filename, "%s.sg%d", name, i);
-		unlink(filename);
+		_unlink(filename);
 	}
 }
 
@@ -2259,7 +2259,7 @@ ReadFileNames:
 		newmenu_file_sort(NumFiles - 1, &filenames[14]);		// Don't sort first one!
 #endif
 		for (i = 0; i < NumFiles; i++) {
-			if (!stricmp(Players[Player_num].callsign, &filenames[i * 14])) {
+			if (!_stricmp(Players[Player_num].callsign, &filenames[i * 14])) {
 #if defined(WINDOWS) || defined(MACINTOSH) 
 				dblclick_flag = 1;
 #endif
@@ -2391,7 +2391,7 @@ ReadFileNames:
 				}
 #endif
 
-					ret = unlink(name);
+					ret = _unlink(name);
 					if (player_mode)
 						* p = 0;
 

@@ -197,7 +197,7 @@ int is_real_level(char* filename)
 		return 0;
 
 	//mprintf((0, "String = [%s]\n", &filename[len-11]));
-	return !strnicmp(&filename[len - 11], "level", 5);
+	return !_strnicmp(&filename[len - 11], "level", 5);
 
 }
 

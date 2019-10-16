@@ -533,7 +533,7 @@ int find_hli_entry()
 	int i;
 
 	for (i = 0; i < n_highest_levels; i++)
-		if (!stricmp(highest_levels[i].shortname, Mission_list[Current_mission_num].filename))
+		if (!_stricmp(highest_levels[i].shortname, Mission_list[Current_mission_num].filename))
 			break;
 
 	if (i == n_highest_levels) //not found.  create entry
@@ -578,7 +578,7 @@ int get_highest_level(void)
 	if (strlen(Mission_list[Current_mission_num].filename) == 0)
 	{
 		for (i = 0; i < n_highest_levels; i++)
-			if (!stricmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
+			if (!_stricmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
 				highest_saturn_level = highest_levels[i].level_num;
 	}
 #endif

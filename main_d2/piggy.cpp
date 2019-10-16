@@ -238,7 +238,7 @@ bitmap_index piggy_find_bitmap(char* name)
 		* t = 0;
 
 	for (i = 0; i < Num_aliases; i++)
-		if (stricmp(name, alias_list[i].alias_name) == 0)
+		if (_stricmp(name, alias_list[i].alias_name) == 0)
 		{
 			if (t) //extra stuff for ABMs
 			{
@@ -496,7 +496,7 @@ void piggy_new_pigfile(char* pigname)
 		pigname = DEFAULT_PIGFILE_SHAREWARE;
 #endif
 
-	if (strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0)
+	if (_strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0)
 		return;         //already have correct pig
 
 	if (!Pigfile_initialized) //have we ever opened a pigfile?
@@ -1480,7 +1480,7 @@ int piggy_is_gauge_bitmap(char* base_name)
 {
 	int i;
 	for (i = 0; i < NUM_GAUGE_BITMAPS; i++) {
-		if (!stricmp(base_name, gauge_bitmap_names[i]))
+		if (!_stricmp(base_name, gauge_bitmap_names[i]))
 			return 1;
 	}
 

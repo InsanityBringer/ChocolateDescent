@@ -348,7 +348,7 @@ int HUD_init_message(char* format, ...)
 	// Added by Leighton 
 
 	if ((Game_mode & GM_MULTI) && FindArg("-noredundancy"))
-		if (!strnicmp("You already", message, 11))
+		if (!_strnicmp("You already", message, 11))
 			return 0;
 
 	if ((Game_mode & GM_MULTI) && FindArg("-PlayerMessages") && PlayerMessage == 0)

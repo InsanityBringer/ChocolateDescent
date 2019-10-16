@@ -23,7 +23,7 @@ int FindArg(const char* s)
 	int i;
 
 	for (i = 0; i < Num_args; i++)
-		if (!stricmp(Args[i], s))
+		if (!_stricmp(Args[i], s))
 			return i;
 
 	return 0;
@@ -39,7 +39,7 @@ void InitArgs(int argc, const char** argv)
 
 	for (i = 0; i < argc; i++)
 	{
-		Args[Num_args++] = strdup(argv[i]);
+		Args[Num_args++] = _strdup(argv[i]);
 	}
 
 	//NO_DESCENT_INI	fp = fopen( "descent.ini", "rt" );		
@@ -67,7 +67,7 @@ void InitArgs(int argc, const char** argv)
 			Args[i][0] = '-';
 
 		if (Args[i][0] == '-')
-			strlwr(Args[i]);		// Convert all args to lowercase
+			_strlwr(Args[i]);		// Convert all args to lowercase
 
 		//printf( "Args[%d] = '%s'\n", i, Args[i] );
 	}

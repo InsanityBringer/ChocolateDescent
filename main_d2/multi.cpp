@@ -1095,7 +1095,7 @@ multi_message_feedback(void)
 		{
 			for (i = 0; i < N_players; i++)
 			{
-				if (!strnicmp(Netgame.team_name[i], Network_message, colon-Network_message))
+				if (!_strnicmp(Netgame.team_name[i], Network_message, colon-Network_message))
 				{
 					if (found)
 						strcat(feedback_result, ", ");
@@ -1108,7 +1108,7 @@ multi_message_feedback(void)
 		}
 		for (i = 0; i < N_players; i++)
 		{
-			if ((!strnicmp(Players[i].callsign, Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
+			if ((!_strnicmp(Players[i].callsign, Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
 			{
 				if (found)
 					strcat(feedback_result, ", ");
@@ -1197,12 +1197,12 @@ void multi_send_message_end()
 	
 	Network_message_reciever = 100;
 
-	if (!strnicmp (Network_message,"!Names",6))
+	if (!_strnicmp (Network_message,"!Names",6))
 		{
 		 NameReturning=1-NameReturning;
 		 HUD_init_message ("Name returning is now %s.",NameReturning?"active":"disabled");
 		}
-	else if (!strnicmp (Network_message,"Handicap:",9))
+	else if (!_strnicmp (Network_message,"Handicap:",9))
 		{
 		 mytempbuf=&Network_message[9];		 
 		 mprintf ((0,"Networkhandi=%s\n",mytempbuf));
@@ -1220,9 +1220,9 @@ void multi_send_message_end()
 		 HUD_init_message ("Telling others of your handicap of %d!",StartingShields);
 		 StartingShields=i2f(StartingShields);
 		}
-	else if (!strnicmp (Network_message,"NoBombs",7))
+	else if (!_strnicmp (Network_message,"NoBombs",7))
 	 Netgame.DoSmartMine=0;
-	else if (!strnicmp (Network_message,"Ping:",5))
+	else if (!_strnicmp (Network_message,"Ping:",5))
 	 {
 	  if (Game_mode & GM_NETWORK)
 		{
@@ -1238,7 +1238,7 @@ void multi_send_message_end()
 			 }
 
 			for (i = 0; i < N_players; i++)
-  	        if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected))
+  	        if ((!_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected))
             {
 				 PingLaunchTime=timer_get_fixed_seconds();
 				 network_send_ping (i);
@@ -1258,7 +1258,7 @@ void multi_send_message_end()
 			 return;
 	   }
 	 }												 
-	else if (!strnicmp (Network_message,"move:",5))
+	else if (!_strnicmp (Network_message,"move:",5))
 	 { 
 		mprintf ((0,"moving?\n"));
 		
@@ -1282,7 +1282,7 @@ void multi_send_message_end()
 			 }
 
 			for (i = 0; i < N_players; i++)
-  	        if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
+  	        if ((!_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
             {
 				 if ((Game_mode & GM_CAPTURE) && (Players[i].flags & PLAYER_FLAGS_FLAG))
 				  {
@@ -1313,7 +1313,7 @@ void multi_send_message_end()
 	 	  }    
 	 }												 
 
-	else if (!strnicmp (Network_message,"kick:",5) && (Game_mode & GM_NETWORK))
+	else if (!_strnicmp (Network_message,"kick:",5) && (Game_mode & GM_NETWORK))
 	 {
 		int name_index=5;
 		if (strlen(Network_message) > 5)
@@ -1363,7 +1363,7 @@ void multi_send_message_end()
 
 
 		for (i = 0; i < N_players; i++)
-	    	if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
+	    	if ((!_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
 kick_player:;
   	   		if (Network_game_type == IPX_GAME)
 					network_dump_player(NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node, 7);
@@ -1595,8 +1595,8 @@ multi_do_message(char *buf)
 	}
 	else
 	{
-		if ( (!strnicmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
-			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !strnicmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
+		if ( (!_strnicmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
+			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !_strnicmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 		{
 		   mesbuf[0] = 1;
 			mesbuf[1] = BM_XRGB(0, 32, 32);

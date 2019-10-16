@@ -1520,7 +1520,7 @@ setupmenu:
 				
 		//mprintf((0, "%s\n", ModemInitString));
 
-		if ((strnicmp("AT", ModemInitString, 2)) && (strlen(ModemInitString) < (INIT_STRING_LEN-2)))
+		if ((_strnicmp("AT", ModemInitString, 2)) && (strlen(ModemInitString) < (INIT_STRING_LEN-2)))
 			sprintf(modem_init_string, "AT%s", ModemInitString);
 		else
 			strcpy(modem_init_string, ModemInitString);

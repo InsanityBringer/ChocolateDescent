@@ -1474,7 +1474,7 @@ setupmenu:
 
 		//mprintf((0, "%s\n", init_string));
 
-		if ((strnicmp("AT", init_string, 2)) && (strlen(init_string) < (INIT_STRING_LEN - 2)))
+		if ((_strnicmp("AT", init_string, 2)) && (strlen(init_string) < (INIT_STRING_LEN - 2)))
 			sprintf(modem_init_string, "AT%s", init_string);
 		else
 			strcpy(modem_init_string, init_string);
@@ -1608,7 +1608,7 @@ newmenu:
 		//			Netgame.game_flags |= NETGAME_FLAG_SHOW_ID;
 		if (m[options_opt].value)
 			Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
-		if (!strnicmp(level, "s", 1))
+		if (!_strnicmp(level, "s", 1))
 			start_level_num = -atoi(level + 1);
 		else
 			start_level_num = atoi(level);
