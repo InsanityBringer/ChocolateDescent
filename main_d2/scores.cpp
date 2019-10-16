@@ -141,7 +141,7 @@ void scores_read()
 		return;
 	}
 
-	fsize = filelength(fileno(fp));
+	fsize = _filelength(_fileno(fp));
 
 	if (fsize != sizeof(all_scores))
 	{
@@ -204,7 +204,7 @@ void int_to_string(int number, char* dest)
 		*p++ = buffer[i];
 	}
 	*p++ = '\0';
-	strrev(dest);
+	_strrev(dest);
 }
 
 void scores_fill_struct(stats_info* stats)

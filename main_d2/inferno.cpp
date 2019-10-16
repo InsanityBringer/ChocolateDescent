@@ -273,7 +273,7 @@ void mem_int_to_string(int number, char* dest)
 		*p++ = buffer[i];
 	}
 	*p++ = '\0';
-	strrev(dest);
+	_strrev(dest);
 }
 
 void check_memory()

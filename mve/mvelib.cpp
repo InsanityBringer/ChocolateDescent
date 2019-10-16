@@ -383,7 +383,7 @@ static void _mvefile_free(MVEFILE *movie)
 {
     /* free the stream */
     if (movie->stream != -1)
-        close(movie->stream);
+        _close(movie->stream);
     movie->stream = -1;
 
     /* free the buffer */
@@ -425,9 +425,9 @@ static void _mvefile_free_filehandle(MVEFILE *movie)
 static int _mvefile_open(MVEFILE *file, const char *filename)
 {
 #ifdef O_BINARY
-    file->stream = open(filename, O_RDONLY | O_BINARY);
+    file->stream = _open(filename, O_RDONLY | O_BINARY);
 #else
-    file->stream = open(filename, O_RDONLY);
+    file->stream = _open(filename, O_RDONLY);
 #endif
     if (file->stream == -1)
         return 0;
@@ -469,7 +469,7 @@ static int _mvefile_read_header(MVEFILE *movie)
         return 0;
 
     /* check the file is long enough */
-    if (read(movie->stream, buffer, 26) < 26)
+    if (_read(movie->stream, buffer, 26) < 26)
         return 0;
 
     /* check the signature */
@@ -526,7 +526,7 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
         return 0;
 
     /* fail if we can't read the next segment descriptor */
-    if (read(movie->stream, buffer, 4) < 4)
+    if (_read(movie->stream, buffer, 4) < 4)
         return 0;
 
     /* pull out the next length */
@@ -536,7 +536,7 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
     _mvefile_set_buffer_size(movie, length);
 
     /* read the chunk */
-    if (read(movie->stream, movie->cur_chunk, length) < length)
+    if (_read(movie->stream, movie->cur_chunk, length) < length)
         return 0;
     movie->cur_fill = length;
     movie->next_segment = 0;

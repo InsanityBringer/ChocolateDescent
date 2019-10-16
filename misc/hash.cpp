@@ -79,7 +79,7 @@ int hashtable_getkey(char* key) {
 int hashtable_search(hashtable* ht, char* key) {
 	int i, j, k;
 
-	strlwr(key);
+	_strlwr(key);
 
 	k = hashtable_getkey(key);
 	i = 0;
@@ -88,7 +88,7 @@ int hashtable_search(hashtable* ht, char* key) {
 		j = (k + (i++)) & ht->and_mask;
 		if (ht->key[j] == NULL)
 			return -1;
-		if (!stricmp(ht->key[j], key))
+		if (!_stricmp(ht->key[j], key))
 			return ht->value[j];
 	}
 	return -1;
@@ -97,7 +97,7 @@ int hashtable_search(hashtable* ht, char* key) {
 void hashtable_insert(hashtable* ht, char* key, int value) {
 	int i, j, k;
 
-	strlwr(key);
+	_strlwr(key);
 	k = hashtable_getkey(key);
 	i = 0;
 
@@ -109,7 +109,7 @@ void hashtable_insert(hashtable* ht, char* key, int value) {
 			ht->value[j] = value;
 			return;
 		}
-		else if (!stricmp(key, ht->key[j])) {
+		else if (!_stricmp(key, ht->key[j])) {
 			return;
 		}
 	}

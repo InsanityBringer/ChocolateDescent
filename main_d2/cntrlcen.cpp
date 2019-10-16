@@ -249,9 +249,9 @@ void do_controlcen_destroyed_stuff(object *objp)
 	if (Current_level_num < 0) {
 		int	rval;
 		#ifndef MACINTOSH
-		rval = unlink("secret.sgc");
+		rval = _unlink("secret.sgc");
 		#else
-		rval = unlink(":Players:secret.sgc");
+		rval = _unlink(":Players:secret.sgc");
 		#endif
 		mprintf((0, "Deleting secret.sgc, return value = %i\n", rval));
 	}

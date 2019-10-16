@@ -97,7 +97,7 @@ int HiResRoboMovie = 0;
 unsigned __cdecl FileRead(int handle, void* buf, unsigned count)
 {
 	unsigned numread;
-	numread = read(handle, buf, count);
+	numread = _read(handle, buf, count);
 	return (numread == count);
 }
 
@@ -310,7 +310,7 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 #ifndef EDITOR
 		if (must_have)
 		{
-			strupr(filename);
+			_strupr(filename);
 			Error("Cannot open movie file <%s>", filename);
 		}
 		else
@@ -415,7 +415,7 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 	MVE_rmEndMovie();
 	//MVE_ReleaseMem();
 
-	close(filehndl);                           // Close Movie File
+	_close(filehndl);                           // Close Movie File
 
 	//MVE_gfxReset();
 
@@ -653,7 +653,7 @@ void DeInitRobotMovie()
 
 	//MVE_palCallbacks(MVE_SetPalette);
 	MVE_palCallbacks(NULL);
-	close(RoboFile);                           // Close Movie File
+	_close(RoboFile);                           // Close Movie File
 }
 
 void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
@@ -763,7 +763,7 @@ int InitRobotMovie(char* filename)
 	MVE_palCallbacks(PaletteChecker);
 #endif
 
-	RoboFilePos = lseek(RoboFile, 0L, SEEK_CUR);
+	RoboFilePos = _lseek(RoboFile, 0L, SEEK_CUR);
 
 	mprintf((0, "RoboFilePos=%d!\n", RoboFilePos));
 	return (1);
@@ -1243,7 +1243,7 @@ void init_movies()
 	for (i = 0; i < N_BUILTIN_MOVIE_LIBS; i++) 
 	{
 
-		if (!strnicmp(movielib_files[i], "robot", 5))
+		if (!_strnicmp(movielib_files[i], "robot", 5))
 			is_robots = 1;
 		else
 			is_robots = 0;
@@ -1276,7 +1276,7 @@ int search_movie_lib(movielib * lib, char* filename, int must_have)
 		return -1;
 
 	for (i = 0; i < lib->n_movies; i++)
-		if (!stricmp(filename, lib->movies[i].name)) {	//found the movie in a library 
+		if (!_stricmp(filename, lib->movies[i].name)) {	//found the movie in a library 
 			int from_cd;
 
 			from_cd = (lib->flags & MLF_ON_CD);
@@ -1286,7 +1286,7 @@ int search_movie_lib(movielib * lib, char* filename, int must_have)
 
 			do {		//keep trying until we get the file handle
 
-				movie_handle = filehandle = open(lib->name, O_RDONLY + O_BINARY);
+				movie_handle = filehandle = _open(lib->name, O_RDONLY + O_BINARY);
 
 				if (must_have && from_cd && filehandle == -1) {		//didn't get file!
 
@@ -1297,7 +1297,7 @@ int search_movie_lib(movielib * lib, char* filename, int must_have)
 			} while (must_have && from_cd && filehandle == -1);
 
 			if (filehandle != -1)
-				lseek(filehandle, (movie_start = lib->movies[i].offset), SEEK_SET);
+				_lseek(filehandle, (movie_start = lib->movies[i].offset), SEEK_SET);
 
 			return filehandle;
 		}
@@ -1326,7 +1326,7 @@ int reset_movie_file(int handle)
 	FlipFlop = 1 - FlipFlop;
 	Assert(handle == movie_handle);
 
-	lseek(handle, movie_start, SEEK_SET);
+	_lseek(handle, movie_start, SEEK_SET);
 
 	return 0;		//everything is cool
 }

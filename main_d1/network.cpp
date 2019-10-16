@@ -1772,7 +1772,7 @@ menu:
 		strcpy(game_name, name);
 
 
-		if (!strnicmp(slevel, "s", 1))
+		if (!_strnicmp(slevel, "s", 1))
 			* level = -atoi(slevel + 1);
 		else
 			*level = atoi(slevel);

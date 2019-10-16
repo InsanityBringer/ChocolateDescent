@@ -498,7 +498,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	if (secret_save && (Control_center_destroyed))
 	{
 		mprintf((0, "Deleting secret.sgb so player can't return to base level.\n"));
-		unlink(SECRETB_FILENAME);
+		_unlink(SECRETB_FILENAME);
 		return 0;
 	}
 
@@ -555,7 +555,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 			if (file_exists(temp_fname))
 			{
 				mprintf((0, "Deleting file %s\n", temp_fname));
-				rval = unlink(temp_fname);
+				rval = _unlink(temp_fname);
 				Assert(rval == 0);	//	Oops, error deleting file in temp_fname.
 			}
 
@@ -587,7 +587,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 			fseek(tfp, DESC_OFFSET, SEEK_SET);
 			fwrite("[autosave backup]", sizeof(char) * DESC_LENGTH, 1, tfp);
 			fclose(tfp);
-			unlink(newname);
+			_unlink(newname);
 			rename(filename, newname);
 		}
 	}
@@ -991,7 +991,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 		{
 			nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
 			fclose(fp);
-			unlink(filename);
+			_unlink(filename);
 		}
 	}
 	else
@@ -1088,7 +1088,7 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
 			}
 			else
-				unlink(SECRETC_FILENAME);
+				_unlink(SECRETC_FILENAME);
 		}
 	}
 

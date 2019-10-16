@@ -179,7 +179,7 @@ char *mfgets(char *s,int n,CFILE *f)
 //compare a string for a token. returns true if match
 int istok(char *buf,char *tok)
 {
-	return strnicmp(buf,tok,strlen(tok)) == 0;
+	return _strnicmp(buf,tok,strlen(tok)) == 0;
 
 }
 
@@ -225,7 +225,7 @@ char *get_parm_value(char *parm,CFILE *f)
 
 int ml_sort_func(mle *e0,mle *e1)
 {
-	return stricmp(e0->mission_name,e1->mission_name);
+	return _stricmp(e0->mission_name,e1->mission_name);
 }
 
 extern char CDROM_dir[];
@@ -359,7 +359,7 @@ int build_mission_list(int anarchy_mode)
 	{
 		do	
 		{
-			if (stricmp(find.name,BUILTIN_MISSION)==0)
+			if (_stricmp(find.name,BUILTIN_MISSION)==0)
 				continue;		//skip the built-in
 
 			if (read_mission_file(find.name,count,ML_MISSIONDIR)) 
@@ -377,7 +377,7 @@ int build_mission_list(int anarchy_mode)
 		int i;
 
 		for (i=special_count;i<count;i++)
-			if (!stricmp(Mission_list[i].filename,"D2X")) //swap!
+			if (!_stricmp(Mission_list[i].filename,"D2X")) //swap!
 			{
 				mle temp;
 
@@ -578,7 +578,7 @@ int load_mission_by_name(char *mission_name)
 	n = build_mission_list(1);
 
 	for (i=0;i<n;i++)
-		if (!stricmp(mission_name,Mission_list[i].filename))
+		if (!_stricmp(mission_name,Mission_list[i].filename))
 			return load_mission(i);
 
 	return 0;		//couldn't find mission

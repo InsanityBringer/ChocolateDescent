@@ -968,7 +968,7 @@ multi_message_feedback(void)
 		{
 			for (i = 0; i < N_players; i++)
 			{
-				if (!strnicmp(Netgame.team_name[i], Network_message, colon - Network_message))
+				if (!_strnicmp(Netgame.team_name[i], Network_message, colon - Network_message))
 				{
 					if (found)
 						strcat(feedback_result, ", ");
@@ -981,7 +981,7 @@ multi_message_feedback(void)
 		}
 		for (i = 0; i < N_players; i++)
 		{
-			if ((!strnicmp(Players[i].callsign, Network_message, colon - Network_message)) && (i != Player_num) && (Players[i].connected))
+			if ((!_strnicmp(Players[i].callsign, Network_message, colon - Network_message)) && (i != Player_num) && (Players[i].connected))
 			{
 				if (found)
 					strcat(feedback_result, ", ");
@@ -1225,8 +1225,8 @@ multi_do_message(char* buf)
 	}
 	else
 	{
-		if ((!strnicmp(Players[Player_num].callsign, buf + loc, colon - (buf + loc))) ||
-			((Game_mode & GM_TEAM) && ((get_team(Player_num) == atoi(buf + loc) - 1) || !strnicmp(Netgame.team_name[get_team(Player_num)], buf + loc, colon - (buf + loc)))))
+		if ((!_strnicmp(Players[Player_num].callsign, buf + loc, colon - (buf + loc))) ||
+			((Game_mode & GM_TEAM) && ((get_team(Player_num) == atoi(buf + loc) - 1) || !_strnicmp(Netgame.team_name[get_team(Player_num)], buf + loc, colon - (buf + loc)))))
 		{
 			digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 			HUD_init_message("%s %s '%s'", Players[buf[1]].callsign, TXT_TELLS_YOU, (colon + 1));

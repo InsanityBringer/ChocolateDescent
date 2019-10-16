@@ -195,6 +195,21 @@ if (FLUIDSYNTH_FOUND)
     )
 endif()
 
+# Set up flags for MSVC
+if (MSVC)
+	set( CMAKE_CXX_FLAGS "/MP ${CMAKE_CXX_FLAGS}" ) # Use all cores for compilation
+	set( CMAKE_CXX_FLAGS "/wd4267 ${CMAKE_CXX_FLAGS}" ) #warning C4267 conversion from 'size_t' to 'int', possible loss of data
+	set( CMAKE_CXX_FLAGS "/wd4244 ${CMAKE_CXX_FLAGS}" ) #warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
+	set( CMAKE_CXX_FLAGS "/wd4390 ${CMAKE_CXX_FLAGS}" ) #warning C4390: ';': empty controlled statement found; is this the intent?
+	set( CMAKE_CXX_FLAGS "/wd4101 ${CMAKE_CXX_FLAGS}" ) #warning C4101: 'org_gamma': unreferenced local variable
+	set( CMAKE_CXX_FLAGS "/wd4102 ${CMAKE_CXX_FLAGS}" ) #warning C4102: 'RePaintNewmenu4': unreferenced label
+	set( CMAKE_CXX_FLAGS "/wd4018 ${CMAKE_CXX_FLAGS}" ) #warning C4018: '>': signed/unsigned mismatch
+	set( CMAKE_CXX_FLAGS "/wd4715 ${CMAKE_CXX_FLAGS}" ) #warning C4715: 'get_num_faces': not all control paths return a value
+	set( CMAKE_CXX_FLAGS "/wd4838 ${CMAKE_CXX_FLAGS}" ) #warning C4838: conversion from 'unsigned int' to 'long' requires a narrowing conversion
+	set( CMAKE_CXX_FLAGS "/wd4309 ${CMAKE_CXX_FLAGS}" ) #warning C4309: 'argument': truncation of constant value
+	add_definitions( -D_CRT_SECURE_NO_WARNINGS=1 ) # Suppress warning about insecure strxxx functions
+endif (MSVC)
+
 #Need some additional definitions in release configuration.
 target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")
 target_compile_definitions(ChocolateDescent2 PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")

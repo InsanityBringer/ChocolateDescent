@@ -885,7 +885,7 @@ void do_new_game_menu()
 		for (i = 0; i < n_missions; i++)
 		{
 			m[i] = Mission_list[i].mission_name;
-			if (!stricmp(m[i], config_last_mission))
+			if (!_stricmp(m[i], config_last_mission))
 				default_mission = i;
 		}
 
