@@ -198,6 +198,8 @@ endif()
 #Need some additional definitions in release configuration.
 target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")
 target_compile_definitions(ChocolateDescent2 PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")
+target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:RELWITHDEBINFO>:RELEASE>")
+target_compile_definitions(ChocolateDescent2 PUBLIC "$<$<CONFIG:RELWITHDEBINFO>:RELEASE>")
 
 #extra definitions
 target_compile_definitions(ChocolateDescent2 PUBLIC BUILD_DESCENT2)

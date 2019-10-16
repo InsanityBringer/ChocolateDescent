@@ -1835,7 +1835,8 @@ extern char Language[];
 
 void HandleTestKey(int key)
 {
-	switch (key) {
+	switch (key) 
+	{
 
 	case KEY_DEBUGGED + KEY_0:	show_weapon_status();   break;
 
@@ -1882,7 +1883,8 @@ void HandleTestKey(int key)
 	case KEY_DEBUGGED + KEY_H:
 		//				if (!(Game_mode & GM_MULTI) )   {
 		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
+		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
+		{
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_cloak();
@@ -1966,7 +1968,8 @@ void HandleTestKey(int key)
 	case KEY_DEBUGGED + KEY_SHIFTED + KEY_F11: advance_sound(); play_test_sound(); break;
 #endif
 
-	case KEY_DEBUGGED + KEY_F4: {
+	case KEY_DEBUGGED + KEY_F4: 
+	{
 		//fvi_info hit_data;
 		//vms_vector p0 = {-0x1d99a7,-0x1b20000,0x186ab7f};
 		//vms_vector p1 = {-0x217865,-0x1b20000,0x187de3e};
@@ -1976,11 +1979,13 @@ void HandleTestKey(int key)
 
 	case KEY_DEBUGGED + KEY_M:
 		Debug_spew = !Debug_spew;
-		if (Debug_spew) {
+		if (Debug_spew) 
+		{
 			mopen(0, 8, 1, 78, 16, "Debug Spew");
 			HUD_init_message("Debug Spew: ON");
 		}
-		else {
+		else 
+		{
 			mclose(0);
 			HUD_init_message("Debug Spew: OFF");
 		}
@@ -1995,7 +2000,8 @@ void HandleTestKey(int key)
 	case KEY_DEBUGGED + KEY_SHIFTED + KEY_A:
 		do_megawow_powerup(10);
 		break;
-	case KEY_DEBUGGED + KEY_A: {
+	case KEY_DEBUGGED + KEY_A: 
+	{
 		do_megawow_powerup(200);
 		//								if ( Game_mode & GM_MULTI )     {
 		//									nm_messagebox( NULL, 1, "Damn", "CHEATER!\nYou cannot use the\nmega-thing in network mode." );
@@ -2094,6 +2100,11 @@ void HandleTestKey(int key)
 
 	case KEY_DEBUGGED + KEY_SHIFTED + KEY_B:
 		kill_and_so_forth();
+		break;
+
+	//[ISB] new debugging key to kill game and invoke a signal or SEH thing.
+	case KEY_DEBUGGED + KEY_SHIFTED + KEY_F4:
+		*((int*)0) = 0;
 		break;
 	}
 }
