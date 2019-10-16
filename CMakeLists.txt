@@ -214,6 +214,12 @@ if (MSVC)
 	target_sources(ChocolateDescent2 PUBLIC "ChocolateDescent.manifest")
 endif (MSVC)
 
+# Set RELEASE define for release builds
+set( REL_CXX_FLAGS "-DRELEASE=1" )
+set( CMAKE_CXX_FLAGS_RELEASE "${REL_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}" )
+set( CMAKE_CXX_FLAGS_MINSIZEREL "${REL_CXX_FLAGS} ${CMAKE_CXX_FLAGS_MINSIZEREL}" )
+set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "${REL_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" )
+
 #Need some additional definitions in release configuration.
 target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")
 target_compile_definitions(ChocolateDescent2 PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")
