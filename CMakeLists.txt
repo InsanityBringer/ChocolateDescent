@@ -208,6 +208,10 @@ if (MSVC)
 	set( CMAKE_CXX_FLAGS "/wd4838 ${CMAKE_CXX_FLAGS}" ) #warning C4838: conversion from 'unsigned int' to 'long' requires a narrowing conversion
 	set( CMAKE_CXX_FLAGS "/wd4309 ${CMAKE_CXX_FLAGS}" ) #warning C4309: 'argument': truncation of constant value
 	add_definitions( -D_CRT_SECURE_NO_WARNINGS=1 ) # Suppress warning about insecure strxxx functions
+
+	# Add manifest file so that the exe declares itself as a Windows 10 exe instead of Windows XP
+	target_sources(ChocolateDescent PUBLIC "ChocolateDescent.manifest")
+	target_sources(ChocolateDescent2 PUBLIC "ChocolateDescent.manifest")
 endif (MSVC)
 
 #Need some additional definitions in release configuration.
