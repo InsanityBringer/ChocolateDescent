@@ -49,7 +49,8 @@ int I_ReadChocolateConfig()
 			fprintf(infile, "%s=%d\n", WindowHeightStr, WindowHeight);
 			fprintf(infile, "%s=%d\n", FitModeStr, BestFit);
 			fprintf(infile, "%s=%d\n", FullscreenStr, Fullscreen);
-			fprintf(infile, "%s=%s", SoundFontPath, SoundFontFilename);
+			if (SoundFontFilename[0])
+				fprintf(infile, "%s=%s", SoundFontPath, SoundFontFilename);
 			fclose(infile);
 		}
 		return 1;
