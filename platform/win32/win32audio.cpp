@@ -488,8 +488,20 @@ void I_StopHQSong()
 	music.playing = false;
 }
 
-//[ISB] Okay I'll confess, I'm not quite sure what to do here. Ugh
-void I_StartMIDISong(hmpheader_t* song, bool loop)
+bool I_CanQueueMusicBuffer()
+{
+	return false;
+}
+
+void I_DequeueMusicBuffers()
+{
+}
+
+void I_QueueMusicBuffer(int numTicks, uint16_t* data)
+{
+}
+
+void I_StartMIDISong()
 {
 }
 
@@ -498,6 +510,26 @@ void I_StopMIDISong()
 }
 
 void I_SetMusicVolume(int volume)
+{
+}
+
+void I_InitMovieAudio(int format, int samplerate, int stereo)
+{
+}
+
+void I_QueueMovieAudioBuffer(int len, short* data)
+{
+}
+
+void I_DestroyMovieAudio()
+{
+}
+
+void I_PauseMovieAudio()
+{
+}
+
+void I_UnPauseMovieAudio()
 {
 }
 

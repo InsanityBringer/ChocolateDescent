@@ -98,6 +98,16 @@ public:
 	virtual void Shutdown() = 0;
 };
 
+class DummyMidiSynth : public MidiSynth
+{
+public:
+	int ClassifySynth() override { return MIDISYNTH_SOFT; }
+	void DoMidiEvent(midievent_t* ev) override { }
+	void RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer) override { }
+	void StopSound() override { }
+	void Shutdown() override { }
+};
+
 //Class which represents the midi thread. Has a Sequencer and a Synthesizer, and invokes the current audio backend to run
 class MidiPlayer
 {
