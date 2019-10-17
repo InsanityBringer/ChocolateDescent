@@ -44,11 +44,13 @@ if (SDL2_FOUND)
     target_sources(ChocolateDescent PRIVATE
         "${METADATA_BASE_PATH}/platform/sdl/gr_sdl.cpp"
         "${METADATA_BASE_PATH}/platform/sdl/key_sdl.cpp"
+        "${METADATA_BASE_PATH}/platform/sdl/joy_sdl.cpp"
         "${METADATA_BASE_PATH}/platform/sdl/mouse_sdl.cpp"
     )
     target_sources(ChocolateDescent2 PRIVATE
         "${METADATA_BASE_PATH}/platform/sdl/gr_sdl.cpp"
         "${METADATA_BASE_PATH}/platform/sdl/key_sdl.cpp"
+        "${METADATA_BASE_PATH}/platform/sdl/joy_sdl.cpp"
         "${METADATA_BASE_PATH}/platform/sdl/mouse_sdl.cpp"
     )
 endif()

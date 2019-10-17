@@ -71,9 +71,9 @@ void joy_set_cal_vals(int* axis_min, int* axis_center, int* axis_max)
 {
 	for (int i = 0; i < 4; i++)
 	{
-		joystick.axis_min[i] = axis_min[i];
-		joystick.axis_center[i] = axis_center[i];
-		joystick.axis_max[i] = axis_max[i];
+		//joystick.axis_min[i] = axis_min[i];
+		//joystick.axis_center[i] = axis_center[i];
+		//joystick.axis_max[i] = axis_max[i];
 	}
 }
 

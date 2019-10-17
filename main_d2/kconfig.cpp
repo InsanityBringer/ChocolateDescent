@@ -1242,7 +1242,7 @@ void kc_change_joyaxis(kc_item* item)
 
 		for (i = 0; i < numaxis; i++) 
 		{
-			if (abs(axis[i] - old_axis[i]) > 200) 
+			if (abs(axis[i] - old_axis[i]) > 20) 
 			{
 				code = i;
 			}

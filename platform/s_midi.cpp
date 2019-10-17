@@ -25,7 +25,7 @@ as described in copying.txt.
 
 int CurrentDevice = 0;
 
-char SoundFontFilename[256];
+char SoundFontFilename[256] = "TestSoundfont.sf2";
 MidiPlayer *player = nullptr;
 MidiSynth* synth = nullptr;
 MidiSequencer* sequencer = nullptr;

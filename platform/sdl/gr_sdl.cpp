@@ -25,6 +25,7 @@ Instead, it is released under the terms of the MIT License.
 #include "misc/error.h"
 #include "misc/types.h"
 
+#include "platform/joy.h"
 #include "platform/mouse.h"
 #include "platform/key.h"
 
@@ -45,7 +46,7 @@ int I_Init()
 {
 	int res;
 
-	res = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_TIMER);
+	res = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 	if (res)
 	{
 		Warning("Error initalizing SDL: %s\n", SDL_GetError());
@@ -71,6 +72,8 @@ int I_InitWindow()
 		Warning("Error creating game window: %s\n", SDL_GetError());
 		return 1;
 	}
+	//where else do i do this...
+	I_InitSDLJoysticks();
 
 	return 0;
 }
@@ -257,6 +260,16 @@ void I_DoEvents()
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
 			I_KeyHandler(ev.key.keysym.scancode, ev.key.state);
+			break;
+		case SDL_CONTROLLERAXISMOTION:
+		case SDL_CONTROLLERBUTTONDOWN:
+		case SDL_CONTROLLERBUTTONUP:
+			I_ControllerHandler();
+			break;
+		case SDL_JOYAXISMOTION:
+		case SDL_JOYBUTTONDOWN:
+		case SDL_JOYBUTTONUP:
+			I_JoystickHandler();
 			break;
 		}
 	}

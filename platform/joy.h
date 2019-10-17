@@ -105,3 +105,7 @@ extern int joy_get_scaled_reading(int raw, int axn);
 extern void joy_set_slow_reading(int flag);
 
 void JoystickInput(int buttons, int axes[4], int presentmask);
+
+void I_InitSDLJoysticks();
+void I_ControllerHandler();
+void I_JoystickHandler();
