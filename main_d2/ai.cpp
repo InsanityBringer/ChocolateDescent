@@ -1681,7 +1681,94 @@ int ai_save_state(FILE* fp)
 
 int ai_restore_state(FILE* fp, int version)
 {
-	fread(&Ai_initialized, sizeof(int), 1, fp);
+	int i;
+	Ai_initialized = F_ReadInt(fp);
+	Overall_agitation = F_ReadInt(fp);
+	for (i = 0; i < MAX_OBJECTS; i++)
+		P_ReadAILocals(&Ai_local_info[i], fp);
+	for (i = 0; i < MAX_POINT_SEGS; i++)
+		P_ReadSegPoint(&Point_segs[i], fp);
+	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
+		P_ReadCloakInfo(&Ai_cloak_info[i], fp);
+
+	Boss_cloak_start_time = F_ReadInt(fp);
+	Boss_cloak_end_time = F_ReadInt(fp);
+	Last_teleport_time = F_ReadInt(fp);
+	Boss_teleport_interval = F_ReadInt(fp);
+	Boss_cloak_interval = F_ReadInt(fp);
+	Boss_cloak_duration = F_ReadInt(fp);
+	Last_gate_time = F_ReadInt(fp);
+	Gate_interval = F_ReadInt(fp);
+	Boss_dying_start_time = F_ReadInt(fp);
+	Boss_dying = F_ReadInt(fp);
+	Boss_dying_sound_playing = F_ReadInt(fp);
+	Boss_hit_time = F_ReadInt(fp);
+
+	if (version >= 8)
+	{
+		Escort_kill_object = F_ReadInt(fp);
+		Escort_last_path_created = F_ReadInt(fp);
+		Escort_goal_object = F_ReadInt(fp);
+		Escort_special_goal = F_ReadInt(fp);
+		Escort_goal_index = F_ReadInt(fp);
+		for (i = 0; i < MAX_STOLEN_ITEMS; i++)
+			Stolen_items[i] = F_ReadByte(fp);
+	}
+	else 
+	{
+		Escort_kill_object = -1;
+		Escort_last_path_created = 0;
+		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+		Escort_special_goal = -1;
+		Escort_goal_index = -1;
+
+		for (i = 0; i < MAX_STOLEN_ITEMS; i++)
+			Stolen_items[i] = 255;
+	}
+
+	if (version >= 15)
+	{
+		int	temp = F_ReadInt(fp);
+		//fread(&temp, sizeof(int), 1, fp);
+		Point_segs_free_ptr = &Point_segs[temp];
+	}
+	else
+		ai_reset_all_paths();
+
+	if (version >= 21)
+	{
+		//fread(&Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1, fp);
+		//fread(&Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1, fp);
+		Num_boss_teleport_segs = F_ReadInt(fp);
+		Num_boss_gate_segs = F_ReadInt(fp);
+
+		if (Num_boss_teleport_segs > MAX_BOSS_TELEPORT_SEGS)
+			Error("ai_restore_state: Too many boss teleport segments.\n");
+		if (Num_boss_gate_segs > MAX_BOSS_TELEPORT_SEGS)
+			Error("ai_restore_state: Too many boss gate segemnets.\n");
+
+		if (Num_boss_gate_segs)
+			for (i = 0; i < Num_boss_gate_segs; i++)
+				Boss_gate_segs[i] = F_ReadShort(fp);
+			//fread(Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs, fp);
+
+		if (Num_boss_teleport_segs)
+			for (i = 0; i < Num_boss_teleport_segs; i++)
+				Boss_teleport_segs[i] = F_ReadShort(fp);
+			//fread(Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs, fp);
+	}
+	else 
+	{
+		// -- Num_boss_teleport_segs = 1;
+		// -- Num_boss_gate_segs = 1;
+		// -- Boss_teleport_segs[0] = 0;
+		// -- Boss_gate_segs[0] = 0;
+		//	Note: Maybe better to leave alone...will probably be ok.
+		mprintf((1, "Warning: If you fight the boss, he might teleport to segment #0!\n"));
+	}
+
+
+	/*fread(&Ai_initialized, sizeof(int), 1, fp);
 	fread(&Overall_agitation, sizeof(int), 1, fp);
 	fread(Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1, fp);
 	fread(Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1, fp);
@@ -1717,13 +1804,15 @@ int ai_restore_state(FILE* fp, int version)
 		Escort_special_goal = -1;
 		Escort_goal_index = -1;
 
-		for (i = 0; i < MAX_STOLEN_ITEMS; i++) {
+		for (i = 0; i < MAX_STOLEN_ITEMS; i++) 
+		{
 			Stolen_items[i] = 255;
 		}
 
 	}
 
-	if (version >= 15) {
+	if (version >= 15) 
+	{
 		int	temp;
 		fread(&temp, sizeof(int), 1, fp);
 		Point_segs_free_ptr = &Point_segs[temp];
@@ -1731,7 +1820,8 @@ int ai_restore_state(FILE* fp, int version)
 	else
 		ai_reset_all_paths();
 
-	if (version >= 21) {
+	if (version >= 21) 
+	{
 		fread(&Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1, fp);
 		fread(&Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1, fp);
 
@@ -1748,7 +1838,7 @@ int ai_restore_state(FILE* fp, int version)
 		// -- Boss_gate_segs[0] = 0;
 		//	Note: Maybe better to leave alone...will probably be ok.
 		mprintf((1, "Warning: If you fight the boss, he might teleport to segment #0!\n"));
-	}
+	}*/
 
 
 	return 1;

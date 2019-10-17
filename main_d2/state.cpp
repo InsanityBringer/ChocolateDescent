@@ -873,9 +873,12 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 		//fwrite(ActiveDoors, sizeof(active_door) * i, 1, fp);
 
 		//Save cloaking wall info
-		i = Num_cloaking_walls;
-		fwrite(&i, sizeof(int), 1, fp);
-		fwrite(CloakingWalls, sizeof(cloaking_wall), i, fp);
+		//i = Num_cloaking_walls;
+		//fwrite(&i, sizeof(int), 1, fp);
+		//fwrite(CloakingWalls, sizeof(cloaking_wall), i, fp);
+		F_WriteInt(fp, Num_cloaking_walls);
+		for (elem = 0; elem < Num_cloaking_walls; elem++)
+			P_WriteCloakingWall(&CloakingWalls[i], fp);
 
 		//Save trigger info
 		//fwrite(&Num_triggers, sizeof(int), 1, fp);
@@ -1358,6 +1361,11 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		}
 
 		Object_next_signature = 0;
+		if (Highest_object_index >= MAX_OBJECTS)
+		{
+			Error("state_restore_all_sub: Too many objects in save file.\n");
+			return 0;
+		}
 		for (i = 0; i <= Highest_object_index; i++)
 		{
 			obj = &Objects[i];
@@ -1402,6 +1410,11 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		//fread(&i, sizeof(int), 1, fp);
 		//Num_walls = i;
 		Num_walls = F_ReadInt(fp);
+		if (Num_walls > MAX_WALLS)
+		{
+			Error("state_restore_all_sub: Too many walls in save file.\n");
+			return 0;
+		}
 		for (i = 0; i < Num_walls; i++)
 		{
 			P_ReadWall(&Walls[i], fp);
@@ -1421,6 +1434,11 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		{
 			//fread(&i, sizeof(int), 1, fp);
 			int heh = F_ReadInt(fp);
+			if (heh > 10)
+			{
+				Error("state_restore_all_sub: Too many exploding walls in save file.\n");
+				return 0;
+			}
 			for (i = 0; i < heh; i++)
 			{
 				expl_wall_list[i].segnum = F_ReadInt(fp);
@@ -1442,15 +1460,29 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 
 		if (version >= 14) //Restore cloaking wall info
 		{
-			fread(&i, sizeof(int), 1, fp);
-			Num_cloaking_walls = i;
-			fread(CloakingWalls, sizeof(cloaking_wall), Num_cloaking_walls, fp);
+			//fread(&i, sizeof(int), 1, fp);
+			Num_cloaking_walls = F_ReadInt(fp);
+			if (Num_cloaking_walls > 10)
+			{
+				Error("state_restore_all_sub: Too many cloaking walls in save file.\n");
+				return 0;
+			}
+			for (i = 0; i < Num_cloaking_walls; i++)
+			{
+				P_ReadCloakingWall(&CloakingWalls[i], fp);
+			}
+			//fread(CloakingWalls, sizeof(cloaking_wall), Num_cloaking_walls, fp);
 		}
 
 		//Restore trigger info
 		//fread(&Num_triggers, sizeof(int), 1, fp);
 		//fread(Triggers, sizeof(trigger) * Num_triggers, 1, fp);
 		Num_triggers = F_ReadInt(fp);
+		if (Num_triggers > MAX_TRIGGERS)
+		{
+			Error("state_restore_all_sub: Too many triggers in save file.\n");
+			return 0;
+		}
 		for (i = 0; i < Num_triggers; i++)
 		{
 			P_ReadTrigger(&Triggers[i], fp);
@@ -1471,17 +1503,40 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 		fread(&Control_center_destroyed, sizeof(int), 1, fp);
 		fread(&Countdown_timer, sizeof(int), 1, fp);
 		fread(&Num_robot_centers, sizeof(int), 1, fp);
-		fread(RobotCenters, sizeof(matcen_info) * Num_robot_centers, 1, fp);
+		if (Num_robot_centers > MAX_ROBOT_CENTERS)
+		{
+			Error("state_restore_all_sub: Too many matcens in save file.\n");
+			return 0;
+		}
+		for (i = 0; i < Num_robot_centers; i++)
+		{
+			P_ReadMatcen(&RobotCenters[i], fp);
+		}
+		//fread(RobotCenters, sizeof(matcen_info) * Num_robot_centers, 1, fp);
 		fread(&ControlCenterTriggers, sizeof(control_center_triggers), 1, fp);
 		fread(&Num_fuelcenters, sizeof(int), 1, fp);
-		fread(Station, sizeof(FuelCenter) * Num_fuelcenters, 1, fp);
+		if (Num_fuelcenters > MAX_NUM_FUELCENS)
+		{
+			Error("state_restore_all_sub: Too many matcens in save file.\n");
+			return 0;
+		}
+		for (i = 0; i < Num_fuelcenters; i++)
+		{
+			P_ReadFuelCenter(&Station[i], fp);
+		}
+		//fread(Station, sizeof(FuelCenter) * Num_fuelcenters, 1, fp);
 
 		// Restore the control cen info
-		fread(&Control_center_been_hit, sizeof(int), 1, fp);
-		fread(&Control_center_player_been_seen, sizeof(int), 1, fp);
-		fread(&Control_center_next_fire_time, sizeof(int), 1, fp);
-		fread(&Control_center_present, sizeof(int), 1, fp);
-		fread(&Dead_controlcen_object_num, sizeof(int), 1, fp);
+		Control_center_been_hit = F_ReadInt(fp);
+		Control_center_player_been_seen = F_ReadInt(fp);
+		Control_center_next_fire_time = F_ReadInt(fp);
+		Control_center_present = F_ReadInt(fp);
+		Dead_controlcen_object_num = F_ReadInt(fp);
+		//fread(&Control_center_been_hit, sizeof(int), 1, fp);
+		//fread(&Control_center_player_been_seen, sizeof(int), 1, fp);
+		//fread(&Control_center_next_fire_time, sizeof(int), 1, fp);
+		//fread(&Control_center_present, sizeof(int), 1, fp);
+		//fread(&Dead_controlcen_object_num, sizeof(int), 1, fp);
 
 		// Restore the AI state
 		ai_restore_state(fp, version);

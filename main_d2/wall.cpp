@@ -1561,6 +1561,18 @@ void P_ReadActiveDoor(active_door* door, FILE* fp)
 	door->time = F_ReadInt(fp);
 }
 
+void P_ReadCloakingWall(cloaking_wall* wall, FILE* fp)
+{
+	int i;
+	wall->front_wallnum = F_ReadShort(fp);
+	wall->back_wallnum = F_ReadShort(fp);
+	for (i = 0; i < 4; i++)
+		wall->front_ls[i] = F_ReadInt(fp);
+	for (i = 0; i < 4; i++)
+		wall->back_ls[i] = F_ReadInt(fp);
+	wall->time = F_ReadInt(fp);
+}
+
 void P_WriteWall(wall* nwall, FILE* fp)
 {
 	F_WriteInt(fp, nwall->segnum);
@@ -1585,4 +1597,16 @@ void P_WriteActiveDoor(active_door* door, FILE* fp)
 	F_WriteShort(fp, door->back_wallnum[0]);
 	F_WriteShort(fp, door->back_wallnum[1]);
 	F_WriteInt(fp, door->time);
+}
+
+void P_WriteCloakingWall(cloaking_wall* wall, FILE* fp)
+{
+	int i;
+	F_WriteShort(fp, wall->front_wallnum);
+	F_WriteShort(fp, wall->back_wallnum);
+	for (i = 0; i < 4; i++)
+		F_WriteInt(fp, wall->front_ls[i]);
+	for (i = 0; i < 4; i++)
+		F_WriteInt(fp, wall->back_ls[i]);
+	F_WriteInt(fp, wall->time);
 }

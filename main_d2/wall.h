@@ -233,3 +233,6 @@ void P_ReadActiveDoor(active_door* door, FILE* fp);
 
 void P_WriteWall(wall* nwall, FILE* fp);
 void P_WriteActiveDoor(active_door* door, FILE* fp);
+
+void P_ReadCloakingWall(cloaking_wall* wall, FILE* fp);
+void P_WriteCloakingWall(cloaking_wall* wall, FILE* fp);
