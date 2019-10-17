@@ -276,6 +276,10 @@ int digi_init()
 {
 	int i;
 
+	//[ISB] bad hacks
+	if (digi_midi_type == 0) digi_midi_type = _MIDI_GEN;
+	if (digi_driver_board == 0) digi_driver_board = 1;
+
 	if ( FindArg( "-nomusic" )) 
 		digi_midi_type = 0;
 
