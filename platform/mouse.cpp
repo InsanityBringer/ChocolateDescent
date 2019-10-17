@@ -19,7 +19,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MOUSE_MAX_BUTTONS	11
 
-typedef struct event_info {
+int Mouse_installed = 0;
+
+typedef struct event_info
+{
 	short x;
 	short y;
 	short z;
@@ -30,7 +33,8 @@ typedef struct event_info {
 	uint16_t device_dependant;
 } event_info;
 
-typedef struct mouse_info {
+typedef struct mouse_info
+{
 	fix		ctime;
 	uint8_t		cyberman;
 	int		num_buttons;
@@ -43,7 +47,8 @@ typedef struct mouse_info {
 	uint16_t	button_status;
 } mouse_info;
 
-typedef struct cyberman_info {
+typedef struct cyberman_info
+{
 	uint8_t device_type;
 	uint8_t major_version;
 	uint8_t minor_version;
@@ -63,6 +68,7 @@ static mouse_info Mouse;
 //           else number of buttons
 int mouse_init(int enable_cyberman)
 {
+	Mouse_installed = 1;
 	//[ISB] man did anyone own a cyberman?
 
 	//SDL gives you five buttons, so you get five buttons. 
@@ -71,6 +77,7 @@ int mouse_init(int enable_cyberman)
 
 void mouse_close()
 {
+	Mouse_installed = 0;
 	//[ISB] heeh
 	//[ISB] I guess I could make these call SDL's init or shutdown functions?
 }
@@ -83,7 +90,22 @@ int mouse_set_limits(int x1, int y1, int x2, int y2)
 
 void mouse_flush()
 {
-	//[ISB] er?
+	int i;
+	fix CurTime;
+
+	if (!Mouse_installed)
+		return;
+
+	//Clear the mouse data
+	CurTime = timer_get_fixed_seconds();
+	for (i = 0; i < MOUSE_MAX_BUTTONS; i++) 
+	{
+		Mouse.pressed[i] = 0;
+		Mouse.time_went_down[i] = CurTime;
+		Mouse.time_held_down[i] = 0;
+		Mouse.num_downs[i] = 0;
+		Mouse.num_ups[i] = 0;
+	}
 }
 
 void MousePressed(int button)
