@@ -1,3 +1,4 @@
+#include <stdio.h>
 
 #include "platform/mouse.h"
 #include "platform/timer.h"
@@ -34,9 +35,26 @@ void mouse_get_delta(int* dx, int* dy)
 	}
 }
 
+#define mousebtn(x) (1 << x)
+
 int mouse_get_btns()
 {
-	return SDL_GetMouseState(NULL, NULL);
+	int realbuttons = 0, sdlbuttons;
+	sdlbuttons = SDL_GetMouseState(NULL, NULL);
+	if (sdlbuttons & SDL_BUTTON(1))
+		realbuttons |= mousebtn(0);
+	if (sdlbuttons & SDL_BUTTON(2))
+		realbuttons |= mousebtn(2);
+	if (sdlbuttons & SDL_BUTTON(3))
+		realbuttons |= mousebtn(1);
+	if (sdlbuttons & SDL_BUTTON(4))
+		realbuttons |= mousebtn(3);
+	if (sdlbuttons & SDL_BUTTON(5))
+		realbuttons |= mousebtn(4);
+
+	//printf("realbuttons %d\n", realbuttons);
+
+	return realbuttons;
 }
 
 //[ISB] Okay I'll be fair, this is a parallax level hack if ever I've seen once

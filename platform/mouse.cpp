@@ -151,5 +151,5 @@ fix mouse_button_down_time(int button)
 
 void mouse_get_cyberman_pos(int* x, int* y)
 {
-	Error("mouse_get_cyberman_pos: STUB How the hell did you get this to call???\n");
+	//Error("mouse_get_cyberman_pos: STUB How the hell did you get this to call???\n");
 }
