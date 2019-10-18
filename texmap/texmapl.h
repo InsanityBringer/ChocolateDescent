@@ -18,7 +18,7 @@ extern	int prevmod(int val, int modulus);
 extern	int succmod(int val, int modulus);
 extern	void texture_map_flat(g3ds_tmap* t, int color);
 
-extern fix compute_dx_dy(g3ds_tmap* t, int top_vertex, int bottom_vertex, fix recip_dy);
+extern float compute_dx_dy(g3ds_tmap* t, int top_vertex, int bottom_vertex, float recip_dy);
 extern void compute_y_bounds(g3ds_tmap* t, int* vlt, int* vlb, int* vrt, int* vrb, int* bottom_y_ind);
 
 extern int	fx_y, fx_xleft, fx_xright, per2_flag;
@@ -28,15 +28,15 @@ extern unsigned char* pixptr;
 /*
 extern fix compute_dx_dy_lin(g3ds_tmap* t, int vlt, int vlb, fix recip_dy);
 extern fix compute_dx_dy_lin(g3ds_tmap* t, int vrt, int vrb, fix recip_dy);*/
-extern fix compute_du_dy_lin(g3ds_tmap* t, int vlt, int vlb, fix recip_dy);
-extern fix compute_du_dy_lin(g3ds_tmap* t, int vrt, int vrb, fix recip_dy);
-extern fix compute_dv_dy_lin(g3ds_tmap* t, int vlt, int vlb, fix recip_dy);
-extern fix compute_dv_dy_lin(g3ds_tmap* t, int vrt, int vrb, fix recip_dy);
+extern float compute_du_dy_lin(g3ds_tmap* t, int vlt, int vlb, float recip_dy);
+extern float compute_du_dy_lin(g3ds_tmap* t, int vrt, int vrb, float recip_dy);
+extern float compute_dv_dy_lin(g3ds_tmap* t, int vlt, int vlb, float recip_dy);
+extern float compute_dv_dy_lin(g3ds_tmap* t, int vrt, int vrb, float recip_dy);
 
 
 // Interface variables to assembler code
-extern	fix	fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx;
-extern	fix	fx_dl_dx, fx_l;
+extern	float	fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx;
+extern	float	fx_dl_dx, fx_l;
 extern	int	fx_r, fx_g, fx_b, fx_dr_dx, fx_dg_dx, fx_db_dx;
 extern	unsigned char* pixptr;
 
@@ -61,7 +61,7 @@ extern uint8_t tmap_flat_color;
 extern uint8_t tmap_flat_shade_value;
 
 
-extern fix fix_recip[];
+extern float fix_recip[];
 
 extern void init_interface_vars_to_assembler(void);
 extern int prevmod(int val, int modulus);

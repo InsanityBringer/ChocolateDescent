@@ -41,19 +41,21 @@ extern void draw_tmap(grs_bitmap* bp, int nverts, g3s_point** vertbuf);
 // Texture map vertex.
 //	The fields r,g,b and l are mutually exclusive.  r,g,b are used for rgb lighting.
 //	l is used for intensity based lighting.
-typedef struct g3ds_vertex {
-	fix	x, y, z;
-	fix	u, v;
-	fix	x2d, y2d;
-	fix	l;
-	fix	r, g, b;
+typedef struct g3ds_vertex 
+{
+	float	x, y, z;
+	float	u, v;
+	float	x2d, y2d;
+	float	l;
+	float	r, g, b;
 } g3ds_vertex;
 
 // A texture map is defined as a polygon with u,v coordinates associated with
 // one point in the polygon, and a pair of vectors describing the orientation
 // of the texture map in the world, from which the deltas Du_dx, Dv_dy, etc.
 // are computed.
-typedef struct g3ds_tmap {
+typedef struct g3ds_tmap 
+{
 	int	nv;			// number of vertices
 	g3ds_vertex	verts[MAX_TMAP_VERTS];	// up to 8 vertices, this is inefficient, change
 } g3ds_tmap;
@@ -91,7 +93,7 @@ void gr_upoly_tmap(int nverts, int* vert);
 
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
 //function with ylr values
-void gr_upoly_tmap_ylr(int nverts, int* vert, void(*ylr_func)(int, fix, fix));
+void gr_upoly_tmap_ylr(int nverts, int* vert, void(*ylr_func)(int, float, float));
 
 extern int Transparency_on, per2_flag;
 
