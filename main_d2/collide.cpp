@@ -1451,13 +1451,16 @@ int apply_damage_to_robot(object* robot, fix damage, int killer_objnum)
 		{
 			start_robot_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
 		}
-		else {
+		else 
+		{
 			if (robot->id == SPECIAL_REACTOR_ROBOT)
 				special_reactor_stuff();
-			//if (Robot_info[robot->id].smart_blobs)
-			//	create_smart_children(robot, Robot_info[robot->id].smart_blobs);
+#ifdef RESTORE_BLOBS_ON_DEATH
+			if (Robot_info[robot->id].smart_blobs)
+				create_smart_children(robot, Robot_info[robot->id].smart_blobs);
 			//if (Robot_info[robot->id].badass)
 			//	explode_badass_object(robot, F1_0*Robot_info[robot->id].badass, F1_0*40, F1_0*150);
+#endif
 			if (Robot_info[robot->id].kamikaze)
 				explode_object(robot, 1);		//	Kamikaze, explode right away, IN YOUR FACE!
 			else
