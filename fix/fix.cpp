@@ -164,7 +164,6 @@ uint32_t quad_sqrt(long long q)
 	uint32_t cnt, r, old_r, t;
 	uint32_t firstr, secondr, thirdr;
 	long high = (q >> 32) & 0xFFFFFFFF;
-	int iterLimit = 0;
 	quad tq;
 	//[ISB] fixes c4700 error
 	memset((void*)&tq, 0, sizeof(quad));
@@ -192,12 +191,6 @@ uint32_t quad_sqrt(long long q)
 	firstr = r = (fixdivquadlong(q, r) + r) / 2;
 	secondr = r = (fixdivquadlong(q, r) + r) / 2;
 	thirdr = r = (fixdivquadlong(q, r) + r) / 2;
-	//r = (fixdivquadlong(q, r) + r); bit = r & 1;
-	//r >>= 1; /*if (bit) r |= 0x80000000;*/ firstr = r;
-	//r = (fixdivquadlong(q, r) + r); bit = r & 1;
-	//r >>= 1; /*if (bit) r |= 0x80000000;*/ secondr = r;
-	//r = (fixdivquadlong(q, r) + r); bit = r & 1;
-	//r >>= 1; /*if (bit) r |= 0x80000000;*/ thirdr = r;
 
 	do 
 	{
@@ -209,12 +202,12 @@ uint32_t quad_sqrt(long long q)
 
 		r = t / 2 + r / 2; //t / 2 + r / 2 + (t & r & 1) Quoth Parabolicus: this would make it exact to (r + t) / 2;
 
-		iterLimit++;
+		/*iterLimit++;
 		if (iterLimit > 500)
 		{
 			Warning("quad_sqrt: SERIOUS INFINITE LOOP PROBLEM DETECTED\nYELL AT ISB IF YOU SEE THIS\n");
 			break;
-		}
+		}*/
 
 	} while (!(r == t || r == old_r));
 
