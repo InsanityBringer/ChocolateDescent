@@ -677,7 +677,7 @@ KConfigPaint:
 
 	while (1)
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		//	Windows addendum to allow for kconfig input.
 
@@ -870,6 +870,8 @@ KConfigPaint:
 			WIN(ShowCursorW());
 			MAC(show_cursor();)
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 	}
 }
 

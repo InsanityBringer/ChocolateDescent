@@ -772,7 +772,7 @@ int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_ite
 	while (!done) 
 	{
 		//network_listen();
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		k = key_inkey();
 
@@ -1067,6 +1067,8 @@ int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_ite
 		{
 			gr_palette_fade_in(gr_palette, 32, 0);
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(US_70FPS);
 	}
 
 	// Restore everything...
@@ -1363,7 +1365,7 @@ ReadFileNames:
 
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		ocitem = citem;
 		ofirst_item = first_item;
@@ -1543,6 +1545,8 @@ ReadFileNames:
 				gr_string(105, y, (&filenames[i * 14]) + ((player_mode && filenames[i * 14] == '$') ? 1 : 0));
 			}
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(US_70FPS);
 	}
 
 ExitFileMenuEarly:
@@ -1652,7 +1656,7 @@ int newmenu_listbox1(const char* title, int nitems, char* items[], int allow_abo
 
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		ocitem = citem;
 		ofirst_item = first_item;
@@ -1805,6 +1809,8 @@ int newmenu_listbox1(const char* title, int nitems, char* items[], int allow_abo
 				gr_string(wx + 5, y, items[i]);
 			}
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(US_70FPS);
 	}
 	keyd_repeat = old_keyd_repeat;
 

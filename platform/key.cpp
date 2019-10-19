@@ -164,7 +164,11 @@ int key_getch()
 		return _getch();
 
 	while (!key_checkch())
+	{
+		I_MarkStart();
 		I_DoEvents(); //[ISB] so we can get the freakin key in the first place...
+		I_MarkEnd(US_60FPS);
+	}
 
 	return key_inkey();
 }

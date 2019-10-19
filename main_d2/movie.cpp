@@ -381,7 +381,7 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 	while ((result = MVE_rmStepMovie()) == 0) 
 	{
 		int key;
-		I_DoEvents();
+		I_DoEvents(); //Timed from rmStepMovie
 
 		draw_subtitles(frame_num);
 
@@ -401,8 +401,10 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 			show_pause_message(TXT_PAUSE);
 			while (!key_inkey())
 			{
+				I_MarkStart();
 				I_DoEvents();
 				I_DrawCurrentCanvas(0);
+				I_MarkEnd(MovieHires ? US_60FPS : US_70FPS);
 			}
 			clear_pause_message();
 		}

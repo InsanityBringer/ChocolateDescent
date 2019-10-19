@@ -18,6 +18,8 @@
 
 static uint64_t baseTick;
 
+static uint64_t markTick;
+
 static uint64_t GetClockTimeMS()
 {
 	using namespace std::chrono;
@@ -76,4 +78,17 @@ void I_Delay(int ms)
 void I_DelayUS(uint64_t us)
 {
 	std::this_thread::sleep_for(std::chrono::microseconds(us));
+}
+
+void I_MarkStart()
+{
+	markTick = I_GetUS();
+}
+
+void I_MarkEnd(uint64_t numUS)
+{
+	uint64_t diff = (markTick + numUS) - I_GetUS();
+	if (diff > 2000) //[ISB] Sleep only if there's sufficient time to do so, since the scheduler isn't precise enough
+		I_DelayUS(diff - 2000);
+	while (I_GetUS() < markTick + numUS);
 }

@@ -909,10 +909,12 @@ void show_order_form()
 			fix time_out_value = timer_get_approx_seconds() + i2f(60 * 5);
 			while (!done) 
 			{
-				I_DrawCurrentCanvas(0);
+				I_MarkStart();
 				I_DoEvents();
 				if (timer_get_approx_seconds() > time_out_value) done = 1;
 				if (key_inkey()) done = 1;
+				I_DrawCurrentCanvas(0);
+				I_MarkEnd(US_70FPS);
 			}
 		}
 		gr_palette_fade_out(title_pal, 32, 0);

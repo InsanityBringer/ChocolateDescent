@@ -401,7 +401,7 @@ ReshowScores:
 	time_out_value = timer_get_fixed_seconds() + i2f(60 * 5);
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		if (citem > -1) 
 		{
@@ -444,6 +444,8 @@ ReshowScores:
 			done = 1;
 			break;
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(US_70FPS);
 	}
 
 	// Restore background and exit

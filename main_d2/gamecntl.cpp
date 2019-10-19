@@ -602,7 +602,7 @@ int do_game_pause()
 	{
 		int screen_changed;
 
-		I_DrawCurrentCanvas(0);
+		I_MarkStart(); 
 		I_DoEvents();
 #if defined (WINDOWS)
 
@@ -657,6 +657,8 @@ int do_game_pause()
 			if (Cockpit_mode == CM_FULL_COCKPIT || Cockpit_mode == CM_STATUS_BAR)
 				render_gauges();
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(1000000 / FPSLimit);
 	}
 
 	if (VR_screen_flags & VRF_COMPATIBLE_MENUS) {

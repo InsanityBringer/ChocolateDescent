@@ -480,7 +480,7 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 
 	while (1) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		k = key_inkey();
 		if (!time_stopped)
@@ -641,6 +641,8 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 			kc_drawitem(&items[ocitem], 0);
 			kc_drawitem(&items[citem], 1);
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(US_70FPS);
 	}
 }
 

@@ -1174,7 +1174,7 @@ RePaintNewmenu4:
 
 	while (!done)
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 
 #ifdef WINDOWS
@@ -1887,7 +1887,9 @@ RePaintNewmenu4:
 		{
 			gr_palette_fade_in(gr_palette, 32, 0);
 		}
-		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
+	}
 
 	MAC(hide_cursor());
 	WIN(HideCursorW());
@@ -2281,7 +2283,7 @@ ReadFileNames:
 
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 
 #ifdef WINDOWS
@@ -2694,7 +2696,9 @@ ReadFileNames:
 
 
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
-		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
+	}
 
 ExitFileMenuEarly:
 	MAC(hide_cursor());
@@ -2895,7 +2899,7 @@ RePaintNewmenuListbox:
 
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 
 #ifdef WINDOWS
@@ -2938,12 +2942,12 @@ RePaintNewmenuListbox:
 		}
 #endif
 
-		if (key < -1) {
+		if (key < -1)
+		{
 			citem = key;
 			key = -1;
 			done = 1;
 		}
-
 
 #ifdef WINDOWS
 		if (simukey == -1)
@@ -2953,7 +2957,8 @@ RePaintNewmenuListbox:
 		simukey = 0;
 #endif
 
-		switch (key) {
+		switch (key)
+		{
 		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
 		case KEY_PRINT_SCREEN:
 			MAC(hide_cursor());
@@ -2989,7 +2994,8 @@ RePaintNewmenuListbox:
 			citem -= LB_ITEMS_ON_SCREEN;
 			break;
 		case KEY_ESC:
-			if (allow_abort_flag) {
+			if (allow_abort_flag)
+			{
 				citem = -1;
 				done = 1;
 			}
@@ -3012,19 +3018,23 @@ RePaintNewmenuListbox:
 #endif
 
 		default:
-			if (key > 0) {
+			if (key > 0) 
+			{
 				int ascii = key_to_ascii(key);
-				if (ascii < 255) {
+				if (ascii < 255) 
+				{
 					int cc, cc1;
 					cc = cc1 = citem + 1;
 					if (cc1 < 0)  cc1 = 0;
 					if (cc1 >= nitems)  cc1 = 0;
-					while (1) {
+					while (1)
+					{
 						if (cc < 0) cc = 0;
 						if (cc >= nitems) cc = 0;
 						if (citem == cc) break;
 
-						if (toupper(items[cc][0]) == toupper(ascii)) {
+						if (toupper(items[cc][0]) == toupper(ascii)) 
+						{
 							citem = cc;
 							break;
 						}
@@ -3136,20 +3146,24 @@ RePaintNewmenuListbox:
 		}
 #endif
 
-		if ((ofirst_item != first_item) || redraw) {
+		if ((ofirst_item != first_item) || redraw) 
+		{
 			MAC(hide_cursor());
 			WIN(HideCursorW());
 			WIN(DDGRLOCK(dd_grd_curcanv));
 
 			gr_setcolor(BM_XRGB(0, 0, 0));
-			for (i = first_item; i < first_item + LB_ITEMS_ON_SCREEN; i++) {
+			for (i = first_item; i < first_item + LB_ITEMS_ON_SCREEN; i++) 
+			{
 				int w, h, aw, y;
 				y = (i - first_item) * (grd_curfont->ft_h + 2) + wy;
-				if (i >= nitems) {
+				if (i >= nitems) 
+				{
 					gr_setcolor(BM_XRGB(0, 0, 0));
 					gr_rect(wx, y - 1, wx + width - 1, y + grd_curfont->ft_h + 1);
 				}
-				else {
+				else
+				{
 					if (i == citem)
 						grd_curcanv->cv_font = SELECTED_FONT;
 					else
@@ -3181,15 +3195,14 @@ RePaintNewmenuListbox:
 				nm_draw_background(wx - LHX(10), wy + total_height - LHY(7), wx - 2, wy + total_height);
 				No_darkening = 0;
 		}
-
 #endif
-
 
 			WIN(DDGRUNLOCK(dd_grd_curcanv));
 			WIN(ShowCursorW());
 			MAC(show_cursor());
 		}
-		else if (citem != ocitem) {
+		else if (citem != ocitem)
+		{
 			int w, h, aw, y;
 
 			MAC(hide_cursor());
@@ -3198,7 +3211,8 @@ RePaintNewmenuListbox:
 			WIN(DDGRLOCK(dd_grd_curcanv));
 
 			i = ocitem;
-			if ((i >= 0) && (i < nitems)) {
+			if ((i >= 0) && (i < nitems)) 
+			{
 				y = (i - first_item) * (grd_curfont->ft_h + 2) + wy;
 				if (i == citem)
 					grd_curcanv->cv_font = SELECTED_FONT;
@@ -3209,7 +3223,8 @@ RePaintNewmenuListbox:
 				gr_string(wx + 5, y, items[i]);
 			}
 			i = citem;
-			if ((i >= 0) && (i < nitems)) {
+			if ((i >= 0) && (i < nitems))
+			{
 				y = (i - first_item) * (grd_curfont->ft_h + 2) + wy;
 				if (i == citem)
 					grd_curcanv->cv_font = SELECTED_FONT;
@@ -3224,6 +3239,8 @@ RePaintNewmenuListbox:
 			WIN(ShowCursorW());
 			MAC(show_cursor());
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 	}
 	MAC(hide_cursor());
 	WIN(HideCursorW());

@@ -1862,10 +1862,11 @@ int do_game_pause(int allow_menu)
 	gr_palette_load(gr_palette);
 
 	show_boxed_message(TXT_PAUSE);
+	I_DrawCurrentCanvas(0);
 
 	while (paused) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		key = key_getch();
 
@@ -1900,6 +1901,9 @@ int do_game_pause(int allow_menu)
 			paused = 0;
 			break;
 		}
+
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(1000000 / FPSLimit);
 	}
 
 	game_flush_inputs();

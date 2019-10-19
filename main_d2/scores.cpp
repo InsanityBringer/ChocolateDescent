@@ -429,7 +429,7 @@ ReshowScores:
 
 	while (!done)
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		if (citem > -1)
 		{
@@ -491,6 +491,9 @@ ReshowScores:
 			done = 1;
 			break;
 			}
+
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 		}
 
 	// Restore background and exit
