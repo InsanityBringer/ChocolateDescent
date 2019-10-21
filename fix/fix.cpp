@@ -24,8 +24,6 @@ extern uint16_t asin_table[];
 extern uint16_t acos_table[];
 extern fix isqrt_guess_table[];
 
-#if !(defined(__WATCOMC__) && defined(USE_INLINE))
-
 //negate a quad
 void fixquadnegate(quad* q)
 {
@@ -43,19 +41,6 @@ void fixmulaccum(long long *q, fix a, fix b)
 }
 
 //extract a fix from a quad product
-/*fix fixquadadjust(long long q)
-{
-	long long vl = q >> 48;
-	fix v = q >> 16;
-	int signbit = vl < 0; int vbit = v < 0;
-	if (signbit != vbit)
-	{
-		if (vl) return -0x7FFFFFFF;
-		else return 0x7FFFFFFF;
-	}
-
-	return v;
-}*/
 
 //parabolicus's version
 fix fixquadadjust(long long q)
@@ -71,9 +56,6 @@ fix fixquadadjust(long long q)
 	}
 	return v;
 }
-
-
-#ifndef __powerc
 
 fix fixmul(fix a, fix b)
 {
@@ -162,7 +144,6 @@ fixang fix_atan2(fix cos, fix sin)
 uint32_t quad_sqrt(long long q)
 {
 	uint32_t cnt, r, old_r, t;
-	uint32_t firstr, secondr, thirdr;
 	long high = (q >> 32) & 0xFFFFFFFF;
 	quad tq;
 	//[ISB] fixes c4700 error
@@ -188,9 +169,9 @@ uint32_t quad_sqrt(long long q)
 
 	//quad loop usually executed 4 times
 
-	firstr = r = (fixdivquadlong(q, r) + r) / 2;
-	secondr = r = (fixdivquadlong(q, r) + r) / 2;
-	thirdr = r = (fixdivquadlong(q, r) + r) / 2;
+	r = (fixdivquadlong(q, r) + r) / 2;
+	r = (fixdivquadlong(q, r) + r) / 2;
+	r = (fixdivquadlong(q, r) + r) / 2;
 
 	do 
 	{
@@ -223,269 +204,6 @@ uint32_t quad_sqrt(long long q)
 
 	return r;
 }
-
-#else
-
-#define EPSILON (F1_0/100)
-
-fix fixdiv(fix a, fix b)
-{
-#if 0
-	double d;
-
-	if ((double)b == 0)
-		Int3();
-	d = (((double)a * 65536.0) / (double)b);
-	if (abs((d * (double)b) - ((double)a * 65536.0)) > EPSILON)
-		Int3();
-	return (fix)(d);
-#endif
-	return (fix)(((double)a * 65536.0) / (double)b);
-}
-
-fix fixmuldiv(fix a, fix b, fix c)
-{
-	double d;
-
-#if 0	
-	if ((double)c == 0)
-		Int3();
-	d = (double)a * (double)b;
-	d /= (double)c;
-	if (abs((d * (double)c) - ((double)b * (double)a)) > EPSILON)
-		Int3();
-	return (fix)(d);
-#endif
-	d = (double)a * (double)b;
-	return (fix)(d / (double)c);
-}
-
-//given cos & sin of an angle, return that angle.
-//parms need not be normalized, that is, the ratio of the parms cos/sin must
-//equal the ratio of the actual cos & sin for the result angle, but the parms 
-//need not be the actual cos & sin.  
-//NOTE: this is different from the standard C atan2, since it is left-handed.
-
-fixang fix_atan2(fix cos, fix sin)
-{
-	double d, dsin, dcos;
-	fix m, t;
-
-	//Assert(!(cos==0 && sin==0));
-
-	//find smaller of two
-
-	dsin = (double)sin;
-	dcos = (double)cos;
-	d = sqrt((dsin * dsin) + (dcos * dcos));
-
-	if (d == 0.0)
-		return 0;
-
-	if (labs(sin) < labs(cos)) {				//sin is smaller, use arcsin
-		t = fix_asin((fix)((dsin / d) * 65536.0));
-		if (cos < 0)
-			t = 0x8000 - t;
-		return t;
-	}
-	else {
-		t = fix_acos((fix)((dcos / d) * 65536.0));
-		if (sin < 0)
-			t = -t;
-		return t;
-	}
-}
-
-//divide a quad by a fix, returning a fix
-long fixdivquadlong(uint32_t nl, uint32_t nh, uint32_t d)
-{
-	int i;
-	uint32_t tmp0;
-	uint8_t tmp1;
-	uint32_t r;
-	uint8_t T, Q, M;
-
-	r = 0;
-
-	Q = ((nh & 0x80000000) != 0);
-	M = ((d & 0x80000000) != 0);
-	T = (M != Q);
-
-	if (M == 0)
-	{
-		for (i = 0; i < 32; i++) {
-
-			r <<= 1;
-			r |= T;
-			T = ((nl & 0x80000000L) != 0);
-			nl <<= 1;
-
-			switch (Q) {
-
-			case 0:
-				Q = (unsigned char)((0x80000000L & nh) != 0);
-				nh = (nh << 1) | (unsigned long)T;
-
-				tmp0 = nh;
-				nh -= d;
-				tmp1 = (nh > tmp0);
-				if (Q == 0)
-					Q = tmp1;
-				else
-					Q = (unsigned char)(tmp1 == 0);
-				break;
-			case 1:
-				Q = (unsigned char)((0x80000000L & nh) != 0);
-				nh = (nh << 1) | (unsigned long)T;
-
-				tmp0 = nh;
-				nh += d;
-				tmp1 = (nh < tmp0);
-				if (Q == 0)
-					Q = tmp1;
-				else
-					Q = (unsigned char)(tmp1 == 0);
-				break;
-			}
-			T = (Q == M);
-		}
-	}
-	else
-	{
-		for (i = 0; i < 32; i++) {
-
-			r <<= 1;
-			r |= T;
-			T = ((nl & 0x80000000L) != 0);
-			nl <<= 1;
-
-			switch (Q) {
-
-			case 0:
-				Q = (unsigned char)((0x80000000L & nh) != 0);
-				nh = (nh << 1) | (unsigned long)T;
-
-				tmp0 = nh;
-				nh += d;
-				tmp1 = (nh < tmp0);
-				if (Q == 1)
-					Q = tmp1;
-				else
-					Q = (unsigned char)(tmp1 == 0);
-				break;
-			case 1:
-				Q = (unsigned char)((0x80000000L & nh) != 0);
-				nh = (nh << 1) | (unsigned long)T;
-
-				tmp0 = nh;
-				nh = nh - d;
-				tmp1 = (nh > tmp0);
-				if (Q == 1)
-					Q = tmp1;
-				else
-					Q = (unsigned char)(tmp1 == 0);
-				break;
-			}
-			T = (Q == M);
-		}
-	}
-
-	r = (r << 1) | T;
-
-	return r;
-}
-
-uint32_t quad_sqrt(long low, long high)
-{
-	long cnt, r, old_r, t;
-	quad tq;
-
-	if (high < 0)
-		return 0;
-
-	if (high == 0 && low >= 0)
-		return long_sqrt(low);
-
-	if (high & 0xff000000)
-		cnt = 12 + 16;
-	else if (high & 0xff0000)
-		cnt = 8 + 16;
-	else if (high & 0xff00)
-		cnt = 4 + 16;
-	else
-		cnt = 0 + 16;
-
-	r = guess_table[(high >> cnt) & 0xff] << cnt;
-
-	//quad loop usually executed 4 times
-
-	r = (fixdivquadlong(low, high, r) + r) / 2;
-	r = (fixdivquadlong(low, high, r) + r) / 2;
-	r = (fixdivquadlong(low, high, r) + r) / 2;
-
-	do {
-
-		old_r = r;
-		t = fixdivquadlong(low, high, r);
-
-		if (t == r)	//got it!
-			return r;
-
-		r = (t + r) / 2;
-
-	} while (!(r == t || r == old_r));
-
-	t = fixdivquadlong(low, high, r);
-	tq.low = tq.high;
-	fixmulaccum(&tq, r, t);
-	if (tq.low != low || tq.high != high)
-		r++;
-
-	return r;
-}
-
-#if 0
-fix fixdiv(fix a, fix b)
-{
-	return fixdivquadlong(a << 16, a >> 16, b);
-	//	return (fix)FixDiv((Fixed)a,(Fixed)b);
-}
-
-//multiply two fixes, then divide by a third, return a fix
-fix fixmuldiv(fix a, fix b, fix c)
-{
-	quad q;
-	uint32_t t, old;
-	int neg;
-	uint32_t aa, bb;
-	uint32_t ah, al, bh, bl;
-
-	neg = ((a ^ b) < 0);
-
-	aa = labs(a); bb = labs(b);
-
-	ah = aa >> 16;  al = aa & 0xffff;
-	bh = bb >> 16;  bl = bb & 0xffff;
-
-	t = ah * bl + bh * al;
-
-	q.high = 0;
-	old = q.low = al * bl;
-	q.low += (t << 16);
-	if (q.low < old) q.high++;
-
-	q.high += ah * bh + (t >> 16);
-
-	if (neg)
-		fixquadnegate(&q);
-
-	return fixdivquadlong(q.low, q.high, c);
-}
-#endif
-
-#endif		__powerc
-
-#endif
 
 
 //computes the square root of a long, returning a short
@@ -640,7 +358,8 @@ fix fix_isqrt(fix a)
 
 	if (a == 0) return 0;
 
-	while (b >= TABLE_SIZE) {
+	while (b >= TABLE_SIZE) 
+	{
 		b >>= 1;
 		cnt++;
 	}
@@ -650,7 +369,8 @@ fix fix_isqrt(fix a)
 
 	//printf( "Initial r = %d\n", r );
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++) 
+	{
 		int old_r = r;
 		r = fixmul(((3 * 65536) - fixmul(fixmul(r, r), a)), r) / 2;
 		//printf( "r %d  = %d\n", i, r );

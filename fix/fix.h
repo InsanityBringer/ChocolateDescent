@@ -20,7 +20,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef long fix;				//16 bits int, 16 bits frac
 typedef short fixang;		//angles
 
-typedef struct quad {
+typedef struct quad 
+{
 	uint32_t low;
 	long high;
 } quad;
@@ -34,8 +35,8 @@ typedef struct quad {
 //Get the int part of a fix, with rounding
 #define f2ir(f) (((f)+f0_5)>>16)
 
-//Convert fix to float and float to fix
-#define f2fl(f) (((float) (f)) / 65536.0f) //[ISB] add f suffix to try to resolve compiler warnings
+//Convert fix to float and float to fix [ISB] added suffix
+#define f2fl(f) (((float) (f)) / 65536.0f)
 #define fl2f(f) ((fix) ((f) * 65536))
 
 //Some handy constants
@@ -61,20 +62,10 @@ typedef struct quad {
 fix fixmul(fix a, fix b);
 
 //divide two fixes, return a fix
-#ifdef __powerc
 fix fixdiv(fix a, fix b);
-//#define fixdiv(a,b) (fix)(((double)a * 65536.0) / (double)b)
-#else
-fix fixdiv(fix a, fix b);
-#endif
 
 //multiply two fixes, then divide by a third, return a fix
-#ifdef __powerc
 fix fixmuldiv(fix a, fix b, fix c);
-//#define fixmuldiv(a,b,c) (fix)(((double)a * (double)b)/(double)c)
-#else
-fix fixmuldiv(fix a, fix b, fix c);
-#endif
 
 //multiply two fixes, and add 64-bit product to a quad
 void fixmulaccum(long long *q, fix a, fix b);
@@ -87,42 +78,6 @@ long fixdivquadlong(long long n, uint32_t d);
 
 //negate a quad
 void fixquadnegate(quad* q);
-
-#if defined(__WATCOMC__) && defined(USE_INLINE)
-
-#pragma aux fixmul parm [eax] [edx] = \
-	"imul	edx"				\
-	"shrd	eax,edx,16";
-
-#pragma aux fixdiv parm [eax] [ebx] modify exact [eax edx] = \
-	"mov	edx,eax"	\
-	"sar	edx,16"	\
-	"shl	eax,16"	\
-	"idiv	ebx";
-
-#pragma aux fixmuldiv parm [eax] [edx] [ebx] modify exact [eax edx] = \
-	"imul	edx"			\
-	"idiv ebx";
-
-#pragma aux fixmulaccum parm [esi] [eax] [edx] modify exact [eax edx] = \
-	"imul	edx"			\
-	"add  [esi],eax"	\
-	"adc	4[esi],edx";
-
-#pragma aux fixquadadjust parm [esi] modify exact [eax edx] = \
-	"mov  eax,[esi]"		\
-	"mov  edx,4[esi]"		\
-	"shrd	eax,edx,16";
-
-#pragma aux fixquadnegate parm [eax] modifiy exact [] = \
-	"neg	[eax]"			\
-	"not	4[eax]"			\
-	"sbb	4[eax],-1";
-
-#pragma aux fixdivquadlong parm [eax] [edx] [ebx] modifiy exact [eax edx] = \
-	"idiv	ebx";
-
-#endif
 
 //computes the square root of a long, returning a short
 uint16_t long_sqrt(long a);
