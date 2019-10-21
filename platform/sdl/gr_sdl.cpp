@@ -29,6 +29,9 @@ Instead, it is released under the terms of the MIT License.
 #include "platform/mouse.h"
 #include "platform/key.h"
 
+#define FITMODE_BEST 1
+#define FITMODE_FILTERED 2
+
 int WindowWidth = 1600, WindowHeight = 900;
 SDL_Window* gameWindow = NULL;
 SDL_Renderer* renderer = NULL;
@@ -190,13 +193,23 @@ int I_SetMode(int mode)
 		return 0;
 	}
 
+	if (BestFit == FITMODE_FILTERED && h <= 400)
+	{
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+		w *= 2; h *= 2;
+	}
+	else
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+
 	//What horrid screen code tbh
 	gameSurface = SDL_CreateRGBSurface(0, w, h, 8, 0, 0, 0, 0);
 	if (!gameSurface)
 		Error("Error creating surface for mode %d: %s\n", mode, SDL_GetError());
+
 	hackSurface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGBA8888);
 	if (!hackSurface)
 		Error("Error creating RGB surface for mode %d: %s\n", mode, SDL_GetError());
+
 	gameTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, w, h);
 	if (!gameTexture)
 		Error("Error creating renderer texture for mode %d: %s\n", mode, SDL_GetError());
@@ -215,7 +228,7 @@ int I_SetMode(int mode)
 	int bestWidth = WindowHeight * 4 / 3;
 	if (WindowWidth < bestWidth) bestWidth = WindowWidth;
 
-	if (BestFit)
+	if (BestFit == FITMODE_BEST)
 	{
 		int numWidths = bestWidth / w;
 		screenRectangle.w = numWidths * w;
@@ -352,11 +365,34 @@ void I_DrawCurrentCanvas(int sync)
 	unsigned char* pixels = (unsigned char*)gameSurface->pixels;
 
 	SDL_LockSurface(gameSurface);
-	memcpy(pixels,  screenBuffer->cv_bitmap.bm_data, screenBuffer->cv_bitmap.bm_w * screenBuffer->cv_bitmap.bm_h); //[ISB] alternate attempt at this nonsense
+	//Ah, lots of operations in a vital part of the code. lovely.
+	if (BestFit == FITMODE_FILTERED && grd_curscreen->sc_h <= 400)
+	{
+		int pitch = grd_curscreen->sc_w * 2;
+		int offset = 0;
+		int srcoffset = 0;
+		int x, y;
+		for (y = 0; y < grd_curscreen->sc_h; y++)
+		{
+			for (x = 0; x < grd_curscreen->sc_w; x++)
+			{
+				pixels[offset] = screenBuffer->cv_bitmap.bm_data[srcoffset];
+				pixels[offset+1] = screenBuffer->cv_bitmap.bm_data[srcoffset];
+				pixels[offset + pitch] = screenBuffer->cv_bitmap.bm_data[srcoffset];
+				pixels[offset + pitch + 1] = screenBuffer->cv_bitmap.bm_data[srcoffset];
+				offset += 2;
+				srcoffset++;
+			}
+			offset += pitch;
+		}
+	}
+	else
+		memcpy(pixels,  screenBuffer->cv_bitmap.bm_data, screenBuffer->cv_bitmap.bm_w * screenBuffer->cv_bitmap.bm_h); //[ISB] alternate attempt at this nonsense
 	SDL_UnlockSurface(gameSurface);
 
 	src.x = src.y = 0;
-	src.w = grd_curscreen->sc_w; src.h = grd_curscreen->sc_h;
+	//src.w = grd_curscreen->sc_w; src.h = grd_curscreen->sc_h;
+	src.w = gameSurface->w; src.h = gameSurface->h;
 
 	dest.x = dest.y = 0; //dest.w = WindowWidth-1; dest.h = WindowHeight-1;
 
@@ -372,11 +408,12 @@ void I_DrawCurrentCanvas(int sync)
 	SDL_LockTexture(gameTexture, NULL, (void**)&texPixels, &pitch);
 	SDL_LockSurface(hackSurface);
 	pixels = (unsigned char*)hackSurface->pixels;
-	for (int i = 0; i < screenBuffer->cv_bitmap.bm_h; i++)
+	//for (int i = 0; i < screenBuffer->cv_bitmap.bm_h; i++)
+	for (int i = 0; i < hackSurface->h; i++)
 	{
-		memcpy(texPixels, pixels, grd_curscreen->sc_w * 4);
+		memcpy(texPixels, pixels, hackSurface->w * 4);
 		texPixels += pitch;
-		pixels += grd_curscreen->sc_w * 4;
+		pixels += hackSurface->w * 4;
 	}
 	SDL_UnlockTexture(gameTexture);
 	SDL_UnlockSurface(hackSurface);
