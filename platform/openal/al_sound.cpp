@@ -69,6 +69,18 @@ void I_ErrorCheck(const char* context)
 
 void I_CreateMusicSource();
 
+void AL_InitSource(ALuint source)
+{
+	alSourcef(source, AL_ROLLOFF_FACTOR, 0.0f);
+	alSource3f(source, AL_DIRECTION, 0.f, 0.f, 0.f);
+	alSource3f(source, AL_VELOCITY, 0.f, 0.f, 0.f);
+	alSource3f(source, AL_POSITION, 0.f, 0.f, 0.f);
+	alSourcef(source, AL_MAX_GAIN, 1.f);
+	alSourcef(source, AL_GAIN, 1.f);
+	alSourcef(source, AL_PITCH, 1.f);
+	alSourcef(source, AL_DOPPLER_FACTOR, 0.f);
+}
+
 int I_InitAudio()
 {
 	int i;
@@ -91,10 +103,10 @@ int I_InitAudio()
 	I_ErrorCheck("Creating buffers");
 	alGenSources(_MAX_VOICES, &sourceNames[0]);
 	I_ErrorCheck("Creating sources");
-	/*for (i = 0; i < _MAX_VOICES; i++)
+	for (i = 0; i < _MAX_VOICES; i++)
 	{
-		alSourcef(sourceNames[i], AL_ROLLOFF_FACTOR, 0.0f);
-	}*/
+		AL_InitSource(sourceNames[i]);
+	}
 	//float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
 	//alListenerfv(AL_ORIENTATION, &orientation[0]);
 	//I_ErrorCheck("Listener hack");
@@ -127,10 +139,6 @@ int I_GetSoundHandle()
 		alGetSourcei(sourceNames[i], AL_SOURCE_STATE, &state);
 		if (state != AL_PLAYING)
 		{
-			alDeleteSources(1, &sourceNames[i]); //[ISB] delete the previous source before using this handle. Fixes problems with distant sounds briefly sounding loud
-			alGenSources(1, &sourceNames[i]);
-			alDeleteBuffers(1, &bufferNames[i]);
-			alGenBuffers(1, &bufferNames[i]);
 			return i;
 		}
 	}
@@ -143,7 +151,6 @@ void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
 	if (handle >= _MAX_VOICES) return;
 
 	alSourcei(sourceNames[handle], AL_BUFFER, NULL);
-	alSourcef(sourceNames[handle], AL_ROLLOFF_FACTOR, 0.0f);
 	alBufferData(bufferNames[handle], AL_FORMAT_MONO8, data, length, sampleRate);
 	alSourcei(sourceNames[handle], AL_BUFFER, bufferNames[handle]);
 
