@@ -740,7 +740,7 @@ int	Doing_lighting_hack_flag=0;
 
 //figure out what seg the given point is in, tracing through segments
 //returns segment number, or -1 if can't find segment
-int trace_segs(vms_vector *p0,int oldsegnum)
+int trace_segs(vms_vector *p0,int oldsegnum, int trace_segs_iterations)
 {
 	int centermask;
 	segment *seg;
@@ -754,9 +754,10 @@ int trace_segs(vms_vector *p0,int oldsegnum)
 #elif defined(WINDOWS)
 	/*if (stackavail() < 10240)*/ {
 #else
-	/*if (stackavail() < 1024)*/ {		//if no debugging, we'll get past assert
+	/*if (stackavail() < 1024)*/ 
+	if (trace_segs_iterations > 1024)
+	{		//if no debugging, we'll get past assert
 #endif
-/* //[ISB] I dunno tbh
 		#ifndef NDEBUG
 		if (!Doing_lighting_hack_flag)
 			Int3();	// Please get Matt, or if you cannot, then type 
@@ -765,20 +766,21 @@ int trace_segs(vms_vector *p0,int oldsegnum)
 						// and make a copy of the mine you are playing.
 		#endif
 
-		return oldsegnum;				//just say we're in this segment and be done with it*/
+		return oldsegnum;				//just say we're in this segment and be done with it
 	}
-
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
 
 	if (centermask == 0)		//we're in the old segment
-
 		return oldsegnum;		//..say so
 
-	else {						//not in old seg.  trace through to find seg
+	//not in old seg.  trace through to find seg
+	else 
+	{						
 		int biggest_side;
 
-		do {
+		do 
+		{
 			int sidenum,bit;
 			fix biggest_val;
 
@@ -788,17 +790,21 @@ int trace_segs(vms_vector *p0,int oldsegnum)
 
 			for (sidenum=0,bit=1;sidenum<6;sidenum++,bit<<=1)
 				if ((centermask&bit) && (seg->children[sidenum]>-1))
-					if (side_dists[sidenum] < biggest_val) {
+					if (side_dists[sidenum] < biggest_val) 
+					{
 						biggest_val = side_dists[sidenum];
 						biggest_side = sidenum;
 					}
 
-			if (biggest_side != -1) {
+			if (biggest_side != -1) 
+			{
 				int check;
 
 				side_dists[biggest_side] = 0;
 
-				check = trace_segs(p0,seg->children[biggest_side]);	//trace into adjacent segment
+				trace_segs_iterations++;
+				check = trace_segs(p0,seg->children[biggest_side], trace_segs_iterations);	//trace into adjacent segment
+				trace_segs_iterations--;
 
 				if (check != -1)		//we've found a segment
 					return check;	
@@ -828,7 +834,7 @@ int find_point_seg(vms_vector *p,int segnum)
 	Assert((segnum <= Highest_segment_index) && (segnum >= -1));
 
 	if (segnum != -1) {
-		newseg = trace_segs(p,segnum);
+		newseg = trace_segs(p,segnum, 0);
 
 		if (newseg != -1)			//we found a segment!
 			return newseg;
