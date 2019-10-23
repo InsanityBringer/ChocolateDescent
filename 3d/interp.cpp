@@ -248,11 +248,34 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 			int nv = w(p + 2);
 
 			Assert(nv < MAX_POINTS_PER_POLY);
-			if (g3_check_normal_facing(vp(p + 4), vp(p + 16)) > 0) 
+
+			if (g3_check_normal_facing(vp(p + 4), vp(p + 16)) > 0)
 			{
 				int i;
+				int light;
+				int drawindex = interp_color_table[w(p + 28)].pal_entry;
+				int shade;
 #ifdef BUILD_DESCENT2
-				gr_setcolor(interp_color_table[w(p + 28)].pal_entry);
+				if (glow_num != -1)
+				{
+					light = glow_values[glow_num];
+					glow_num = -1;
+					//printf("light: %d\n", light);
+					if (light == -3)
+						break; //don't draw anything
+					else if (light == -2)
+						drawindex = 255; //draw white
+					else //darken color
+					{
+						//[ISB] This code exists, but the ASM seems to be full of bugs that would make it not work?
+						/*shade = (model_light * 32) >> 16;
+						if (shade < 0) drawindex = 0;
+						if (shade > 32) drawindex = 32;*/
+					}
+				}
+
+
+				gr_setcolor(drawindex);
 #else
 				gr_setcolor(w(p + 28));
 #endif
@@ -282,7 +305,6 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 
 				if (glow_num < 0) //no glow
 				{
-
 					light = -vm_vec_dot(&View_matrix.fvec, vp(p + 16));
 					light = f1_0 / 4 + (light * 3) / 4;
 					light = fixmul(light, model_light);
