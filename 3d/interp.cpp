@@ -426,7 +426,11 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			int nv = w(p + 2);
 			int i, ntris;
 
+#ifdef BUILD_DESCENT2
+			gr_setcolor(interp_color_table[w(p + 28)].pal_entry);
+#else
 			gr_setcolor(w(p + 28));
+#endif
 
 			for (i = 0; i < 2; i++)
 				point_list[i] = Interp_point_list + wp(p + 30)[i];
