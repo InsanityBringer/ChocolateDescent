@@ -40,6 +40,8 @@ void I_SetAngle(int handle, int angle);
 
 void I_SetVolume(int handle, int volume);
 
+void I_SetLoopPoints(int handle, int start, int end);
+
 //-----------------------------------------------------------------------------
 // Emitting noise at player
 //-----------------------------------------------------------------------------

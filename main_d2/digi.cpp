@@ -585,6 +585,8 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 	}
 	I_SetSoundInformation(sHandle, DigiSampleData.volume, DigiSampleData.angle);
 	I_SetSoundData(sHandle, DigiSampleData.data, DigiSampleData.length, digi_sample_rate);
+	if (looping)
+		I_SetLoopPoints(sHandle, loop_start, loop_end);
 	I_PlaySound(sHandle, DigiSampleData.loop);
 
 	#ifndef NDEBUG
