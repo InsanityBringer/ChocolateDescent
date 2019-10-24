@@ -266,7 +266,7 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 						drawindex = 255;
 				}
 #else
-				drawindex = w(p + 28)
+				drawindex = w(p + 28);
 #endif
 				if (light != -3)
 				{
