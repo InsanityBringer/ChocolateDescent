@@ -676,9 +676,9 @@ int do_game_pause()
 
 	start_time();
 
-	if (Redbook_playing)
+	//if (Redbook_playing)
 		//RBAResume(); //[ISB] redbook audio
-		digi_resume_all();
+	digi_resume_all();
 
 	MAC(delay(500);)	// delay 1/2 second because of dumb redbook problem
 
