@@ -748,23 +748,22 @@ int trace_segs(vms_vector *p0,int oldsegnum, int trace_segs_iterations)
 
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
 
-
-#if defined(MACINTOSH)
-	if (StackSpace() < 1024) {
-#elif defined(WINDOWS)
-	/*if (stackavail() < 10240)*/ {
-#else
 	/*if (stackavail() < 1024)*/ 
 	if (trace_segs_iterations > 1024)
 	{		//if no debugging, we'll get past assert
-#endif
-		#ifndef NDEBUG
+#ifndef NDEBUG
 		if (!Doing_lighting_hack_flag)
 			Int3();	// Please get Matt, or if you cannot, then type 
 						// "?p0->xyz,segnum" at the DBG prompt, write down
 						// the values (a 3-element vector and a segment number), 
 						// and make a copy of the mine you are playing.
-		#endif
+		else
+#endif
+			//[ISB] this function is really bad. really really bad. agonizingly bad.
+			//This doesn't even begin to replicate it vanilla like, but I'd rather do this than rely on stupid shit
+			//like stack availability. It would make more sense to do an exhaustive test if this fails but that's not what vanilla does.
+			//or maybe they could have just used a saner search algorithm...
+			fprintf(stderr, "trace_segs: iteration limit hit\n");
 
 		return oldsegnum;				//just say we're in this segment and be done with it
 	}
@@ -802,9 +801,7 @@ int trace_segs(vms_vector *p0,int oldsegnum, int trace_segs_iterations)
 
 				side_dists[biggest_side] = 0;
 
-				trace_segs_iterations++;
-				check = trace_segs(p0,seg->children[biggest_side], trace_segs_iterations);	//trace into adjacent segment
-				trace_segs_iterations--;
+				check = trace_segs(p0,seg->children[biggest_side], trace_segs_iterations+1);	//trace into adjacent segment
 
 				if (check != -1)		//we've found a segment
 					return check;	
