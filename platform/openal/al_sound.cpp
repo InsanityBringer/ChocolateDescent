@@ -110,9 +110,6 @@ int I_InitAudio()
 	{
 		AL_InitSource(sourceNames[i]);
 	}
-	//float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
-	//alListenerfv(AL_ORIENTATION, &orientation[0]);
-	//I_ErrorCheck("Listener hack");
 
 	if (!alIsExtensionPresent("AL_EXT_FLOAT32"))
 	{
@@ -193,7 +190,7 @@ void I_SetVolume(int handle, int volume)
 {
 	if (handle >= _MAX_VOICES) return;
 
-	float gain = volume / 65536.0f;
+	float gain = volume / 32768.0f;
 	alSourcef(sourceNames[handle], AL_GAIN, gain);
 	AL_ErrorCheck("Setting sound volume");
 }
@@ -308,19 +305,6 @@ void I_CreateMusicSource()
 	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
 	AL_ErrorCheck("Creating music source");
-	if (!alIsSource(MusicSource))
-	{
-		fprintf(stderr, "what the fuck\n");
-		Int3();
-	}
-
-/*	//Immediately kick off the first buffer if possible
-	int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
-	alGenBuffers(1, &BufferQueue[0]);
-	alBufferData(BufferQueue[0], AL_FORMAT_STEREO16, MusicBufferData, finalTicks * S_GetSamplesPerTick() * sizeof(ALushort) * 2, 44100);
-	alSourceQueueBuffers(MusicSource, 1, &BufferQueue[0]);
-	alSourcePlay(MusicSource);
-	I_ErrorCheck("Queueing music buffers");*/
 }
 
 void I_DestroyMusicSource()
@@ -388,21 +372,6 @@ void I_QueueMusicBuffer(int numTicks, uint16_t *data)
 		AL_ErrorCheck("Playing music source");
 		//printf("Kicking this mess off\n");
 	}
-}
-
-void I_MIDIThread()
-{
-/*	std::unique_lock<std::mutex> lock(MIDIMutex);
-	S_StartMIDISong(CurrentSong, LoopMusic);
-	I_CreateMusicSource();
-	while (!StopMIDI)
-	{
-		lock.unlock();
-		I_QueueMusicBuffer();
-		lock.lock();
-	}
-	S_StopSequencer();
-	I_DestroyMusicSource();*/
 }
 
 void I_StartMIDISong()
