@@ -155,7 +155,8 @@ void JoystickInput(int buttons, int axes[4], int presentmask)
 	fix elapsedtime = curtime - lasttime;
 	for (int btn = 0; btn < MAX_BUTTONS; btn++)
 	{
-		if (buttons & (1 << btn))
+		//[ISB] Increment the bit by one, so button 0 can actually be read
+		if (buttons & (1 << (btn+1)))
 		{
 			if (!joystick.buttons[btn].down)
 			{

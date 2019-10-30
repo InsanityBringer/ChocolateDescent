@@ -274,6 +274,8 @@ void I_DoEvents()
 		case SDL_KEYUP:
 			I_KeyHandler(ev.key.keysym.scancode, ev.key.state);
 			break;
+			//[ISB] kill this. Descent's joystick code expects buttons to report that they're constantly being held down, and these button events only fire when the state changes
+/*
 		case SDL_CONTROLLERAXISMOTION:
 		case SDL_CONTROLLERBUTTONDOWN:
 		case SDL_CONTROLLERBUTTONUP:
@@ -282,11 +284,14 @@ void I_DoEvents()
 		case SDL_JOYAXISMOTION:
 		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
+		case SDL_JOYHATMOTION:
 			I_JoystickHandler();
-			break;
+			break;*/
 		}
 	}
 
+	I_JoystickHandler();
+	I_ControllerHandler();
 }
 
 void I_SetRelative(int state)
