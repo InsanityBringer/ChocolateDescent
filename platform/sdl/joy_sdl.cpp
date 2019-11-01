@@ -61,6 +61,7 @@ void I_JoystickHandler()
 	{
 		axisState[0] = SDL_JoystickGetAxis(joysticks[0], 0) * 127 / 32767;
 		axisState[1] = SDL_JoystickGetAxis(joysticks[0], 1) * 127 / 32767;
+		axisState[2] = SDL_JoystickGetAxis(joysticks[0], 2) * 127 / 32767;
 
 		int hatdir = SDL_JoystickGetHat(joysticks[0], 0);
 		//this is dumb

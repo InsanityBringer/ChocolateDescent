@@ -67,7 +67,11 @@ void set_exit_message(const char* fmt, ...)
 void _Assert(int expr, const char* expr_text, const char* filename, int linenum)
 {
 #ifndef NDEBUG
-	if (!(expr)) Error("Assertion failed: %s, file %s, line %d", expr_text, filename, linenum);
+	if (!(expr))
+	{
+		Int3();
+		Error("Assertion failed: %s, file %s, line %d", expr_text, filename, linenum);
+	}
 #endif
 }
 
