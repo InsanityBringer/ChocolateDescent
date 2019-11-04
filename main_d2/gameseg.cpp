@@ -18,9 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>	//	for memset()
 #include <algorithm>
 
-#ifdef MACINTOSH
-#include <Memory.h>
-#endif
+#include "misc/rand.h"
 
 #include "inferno.h"
 #include "game.h"
@@ -1870,9 +1868,9 @@ void pick_random_point_in_seg(vms_vector *new_pos, int segnum)
 	vms_vector	vec2;
 
 	compute_segment_center(new_pos, &Segments[segnum]);
-	vnum = (rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
+	vnum = (P_Rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	vm_vec_sub(&vec2, &Vertices[Segments[segnum].verts[vnum]], new_pos);
-	vm_vec_scale(&vec2, rand());			//	rand() always in 0..1/2
+	vm_vec_scale(&vec2, P_Rand());			//	P_Rand() always in 0..1/2
 	vm_vec_add2(new_pos, &vec2);
 }
 

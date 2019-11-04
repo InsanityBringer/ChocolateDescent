@@ -24,6 +24,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #include <algorithm>
 
+#include "misc/rand.h"
+
 //#include "pa_enabl.h"                   //$$POLY_ACC
 //#include "vga.h"
 
@@ -198,7 +200,7 @@ void autodemo_menu_check(int nitems, newmenu_item* items, int* last_key, int cit
 			int n_demos;
 			n_demos = newdemo_count_demos();
 		try_again:;
-			if ((rand() % (n_demos + 1)) == 0)
+			if ((P_Rand() % (n_demos + 1)) == 0)
 			{
 #ifndef SHAREWARE
 #ifdef WINDOWS

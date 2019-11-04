@@ -15,7 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "desw.h"
 #endif
 
-
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
@@ -23,6 +22,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <errno.h>
 #include <time.h>
+
+#include "misc/rand.h"
 //#include <unistd.h>
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
@@ -2293,7 +2294,7 @@ void InitPlayerPosition(int random_flag)
 		int i, closest = -1, trys = 0;
 		fix closest_dist = 0x7ffffff, dist;
 
-		srand(clock());
+		P_SRand(clock());
 
 #ifndef NDEBUG
 		if (NumNetPlayerPositions != MAX_NUM_NET_PLAYERS)
@@ -2311,7 +2312,7 @@ void InitPlayerPosition(int random_flag)
 			}
 			trys++;
 
-			NewPlayer = rand() % NumNetPlayerPositions;
+			NewPlayer = P_Rand() % NumNetPlayerPositions;
 
 			closest = -1;
 			closest_dist = 0x7fffffff;

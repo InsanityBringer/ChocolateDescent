@@ -61,6 +61,8 @@ set(SHARED_SOURCES
 	misc/error.h
 	misc/parsarg.cpp
 	misc/parsarg.h
+    misc/rand.h
+    misc/rand.cpp
 	misc/stb_vorbis.h
 	misc/types.h
 	platform/disk.h

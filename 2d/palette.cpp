@@ -26,6 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "fix/fix.h"
 #include "2d/palette.h"
+#include "misc/rand.h"
 
 extern int gr_installed;
 
@@ -116,7 +117,7 @@ void add_computed_color(int r, int g, int b, int color_num)
 		Num_computed_colors++;
 	}
 	else
-		add_index = (rand() * MAX_COMPUTED_COLORS) >> 15;
+		add_index = (P_Rand() * MAX_COMPUTED_COLORS) >> 15;
 
 	Computed_colors[add_index].r = r;
 	Computed_colors[add_index].g = g;
