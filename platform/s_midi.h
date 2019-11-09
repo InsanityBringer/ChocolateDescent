@@ -142,4 +142,6 @@ public:
 	void StopSong();
 	void Run();
 	void Shutdown();
+	//dumb things, pls improve
+	bool IsError();
 };

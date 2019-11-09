@@ -32,7 +32,7 @@ int MidiSequencer::StartSong(hmpheader_t* newSong, bool newLoop)
 {
 	song = newSong;
 	loop = newLoop;
-	samplesPerTick = MIDI_SAMPLESPERTICK; //[ISB] aaaaaa
+	samplesPerTick = (MIDI_SAMPLERATE / newSong->bpm); //[ISB] aaaaaa
 	RewindSong(false);
 
 	return 0;

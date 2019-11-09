@@ -92,9 +92,15 @@ MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 	songBuffer = new uint16_t[MIDI_TICKSPERSECOND * MIDI_SAMPLESPERTICK * 2];
 }
 
+bool MidiPlayer::IsError()
+{
+	return songBuffer == nullptr;
+}
+
 void MidiPlayer::SetSong(hmpheader_t* newSong, bool loop)
 {
 	std::unique_lock<std::mutex> lock(songMutex);
+	if (!initialized) return; //already ded
 	nextSong = newSong;
 	nextLoop = loop;
 	lock.unlock();
@@ -102,11 +108,19 @@ void MidiPlayer::SetSong(hmpheader_t* newSong, bool loop)
 	//This is very contestable, but maybe we can get away with it by merit of this only happening on main thread?
 	while (!hasChangedSong);
 	hasChangedSong = false;
+
+	//[ISB] This should be on the main thread, so lets just check for an error now and die
+	if (IsError())
+	{
+		Shutdown();
+		Error("MidiPlayer::SetSong: Couldn't allocate buffer for music playback\n");
+	}
 }
 
 void MidiPlayer::StopSong()
 {
 	std::unique_lock<std::mutex> lock(songMutex);
+	if (!initialized) return; //already ded
 	shouldStop = true;
 	lock.unlock();
 	//[ISB] I need to learn how to write threaded programs tbh
@@ -133,6 +147,7 @@ void MidiPlayer::Run()
 	initialized = true;
 	nextTimerTick = I_GetUS();
 	I_StartMIDISong();
+
 	for (;;)
 	{
 		//printf("I'm goin\n");
@@ -162,6 +177,11 @@ void MidiPlayer::Run()
 			}
 			//printf("Starting new song\n");
 			sequencer->StartSong(nextSong, nextLoop);
+			if (songBuffer)
+			{
+				delete[] songBuffer;
+			}
+			songBuffer = new uint16_t[5 * (44100 / nextSong->bpm) * 2];
 			//I_StartMIDISong(nextSong, nextLoop);
 			curSong = nextSong;
 			nextSong = nullptr;
@@ -176,7 +196,10 @@ void MidiPlayer::Run()
 			if (I_CanQueueMusicBuffer())
 			{
 				int ticks = sequencer->Render(4, songBuffer);
-				I_QueueMusicBuffer(ticks, songBuffer);
+				if (curSong != nullptr)
+					I_QueueMusicBuffer(ticks, MIDI_SAMPLERATE / curSong->bpm, songBuffer);
+				else //[ISB] current design of the stupid midi playback code can't handle being starved... I need to junk it and rewrite. 
+					I_QueueMusicBuffer(ticks, MIDI_SAMPLESPERTICK, songBuffer);
 			}
 		}
 
@@ -185,7 +208,10 @@ void MidiPlayer::Run()
 		if (numTicks > 2000) //[ISB] again inspired by dpJudas, with 2000 US number from GZDoom
 			I_DelayUS(numTicks - 2000);
 		while (I_GetUS() < nextTimerTick);
-		nextTimerTick += 8333;
+		if (curSong == nullptr) //no song, run at 120hz
+			nextTimerTick += 8333;
+		else
+			nextTimerTick += 1000000 / curSong->bpm;
 	}
 	I_StopMIDISong();
 	shouldEnd = false;
@@ -232,6 +258,12 @@ int S_InitMusic(int device)
 		return 1;
 	}
 	player = new MidiPlayer(sequencer, synth);
+
+	if (player == nullptr || player->IsError())
+	{
+		Error("S_InitMusic: Cannot allocate MIDI player");
+		return 1;
+	}
 
 	CurrentDevice = device;
 
@@ -481,6 +513,7 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 	song->length = BS_MakeInt(&data[32]);
 	song->numChunks = BS_MakeInt(&data[48]);
 	song->bpm = BS_MakeInt(&data[56]);
+	printf("bpm %d\n", song->bpm);
 	song->seconds = BS_MakeInt(&data[60]);
 	song->loopStart = 0;
 

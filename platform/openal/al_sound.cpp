@@ -353,7 +353,7 @@ void I_DequeueMusicBuffers()
 	AL_ErrorCheck("Unqueueing music buffers");
 }
 
-void I_QueueMusicBuffer(int numTicks, uint16_t *data)
+void I_QueueMusicBuffer(int numTicks, int samplesPerTick, uint16_t *data)
 {
 	//printf("Queuing %d ticks\n", numTicks);
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
@@ -361,7 +361,7 @@ void I_QueueMusicBuffer(int numTicks, uint16_t *data)
 	{
 		//int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
 		alGenBuffers(1, &BufferQueue[CurrentBuffers]);
-		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * MIDI_SAMPLESPERTICK * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
+		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * samplesPerTick * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
 		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
 		AL_ErrorCheck("Queueing music buffers");
 	}

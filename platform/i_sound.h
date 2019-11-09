@@ -61,7 +61,7 @@ void I_SetMusicVolume(int volume);
 
 bool I_CanQueueMusicBuffer();
 void I_DequeueMusicBuffers();
-void I_QueueMusicBuffer(int numTicks, uint16_t* data);
+void I_QueueMusicBuffer(int numTicks, int samplesPerTick, uint16_t* data);
 
 void I_StartMIDISong();
 void I_StopMIDISong();
