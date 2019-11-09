@@ -256,7 +256,7 @@ void S_ShutdownMusic()
 	CurrentDevice = 0;
 }
 
-int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
+int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* song)
 {
 	int done, oldpointer, position, value, i;
 	int command;
@@ -372,6 +372,21 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 		case EVENT_PITCH:
 			chunk->events[i].param1 = data[pointer++];
 			chunk->events[i].param2 = data[pointer++];
+
+			if (command == EVENT_CONTROLLER && chunk->events[i].param1 == 110)
+			{
+				int j;
+				if (song->loopStart == 0) //descent 1 game02.hmp has two loop points. uh?
+				{
+					for (j = 0; j < i; j++)
+					{
+						song->loopStart += chunk->events[j].delta;
+					}
+				}
+				//printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, song->loopStart);
+			}
+			//if (command == EVENT_CONTROLLER && chunk->events[i].param1 == 111)
+				//printf("Loop end on track %d channel %d, event %d with delta %d\n", chunk->chunkNum, chunk->events[i].channel, i, value);
 			break;
 		case EVENT_PATCH:
 		case EVENT_PRESSURE:
@@ -467,6 +482,7 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 	song->numChunks = BS_MakeInt(&data[48]);
 	song->bpm = BS_MakeInt(&data[56]);
 	song->seconds = BS_MakeInt(&data[60]);
+	song->loopStart = 0;
 
 	song->chunks = (midichunk_t*)malloc(sizeof(midichunk_t) * song->numChunks);
 	if (song->chunks == nullptr)
@@ -479,7 +495,7 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 	pointer = 776;
 	for (i = 0; i < song->numChunks; i++)
 	{
-		pointer = S_ReadHMPChunk(pointer, data, &song->chunks[i]);
+		pointer = S_ReadHMPChunk(pointer, data, &song->chunks[i], song);
 	}
 
 	return 0;

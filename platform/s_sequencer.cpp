@@ -33,23 +33,48 @@ int MidiSequencer::StartSong(hmpheader_t* newSong, bool newLoop)
 	song = newSong;
 	loop = newLoop;
 	samplesPerTick = MIDI_SAMPLESPERTICK; //[ISB] aaaaaa
-	RewindSong();
+	RewindSong(false);
 
 	return 0;
 }
 
-void MidiSequencer::RewindSong()
+void MidiSequencer::RewindSong(bool resetLoop)
 {
 	midichunk_t* chunk;
 	ticks = lastRenderedTick = 0;
+	int cumlTime;
 
 	for (int i = 0; i < song->numChunks; i++)
 	{
 		chunk = &song->chunks[i];
+		cumlTime = 0;
 		if (chunk->numEvents > 0)
 		{
-			chunk->nextEvent = 0;
-			chunk->nextEventTime = chunk->events[0].delta;
+			if (resetLoop)
+			{
+				chunk->nextEvent = 0;
+				chunk->nextEventTime = chunk->events[0].delta;
+				//Find the first event at or after the loop
+				//This will mess up on unaligned events, they'll play too early.
+				//Dan Wentz implies that events need to be aligned when discussing Descent MIDI composition,
+				//so maybe it's safe to assume HMI SOS would do the same? This should be investigated in detail. 
+				while (cumlTime < song->loopStart)
+				{
+					chunk->nextEvent++;
+					if (chunk->nextEvent >= chunk->numEvents) //not enough events
+					{
+						chunk->nextEvent = -1;
+						break;
+					}
+					cumlTime += chunk->nextEventTime;
+					chunk->nextEventTime = chunk->events[chunk->nextEvent].delta;
+				}
+			}
+			else
+			{
+				chunk->nextEvent = 0;
+				chunk->nextEventTime = chunk->events[0].delta;
+			}
 		}
 	}
 }
@@ -65,6 +90,7 @@ int MidiSequencer::Tick()
 	int i;
 	int nextTick = INT_MAX;
 	midichunk_t* chunk;
+	midievent_t* ev;
 
 	for (i = 0; i < song->numChunks; i++)
 	{
@@ -72,7 +98,18 @@ int MidiSequencer::Tick()
 
 		while (chunk->nextEvent != -1 && chunk->nextEventTime == ticks)
 		{
-			synth->DoMidiEvent(&chunk->events[chunk->nextEvent]);
+			ev = &chunk->events[chunk->nextEvent];
+			//loop hack
+			if (loop) //Specs say to have loops on track 1 but this seems to vary some? I'm very frequently seeing it on Track 2
+			{
+				if (ev->type == EVENT_CONTROLLER && ev->param1 == 111)
+				{
+					//Cause an immediate rewind
+					//TODO: Evalulate whether or not the events on this tick should be played. descent2.com is unclear. 
+					return INT_MAX;
+				}
+			}
+			synth->DoMidiEvent(ev);
 			//chunk->nextEventTime += chunk->events[chunk->nextEvent].delta;
 			chunk->nextEvent++;
 			if (chunk->nextEvent >= chunk->numEvents)
@@ -148,7 +185,7 @@ int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 					lastRenderedTick = currentTick;
 					buffer += samplesPerTick * numTicks * 2;
 				}
-				RewindSong();
+				RewindSong(true);
 				done = true;
 			}
 			else

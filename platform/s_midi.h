@@ -66,6 +66,9 @@ typedef struct
 	int bpm;
 	int seconds;
 
+	//Go straight to this offset when looping the song
+	int loopStart;
+
 	midichunk_t* chunks;
 } hmpheader_t;
 
