@@ -513,7 +513,7 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 	song->length = BS_MakeInt(&data[32]);
 	song->numChunks = BS_MakeInt(&data[48]);
 	song->bpm = BS_MakeInt(&data[56]);
-	printf("bpm %d\n", song->bpm);
+	//printf("bpm %d\n", song->bpm);
 	song->seconds = BS_MakeInt(&data[60]);
 	song->loopStart = 0;
 
