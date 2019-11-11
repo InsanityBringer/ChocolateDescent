@@ -33,6 +33,8 @@ void mouse_get_delta(int* dx, int* dy)
 		*dy = ldy - lastReadY;
 		lastReadX = ldx; lastReadY = ldy;
 	}
+	*dx = (int)(*dx * MouseScalar);
+	*dy = (int)(*dy * MouseScalar);
 }
 
 #define mousebtn(x) (1 << x)

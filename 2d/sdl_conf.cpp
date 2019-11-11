@@ -19,12 +19,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "2d/i_gr.h"
 #include "platform/s_midi.h"
+#include "platform/mouse.h"
 
 static const char* WindowWidthStr = "WindowWidth";
 static const char* WindowHeightStr = "WindowHeight";
 static const char* FitModeStr = "FitMode";
 static const char* FullscreenStr = "Fullscreen";
 static const char* SoundFontPath = "SoundFontPath";
+static const char* MouseScalarStr = "MouseScalar";
 
 //[ISB] to be honest, I hate this configuration parser. I should try to create something more flexible at some point.
 int I_ReadChocolateConfig()
@@ -74,6 +76,8 @@ int I_ReadChocolateConfig()
 				BestFit = strtol(value, NULL, 10);
 			else if (!strcmp(token, FullscreenStr))
 				Fullscreen = strtol(value, NULL, 10);
+			else if (!strcmp(token, MouseScalarStr))
+				MouseScalar = strtof(value, NULL);
 			else if (!strcmp(token, SoundFontPath))
 			{
 				char* p;
