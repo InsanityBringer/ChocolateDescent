@@ -24,6 +24,14 @@ MidiFluidSynth::MidiFluidSynth()
 	AudioDriver = nullptr;
 	//I_SetSoundfontFilename(SoundFontFilename);
 
+	//I need to get some goddamn error handling in here tbh
+	//[ISB] this is canned because it doesn't solve the problem. 
+	/*if (FluidSynthSettings)
+	{
+		//Increase default polyphony to avoid issues with Vignettes map 12, perhaps. 
+		fluid_settings_setint(FluidSynthSettings, "synth.polyphony", 512);
+	}*/
+
 	//if (FluidSynth == nullptr) return 1;
 }
 
@@ -47,6 +55,7 @@ void MidiFluidSynth::RenderMIDI(int numTicks, int samplesPerTick, unsigned short
 //I_MidiEvent(chunk->events[chunk->nextEvent]);
 void MidiFluidSynth::DoMidiEvent(midievent_t *ev)
 {
+	//printf("event %d channel %d param 1 %d param 2 %d\n", ev->type, ev->channel, ev->param1, ev->param2);
 	switch (ev->type)
 	{
 	case EVENT_NOTEON:

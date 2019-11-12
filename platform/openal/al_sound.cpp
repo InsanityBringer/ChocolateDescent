@@ -365,7 +365,9 @@ void I_QueueMusicBuffer(int numTicks, int samplesPerTick, uint16_t *data)
 		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
 		AL_ErrorCheck("Queueing music buffers");
 	}
-	if (!playing)
+	int playstatus = 0;
+	alGetSourcei(MusicSource, AL_SOURCE_STATE, &playstatus);
+	if (playstatus != AL_PLAYING)
 	{
 		playing = true;
 		alSourcePlay(MusicSource);

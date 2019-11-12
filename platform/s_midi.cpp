@@ -181,7 +181,7 @@ void MidiPlayer::Run()
 			{
 				delete[] songBuffer;
 			}
-			songBuffer = new uint16_t[5 * (44100 / nextSong->bpm) * 2];
+			songBuffer = new uint16_t[6 * (44100 / nextSong->bpm) * 2];
 			//I_StartMIDISong(nextSong, nextLoop);
 			curSong = nextSong;
 			nextSong = nullptr;
@@ -195,7 +195,7 @@ void MidiPlayer::Run()
 			I_DequeueMusicBuffers();
 			if (I_CanQueueMusicBuffer())
 			{
-				int ticks = sequencer->Render(4, songBuffer);
+				int ticks = sequencer->Render(5, songBuffer);
 				if (curSong != nullptr)
 					I_QueueMusicBuffer(ticks, MIDI_SAMPLERATE / curSong->bpm, songBuffer);
 				else //[ISB] current design of the stupid midi playback code can't handle being starved... I need to junk it and rewrite. 
