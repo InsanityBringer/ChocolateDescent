@@ -347,6 +347,7 @@ int parse_body(FFILE* ifile, long len, iff_bitmap_header* bmheader)
 
 		}
 
+#ifndef BUILD_DESCENT2
 	if (bmheader->masking == mskHasMask && p == data_end && ifile->position == end_pos - 2)		//I don't know why...
 		ifile->position++;		//...but if I do this it works
 
@@ -358,6 +359,17 @@ int parse_body(FFILE* ifile, long len, iff_bitmap_header* bmheader)
 			//			debug("IFF Error: p=%x, data_end=%x, cnt=%d\n",p,data_end,cnt);
 			return IFF_CORRUPT;
 		}
+#else
+	if (p != data_end)				//if we don't have the whole bitmap...
+		return IFF_CORRUPT;		//...the give an error
+
+	//Pretend we read the whole chuck, because if we didn't, it's because
+	//we didn't read the last mask like or the last rle record for padding
+	//or whatever and it's not important, because we check to make sure
+	//we got the while bitmap, and that's what really counts.
+
+	ifile->position = end_pos;
+#endif
 
 	if (ignore) ignore++;   // haha, suppress the evil warning message
 
@@ -504,8 +516,7 @@ int iff_parse_ilbm_pbm(FFILE* ifile, long form_type, iff_bitmap_header* bmheader
 			}
 			else {
 
-				//MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );//Hack by KRB
-				bmheader->raw_data = (uint8_t*)malloc((bmheader->w * bmheader->h) * sizeof(uint8_t));
+				MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );
 				if (!bmheader->raw_data)
 					return IFF_NO_MEM;
 			}
@@ -522,8 +533,7 @@ int iff_parse_ilbm_pbm(FFILE* ifile, long form_type, iff_bitmap_header* bmheader
 			bmheader->h = prev_bm->bm_h;
 			bmheader->type = prev_bm->bm_type;
 
-			//MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );//Hack by KRB
-			bmheader->raw_data = (uint8_t*)malloc((bmheader->w * bmheader->h) * sizeof(uint8_t));
+			MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );
 
 			memcpy(bmheader->raw_data, prev_bm->bm_data, bmheader->w * bmheader->h);
 			skip_chunk(ifile, len);
@@ -590,8 +600,7 @@ int convert_ilbm_to_pbm(iff_bitmap_header* bmheader)
 	int bytes_per_row, byteofs;
 	uint8_t checkmask, newbyte, setbit;
 
-	//MALLOC( new_data, int8_t, bmheader->w * bmheader->h );//hack by KRB
-	new_data = (int8_t*)malloc((bmheader->w * bmheader->h) * sizeof(int8_t));
+	MALLOC( new_data, int8_t, bmheader->w * bmheader->h );
 	if (new_data == NULL) return IFF_NO_MEM;
 
 	destptr = new_data;
@@ -642,8 +651,7 @@ int convert_rgb15(grs_bitmap* bm, iff_bitmap_header* bmheader)
 
 	//        if ((new_data = malloc(bm->bm_w * bm->bm_h * 2)) == NULL)
 	//            {ret=IFF_NO_MEM; goto done;}
-		   //MALLOC(new_data, uint16_t, bm->bm_w * bm->bm_h * 2);//hack by KRB also a bug I believe. It is allocating twice the needed memory.
-	new_data = (uint16_t*)malloc(bm->bm_w * bm->bm_h * 2);//I left it as previously done, thinking the *2 means sizeof(uint16_t)
+	MALLOC(new_data, uint16_t, bm->bm_w * bm->bm_h * 2);
 	if (new_data == NULL)
 		return IFF_NO_MEM;
 
@@ -677,8 +685,7 @@ int open_fake_file(char* ifilename, FFILE* ffile)
 
 	ffile->length = cfilelength(ifile);
 
-	MALLOC(ffile->data,uint8_t,ffile->length);//Hack by KRB
-	//ffile->data = (uint8_t*)malloc(ffile->length * sizeof(uint8_t)); //[ISB] yet again unhack
+	MALLOC(ffile->data,uint8_t,ffile->length);
 
 	if ((int)cfread(ffile->data, 1, ffile->length, ifile) < ffile->length)
 		ret = IFF_READ_ERROR;
@@ -978,8 +985,7 @@ int write_body(FILE* ofile, iff_bitmap_header* bitmap_header, int compression_on
 	put_long(len, ofile);
 
 	//if (! (new_span = malloc(bitmap_header->w+(bitmap_header->w/128+2)*2))) return IFF_NO_MEM;
-   // MALLOC( new_span, uint8_t, bitmap_header->w + (bitmap_header->w/128+2)*2);//hack by KRB, also allocating twice the needed memory, probably a bug
-	new_span = (uint8_t*)malloc(bitmap_header->w + (bitmap_header->w / 128 + 2) * 2);//left it alone, as in 2 lines above -KRB
+	MALLOC( new_span, uint8_t, bitmap_header->w + (bitmap_header->w/128+2)*2);
 	if (new_span == NULL) return IFF_NO_MEM;
 
 	for (y = bitmap_header->h; y--;) {
@@ -1189,8 +1195,7 @@ int iff_read_animbrush(char* ifilename, grs_bitmap** bm_list, int max_bitmaps, i
 
 			prev_bm = *n_bitmaps > 0 ? bm_list[*n_bitmaps - 1] : NULL;
 
-			//MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );//hack by KRB
-			bm_list[*n_bitmaps] = (grs_bitmap*)malloc(1 * sizeof(grs_bitmap));
+			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
 			bm_list[*n_bitmaps]->bm_data = NULL;
 
 			ret = iff_parse_bitmap(&ifile, bm_list[*n_bitmaps], form_type, (int8_t*)(*n_bitmaps > 0 ? NULL : palette), prev_bm);
