@@ -15,14 +15,16 @@ as described in copying.txt.
 
 #include "platform/mono.h"
 
-int windowStates[32];
-char windowNames[5][256]; //it's not as many but...
+#define NUMWINDOWS 2
+
+int windowStates[NUMWINDOWS];
+char windowNames[NUMWINDOWS][256];
 
 int lastWindow = -1;
 
 int minit()
 {
-	fprintf(stderr, "minit: STUB\n");
+	//fprintf(stderr, "minit: STUB\n");
 	return 0;
 }
 
@@ -33,10 +35,13 @@ void mclose(int num)
 
 void mopen(int n, int row, int col, int width, int height, const char* title)
 {
-	windowStates[n] = 1;
-	fprintf(stderr, "Opened mono window %d: %s\n", n, title);
-	if (n < 5) //is this sufficient error checking?
+	if (n < NUMWINDOWS)
+	{
+		windowStates[n] = 1;
+		fprintf(stderr, "Opened mono window %d: %s\n", n, title);
+		//is this sufficient error checking?
 		strncpy(windowNames[n], title, std::min(strlen(title), (size_t)255));
+	}
 }
 
 void mclear(int n)
