@@ -2488,8 +2488,6 @@ void collide_weapon_and_debris(object* weapon, object* debris, vms_vector* colli
 //##	return; 
 //##}
 
-#pragma on (unreferenced)					// No warnings for unreferenced vars, eh?
-
 #define COLLISION_OF(a,b) (((a)<<8) + (b))
 
 #define DO_COLLISION(type1,type2,collision_function)						\
