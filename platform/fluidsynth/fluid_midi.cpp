@@ -22,15 +22,12 @@ MidiFluidSynth::MidiFluidSynth()
 	FluidSynth = new_fluid_synth(FluidSynthSettings);
 	//AudioDriver = new_fluid_audio_driver(FluidSynthSettings, FluidSynth);
 	AudioDriver = nullptr;
-	//I_SetSoundfontFilename(SoundFontFilename);
 
-	//I need to get some goddamn error handling in here tbh
-	//[ISB] this is canned because it doesn't solve the problem. 
-	/*if (FluidSynthSettings)
+	if (FluidSynthSettings)
 	{
-		//Increase default polyphony to avoid issues with Vignettes map 12, perhaps. 
-		fluid_settings_setint(FluidSynthSettings, "synth.polyphony", 512);
-	}*/
+		fluid_settings_setint(FluidSynthSettings, "synth.chorus.active", 0);
+		fluid_settings_setint(FluidSynthSettings, "synth.reverb.active", 0);
+	}
 
 	//if (FluidSynth == nullptr) return 1;
 }
