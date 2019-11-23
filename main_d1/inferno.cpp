@@ -408,7 +408,7 @@ int D_DescentMain(int argc, const char** argv)
 
 	//	set_exit_message("\n\n%s", TXT_THANKS);
 
-	printf("\nDESCENT   %s\n", VERSION_NAME);
+	printf("\nDESCENT   %s %s %s\n", VERSION_NAME, __DATE__, __TIME__);
 	printf("%s\n%s\n", TXT_COPYRIGHT, TXT_TRADEMARK);
 
 	check_id_checksum_and_date();
