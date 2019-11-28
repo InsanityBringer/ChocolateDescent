@@ -862,19 +862,16 @@ void load_bitmap_replacements(char* level_name)
 
 		MALLOC(indices, uint16_t, n_bitmaps);
 
-#ifndef MACINTOSH	// silly, silly, must swap shorts on the mac.
-		cfread(indices, sizeof(*indices), n_bitmaps, ifile);
-#else
 		for (i = 0; i < n_bitmaps; i++)
 		{
 			indices[i] = cfile_read_short(ifile);
 		}
-#endif
 
 		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - (sizeof(DiskBitmapHeader) * n_bitmaps);
 		MALLOC(Bitmap_replacement_data, uint8_t, bitmap_data_size);
 
-		for (i = 0; i < n_bitmaps; i++) {
+		for (i = 0; i < n_bitmaps; i++)
+		{
 			DiskBitmapHeader bmh;
 			grs_bitmap temp_bitmap;
 

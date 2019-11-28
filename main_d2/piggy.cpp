@@ -21,7 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <dos.h>
 #include <errno.h>
 
 #include "misc/types.h"
