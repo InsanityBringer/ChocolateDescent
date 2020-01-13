@@ -672,7 +672,7 @@ void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 	//MVE_SetPalette(p, start, count); //[ISB] I need to figure out if I should do something here
 	//[ISB] for whatever reason, the implication of the above line is that the palette is set without actually informing the game's palette code
 	//Replicate this by using a raw palette push call. 
-	I_WritePalette(start, start + count, p + (start*3));
+	I_WritePalette(start, start + count - 1, p + (start*3));
 }
 
 
