@@ -828,6 +828,9 @@ typedef struct DiskBitmapHeader
 	int offset;
 } DiskBitmapHeader;
 
+//from piggy code, needed to properly figure out how much memory to allocate
+#define BITMAP_HEADER_SIZE 18
+
 void load_bitmap_replacements(char* level_name)
 {
 	char ifile_name[FILENAME_LEN];
@@ -867,7 +870,7 @@ void load_bitmap_replacements(char* level_name)
 			indices[i] = cfile_read_short(ifile);
 		}
 
-		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - (sizeof(DiskBitmapHeader) * n_bitmaps);
+		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - (BITMAP_HEADER_SIZE * n_bitmaps);
 		MALLOC(Bitmap_replacement_data, uint8_t, bitmap_data_size);
 
 		for (i = 0; i < n_bitmaps; i++)
