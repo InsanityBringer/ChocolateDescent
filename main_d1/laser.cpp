@@ -12,6 +12,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include <stdlib.h>
+#include "misc/rand.h"
 #include "inferno.h"
 #include "game.h"
 #include "bm.h"
@@ -401,7 +402,7 @@ int Laser_create_new(vms_vector* direction, vms_vector* position, int segnum, in
 	//	obj->lifeleft = Weapon_info[obj->id].lifetime;
 
 	if ((obj->type == OBJ_WEAPON) && (obj->id == FLARE_ID))
-		obj->lifeleft += (rand() - 16384) << 2;		//	add in -2..2 seconds
+		obj->lifeleft += (P_Rand() - 16384) << 2;		//	add in -2..2 seconds
 
 //	mprintf( 0, "Weapon speed = %.1f (%.1f)\n", f2fl(Weapon_info[obj->id].speed[Difficulty_level] + parent_speed), f2fl(parent_speed) );
 
@@ -1124,7 +1125,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 	// The Laser_offset is used to "jitter" the laser fire so that lasers don't always appear
 	// right in front of your face.   I put it here instead of laser_create_new because I want
 	// both of the dual laser beams to be fired from the same distance.
-	Laser_offset = ((F1_0 * 2) * (rand() % 10)) / 10;
+	Laser_offset = ((F1_0 * 2) * (P_Rand() % 10)) / 10;
 
 	switch (weapon_num) {
 	case LASER_INDEX: {
@@ -1141,13 +1142,13 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 	case VULCAN_INDEX: {
 		//	Only make sound for 1/4 of vulcan bullets.
 		int	make_sound = 1;
-		//if (rand() > 24576)
+		//if (P_Rand() > 24576)
 		//	make_sound = 1;
-		Laser_player_fire_spread(objp, VULCAN_ID, 6, rand() / 8 - 32767 / 16, rand() / 8 - 32767 / 16, make_sound, 0);
+		Laser_player_fire_spread(objp, VULCAN_ID, 6, P_Rand() / 8 - 32767 / 16, P_Rand() / 8 - 32767 / 16, make_sound, 0);
 		if (nfires > 1) {
-			Laser_player_fire_spread(objp, VULCAN_ID, 6, rand() / 8 - 32767 / 16, rand() / 8 - 32767 / 16, 0, 0);
+			Laser_player_fire_spread(objp, VULCAN_ID, 6, P_Rand() / 8 - 32767 / 16, P_Rand() / 8 - 32767 / 16, 0, 0);
 			if (nfires > 2) {
-				Laser_player_fire_spread(objp, VULCAN_ID, 6, rand() / 8 - 32767 / 16, rand() / 8 - 32767 / 16, 0, 0);
+				Laser_player_fire_spread(objp, VULCAN_ID, 6, P_Rand() / 8 - 32767 / 16, P_Rand() / 8 - 32767 / 16, 0, 0);
 			}
 		}
 		break;
@@ -1192,9 +1193,9 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 		force_vec.z = -(objp->orient.fvec.z << 7);
 		phys_apply_force(objp, &force_vec);
 
-		force_vec.x = (force_vec.x >> 4) + rand() - 16384;
-		force_vec.y = (force_vec.y >> 4) + rand() - 16384;
-		force_vec.z = (force_vec.z >> 4) + rand() - 16384;
+		force_vec.x = (force_vec.x >> 4) + P_Rand() - 16384;
+		force_vec.y = (force_vec.y >> 4) + P_Rand() - 16384;
+		force_vec.z = (force_vec.z >> 4) + P_Rand() - 16384;
 		phys_apply_rot(objp, &force_vec);
 
 	}
@@ -1346,12 +1347,12 @@ void create_smart_children(object* objp)
 			for (i = 0; i < NUM_SMART_CHILDREN; i++) {
 				if (parent_type == OBJ_PLAYER) {
 					int	hobjnum;
-					hobjnum = create_homing_missile(objp, objlist[(rand() * numobjs) >> 15].objnum, PLAYER_SMART_HOMING_ID, make_sound);
+					hobjnum = create_homing_missile(objp, objlist[(P_Rand() * numobjs) >> 15].objnum, PLAYER_SMART_HOMING_ID, make_sound);
 					// mprintf((0, "Object #%i is a PLAYER smart blob.\n", hobjnum));
 				}
 				else {
 					int	hobjnum;
-					hobjnum = create_homing_missile(objp, objlist[(rand() * numobjs) >> 15].objnum, ROBOT_SMART_HOMING_ID, make_sound);
+					hobjnum = create_homing_missile(objp, objlist[(P_Rand() * numobjs) >> 15].objnum, ROBOT_SMART_HOMING_ID, make_sound);
 					// mprintf((0, "Object #%i is a robot smart blob.\n", hobjnum));
 				}
 				make_sound = 0;
@@ -1435,9 +1436,9 @@ void do_missile_firing(void)
 			force_vec.z = -(ConsoleObject->orient.fvec.z << 7);
 			phys_apply_force(ConsoleObject, &force_vec);
 
-			force_vec.x = (force_vec.x >> 4) + rand() - 16384;
-			force_vec.y = (force_vec.y >> 4) + rand() - 16384;
-			force_vec.z = (force_vec.z >> 4) + rand() - 16384;
+			force_vec.x = (force_vec.x >> 4) + P_Rand() - 16384;
+			force_vec.y = (force_vec.y >> 4) + P_Rand() - 16384;
+			force_vec.z = (force_vec.z >> 4) + P_Rand() - 16384;
 			phys_apply_rot(ConsoleObject, &force_vec);
 			}
 			break;

@@ -12,12 +12,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include <stdio.h>		//	for printf()
-#include <stdlib.h>		// for rand() and qsort()
+#include <stdlib.h>		// for qsort()
 #include <string.h>		// for memset()
 
 #include "inferno.h"
 #include "platform/mono.h"
 #include "3d/3d.h"
+#include "misc/rand.h"
 
 #include "object.h"
 #include "misc/error.h"
@@ -46,7 +47,7 @@ void create_random_xlate(int8_t * xt)
 		xt[i] = i;
 
 	for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++) {
-		int	j = (rand() * MAX_SIDES_PER_SEGMENT) / (RAND_MAX + 1);
+		int	j = (P_Rand() * MAX_SIDES_PER_SEGMENT) / (PRAND_MAX + 1);
 		int8_t	temp_byte;
 		Assert((j >= 0) && (j < MAX_SIDES_PER_SEGMENT));
 
@@ -779,7 +780,7 @@ void ai_follow_path(object* objp, int player_visibility)
 			else {
 				fix	prob = fixdiv(distance_travellable, dist_to_goal);
 
-				int	rand_num = rand();
+				int	rand_num = P_Rand();
 				if ((rand_num >> 1) < prob)
 					move_object_to_goal(objp, &goal_point, goal_seg);
 			}
@@ -1158,7 +1159,7 @@ void attempt_to_resume_path(object* objp)
 	mprintf((0, "Object %i trying to resume path at index %i\n", objp - Objects, aip->cur_path_index));
 
 	if (aip->behavior == AIB_STATION)
-		if (rand() > 8192) {
+		if (P_Rand() > 8192) {
 			ai_local* ailp = &Ai_local_info[objp - Objects];
 
 			aip->hide_segment = objp->segnum;
@@ -1203,8 +1204,8 @@ void test_create_path_many(void)
 	int			i;
 
 	for (i = 0; i < Test_size; i++) {
-		Cursegp = &Segments[(rand() * (Highest_segment_index + 1)) / RAND_MAX];
-		Markedsegp = &Segments[(rand() * (Highest_segment_index + 1)) / RAND_MAX];
+		Cursegp = &Segments[(P_Rand() * (Highest_segment_index + 1)) / PRAND_MAX];
+		Markedsegp = &Segments[(P_Rand() * (Highest_segment_index + 1)) / PRAND_MAX];
 		create_path_points(&Objects[0], Cursegp - Segments, Markedsegp - Segments, point_segs, &num_points, -1, 0, 0, -1);
 	}
 

@@ -12,6 +12,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include <stdlib.h>
+#include "misc/rand.h"
 #include "misc/error.h"
 #include "platform/mono.h"
 #include "inferno.h"
@@ -106,7 +107,7 @@ void do_controlcen_dead_frame(void)
 		return;
 
 	if ((Dead_controlcen_object_num != -1) && (Fuelcen_seconds_left > 0))
-		if (rand() < FrameTime * 4)
+		if (P_Rand() < FrameTime * 4)
 			create_small_fireball_on_object(&Objects[Dead_controlcen_object_num], F1_0 * 3, 1);
 }
 
@@ -230,7 +231,7 @@ void do_controlcen_frame(object* obj)
 			Laser_create_new_easy(&vec_to_goal, &Gun_pos[best_gun_num], obj - Objects, CONTROLCEN_WEAPON_NUM, 1);
 
 			//	1/4 of time, fire another thing, not directly at player, so it might hit him if he's constantly moving.
-			if (rand() < 32767 / 4) 
+			if (P_Rand() < 32767 / 4) 
 			{
 				vms_vector	randvec;
 

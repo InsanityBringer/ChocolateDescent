@@ -15,6 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "misc/rand.h"
 #include "cfile/cfile.h"
 #include "fuelcen.h"
 #include "gameseg.h"
@@ -440,11 +441,11 @@ void robotmaker_proc(FuelCenter* robotcen)
 		else
 		{
 			dist_to_player = vm_vec_dist_quick(&ConsoleObject->pos, &robotcen->Center);
-			top_time = dist_to_player / 64 + rand() * 2 + F1_0 * 2;
+			top_time = dist_to_player / 64 + P_Rand() * 2 + F1_0 * 2;
 			if (top_time > ROBOT_GEN_TIME)
-				top_time = ROBOT_GEN_TIME + rand();
+				top_time = ROBOT_GEN_TIME + P_Rand();
 			if (top_time < F1_0 * 2)
-				top_time = F1_0 * 3 / 2 + rand() * 2;
+				top_time = F1_0 * 3 / 2 + P_Rand() * 2;
 		}
 
 		// mprintf( (0, "Time between morphs %d seconds, dist_to_player = %7.3f\n", f2i(top_time), f2fl(dist_to_player) ));
@@ -546,7 +547,7 @@ void robotmaker_proc(FuelCenter* robotcen)
 				if (num_types == 1)
 					type = legal_types[0];
 				else
-					type = legal_types[(rand() * num_types) / 32768];
+					type = legal_types[(P_Rand() * num_types) / 32768];
 
 				mprintf((0, "Morph: (type = %i) (seg = %i) (capacity = %08x)\n", type, robotcen->segnum, robotcen->Capacity));
 				obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type);
@@ -599,8 +600,8 @@ void controlcen_proc(FuelCenter * controlcen)
 	fc = Fuelcen_seconds_left;
 	if (fc > 16)
 		fc = 16;
-	ConsoleObject->mtype.phys_info.rotvel.x += fixmul(rand() - 16384, 3 * F1_0 / 16 + (F1_0 * (16 - fc)) / 32);
-	ConsoleObject->mtype.phys_info.rotvel.z += fixmul(rand() - 16384, 3 * F1_0 / 16 + (F1_0 * (16 - fc)) / 32);
+	ConsoleObject->mtype.phys_info.rotvel.x += fixmul(P_Rand() - 16384, 3 * F1_0 / 16 + (F1_0 * (16 - fc)) / 32);
+	ConsoleObject->mtype.phys_info.rotvel.z += fixmul(P_Rand() - 16384, 3 * F1_0 / 16 + (F1_0 * (16 - fc)) / 32);
 	//	Hook in the rumble sound effect here.
 
 	old_time = controlcen->Timer;

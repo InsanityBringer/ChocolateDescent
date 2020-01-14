@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <malloc.h>
 #include <limits.h>
 #include <io.h>
+#include "misc/rand.h"
 #include "platform/findfile.h"
 #include "platform/disk.h"
 #include "inferno.h"
@@ -2948,7 +2949,7 @@ void newdemo_start_playback(const char* filename)
 		{
 			return;		// No files found!
 		}
-		RandFileNum = rand() % NumFiles;
+		RandFileNum = P_Rand() % NumFiles;
 		NumFiles = 0;
 		if (!FileFindFirst("*.DEM", &find)) 
 		{

@@ -49,6 +49,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "gauges.h"
 #include "text.h"
+#include "misc/rand.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -610,7 +611,7 @@ void ai_turn_towards_vector(vms_vector* goal_vector, object* objp, fix rate)
 	}
 
 	//	//	Every 8th time, do a correct matrix create, 7/8 time, do a quick one.
-	//	if (rand() < 0x1000)
+	//	if (P_Rand() < 0x1000)
 	vm_vector_2_matrix(&objp->orient, &new_fvec, NULL, &objp->orient.rvec);
 	//	else
 	//		vm_vector_2_matrix_norm(&objp->orient, &new_fvec, NULL, &objp->orient.rvec);
@@ -646,11 +647,11 @@ void ai_turn_randomly(vms_vector* vec_to_player, object* obj, fix rate, int prev
 
 	//	Random turning looks too stupid, so 1/4 of time, cheat.
 	if (previous_visibility)
-		if (rand() > 0x7400) {
+		if (P_Rand() > 0x7400) {
 			ai_turn_towards_vector(vec_to_player, obj, rate);
 			return;
 		}
-	//--debug-- 	if (rand() > 0x6000)
+	//--debug-- 	if (P_Rand() > 0x6000)
 	//--debug-- 		Prevented_turns++;
 
 	curvec = obj->mtype.phys_info.rotvel;
@@ -1086,7 +1087,7 @@ void ai_fire_laser_at_player(object* obj, vms_vector* fire_point)
 		fix	cloak_time = Ai_cloak_info[objnum % MAX_AI_CLOAK_INFO].last_time;
 
 		if (GameTime - cloak_time > CLOAK_TIME_MAX / 4)
-			if (rand() > fixdiv(GameTime - cloak_time, CLOAK_TIME_MAX) / 2) {
+			if (P_Rand() > fixdiv(GameTime - cloak_time, CLOAK_TIME_MAX) / 2) {
 				set_next_fire_time(ailp, robptr);
 				return;
 			}
@@ -1112,12 +1113,12 @@ void ai_fire_laser_at_player(object* obj, vms_vector* fire_point)
 	//--		return;
 
 		//	Set position to fire at based on difficulty level.
-	bpp_diff.x = Believed_player_pos.x + (rand() - 16384) * (NDL - Difficulty_level - 1) * 4;
-	bpp_diff.y = Believed_player_pos.y + (rand() - 16384) * (NDL - Difficulty_level - 1) * 4;
-	bpp_diff.z = Believed_player_pos.z + (rand() - 16384) * (NDL - Difficulty_level - 1) * 4;
+	bpp_diff.x = Believed_player_pos.x + (P_Rand() - 16384) * (NDL - Difficulty_level - 1) * 4;
+	bpp_diff.y = Believed_player_pos.y + (P_Rand() - 16384) * (NDL - Difficulty_level - 1) * 4;
+	bpp_diff.z = Believed_player_pos.z + (P_Rand() - 16384) * (NDL - Difficulty_level - 1) * 4;
 
 	//	Half the time fire at the player, half the time lead the player.
-	if (rand() > 16384) {
+	if (P_Rand() > 16384) {
 
 		vm_vec_normalized_dir_quick(&fire_vec, &bpp_diff, fire_point);
 
@@ -1448,7 +1449,7 @@ void ai_move_relative_to_player(object* objp, ai_local* ailp, fix dist_to_player
 	if (robptr->attack_type == 1) {
 		if (((ailp->next_fire > robptr->firing_wait[Difficulty_level] / 4) && (dist_to_player < F1_0 * 30)) || Player_is_dead) {
 			//	1/4 of time, move around player, 3/4 of time, move away from player
-			if (rand() < 8192) {
+			if (P_Rand() < 8192) {
 				move_around_player(objp, vec_to_player, -1);
 			}
 			else {
@@ -1474,9 +1475,9 @@ void ai_move_relative_to_player(object* objp, ai_local* ailp, fix dist_to_player
 //	Compute a somewhat random, normalized vector.
 void make_random_vector(vms_vector* vec)
 {
-	vec->x = (rand() - 16384) | 1;	// make sure we don't create null vector
-	vec->y = rand() - 16384;
-	vec->z = rand() - 16384;
+	vec->x = (P_Rand() - 16384) | 1;	// make sure we don't create null vector
+	vec->y = P_Rand() - 16384;
+	vec->z = P_Rand() - 16384;
 
 	vm_vec_normalize_quick(vec);
 }
@@ -1631,7 +1632,7 @@ void compute_vis_and_vec(object* objp, vms_vector* pos, ai_local* ailp, vms_vect
 
 			if ((ailp->next_misc_sound_time < GameTime) && (ailp->next_fire < F1_0) && (dist < F1_0 * 20)) {
 				mprintf((0, "ANGRY! "));
-				ailp->next_misc_sound_time = GameTime + (rand() + F1_0) * (7 - Difficulty_level) / 1;
+				ailp->next_misc_sound_time = GameTime + (P_Rand() + F1_0) * (7 - Difficulty_level) / 1;
 				digi_link_sound_to_pos(robptr->see_sound, objp->segnum, 0, pos, 0, Robot_sound_volume);
 			}
 		}
@@ -1661,7 +1662,7 @@ void compute_vis_and_vec(object* objp, vms_vector* pos, ai_local* ailp, vms_vect
 						// mprintf((0, "SEE! "));
 						digi_link_sound_to_pos(robptr->see_sound, objp->segnum, 0, pos, 0, Robot_sound_volume);
 						ailp->time_player_sound_attacked = GameTime;
-						ailp->next_misc_sound_time = GameTime + F1_0 + rand() * 4;
+						ailp->next_misc_sound_time = GameTime + F1_0 + P_Rand() * 4;
 					}
 				}
 				else if (ailp->time_player_sound_attacked + F1_0 / 4 < GameTime) {
@@ -1673,7 +1674,7 @@ void compute_vis_and_vec(object* objp, vms_vector* pos, ai_local* ailp, vms_vect
 
 			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime)) {
 				// mprintf((0, "ATTACK! "));
-				ailp->next_misc_sound_time = GameTime + (rand() + F1_0) * (7 - Difficulty_level) / 2;
+				ailp->next_misc_sound_time = GameTime + (P_Rand() + F1_0) * (7 - Difficulty_level) / 2;
 				digi_link_sound_to_pos(robptr->attack_sound, objp->segnum, 0, pos, 0, Robot_sound_volume);
 			}
 			ailp->previous_visibility = *player_visibility;
@@ -1865,10 +1866,10 @@ int get_random_child(int segnum)
 	int	sidenum;
 	segment* segp = &Segments[segnum];
 
-	sidenum = (rand() * 6) >> 15;
+	sidenum = (P_Rand() * 6) >> 15;
 
 	while (!(WALL_IS_DOORWAY(segp, sidenum) & WID_FLY_FLAG))
-		sidenum = (rand() * 6) >> 15;
+		sidenum = (P_Rand() * 6) >> 15;
 
 	segnum = segp->children[sidenum];
 
@@ -1989,7 +1990,7 @@ int create_gated_robot(int segnum, int object_id)
 int gate_in_robot(int type, int segnum)
 {
 	if (segnum < 0)
-		segnum = Boss_gate_segs[(rand() * Num_boss_gate_segs) >> 15];
+		segnum = Boss_gate_segs[(P_Rand() * Num_boss_gate_segs) >> 15];
 
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 
@@ -2153,7 +2154,7 @@ void teleport_boss(object* objp)
 	Assert(Num_boss_teleport_segs > 0);
 
 	//	Pick a random segment from the list of boss-teleportable-to segments.
-	rand_seg = (rand() * Num_boss_teleport_segs) >> 15;
+	rand_seg = (P_Rand() * Num_boss_teleport_segs) >> 15;
 	rand_segnum = Boss_teleport_segs[rand_seg];
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
@@ -2216,11 +2217,11 @@ void do_boss_dying_frame(object* objp)
 			Boss_dying_sound_playing = 1;
 			digi_link_sound_to_object2(SOUND_BOSS_SHARE_DIE, objp - Objects, 0, F1_0 * 4, F1_0 * 1024);	//	F1_0*512 means play twice as loud
 		}
-		else if (rand() < FrameTime * 16)
-			create_small_fireball_on_object(objp, (F1_0 + rand()) * 8, 0);
+		else if (P_Rand() < FrameTime * 16)
+			create_small_fireball_on_object(objp, (F1_0 + P_Rand()) * 8, 0);
 	}
-	else if (rand() < FrameTime * 8)
-		create_small_fireball_on_object(objp, (F1_0 / 2 + rand()) * 8, 1);
+	else if (P_Rand() < FrameTime * 8)
+		create_small_fireball_on_object(objp, (F1_0 / 2 + P_Rand()) * 8, 1);
 
 	if (Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime) {
 		do_controlcen_destroyed_stuff(NULL);
@@ -2366,7 +2367,7 @@ void do_super_boss_stuff(object* objp, fix dist_to_player, int player_visibility
 		if (GameTime - Last_gate_time > Gate_interval)
 			if (ai_multiplayer_awareness(objp, 99)) {
 				int	rtval;
-				int	randtype = (rand() * MAX_GATE_INDEX) >> 15;
+				int	randtype = (P_Rand() * MAX_GATE_INDEX) >> 15;
 
 				Assert(randtype < MAX_GATE_INDEX);
 				randtype = Super_boss_gate_list[randtype];
@@ -2618,8 +2619,8 @@ void do_ai_frame(object* obj)
 	//	Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
 	if ((aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI))
 		if (Overall_agitation > 70) {
-			if ((dist_to_player < F1_0 * 200) && (rand() < FrameTime / 4)) {
-				if (rand() * (Overall_agitation - 40) > F1_0 * 5) {
+			if ((dist_to_player < F1_0 * 200) && (P_Rand() < FrameTime / 4)) {
+				if (P_Rand() * (Overall_agitation - 40) > F1_0 * 5) {
 					// -- mprintf((0, "(1) Object #%i going from still to path in frame %i.\n", objnum, FrameCount));
 					create_path_to_player(obj, 4 + Overall_agitation / 8 + Difficulty_level, 1);
 					// -- show_path_and_other(obj);
@@ -2738,7 +2739,7 @@ void do_ai_frame(object* obj)
 
 
 	if (Player_is_dead && (ailp->player_awareness_type == 0))
-		if ((dist_to_player < F1_0 * 200) && (rand() < FrameTime / 8)) {
+		if ((dist_to_player < F1_0 * 200) && (P_Rand() < FrameTime / 8)) {
 			if ((aip->behavior != AIB_STILL) && (aip->behavior != AIB_RUN_FROM)) {
 				if (!ai_multiplayer_awareness(obj, 30))
 					return;
@@ -2933,8 +2934,8 @@ void do_ai_frame(object* obj)
 
 		if ((aip->CURRENT_STATE == AIS_REST) && (aip->GOAL_STATE == AIS_REST)) {
 			if (player_visibility) {
-				if (rand() < FrameTime * player_visibility) {
-					if (dist_to_player / 256 < rand() * player_visibility) {
+				if (P_Rand() < FrameTime * player_visibility) {
+					if (dist_to_player / 256 < P_Rand() * player_visibility) {
 						// mprintf((0, "Object %i searching for player.\n", obj-Objects));
 						aip->GOAL_STATE = AIS_SRCH;
 						aip->CURRENT_STATE = AIS_SRCH;
@@ -3115,7 +3116,7 @@ void do_ai_frame(object* obj)
 
 			//	turn towards vector if visible this time or last time, or rand
 			// new!
-			if ((player_visibility) || (previous_visibility) || ((rand() > 0x4000) && !(Game_mode & GM_MULTI))) {
+			if ((player_visibility) || (previous_visibility) || ((P_Rand() > 0x4000) && !(Game_mode & GM_MULTI))) {
 				if (!ai_multiplayer_awareness(obj, 71)) {
 					if (maybe_ai_do_actual_firing_stuff(obj, aip))
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates);
@@ -3389,7 +3390,7 @@ int add_awareness_event(object* objp, int type)
 	if (Num_awareness_events < MAX_AWARENESS_EVENTS) {
 		if ((type == PA_WEAPON_WALL_COLLISION) || (type == PA_WEAPON_ROBOT_COLLISION))
 			if (objp->id == VULCAN_ID)
-				if (rand() > 3276)
+				if (P_Rand() > 3276)
 					return 0;		//	For vulcan cannon, only about 1/10 actually cause awareness
 
 		Awareness_events[Num_awareness_events].segnum = objp->segnum;
@@ -3410,7 +3411,7 @@ int add_awareness_event(object* objp, int type)
 void create_awareness_event(object* objp, int type)
 {
 	if (add_awareness_event(objp, type)) {
-		if (((rand() * (type + 4)) >> 15) > 4)
+		if (((P_Rand() * (type + 4)) >> 15) > 4)
 			Overall_agitation++;
 		if (Overall_agitation > OVERALL_AGITATION_MAX)
 			Overall_agitation = OVERALL_AGITATION_MAX;
