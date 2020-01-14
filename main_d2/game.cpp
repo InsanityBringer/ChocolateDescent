@@ -2628,6 +2628,7 @@ void flicker_lights();
 
 void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
+	I_DrawCurrentCanvas(0);
 	I_DoEvents();
 	//[ISB] Okay I really don't want to track all the changes and mini loops and shit
 	//so the game loop will ensure the mouse is always in relative mode
@@ -2739,8 +2740,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			#endif
 
 		}
-
-		I_DrawCurrentCanvas(0);
 
 		//mprintf(0,"Velocity %2.2f\n", f2fl(vm_vec_mag(&ConsoleObject->phys_info.velocity)));
 

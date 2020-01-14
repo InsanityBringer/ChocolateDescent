@@ -1090,6 +1090,7 @@ WIN(if (redraw_screen) redraw_screen = 0);
 	while(!done)	
 	{
 		startTime = I_GetUS();
+		I_DrawCurrentCanvas(0);
 		I_DoEvents();
 		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)
 			leave_mode = 1;
@@ -1304,8 +1305,6 @@ WIN(if (redraw_screen) redraw_screen = 0);
 		if ( ViewDist > ZOOM_MAX_VALUE ) ViewDist = ZOOM_MAX_VALUE;
 
 		draw_automap();
-		if (!done) //[ISB] don't swap twice if we're getting outta here
-			I_DrawCurrentCanvas(0);
 
 		if ( first_time )	
 		{
