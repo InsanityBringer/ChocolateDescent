@@ -3293,6 +3293,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 {
 	static int desc_dead_countdown = 100;   /*  used if player shouldn't be playing */
 
+	I_DrawCurrentCanvas(0);
 	I_DoEvents();
 	//[ISB] Okay I really don't want to track all the changes and mini loops and shit
 	//so the game loop will ensure the mouse is always in relative mode
@@ -3354,8 +3355,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 	mem_fill();
 	mem_check();
 #endif
-
-	I_DrawCurrentCanvas(0);
 
 	calc_frame_time();
 
