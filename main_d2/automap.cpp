@@ -1090,8 +1090,6 @@ WIN(if (redraw_screen) redraw_screen = 0);
 	while(!done)	
 	{
 		startTime = I_GetUS();
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
 		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)
 			leave_mode = 1;
 
@@ -1312,6 +1310,8 @@ WIN(if (redraw_screen) redraw_screen = 0);
 			gr_palette_load( gr_palette );
 		}
 
+		I_DrawCurrentCanvas(0);
+		I_DoEvents();
 		//[ISB] framerate limiter 
 		//waiting loop for polled fps mode
 		//With suggestions from dpjudas.

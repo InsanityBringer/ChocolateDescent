@@ -1863,11 +1863,12 @@ int do_game_pause(int allow_menu)
 	gr_palette_load(gr_palette);
 
 	show_boxed_message(TXT_PAUSE);
-	I_DrawCurrentCanvas(0);
+	//I_DrawCurrentCanvas(0);
 
 	while (paused) 
 	{
 		I_MarkStart();
+		I_DrawCurrentCanvas(0);
 		I_DoEvents();
 		key = key_getch();
 
@@ -1903,7 +1904,6 @@ int do_game_pause(int allow_menu)
 			break;
 		}
 
-		I_DrawCurrentCanvas(0);
 		I_MarkEnd(1000000 / FPSLimit);
 	}
 
@@ -2269,6 +2269,9 @@ void game()
 			if (Function_mode != FMODE_GAME)
 				longjmp(LeaveGame, 0);
 
+			//[ISB] assumption is that anything calling without renderflag (basically network mode) will already be updating. 
+			I_DrawCurrentCanvas(0);
+			I_DoEvents();
 			//waiting loop for polled fps mode
 			uint64_t numUS = 1000000 / FPSLimit;
 			//[ISB] Combine a sleep with the polling loop to try to spare CPU cycles
@@ -3293,8 +3296,8 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 {
 	static int desc_dead_countdown = 100;   /*  used if player shouldn't be playing */
 
-	I_DrawCurrentCanvas(0);
-	I_DoEvents();
+	//I_DrawCurrentCanvas(0);
+	//I_DoEvents();
 	//[ISB] Okay I really don't want to track all the changes and mini loops and shit
 	//so the game loop will ensure the mouse is always in relative mode
 	I_SetRelative(1);

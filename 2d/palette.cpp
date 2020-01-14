@@ -364,7 +364,6 @@ int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys)
 	for (j = 0; j < nsteps; j++) 
 	{
 		gr_sync_display();
-		I_DoEvents();
 		for (i = 0; i < 768; i++) 
 		{
 			fade_palette[i] += fade_palette_delta[i];
@@ -379,6 +378,7 @@ int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys)
 		I_BlitCanvas(grd_curcanv);
 #endif
 		I_DrawCurrentCanvas(0);
+		I_DoEvents();
 	}
 	gr_palette_faded_out = 0;
 	return 0;

@@ -2221,11 +2221,11 @@ void game()
 	ProfilerSetStatus(1);
 #endif
 
+	startTime = I_GetUS();
 	if ( setjmp(LeaveGame)==0 )
 	{
 		while (1) 
 		{
-			startTime = I_GetUS();
 			int player_shields;
 
 			// GAME LOOP!
@@ -2329,6 +2329,8 @@ void game()
 				longjmp(LeaveGame,0);
 			#endif
 
+			I_DrawCurrentCanvas(0);
+			I_DoEvents();
 			//waiting loop for polled fps mode
 			//With suggestions from dpjudas.
 			uint64_t numUS = 1000000 / FPSLimit;
@@ -2337,6 +2339,7 @@ void game()
 			if (diff > 2000) //[ISB] Sleep only if there's sufficient time to do so, since the scheduler isn't precise enough
 				I_DelayUS(diff - 2000);
 			while (I_GetUS() < startTime + numUS);
+			startTime = I_GetUS();
 		}
 	}
 
@@ -2628,8 +2631,6 @@ void flicker_lights();
 
 void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
-	I_DrawCurrentCanvas(0);
-	I_DoEvents();
 	//[ISB] Okay I really don't want to track all the changes and mini loops and shit
 	//so the game loop will ensure the mouse is always in relative mode
 	I_SetRelative(1);
