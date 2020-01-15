@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_WIDTH				640
 #define MAX_SCANLINES			480
-#define MAX_HOLES				5
+#define MAX_HOLES				100
 
 static short start_points[MAX_SCANLINES][MAX_HOLES];
 static short hole_length[MAX_SCANLINES][MAX_HOLES];
