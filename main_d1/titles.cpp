@@ -915,7 +915,8 @@ void load_screen_text(const char* filename, char** buf)
 
 		strcpy(nfilename, filename);
 		ptr = strrchr(nfilename, '.');
-		*ptr = '\0';
+		if (ptr)
+			*ptr = '\0';
 		strcat(nfilename, ".txb");
 		if ((ifile = cfopen(nfilename, "rb")) == NULL)
 			Error("Cannot open file %s or %s", filename, nfilename);
