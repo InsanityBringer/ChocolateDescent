@@ -447,6 +447,13 @@ void init_controlcen_for_level(void)
 	if (cntrlcen_objnum == -1) 
 	{
 		mprintf((1, "Warning: No control center.\n"));
+		//	Say the control center has not yet been hit.
+		//[ISB] clean up the state
+		Control_center_been_hit = 0;
+		Control_center_player_been_seen = 0;
+		Control_center_next_fire_time = 0;
+
+		Dead_controlcen_object_num = -1;
 		return;
 	}
 //#endif
