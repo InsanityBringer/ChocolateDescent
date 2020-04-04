@@ -15,15 +15,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "winapp.h"
-#else
-#include <conio.h>
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-//#include <dos.h>
 
 #include "misc/types.h"
 #include "game.h"
@@ -34,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/palette.h"
 #include "platform/joy.h"
 #include "songs.h"
-#include "misc/args.h" //[iSB] IF YOU DON'T FIX THIS GODDAMNED HACK I SWEAR TO GOD
+#include "misc/args.h"
 #include "player.h"
 #include "mission.h"
 #include "platform/mono.h"

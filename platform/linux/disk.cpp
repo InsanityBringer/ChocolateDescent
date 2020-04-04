@@ -11,27 +11,18 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "platform/disk.h"
 #include "misc/types.h"
 
-//[ISB]: Frankly, swaps totally suck. This is a stopgap measure to enable
-//some mac code to compile. In the insane off-chance someone actually
-//attempts to build this on a big-endian machine, it would be more worthwhile
-//to have functions in cfile that read a little endian number with 2/4 byte reads and shifts.
-
-uint16_t swapshort(uint16_t s)
+//[ISB] Stub implementation
+unsigned int GetFreeDiskSpace()
 {
-	return s; 
+	return 0x100000;
 }
 
-uint32_t swapint(uint32_t i)
+bool IsDrivePresent(int id)
 {
-	return i;
+	return false;
 }
 
-int BS_MakeInt(uint8_t* bytes)
-{
-	return bytes[0] + (bytes[1] << 8) + (bytes[2] << 16) + (bytes[3] << 24);
-}
+#endif

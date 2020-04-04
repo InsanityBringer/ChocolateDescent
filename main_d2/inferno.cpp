@@ -13,17 +13,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
 
-//#include <dos.h>
-#include <conio.h>
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <direct.h>
 #include <math.h>
-//#include <unistd.h>
-#include <conio.h>
 #include <ctype.h>
 
 #include "2d/i_gr.h"
@@ -347,19 +342,6 @@ void print_commandline_help()
 			continue;		//don't show comments
 
 		printf("%s", line);
-
-		//[ISB] THIS IS A SERIOUS PROBLEM if you're piping
-		/*
-		if (isatty(stdout->_handle) && ++line_count == screen_lines-1)
-		{
-			char c;
-			printf("\n%s",TXT_PRESS_ANY_KEY3);
-			c = key_getch();
-			printf("\n");
-			if (c=='q' || c=='Q' || c==27)
-				return;
-			line_count=0;
-		}*/
 	}
 
 	cfclose(ifile);
@@ -733,9 +715,8 @@ int D_DescentMain(int argc, const char** argv)
 
 #ifdef EDITOR
 	if (!Inferno_is_800x600_available) {
-		printf("The editor will not be available, press any key to start game...\n");
+		printf("The editor will not be available...\n");
 		Function_mode = FMODE_MENU;
-		getch();
 	}
 #endif
 
@@ -795,11 +776,7 @@ Here:
 	{
 		if (digi_init())
 		{
-			int key;
-			/*printf("\n%s\n", "Press ESC to exit Descent II, or any other key to continue.");
-			key = key_getch();
-			if (key == KEY_ESC)
-				exit(0);*/
+			printf("\nFailed to start sound.\n");
 		}
 	}
 	else 
@@ -823,12 +800,6 @@ Here:
 	if (!VR_offscreen_buffer)	//if hasn't been initialied (by headset init)
 		set_display_mode(0);		//..then set default display mode
 #endif
-
-	/*i = FindArg("-xcontrol"); //[ISB] oh god no
-	if (i > 0) 
-	{
-		kconfig_init_external_controls(strtol(Args[i + 1], NULL, 0), strtol(Args[i + 2], NULL, 0));
-	}*/
 
 	verbose("\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 	if (FindArg("-nofade"))

@@ -14,6 +14,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+
+#include "platform/posixstub.h"
 #include "misc/error.h"
 #include "inferno.h"
 #include "gameseq.h"
@@ -353,7 +355,7 @@ int find_hli_entry()
 	int i;
 
 	for (i = 0; i < n_highest_levels; i++)
-		if (!_stricmp(highest_levels[i].shortname, Mission_list[Current_mission_num].filename))
+		if (!_strfcmp(highest_levels[i].shortname, Mission_list[Current_mission_num].filename))
 			break;
 
 	if (i == n_highest_levels) //not found.  create entry
@@ -397,7 +399,7 @@ int get_highest_level(void)
 	if (strlen(Mission_list[Current_mission_num].filename) == 0)
 	{
 		for (i = 0; i < n_highest_levels; i++)
-			if (!_stricmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
+			if (!_strfcmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
 				highest_saturn_level = highest_levels[i].level_num;
 	}
 #endif

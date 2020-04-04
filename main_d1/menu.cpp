@@ -18,6 +18,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <stdarg.h>
 #include <errno.h>
+
+#include "platform/posixstub.h"
 #include "menu.h"
 #include "inferno.h"
 #include "game.h"
@@ -598,7 +600,7 @@ void do_new_game_menu()
 		for (i = 0; i < n_missions; i++) 
 		{
 			m[i] = Mission_list[i].mission_name;
-			if (!_stricmp(m[i], config_last_mission))
+			if (!_strfcmp(m[i], config_last_mission))
 				default_mission = i;
 		}
 

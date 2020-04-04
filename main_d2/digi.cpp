@@ -13,14 +13,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
-//#include <dos.h>
-//#include< fcntl.h> 
-#include<malloc.h> 
-//#include <bios.h>
-#include<io.h>
-#include<conio.h> 
-#include<string.h>
-#include<ctype.h>
+#include <malloc.h> 
+#include <string.h>
+#include <ctype.h>
 
 #include "platform/i_sound.h"
 #include "platform/s_midi.h"

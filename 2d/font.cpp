@@ -14,10 +14,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
 
-#include <fcntl.h>
-#include <io.h>
 #include <sys\types.h>
 #include <sys\stat.h>
 

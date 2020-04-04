@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include "platform/posixstub.h"
 #include "cfile/cfile.h"
 #include "platform/findfile.h" //[ISB] port descent 2 directory iteration code. 
 #include "inferno.h"
@@ -310,7 +311,7 @@ int load_mission(int mission_num)
 		Ending_text_filename[0] = 0;
 
 #ifdef DEST_SAT
-		if (!stricmp(Mission_list[mission_num].filename, "DESTSAT")) //	Destination Saturn.
+		if (!_strfcmp(Mission_list[mission_num].filename, "DESTSAT")) //	Destination Saturn.
 		{
 			strcpy(Briefing_text_filename, "briefsat.tex");
 			strcpy(Ending_text_filename, "endsat.tex");
@@ -437,7 +438,7 @@ int load_mission_by_name(char* mission_name)
 	n = build_mission_list(1);
 
 	for (i = 0; i < n; i++)
-		if (!_stricmp(mission_name, Mission_list[i].filename))
+		if (!_strfcmp(mission_name, Mission_list[i].filename))
 			return load_mission(i);
 
 	return 0;		//couldn't find mission

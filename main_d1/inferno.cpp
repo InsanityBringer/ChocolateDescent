@@ -13,16 +13,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
 
-#include <io.h>
-//#include <dos.h>
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
-#include <conio.h>
 #include <time.h>
-//#include <dos.h>
-#include <direct.h>
+
+#include "platform/posixstub.h"
 
 #include "2d/gr.h"
 #include "ui/ui.h"
@@ -430,14 +427,9 @@ int D_DescentMain(int argc, const char** argv)
 		printf("%s\n", TXT_COMMAND_LINE_3);
 		printf("%s\n", TXT_COMMAND_LINE_4);
 		printf("%s\n", TXT_COMMAND_LINE_5);
-		//		printf( "\n");
 		printf("%s\n", TXT_COMMAND_LINE_6);
 		printf("%s\n", TXT_COMMAND_LINE_7);
 		printf("%s\n", TXT_COMMAND_LINE_8);
-		//		printf( "\n");
-		printf("\n%s\n", TXT_PRESS_ANY_KEY3);
-		_getch();
-		printf("\n");
 		printf("%s\n", TXT_COMMAND_LINE_9);
 		printf("%s\n", TXT_COMMAND_LINE_10);
 		printf("%s\n", TXT_COMMAND_LINE_11);
@@ -498,9 +490,8 @@ int D_DescentMain(int argc, const char** argv)
 
 #ifdef EDITOR
 	if (!Inferno_is_800x600_available) {
-		printf("The editor will not be available, press any key to start game...\n");
+		printf("The editor will not be available...\n");
 		Function_mode = FMODE_MENU;
-		getch();
 	}
 #endif
 
@@ -545,8 +536,7 @@ int D_DescentMain(int argc, const char** argv)
 	{
 		if (digi_init()) 
 		{
-			printf("\n%s\n", TXT_PRESS_ANY_KEY3);
-			//key_getch();
+			printf("\nFailed to start sound.\n");
 		}
 	}
 	else 
@@ -921,107 +911,3 @@ void show_order_form()
 	}
 	key_flush();
 }
-
-
-#ifdef USE_CD
-
-#include <dos.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "dpmi.h"
-
-typedef struct {
-	char unit;
-	uint16_t dev_offset;
-	uint16_t dev_segment;
-} dev_list;
-
-typedef struct _Dev_Hdr {
-	unsigned int dev_next;
-	unsigned short dev_att;
-	uint16_t dev_stat;
-	uint16_t dev_int;
-	char dev_name[8];
-	short dev_resv;
-	char dev_letr;
-	char dev_units;
-} dev_header;
-
-int find_descent_cd()
-{
-	dpmi_real_regs rregs;
-
-	// Get dos memory for call...
-	dev_list* buf;
-	dev_header* device;
-	int num_drives, i;
-	unsigned cdrive, cur_drive, cdrom_drive;
-
-	memset(&rregs, 0, sizeof(dpmi_real_regs));
-	rregs.eax = 0x1500;
-	rregs.ebx = 0;
-	dpmi_real_int386x(0x2f, &rregs);
-	if ((rregs.ebx & 0xffff) == 0) {
-		return -1;			// No cdrom
-	}
-	num_drives = rregs.ebx;
-
-	buf = (dev_list*)dpmi_get_temp_low_buffer(sizeof(dev_list) * 26);
-	if (buf == NULL) {
-		return -2;			// Error getting memory!
-	}
-
-	memset(&rregs, 0, sizeof(dpmi_real_regs));
-	rregs.es = DPMI_real_segment(buf);
-	rregs.ebx = DPMI_real_offset(buf);
-	rregs.eax = 0x1501;
-	dpmi_real_int386x(0x2f, &rregs);
-	cdrom_drive = 0;
-	_dos_getdrive(&cdrive);
-	for (i = 0; i < num_drives; i++) {
-		device = (dev_header*)((buf[i].dev_segment << 4) + buf[i].dev_offset);
-		_dos_setdrive(device->dev_letr, &cur_drive);
-		_dos_getdrive(&cur_drive);
-		if (cur_drive == device->dev_letr) {
-			if (!chdir("\\descent")) {
-				FILE* fp;
-#ifdef DEST_SAT
-				fp = fopen("saturn.hog", "rb");
-#else
-				fp = fopen("descent.hog", "rb");
-#endif
-				if (fp) {
-					int write_failed = 1;
-					fclose(fp);
-					fp = fopen("descent.tmp", "wb");
-					if (fp) {
-						int temp = 0x15A90C23;
-						if (fwrite(&temp, sizeof(int), 1, fp) == 1) {
-							fp = fopen("descent.tmp", "rb");
-							if (fp) {
-								temp = 0;
-								if (fread(&temp, sizeof(int), 1, fp) == 1) {
-									if (temp == 0x15A90C23)
-										write_failed = 0;
-								}
-								fclose(fp);
-								unlink("descent.tmp");
-							}
-						}
-						fclose(fp);
-					}
-					if (write_failed) {
-						cdrom_drive = device->dev_letr;
-						break;
-					}
-				}
-			}
-		}
-	}
-	_dos_setdrive(cdrive, &cur_drive);
-	return cdrom_drive;
-}
-
-#endif

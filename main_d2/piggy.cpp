@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <errno.h>
 
+#include "platform/posixstub.h"
 #include "misc/types.h"
 #include "inferno.h"
 #include "2d/gr.h"
@@ -237,7 +238,7 @@ bitmap_index piggy_find_bitmap(char* name)
 		* t = 0;
 
 	for (i = 0; i < Num_aliases; i++)
-		if (_stricmp(name, alias_list[i].alias_name) == 0)
+		if (_strfcmp(name, alias_list[i].alias_name) == 0)
 		{
 			if (t) //extra stuff for ABMs
 			{
@@ -371,7 +372,7 @@ void piggy_init_pigfile(char* filename)
 	piggy_close_file();             //close old pig if still open
 
 #ifdef SHAREWARE                //rename pigfile for shareware
-	if (stricmp(filename, DEFAULT_PIGFILE_REGISTERED) == 0)
+	if (strfcmp(filename, DEFAULT_PIGFILE_REGISTERED) == 0)
 		filename = DEFAULT_PIGFILE_SHAREWARE;
 #endif
 
@@ -491,11 +492,11 @@ void piggy_new_pigfile(char* pigname)
 #endif
 
 #ifdef SHAREWARE                //rename pigfile for shareware
-	if (stricmp(pigname, DEFAULT_PIGFILE_REGISTERED) == 0)
+	if (strfcmp(pigname, DEFAULT_PIGFILE_REGISTERED) == 0)
 		pigname = DEFAULT_PIGFILE_SHAREWARE;
 #endif
 
-	if (_strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0)
+	if (_strnfcmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0)
 		return;         //already have correct pig
 
 	if (!Pigfile_initialized) //have we ever opened a pigfile?

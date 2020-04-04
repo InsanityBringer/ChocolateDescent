@@ -19,7 +19,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
-#include <conio.h>
 #include <string.h>
 #include "mem/mem.h"
 #include "iff/iff.h"

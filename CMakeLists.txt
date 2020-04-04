@@ -77,6 +77,7 @@ set(SHARED_SOURCES
 	platform/mono.h
 	platform/mouse.cpp
 	platform/mouse.h
+	platform/posixstub.h
 	platform/s_midi.cpp
 	platform/s_midi.h
 	platform/s_sequencer.cpp
@@ -232,6 +233,17 @@ set(DESCENT1_SOURCES
 	main_d1/wall.h
 	main_d1/weapon.cpp
 	main_d1/weapon.h
+	2d/font.cpp
+	2d/scale.cpp
+    texmap/ntmap.cpp
+    texmap/scanline.cpp
+    texmap/scanline.h
+    texmap/texmap.h
+    texmap/texmapl.h
+    texmap/tmapflat.cpp
+)
+
+set(EDITOR_SOURCES
 	ui/barbox.cpp
 	ui/button.cpp
 	ui/checkbox.cpp
@@ -257,14 +269,6 @@ set(DESCENT1_SOURCES
 	ui/uimouse.cpp
 	ui/userbox.cpp
 	ui/window.cpp
-	2d/font.cpp
-	2d/scale.cpp
-    texmap/ntmap.cpp
-    texmap/scanline.cpp
-    texmap/scanline.h
-    texmap/texmap.h
-    texmap/texmapl.h
-    texmap/tmapflat.cpp
 )
 
 set(DESCENT2_SOURCES
@@ -468,6 +472,13 @@ set(WIN32_SOURCES
 	ChocolateDescent.manifest
 )
 
+set(LINUX_SOURCES
+	platform/linux/disk.cpp
+	platform/linux/fileutil.cpp
+	platform/linux/findfile.cpp
+	platform/linux/strutil.cpp
+)
+
 set(SHARED_LIBS
 )
 
@@ -514,7 +525,10 @@ endif()
 if (WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
     set(SHARED_SOURCES ${SHARED_SOURCES} ${WIN32_SOURCES})
-else()
+	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${LINUX_SOURCES})
+elseif(UNIX)
+	add_definitions(-DUNIX -D_UNIX)
+    set(SHARED_SOURCES ${SHARED_SOURCES} ${LINUX_SOURCES})
 	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${WIN32_SOURCES})
 endif()
 

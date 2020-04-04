@@ -19,7 +19,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <errno.h>
 #include <string.h>
-#include <io.h>
+
+#include "platform/posixstub.h"
 #include "cfile/cfile.h"
 #include "mem/mem.h"
 #include "misc/error.h"

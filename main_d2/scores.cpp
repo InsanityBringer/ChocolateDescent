@@ -20,7 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <io.h>
+
+#include "platform/posixstub.h"
 
 #include "misc/error.h"
 #include "misc/types.h"

@@ -13,10 +13,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <fcntl.h> 
 #include <malloc.h> 
 #include <string.h>
 #include <ctype.h>
+
 #include "platform/i_sound.h"
 #include "platform/s_midi.h"
 #include "fix/fix.h"

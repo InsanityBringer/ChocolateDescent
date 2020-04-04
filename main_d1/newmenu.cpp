@@ -16,6 +16,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+
+#include "platform/posixstub.h"
 #include "platform/findfile.h"
 #include "misc/error.h"
 #include "misc/types.h"
@@ -1228,9 +1230,9 @@ int newmenu_get_filename(const char* title, const char* filespec, char* filename
 	citem = 0;
 	keyd_repeat = 1;
 
-	if (!_stricmp(filespec, "*.plr"))
+	if (!_strfcmp(filespec, "*.plr"))
 		player_mode = 1;
-	else if (!_stricmp(filespec, "*.dem"))
+	else if (!_strfcmp(filespec, "*.dem"))
 		demo_mode = 1;
 
 ReadFileNames:
@@ -1265,39 +1267,6 @@ ReadFileNames:
 		} while (!FileFindNext(&find));
 		FileFindClose();
 	}
-
-#ifdef USE_CD
-	// Seach CD for files if demo_mode and cd_mode
-	if (strlen(destsat_cdpath) && demo_mode) {
-		char temp_spec[128];
-		strcpy(temp_spec, destsat_cdpath);
-		strcat(temp_spec, filespec);
-
-		if (!_dos_findfirst(temp_spec, 0, &find)) {
-			do {
-				if (NumFiles < MAX_FILES) {
-
-					for (i = 0; i < NumFiles; i++) {
-						if (!stricmp(&filenames[i * 14], find.name))
-							break;
-					}
-					if (i < NumFiles) continue;		// Don't use same demo twice!
-
-					strncpy(&filenames[NumFiles * 14], find.name, 13);
-					if (player_mode) {
-						char* p;
-						p = strchr(&filenames[NumFiles * 14], '.');
-						if (p)* p = '\0';
-					}
-					NumFiles++;
-				}
-				else {
-					break;
-				}
-			} while (!_dos_findnext(&find));
-		}
-	}
-#endif
 
 	if ((NumFiles < 1) && demos_deleted) 
 	{
@@ -1358,7 +1327,7 @@ ReadFileNames:
 		newmenu_file_sort(NumFiles - 1, &filenames[14]);		// Don't sort first one!
 		for (i = 0; i < NumFiles; i++) 
 		{
-			if (!_stricmp(Players[Player_num].callsign, &filenames[i * 14]))
+			if (!_strfcmp(Players[Player_num].callsign, &filenames[i * 14]))
 				citem = i;
 		}
 	}

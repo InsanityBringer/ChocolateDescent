@@ -16,7 +16,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <io.h> //[ISB] TODO: a file that actually fucking uses IO.H. need to make portable
+
+#include "platform/posixstub.h"
+
 #include "2d/i_gr.h"
 #include "misc/error.h"
 #include "misc/types.h"

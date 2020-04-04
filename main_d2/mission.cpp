@@ -14,11 +14,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <direct.h>
 #include <ctype.h>
 
 #include "cfile/cfile.h"
-
+#include "platform/posixstub.h"
 #include "inferno.h"
 #include "mission.h"
 #include "gameseq.h"
@@ -359,7 +358,7 @@ int build_mission_list(int anarchy_mode)
 	{
 		do	
 		{
-			if (_stricmp(find.name,BUILTIN_MISSION)==0)
+			if (_strfcmp(find.name,BUILTIN_MISSION)==0)
 				continue;		//skip the built-in
 
 			if (read_mission_file(find.name,count,ML_MISSIONDIR)) 
@@ -377,7 +376,7 @@ int build_mission_list(int anarchy_mode)
 		int i;
 
 		for (i=special_count;i<count;i++)
-			if (!_stricmp(Mission_list[i].filename,"D2X")) //swap!
+			if (!_strfcmp(Mission_list[i].filename,"D2X")) //swap!
 			{
 				mle temp;
 
@@ -578,7 +577,7 @@ int load_mission_by_name(char *mission_name)
 	n = build_mission_list(1);
 
 	for (i=0;i<n;i++)
-		if (!_stricmp(mission_name,Mission_list[i].filename))
+		if (!_strfcmp(mission_name,Mission_list[i].filename))
 			return load_mission(i);
 
 	return 0;		//couldn't find mission

@@ -20,8 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-//#include <unistd.h>
 
+#include "platform/posixstub.h"
 #include "2d/i_gr.h"
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "misc/error.h"
@@ -2261,7 +2261,7 @@ ReadFileNames:
 		newmenu_file_sort(NumFiles - 1, &filenames[14]);		// Don't sort first one!
 #endif
 		for (i = 0; i < NumFiles; i++) {
-			if (!_stricmp(Players[Player_num].callsign, &filenames[i * 14])) {
+			if (!_strfcmp(Players[Player_num].callsign, &filenames[i * 14])) {
 #if defined(WINDOWS) || defined(MACINTOSH) 
 				dblclick_flag = 1;
 #endif

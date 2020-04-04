@@ -19,8 +19,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <malloc.h>
 #include <limits.h>
 #include <errno.h>
-#include <direct.h>
-#include <io.h>
+
+#include "platform/posixstub.h"
 
 #include "misc/rand.h"
 
@@ -3346,7 +3346,7 @@ void newdemo_strip_frames(char* outname, int bytes_to_strip)
 	short last_frame_length;
 
 	bytes_done = 0;
-	total_size = filelength(fileno(infile));
+	total_size = _filelength(_fileno(infile));
 	outfile = fopen(outname, "wb");
 	if (outfile == NULL) 
 	{

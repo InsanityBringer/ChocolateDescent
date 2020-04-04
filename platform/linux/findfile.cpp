@@ -8,30 +8,24 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+//[ISB] BIG TODO: Implement a linux compatible version of this, using dirent perhaps
+//stub for now
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "platform/findfile.h"
 
-#include "misc/types.h"
-
-//[ISB]: Frankly, swaps totally suck. This is a stopgap measure to enable
-//some mac code to compile. In the insane off-chance someone actually
-//attempts to build this on a big-endian machine, it would be more worthwhile
-//to have functions in cfile that read a little endian number with 2/4 byte reads and shifts.
-
-uint16_t swapshort(uint16_t s)
+int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 {
-	return s; 
+	return 1;
 }
 
-uint32_t swapint(uint32_t i)
+int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 {
-	return i;
+	return 1;
 }
 
-int BS_MakeInt(uint8_t* bytes)
+int	FileFindClose(void)
 {
-	return bytes[0] + (bytes[1] << 8) + (bytes[2] << 16) + (bytes[3] << 24);
+	return 0;
 }

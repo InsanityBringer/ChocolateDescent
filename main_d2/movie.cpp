@@ -11,15 +11,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-//#include <dos.h>
-#include <io.h>
-#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include <malloc.h>
 #include <string.h>
 #include <ctype.h>
+
+#include "platform/posixstub.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "2d/i_gr.h"
@@ -1213,7 +1211,7 @@ try_again:;
 		else {
 			if (required) {
 #if defined(RELEASE) && !defined(D2_OEM)		//allow no movies if not release
-				strupr(tempBuffer);
+				_strupr(tempBuffer);
 				Error("Cannot open movie file <%s>", tempBuffer);
 #endif
 			}
@@ -1225,7 +1223,7 @@ try_again:;
 				goto try_again;
 			}
 			else if (is_robots == 2) {		//failed twice. bail with error
-				strupr(tempBuffer);
+				_strupr(tempBuffer);
 				Error("Cannot open movie file <%s>", filename);
 			}
 #endif
