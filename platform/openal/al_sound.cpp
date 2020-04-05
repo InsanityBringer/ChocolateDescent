@@ -6,6 +6,7 @@ Instead, it is released under the terms of the MIT License.
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <thread>
 #include <mutex>

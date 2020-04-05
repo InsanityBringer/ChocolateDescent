@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "platform/posixstub.h"
 #include "inferno.h"
 #include "game.h"
 #include "screens.h"
@@ -326,7 +327,7 @@ int PlayerMessage = 1;
 
 // Call to flash a message on the HUD.  Returns true if message drawn.
 //  (message might not be drawn if previous message was same)
-int HUD_init_message(char* format, ...)
+int HUD_init_message(const char* format, ...)
 {
 	va_list args;
 	int temp;

@@ -20,13 +20,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-//#include <unistd.h>
 #include <errno.h>
-#ifdef MACINTOSH
-#include <Files.h>
-#endif
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
+#include "platform/posixstub.h"
 #include "platform/mono.h"
 #include "inferno.h"
 #include "segment.h"

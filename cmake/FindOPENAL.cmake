@@ -19,6 +19,7 @@ find_path(OPENAL_INCLUDE_DIRS
 find_library(OPENAL_LIBRARIES
    NAMES
       OpenAL32 #[ISB] TODO: Non-windows names....
+      openal
    HINTS
       $ENV{OPENALDIR} #[ISB] TODO: Is there a standard name for this....
 )

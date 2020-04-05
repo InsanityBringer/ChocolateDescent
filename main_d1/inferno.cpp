@@ -396,9 +396,9 @@ int D_DescentMain(int argc, const char** argv)
 #endif
 #endif
 
-	if (!cfile_init("descent.hog"))
+	if (!cfile_init("DESCENT.HOG"))
 	{
-		Error("Could not find required file <%s>", "descent.hog");
+		Error("Could not find required file <%s>", "DESCENT.HOG");
 	}
 
 	load_text();

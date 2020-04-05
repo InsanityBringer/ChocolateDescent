@@ -139,7 +139,7 @@ void nm_remap_background()
 
 extern char last_palette_loaded[];
 
-void nm_draw_background1(char* filename)
+void nm_draw_background1(const char* filename)
 {
 	int pcx_error;
 	grs_bitmap* bmp;
@@ -629,34 +629,34 @@ void strip_end_whitespace(char* text)
 	}
 }
 
-int newmenu_do4(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, char* filename, int width, int height, int TinyMode);
+int newmenu_do4(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, const char* filename, int width, int height, int TinyMode);
 
-int newmenu_do(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
+int newmenu_do(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
 {
 	return newmenu_do3(title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1);
 }
-int newmenu_dotiny(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
+int newmenu_dotiny(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
 {
 	return newmenu_do4(title, subtitle, nitems, item, subfunction, 0, NULL, LHX(310), -1, 1);
 }
 
-int newmenu_dotiny2(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
+int newmenu_dotiny2(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
 {
 	return newmenu_do4(title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1, 1);
 }
 
 
-int newmenu_do1(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem)
+int newmenu_do1(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem)
 {
 	return newmenu_do3(title, subtitle, nitems, item, subfunction, citem, NULL, -1, -1);
 }
 
 
-int newmenu_do2(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, char* filename)
+int newmenu_do2(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, const char* filename)
 {
 	return newmenu_do3(title, subtitle, nitems, item, subfunction, citem, filename, -1, -1);
 }
-int newmenu_do3(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, char* filename, int width, int height)
+int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, const char* filename, int width, int height)
 {
 	return newmenu_do4(title, subtitle, nitems, item, subfunction, citem, filename, width, height, 0);
 }
@@ -726,7 +726,7 @@ void draw_close_box(int x, int y)
 
 void show_extra_netgame_info(int choice);
 
-int newmenu_do4(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, char* filename, int width, int height, int TinyMode)
+int newmenu_do4(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, const char* filename, int width, int height, int TinyMode)
 {
 	int old_keyd_repeat, done;
 	int  choice, old_choice, i, j, x, y, w, h, aw, tw, th, twidth, fm, right_offset;
@@ -1947,7 +1947,7 @@ RePaintNewmenu4:
 }
 
 
-int nm_messagebox1(char* title, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int nchoices, ...)
+int nm_messagebox1(const char* title, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int nchoices, ...)
 {
 	int i;
 	char* format;
@@ -1975,7 +1975,7 @@ int nm_messagebox1(char* title, void (*subfunction)(int nitems, newmenu_item* it
 	return newmenu_do(title, nm_text, nchoices, nm_message_items, subfunction);
 }
 
-int nm_messagebox(char* title, int nchoices, ...)
+int nm_messagebox(const char* title, int nchoices, ...)
 {
 	int i;
 	char* format;
@@ -2046,7 +2046,7 @@ void delete_player_saved_games(char* name)
 
 int MakeNewPlayerFile(int allow_abort);
 
-int newmenu_get_filename(char* title, char* filespec, char* filename, int allow_abort_flag)
+int newmenu_get_filename(const char* title, const char* filespec, char* filename, int allow_abort_flag)
 {
 	int i;
 	FILEFINDSTRUCT find;
@@ -2769,12 +2769,12 @@ ExitFileMenu:
 
 #define LB_ITEMS_ON_SCREEN 8
 
-int newmenu_listbox(char* title, int nitems, char* items[], int allow_abort_flag, int (*listbox_callback)(int* citem, int* nitems, char* items[], int* keypress))
+int newmenu_listbox(const char* title, int nitems, char* items[], int allow_abort_flag, int (*listbox_callback)(int* citem, int* nitems, char* items[], int* keypress))
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, listbox_callback);
 }
 
-int newmenu_listbox1(char* title, int nitems, char* items[], int allow_abort_flag, int default_item, int (*listbox_callback)(int* citem, int* nitems, char* items[], int* keypress))
+int newmenu_listbox1(const char* title, int nitems, char* items[], int allow_abort_flag, int default_item, int (*listbox_callback)(int* citem, int* nitems, char* items[], int* keypress))
 {
 	int i;
 	int done, ocitem, citem, ofirst_item, first_item, key, redraw;

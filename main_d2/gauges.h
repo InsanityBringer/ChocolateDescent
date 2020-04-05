@@ -45,7 +45,7 @@ extern void HUD_clear_messages();
 
 // Call to flash a message on the HUD.  Returns true if message drawn.
 //  (message might not be drawn if previous message was same)
-extern int HUD_init_message(char * format, ... );
+extern int HUD_init_message(const char * format, ... );
 
 #define gauge_message HUD_init_message
 

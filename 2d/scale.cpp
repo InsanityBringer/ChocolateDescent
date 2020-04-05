@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+#include <stdint.h>
 #include "2d/gr.h"
 #include "2d/grdef.h"
 #include "2d/rle.h" //[ISB] compiler warning
@@ -171,7 +172,7 @@ void rls_stretch_scanline()
 		if (c != TRANSPARENCY_COLOR) {
 
 			if (len > 3) {
-				while ((int)(scale_dest_ptr) & 0x3) { *scale_dest_ptr++ = c; len--; };
+				while ((uintptr_t)(scale_dest_ptr) & 0x3) { *scale_dest_ptr++ = c; len--; };
 				if (len >= 4) {
 					x = (c << 24) | (c << 16) | (c << 8) | c;
 					while (len > 4) { *((int*)scale_dest_ptr) = x; scale_dest_ptr += 4; len -= 4; };

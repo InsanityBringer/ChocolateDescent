@@ -24,7 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <time.h>
 
 #include "misc/rand.h"
-//#include <unistd.h>
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "2d/i_gr.h"
@@ -93,7 +92,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmerge.h"
 #include "paging.h"
 #include "mission.h"
-#include "State.h"
+#include "state.h"
 #include "songs.h"
 #include "netmisc.h"
 #include "gamepal.h"
@@ -1771,7 +1770,7 @@ void load_stars_palette()
 }
 #endif
 
-void nm_draw_background1(char* filename);
+void nm_draw_background1(const char* filename);
 
 void load_stars()
 {

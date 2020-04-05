@@ -154,7 +154,7 @@ typedef struct physics_info
 
 //stuctures for different kinds of simulation
 
-typedef struct laser_info 
+typedef struct laser_info_s
 {
 	short			parent_type;	 	// The type of the parent of this object
 	short			parent_num; 		// The object's parent's number
@@ -163,7 +163,7 @@ typedef struct laser_info
 	short			last_hitobj;		//	For persistent weapons (survive object collision), object it most recently hit.
 	short			track_goal;			//	Object this object is tracking.
 	fix			multiplier;			//	Power if this is a fusion bolt (or other super weapon to be added).
-} laser_info;
+} laser_info_t;
 
 typedef struct explosion_info 
 {
@@ -175,26 +175,26 @@ typedef struct explosion_info
 	short			next_attach;		// next explosion in attach list
 } explosion_info;
 
-typedef struct light_info 
+typedef struct light_info_s
 {
 	fix			intensity;		//how bright the light is
-} light_info;
+} light_info_t;
 
 #define PF_SPAT_BY_PLAYER	1		//this powerup was spat by the player   
 
-typedef struct powerup_info
+typedef struct powerup_info_s
 {
 	int			count;			//how many/much we pick up (vulcan cannon only?)
 	fix			creation_time;	//Absolute time of creation.
 	int			flags;			//spat by player?
-} powerup_info;
+} powerup_info_t;
 
-typedef struct vclip_info 
+typedef struct vclip_info_s
 {
 	int			vclip_num;
 	fix			frametime;
 	int8_t			framenum;
-} vclip_info;
+} vclip_info_t;
 
 //structures for different kinds of rendering
 
@@ -242,18 +242,18 @@ typedef struct object
 	//control info, determined by CONTROL_TYPE
 	union 
 	{								
-		laser_info 		laser_info;
+		laser_info_t 		laser_info;
 		explosion_info	expl_info;		//NOTE: debris uses this also
 		ai_static		ai_info;
-		light_info		light_info;		//why put this here?  Didn't know what else to do with it.
-		powerup_info	powerup_info;
+		light_info_t		light_info;		//why put this here?  Didn't know what else to do with it.
+		powerup_info_t	powerup_info;
 	} ctype;
 
 	//render info, determined by RENDER_TYPE
 	union 
 	{
 		polyobj_info pobj_info;			//polygon model
-		vclip_info	 vclip_info;		//vclip
+		vclip_info_t	 vclip_info;		//vclip
 	} rtype;
 
 } object;

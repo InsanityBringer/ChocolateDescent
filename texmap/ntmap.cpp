@@ -999,4 +999,3 @@ void draw_tmap(grs_bitmap* bp, int nverts, g3s_point** vertbuf)
 	Lighting_on = lighting_on_save;
 }
 
-

@@ -15,8 +15,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sys\types.h>
-#include <sys\stat.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "mem/mem.h"
 
@@ -529,7 +529,7 @@ int gr_uprintf(int x, int y, const char* format, ...)
 	va_list args;
 
 	va_start(args, format);
-	vsprintf_s(buffer, 1000, format, args);
+	vsnprintf(buffer, 1000, format, args);
 	return gr_ustring(x, y, buffer);
 }
 
@@ -539,7 +539,7 @@ int gr_printf(int x, int y, const char* format, ...)
 	va_list args;
 
 	va_start(args, format);
-	vsprintf_s(buffer, 1000, format, args);
+	vsnprintf(buffer, 1000, format, args);
 	return gr_string(x, y, buffer);
 }
 

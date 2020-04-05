@@ -528,6 +528,7 @@ if (WIN32)
 	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${LINUX_SOURCES})
 elseif(UNIX)
 	add_definitions(-DUNIX -D_UNIX)
+	add_link_options(-pthread)
     set(SHARED_SOURCES ${SHARED_SOURCES} ${LINUX_SOURCES})
 	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${WIN32_SOURCES})
 endif()
@@ -549,6 +550,8 @@ endif()
 
 add_executable(ChocolateDescent WIN32 MACOSX_BUNDLE ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT1_SOURCES})
 add_executable(ChocolateDescent2 WIN32 MACOSX_BUNDLE ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT2_SOURCES})
+
+set_target_properties(ChocolateDescent ChocolateDescent2 PROPERTIES CXX_STANDARD 11)
 
 target_link_libraries(ChocolateDescent ${SHARED_LIBS} ${DESCENT1_LIBS})
 target_link_libraries(ChocolateDescent2 ${SHARED_LIBS} ${DESCENT2_LIBS})

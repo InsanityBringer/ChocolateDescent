@@ -56,7 +56,7 @@ powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
 void do_powerup_frame(object* obj)
 {
 	fix fudge;
-	vclip_info* vci = &obj->rtype.vclip_info;
+	vclip_info_t* vci = &obj->rtype.vclip_info;
 	vclip* vc = &Vclip[vci->vclip_num];
 
 	fudge = (FrameTime * ((obj - Objects) & 3)) >> 4;
@@ -127,7 +127,7 @@ void draw_powerup(object* obj)
 
 }
 
-void powerup_basic(int redadd, int greenadd, int blueadd, int score, char* format, ...)
+void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char* format, ...)
 {
 	char		text[120];
 	va_list	args;

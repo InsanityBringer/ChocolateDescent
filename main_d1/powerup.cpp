@@ -46,7 +46,7 @@ powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
 //process this powerup for this frame
 void do_powerup_frame(object* obj)
 {
-	vclip_info* vci = &obj->rtype.vclip_info;
+	vclip_info_t* vci = &obj->rtype.vclip_info;
 	vclip* vc = &Vclip[vci->vclip_num];
 
 	vci->frametime -= FrameTime;

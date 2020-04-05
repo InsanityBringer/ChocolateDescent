@@ -33,12 +33,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "mem/mem.h"
 
 // string compare without regard to case
 
-int _stricmp(char *s1, char *s2)
+int _stricmp(const char *s1, const char *s2)
 {
 	while( *s1 && *s2 )	
 	{
@@ -50,7 +51,7 @@ int _stricmp(char *s1, char *s2)
 	return 0;
 }
 
-int _strnicmp(char *s1, char *s2, int n)
+int _strnicmp(const char *s1, const char *s2, int n)
 {
 	while(*s1 && *s2 && n)	
 	{
@@ -93,11 +94,17 @@ void _strrev(char *s1)
 	free(s2);
 }
 
-void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
+char* _itoa(int num, char* buf, int max)
+{
+	snprintf(buf, max, "%d", num);
+	return buf;
+}
+
+void _splitpath(const char *name, char *drive, char *path, char *base, char *ext)
 {
 	char *s, *p;
 
-	p = name;
+	p = const_cast<char*>(name);
 	s = strchr(p, ':');
 	if ( s != NULL ) 
 	{

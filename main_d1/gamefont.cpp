@@ -53,4 +53,4 @@ void gamefont_close(void)
 		Gamefonts[i] = NULL;
 	}
 }
-
+

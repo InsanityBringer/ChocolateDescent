@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
 //#include "vga.h"
-
+#include "platform/posixstub.h"
 #include "menu.h"
 #include "inferno.h"
 #include "game.h"

@@ -55,7 +55,7 @@ void cfile_use_alternate_hogdir(const char* path)
 {
 	if (path)
 	{
-		strcpy_s(AltHogDir, HOG_FILENAME_MAX, path);
+		strncpy(AltHogDir, path, HOG_FILENAME_MAX-1);
 		AltHogdir_initialized = 1;
 	}
 	else 
@@ -73,8 +73,8 @@ FILE* cfile_get_filehandle(const char* filename, const char* mode)
 
 	//CDToDescentDir();
 	//descent_critical_error = 0; [ISB] aaaaaaaaaaaaa
-	//fp = fopen(filename, mode);
-	errno_t err = fopen_s(&fp, filename, mode);
+	fp = fopen(filename, mode);
+	//errno_t err = fopen_s(&fp, filename, mode);
 	/*if (fp && descent_critical_error)
 	{
 		fclose(fp);
@@ -82,10 +82,12 @@ FILE* cfile_get_filehandle(const char* filename, const char* mode)
 	}*/
 	if ((fp == NULL) && (AltHogdir_initialized)) 
 	{
-		strcpy_s(temp, HOG_FILENAME_MAX * 2, AltHogDir);
-		strcat_s(temp, HOG_FILENAME_MAX * 2, filename);
+		//strcpy_s(temp, HOG_FILENAME_MAX * 2, AltHogDir);
+		//strcat_s(temp, HOG_FILENAME_MAX * 2, filename);
+		strncpy(temp, AltHogDir, HOG_FILENAME_MAX);
+		strncat(temp, AltHogDir, HOG_FILENAME_MAX);
 		//descent_critical_error = 0; //[ISB] fix me somehow
-		err = fopen_s(&fp, temp, mode);
+		fp = fopen(temp, mode);
 		/*if (fp&& descent_critical_error)
 		{
 			fclose(fp);
@@ -209,7 +211,7 @@ int cfile_use_alternate_hogfile(const char* name)
 {
 	if (name)
 	{
-		strcpy_s(AltHogFilename, HOG_FILENAME_MAX, name);
+		strncpy(AltHogFilename, name, HOG_FILENAME_MAX-1);
 		cfile_init_hogfile(AltHogFilename, AltHogFiles, &AltNum_hogfiles);
 		AltHogfile_initialized = 1;
 		return (AltNum_hogfiles > 0);
@@ -258,14 +260,14 @@ CFILE* cfopen(const char* filename, const char* mode)
 	CFILE* cfile;
 	char new_filename[256], * p;
 
-	//[ISB] eh?
 	if (_stricmp(mode, "rb")) 
 	{
 		Warning("CFILES CAN ONLY BE OPENED WITH RB\n");
 		exit(1);
 	}
 
-	strcpy_s(new_filename, 256, filename);
+	memset(new_filename, 0, 256);
+	strncpy(new_filename, filename, 255);
 	while ((p = strchr(new_filename, 13)))
 		* p = '\0';
 

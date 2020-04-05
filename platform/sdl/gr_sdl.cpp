@@ -13,12 +13,12 @@ Instead, it is released under the terms of the MIT License.
 
 #ifdef USE_SDL
 
-#include "sdl.h"
-#include "sdl_video.h"
-#include "sdl_surface.h"
-#include "sdl_pixels.h"
-#include "sdl_mouse.h"
-#include "sdl_render.h"
+#include "SDL.h"
+#include "SDL_video.h"
+#include "SDL_surface.h"
+#include "SDL_pixels.h"
+#include "SDL_mouse.h"
+#include "SDL_render.h"
 
 #include "2d/gr.h"
 #include "2d/i_gr.h"

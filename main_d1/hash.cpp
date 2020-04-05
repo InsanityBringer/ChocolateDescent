@@ -14,6 +14,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "platform/posixstub.h"
 #include "misc/error.h"
 #include "platform/mono.h"
 #include "hash.h"

@@ -24,5 +24,3 @@ bool IsDrivePresent(int id)
 {
 	return false;
 }
-
-#endif

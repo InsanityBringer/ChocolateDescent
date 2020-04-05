@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include <unistd.h>
 
 #include "misc/error.h"
-
+#include "platform/posixstub.h"
 //#include "pa_enabl.h"
 #include "game.h"
 #include "gameseq.h"

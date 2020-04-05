@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
+#include "platform/posixstub.h"
 #include "misc/types.h"
 #include "inferno.h"
 #include "2d/gr.h"

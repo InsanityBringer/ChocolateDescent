@@ -76,12 +76,12 @@ subtitle Subtitles[MAX_SUBTITLES];
 int Num_subtitles;
 
 // ----------------------------------------------------------------------
-void* __cdecl MPlayAlloc(unsigned size)
+void* MPlayAlloc(unsigned size)
 {
 	return malloc(size);
 }
 
-void __cdecl MPlayFree(void* p)
+void MPlayFree(void* p)
 {
 	free(p);
 }
@@ -92,7 +92,7 @@ int HiResRoboMovie = 0;
 
 //-----------------------------------------------------------------------
 
-unsigned __cdecl FileRead(int handle, void* buf, unsigned count)
+unsigned FileRead(int handle, void* buf, unsigned count)
 {
 	unsigned numread;
 	numread = _read(handle, buf, count);
@@ -188,7 +188,7 @@ int PlayMovie(const char* filename, int must_have)
 
 //uint8_t localPal[768];
 
-void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty)
+void MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty)
 {
 	grs_bitmap source_bm;
 
@@ -208,7 +208,7 @@ void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t
 }
 
 //our routine to set the pallete, called from the movie code
-void __cdecl MovieSetPalette(unsigned char* p, unsigned start, unsigned count)
+void MovieSetPalette(unsigned char* p, unsigned start, unsigned count)
 {
 	//memcpy(localPal, gr_palette, 768); //[ISB] test hack
 	if (count == 0)
@@ -656,7 +656,7 @@ void DeInitRobotMovie()
 	_close(RoboFile);                           // Close Movie File
 }
 
-void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
+void PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 {
 	int i;
 

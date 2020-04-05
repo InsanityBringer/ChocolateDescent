@@ -15,6 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 
+#include "platform/posixstub.h"
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "3d/3d.h"
 #include "2d/gr.h"

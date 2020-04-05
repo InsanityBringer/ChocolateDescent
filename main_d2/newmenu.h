@@ -49,16 +49,16 @@ typedef struct newmenu_item {
 // change the text of an item.  Just pass NULL if you don't want this.
 // Title draws big, Subtitle draw medium sized.  You can pass NULL for
 // either/both of these if you don't want them.
-extern int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems, newmenu_item * items, int *last_key, int citem ) );
+extern int newmenu_do( const char * title, const char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems, newmenu_item * items, int *last_key, int citem ) );
 
 // Same as above, only you can pass through what item is initially selected.
-extern int newmenu_do1( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem );
+extern int newmenu_do1( const char * title, const char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem );
 
 // Same as above, only you can pass through what background bitmap to use.
-extern int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename );
+extern int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, const char * filename );
 
 // Same as above, only you can pass through the width & height
-extern int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height );
+extern int newmenu_do3( const char * title, const char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, const char * filename, int width, int height );
 
 
 // Sample Code:
@@ -89,15 +89,15 @@ extern int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item 
 // Example:
 // nm_messagebox( "Title", "Subtitle", 2, "Ok", "Cancel", "There are %d objects", nobjects );
 // Returns 0 through nchoices-1.
-int nm_messagebox( char *title, int nchoices, ... );
+int nm_messagebox( const char *title, int nchoices, ... );
 // Same as above, but you can pass a function
-int nm_messagebox1( char *title, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int nchoices, ... );
+int nm_messagebox1( const char *title, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int nchoices, ... );
 
 void nm_draw_background(int x1, int y1, int x2, int y2);
 void nm_restore_background( int x, int y, int w, int h );
 
 // Returns 0 if no file selected, else filename is filled with selected file.
-int newmenu_get_filename( char * title, char * filespec, char * filename, int allow_abort_flag );
+int newmenu_get_filename( const char * title, const char * filespec, char * filename, int allow_abort_flag );
 
 //	in menu.c
 extern int Max_linear_depth_objects;
@@ -125,10 +125,10 @@ extern char *Newmenu_allowed_chars;
 // 	return 0;
 // }
 
-extern int newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) );
-extern int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) );
+extern int newmenu_listbox( const char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) );
+extern int newmenu_listbox1( const char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) );
 
-extern int newmenu_filelist( char * title, char * filespace, char * filename );
+extern int newmenu_filelist( const char * title, const char * filespace, char * filename );
 
 //should be called whenever the palette changes
 extern void nm_remap_background(void);

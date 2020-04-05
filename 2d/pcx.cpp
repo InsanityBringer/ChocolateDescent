@@ -14,6 +14,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 #include "2d/gr.h"
 #include "mem/mem.h"
 #include "2d/pcx.h"
@@ -173,8 +174,9 @@ int pcx_write_bitmap(const char* filename, grs_bitmap* bmp, uint8_t* palette)
 	header.Ymax = bmp->bm_h - 1;
 	header.BytesPerLine = bmp->bm_w;
 
-	//PCXfile = fopen(filename, "wb");
-	errno_t err = fopen_s(&PCXfile, filename, "wb");
+	//[ISB] knew this was a bad idea.....
+	PCXfile = fopen(filename, "wb");
+	//errno_t err = fopen_s(&PCXfile, filename, "wb");
 	if (!PCXfile)
 		return PCX_ERROR_OPENING;
 

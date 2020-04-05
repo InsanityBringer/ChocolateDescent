@@ -1929,7 +1929,7 @@ void full_palette_save(void)
 }
 
 extern int Death_sequence_aborted;
-extern int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) );
+extern int newmenu_dotiny2( const char * title, const char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) );
 
 void show_help()
 {

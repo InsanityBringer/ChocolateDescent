@@ -28,8 +28,17 @@ as described in copying.txt
 #include <sys/types.h>
 
 //Renamed file operations
+#define O_BINARY 0
 #define _fileno(a) fileno(a)
-#define _mkdir(a) _mkdir(a, S_IRWXU | S_IRGRP | S_IROTH)
+#define _unlink(a) unlink(a)
+#define _mkdir(a) mkdir(a, S_IRWXU | S_IRGRP | S_IROTH)
+#define _open(a, b) open(a, b)
+#define _close(a) close(a)
+#define _read(a, b, c) read(a, b, c)
+#define _lseek(a, b, c) lseek(a, b, c)
+
+#define _MAX_PATH 256
+#define _MAX_DIR 256
 
 //Renamed string operations
 #define _strdup(a) strdup(a)
@@ -43,10 +52,12 @@ as described in copying.txt
 int _filelength(int descriptor);
 
 //Non-standard string functions
-int _stricmp(char* a, char* b);
-int _strnicmp(char* a, char* b, int n);
+int _stricmp(const char* a, const char* b);
+int _strnicmp(const char* a, const char* b, int n);
+char* _itoa(int num, char* buf, int max);
 char* _strrev(char* in);
 char* _strlwr(char* in);
 char* _strupr(char* in);
+void _splitpath(const char *name, char *drive, char *path, char *base, char *ext);
 
 #endif
