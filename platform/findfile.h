@@ -15,9 +15,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define FF_PATHSIZE 256
 
+#include <stdint.h>
+
 typedef struct FILEFINDSTRUCT 
 {
-	unsigned long size;
+	uint32_t size;
 	char name[FF_PATHSIZE];
 } FILEFINDSTRUCT;
 
