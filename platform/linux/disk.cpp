@@ -11,13 +11,25 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/statvfs.h>
+#include <unistd.h>
+
 #include "platform/disk.h"
 #include "misc/types.h"
+#include "platform/mono.h"
 
-//[ISB] Stub implementation
 unsigned int GetFreeDiskSpace()
 {
-	return 0x100000;
+	char cwd[256];
+	struct statvfs fsinfo;
+
+	getcwd(cwd, 256);
+	statvfs(cwd, &fsinfo);
+	unsigned int sizeavail = (fsinfo.f_bavail * fsinfo.f_bsize);
+	//mprintf((0, "size available: %d\n", sizeavail));
+	return sizeavail;
 }
 
 bool IsDrivePresent(int id)
