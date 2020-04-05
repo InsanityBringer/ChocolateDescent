@@ -39,7 +39,7 @@ extern int Physics_cheat_flag;
 //[ISB] Credits to Parabolicus for the not horrible port
 int oflow_check(fix a, fix b)
 {
-	uint64_t tmp = (uint64_t)abs(a) * (uint64_t)abs(b);
+	int64_t tmp = (int64_t)abs(a) * (int64_t)abs(b);
 	return (tmp >> 47) ? 1 : 0;
 }
 
