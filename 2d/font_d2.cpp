@@ -1160,10 +1160,26 @@ void GR_ReadFont(grs_font* font, CFILE* fp, int len)
 
 grs_font * gr_init_font(const char* fontname)
 {
+	static int first_time = 1;
 	grs_font* font;
 	CFILE* fontfile;
+	int fontnum;
 	int file_id;
 	int datasize;		//size up to (but not including) palette
+
+	if (first_time) 
+	{
+		int i;
+		for (i = 0; i < MAX_OPEN_FONTS; i++)
+			open_font[i].ptr = NULL;
+		first_time = 0;
+	}
+
+	//find free font slot
+	for (fontnum = 0; fontnum < MAX_OPEN_FONTS && open_font[fontnum].ptr != NULL; fontnum++);
+	Assert(fontnum < MAX_OPEN_FONTS);	//did we find one?
+
+	strncpy(open_font[fontnum].filename, fontname, FILENAME_LEN);
 
 	fontfile = cfopen(fontname, "rb");
 
@@ -1180,6 +1196,8 @@ grs_font * gr_init_font(const char* fontname)
 
 	//printf("loading font %s\n", fontname);
 	GR_ReadFont(font, fontfile, datasize);
+
+	open_font[fontnum].ptr = font;
 
 	cfclose(fontfile);
 
@@ -1216,45 +1234,12 @@ void gr_remap_font(grs_font* font, char* fontname)
 	if (file_id != 'NFSP')
 		Error("File %s is not a font file", fontname);
 
-	nchars = font->ft_maxchar - font->ft_minchar + 1;
+	//font = (grs_font*)malloc(datasize);
 
-	//compute data length
-	data_len = 0;
-	if (font->ft_flags & FT_PROPORTIONAL)
-	{
-		for (i = 0; i < nchars; i++)
-		{
-			if (font->ft_flags & FT_COLOR)
-				data_len += font->ft_widths[i] * font->ft_h;
-			else
-				data_len += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
-		}
+	//printf("loading font %s\n", fontname);
+	//[ISB] This isn't as efficient, but it makes it easier.
+	GR_ReadFont(font, fontfile, datasize);
 
-	}
-	else
-		data_len = nchars * font->ft_w * font->ft_h;
-
-	data_ofs = font->ft_data - ((uint8_t*)font);
-
-	cfseek(fontfile, data_ofs, SEEK_CUR);
-	cfread(font->ft_data, 1, data_len, fontfile);		//read raw data
-
-	if (font->ft_flags & FT_COLOR) //remap palette
-	{
-		uint8_t palette[256 * 3];
-		uint8_t colormap[256];
-		int freq[256];
-
-		cfseek(fontfile, -sizeof(palette), SEEK_END);
-
-		cfread(palette, 3, 256, fontfile);		//read the palette
-
-		build_colormap_good(&palette[0], colormap, freq);
-
-		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;	// changed from		colormap[255] = 255;
-
-		decode_data_asm(font->ft_data, data_len, colormap, freq);
-	}
 	cfclose(fontfile);
 }
 
