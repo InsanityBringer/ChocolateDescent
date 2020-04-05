@@ -176,7 +176,7 @@ char *mfgets(char *s,int n,CFILE *f)
 }
 
 //compare a string for a token. returns true if match
-int istok(char *buf,char *tok)
+int istok(char *buf,const char *tok)
 {
 	return _strnicmp(buf,tok,strlen(tok)) == 0;
 
@@ -209,7 +209,7 @@ char *get_value(char *buf)
 }
 
 //reads a line, returns ptr to value of passed parm.  returns NULL if none
-char *get_parm_value(char *parm,CFILE *f)
+char *get_parm_value(const char *parm,CFILE *f)
 {
 	static char buf[80];
 	
@@ -349,7 +349,7 @@ int build_mission_list(int anarchy_mode)
 //@@		return num_missions;
 //@@	}
 
-	if (!read_mission_file(BUILTIN_MISSION,0,ML_CURDIR))		//read built-in first
+	if (!read_mission_file(const_cast<char*>(BUILTIN_MISSION),0,ML_CURDIR))		//read built-in first
 		Error("Could not find required mission file <%s>",BUILTIN_MISSION);
 
 	special_count = count=1; 

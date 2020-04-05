@@ -153,7 +153,7 @@ int cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 }
 
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
-int cfile_init(char* hogname)
+int cfile_init(const char* hogname)
 {
 	Assert(Hogfile_initialized == 0);
 

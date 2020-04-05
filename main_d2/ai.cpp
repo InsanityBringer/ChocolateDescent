@@ -125,7 +125,7 @@ int	Believed_player_seg;
 
 #ifndef NDEBUG
 //	Index into this array with ailp->mode
-char* mode_text[18] = {
+const char* mode_text[18] = {
 	{"STILL"},
 	{"WANDER"},
 	{"FOL_PATH"},
@@ -148,7 +148,7 @@ char* mode_text[18] = {
 };
 
 //	Index into this array with aip->behavior
-char	behavior_text[6][9] = {
+const char	behavior_text[6][9] = {
 	"STILL   ",
 	"NORMAL  ",
 	"HIDE    ",
@@ -158,7 +158,7 @@ char	behavior_text[6][9] = {
 };
 
 //	Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-char	state_text[8][5] = {
+const char	state_text[8][5] = {
 	"NONE",
 	"REST",
 	"SRCH",
@@ -1495,7 +1495,7 @@ FILE* Ai_dump_file = NULL;
 char	Ai_error_message[128] = "";
 
 // ----------------------------------------------------------------------------------
-void force_dump_ai_objects_all(char* msg)
+void force_dump_ai_objects_all(const char* msg)
 {
 	int	tsave;
 

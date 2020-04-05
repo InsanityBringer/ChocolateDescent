@@ -1441,7 +1441,7 @@ int newdemo_read_demo_start(int rnd_demo)
 
 		sprintf(text, "%s %s", TXT_CANT_PLAYBACK, TXT_RECORDED);
 		m[0].type = NM_TYPE_TEXT; m[0].text = text;
-		m[1].type = NM_TYPE_TEXT; m[1].text = "    In Descent: First Strike";
+		m[1].type = NM_TYPE_TEXT; m[1].text = const_cast<char*>("    In Descent: First Strike");
 
 		newmenu_do(NULL, NULL, sizeof(m) / sizeof(*m), m, NULL);
 		return 1;
@@ -1452,7 +1452,7 @@ int newdemo_read_demo_start(int rnd_demo)
 
 		sprintf(text, "%s %s", TXT_CANT_PLAYBACK, TXT_RECORDED);
 		m[0].type = NM_TYPE_TEXT; m[0].text = text;
-		m[1].type = NM_TYPE_TEXT; m[1].text = "   In Unknown Descent version";
+		m[1].type = NM_TYPE_TEXT; m[1].text = const_cast<char*>("   In Unknown Descent version");
 
 		newmenu_do(NULL, NULL, sizeof(m) / sizeof(*m), m, NULL);
 		return 1;
@@ -3236,7 +3236,7 @@ int newdemo_count_demos()
 	return NumFiles;
 }
 
-void newdemo_start_playback(char* filename)
+void newdemo_start_playback(const char* filename)
 {
 	FILEFINDSTRUCT find;
 	int rnd_demo = 0;
@@ -3352,7 +3352,7 @@ void newdemo_strip_frames(char* outname, int bytes_to_strip)
 	{
 		newmenu_item m[1];
 
-		m[0].type = NM_TYPE_TEXT; m[0].text = "Can't open output file";
+		m[0].type = NM_TYPE_TEXT; m[0].text = const_cast<char*>("Can't open output file");
 		newmenu_do(NULL, NULL, 1, m, NULL);
 		newdemo_stop_playback();
 		return;
@@ -3362,7 +3362,7 @@ void newdemo_strip_frames(char* outname, int bytes_to_strip)
 	{
 		newmenu_item m[1];
 
-		m[0].type = NM_TYPE_TEXT; m[0].text = "Can't malloc output buffer";
+		m[0].type = NM_TYPE_TEXT; m[0].text = const_cast<char*>("Can't malloc output buffer");
 		newmenu_do(NULL, NULL, 1, m, NULL);
 		fclose(outfile);
 		newdemo_stop_playback();

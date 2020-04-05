@@ -396,9 +396,9 @@ void joydefs_config()
 		m[6].type = NM_TYPE_RADIO; m[6].text = CONTROL_TEXT(6); m[6].value = 0; m[6].group = 0;
 
 		m[7].type = NM_TYPE_MENU;		m[7].text = TXT_CUST_ABOVE;
-		m[8].type = NM_TYPE_TEXT;		m[8].text = "";
+		m[8].type = NM_TYPE_TEXT;		m[8].text = const_cast<char*>("");
 		m[9].type = NM_TYPE_SLIDER;	m[9].text = TXT_JOYS_SENSITIVITY; m[9].value = Config_joystick_sensitivity; m[9].min_value = 0; m[9].max_value = 8;
-		m[10].type = NM_TYPE_TEXT;		m[10].text = "";
+		m[10].type = NM_TYPE_TEXT;		m[10].text = const_cast<char*>("");
 		m[11].type = NM_TYPE_MENU;		m[11].text = TXT_CUST_KEYBOARD;
 
 		m[Config_control_type].value = 1;

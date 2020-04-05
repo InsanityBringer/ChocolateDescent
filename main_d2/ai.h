@@ -112,7 +112,7 @@ extern void do_snipe_frame(object *objp, fix dist_to_player, int player_visibili
 extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 
 #ifndef NDEBUG
-extern void force_dump_ai_objects_all(char *msg);
+extern void force_dump_ai_objects_all(const char *msg);
 #else
 #define force_dump_ai_objects_all(msg)
 #endif
@@ -219,7 +219,7 @@ extern void create_buddy_bot(void);
 
 extern int	Max_escort_length;
 
-extern char *Escort_goal_text[MAX_ESCORT_GOALS];
+extern const char *Escort_goal_text[MAX_ESCORT_GOALS];
 
 extern void ai_multi_send_robot_position(int objnum, int force);
 
@@ -279,13 +279,13 @@ extern vms_vector		Believed_player_pos;
 
 #ifndef NDEBUG
 //	Index into this array with ailp->mode
-extern char	*mode_text[18];
+extern const char	*mode_text[18];
 
 //	Index into this array with aip->behavior
-extern char	behavior_text[6][9];
+extern const char	behavior_text[6][9];
 
 //	Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-extern char	state_text[8][5];
+extern const char	state_text[8][5];
 
 extern int Do_ai_flag, Break_on_object;
 
@@ -327,7 +327,7 @@ extern int	Buddy_objnum, Buddy_allowed_to_talk;
 
 extern void start_robot_death_sequence(object *objp);
 extern int do_any_robot_dying_frame(object *objp);
-extern void buddy_message(char * format, ... );
+extern void buddy_message(const char * format, ... );
 
 #define	SPECIAL_REACTOR_ROBOT	65
 extern void special_reactor_stuff(void);

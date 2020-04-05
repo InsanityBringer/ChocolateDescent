@@ -105,7 +105,7 @@ int get_num_faces(side *sidep)
 			Error("Illegal type = %i\n", sidep->type);
 			break;
 	}
-
+	return 0; //shut up warning
 }
 
 // Fill in array with four absolute point numbers for a given side

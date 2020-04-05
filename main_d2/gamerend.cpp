@@ -212,12 +212,12 @@ void draw_window_label()
 {
 	if (Show_view_text_timer > 0)
 	{
-		char* viewer_name, * control_name;
+		const char* viewer_name, * control_name;
 		char* viewer_id;
 		Show_view_text_timer -= FrameTime;
 		gr_set_curfont(GAME_FONT);
 
-		viewer_id = "";
+		viewer_id = const_cast<char*>("");
 		switch (Viewer->type)
 		{
 		case OBJ_FIREBALL:	viewer_name = "Fireball"; break;
@@ -543,7 +543,7 @@ void game_render_frame_stereo()
 	gr_set_current_canvas(&RenderCanvas[0]);
 
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type == OBJ_WEAPON && Guided_missile[Player_num]->id == GUIDEDMISS_ID && Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num] && Guided_in_big_window) {
-		char* msg = "Guided Missile View";
+		const char* msg = "Guided Missile View";
 		object* viewer_save = Viewer;
 		int w, h, aw;
 
@@ -793,7 +793,7 @@ extern object DemoRightExtra, DemoLeftExtra;
 
 char DemoWBUType[] = { 0,WBU_MISSILE,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,WBU_MISSILE };
 char DemoRearCheck[] = { 0,0,0,1,0,0,0 };
-char* DemoExtraMessage[] = { "PLAYER","GUIDED","MISSILE","REAR","GUIDE-BOT","MARKER","SHIP" };
+const char* DemoExtraMessage[] = { "PLAYER","GUIDED","MISSILE","REAR","GUIDE-BOT","MARKER","SHIP" };
 
 extern char guidebot_name[];
 
@@ -991,7 +991,7 @@ void pa_mac_render_extras(void)
 		Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num] &&
 		Guided_in_big_window)
 	{
-		char* msg = "Guided Missile View";
+		const char* msg = "Guided Missile View";
 		int w, h, aw;
 
 		gr_set_curfont(GAME_FONT);    //GAME_FONT );
@@ -1037,7 +1037,7 @@ void pa_mac_game_render_frame(void)
 		Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num] &&
 		Guided_in_big_window)
 	{
-		char* msg = "Guided Missile View";
+		const char* msg = "Guided Missile View";
 		object* viewer_save = Viewer;
 		int w, h, aw;
 
@@ -1241,7 +1241,7 @@ void game_render_frame_mono(void)
 
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type == OBJ_WEAPON && Guided_missile[Player_num]->id == GUIDEDMISS_ID && Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num] && Guided_in_big_window)
 	{
-		char* msg = "Guided Missile View";
+		const char* msg = "Guided Missile View";
 		object* viewer_save = Viewer;
 		int w, h, aw;
 

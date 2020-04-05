@@ -23,7 +23,7 @@ extern char Current_level_palette[FILENAME_LEN];
 //if used_for_level is set, load pig, etc.
 //if no_change_screen is set, the current screen does not get remapped,
 //and the hardware palette does not get changed
-int load_palette(char *name,int used_for_level,int no_change_screen);
+int load_palette(const char *name,int used_for_level,int no_change_screen);
 
 extern uint8_t last_palette_for_color_fonts[768];
 

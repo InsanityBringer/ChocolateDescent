@@ -1850,6 +1850,7 @@ done_list:
 	first_terminal_seg = scnt;
 	N_render_segs = lcnt;
 
+	return 0;
 }
 
 //renders onto current canvas

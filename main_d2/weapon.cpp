@@ -650,7 +650,7 @@ void ReorderPrimary()
 	{
 		m[i].type = NM_TYPE_MENU;
 		if (PrimaryOrder[i] == 255)
-			m[i].text = "ˆˆˆˆˆˆˆ Never autoselect ˆˆˆˆˆˆˆ";
+			m[i].text = const_cast<char*>("ˆˆˆˆˆˆˆ Never autoselect ˆˆˆˆˆˆˆ");
 		else
 			m[i].text = (char*)PRIMARY_WEAPON_NAMES(PrimaryOrder[i]);
 		m[i].value = PrimaryOrder[i];
@@ -672,7 +672,7 @@ void ReorderSecondary()
 	{
 		m[i].type = NM_TYPE_MENU;
 		if (SecondaryOrder[i] == 255)
-			m[i].text = "ˆˆˆˆˆˆˆ Never autoselect ˆˆˆˆˆˆˆ";
+			m[i].text = const_cast<char*>("ˆˆˆˆˆˆˆ Never autoselect ˆˆˆˆˆˆˆ");
 		else
 			m[i].text = (char*)SECONDARY_WEAPON_NAMES(SecondaryOrder[i]);
 		m[i].value = SecondaryOrder[i];
@@ -695,6 +695,7 @@ int POrderList(int num)
 			return (i);
 		}
 	Error("Primary Weapon is not in order list!!!");
+	return 0; //[ISB] shut up warning
 }
 
 int SOrderList(int num)
@@ -709,6 +710,7 @@ int SOrderList(int num)
 		}
 	mprintf((0, "Error! Secondary Num=%d\n", num));
 	Error("Secondary Weapon is not in order list!!!");
+	return 0;
 }
 
 

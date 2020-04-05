@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern void multi_send_stolen_items();
 #endif
 
-char *Escort_goal_text[MAX_ESCORT_GOALS] = {
+const char *Escort_goal_text[MAX_ESCORT_GOALS] = {
 {	"BLUE KEY"},
 {	"YELLOW KEY"},
 {	"RED KEY"},
@@ -396,7 +396,7 @@ void change_guidebot_name()
 }
 
 //	-----------------------------------------------------------------------------
-void buddy_message(char * format, ... )
+void buddy_message(const char * format, ... )
 {
 	if (Buddy_messages_suppressed)
 		return;
@@ -432,7 +432,7 @@ void buddy_message(char * format, ... )
 }
 
 //	-----------------------------------------------------------------------------
-void thief_message(char * format, ... )
+void thief_message(const char * format, ... )
 {
 
 	char	gb_str[16], new_format[128];

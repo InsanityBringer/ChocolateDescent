@@ -105,7 +105,7 @@ int mouseaxis_text[2] = { TNUM_L_R, TNUM_F_B };
 
 int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
 
-char* key_text[256] = { \
+const char* key_text[256] = { \
 "","ESC","1","2","3","4","5","6","7","8","9","0","-", 			\
 "=","BSPC","TAB","Q","W","E","R","T","Y","U","I","O",				\
 "P","[","]","ƒ","LCTRL","A","S","D","F",        \
@@ -153,7 +153,7 @@ fix Cruise_speed = 0;
 #define BT_JOY_AXIS			4
 #define BT_INVERT				5
 
-char* btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
+const char* btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 
 #define INFO_Y 28
 
@@ -165,7 +165,7 @@ typedef struct kc_item
 	short w2;
 	short u, d, l, r;
 	//short text_num1;
-	char* text;
+	const char* text;
 	uint8_t type;
 	uint8_t value;		// what key,button,etc
 } kc_item;

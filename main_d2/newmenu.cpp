@@ -424,7 +424,7 @@ void nm_string_black(bkg* b, int w1, int x, int y, char* s)
 
 
 // Draw a right justfied string
-void nm_rstring(bkg* b, int w1, int x, int y, char* s)
+void nm_rstring(bkg* b, int w1, int x, int y, const char* s)
 {
 	int w, h, aw;
 	gr_get_string_size(s, &w, &h, &aw);

@@ -159,7 +159,7 @@ void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
 {
 	if (handle >= _MAX_VOICES) return;
 
-	alSourcei(sourceNames[handle], AL_BUFFER, NULL);
+	alSourcei(sourceNames[handle], AL_BUFFER, 0);
 	alBufferData(bufferNames[handle], AL_FORMAT_MONO8, data, length, sampleRate);
 	I_SetLoopPoints(handle, 0, length);
 

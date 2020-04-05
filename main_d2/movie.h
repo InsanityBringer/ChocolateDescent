@@ -26,14 +26,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int PlayMovie(const char *filename, int allow_abort);
 extern int PlayMovies(int num_files, const char *filename[], int graphmode, int allow_abort);
-int InitRobotMovie(char *filename);
+int InitRobotMovie(const char *filename);
 extern void DeInitRobotMovie(void);
 int RotateRobot();
 
 //find and initialize the movie libraries
 void init_movies();
 
-int init_subtitles(char *filename);
+int init_subtitles(const char *filename);
 void close_subtitles();
 
 extern int MovieHires;		//specifies whether movies use low or high res

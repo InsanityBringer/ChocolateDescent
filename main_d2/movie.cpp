@@ -289,7 +289,7 @@ void clear_pause_message()
 	}
 }
 
-int open_movie_file(char* filename, int must_have);
+int open_movie_file(const char* filename, int must_have);
 void draw_subtitles(int frame_num);
 
 //returns status.  see movie.h
@@ -513,7 +513,7 @@ int MyShowFrame(void)
 
 	FlipFlop = 1 - FlipFlop;
 
-	return (NULL);
+	return 0;
 }
 
 #ifdef BUFFER_MOVIE
@@ -615,6 +615,7 @@ int RotateRobot()
 		Int3();
 		return 0;
 	}
+	return 0;
 }
 
 void FreeRoboBuffer(int n)
@@ -674,7 +675,7 @@ void PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 }
 
 
-int InitRobotMovie(char* filename)
+int InitRobotMovie(const char* filename)
 {
 #ifdef BUFFER_MOVIE
 	int i;
@@ -710,13 +711,13 @@ int InitRobotMovie(char* filename)
 	if ((FirstVid = (char*)calloc(65000L, 1)) == NULL)
 	{
 		FreeRoboBuffer(49);
-		return (NULL);
+		return (0);
 	}
 	if ((SecondVid = (char*)calloc(65000L, 1)) == NULL)
 	{
 		free(FirstVid);
 		FreeRoboBuffer(49);
-		return (NULL);
+		return (0);
 	}
 
 	//MVE_SOS_sndInit(-1);		//tell movies to play no sound for robots
@@ -793,10 +794,10 @@ uint8_t* next_field(uint8_t * p)
 	return p;
 }
 
-void change_filename_ext(char* dest, char* src, char* ext);
+void change_filename_ext(char* dest, const char* src, const char* ext);
 void decode_text_line(char* p);
 
-int init_subtitles(char* filename)
+int init_subtitles(const char* filename)
 {
 	CFILE* ifile;
 	int size, read_count;
@@ -960,7 +961,7 @@ typedef struct
 
 #define MAX_MOVIES_PER_LIB		50		//determines size of malloc
 
-movielib * init_new_movie_lib(char* filename, FILE * fp)
+movielib * init_new_movie_lib(const char* filename, FILE * fp)
 {
 	int nfiles, offset;
 	int i, n;
@@ -1000,7 +1001,7 @@ movielib * init_new_movie_lib(char* filename, FILE * fp)
 	return table;
 }
 
-movielib* init_old_movie_lib(char* filename, FILE * fp)
+movielib* init_old_movie_lib(const char* filename, FILE * fp)
 {
 	int nfiles, size;
 	int i;
@@ -1051,7 +1052,7 @@ movielib* init_old_movie_lib(char* filename, FILE * fp)
 }
 
 //find the specified movie library, and read in list of movies in it   
-movielib* init_movie_lib(char* filename)
+movielib* init_movie_lib(const char* filename)
 {
 	//note: this based on cfile_init_hogfile()
 
@@ -1078,9 +1079,9 @@ movielib* init_movie_lib(char* filename)
 }
 
 #ifdef D2_OEM
-char* movielib_files[] = { "intro-l.mvl","other-l.mvl","robots-l.mvl","oem-l.mvl" };
+const char* movielib_files[] = { "intro-l.mvl","other-l.mvl","robots-l.mvl","oem-l.mvl" };
 #else
-char* movielib_files[] = { "intro-l.mvl","other-l.mvl","robots-l.mvl" };
+const char* movielib_files[] = { "intro-l.mvl","other-l.mvl","robots-l.mvl" };
 #endif
 
 #define N_BUILTIN_MOVIE_LIBS (sizeof(movielib_files)/sizeof(*movielib_files))
@@ -1169,7 +1170,7 @@ try_again:;
 //do we have the robot movies available
 int robot_movies = 0;	//0 means none, 1 means lowres, 2 means hires
 
-void init_movie(char* filename, int libnum, int is_robots, int required)
+void init_movie(const char* filename, int libnum, int is_robots, int required)
 {
 	int high_res;
 	char tempBuffer[FILENAME_LEN]; //[ISB] I dunno
@@ -1267,7 +1268,7 @@ int movie_handle, movie_start;
 
 //looks through a movie library for a movie file
 //returns filehandle, with fileposition at movie, or -1 if can't find
-int search_movie_lib(movielib * lib, char* filename, int must_have)
+int search_movie_lib(movielib * lib, const char* filename, int must_have)
 {
 	int i;
 	int filehandle;
@@ -1306,7 +1307,7 @@ int search_movie_lib(movielib * lib, char* filename, int must_have)
 }
 
 //returns file handle
-int open_movie_file(char* filename, int must_have)
+int open_movie_file(const char* filename, int must_have)
 {
 	int filehandle, i;
 

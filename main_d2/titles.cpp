@@ -1139,7 +1139,7 @@ int load_screen_text(const char* filename, char** buf)
 		if ((ifile = cfopen(nfilename, "rb")) == NULL)
 		{
 			mprintf((0, "can't open %s!\n", nfilename));
-			return (NULL);
+			return 0;
 			//Error("Cannot open file %s or %s", filename, nfilename); 
 		}
 
@@ -1198,7 +1198,7 @@ int show_briefing_text(int screen_num)
 
 	message_ptr = get_briefing_message(screen_num);
 	if (message_ptr == NULL)
-		return (NULL);
+		return 0;
 
 	DoBriefingColorStuff();
 

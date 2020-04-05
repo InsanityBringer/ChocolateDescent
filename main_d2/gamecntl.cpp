@@ -689,7 +689,7 @@ extern int newmenu_dotiny2(char* title, char* subtitle, int nitems, newmenu_item
 extern int network_who_is_master(), network_how_many_connected(), GetMyNetRanking();
 extern int TotalMissedPackets, TotalPacketsGot;
 extern char Pauseable_menu;
-char* NetworkModeNames[] = { "Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown" };
+const char* NetworkModeNames[] = { "Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown" };
 extern char* RankStrings[];
 extern int PhallicLimit, PhallicMan;
 
@@ -988,14 +988,14 @@ void HandleDemoKey(int key)
 		newmenu_item m[6];
 
 		filename[0] = '\0';
-		m[0].type = NM_TYPE_TEXT; m[0].text = "output file name";
+		m[0].type = NM_TYPE_TEXT; m[0].text = const_cast<char*>("output file name");
 		m[1].type = NM_TYPE_INPUT; m[1].text_len = 8; m[1].text = filename;
 		c = newmenu_do(NULL, NULL, 2, m, NULL);
 		if (c == -2)
 			break;
 		strcat(filename, ".dem");
 		num[0] = '\0';
-		m[0].type = NM_TYPE_TEXT; m[0].text = "strip how many bytes";
+		m[0].type = NM_TYPE_TEXT; m[0].text = const_cast<char*>("strip how many bytes");
 		m[1].type = NM_TYPE_INPUT; m[1].text_len = 16; m[1].text = num;
 		c = newmenu_do(NULL, NULL, 2, m, NULL);
 		if (c == -2)
@@ -1192,11 +1192,9 @@ int HandleSystemKey(int key)
 
 			// fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
-		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_1:)
 		case KEY_SHIFTED + KEY_F1:
 			screen_changed = select_next_window_function(0);
 			break;
-		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_2:)
 		case KEY_SHIFTED + KEY_F2:
 			screen_changed = select_next_window_function(1);
 			break;
@@ -1214,24 +1212,13 @@ int HandleSystemKey(int key)
 		Function_mode = FMODE_EXIT;
 		break;
 
-	MAC(case KEY_COMMAND + KEY_P:)
 	case KEY_PAUSE:
 		do_game_pause();				break;
 
-#ifdef MACINTOSH
-	case KEY_COMMAND + KEY_D:
-		Scanline_double = !Scanline_double;
-		init_cockpit();
-		break;
-#endif
-
-	MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
 	case KEY_PRINT_SCREEN:  save_screen_shot(0);		break;
 
-	MAC(case KEY_COMMAND + KEY_1:)
 	case KEY_F1:					do_show_help();			break;
 
-	MAC(case KEY_COMMAND + KEY_2:)
 	case KEY_F2:					//Config_menu_flag = 1; break;
 	{
 		int scanline_save = Scanline_double;
@@ -1244,27 +1231,7 @@ int HandleSystemKey(int key)
 		break;
 	}
 
-
-	MAC(case KEY_COMMAND + KEY_3:)
-
 	case KEY_F3:
-#ifdef WINDOWS		// HACK! these shouldn't work in 320x200 pause or in letterbox.
-		if (Player_is_dead) break;
-		if (!(VR_screen_flags & VRF_COMPATIBLE_MENUS) && Game_paused) {
-			screen_changed = -1;
-			break;
-		}
-#endif
-
-#ifdef MACINTOSH
-#ifdef POLY_ACC
-		if (PAEnabled)
-		{
-			HUD_init_message("Cockpit not available while using QuickDraw 3D.");
-			return;
-		}
-#endif
-#endif
 
 		//PA_DFX (HUD_init_message ("Cockpit not available in 3dfx version."));
 		//PA_DFX (break);
@@ -1275,7 +1242,6 @@ int HandleSystemKey(int key)
 		}
 		break;
 
-	MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_7:)
 	case KEY_F7 + KEY_SHIFTED: palette_save(); joydefs_calibrate(); palette_restore(); break;
 
 	case KEY_SHIFTED + KEY_MINUS:
@@ -1306,7 +1272,6 @@ int HandleSystemKey(int key)
 		screen_changed = 1;
 		break;
 
-	MAC(case KEY_COMMAND + KEY_5:)
 	case KEY_F5:
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_stop_recording();
@@ -1315,14 +1280,12 @@ int HandleSystemKey(int key)
 				newdemo_start_recording();
 		break;
 
-	MAC(case KEY_COMMAND + KEY_ALTED + KEY_4:)
 	case KEY_ALTED + KEY_F4:
 #ifdef NETWORK
 		Show_reticle_name = (Show_reticle_name + 1) % 2;
 #endif
 		break;
 
-	MAC(case KEY_COMMAND + KEY_7:)
 	case KEY_F7:
 #ifdef NETWORK
 		Show_kill_list = (Show_kill_list + 1) % ((Game_mode & GM_TEAM) ? 4 : 3);
@@ -1331,7 +1294,6 @@ int HandleSystemKey(int key)
 #endif
 		break;
 
-	MAC(case KEY_COMMAND + KEY_8:)
 	case KEY_F8:
 #ifdef NETWORK
 		multi_send_message_start();
@@ -1347,21 +1309,6 @@ int HandleSystemKey(int key)
 #endif
 		break;		// send taunt macros
 
-#ifdef MACINTOSH
-	case KEY_9 + KEY_COMMAND:
-		multi_send_macro(KEY_F9);
-		break;
-	case KEY_0 + KEY_COMMAND:
-		multi_send_macro(KEY_F10);
-		break;
-	case KEY_1 + KEY_COMMAND + KEY_CTRLED:
-		multi_send_macro(KEY_F11);
-		break;
-	case KEY_2 + KEY_COMMAND + KEY_CTRLED:
-		multi_send_macro(KEY_F12);
-		break;
-#endif
-
 	case KEY_SHIFTED + KEY_F9:
 	case KEY_SHIFTED + KEY_F10:
 	case KEY_SHIFTED + KEY_F11:
@@ -1370,32 +1317,6 @@ int HandleSystemKey(int key)
 		multi_define_macro(key);
 #endif
 		break;		// redefine taunt macros
-
-#ifdef MACINTOSH
-	case KEY_9 + KEY_SHIFTED + KEY_COMMAND:
-		multi_define_macro(KEY_F9);
-		break;
-	case KEY_0 + KEY_SHIFTED + KEY_COMMAND:
-		multi_define_macro(KEY_F10);
-		break;
-	case KEY_1 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
-		multi_define_macro(KEY_F11);
-		break;
-	case KEY_2 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
-		multi_define_macro(KEY_F12);
-		break;
-#endif
-
-#if defined(MACINTOSH) && defined(POLY_ACC)
-	case KEY_COMMAND + KEY_ALTED + KEY_1:
-		if (PAEnabled)
-		{	// hackish, to enable RAVE filtering hotkey,
-			// not widely publicized
-			pa_toggle_filtering();
-		}
-		break;
-#endif
-
 
 	MAC(case KEY_COMMAND + KEY_S:)
 	MAC(case KEY_COMMAND + KEY_ALTED + KEY_2:)
@@ -1415,8 +1336,6 @@ int HandleSystemKey(int key)
 		}
 		break;  // 0 means not between levels.
 
-	MAC(case KEY_COMMAND + KEY_O:)
-	MAC(case KEY_COMMAND + KEY_ALTED + KEY_3:)
 	case KEY_ALTED + KEY_F3:
 		if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 			full_palette_save();
@@ -1427,65 +1346,17 @@ int HandleSystemKey(int key)
 		break;
 
 
-	MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_4:)
 	case KEY_F4 + KEY_SHIFTED:
 		do_escort_menu();
 		break;
 
 
-	MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_ALTED + KEY_4:)
 	case KEY_F4 + KEY_SHIFTED + KEY_ALTED:
 		change_guidebot_name();
 		break;
 
 	case KEY_MINUS + KEY_ALTED:     songs_goto_prev_song(); break;
 	case KEY_EQUAL + KEY_ALTED:     songs_goto_next_song(); break;
-
-#ifdef MACINTOSH
-
-	case KEY_COMMAND + KEY_M:
-#if !defined(SHAREWARE) || defined(APPLE_DEMO)
-		if ((Game_mode & GM_MULTI))		// don't process in multiplayer games
-			break;
-
-		key_close();		// no processing of keys with keyboard handler.. jeez				
-		stop_time();
-		show_boxed_message("Mounting CD\nESC to quit");
-		RBAMountDisk();		// OS has totaly control of the CD.
-		if (Function_mode == FMODE_MENU)
-			songs_play_song(SONG_TITLE, 1);
-		else if (Function_mode == FMODE_GAME)
-			songs_play_level_song(Current_level_num);
-		clear_boxed_message();
-		key_init();
-		start_time();
-#endif
-
-		break;
-
-	case KEY_COMMAND + KEY_E:
-		songs_stop_redbook();
-		RBAEjectDisk();
-		break;
-
-	case KEY_COMMAND + KEY_RIGHT:
-		songs_goto_next_song();
-		break;
-	case KEY_COMMAND + KEY_LEFT:
-		songs_goto_prev_song();
-		break;
-	case KEY_COMMAND + KEY_UP:
-		songs_play_level_song(1);
-		break;
-	case KEY_COMMAND + KEY_DOWN:
-		songs_stop_redbook();
-		break;
-
-	case KEY_COMMAND + KEY_Q:
-		if (!(Game_mode & GM_MULTI))
-			macintosh_quit();
-		break;
-#endif
 
 	default:								break;
 
@@ -1669,14 +1540,12 @@ void HandleGameKey(int key)
 		break;
 #endif
 
-	MAC(case KEY_COMMAND + KEY_4:)
 	case KEY_F4:
 		if (!DefiningMarkerMessage)
 			InitMarkerInput();
 		break;
 
 #ifdef NETWORK
-	MAC(case KEY_COMMAND + KEY_6:)
 	case KEY_F6:
 		if (Netgame.RefusePlayers && WaitForRefuseAnswer && !(Game_mode & GM_TEAM))
 		{
@@ -2118,7 +1987,7 @@ void HandleTestKey(int key)
 //	Cheat functions ------------------------------------------------------------
 extern char* jcrypt(char*);
 
-char* LamerCheats[] = { "!UyN#E$I",	// gabba-gabbahey
+const char* LamerCheats[] = { "!UyN#E$I",	// gabba-gabbahey
 								"ei5cQ-ZQ", // mo-therlode
 								"q^EpZxs8", // c-urrygoat
 								"mxk(DyyP", // zi-ngermans
@@ -2130,27 +1999,27 @@ char* LamerCheats[] = { "!UyN#E$I",	// gabba-gabbahey
 
 #define N_LAMER_CHEATS (sizeof(LamerCheats) / sizeof(*LamerCheats))
 
-char* WowieCheat = "F_JMO3CV";	//only Matt knows
-char* AllKeysCheat = "%v%MrgbU";	//only Matt knows
-char* InvulCheat = "Wv_\\JJ\\Z";	//only Matt knows
-char* HomingCheatString = "t\\LIhSB[";	//only Matt knows
-char* BouncyCheat = "bGbiChQJ";	//only Matt knows
-char* FullMapCheat = "PI<XQHRI";	//only Matt knows
-char* LevelWarpCheat = "ZQHtqbb\"";	//only Matt knows
-char* MonsterCheat = "nfpEfRQp";	//only Matt knows
-char* BuddyLifeCheat = "%A-BECuY";	//only Matt knows
-char* BuddyDudeCheat = "u#uzIr%e";	//only Matt knows
-char* KillRobotsCheat = "&wxbs:5O";	//only Matt knows
-char* FinishLevelCheat = "%bG_bZ<D";	//only Matt knows
-char* RapidFireCheat = "*jLgHi'J";	//only Matt knows
+const char* WowieCheat = "F_JMO3CV";	//only Matt knows
+const char* AllKeysCheat = "%v%MrgbU";	//only Matt knows
+const char* InvulCheat = "Wv_\\JJ\\Z";	//only Matt knows
+const char* HomingCheatString = "t\\LIhSB[";	//only Matt knows
+const char* BouncyCheat = "bGbiChQJ";	//only Matt knows
+const char* FullMapCheat = "PI<XQHRI";	//only Matt knows
+const char* LevelWarpCheat = "ZQHtqbb\"";	//only Matt knows
+const char* MonsterCheat = "nfpEfRQp";	//only Matt knows
+const char* BuddyLifeCheat = "%A-BECuY";	//only Matt knows
+const char* BuddyDudeCheat = "u#uzIr%e";	//only Matt knows
+const char* KillRobotsCheat = "&wxbs:5O";	//only Matt knows
+const char* FinishLevelCheat = "%bG_bZ<D";	//only Matt knows
+const char* RapidFireCheat = "*jLgHi'J";	//only Matt knows
 
-char* RobotsKillRobotsCheat = "rT6xD__S";	// New for 1.1
-char* AhimsaCheat = "!Uscq_yc";	// New for 1.1
+const char* RobotsKillRobotsCheat = "rT6xD__S";	// New for 1.1
+const char* AhimsaCheat = "!Uscq_yc";	// New for 1.1
 
-char* AccessoryCheat = "dWdz[kCK";	// al-ifalafel
-char* JohnHeadCheat = "ou]];H:%";	// p-igfarmer
-char* AcidCheat = "qPmwxz\"S";	// bit-tersweet
-char* FramerateCheat = "rQ60#ZBN";	// f-rametime
+const char* AccessoryCheat = "dWdz[kCK";	// al-ifalafel
+const char* JohnHeadCheat = "ou]];H:%";	// p-igfarmer
+const char* AcidCheat = "qPmwxz\"S";	// bit-tersweet
+const char* FramerateCheat = "rQ60#ZBN";	// f-rametime
 
 char CheatBuffer[] = "AAAAAAAAAAAAAAA";
 
@@ -2461,20 +2330,15 @@ void do_cheat_menu()
 
 	sprintf(score_text, "%d", Players[Player_num].score);
 
-	mm[0].type = NM_TYPE_CHECK; mm[0].value = Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE; mm[0].text = "Invulnerability";
-	mm[1].type = NM_TYPE_CHECK; mm[1].value = Players[Player_num].flags & PLAYER_FLAGS_CLOAKED; mm[1].text = "Cloaked";
-	mm[2].type = NM_TYPE_CHECK; mm[2].value = 0; mm[2].text = "All keys";
-	mm[3].type = NM_TYPE_NUMBER; mm[3].value = f2i(Players[Player_num].energy); mm[3].text = "% Energy"; mm[3].min_value = 0; mm[3].max_value = 200;
-	mm[4].type = NM_TYPE_NUMBER; mm[4].value = f2i(Players[Player_num].shields); mm[4].text = "% Shields"; mm[4].min_value = 0; mm[4].max_value = 200;
-	mm[5].type = NM_TYPE_TEXT; mm[5].text = "Score:";
+	mm[0].type = NM_TYPE_CHECK; mm[0].value = Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE; mm[0].text = const_cast<char*>("Invulnerability");
+	mm[1].type = NM_TYPE_CHECK; mm[1].value = Players[Player_num].flags & PLAYER_FLAGS_CLOAKED; mm[1].text = const_cast<char*>("Cloaked");
+	mm[2].type = NM_TYPE_CHECK; mm[2].value = 0; mm[2].text = const_cast<char*>("All keys");
+	mm[3].type = NM_TYPE_NUMBER; mm[3].value = f2i(Players[Player_num].energy); mm[3].text = const_cast<char*>("% Energy"); mm[3].min_value = 0; mm[3].max_value = 200;
+	mm[4].type = NM_TYPE_NUMBER; mm[4].value = f2i(Players[Player_num].shields); mm[4].text = const_cast<char*>("% Shields"); mm[4].min_value = 0; mm[4].max_value = 200;
+	mm[5].type = NM_TYPE_TEXT; mm[5].text = const_cast<char*>("Score:");
 	mm[6].type = NM_TYPE_INPUT; mm[6].text_len = 10; mm[6].text = score_text;
-	//mm[7].type=NM_TYPE_RADIO; mm[7].value=(Players[Player_num].laser_level==0); mm[7].group=0; mm[7].text="Laser level 1";
-	//mm[8].type=NM_TYPE_RADIO; mm[8].value=(Players[Player_num].laser_level==1); mm[8].group=0; mm[8].text="Laser level 2";
-	//mm[9].type=NM_TYPE_RADIO; mm[9].value=(Players[Player_num].laser_level==2); mm[9].group=0; mm[9].text="Laser level 3";
-	//mm[10].type=NM_TYPE_RADIO; mm[10].value=(Players[Player_num].laser_level==3); mm[10].group=0; mm[10].text="Laser level 4";
-
-	mm[7].type = NM_TYPE_NUMBER; mm[7].value = Players[Player_num].laser_level + 1; mm[7].text = "Laser Level"; mm[7].min_value = 0; mm[7].max_value = MAX_SUPER_LASER_LEVEL + 1;
-	mm[8].type = NM_TYPE_NUMBER; mm[8].value = Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[8].text = "Missiles"; mm[8].min_value = 0; mm[8].max_value = 200;
+	mm[7].type = NM_TYPE_NUMBER; mm[7].value = Players[Player_num].laser_level + 1; mm[7].text = const_cast<char*>("Laser Level"); mm[7].min_value = 0; mm[7].max_value = MAX_SUPER_LASER_LEVEL + 1;
+	mm[8].type = NM_TYPE_NUMBER; mm[8].value = Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[8].text = const_cast<char*>("Missiles"); mm[8].min_value = 0; mm[8].max_value = 200;
 
 	mmn = newmenu_do("Wimp Menu", NULL, 9, mm, NULL);
 
@@ -2501,10 +2365,6 @@ void do_cheat_menu()
 		Players[Player_num].energy = i2f(mm[3].value);
 		Players[Player_num].shields = i2f(mm[4].value);
 		Players[Player_num].score = atoi(mm[6].text);
-		//if (mm[7].value) Players[Player_num].laser_level=0;
-		//if (mm[8].value) Players[Player_num].laser_level=1;
-		//if (mm[9].value) Players[Player_num].laser_level=2;
-		//if (mm[10].value) Players[Player_num].laser_level=3;
 		Players[Player_num].laser_level = mm[7].value - 1;
 		Players[Player_num].secondary_ammo[CONCUSSION_INDEX] = mm[8].value;
 		init_gauges();

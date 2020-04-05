@@ -224,7 +224,7 @@ int is_real_level(char* filename)
 }
 #endif
 
-void change_filename_extension(char* dest, char* src, char* new_ext)
+void change_filename_extension(char* dest, const char* src, const char* new_ext)
 {
 	int i;
 

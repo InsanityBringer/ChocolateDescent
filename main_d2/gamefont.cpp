@@ -20,7 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //if 1, use high-res versions of fonts
 int FontHires=0;
 
-char * Gamefont_filenames[] = {	"font1-1.fnt",			// Font 0
+const char * Gamefont_filenames[] = {	"font1-1.fnt",			// Font 0
 										 	"font1-1h.fnt",		// Font 0 High-res
 											"font2-1.fnt",			// Font 1
 											"font2-1h.fnt",		// Font 1 High-res

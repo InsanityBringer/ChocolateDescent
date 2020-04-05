@@ -293,7 +293,7 @@ void scores_maybe_add_player(int abort_flag)
 	scores_view(position);
 }
 
-void scores_rprintf(int x, int y, char* format, ...)
+void scores_rprintf(int x, int y, const char* format, ...)
 {
 	va_list args;
 	char buffer[128];
