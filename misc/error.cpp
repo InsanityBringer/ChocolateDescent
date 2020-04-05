@@ -22,6 +22,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef WIN32
 #include <Windows.h>
 #include <debugapi.h>
+#else
+#include <signal.h>
 #endif
 
 #define MAX_MSG_LEN 256
@@ -81,8 +83,7 @@ void Int3()
 #ifdef WIN32
 	DebugBreak();
 #else
-	Warning("int3 raised\n");
-	return;
+	raise(SIGTRAP);
 #endif
 #endif
 }
