@@ -36,40 +36,10 @@ extern int Physics_cheat_flag;
 
 #define face_type_num(nfaces,face_num,tri_edge) ((nfaces==1)?0:(tri_edge*2 + face_num))
 
-#if 0
-//[ISB] HORRIBLE ATTEMPT AT PORTING OH GOD
-int oflow_check(fix a, fix b)
-{
-	int c = 0;
-	int bit = a & 0x80000000;
-	if (bit) c = 0xFFFFFFFF;
-	int d = a ^ c;
-	d -= c;
-
-	c = 0;
-	bit = b & 0x80000000;
-	if (bit) c = 0xFFFFFFFF;
-	int e = b ^ c;
-	e -= c;
-
-	long long f = (long long)e * (long long)d;
-
-	int high = (f >> 32) & 0xFFFFFFFF;
-	high >>= 15;
-	int highlow = high & 0xFFFF;
-
-	if (highlow != 0) return 1;
-	return 0;
-	/*long long hack = (long long)abs(a) * (long long)abs(b);
-	long long hack2 = hack >> (long long)16;
-	if (hack2 > 0x7FFFFFFF || hack2 < -2147483647) return 1;
-	return 0;*/
-}
-#endif
 //[ISB] Credits to Parabolicus for the not horrible port
 int oflow_check(fix a, fix b)
 {
-	long long tmp = (long long)abs(a) * (long long)abs(b);
+	uint64_t tmp = (uint64_t)abs(a) * (uint64_t)abs(b);
 	return (tmp >> 47) ? 1 : 0;
 }
 

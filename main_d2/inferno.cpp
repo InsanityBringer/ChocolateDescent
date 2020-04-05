@@ -147,7 +147,7 @@ void check_id_checksum_and_date()
 	const char name[sizeof(DESC_ID_TAG) - 1 + DESC_ID_LEN] = DESC_ID_TAG;
 	char time_str[] = DESC_DEAD_TIME_TAG "00000000";	//second part gets overwritten
 	int i, found;
-	unsigned long* checksum, test_checksum;
+	uint32_t* checksum, test_checksum;
 	time_t current_time, saved_time;
 
 	saved_time = (time_t)strtol(time_str + strlen(DESC_DEAD_TIME_TAG), NULL, 16);
@@ -172,7 +172,7 @@ void check_id_checksum_and_date()
 		if (found)
 			test_checksum |= 0x80000000;
 	}
-	checksum = (unsigned long*)(desc_id_checksum_str + strlen(DESC_ID_CHKSUM_TAG));
+	checksum = (uint32_t*)(desc_id_checksum_str + strlen(DESC_ID_CHKSUM_TAG));
 	if (test_checksum != *checksum)
 		desc_id_exit_num = 2;
 

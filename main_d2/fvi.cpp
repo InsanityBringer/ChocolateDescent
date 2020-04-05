@@ -56,7 +56,7 @@ int oflow_check(fix a,fix b);
 
 int oflow_check(fix a, fix b)
 {
-	long long tmp = (long long)abs(a) * (long long)abs(b);
+	int64_t tmp = (int64_t)abs(a) * (int64_t)abs(b);
 	return (tmp >> 47) ? 1 : 0;
 }
 #else

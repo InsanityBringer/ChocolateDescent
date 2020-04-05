@@ -506,26 +506,7 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 	memset( &DigiSampleData, 0, sizeof(sampledata_t));
 
 	//Assert(GameSounds[soundnum].data != -1);
-		
-	/*sSOSSampleData.wChannel 				= _CENTER_CHANNEL;
-	sSOSSampleData.wSampleID				= soundnum;
-	sSOSSampleData.dwSampleSize 			= ( LONG )GameSounds[soundnum].length;
-	sSOSSampleData.lpSamplePtr				= GameSounds[soundnum].data;
-	sSOSSampleData.lpCallback				= _NULL;		//sosDIGISampleCallback;
-	sSOSSampleData.wSamplePanLocation	= pan;			// 0 - 0xFFFF
-	sSOSSampleData.wSamplePanSpeed 		= 0;
-	sSOSSampleData.wVolume					= fixmuldiv(volume,digi_volume,F1_0);
-	sSOSSampleData.wSampleFlags			= _DIGI_SAMPLE_FLAGS;
-	if (looping )	{
-		sSOSSampleData.wLoopCount			= -1;				// loop forever.
-		sSOSSampleData.wSampleFlags 		|= _LOOPING; 		// Mark it as a looper.
-	}
-	if (loop_start != -1 ) {
-		Assert( loop_end != -1);
-		sSOSSampleData.wSampleFlags		|= _STAGE_LOOP;
-		sSOSSampleData.dwSampleLoopPoint	= loop_start;
-		sSOSSampleData.dwSampleLoopLength = loop_end - loop_start;
-	}*/
+	
 	DigiSampleData.angle = pan;
 	DigiSampleData.volume = fixmuldiv(volume, digi_volume, F1_0);
 	DigiSampleData.data = GameSounds[soundnum].data;

@@ -813,17 +813,6 @@ void digi_play_sample(int soundno, fix max_volume)
 	}
 
 	//mprintf( (0, "Playing sample of length %d\n", snd->length ));
-	/*memset( &sSOSSampleData, 0, sizeof(_SOS_START_SAMPLE));
-	sSOSSampleData.wLoopCount 				= 0x00;
-	sSOSSampleData.wChannel 				= _CENTER_CHANNEL;
-	sSOSSampleData.wVolume					= fixmuldiv(max_volume,digi_volume,F1_0);
-	sSOSSampleData.wSampleID				= soundno;
-	sSOSSampleData.dwSampleSize 			= ( LONG )snd->length;
-	sSOSSampleData.lpSamplePtr				= snd->data;
-	sSOSSampleData.lpCallback				= _NULL;		//sosDIGISampleCallback;
-	sSOSSampleData.wSamplePanLocation	= 0xffff/2;
-	sSOSSampleData.wSamplePanSpeed 		= 0;
-	sSOSSampleData.wSampleFlags			= _DIGI_SAMPLE_FLAGS;*/
 
 	memset(&DigiSampleData, 0, sizeof(sampledata_t));
 	DigiSampleData.angle = 0xFFFF / 2;

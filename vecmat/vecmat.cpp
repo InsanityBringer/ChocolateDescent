@@ -190,7 +190,7 @@ fix vm_vec_mag(vms_vector* v)
 #else
 fix vm_vec_dotprod(vms_vector* v0, vms_vector* v1)
 {
-	long long q;
+	int64_t q;
 
 	q= 0;
 
@@ -203,7 +203,7 @@ fix vm_vec_dotprod(vms_vector* v0, vms_vector* v1)
 
 fix vm_vec_dot3(fix x, fix y, fix z, vms_vector* v)
 {
-	long long q;
+	int64_t q;
 
 	q = 0;
 
@@ -217,7 +217,7 @@ fix vm_vec_dot3(fix x, fix y, fix z, vms_vector* v)
 //returns magnitude of a vector
 fix vm_vec_mag(vms_vector* v)
 {
-	long long q;
+	int64_t q;
 
 	q = 0;
 
@@ -478,7 +478,7 @@ vms_vector * vm_vec_crossprod(vms_vector * dest, vms_vector * src0, vms_vector *
 
 vms_vector * vm_vec_crossprod(vms_vector * dest, vms_vector * src0, vms_vector * src1)
 {
-	long long q;
+	int64_t q;
 
 	Assert(dest != src0 && dest != src1);
 

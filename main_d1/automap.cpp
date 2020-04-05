@@ -67,7 +67,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct Edge_info {
 	union {
 		short	verts[2];		// 4 bytes
-		long vv;
+		int32_t vv;
 	};
 	uint8_t sides[4];			// 4 bytes
 	short segnum[4];			// 8 bytes	// This might not need to be stored... If you can access the normals of a side.
@@ -774,7 +774,7 @@ void draw_all_edges()
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
 static int automap_find_edge(int v0, int v1, Edge_info** edge_ptr)
 {
-	long vv;
+	int32_t vv;
 	short hash, oldhash;
 	int ret;
 

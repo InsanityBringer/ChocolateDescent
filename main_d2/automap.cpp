@@ -1522,7 +1522,7 @@ void draw_all_edges()
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
 static int automap_find_edge(int v0,int v1,Edge_info **edge_ptr)
 {
-	long vv, evv;
+	int32_t vv, evv;
 	short hash,oldhash;
 	int ret, ev0, ev1;
 

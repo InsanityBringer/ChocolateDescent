@@ -17,13 +17,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/types.h"
 
-typedef long fix;				//16 bits int, 16 bits frac
+typedef int32_t fix;				//16 bits int, 16 bits frac
 typedef short fixang;		//angles
 
 typedef struct quad 
 {
 	uint32_t low;
-	long high;
+	int32_t high;
 } quad;
 
 //Convert an int to a fix
@@ -68,22 +68,22 @@ fix fixdiv(fix a, fix b);
 fix fixmuldiv(fix a, fix b, fix c);
 
 //multiply two fixes, and add 64-bit product to a quad
-void fixmulaccum(long long *q, fix a, fix b);
+void fixmulaccum(int64_t*q, fix a, fix b);
 
 //extract a fix from a quad product
-fix fixquadadjust(long long q);
+fix fixquadadjust(int64_t q);
 
 //divide a quad by a long
-long fixdivquadlong(long long n, uint32_t d);
+int32_t fixdivquadlong(int64_t n, uint32_t d);
 
 //negate a quad
 void fixquadnegate(quad* q);
 
 //computes the square root of a long, returning a short
-uint16_t long_sqrt(long a);
+uint16_t long_sqrt(int32_t a);
 
 //computes the square root of a quad, returning a long
-uint32_t quad_sqrt(long long q);
+uint32_t quad_sqrt(int64_t q);
 
 //computes the square root of a fix, returning a fix
 fix fix_sqrt(fix a);

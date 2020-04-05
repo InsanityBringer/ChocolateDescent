@@ -32,21 +32,21 @@ void fixquadnegate(quad* q)
 }
 
 //multiply two ints & add 64-bit result to 64-bit sum
-void fixmulaccum(long long *q, fix a, fix b)
+void fixmulaccum(int64_t*q, fix a, fix b)
 {
-	long long sum;
+	int64_t sum;
 
-	sum = (long long)a * (long long)b;
+	sum = (int64_t)a * (int64_t)b;
 	*q += sum;
 }
 
 //extract a fix from a quad product
 
 //parabolicus's version
-fix fixquadadjust(long long q)
+fix fixquadadjust(int64_t q)
 {
 	fix v = (fix)(q >> 16);
-	long vh = q >> 48;
+	int32_t vh = q >> 48;
 	int signb = vh < 0;
 	int signv = v < 0;
 	if (signb != signv)
@@ -62,22 +62,22 @@ fix fixmul(fix a, fix b)
 	/*	"imul	edx"				\
 	"shrd	eax,edx,16";*/
 	//[ISB] heh
-	long long mul;
-	mul = (long long)a * (long long)b;
+	int64_t mul;
+	mul = (int64_t)a * (int64_t)b;
 	return (fix)(mul >> 16);
 }
 
 //divide a quad by a fix, returning a fix
-long fixdivquadlong(long long n, uint32_t d)
+int32_t fixdivquadlong(int64_t n, uint32_t d)
 {
 	if (d == 0) return 1;
-	return (long)(n / d);
+	return (int32_t)(n / d);
 }
 
 //divide a quad by a fix, returning a fix
 uint32_t ufixdivquadlong(uint32_t nl, uint32_t nh, uint32_t d)
 {
-	unsigned long long num = (((unsigned long long)nh << 32) + (unsigned long long)nl);
+	uint64_t num = ((( uint64_t)nh << 32) + (uint64_t)nl);
 	return (uint32_t)(num / d);
 }
 
@@ -99,14 +99,14 @@ fix fixmuldiv(fix a, fix b, fix c)
 {
 	if (c == 0) return 1;
 
-	long long mul;
-	mul = (long long)a * (long long)b;
+	int64_t mul;
+	mul = (int64_t)a * (int64_t)b;
 	return (fix)(mul / c);
 }
 
 fixang fix_atan2(fix cos, fix sin)
 {
-	long long q;
+	int64_t q;
 	fix m, t;
 
 	//Assert(!(cos==0 && sin==0));
@@ -141,10 +141,10 @@ fixang fix_atan2(fix cos, fix sin)
 }
 
 //computes the square root of a quad, returning a long 
-uint32_t quad_sqrt(long long q)
+uint32_t quad_sqrt(int64_t q)
 {
 	uint32_t cnt, r, old_r, t;
-	long high = (q >> 32) & 0xFFFFFFFF;
+	int32_t high = (q >> 32) & 0xFFFFFFFF;
 	quad tq;
 	//[ISB] fixes c4700 error
 	memset((void*)&tq, 0, sizeof(quad));
@@ -154,7 +154,7 @@ uint32_t quad_sqrt(long long q)
 
 	//if (high == 0 && low >= 0)
 	if (q < 0x7FFFFFFF)
-		return long_sqrt((long)q);
+		return long_sqrt((int32_t)q);
 
 	if (high & 0xff000000)
 		cnt = 12 + 16;
@@ -194,9 +194,9 @@ uint32_t quad_sqrt(long long q)
 
 	t = fixdivquadlong(q, r);
 	//tq.low = tq.high;
-	long long tq2;
+	int64_t tq2;
 	fixmulaccum(&tq2, r, t);
-	long high2 = (tq2 >> 32) & 0xFFFFFFFF;
+	int32_t high2 = (tq2 >> 32) & 0xFFFFFFFF;
 	uint32_t low2 = (uint32_t)(tq2 & 0xFFFFFFFFF);
 	uint32_t low = (uint32_t)(q & 0xFFFFFFFFF);
 	if (low2 != low || high2 != high)
@@ -207,7 +207,7 @@ uint32_t quad_sqrt(long long q)
 
 
 //computes the square root of a long, returning a short
-uint16_t long_sqrt(long a)
+uint16_t long_sqrt(int32_t a)
 {
 	int cnt, r, old_r, t;
 
