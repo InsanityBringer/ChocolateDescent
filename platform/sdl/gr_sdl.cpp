@@ -325,7 +325,7 @@ void I_WritePalette(int start, int end, uint8_t* data)
 		colors[i].r = (Uint8)(data[i * 3 + 0] * 255 / 63);
 		colors[i].g = (Uint8)(data[i * 3 + 1] * 255 / 63);
 		colors[i].b = (Uint8)(data[i * 3 + 2] * 255 / 63);
-		localPal[i] = 255 | (colors[i].r << 24) | (colors[i].g << 16) | (colors[i].b << 8);
+		localPal[start+i] = 255 | (colors[i].r << 24) | (colors[i].g << 16) | (colors[i].b << 8);
 	}
 	SDL_SetPaletteColors(pal, &colors[0], start, end-start+1);
 }
@@ -382,9 +382,9 @@ void I_DrawCurrentCanvas(int sync)
 	uint8_t *pixels = screenBuffer->cv_bitmap.bm_data;
 	for (int i = 0; i < screenBuffer->cv_bitmap.bm_h * screenBuffer->cv_bitmap.bm_w; i++)
 	{
-		*texPixels = localPal[*pixels];
-		texPixels++;
-		pixels++;
+		texPixels[i] = localPal[pixels[i]];
+		//texPixels++;
+		//pixels++;
 	}
 	SDL_UnlockTexture(gameTexture);
 
