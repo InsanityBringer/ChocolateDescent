@@ -39,7 +39,8 @@ void c_tmap_scanline_flat()
 
 	dest = dest_row_data;
 
-	for (x=loop_count; x >= 0; x-- ) {
+	for (x=loop_count; x >= 0; x-- )
+	{
 		*dest++ = tmap_flat_color;
 	}
 }
@@ -53,7 +54,8 @@ void c_tmap_scanline_shaded()
 	dest = dest_row_data;
 
 	fade = tmap_flat_shade_value<<8;
-	for (x=loop_count; x >= 0; x-- ) {
+	for (x=loop_count; x >= 0; x-- ) 
+	{
 		*dest++ = gr_fade_table[ fade |(*dest)];
 	}
 }
@@ -72,24 +74,38 @@ void c_tmap_scanline_lin_nolight()
 
 	dest = dest_row_data;
 
-	if (!Transparency_on)	{
-		for (x=loop_count; x >= 0; x-- ) {
-			*dest++ = (uint32_t)pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ];
-			u += dudx;
-			v += dvdx;
-		}
-	} else {
-		for (x=loop_count; x >= 0; x-- ) {
-			c = (uint32_t)pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ];
-			if ( c!=255)
-				*dest = c;
-			dest++;
-			u += dudx;
-			v += dvdx;
-		}
+	for (x=loop_count; x >= 0; x-- ) 
+	{
+		*dest++ = (uint32_t)pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ];
+		u += dudx;
+		v += dvdx;
 	}
 }
 
+void c_tmap_scanline_lin_nolight_trans()
+{
+	uint8_t* dest;
+	uint32_t c;
+	int x;
+	fix u, v, dudx, dvdx;
+
+	u = fx_u;
+	v = fx_v * 64;
+	dudx = fx_du_dx;
+	dvdx = fx_dv_dx * 64;
+
+	dest = dest_row_data;
+
+	for (x = loop_count; x >= 0; x--)
+	{
+		c = (uint32_t)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
+		if (c != 255)
+			*dest = c;
+		dest++;
+		u += dudx;
+		v += dvdx;
+	}
+}
 
 void c_tmap_scanline_lin()
 {
@@ -107,26 +123,42 @@ void c_tmap_scanline_lin()
 	dldx = fx_dl_dx;
 	dest = dest_row_data;
 
-	if (!Transparency_on)	{
-		for (x=loop_count; x >= 0; x-- ) {
-			*dest++ = gr_fade_table[ (l&(0xff00)) + (uint32_t)pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ];
-			l += dldx;
-			u += dudx;
-			v += dvdx;
-		}
-	} else {
-		for (x=loop_count; x >= 0; x-- ) {
-			c = (uint32_t)pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ];
-			if ( c!=255)
-				*dest = gr_fade_table[ (l&(0xff00)) + c ];
-			dest++;
-			l += dldx;
-			u += dudx;
-			v += dvdx;
-		}
+	for (x=loop_count; x >= 0; x-- ) 
+	{
+		*dest++ = gr_fade_table[ (l&(0xff00)) + (uint32_t)pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ];
+		l += dldx;
+		u += dudx;
+		v += dvdx;
 	}
 }
 
+void c_tmap_scanline_lin_trans()
+{
+	uint8_t* dest;
+	uint32_t c;
+	int x;
+	fix u, v, l, dudx, dvdx, dldx;
+
+	u = fx_u;
+	v = fx_v * 64;
+	dudx = fx_du_dx;
+	dvdx = fx_dv_dx * 64;
+
+	l = fx_l;
+	dldx = fx_dl_dx;
+	dest = dest_row_data;
+
+	for (x = loop_count; x >= 0; x--)
+	{
+		c = (uint32_t)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
+		if (c != 255)
+			*dest = gr_fade_table[(l & (0xff00)) + c];
+		dest++;
+		l += dldx;
+		u += dudx;
+		v += dvdx;
+	}
+}
 
 void c_tmap_scanline_per_nolight()
 {
@@ -144,32 +176,44 @@ void c_tmap_scanline_per_nolight()
 
 	dest = dest_row_data;
 
-	if (!Transparency_on)	
+	for (x=loop_count; x >= 0; x-- ) 
 	{
-		for (x=loop_count; x >= 0; x-- ) 
-		{
-			localz = z >> Z_SHIFTER;
-			if (localz == 0) break;
-			*dest++ = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
-			u += dudx;
-			v += dvdx;
-			z += dzdx;
-		}
+		localz = z >> Z_SHIFTER;
+		if (localz == 0) break;
+		*dest++ = (uint32_t)pixptr[(((v / localz) & 63) << 6) + ((u / localz) & 63)];
+		u += dudx;
+		v += dvdx;
+		z += dzdx;
 	} 
-	else 
+}
+
+void c_tmap_scanline_per_nolight_trans()
+{
+	uint8_t* dest;
+	uint32_t c;
+	int x, localz;
+	fix u, v, z, dudx, dvdx, dzdx;
+
+	u = fx_u;
+	v = fx_v;
+	z = fx_z;
+	dudx = fx_du_dx;
+	dvdx = fx_dv_dx;
+	dzdx = fx_dz_dx;
+
+	dest = dest_row_data;
+
+	for (x = loop_count; x >= 0; x--)
 	{
-		for (x=loop_count; x >= 0; x-- ) 
-		{
-			localz = z >> Z_SHIFTER;
-			if (localz == 0) break;
-			c = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
-			if ( c!=255)
-				*dest = c;
-			dest++;
-			u += dudx;
-			v += dvdx;
-			z += dzdx;
-		}
+		localz = z >> Z_SHIFTER;
+		if (localz == 0) break;
+		c = (uint32_t)pixptr[(((v / localz) & 63) << 6) + ((u / localz) & 63)];
+		if (c != 255)
+			*dest = c;
+		dest++;
+		u += dudx;
+		v += dvdx;
+		z += dzdx;
 	}
 }
 
@@ -192,36 +236,51 @@ void c_tmap_scanline_per()
 	dldx = fx_dl_dx;
 	dest = dest_row_data;
 
-	if (!Transparency_on)	
+	for (x=loop_count; x >= 0; x-- ) 
 	{
-		for (x=loop_count; x >= 0; x-- ) 
-		{
-			localz = z >> Z_SHIFTER;
-			if (localz == 0) break;
-			//*dest++ = gr_fade_table[ (l&(0xff00)) + (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
-			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)]];
-			l += dldx;
-			u += dudx;
-			v += dvdx;
-			z += dzdx;
-		}
-	} 
-	else 
+		localz = z >> Z_SHIFTER;
+		if (localz == 0) break;
+		//*dest++ = gr_fade_table[ (l&(0xff00)) + (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ];
+		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / localz) & 63) << 6) + ((u / localz) & 63)]];
+		l += dldx;
+		u += dudx;
+		v += dvdx;
+		z += dzdx;
+	}
+}
+
+void c_tmap_scanline_per_trans()
+{
+	uint8_t* dest;
+	uint32_t c;
+	fix localz;
+	int x;
+	fix u, v, z, l, dudx, dvdx, dzdx, dldx;
+
+	u = fx_u;
+	v = fx_v;// *64;
+	z = fx_z;
+	dudx = fx_du_dx;
+	dvdx = fx_dv_dx;// *64; //[ISB] changes to make more accurate to ASM tmapper
+	dzdx = fx_dz_dx;
+
+	l = fx_l;
+	dldx = fx_dl_dx;
+	dest = dest_row_data;
+
+	for (x = loop_count; x >= 0; x--)
 	{
-		for (x=loop_count; x >= 0; x-- ) 
-		{
-			localz = z >> Z_SHIFTER;
-			if (localz == 0) break; 
-			//c = (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
-			c = (uint32_t)pixptr[(((v / localz) & 63) * 64) + ((u / localz) & 63)];
-			if ( c!=255)
-				*dest = gr_fade_table[ (l&(0xff00)) + c ];
-			dest++;
-			l += dldx;
-			u += dudx;
-			v += dvdx;
-			z += dzdx;
-		}
+		localz = z >> Z_SHIFTER;
+		if (localz == 0) break;
+		//c = (uint32_t)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
+		c = (uint32_t)pixptr[(((v / localz) & 63) << 6) + ((u / localz) & 63)];
+		if (c != 255)
+			*dest = gr_fade_table[(l & (0xff00)) + c];
+		dest++;
+		l += dldx;
+		u += dudx;
+		v += dvdx;
+		z += dzdx;
 	}
 }
 

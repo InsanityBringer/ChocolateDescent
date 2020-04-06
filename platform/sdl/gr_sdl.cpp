@@ -45,6 +45,8 @@ int Fullscreen = 0;
 
 SDL_Rect screenRectangle;
 
+uint32_t localPal[256];
+
 int I_Init()
 {
 	int res;
@@ -323,6 +325,7 @@ void I_WritePalette(int start, int end, uint8_t* data)
 		colors[i].r = (Uint8)(data[i * 3 + 0] * 255 / 63);
 		colors[i].g = (Uint8)(data[i * 3 + 1] * 255 / 63);
 		colors[i].b = (Uint8)(data[i * 3 + 2] * 255 / 63);
+		localPal[i] = 255 | (colors[i].r << 24) | (colors[i].g << 16) | (colors[i].b << 8);
 	}
 	SDL_SetPaletteColors(pal, &colors[0], start, end-start+1);
 }
@@ -367,61 +370,23 @@ void I_DrawCurrentCanvas(int sync)
 
 	if (!gameSurface) return;
 
-	unsigned char* pixels = (unsigned char*)gameSurface->pixels;
-
-	SDL_LockSurface(gameSurface);
-	//Ah, lots of operations in a vital part of the code. lovely.
-	if (BestFit == FITMODE_FILTERED && grd_curscreen->sc_h <= 400)
-	{
-		int pitch = grd_curscreen->sc_w * 2;
-		int offset = 0;
-		int srcoffset = 0;
-		int x, y;
-		for (y = 0; y < grd_curscreen->sc_h; y++)
-		{
-			for (x = 0; x < grd_curscreen->sc_w; x++)
-			{
-				pixels[offset] = screenBuffer->cv_bitmap.bm_data[srcoffset];
-				pixels[offset+1] = screenBuffer->cv_bitmap.bm_data[srcoffset];
-				pixels[offset + pitch] = screenBuffer->cv_bitmap.bm_data[srcoffset];
-				pixels[offset + pitch + 1] = screenBuffer->cv_bitmap.bm_data[srcoffset];
-				offset += 2;
-				srcoffset++;
-			}
-			offset += pitch;
-		}
-	}
-	else
-		memcpy(pixels,  screenBuffer->cv_bitmap.bm_data, screenBuffer->cv_bitmap.bm_w * screenBuffer->cv_bitmap.bm_h); //[ISB] alternate attempt at this nonsense
-	SDL_UnlockSurface(gameSurface);
-
 	src.x = src.y = 0;
 	//src.w = grd_curscreen->sc_w; src.h = grd_curscreen->sc_h;
 	src.w = gameSurface->w; src.h = gameSurface->h;
 
 	dest.x = dest.y = 0; //dest.w = WindowWidth-1; dest.h = WindowHeight-1;
 
-	//draw to window
-	if (SDL_BlitSurface(gameSurface, &src, hackSurface, &dest))
-	{
-		Warning("Cannot blit subscreen: %s\n", SDL_GetError());
-	}
-
-	//I hate this
-	unsigned char* texPixels;
+	uint32_t* texPixels;
 	int pitch;
 	SDL_LockTexture(gameTexture, NULL, (void**)&texPixels, &pitch);
-	SDL_LockSurface(hackSurface);
-	pixels = (unsigned char*)hackSurface->pixels;
-	//for (int i = 0; i < screenBuffer->cv_bitmap.bm_h; i++)
-	for (int i = 0; i < hackSurface->h; i++)
+	uint8_t *pixels = screenBuffer->cv_bitmap.bm_data;
+	for (int i = 0; i < screenBuffer->cv_bitmap.bm_h * screenBuffer->cv_bitmap.bm_w; i++)
 	{
-		memcpy(texPixels, pixels, hackSurface->w * 4);
-		texPixels += pitch;
-		pixels += hackSurface->w * 4;
+		*texPixels = localPal[*pixels];
+		texPixels++;
+		pixels++;
 	}
 	SDL_UnlockTexture(gameTexture);
-	SDL_UnlockSurface(hackSurface);
 
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, gameTexture, &src, &screenRectangle);

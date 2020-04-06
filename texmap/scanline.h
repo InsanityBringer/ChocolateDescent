@@ -19,3 +19,8 @@ extern void c_tmap_scanline_lin();
 extern void c_tmap_scanline_lin_nolight();
 extern void c_tmap_scanline_flat();
 extern void c_tmap_scanline_shaded();
+
+extern void c_tmap_scanline_per_trans();
+extern void c_tmap_scanline_per_nolight_trans();
+extern void c_tmap_scanline_lin_trans();
+extern void c_tmap_scanline_lin_nolight_trans();
