@@ -31,10 +31,9 @@ void gr_linear_stosd(uint8_t* dest, uint8_t color, int count)
 {
 	int i, x;
 
-#ifdef _WIN32
 	if (count > 3) 
 	{
-		while ((int)(dest) & 0x3) { *dest++ = color; count--; };
+		while ((uintptr_t)(dest) & 0x3) { *dest++ = color; count--; };
 		if (count >= 4) 
 		{
 			x = (color << 24) | (color << 16) | (color << 8) | color;
@@ -43,7 +42,6 @@ void gr_linear_stosd(uint8_t* dest, uint8_t color, int count)
 		while (count > 0) { *dest++ = color; count--; };
 	}
 	else 
-#endif
 	{
 		for (i = 0; i < count; i++)
 			* dest++ = color;
