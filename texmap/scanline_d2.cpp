@@ -265,6 +265,11 @@ uint16_t ui, vi;
 
 extern int fx_u_right, fx_v_right, fx_z_right;
 
+#define C_TMAP_SCANLINE_PLN_LOOP 		ut = (ut + ui);\
+										vt = (vt + vi);\
+										*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+										l += dldx;
+
 void c_tmap_scanline_pln()
 {
 	uint8_t* dest;
@@ -315,70 +320,22 @@ void c_tmap_scanline_pln()
 		U0 = U1;
 		V0 = V1;
 
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		l += dldx;
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
+		C_TMAP_SCANLINE_PLN_LOOP
 	}
 	if (loop_count == 0 || num_left_over > 4)
 	{
@@ -401,6 +358,14 @@ void c_tmap_scanline_pln()
 		l += dldx;
 	}
 }
+
+#define C_TMAP_SCANLINE_PLT_LOOP 		ut = (ut + ui);\
+										vt = (vt + vi);\
+										c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+										if (c != 255)\
+										*dest = c;\
+										dest++;\
+										l += dldx;
 
 void c_tmap_scanline_plt()
 {
@@ -452,118 +417,22 @@ void c_tmap_scanline_plt()
 		U0 = U1;
 		V0 = V1;
 
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
-		if (c != 255)
-			*dest = c;
-		dest++;
-		l += dldx;
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
+		C_TMAP_SCANLINE_PLT_LOOP
 
 	}
 	if (loop_count == 0 || num_left_over > 4)
