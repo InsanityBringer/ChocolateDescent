@@ -381,12 +381,16 @@ void I_DrawCurrentCanvas(int sync)
 	SDL_LockTexture(gameTexture, NULL, (void**)&texPixels, &pitch);
 	uint8_t *pixels = screenBuffer->cv_bitmap.bm_data;
 	int iterations = screenBuffer->cv_bitmap.bm_h * screenBuffer->cv_bitmap.bm_w;
-	for (int i = 0; i < iterations; i+=4)
+	for (int i = 0; i < iterations; i+=8)
 	{
 		texPixels[i] = localPal[pixels[i]];
-		texPixels[i+1] = localPal[pixels[i+1]];
-		texPixels[i+2] = localPal[pixels[i+2]];
-		texPixels[i+3] = localPal[pixels[i+3]];
+		texPixels[i + 1] = localPal[pixels[i + 1]];
+		texPixels[i + 2] = localPal[pixels[i + 2]];
+		texPixels[i + 3] = localPal[pixels[i + 3]];
+		texPixels[i + 4] = localPal[pixels[i + 4]];
+		texPixels[i + 5] = localPal[pixels[i + 5]];
+		texPixels[i + 6] = localPal[pixels[i + 6]];
+		texPixels[i + 7] = localPal[pixels[i + 7]];
 		//texPixels++;
 		//pixels++;
 	}
