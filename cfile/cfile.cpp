@@ -71,28 +71,28 @@ FILE* cfile_get_filehandle(const char* filename, const char* mode)
 	FILE* fp;
 	char temp[HOG_FILENAME_MAX * 2];
 
-	//CDToDescentDir();
-	//descent_critical_error = 0; [ISB] aaaaaaaaaaaaa
 	fp = fopen(filename, mode);
-	//errno_t err = fopen_s(&fp, filename, mode);
-	/*if (fp && descent_critical_error)
+
+#ifndef _WINDOWS
+	if (!fp)
 	{
-		fclose(fp);
-		fp = NULL;
-	}*/
+		//[ISB] Try either uppercase or lowercase conversion if the file isn't found. 
+		strncpy(temp, filename, HOG_FILENAME_MAX);
+		fp = fopen(_strupr(temp), mode);
+		if (!fp)
+		{
+			strncpy(temp, filename, HOG_FILENAME_MAX);
+			fp = fopen(_strlwr(temp), mode);
+		}
+		
+	}
+#endif
+
 	if ((fp == NULL) && (AltHogdir_initialized)) 
 	{
-		//strcpy_s(temp, HOG_FILENAME_MAX * 2, AltHogDir);
-		//strcat_s(temp, HOG_FILENAME_MAX * 2, filename);
 		strncpy(temp, AltHogDir, HOG_FILENAME_MAX);
 		strncat(temp, AltHogDir, HOG_FILENAME_MAX);
-		//descent_critical_error = 0; //[ISB] fix me somehow
 		fp = fopen(temp, mode);
-		/*if (fp&& descent_critical_error)
-		{
-			fclose(fp);
-			fp = NULL;
-		}*/
 	}
 	return fp;
 }
@@ -105,7 +105,6 @@ int cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 
 	*nfiles = 0;
 
-	//CDToDescentDir();
 	fp = cfile_get_filehandle(fname, "rb");
 	if (fp == NULL)
 	{
@@ -165,7 +164,7 @@ int cfile_init(const char* hogname)
 	}
 	else
 		return 0;	//not loaded!
-	}
+}
 
 FILE* cfile_find_libfile(const char* name, int* length)
 {
@@ -187,11 +186,14 @@ FILE* cfile_find_libfile(const char* name, int* length)
 		}
 	}
 
+#ifndef BUILD_DESCENT2 //must call cfile_init in Descent 2. Descent 1 can run without a hogfile if you really wanted. 
 	if (!Hogfile_initialized) 
 	{
-		//cfile_init_hogfile("descent.hog", HogFiles, &Num_hogfiles);
-		//Hogfile_initialized = 1;
+		cfile_init_hogfile("descent.hog", HogFiles, &Num_hogfiles);
+		strcpy(HogFilename, "descent.hog");
+		Hogfile_initialized = 1;
 	}
+#endif
 
 	for (i = 0; i < Num_hogfiles; i++) 
 	{
@@ -228,7 +230,6 @@ int cfexist(const char* filename)
 	int length;
 	FILE* fp;
 
-	//fp = cfile_get_filehandle(filename, "rb");		// Check for non-hog file first...
 	//[ISB] descent 2 code for release
 	if (filename[0] != '\x01')
 		fp = cfile_get_filehandle(filename, "rb");		// Check for non-hog file first...
@@ -238,13 +239,15 @@ int cfexist(const char* filename)
 		filename++;
 	}
 
-	if (fp) {
+	if (fp) 
+	{
 		fclose(fp);
 		return 1;
 	}
 
 	fp = cfile_find_libfile(filename, &length);
-	if (fp) {
+	if (fp)
+	{
 		fclose(fp);
 		return 2;		// file found in hog
 	}
@@ -274,8 +277,6 @@ CFILE* cfopen(const char* filename, const char* mode)
 	while ((p = strchr(new_filename, 10)))
 		* p = '\0';
 
-	//fp = cfile_get_filehandle(filename, mode);		// Check for non-hog file first...
-
 	//[ISB] descent 2 code for handling '\x01'
 	if (filename[0] != '\x01')
 	{
@@ -292,7 +293,8 @@ CFILE* cfopen(const char* filename, const char* mode)
 		if (!fp)
 			return NULL;		// No file found
 		cfile = (CFILE*)malloc(sizeof(CFILE));
-		if (cfile == NULL) {
+		if (cfile == NULL) 
+		{
 			fclose(fp);
 			return NULL;
 		}
@@ -302,9 +304,11 @@ CFILE* cfopen(const char* filename, const char* mode)
 		cfile->raw_position = 0;
 		return cfile;
 	}
-	else {
+	else
+	{
 		cfile = (CFILE*)malloc(sizeof(CFILE));
-		if (cfile == NULL) {
+		if (cfile == NULL) 
+		{
 			fclose(fp);
 			return NULL;
 		}
@@ -342,9 +346,12 @@ char* cfgets(char* buf, size_t n, CFILE* fp)
 	int i;
 	int c;
 
-	for (i = 0; i < (int)(n - 1); i++) {
-		do {
-			if (fp->raw_position >= fp->size) {
+	for (i = 0; i < (int)(n - 1); i++) 
+	{
+		do 
+		{
+			if (fp->raw_position >= fp->size) 
+			{
 				*buf = 0;
 				return NULL;
 			}
@@ -379,7 +386,8 @@ int cfseek(CFILE* fp, long int offset, int where)
 {
 	int c, goal_position;
 
-	switch (where) {
+	switch (where) 
+	{
 	case SEEK_SET:
 		goal_position = offset;
 		break;

@@ -375,31 +375,10 @@ int D_DescentMain(int argc, const char** argv)
 
 	//[ISB] cut DPMI
 
-#ifdef USE_CD
-	i = find_descent_cd();
-	if (i > 0) {
-		sprintf(destsat_cdpath, "%c:\\descent\\", i + 'a' - 1);
-		cfile_use_alternate_hogdir(destsat_cdpath);
-	}
-#ifdef REQUIRE_CD
-	else {		// NOTE ABOVE LINK!!!!!!!!!!!!!!!!!!
-		printf("\n\n");
-#ifdef DEST_SAT
-		printf("Couldn't find the 'Descent: Destination Saturn' CD-ROM.\n");
-#else
-		printf("Couldn't find the Descent CD-ROM.\n");
-#endif
-		printf("Please make sure that it is in your CD-ROM drive and\n");
-		printf("that your CD-ROM drivers are loaded correctly.\n");
-		exit(1);
-	}
-#endif
-#endif
-
-	if (!cfile_init("DESCENT.HOG"))
+	/*if (!cfile_init("DESCENT.HOG")) //[ISB] changed, don't actually init hogfile for obscure vanilla compatibility reasons. 
 	{
 		Error("Could not find required file <%s>", "DESCENT.HOG");
-	}
+	}*/
 
 	load_text();
 
@@ -656,14 +635,6 @@ int D_DescentMain(int argc, const char** argv)
 	}
 
 	VR_switch_eyes = 0;
-
-#ifdef ARCADE
-	i = FindArg("-arcade");
-	if (i > 0) {
-		arcade_init();
-		coindev_init(0);
-	}
-#endif
 
 #ifdef NETWORK
 	//	i = FindArg( "-rinvul" );
