@@ -78,11 +78,13 @@ FILE* cfile_get_filehandle(const char* filename, const char* mode)
 	{
 		//[ISB] Try either uppercase or lowercase conversion if the file isn't found. 
 		strncpy(temp, filename, HOG_FILENAME_MAX);
-		fp = fopen(_strupr(temp), mode);
+		_strupr(temp);
+		fp = fopen(temp, mode);
 		if (!fp)
 		{
 			strncpy(temp, filename, HOG_FILENAME_MAX);
-			fp = fopen(_strlwr(temp), mode);
+			_strlwr(temp);
+			fp = fopen(temp, mode);
 		}
 		
 	}

@@ -1060,6 +1060,22 @@ movielib* init_movie_lib(const char* filename)
 	FILE* fp;
 
 	fp = fopen(filename, "rb");
+#ifndef _WINDOWS
+	if (!fp)
+	{
+		char* filename2 = (char*)malloc(sizeof(char) * (strlen(filename) + 1));
+		strcpy(filename2, filename);
+		_strupr(filename2);
+		fp = fopen(filename2, "rb");
+		if (!fp)
+		{
+			strcpy(filename2, filename);
+			_strupr(filename2);
+			fp = fopen(filename2, "rb");
+		}
+		free(filename2);
+	}
+#endif
 	if (fp == NULL)
 		return NULL;
 
@@ -1117,53 +1133,6 @@ extern int force_rb_register;
 //CD may not have been inserted
 int request_cd()
 {
-	/*
-	uint8_t save_pal[256 * 3];
-	grs_canvas* save_canv, * tcanv;
-	int ret, was_faded = gr_palette_faded_out;
-
-	gr_palette_clear();
-
-	save_canv = grd_curcanv;
-	tcanv = gr_create_canvas(grd_curcanv->cv_w, grd_curcanv->cv_h);
-
-	gr_set_current_canvas(tcanv);
-	gr_ubitmap(0, 0, &save_canv->cv_bitmap);
-	gr_set_current_canvas(save_canv);
-
-	gr_clear_canvas(BM_XRGB(0, 0, 0));
-
-	memcpy(save_pal, gr_palette, sizeof(save_pal));
-
-	memcpy(gr_palette, last_palette_for_color_fonts, sizeof(gr_palette));
-
-try_again:;
-
-	ret = nm_messagebox("CD ERROR", 1, "Ok", "Please insert your Descent II CD");
-
-	if (ret == -1) {
-		int ret2;
-
-		ret2 = nm_messagebox("CD ERROR", 2, "Try Again", "Leave Game", "You must insert your\nDescent II CD to Continue");
-
-		if (ret2 == -1 || ret2 == 0)
-			goto try_again;
-	}
-
-	force_rb_register = 1;	//disc has changed; force register new CD    
-
-	gr_palette_clear();
-
-	memcpy(gr_palette, save_pal, sizeof(save_pal));
-
-	gr_ubitmap(0, 0, &tcanv->cv_bitmap);
-
-	if (!was_faded)
-		gr_palette_load(gr_palette);
-
-	gr_free_canvas(tcanv);
-
-	return ret;*/
 	return 0;
 }
 
@@ -1286,8 +1255,16 @@ int search_movie_lib(movielib * lib, const char* filename, int must_have)
 				songs_stop_redbook();		//ready to read from CD
 
 			do {		//keep trying until we get the file handle
-
 				movie_handle = filehandle = _open(lib->name, O_RDONLY + O_BINARY);
+
+#ifndef _WINDOWS
+				if (filehandle == -1)
+				{
+					//horrible hack for opening multiple filename cases.
+					_strupr(lib->name);
+					return search_movie_lib(lib, filename, must_have);
+				}
+#endif
 
 				if (must_have && from_cd && filehandle == -1) {		//didn't get file!
 

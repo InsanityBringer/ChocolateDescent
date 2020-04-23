@@ -76,7 +76,7 @@ void _strupr(char *s1)
 {
 	while(*s1)
 	{
-		*s1 = tolower(*s1);
+		*s1 = toupper(*s1);
 		s1++;
 	}
 }
