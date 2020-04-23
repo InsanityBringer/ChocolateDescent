@@ -28,6 +28,7 @@ Instead, it is released under the terms of the MIT License.
 #include "platform/joy.h"
 #include "platform/mouse.h"
 #include "platform/key.h"
+#include "platform/timer.h"
 
 #define FITMODE_BEST 1
 #define FITMODE_FILTERED 2
@@ -357,7 +358,9 @@ void I_ReadPalette(uint8_t* dest)
 void I_WaitVBL()
 {
 	//Now what is a VBL, anyways?
-	SDL_Delay(1000 / 70);
+	//SDL_Delay(1000 / 70);
+	I_MarkEnd(US_70FPS);
+	I_MarkStart();
 }
 
 void I_DrawCurrentCanvas(int sync)

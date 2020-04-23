@@ -18,7 +18,7 @@
 
 static uint64_t baseTick;
 
-static uint64_t markTick;
+static uint64_t markTick = 0;
 
 static uint64_t GetClockTimeMS()
 {
