@@ -104,7 +104,12 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 {
 	char *s, *p;
 
-	p = const_cast<char*>(name);
+	//[ISB] oops, splitpath is destructive, lovely...
+	//Since the incoming char* is likely const, copy it into a new buffer. 
+	char* buf = (char*)malloc(sizeof(char) * (strlen(name) + 1));
+	strcpy(buf, name);
+
+	p = &buf[0];
 	s = strchr(p, ':');
 	if ( s != NULL ) 
 	{
@@ -116,7 +121,10 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 		}
 		p = s+1;
 		if (!p)
+		{
+			free(buf);
 			return;
+		}
 	} else if (drive)
 		*drive = '\0';
 	
@@ -134,7 +142,10 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 		}
 		p = s+1;
 		if (!p)
+		{
+			free(buf);
 			return;
+		}
 	} 
 	else if (path)
 		*path = '\0';
@@ -150,11 +161,16 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 		}
 		p = s+1;
 		if (!p)
+		{
+			free(buf);
 			return;
+		}
 	} 
 	else if (base)
 		*base = '\0';
 		
 	if (ext)
-		strcpy(ext, p);		
+		strcpy(ext, p);	
+
+	free(buf);	
 }
