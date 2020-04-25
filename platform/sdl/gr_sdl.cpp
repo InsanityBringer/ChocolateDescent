@@ -251,6 +251,16 @@ int I_SetMode(int mode)
 	return 0;
 }
 
+void I_ScaleMouseToWindow(int* x, int* y)
+{
+	//printf("in: (%d, %d) ", *x, *y);
+	*x = (*x * screenRectangle.w / WindowWidth);
+	*y = (*y * screenRectangle.h / WindowHeight);
+	if (*x < 0) *x = 0; if (*x >= screenRectangle.w) *x = screenRectangle.w - 1;
+	if (*y < 0) *y = 0; if (*y >= screenRectangle.h) *y = screenRectangle.h - 1;
+	//printf("out: (%d, %d)\n", *x, *y);
+}
+
 void I_DoEvents()
 {
 	SDL_Event ev;

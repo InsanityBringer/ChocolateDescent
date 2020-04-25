@@ -1043,6 +1043,8 @@ void editor(void)
 	//gr_setcolor( CBLACK );
 	//gr_deaccent_canvas();
 	//gr_grey_canvas();
+
+	I_SetRelative(1);
 	
 	ui_mouse_show();
 
@@ -1372,7 +1374,7 @@ void editor(void)
 
 	close_editor();
 	ui_close();
-
+	I_SetRelative(0);
 
 }
 
