@@ -97,6 +97,7 @@ void I_JoystickHandler()
 				buttons |= rawToDescentMapping[i];
 		}
 		//printf("buttons %d\n", buttons);
+		JoystickInput(buttons, axisState, JOY_ALL_AXIS);
 	}
 	else if (numJoysticks > 1) //2 joysticks
 	{
@@ -113,6 +114,7 @@ void I_JoystickHandler()
 			buttons |= joybtn(3);
 		if (SDL_JoystickGetButton(joysticks[1], 1))
 			buttons |= joybtn(4);
+		JoystickInput(buttons, axisState, JOY_ALL_AXIS);
 	}
 	else if (numJoysticks == 1) //just one
 	{
@@ -127,8 +129,8 @@ void I_JoystickHandler()
 			if (SDL_JoystickGetButton(joysticks[0], i))
 				buttons |= rawToDescentMapping[i];
 		}
+		JoystickInput(buttons, axisState, JOY_ALL_AXIS);
 	}
-	JoystickInput(buttons, axisState, JOY_ALL_AXIS);
 }
 
 //[ISB] This should probably handle events, but at the same time I could just read everything and do it in one go...
