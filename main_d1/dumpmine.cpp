@@ -30,6 +30,9 @@
 
 #ifdef EDITOR
 
+void dump_used_textures_level(FILE* my_file, int level_num);
+void say_totals(FILE* my_file, char* level_name);
+
 extern uint8_t bogus_data[64 * 64];
 extern grs_bitmap bogus_bitmap;
 
@@ -39,7 +42,7 @@ char* object_types(int objnum)
 	int	type = Objects[objnum].type;
 
 	Assert((type >= 0) && (type < MAX_OBJECT_TYPES));
-	return	&Object_type_names[type];
+	return	&Object_type_names[type][0];
 }
 
 //	--------------------------------------------------------------------------------
@@ -50,10 +53,10 @@ char* object_ids(int objnum)
 
 	switch (type) {
 	case OBJ_ROBOT:
-		return &Robot_names[id];
+		return &Robot_names[id][0];
 		break;
 	case OBJ_POWERUP:
-		return &Powerup_names[id];
+		return &Powerup_names[id][0];
 		break;
 	}
 
@@ -731,7 +734,7 @@ void say_unused_tmaps(FILE* my_file, int* tb)
 
 	for (i = 0; i < Num_tmaps; i++)
 		if (!tb[i]) {
-			if (GameBitmaps[Textures[i].index].bm_data == &bogus_data)
+			if (GameBitmaps[Textures[i].index].bm_data == &bogus_data[0])
 				fprintf(my_file, "U");
 			else
 				fprintf(my_file, " ");
@@ -755,7 +758,7 @@ void say_unused_walls(FILE* my_file, int* tb)
 }
 
 //	-------------------------------------------------------------------------------------------------
-say_totals(FILE* my_file, char* level_name)
+void say_totals(FILE* my_file, char* level_name)
 {
 	int	i, objnum;
 	int	total_robots = 0;

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.11)
 project(ChocolateDescent)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 1 only. Won't link outside of Windows ATM. ")
+
 set(SHARED_SOURCES
 	2d/bitblt.cpp
 	2d/bitmap.cpp
@@ -269,6 +271,58 @@ set(EDITOR_SOURCES
 	ui/uimouse.cpp
 	ui/userbox.cpp
 	ui/window.cpp
+	main_d1/editor/med.cpp
+	main_d1/editor/einit.cpp
+	main_d1/editor/eglobal.cpp
+	main_d1/editor/mine.cpp
+	main_d1/editor/curves.cpp
+	main_d1/editor/kcurve.cpp
+	main_d1/editor/khelp.cpp
+	main_d1/editor/ksegsel.cpp
+	main_d1/editor/kbuild.cpp
+	main_d1/editor/kview.cpp
+	main_d1/editor/kmine.cpp
+	main_d1/editor/seguvs.cpp
+	main_d1/editor/ksegsize.cpp
+	main_d1/editor/ksegmove.cpp
+	main_d1/editor/ktmap.cpp
+	main_d1/editor/kfuncs.cpp
+	main_d1/editor/autosave.cpp
+	main_d1/editor/group.cpp
+	main_d1/editor/texture.cpp
+	main_d1/editor/fixseg.cpp
+	main_d1/editor/eobject.cpp
+	main_d1/editor/elight.cpp
+	main_d1/editor/texpage.cpp
+	main_d1/editor/objpage.cpp
+	main_d1/editor/medmisc.cpp
+	main_d1/editor/medsel.cpp
+	main_d1/editor/kgame.cpp
+	main_d1/editor/info.cpp
+	main_d1/editor/medwall.cpp
+	main_d1/editor/eswitch.cpp
+	main_d1/editor/medrobot.cpp
+	main_d1/editor/meddraw.cpp
+	main_d1/editor/segment.cpp
+	main_d1/editor/centers.cpp
+	main_d1/editor/ehostage.cpp
+	main_d1/editor/centers.h
+	main_d1/editor/editor.h
+	main_d1/editor/ehostage.h
+	main_d1/editor/eobject.h
+	main_d1/editor/eswitch.h
+	main_d1/editor/info.h
+	main_d1/editor/kdefs.h
+	main_d1/editor/meddraw.h
+	main_d1/editor/medmisc.h
+	main_d1/editor/medrobot.h
+	main_d1/editor/medsel.h
+	main_d1/editor/medwall.h
+	main_d1/editor/objpage.h
+	main_d1/editor/seguvs.h
+	main_d1/editor/texpage.h
+	main_d1/editor/func.h
+	main_d1/editor/nocfile.h
 )
 
 set(DESCENT2_SOURCES
@@ -522,6 +576,12 @@ else()
 	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${FLUIDSYNTH_SOURCES})
 endif()
 
+if (BUILD_EDITOR)
+	set(DESCENT1_SOURCES ${DESCENT1_SOURCES} ${EDITOR_SOURCES})
+else()
+	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${EDITOR_SOURCES})
+endif()
+
 if (WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
     set(SHARED_SOURCES ${SHARED_SOURCES} ${WIN32_SOURCES})
@@ -551,6 +611,10 @@ endif()
 add_executable(ChocolateDescent WIN32 MACOSX_BUNDLE ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT1_SOURCES})
 add_executable(ChocolateDescent2 WIN32 MACOSX_BUNDLE ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT2_SOURCES})
 
+if (BUILD_EDITOR)
+	target_compile_definitions(ChocolateDescent PUBLIC EDITOR)
+endif()
+
 set_target_properties(ChocolateDescent ChocolateDescent2 PROPERTIES CXX_STANDARD 11)
 
 target_link_libraries(ChocolateDescent ${SHARED_LIBS} ${DESCENT1_LIBS})
@@ -573,6 +637,7 @@ source_group("conf" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/conf/.+")
 source_group("fix" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/fix/.+")
 source_group("iff" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/iff/.+")
 source_group("main_d1" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d1/.+")
+source_group("main_d1\\editor" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d1/editor/.+")
 source_group("main_d2" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d2/.+")
 source_group("mem" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/mem/.+")
 source_group("misc" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/misc/.+")

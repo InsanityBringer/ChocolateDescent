@@ -60,7 +60,7 @@ void ui_draw_checkbox(UI_GADGET_CHECKBOX* checkbox)
 }
 
 
-UI_GADGET_CHECKBOX* ui_add_gadget_checkbox(UI_WINDOW* wnd, short x, short y, short w, short h, short group, char* text)
+UI_GADGET_CHECKBOX* ui_add_gadget_checkbox(UI_WINDOW* wnd, short x, short y, short w, short h, short group, const char* text)
 {
 	UI_GADGET_CHECKBOX* checkbox;
 

@@ -1479,7 +1479,7 @@ int load_level(char* filename_passed)
 }
 
 #ifdef EDITOR
-void get_level_name()
+int get_level_name()
 {
 	//NO_UI!!!	UI_WINDOW 				*NameWindow = NULL;
 	//NO_UI!!!	UI_GADGET_INPUTBOX	*NameText;
@@ -1517,6 +1517,7 @@ void get_level_name()
 
 	newmenu_do(NULL, "Enter mine name", 2, m, NULL);
 
+	return 0;
 }
 #endif
 

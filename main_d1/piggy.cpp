@@ -40,6 +40,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "2d/i_gr.h"
 
+int piggy_is_substitutable_bitmap(char* name, char* subst_name);
+
 //#define NO_DUMP_SOUNDS	1		//if set, dump bitmaps but not sounds
 
 uint8_t* BitmapBits = NULL;

@@ -106,6 +106,8 @@ int WVIDEO_running = 0;		//debugger can set to 1 if running
 
 #ifdef EDITOR
 int Inferno_is_800x600_available = 0;
+//[ISB] ugh
+extern int bm_init_use_tbl();
 #endif
 
 //--unused-- int Cyberman_installed=0;			// SWIFT device present
@@ -776,7 +778,7 @@ int D_DescentMain(int argc, const char** argv)
 		case FMODE_EDITOR:
 			keyd_editor_mode = 1;
 			editor();
-			_harderr((void*)descent_critical_error_handler);		// Reinstall game error handler
+			//_harderr((void*)descent_critical_error_handler);		// Reinstall game error handler
 			if (Function_mode == FMODE_GAME) {
 				Game_mode = GM_EDITOR;
 				editor_reset_stuff_on_level();

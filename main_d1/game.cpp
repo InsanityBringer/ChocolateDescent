@@ -2342,7 +2342,7 @@ grs_canvas* get_current_game_screen()
 uint8_t exploding_flag = 0;
 
 #ifdef EDITOR
-extern dump_used_textures_all();
+extern void dump_used_textures_all();
 #endif
 //extern kconfig_center_headset();
 
@@ -3166,7 +3166,9 @@ void ReadControls()
 #ifdef EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
+#ifdef NETWORK
 			network_leave_game();
+#endif
 			Function_mode = FMODE_EDITOR;
 			break;
 

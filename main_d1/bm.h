@@ -39,6 +39,7 @@ extern bitmap_index cockpit_bitmap[N_COCKPIT_BITMAPS];
 extern int Num_tmaps;
 #ifdef EDITOR
 extern int TmapList[MAX_TEXTURES];
+void bm_write_all(FILE* fp); //[ISB] for piggy.cpp
 #endif
 
 extern tmap_info TmapInfo[MAX_TEXTURES];

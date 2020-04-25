@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 #include "bm.h"
 #include "mem/mem.h"
-#include "cflib.h"
+#include "cfile/cfile.h"
 #include "platform/mono.h"
 #include "misc/error.h"
 #include "object.h"
@@ -85,6 +85,21 @@ int	TmapList[MAX_TEXTURES];
 char	Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
 char	Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
 
+//	For the sake of LINT, defining prototypes to module's functions
+void bm_read_robot_ai(void);
+void bm_read_powerup(int unused_flag);
+void bm_read_hostage(void);
+void bm_read_robot(void);
+void bm_read_weapon(int unused_flag);
+void bm_read_object(void);
+void bm_read_exitmodel(void);
+void bm_read_player_ship(void);
+void bm_read_some_file(void);
+void bm_read_sound(void);
+void verify_textures(void);
+void bm_read_hostage_face(void);
+
+
 //---------------- Internal variables ---------------------------
 static int 			Registered_only = 0;		//	Gets set by ! in column 1.
 static int			SuperX = -1;
@@ -133,29 +148,29 @@ void remove_char(char* s, char c)
 }
 
 //---------------------------------------------------------------
-int compute_average_pixel(grs_bitmap* new)
+int compute_average_pixel(grs_bitmap* newbm)
 {
 	int	row, column, color;
-	char* pptr;
+	unsigned char* pptr;
 	int	total_red, total_green, total_blue;
 
-	pptr = new->bm_data;
+	pptr = newbm->bm_data;
 
 	total_red = 0;
 	total_green = 0;
 	total_blue = 0;
 
-	for (row = 0; row < new->bm_h; row++)
-		for (column = 0; column < new->bm_w; column++) {
+	for (row = 0; row < newbm->bm_h; row++)
+		for (column = 0; column < newbm->bm_w; column++) {
 			color = *pptr++;
 			total_red += gr_palette[color * 3];
 			total_green += gr_palette[color * 3 + 1];
 			total_blue += gr_palette[color * 3 + 2];
 		}
 
-	total_red /= (new->bm_h * new->bm_w);
-	total_green /= (new->bm_h * new->bm_w);
-	total_blue /= (new->bm_h * new->bm_w);
+	total_red /= (newbm->bm_h * newbm->bm_w);
+	total_green /= (newbm->bm_h * newbm->bm_w);
+	total_blue /= (newbm->bm_h * newbm->bm_w);
 
 	return BM_XRGB(total_red / 2, total_green / 2, total_blue / 2);
 }
@@ -167,7 +182,7 @@ int compute_average_pixel(grs_bitmap* new)
 bitmap_index bm_load_sub(char* filename)
 {
 	bitmap_index bitmap_num;
-	grs_bitmap* new;
+	grs_bitmap* newbm;
 	uint8_t newpal[256 * 3];
 	int iff_error;		//reference parm to avoid warning message
 	char fname[20];
@@ -189,25 +204,25 @@ bitmap_index bm_load_sub(char* filename)
 		return bitmap_num;
 	}
 
-	//MALLOC( new, grs_bitmap, 1 );//hack KRB
-	new = (grs_bitmap*)malloc(1 * sizeof(grs_bitmap));
-	iff_error = iff_read_bitmap(filename, new, BM_LINEAR, newpal);
-	new->bm_selector = 0;
+	MALLOC(newbm, grs_bitmap, 1 );
+	//newbm = (grs_bitmap*)malloc(1 * sizeof(grs_bitmap));
+	iff_error = iff_read_bitmap(filename, newbm, BM_LINEAR, newpal);
+	newbm->bm_selector = 0;
 	if (iff_error != IFF_NO_ERROR) {
 		mprintf((1, "File %s - IFF error: %s", filename, iff_errormsg(iff_error)));
 		Error("File %s - IFF error: %s", filename, iff_errormsg(iff_error));
 	}
 
 	if (iff_has_transparency)
-		gr_remap_bitmap_good(new, newpal, iff_transparent_color, SuperX);
+		gr_remap_bitmap_good(newbm, newpal, iff_transparent_color, SuperX);
 	else
-		gr_remap_bitmap_good(new, newpal, -1, SuperX);
+		gr_remap_bitmap_good(newbm, newpal, -1, SuperX);
 
-	new->avg_color = compute_average_pixel(new);
+	newbm->avg_color = compute_average_pixel(newbm);
 
 	mprintf((0, "N"));
-	bitmap_num = piggy_register_bitmap(new, fname, 0);
-	free(new);
+	bitmap_num = piggy_register_bitmap(newbm, fname, 0);
+	free(newbm);
 	return bitmap_num;
 }
 
@@ -248,7 +263,7 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 		return;
 	}
 
-	iff_error = iff_read_animbrush(filename, bm, MAX_BITMAPS_PER_BRUSH, nframes, &newpal);
+	iff_error = iff_read_animbrush(filename, bm, MAX_BITMAPS_PER_BRUSH, nframes, &newpal[0]);
 	if (iff_error != IFF_NO_ERROR) {
 		mprintf((1, "File %s - IFF error: %s", filename, iff_errormsg(iff_error)));
 		Error("File %s - IFF error: %s", filename, iff_errormsg(iff_error));
@@ -274,7 +289,7 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 int ds_load(char* filename) {
 	int i;
 	CFILE* cfp;
-	digi_sound new;
+	digi_sound newbm;
 	char fname[20];
 	char rawname[100];
 
@@ -296,10 +311,10 @@ int ds_load(char* filename) {
 	cfp = cfopen(rawname, "rb");
 
 	if (cfp != NULL) {
-		new.length = cfilelength(cfp);
-		//MALLOC( new.data, uint8_t, new.length );//hack by KRB
-		new.data = (uint8_t*)malloc(new.length * sizeof(uint8_t));
-		cfread(new.data, 1, new.length, cfp);
+		newbm.length = cfilelength(cfp);
+		MALLOC(newbm.data, uint8_t, newbm.length );
+		//newbm.data = (uint8_t*)malloc(new.length * sizeof(uint8_t));
+		cfread(newbm.data, 1, newbm.length, cfp);
 		cfclose(cfp);
 		mprintf((0, "S"));
 		mprintf((0, "<%s>", rawname));
@@ -308,7 +323,7 @@ int ds_load(char* filename) {
 		mprintf((1, "Warning: Couldn't find '%s'\n", filename));
 		return 255;
 	}
-	i = piggy_register_sound(&new, fname, 0);
+	i = piggy_register_sound(&newbm, fname, 0);
 	return i;
 }
 
@@ -637,7 +652,7 @@ void set_lighting_flag(int8_t* bp)
 		*bp &= (0xff ^ BM_FLAG_NO_LIGHTING);
 }
 
-set_texture_name(char* name)
+void set_texture_name(char* name)
 {
 	strcpy(TmapInfo[texture_count].filename, name);
 	REMOVE_DOTS(TmapInfo[texture_count].filename);
@@ -960,7 +975,7 @@ void clear_to_end_of_line(void)
 		arg = strtok(NULL, space);
 }
 
-bm_read_sound()
+void bm_read_sound()
 {
 	int sound_num;
 	int alt_sound_num;
@@ -1446,6 +1461,9 @@ void bm_read_player_ship()
 	if (First_multi_bitmap_num == -1)
 		first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
+#ifndef NETWORK //ISB hack
+#define MAX_NUM_NET_PLAYERS 8
+#endif
 	Assert(last_multi_bitmap_num - First_multi_bitmap_num == (MAX_NUM_NET_PLAYERS - 1) * 2);
 
 	for (i = 0; i < n_models; i++) {

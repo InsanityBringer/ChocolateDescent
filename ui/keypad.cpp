@@ -81,20 +81,23 @@ void LineParse(int n, char* dest, char* source)
 {
 	int i = 0, j = 0, cn = 0;
 
+	unsigned char* srchack = (unsigned char*)source;
+	unsigned char* dsthack = (unsigned char*)dest;
+
 	// Go to the n'th line
 	while (cn < n)
-		if (source[i++] == 179)
+		if (srchack[i++] == 179)
 			cn++;
 
 	// Read up until the next comma
-	while (source[i] != 179)
+	while (srchack[i] != 179)
 	{
-		dest[j] = source[i++];
+		dsthack[j] = srchack[i++];
 		j++;
 	}
 
 	// Null-terminate	
-	dest[j++] = 0;
+	dsthack[j++] = 0;
 }
 
 void ui_pad_activate(UI_WINDOW* wnd, int x, int y)
@@ -302,7 +305,7 @@ void ui_pad_goto_prev()
 	ui_pad_set_active(i);
 }
 
-void ui_pad_read(int n, char* filename)
+void ui_pad_read(int n, const char* filename)
 {
 	char* ptr;
 	char buffer[100];
@@ -320,13 +323,11 @@ void ui_pad_read(int n, char* filename)
 		return;
 	}
 
-	MALLOC( KeyPad[n], UI_KEYPAD, 1 );//Hack by KRB
-	//KeyPad[n] = (UI_KEYPAD*)malloc(1 * sizeof(UI_KEYPAD)); //[ISB] yet another hack undone by KRB
+	MALLOC( KeyPad[n], UI_KEYPAD, 1 );
 
 
 	for (i = 0; i < 17; i++) {
-		MALLOC( KeyPad[n]->buttontext[i], char, 100 );//Hack by KRB
-		//KeyPad[n]->buttontext[i] = (char*)malloc(100 * sizeof(char)); //[ISB] was watcom c really picky if not configured right or something?
+		MALLOC( KeyPad[n]->buttontext[i], char, 100 );
 	}
 
 	KeyPad[n]->numkeys = 0;

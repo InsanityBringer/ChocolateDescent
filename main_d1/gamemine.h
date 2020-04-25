@@ -80,8 +80,8 @@ struct me {
 	int     Markedside;
 	int	  Groupsegp[10];
 	int 	  Groupside[10];
-	int	  num_groups;
-	int 	  current_group;
+	int	  Num_groups;
+	int 	  Current_group;
 	//	int	  num_objects;
 };
 

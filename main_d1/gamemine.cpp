@@ -403,8 +403,8 @@ int load_mine_data(CFILE* LoadFile)
 	else
 		Markedsegp = NULL;
 
-	num_groups = 0;
-	current_group = -1;
+	Num_groups = 0;
+	Current_group = -1;
 
 #endif
 

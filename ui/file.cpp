@@ -154,7 +154,7 @@ int file_getdirlist(int MaxNum, char list[][13])
 	return 0;
 }
 
-int file_getfilelist(int MaxNum, char list[][13], char* filespec)
+int file_getfilelist(int MaxNum, char list[][13], const char* filespec)
 {
 	Warning("file_getfilelist: STUB\n");
 	return 0;
@@ -163,7 +163,7 @@ int file_getfilelist(int MaxNum, char list[][13], char* filespec)
 static int FirstTime = 1;
 static char CurDir[128];
 
-int ui_get_filename(char* filename, char* Filespec, char* message)
+int ui_get_filename(char* filename, const char* Filespec, const char* message)
 {
 	FILE* TempFile;
 	int NumFiles, NumDirs, i;
