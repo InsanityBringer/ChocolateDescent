@@ -18,21 +18,24 @@ as described in copying.txt.
 
 //sequencerstate_t Sequencer;
 
-MidiSequencer::MidiSequencer(MidiSynth* newSynth)
+MidiSequencer::MidiSequencer(MidiSynth* newSynth, int newSampleRate)
 {
 	synth = newSynth;
 	lastRenderedTick = nextTick = ticks = 0;
 	song = nullptr;
 	loop = false;
-	sampleRate = MIDI_SAMPLERATE;
-	samplesPerTick = MIDI_SAMPLESPERTICK;
+	sampleRate = newSampleRate;
+}
+
+MidiSynth* MidiSequencer::GetSynth()
+{
+	return synth;
 }
 
 int MidiSequencer::StartSong(hmpheader_t* newSong, bool newLoop)
 {
 	song = newSong;
 	loop = newLoop;
-	samplesPerTick = (MIDI_SAMPLERATE / newSong->bpm); //[ISB] aaaaaa
 	RewindSong(false);
 
 	return 0;
@@ -85,7 +88,7 @@ void MidiSequencer::StopSong()
 	song = nullptr;
 }
 
-int MidiSequencer::Tick()
+uint64_t MidiSequencer::Tick()
 {
 	int i;
 	int nextTick = INT_MAX;
@@ -106,7 +109,7 @@ int MidiSequencer::Tick()
 				{
 					//Cause an immediate rewind
 					//TODO: Evalulate whether or not the events on this tick should be played. descent2.com is unclear. 
-					return INT_MAX;
+					return UINT64_MAX;
 				}
 			}
 			synth->DoMidiEvent(ev);
@@ -140,16 +143,16 @@ int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 	//If there's no song, just render out the requested amount of ticks so that lingering notes fade out even over the fade to black
 	if (!song)
 	{
-		synth->RenderMIDI(ticksToRender, samplesPerTick, buffer);
+		synth->RenderMIDI(ticksToRender, buffer);
 		return ticksToRender;
 	}
 
-	int currentTick = lastRenderedTick;
-	int destinationTick = lastRenderedTick + ticksToRender;
+	uint64_t currentTick = lastRenderedTick;
+	uint64_t destinationTick = lastRenderedTick + ticksToRender;
 
-	int numTicks;
-	int numTicksRendered = 0;
-	int nextTick;
+	uint64_t numTicks;
+	uint64_t numTicksRendered = 0;
+	uint64_t nextTick;
 
 	bool done = false;
 
@@ -165,25 +168,25 @@ int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 		//If there's still ticks to render, render them
 		if (numTicks > 0)
 		{
-			synth->RenderMIDI(numTicks, samplesPerTick, buffer);
+			synth->RenderMIDI(numTicks, buffer);
 			numTicksRendered += numTicks;
 			lastRenderedTick = currentTick;
-			buffer += samplesPerTick * numTicks * 2;
+			buffer += numTicks * 2;
 		}
 
 		if (currentTick == ticks) //Still ticks to render
 		{
 			nextTick = Tick();
-			if (nextTick == INT_MAX && loop)
+			if (nextTick == UINT64_MAX && loop)
 			{
 				//printf("Song end hit, looping!\n");
 				numTicks = ticks - lastRenderedTick; //Render as much as possible
 				if (numTicks > 0)
 				{
-					synth->RenderMIDI(numTicks, samplesPerTick, buffer);
+					synth->RenderMIDI(numTicks, buffer);
 					numTicksRendered += numTicks;
 					lastRenderedTick = currentTick;
-					buffer += samplesPerTick * numTicks * 2;
+					buffer += numTicks * 2;
 				}
 				RewindSong(true);
 				done = true;

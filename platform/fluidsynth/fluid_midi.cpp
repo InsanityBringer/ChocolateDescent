@@ -32,6 +32,11 @@ MidiFluidSynth::MidiFluidSynth()
 	//if (FluidSynth == nullptr) return 1;
 }
 
+void MidiFluidSynth::SetSampleRate(uint32_t newSampleRate)
+{
+	fluid_settings_setnum(FluidSynthSettings, "synth.sample-rate", (double)newSampleRate);
+}
+
 void MidiFluidSynth::Shutdown()
 {
 	//delete_fluid_audio_driver(AudioDriver);
@@ -44,9 +49,9 @@ void MidiFluidSynth::SetSoundfont(const char* filename)
 	fluid_synth_sfload(FluidSynth, filename, 1);
 }
 
-void MidiFluidSynth::RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer)
+void MidiFluidSynth::RenderMIDI(int numTicks, unsigned short* buffer)
 {
-	fluid_synth_write_s16(FluidSynth, numTicks * samplesPerTick, (void*)buffer, 0, 2, (void*)buffer, 1, 2);
+	fluid_synth_write_s16(FluidSynth, numTicks, (void*)buffer, 0, 2, (void*)buffer, 1, 2);
 }
 
 //I_MidiEvent(chunk->events[chunk->nextEvent]);

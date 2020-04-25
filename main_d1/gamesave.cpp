@@ -1526,6 +1526,41 @@ int get_level_name()
 
 #ifdef EDITOR
 
+static void GS_WriteGameData(FILE* SaveFile)
+{
+	int i;
+	F_WriteShort(SaveFile, game_fileinfo.fileinfo_signature);
+
+	F_WriteShort(SaveFile, game_fileinfo.fileinfo_version);
+	F_WriteInt(SaveFile, game_fileinfo.fileinfo_sizeof);
+	for (i = 0; i < 15; i++)
+		F_WriteByte(SaveFile, game_fileinfo.mine_filename[i]);
+	F_WriteInt(SaveFile, game_fileinfo.level);
+	F_WriteInt(SaveFile, game_fileinfo.player_offset);				// Player info
+	F_WriteInt(SaveFile, game_fileinfo.player_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.object_offset);				// Object info
+	F_WriteInt(SaveFile, game_fileinfo.object_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.object_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.walls_offset);
+	F_WriteInt(SaveFile, game_fileinfo.walls_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.walls_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.doors_offset);
+	F_WriteInt(SaveFile, game_fileinfo.doors_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.doors_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.triggers_offset);
+	F_WriteInt(SaveFile, game_fileinfo.triggers_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.triggers_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.links_offset);
+	F_WriteInt(SaveFile, game_fileinfo.links_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.links_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.control_offset);
+	F_WriteInt(SaveFile, game_fileinfo.control_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.control_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.matcen_offset);
+	F_WriteInt(SaveFile, game_fileinfo.matcen_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.matcen_sizeof);
+}
+
 int	Errors_in_mine;
 
 // -----------------------------------------------------------------------------
@@ -1542,7 +1577,7 @@ int save_game_data(FILE* SaveFile)
 	game_fileinfo.fileinfo_signature = 0x6705;
 	game_fileinfo.fileinfo_version = GAME_VERSION;
 	game_fileinfo.level = Current_level_num;
-	game_fileinfo.fileinfo_sizeof = sizeof(game_fileinfo);
+	game_fileinfo.fileinfo_sizeof = 119; //[ISB] canonical size rather than aligned size
 	game_fileinfo.player_offset = -1;
 	game_fileinfo.player_sizeof = sizeof(player);
 	game_fileinfo.object_offset = -1;
@@ -1565,14 +1600,24 @@ int save_game_data(FILE* SaveFile)
 	game_fileinfo.matcen_sizeof = sizeof(matcen_info);
 
 	// Write the fileinfo
-	fwrite(&game_fileinfo, sizeof(game_fileinfo), 1, SaveFile);
+	GS_WriteGameData(SaveFile);
 
 	// Write the mine name
-	fprintf(SaveFile, Current_level_name);
-	fputc(0, SaveFile);		//terminator for string
+	char c;
+	for (int i = 0; i < LEVEL_NAME_LEN; i++) //[ISB] tbh this is overkill
+	{
+		c = Current_level_name[i];
+		F_WriteByte(SaveFile, c);
+		if (c == 0) break;
+	}
 
-	fwrite(&N_save_pof_names, 2, 1, SaveFile);
-	fwrite(Pof_names, N_polygon_models, 13, SaveFile);
+	//fwrite(&N_save_pof_names, 2, 1, SaveFile);
+	F_WriteShort(SaveFile, (short)N_save_pof_names);
+	for (int i = 0; i < N_polygon_models; i++)
+	{
+		fwrite(&Pof_names[i], 1, 13, SaveFile); //also overkill but I'm paranoid
+	}
+	//fwrite(Pof_names, N_polygon_models, 13, SaveFile);
 
 	//==================== SAVE PLAYER INFO ===========================
 
@@ -1647,7 +1692,7 @@ int save_game_data(FILE* SaveFile)
 
 	// Write the fileinfo
 	fseek(SaveFile, start_offset, SEEK_SET);  // Move to TOF
-	fwrite(&game_fileinfo, sizeof(game_fileinfo), 1, SaveFile);
+	GS_WriteGameData(SaveFile);
 
 	// Go back to end of data
 	fseek(SaveFile, end_offset, SEEK_SET);

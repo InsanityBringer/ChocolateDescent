@@ -22,12 +22,13 @@ class MidiFluidSynth : MidiSynth
 public:
 	MidiFluidSynth();
 	void SetSoundfont(const char* filename);
+	void SetSampleRate(uint32_t newSampleRate) override;
 	int ClassifySynth() override
 	{
 		return MIDISYNTH_SOFT;
 	}
 	void DoMidiEvent(midievent_t* ev) override;
-	void RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer) override;
+	void RenderMIDI(int numTicks, unsigned short* buffer) override;
 	void StopSound() override;
 	void Shutdown() override;
 };

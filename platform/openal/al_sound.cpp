@@ -52,6 +52,8 @@ bool HQMusicPlaying = false;
 
 int MusicVolume;
 
+MidiPlayer* midiPlayer;
+
 void AL_ErrorCheck(const char* context)
 {
 	int error;
@@ -252,6 +254,27 @@ int I_CheckSoundDone(int handle)
 //-----------------------------------------------------------------------------
 bool playing = false;
 
+int I_StartMIDI(MidiSequencer* sequencer)
+{
+	midiPlayer = new MidiPlayer(sequencer, sequencer->GetSynth());
+	if (midiPlayer == nullptr || midiPlayer->IsError())
+	{
+		Error("S_InitMusic: Cannot allocate MIDI player");
+		return 1;
+	}
+	midiPlayer->Start();
+
+	return 0;
+}
+
+void I_ShutdownMIDI()
+{
+	if (midiPlayer != nullptr)
+	{
+		midiPlayer->Shutdown();
+	}
+}
+
 void I_SetMusicVolume(int volume)
 {
 	if (!AL_initialized) return;
@@ -326,8 +349,9 @@ void I_DestroyMusicSource()
 	MusicSource = 0;
 }
 
-bool I_CanQueueMusicBuffer()
+bool AL_CanQueueMusicBuffer()
 {
+	if (!AL_initialized) return false;
 	if (!alIsSource(MusicSource))
 	{
 		Int3();
@@ -337,8 +361,9 @@ bool I_CanQueueMusicBuffer()
 	return CurrentBuffers < MAX_BUFFERS_QUEUED;
 }
 
-void I_DequeueMusicBuffers()
+void AL_DequeueMusicBuffers()
 {
+	if (!AL_initialized) return;
 	int BuffersProcessed;
 	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
 	if (BuffersProcessed > 0)
@@ -354,15 +379,16 @@ void I_DequeueMusicBuffers()
 	AL_ErrorCheck("Unqueueing music buffers");
 }
 
-void I_QueueMusicBuffer(int numTicks, int samplesPerTick, uint16_t *data)
+void AL_QueueMusicBuffer(int numTicks, uint16_t *data)
 {
+	if (!AL_initialized) return;
 	//printf("Queuing %d ticks\n", numTicks);
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
 	if (CurrentBuffers < MAX_BUFFERS_QUEUED)
 	{
 		//int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
 		alGenBuffers(1, &BufferQueue[CurrentBuffers]);
-		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * samplesPerTick * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
+		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
 		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
 		AL_ErrorCheck("Queueing music buffers");
 	}
@@ -377,19 +403,36 @@ void I_QueueMusicBuffer(int numTicks, int samplesPerTick, uint16_t *data)
 	}
 }
 
-void I_StartMIDISong()
+void I_StartMIDISong(hmpheader_t* song, bool loop)
 {
-	StopMIDI = false;
-	playing = false;
-	I_CreateMusicSource();
-	AL_ErrorCheck("Creating source");
+	midiPlayer->SetSong(song, loop);
 }
 
 void I_StopMIDISong()
 {
+	midiPlayer->StopSong();
+}
+
+uint32_t I_GetPreferredMIDISampleRate()
+{
+	return MIDI_SAMPLERATE;
+}
+
+void AL_StartMIDISong()
+{
+	StopMIDI = false;
+	playing = false;
+	if (!AL_initialized) return;
+	I_CreateMusicSource();
+	AL_ErrorCheck("Creating source");
+}
+
+void AL_StopMIDISong()
+{
 	StopMIDI = true;
+	if (!AL_initialized) return;
 	alSourceStop(MusicSource);
-	I_DequeueMusicBuffers();
+	AL_DequeueMusicBuffers();
 	I_DestroyMusicSource();
 	AL_ErrorCheck("Destroying source");
 }

@@ -2,6 +2,7 @@
 #ifndef USE_OPENAL
 
 #include "platform/i_sound.h"
+#include "platform/s_sequencer.h"
 #include "misc/error.h"
 #include <Windows.h>
 #include <mmdeviceapi.h>
@@ -19,6 +20,7 @@ namespace
 	IMMDevice *mmdevice;
 	IAudioClient *audio_client;
 	IAudioRenderClient *audio_render_client;
+	MidiSequencer *sequencer;
 	HANDLE audio_buffer_ready_event = INVALID_HANDLE_VALUE;
 	bool is_playing;
 	UINT32 fragment_size;
@@ -31,6 +33,9 @@ namespace
 	std::thread mixer_thread;
 	std::mutex mixer_mutex;
 	bool mixer_stop_flag;
+
+	float music_volume;
+	unsigned short* midi_buffer;
 
 	struct SoundSource
 	{
@@ -148,6 +153,30 @@ namespace
 			music.pos = pos;
 			music.frac = frac;
 		}
+		else if (sequencer != nullptr) //[ISB] Play MIDI music if there's no HQ audio running right now
+		{
+			output = next_fragment;
+			uint32_t speed = static_cast<uint32_t>(music.sample_rate * static_cast<uint64_t>(1 << 16) / mixing_frequency);
+			uint32_t frac = music.frac;
+			int length = music.song_data.size() / 2;
+			sequencer->Render(fragment_size, midi_buffer);
+			const short* data = (short*)midi_buffer;
+			for (int i = 0; i < count; i++)
+			{
+				float sample = (static_cast<int>(data[i << 1])) * (1.0f / 32767.0f);
+				sample = std::max(sample, -1.0f);
+				sample = std::min(sample, 1.0f);
+
+				output[0] += sample * music_volume;
+
+				sample = (static_cast<int>(data[(i << 1) + 1])) * (1.0f / 32767.0f);
+				sample = std::max(sample, -1.0f);
+				sample = std::min(sample, 1.0f);
+
+				output[1] += sample * music_volume;
+				output += 2;
+			}
+		}
 	}
 
 	void write_fragment()
@@ -218,10 +247,6 @@ namespace
 	}
 }
 
-void I_ErrorCheck(char* context)
-{
-}
-
 int I_InitAudio()
 {
 	CoInitialize(0);
@@ -230,7 +255,7 @@ int I_InitAudio()
 	HRESULT result = CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&device_enumerator);
 	if (FAILED(result))
 	{
-		Error("Unable to create IMMDeviceEnumerator instance\n");
+		Warning("I_InitAudio(): Unable to create IMMDeviceEnumerator instance\n"); //[ISB] downgrading to nonfatal warning for moment
 		return 1;
 	}
 
@@ -238,14 +263,14 @@ int I_InitAudio()
 	device_enumerator->Release();
 	if (FAILED(result))
 	{
-		Error("IDeviceEnumerator.GetDefaultAudioEndpoint failed\n");
+		Warning("I_InitAudio(): IDeviceEnumerator.GetDefaultAudioEndpoint failed\n");
 		return 1;
 	}
 
 	result = mmdevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, (void**)&audio_client);
 	if (FAILED(result))
 	{
-		Error("IMMDevice.Activate failed\n");
+		Warning("I_InitAudio(): IMMDevice.Activate failed\n");
 		mmdevice->Release();
 		return 1;
 	}
@@ -267,11 +292,11 @@ int I_InitAudio()
 	result = audio_client->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, (WAVEFORMATEX*)& wave_format, &closest_match);
 	if (FAILED(result))
 	{
-		Error("IAudioClient.IsFormatSupported failed\n");
 		audio_client->Release();
 		mmdevice->Release();
 		audio_client = nullptr;
 		mmdevice = nullptr;
+		Warning("I_InitAudio(): IAudioClient.IsFormatSupported failed\n"); //[ISB] not fully sure if the cleanup is vital, but make sure its done before terminating through Error
 		return 1;
 	}
 
@@ -290,65 +315,66 @@ int I_InitAudio()
 	result = audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, mixing_latency * (REFERENCE_TIME)1000, 0, (WAVEFORMATEX*)& wave_format, 0);
 	if (FAILED(result))
 	{
-		Error("IAudioClient.Initialize failed\n");
 		audio_client->Release();
 		mmdevice->Release();
 		audio_client = nullptr;
 		mmdevice = nullptr;
+		Warning("I_InitAudio(): IAudioClient.Initialize failed\n"); 
 		return 1;
 	}
 
 	result = audio_client->GetService(__uuidof(IAudioRenderClient), (void**)&audio_render_client);
 	if (FAILED(result))
 	{
-		Error("IAudioClient.GetService(IAudioRenderClient) failed\n");
 		audio_client->Release();
 		mmdevice->Release();
 		audio_client = nullptr;
 		mmdevice = nullptr;
+		Warning("I_InitAudio(): IAudioClient.GetService(IAudioRenderClient) failed\n");
 		return 1;
 	}
 
 	audio_buffer_ready_event = CreateEvent(0, TRUE, TRUE, 0);
 	if (audio_buffer_ready_event == INVALID_HANDLE_VALUE)
 	{
-		Error("CreateEvent failed\n");
 		audio_render_client->Release();
 		audio_client->Release();
 		mmdevice->Release();
 		audio_render_client = nullptr;
 		audio_client = nullptr;
 		mmdevice = nullptr;
+		Warning("I_InitAudio(): CreateEvent failed\n");
 		return 1;
 	}
 
 	result = audio_client->SetEventHandle(audio_buffer_ready_event);
 	if (FAILED(result))
 	{
-		Error("IAudioClient.SetEventHandle failed\n");
 		audio_render_client->Release();
 		audio_client->Release();
 		mmdevice->Release();
 		audio_render_client = nullptr;
 		audio_client = nullptr;
 		mmdevice = nullptr;
+		Warning("I_InitAudio(): IAudioClient.SetEventHandle failed\n");
 		return 1;
 	}
 
 	result = audio_client->GetBufferSize(&fragment_size);
 	if (FAILED(result))
 	{
-		Error("IAudioClient.GetBufferSize failed\n");
 		audio_render_client->Release();
 		audio_client->Release();
 		mmdevice->Release();
 		audio_render_client = nullptr;
 		audio_client = nullptr;
 		mmdevice = nullptr;
+		Warning("I_InitAudio(): IAudioClient.GetBufferSize failed\n");
 		return 1;
 	}
 
 	next_fragment = new float[2 * fragment_size];
+	midi_buffer = new unsigned short[2 * fragment_size];
 	start_mixer_thread();
 
 	return 0;
@@ -366,6 +392,7 @@ void I_ShutdownAudio()
 		mmdevice->Release();
 		CloseHandle(audio_buffer_ready_event);
 		delete[] next_fragment;
+		delete[] midi_buffer;
 		audio_render_client = nullptr;
 		audio_client = nullptr;
 		mmdevice = nullptr;
@@ -431,7 +458,7 @@ void I_SetVolume(int handle, int volume)
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
 	std::unique_lock<std::mutex> lock(mixer_mutex);
-	sources[handle].volume = volume / 65536.0f;
+	sources[handle].volume = volume / 32768;
 }
 
 void I_PlaySound(int handle, int loop)
@@ -488,29 +515,37 @@ void I_StopHQSong()
 	music.playing = false;
 }
 
-bool I_CanQueueMusicBuffer()
+int I_StartMIDI(MidiSequencer* newSeq)
 {
-	return false;
+	sequencer = newSeq;
+	return 0;
 }
 
-void I_DequeueMusicBuffers()
+void I_ShutdownMIDI()
 {
+	sequencer = nullptr;
 }
 
-void I_QueueMusicBuffer(int numTicks, uint16_t* data)
+void I_StartMIDISong(hmpheader_t* song, bool loop)
 {
-}
-
-void I_StartMIDISong()
-{
+	if (sequencer)
+		sequencer->StartSong(song, loop);
 }
 
 void I_StopMIDISong()
 {
+	if (sequencer)
+		sequencer->StopSong();
 }
 
 void I_SetMusicVolume(int volume)
 {
+	music_volume = volume / 127.0f;
+}
+
+uint32_t I_GetPreferredMIDISampleRate()
+{
+	return mixing_frequency;
 }
 
 void I_InitMovieAudio(int format, int samplerate, int stereo)
