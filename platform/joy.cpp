@@ -30,6 +30,7 @@ int joy_init()
 		joystick.axis_min[i] = -127;
 		joystick.axis_center[i] = 0;
 		joystick.axis_max[i] = 127;
+		joystick.axis_value[i] = 0; //[ISB] if no physical joystick present this should avoid issues
 	}
 	return 1;
 }
