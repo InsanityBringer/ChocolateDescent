@@ -473,7 +473,7 @@ void ntmap_outerloop_per_nolight_trans( g3ds_tmap *t )
 {
 	#define LINEAR	0						// 0=Perspective, 1=Linear
 	#define LIGHTING 0					// 0=No lighting, 1=Use lighting
-	#define INNER_LOOP c_tmap_scanline_per_nolight_trans	// Function to be called when ready to draw.
+	#define INNER_LOOP c_tmap_scanline_plt_nolight	// Function to be called when ready to draw.
 	#define CHECK_WINDOW	1				// Set to 1 to check window clip
 	#define USE_UVS 1						// Set to 1 to enable U,V interpolation
 	#include "ntmapout.h"
@@ -483,7 +483,7 @@ void ntmap_outerloop_per_nolight_notrans( g3ds_tmap *t )
 {
 	#define LINEAR	0						// 0=Perspective, 1=Linear
 	#define LIGHTING 0					// 0=No lighting, 1=Use lighting
-	#define INNER_LOOP c_tmap_scanline_per_nolight	// Function to be called when ready to draw.
+	#define INNER_LOOP c_tmap_scanline_pln_nolight	// Function to be called when ready to draw.
 	#define CHECK_WINDOW	1				// Set to 1 to check window clip
 	#define USE_UVS 1						// Set to 1 to enable U,V interpolation
 	#include "ntmapout.h"

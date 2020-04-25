@@ -373,7 +373,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, fix xleft, fix xright, fix 
 		if (fx_xright > Window_clip_right)
 			fx_xright = Window_clip_right;
 
-		c_tmap_scanline_per_nolight();
+		c_tmap_scanline_pln_nolight();
 		break;
 	case 1: 
 	{
@@ -401,7 +401,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, fix xleft, fix xright, fix 
 		if (fx_xright > Window_clip_right)
 			fx_xright = Window_clip_right;
 
-		c_tmap_scanline_per();
+		c_tmap_scanline_pln();
 		break;
 	}
 	case 2:
