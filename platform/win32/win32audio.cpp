@@ -85,8 +85,8 @@ namespace
 				uint32_t frac = src.frac;
 				int length = src.length;
 				const unsigned char* data = src.data;
-				float volume_left = src.volume * (1.0f + src.angle_x);
-				float volume_right = src.volume * (1.0f - src.angle_x);
+				float volume_left = src.volume * (1.0f + src.angle_x) * 0.5f;
+				float volume_right = src.volume * (1.0f - src.angle_x) * 0.5f;
 				for (int i = 0; i < count; i++)
 				{
 					float sample = (static_cast<int>(data[pos]) - 127) * (1.0f/127.0f);
@@ -240,19 +240,15 @@ namespace
 
 	void stop_mixer_thread()
 	{
-		printf("Trying to stop thread\n");
 		std::unique_lock<std::mutex> lock(mixer_mutex);
 		mixer_stop_flag = true;
 		lock.unlock();
-		printf("Trying to join thread\n");
 		mixer_thread.join();
-		printf("thread rip\n");
 	}
 }
 
 int I_InitAudio()
 {
-	printf("Trying to start audio\n");
 	CoInitialize(0);
 	static int majorhack = 1;
 
