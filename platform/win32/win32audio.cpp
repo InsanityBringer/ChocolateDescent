@@ -254,8 +254,8 @@ namespace
 
 					while (pos >= length) //[ISB] this is annoyingly complex as I need to be able to switch between multiple sources
 					{
-						delete[] moviebuffer.buffers[moviebuffer.current_buffer].data; //kill data
 						moviebuffer.buffers[moviebuffer.current_buffer].live = false; //no longer a valid buffer
+						delete[] moviebuffer.buffers[moviebuffer.current_buffer].data; //kill data
 						moviebuffer.current_buffer = (moviebuffer.current_buffer + 1) % NUMMVESNDBUFFERS;
 						pos = pos % length;
 						length = moviebuffer.buffers[moviebuffer.current_buffer].length;
@@ -721,7 +721,10 @@ void I_DestroyMovieAudio()
 	for (int i = 0; i < NUMMVESNDBUFFERS; i++)
 	{
 		if (moviebuffer.buffers[i].live)
+		{
 			delete[] moviebuffer.buffers[i].data;
+			moviebuffer.buffers[i].live = false;
+		}
 	}
 }
 
