@@ -240,16 +240,21 @@ namespace
 
 	void stop_mixer_thread()
 	{
+		printf("Trying to stop thread\n");
 		std::unique_lock<std::mutex> lock(mixer_mutex);
 		mixer_stop_flag = true;
 		lock.unlock();
+		printf("Trying to join thread\n");
 		mixer_thread.join();
+		printf("thread rip\n");
 	}
 }
 
 int I_InitAudio()
 {
+	printf("Trying to start audio\n");
 	CoInitialize(0);
+	static int majorhack = 1;
 
 	IMMDeviceEnumerator* device_enumerator = nullptr;
 	HRESULT result = CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&device_enumerator);
@@ -386,7 +391,10 @@ void I_ShutdownAudio()
 	{
 		stop_mixer_thread();
 		if (is_playing)
+		{
 			audio_client->Stop();
+			is_playing = false; //[ISB] oops, this was neglected.
+		}
 		audio_render_client->Release();
 		audio_client->Release();
 		mmdevice->Release();
@@ -480,6 +488,10 @@ void I_StopSound(int handle)
 	sources[handle].playing = false;
 }
 
+void I_SetLoopPoints(int handle, int start, int end)
+{
+}
+
 int I_CheckSoundPlaying(int handle)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return 0;
@@ -517,6 +529,7 @@ void I_StopHQSong()
 
 int I_StartMIDI(MidiSequencer* newSeq)
 {
+	std::unique_lock<std::mutex> lock(mixer_mutex);
 	sequencer = newSeq;
 	return 0;
 }
