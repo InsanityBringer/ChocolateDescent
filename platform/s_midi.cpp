@@ -79,7 +79,7 @@ int S_InitMusic(int device)
 	if (CurrentDevice != 0) return 0; //already initalized
 	//[ISB] TODO: I really need to add a switcher to allow the use of multiple synths. Agh
 	//I_InitMIDI();
-	MidiSynth* synth = nullptr;
+	//MidiSynth* synth = nullptr;
 	switch (device)
 	{
 	case _MIDI_GEN:
@@ -127,11 +127,20 @@ int S_InitMusic(int device)
 void S_ShutdownMusic()
 {
 	if (CurrentDevice == 0) return;
-	//I_ShutdownMIDI();
+	I_ShutdownMIDI();
 	/*if (player != nullptr)
 	{
 		player->Shutdown();
 	}*/
+	if (sequencer)
+	{
+		delete sequencer;
+	}
+	if (synth)
+	{
+		synth->Shutdown();
+		delete synth;
+	}
 	CurrentDevice = 0;
 }
 

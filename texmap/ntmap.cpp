@@ -337,8 +337,6 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, fix xleft, fix xright, fix 
 	if ((dx < 0) || (xright < 0) || (xleft > xright))		// the (xleft > xright) term is not redundant with (dx < 0) because dx is computed using integers
 		return;
 
-	if (xleft < 0)
-		fx_xleft = 0; //[ISB] godawful hack
 	if (fx_xright > Window_clip_right)
 		fx_xright = Window_clip_right;
 
@@ -652,8 +650,6 @@ void ntmap_scanline_lighted_linear(grs_bitmap* srcb, int y, fix xleft, fix xrigh
 	fx_xright = f2i(xright);
 	fx_xleft = f2i(xleft);
 
-	if (xleft < 0)
-		fx_xleft = 0; //[ISB] godawful hack
 	if (fx_xright > Window_clip_right)
 		fx_xright = Window_clip_right;
 

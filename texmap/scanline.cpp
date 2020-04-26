@@ -24,6 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmapl.h"
 #include "scanline.h"
 
+extern int	y_pointers[];
+
 void c_tmap_scanline_flat()
 {
 	uint8_t* dest;
@@ -34,15 +36,6 @@ void c_tmap_scanline_flat()
 		return;
 
 	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
-
-	/*if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) < 0)
-	{
-		printf("Underflow drawing unlit flat scanline\n");
-	}
-	if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
-	{
-		printf("Overflow drawing unlit flat scanline\n");
-	}*/
 
 	for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 	{
@@ -75,6 +68,9 @@ void c_tmap_scanline_lin_nolight()
 	uint32_t c;
 	int x;
 	fix u, v, dudx, dvdx;
+
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
 
 	u = fx_u;
 	v = fx_v * 64;
@@ -113,6 +109,9 @@ void c_tmap_scanline_lin()
 	uint32_t c;
 	int x;
 	fix u, v, l, dudx, dvdx, dldx;
+
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
 
 	u = fx_u;
 	v = fx_v;
@@ -156,28 +155,15 @@ void c_tmap_scanline_lin()
 	}
 }
 
-int hack1, hack2;
-//[ISB] The perspective texture mapper had some serious problems with negative coordinates. This hack should hopefully prevent it..
-//HACK: OPTIMIZE ME
-inline uint32_t TMap_PickCoord(int u, int v, int z)
-{
-	hack1 = u < 0 ? 1 : 0;
-	hack2 = v < 0 ? 1 : 0;
-	u /= z;
-	v /= z;
-
-	if (hack1) u--;
-	if (hack2) v--;
-
-	return ((v & 63) << 6) | (u & 63);
-}
-
 void c_tmap_scanline_per_nolight()
 {
 	uint8_t* dest;
 	uint32_t c;
 	int x;
 	fix u, v, z, dudx, dvdx, dzdx;
+
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
 
 	u = fx_u;
 	v = fx_v;
@@ -187,21 +173,12 @@ void c_tmap_scanline_per_nolight()
 	dzdx = fx_dz_dx;
 
 	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
-	/*if (((fx_xleft)+(bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
-	{
-		printf("Overflow drawing unlit perspective texture scanline\n");
-	}*/
 
 	if (!Transparency_on) 
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			*dest++ = (uint32_t)pixptr[TMap_PickCoord(u, v, z)];
-			/*if (u < 0 || v < 0)
-				c = 0xC0;
-			else
-				c = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
-			*dest++ = c;*/
+			*dest++ = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
@@ -211,8 +188,7 @@ void c_tmap_scanline_per_nolight()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			//c = (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
-			c = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
+			c = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
 
 			if (c != 255)
 				*dest = c;
@@ -231,6 +207,9 @@ void c_tmap_scanline_per()
 	int x;
 	fix u, v, z, l, dudx, dvdx, dzdx, dldx;
 
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
+
 	u = fx_u;
 	v = fx_v;
 	z = fx_z;
@@ -244,16 +223,10 @@ void c_tmap_scanline_per()
 	if (dldx < 0)
 		dldx++; //round towards 0 for negative deltas
 
-	/*if (((fx_xleft) + (bytes_per_row * fx_y) + (fx_xright - fx_xleft + 1)) > (640 * 480))
-	{
-		printf("Overflow drawing perspective texture scanline\n");
-	}*/ //[ISB] hopefully this overflow detector isn't needed anymore
-
 	if (!Transparency_on) 
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			//*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)]];
 			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]];
 			l += dldx;
 			u += dudx;
@@ -266,7 +239,6 @@ void c_tmap_scanline_per()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			//c = (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
 			c = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
 			if (c != 255)
 				*dest = gr_fade_table[(l & (0xff00)) + c];
@@ -292,52 +264,52 @@ fix pdiv(int a, int b)
 }
 
 //even and odd
-#define C_TMAP_SCANLINE_PLN_LOOP 		ut = (ut + ui);\
-										vt = (vt + vi);\
-										*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+#define C_TMAP_SCANLINE_PLN_LOOP        *dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+										ut = (ut + ui); \
+										vt = (vt + vi); \
 										l += dldx;\
+										*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
 										ut = (ut + ui);\
 										vt = (vt + vi);\
-										*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLT_LOOP 		ut = (ut + ui);\
+#define C_TMAP_SCANLINE_PLT_LOOP 		c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										ut = (ut + ui);\
 										vt = (vt + vi);\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
 										l += dldx;\
+										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										ut = (ut + ui);\
 										vt = (vt + vi);\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLN_LOOP_F 				ut = (ut + ui);\
-												vt = (vt + vi);\
-												*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
-												l += dldx;\
-												if (--num_left_over == 0) return;\
+#define C_TMAP_SCANLINE_PLN_LOOP_F 				*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
 												ut = (ut + ui);\
 												vt = (vt + vi);\
+												l += dldx;\
+												if (--num_left_over == 0) return;\
 												*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+												ut = (ut + ui); \
+												vt = (vt + vi); \
 												l += dldx;\
 												if (--num_left_over == 0) return;
 
-#define C_TMAP_SCANLINE_PLT_LOOP_F 		ut = (ut + ui);\
+#define C_TMAP_SCANLINE_PLT_LOOP_F 		c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										ut = (ut + ui);\
 										vt = (vt + vi);\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
 										l += dldx;\
 										if (--num_left_over == 0) return;\
+										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										ut = (ut + ui);\
 										vt = (vt + vi);\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
@@ -355,6 +327,9 @@ void c_tmap_scanline_pln()
 	fix u, v, z, l, dudx, dvdx, dzdx, dldx;
 	short cl;
 
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
+
 	u = fx_u;
 	v = fx_v;
 	z = fx_z;
@@ -364,7 +339,7 @@ void c_tmap_scanline_pln()
 
 	l = fx_l >> 8;
 	dldx = fx_dl_dx >> 8;
-	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = (uint8_t*)(write_buffer + y_pointers[fx_y] + fx_xleft);
 	if (dldx < 0)
 		dldx++; //round towards 0 for negative deltas
 
@@ -374,7 +349,7 @@ void c_tmap_scanline_pln()
 	//Wants to be dword aligned.
 	while ((uintptr_t)(dest) & 3)
 	{
-		c = (uint32_t)pixptr[TMap_PickCoord(u, v, z)];
+		c = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
 		if (c != 255)
 			*dest = gr_fade_table[(l & (0xff00)) + c]; //oh yeah first ~3 pixels don't check transparency, not that it's relevant
 		dest++;
@@ -409,8 +384,8 @@ void c_tmap_scanline_pln()
 		ut = static_cast<uint16_t>(U0 >> 6);
 		vt = static_cast<uint16_t>(V0 >> 6);
 
-		ui = static_cast<uint16_t>((U1 - U0) >> (NBITS + 6));
-		vi = static_cast<uint16_t>((V1 - V0) >> (NBITS + 6));
+		ui = static_cast<uint16_t>((U1 - U0) >> (NBITS+6));
+		vi = static_cast<uint16_t>((V1 - V0) >> (NBITS+6));
 
 		U0 = U1;
 		V0 = V1;
@@ -516,8 +491,7 @@ void c_tmap_scanline_pln()
 	{
 		for (x = num_left_over; x > 0; --x)
 		{
-			//*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)]];
-			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[TMap_PickCoord(u, v, z)]];
+			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)]];
 			//*dest++ = 15;
 			l += dldx;
 			u += fx_du_dx;
@@ -530,8 +504,8 @@ void c_tmap_scanline_pln()
 	{
 		for (x = num_left_over; x > 0; --x)
 		{
-			//c = (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
-			c = (uint32_t)pixptr[TMap_PickCoord(u, v, z)];
+			c = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
+			//c = 15;
 			if (c != 255)
 				*dest = gr_fade_table[(l & (0xff00)) + c];
 			dest++;
@@ -546,52 +520,52 @@ void c_tmap_scanline_pln()
 }
 
 //even and odd
-#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP 		ut = (ut + ui);\
-										vt = (vt + vi);\
-										*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										l += dldx;\
+#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP 		*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										ut = (ut + ui);\
 										vt = (vt + vi);\
+										l += dldx;\
 										*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										ut = (ut + ui);\
+										vt = (vt + vi);\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP 		ut = (ut + ui);\
+#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP 	c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										ut = (ut + ui);\
 										vt = (vt + vi);\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
 										l += dldx;\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
 										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										ut = (ut + ui); \
+										vt = (vt + vi); \
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP_F 				ut = (ut + ui);\
-												vt = (vt + vi);\
-												*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-												l += dldx;\
-												if (--num_left_over == 0) return;\
+#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP_F		*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 												ut = (ut + ui);\
 												vt = (vt + vi);\
+												l += dldx;\
+												if (--num_left_over == 0) return;\
 												*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+												ut = (ut + ui);\
+												vt = (vt + vi);\
 												l += dldx;\
 												if (--num_left_over == 0) return;
 
-#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP_F 		ut = (ut + ui);\
+#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP_F 		c = pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										ut = (ut + ui);\
 										vt = (vt + vi);\
-										c = pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
 										l += dldx;\
 										if (--num_left_over == 0) return;\
+										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										ut = (ut + ui);\
 										vt = (vt + vi);\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
@@ -606,6 +580,9 @@ void c_tmap_scanline_pln_nolight()
 	fix u, v, z, l, dudx, dvdx, dzdx, dldx;
 	short cl;
 
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
+
 	u = fx_u;
 	v = fx_v;
 	z = fx_z;
@@ -615,7 +592,7 @@ void c_tmap_scanline_pln_nolight()
 
 	l = fx_l >> 8;
 	dldx = fx_dl_dx >> 8;
-	dest = (uint8_t*)(write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = (uint8_t*)(write_buffer + y_pointers[fx_y] + fx_xleft);
 	if (dldx < 0)
 		dldx++; //round towards 0 for negative deltas
 
@@ -625,7 +602,7 @@ void c_tmap_scanline_pln_nolight()
 	//Wants to be dword aligned.
 	while ((uintptr_t)(dest) & 3)
 	{
-		c = (uint32_t)pixptr[TMap_PickCoord(u, v, z)];
+		c = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
 		if (c != 255)
 			*dest = c; //oh yeah first ~3 pixels don't check transparency, not that it's relevant
 		dest++;
@@ -767,8 +744,7 @@ void c_tmap_scanline_pln_nolight()
 	{
 		for (x = num_left_over; x > 0; --x)
 		{
-			//*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)]];
-			*dest++ = pixptr[TMap_PickCoord(u, v, z)];
+			*dest++ = pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
 			//*dest++ = 15;
 			l += dldx;
 			u += fx_du_dx;
@@ -781,8 +757,7 @@ void c_tmap_scanline_pln_nolight()
 	{
 		for (x = num_left_over; x > 0; --x)
 		{
-			//c = (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
-			c = (uint32_t)pixptr[TMap_PickCoord(u, v, z)];
+			c = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
 			if (c != 255)
 				*dest = c;
 			dest++;

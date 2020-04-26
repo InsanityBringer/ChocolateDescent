@@ -85,8 +85,8 @@ namespace
 				uint32_t frac = src.frac;
 				int length = src.length;
 				const unsigned char* data = src.data;
-				float volume_left = src.volume * (1.0f + src.angle_x) * 0.5f;
-				float volume_right = src.volume * (1.0f - src.angle_x) * 0.5f;
+				float volume_left = src.volume * (1.0f + src.angle_x);
+				float volume_right = src.volume * (1.0f - src.angle_x);
 				for (int i = 0; i < count; i++)
 				{
 					float sample = (static_cast<int>(data[pos]) - 127) * (1.0f/127.0f);
@@ -131,8 +131,8 @@ namespace
 				sample = std::max(sample, -1.0f);
 				sample = std::min(sample, 1.0f);
 
-				output[0] += data[pos << 1];
-				output[1] += data[(pos << 1) + 1];
+				output[0] += data[pos << 1] * music_volume;
+				output[1] += data[(pos << 1) + 1] * music_volume;
 				output += 2;
 
 				frac += speed;
@@ -374,7 +374,7 @@ int I_InitAudio()
 	}
 
 	next_fragment = new float[2 * fragment_size];
-	midi_buffer = new unsigned short[2 * fragment_size];
+	midi_buffer = new unsigned short[4 * fragment_size];
 	start_mixer_thread();
 
 	return 0;
@@ -437,7 +437,7 @@ void I_SetSoundInformation(int handle, int volume, int angle)
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	sources[handle].angle_x = x;
 	sources[handle].angle_y = y;
-	sources[handle].volume = volume / 65536.0f;
+	sources[handle].volume = volume / 32768.0f;
 }
 
 void I_SetAngle(int handle, int angle)
@@ -458,7 +458,7 @@ void I_SetVolume(int handle, int volume)
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
 	std::unique_lock<std::mutex> lock(mixer_mutex);
-	sources[handle].volume = volume / 32768;
+	sources[handle].volume = volume / 32768.0f;
 }
 
 void I_PlaySound(int handle, int loop)
@@ -523,17 +523,20 @@ int I_StartMIDI(MidiSequencer* newSeq)
 
 void I_ShutdownMIDI()
 {
+	std::unique_lock<std::mutex> lock(mixer_mutex);
 	sequencer = nullptr;
 }
 
 void I_StartMIDISong(hmpheader_t* song, bool loop)
 {
+	std::unique_lock<std::mutex> lock(mixer_mutex); //[ISB] OOPS
 	if (sequencer)
 		sequencer->StartSong(song, loop);
 }
 
 void I_StopMIDISong()
 {
+	std::unique_lock<std::mutex> lock(mixer_mutex);
 	if (sequencer)
 		sequencer->StopSong();
 }
