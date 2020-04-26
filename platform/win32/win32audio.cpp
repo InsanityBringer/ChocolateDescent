@@ -15,6 +15,10 @@
 #undef min
 #undef max
 
+#define NUMMVESNDBUFFERS 100
+#define FORMAT_U8 1
+#define FORMAT_S16 2
+
 namespace
 {
 	IMMDevice *mmdevice;
@@ -61,6 +65,27 @@ namespace
 		std::vector<float> song_data;
 		bool loop = false;
 	} music;
+
+	typedef struct
+	{
+		bool live = false;
+		int length = 0;
+		int pos = 0;
+		uint32_t frac = 0;
+		uint8_t* data = nullptr;
+	} moviesource_t;
+
+	struct MovieRingBuffer
+	{
+		bool playing = false;
+		bool stereo = false;
+		int format = 0;
+		int last_queued_buffer = 0;
+		int current_buffer = 0;
+		int sample_rate = 0;
+
+		moviesource_t buffers[NUMMVESNDBUFFERS];
+	} moviebuffer;
 
 	void mix_fragment()
 	{
@@ -164,7 +189,6 @@ namespace
 			output = next_fragment;
 			uint32_t speed = static_cast<uint32_t>(music.sample_rate * static_cast<uint64_t>(1 << 16) / mixing_frequency);
 			uint32_t frac = music.frac;
-			int length = music.song_data.size() / 2;
 			sequencer->Render(fragment_size, midi_buffer);
 			const short* data = (short*)midi_buffer;
 			for (int i = 0; i < count; i++)
@@ -181,6 +205,79 @@ namespace
 
 				output[1] += sample * music_volume;
 				output += 2;
+			}
+		}
+		if (moviebuffer.playing)
+		{
+			output = next_fragment;
+			uint32_t speed = static_cast<uint32_t>(moviebuffer.sample_rate * static_cast<uint64_t>(1 << 16) / mixing_frequency);
+			int length = moviebuffer.buffers[moviebuffer.current_buffer].length;
+			int pos = moviebuffer.buffers[moviebuffer.current_buffer].pos;
+			uint32_t frac = moviebuffer.buffers[moviebuffer.current_buffer].frac;
+			if (moviebuffer.stereo) length /= 2;
+
+			if (moviebuffer.format == FORMAT_S16)
+			{
+				const short* data = (short*)moviebuffer.buffers[moviebuffer.current_buffer].data;
+
+				for (int i = 0; i < count; i++)
+				{
+					if (data == nullptr) break;
+
+					if (moviebuffer.stereo)
+					{
+						float sample = (static_cast<int>(data[pos<<1])) * (1.0f / 32767.0f);
+						sample = std::max(sample, -1.0f);
+						sample = std::min(sample, 1.0f);
+
+						output[0] += sample * 0.5f;
+
+						sample = (static_cast<int>(data[(pos<<1)+1])) * (1.0f / 32767.0f);
+						sample = std::max(sample, -1.0f);
+						sample = std::min(sample, 1.0f);
+						output[1] += sample * 0.5f;
+					}
+					else
+					{
+						float sample = (static_cast<int>(data[pos]) - 32767) * (1.0f / 32767.0f);
+						sample = std::max(sample, -1.0f);
+						sample = std::min(sample, 1.0f);
+
+						output[0] += sample * 0.5f;
+						output[1] += sample * 0.5f;
+					}
+					output += 2;
+
+					frac += speed;
+					pos += frac >> 16;
+					frac &= 0xffff;
+
+					while (pos >= length) //[ISB] this is annoyingly complex as I need to be able to switch between multiple sources
+					{
+						delete[] moviebuffer.buffers[moviebuffer.current_buffer].data; //kill data
+						moviebuffer.buffers[moviebuffer.current_buffer].live = false; //no longer a valid buffer
+						moviebuffer.current_buffer = (moviebuffer.current_buffer + 1) % NUMMVESNDBUFFERS;
+						pos = pos % length;
+						length = moviebuffer.buffers[moviebuffer.current_buffer].length;
+						if (moviebuffer.stereo) length /= 2;
+
+						if (moviebuffer.buffers[moviebuffer.current_buffer].live) //more data
+						{
+							data = (short*)moviebuffer.buffers[moviebuffer.current_buffer].data;
+						}
+						else //uh, this is possibly bad, out of data
+						{
+							data = nullptr;
+							break;
+						}
+					}
+					moviebuffer.buffers[moviebuffer.current_buffer].pos = pos;
+					moviebuffer.buffers[moviebuffer.current_buffer].frac = frac;
+				}
+			}
+			else
+			{
+				Int3(); //I'll support it later...
 			}
 		}
 	}
@@ -576,22 +673,69 @@ uint32_t I_GetPreferredMIDISampleRate()
 
 void I_InitMovieAudio(int format, int samplerate, int stereo)
 {
+	std::unique_lock<std::mutex> lock(mixer_mutex);
+	switch (format)
+	{
+	case MVESND_U8:
+		moviebuffer.format = FORMAT_U8;
+		break;
+	case MVESND_S16LSB:
+		moviebuffer.format = FORMAT_S16;
+		break;
+	}
+
+	if (stereo)
+		moviebuffer.stereo = true;
+	else
+		moviebuffer.stereo = false;
+	moviebuffer.sample_rate = samplerate;
+	moviebuffer.current_buffer = 0;
+	moviebuffer.last_queued_buffer = 0;
 }
 
 void I_QueueMovieAudioBuffer(int len, short* data)
 {
+	std::unique_lock<std::mutex> lock(mixer_mutex);
+	moviebuffer.buffers[moviebuffer.last_queued_buffer].data = new uint8_t[len];
+	memcpy(moviebuffer.buffers[moviebuffer.last_queued_buffer].data, data, len);
+	if (moviebuffer.format == FORMAT_S16)
+		moviebuffer.buffers[moviebuffer.last_queued_buffer].length = len / 2;
+	else
+		moviebuffer.buffers[moviebuffer.last_queued_buffer].length = len;
+
+	moviebuffer.buffers[moviebuffer.last_queued_buffer].live = true;
+	moviebuffer.buffers[moviebuffer.last_queued_buffer].pos = 0;
+	moviebuffer.buffers[moviebuffer.last_queued_buffer].frac = 0;
+
+	moviebuffer.last_queued_buffer = (moviebuffer.last_queued_buffer + 1) % NUMMVESNDBUFFERS;
+	if (moviebuffer.last_queued_buffer == moviebuffer.current_buffer) //ring buffer overrun. 
+		Int3();
+
+	moviebuffer.playing = true;
 }
 
 void I_DestroyMovieAudio()
 {
+	std::unique_lock<std::mutex> lock(mixer_mutex);
+	moviebuffer.playing = false;
+	for (int i = 0; i < NUMMVESNDBUFFERS; i++)
+	{
+		if (moviebuffer.buffers[i].live)
+			delete[] moviebuffer.buffers[i].data;
+	}
 }
 
 void I_PauseMovieAudio()
 {
+	//[ISB] strictly speaking I don't think these need to be synced, but just in case. 
+	std::unique_lock<std::mutex> lock(mixer_mutex);
+	moviebuffer.playing = false;
 }
 
 void I_UnPauseMovieAudio()
 {
+	std::unique_lock<std::mutex> lock(mixer_mutex);
+	moviebuffer.playing = true;
 }
 
 #endif
