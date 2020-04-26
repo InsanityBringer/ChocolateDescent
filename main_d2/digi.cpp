@@ -492,7 +492,6 @@ extern int SoundQ_channel;
 extern void SoundQ_end();
 
 // Volume 0-F1_0
-//[ISB] TODO: Investigate if loop_start and loop_end are ever not 0. Can't find any examples so far
 int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj )
 {
 	int i, starting_channel;

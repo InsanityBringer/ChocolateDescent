@@ -44,6 +44,7 @@ namespace
 		uint32_t frac = 0;
 		const unsigned char* data = nullptr;
 		int length = 0;
+		int loop_start = 0;
 		int sampleRate = 0;
 		float angle_x = 0.0f;
 		float angle_y = 0.0f;
@@ -84,6 +85,7 @@ namespace
 				int pos = src.pos;
 				uint32_t frac = src.frac;
 				int length = src.length;
+				int loop_start = src.loop_start;
 				const unsigned char* data = src.data;
 				float volume_left = src.volume * (1.0f + src.angle_x) * 0.5f;
 				float volume_right = src.volume * (1.0f - src.angle_x) * 0.5f;
@@ -109,6 +111,10 @@ namespace
 							frac = 0;
 							src.playing = false;
 							break;
+						}
+						else
+						{
+							pos += loop_start; //[ISB] hopefully this should do the trick...
 						}
 					}
 				}
@@ -428,6 +434,7 @@ void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
 	sources[handle].frac = 0;
 	sources[handle].playing = false;
 	sources[handle].loop = false;
+	sources[handle].loop_start = 0;
 }
 
 void I_SetSoundInformation(int handle, int volume, int angle)
@@ -486,6 +493,13 @@ void I_StopSound(int handle)
 
 void I_SetLoopPoints(int handle, int start, int end)
 {
+	if (handle < 0 || handle >= _MAX_VOICES) return;
+
+	std::unique_lock<std::mutex> lock(mixer_mutex);
+	if (start > 0)
+		sources[handle].loop_start = start;
+	if (end > 0)
+		sources[handle].length = end; //[ISB] kinda a hack tbh
 }
 
 int I_CheckSoundPlaying(int handle)
