@@ -3,6 +3,9 @@ project(ChocolateDescent)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 1 only. Won't link outside of Windows ATM. ")
+#These features are intended for testing.
+set(DESCENT1_TEXMAP_IN_DESCENT2 OFF CACHE BOOL "Swaps Descent 1's texture mapper into Descent 2.")
+set(DESCENT2_TEXMAP_IN_DESCENT1 OFF CACHE BOOL "Swaps Descent 2's texture mapper into Descent 1. ")
 
 set(SHARED_SOURCES
 	2d/bitblt.cpp
@@ -237,7 +240,10 @@ set(DESCENT1_SOURCES
 	main_d1/weapon.h
 	2d/font.cpp
 	2d/scale.cpp
-    texmap/ntmap.cpp
+)
+
+set(DESCENT1_TEXMAP_SOURCES
+	texmap/ntmap.cpp
     texmap/scanline.cpp
     texmap/scanline.h
     texmap/texmap.h
@@ -491,6 +497,9 @@ set(DESCENT2_SOURCES
 	mve/mveplay.cpp
 	2d/font_d2.cpp
 	2d/scale_d2.cpp
+)
+
+set(DESCENT2_TEXMAP_SOURCES
     texmap/ntmap_d2.cpp
     texmap/scanline_d2.cpp
     texmap/scanline.h
@@ -582,6 +591,19 @@ if (BUILD_EDITOR)
 else()
 	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${EDITOR_SOURCES})
 endif()
+
+if (DESCENT2_TEXMAP_IN_DESCENT1)
+	set(DESCENT1_SOURCES ${DESCENT1_SOURCES} ${DESCENT2_TEXMAP_SOURCES})
+else()
+	set(DESCENT1_SOURCES ${DESCENT1_SOURCES} ${DESCENT1_TEXMAP_SOURCES})
+endif()
+
+if (DESCENT1_TEXMAP_IN_DESCENT2)
+	set(DESCENT2_SOURCES ${DESCENT2_SOURCES} ${DESCENT1_TEXMAP_SOURCES})
+else()
+	set(DESCENT2_SOURCES ${DESCENT2_SOURCES} ${DESCENT2_TEXMAP_SOURCES})
+endif()
+
 
 if (WIN32)
 	add_definitions(-DWIN32 -D_WIN32)

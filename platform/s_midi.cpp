@@ -132,14 +132,14 @@ void S_ShutdownMusic()
 	{
 		player->Shutdown();
 	}*/
-	if (sequencer)
-	{
-		delete sequencer;
-	}
 	if (synth)
 	{
 		synth->Shutdown();
 		delete synth;
+	}
+	if (sequencer)
+	{
+		delete sequencer;
 	}
 	CurrentDevice = 0;
 }

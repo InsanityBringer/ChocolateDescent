@@ -96,7 +96,6 @@ void MidiPlayer::Shutdown()
 		delete midiThread;
 	}
 	sequencer->StopSong();
-	synth->Shutdown();
 }
 
 void MidiPlayer::Run()

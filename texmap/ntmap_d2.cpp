@@ -66,7 +66,11 @@ int	Max_linear_depth;
 int	Max_flat_depth;
 
 //variables for clipping the texture-mapper to screen region
+#ifndef BUILD_DESCENT2 //[ISB] I need to move these out of render.cpp in Descent 1, there's no reason to keep them there. 
+extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
+#else
 int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
+#endif
 
 // These variables are the interface to assembler.  They get set for each texture map, which is a real waste of time.
 //	They should be set only when they change, which is generally when the window bounds change.  And, even still, it's
