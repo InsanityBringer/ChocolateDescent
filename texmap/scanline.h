@@ -14,8 +14,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 extern void c_tmap_scanline_per();
+extern void c_tmap_scanline_per_dither();
 extern void c_tmap_scanline_per_nolight();
 extern void c_tmap_scanline_pln();
+extern void c_tmap_scanline_pln_aa();
 extern void c_tmap_scanline_pln_nolight();
 extern void c_tmap_scanline_plt();
 extern void c_tmap_scanline_plt_nolight();
