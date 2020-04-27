@@ -852,7 +852,7 @@ uint16_t blendindex;
 #define C_TMAP_SCANLINE_PLN_AA_LOOP     hackcolor = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
 										if (fx_y != 0)\
 										{\
-											blendindex = (lastcolor << 8) | *(dest-320);\
+											blendindex = (lastcolor << 8) | *(dest-window_width);\
 											blendindex = (header_data[blendindex] << 8) | hackcolor;\
 											hackcolor = header_data[blendindex];\
 										}\
@@ -870,7 +870,7 @@ uint16_t blendindex;
 											hackcolor = gr_fade_table[(l & (0xff00)) + c];\
 											if (fx_y != 0)\
 											{\
-												blendindex = (lastcolor << 8) | *(dest-320);\
+												blendindex = (lastcolor << 8) | *(dest-window_width);\
 												blendindex = (header_data[blendindex] << 8) | hackcolor;\
 												hackcolor = header_data[blendindex];\
 											}\
@@ -883,7 +883,7 @@ uint16_t blendindex;
 #define C_TMAP_SCANLINE_PLN_AA_LOOP_F 				hackcolor = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
 										if (fx_y != 0)\
 										{\
-											blendindex = (lastcolor << 8) | *(dest-320);\
+											blendindex = (lastcolor << 8) | *(dest-window_width);\
 											blendindex = (header_data[blendindex] << 8) | hackcolor;\
 											hackcolor = header_data[blendindex];\
 										}\
@@ -901,7 +901,7 @@ uint16_t blendindex;
 											hackcolor = gr_fade_table[(l & (0xff00)) + c];\
 											if (fx_y != 0)\
 											{\
-												blendindex = (lastcolor << 8) | *(dest-320);\
+												blendindex = (lastcolor << 8) | *(dest-window_width);\
 												blendindex = (header_data[blendindex] << 8) | hackcolor;\
 												hackcolor = header_data[blendindex];\
 											}\
@@ -949,7 +949,7 @@ void c_tmap_scanline_pln_aa()
 			hackcolor = gr_fade_table[(l & (0xff00)) + c];
 			if (fx_y != 0)\
 			{\
-				blendindex = (lastcolor << 8) | *(dest - 320); \
+				blendindex = (lastcolor << 8) | *(dest - window_width); \
 				blendindex = (header_data[blendindex] << 8) | hackcolor; \
 				hackcolor = header_data[blendindex]; \
 			}\
@@ -1130,7 +1130,7 @@ void c_tmap_scanline_pln_aa()
 			hackcolor = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)]];
 			if (fx_y != 0)
 			{
-				blendindex = (lastcolor << 8) | *(dest - 320);
+				blendindex = (lastcolor << 8) | *(dest - window_width);
 				blendindex = (header_data[blendindex] << 8) | hackcolor;
 				hackcolor = header_data[blendindex];
 			}
@@ -1153,7 +1153,7 @@ void c_tmap_scanline_pln_aa()
 				hackcolor = gr_fade_table[(l & (0xff00)) + c];
 				if (fx_y != 0)
 				{
-					blendindex = (lastcolor << 8) | *(dest - 320); 
+					blendindex = (lastcolor << 8) | *(dest - window_width); 
 					blendindex = (header_data[blendindex] << 8) | hackcolor; 
 					hackcolor = header_data[blendindex]; 
 				}
