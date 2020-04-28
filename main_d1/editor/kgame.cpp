@@ -88,7 +88,7 @@ int SaveGameData()
 			return 0;
 		}
 		
-   if (ui_get_filename( game_filename, "*.LVL", "SAVE GAME" )) {
+   if (ui_get_filename( game_filename, 128, "*.LVL", "SAVE GAME" )) {
 		int saved_flag;
 		vms_vector save_pos = ConsoleObject->pos;
 		vms_matrix save_orient = ConsoleObject->orient;
@@ -137,7 +137,7 @@ int SaveGameData()
 int LoadGameData()
 {
 if (SafetyCheck())  {
-	if (ui_get_filename( game_filename, "*.LVL", "LOAD GAME" ))
+	if (ui_get_filename( game_filename, 128, "*.LVL", "LOAD GAME" ))
 		{
 		checkforgamext(game_filename);
 		if (load_level(game_filename))

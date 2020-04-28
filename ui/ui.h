@@ -344,7 +344,7 @@ int file_chdir(const char* dir);
 
 int file_getdirlist(int MaxNum, char list[][13]);
 int file_getfilelist(int MaxNum, char list[][13], const char* filespec);
-int ui_get_filename(char* filename, const char* Filespec, const char* message);
+int ui_get_filename(char* filename, int bufsize, const char* Filespec, const char* message);
 
 //[ISB] unused
 //void* ui_malloc(int size);

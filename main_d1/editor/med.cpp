@@ -343,8 +343,7 @@ void medkey_init()
 	int np;
 	char * LispCommand;
 
-	//MALLOC( LispCommand, char, DIAGNOSTIC_MESSAGE_MAX );//hacked by KRB
-	LispCommand = (char *)malloc(DIAGNOSTIC_MESSAGE_MAX*sizeof(char));
+	MALLOC( LispCommand, char, DIAGNOSTIC_MESSAGE_MAX );
 
 	for (i=0; i<2048; i++ )
 		KeyFunction[i] = NULL;
@@ -450,12 +449,14 @@ int robotmaker_create_from_curseg()
 	return 1;
 }
 
-int fuelcen_reset_all()	{
+int fuelcen_reset_all()	
+{
 	fuelcen_reset();
 	return 1;
 }
 
-int fuelcen_delete_from_curseg() {
+int fuelcen_delete_from_curseg() 
+{
 	fuelcen_delete( Cursegp );
 	return 1;
 }
@@ -487,7 +488,6 @@ int fuelcen_delete_from_curseg() {
 //determine how from from the center of the window the farthest point will be
 #define SIDE_VIEW_FRAC (f1_0*8/10)	//80%
 
-
 void move_player_2_segment_and_rotate(segment *seg,int side)
 {
 	vms_vector vp;
@@ -514,7 +514,6 @@ int SetPlayerFromCursegAndRotate()
 	Update_flags |= UF_ED_STATE_CHANGED | UF_GAME_VIEW_CHANGED;
 	return 1;
 }
-
 
 //sets the player facing curseg/curside, normal to face0 of curside, and
 //far enough away to see all of curside
@@ -545,7 +544,8 @@ int SetPlayerFromCursegMinusOne()
 	g3_start_frame();
 	g3_set_view_matrix(&ConsoleObject->pos,&ConsoleObject->orient,Render_zoom);
 
-	for (i=max=0;i<4;i++) {
+	for (i=max=0;i<4;i++) 
+	{
 		corner_v[i] = Vertices[Cursegp->verts[Side_to_verts[Curside][i]]];
 		g3_rotate_point(&corner_p[i],&corner_v[i]);
 		if (labs(corner_p[i].p3_vec.x) > max) max = labs(corner_p[i].p3_vec.x);
@@ -583,7 +583,8 @@ int ToggleLighting(void)
 	else
 		chindex = 10;
 
-	switch (Lighting_on) {
+	switch (Lighting_on) 
+	{
 		case 0:
 			strcpy(&outstr[chindex],"Lighting off.");
 			break;
@@ -616,34 +617,7 @@ int FindConcaveSegs()
 
 int DosShell()
 {
-	/*int ok, w, h;
-	grs_bitmap * save_bitmap;
-
-	// Save the current graphics state.
-
-	w = grd_curscreen->sc_canvas.cv_bitmap.bm_w;
-	h = grd_curscreen->sc_canvas.cv_bitmap.bm_h;
-
-	save_bitmap = gr_create_bitmap( w, h );
-	gr_bm_ubitblt(w, h, 0, 0, 0, 0, &(grd_curscreen->sc_canvas.cv_bitmap), save_bitmap );
-
-	gr_restore_mode();
-
-	printf( "\n\nType EXIT to return to Inferno" );
-	fflush(stdout);
-
-	key_close();
-	ok = spawnl(P_WAIT,getenv("COMSPEC"), NULL );
-	key_init();
-
-	gr_set_mode(grd_curscreen->sc_mode);
-	gr_bm_ubitblt(w, h, 0, 0, 0, 0, save_bitmap, &(grd_curscreen->sc_canvas.cv_bitmap));
-	gr_free_bitmap( save_bitmap );
-	//gr_pal_setblock( 0, 256, grd_curscreen->pal );
-	//gr_use_palette_table();
-
-	return 1;*/
-	mprintf((0, "DosShell: STUB\n"));
+	diagnostic_message("There is no longer a dos shell. Oops");
 	return 0;
 }
 
@@ -862,7 +836,8 @@ int SafetyCheck()
 {
 	int x;
 			
-	if (mine_changed) {
+	if (mine_changed) 
+	{
 		stop_time();				
 		x = nm_messagebox( "Warning!", 2, "Cancel", "OK", "You are about to lose work." );
 		if (x<1) {
@@ -875,8 +850,8 @@ int SafetyCheck()
 }
 
 //called at the end of the program
-void close_editor() {
-
+void close_editor() 
+{
 	close_autosave();
 
 	menubar_close();
@@ -886,7 +861,6 @@ void close_editor() {
 	gr_free_canvas(canv_offscreen); canv_offscreen = NULL;
 
 	return;
-
 }
 
 //variables for find segments process
@@ -897,11 +871,14 @@ void subtract_found_segments_from_selected_list(void)
 {
 	int	s,f;
 
-	for (f=0; f<N_found_segs; f++) {
+	for (f=0; f<N_found_segs; f++) 
+	{
 		int	foundnum = Found_segs[f];
 
-		for (s=0; s<N_selected_segs; s++) {
-			if (Selected_segs[s] == foundnum) {
+		for (s=0; s<N_selected_segs; s++) 
+		{
+			if (Selected_segs[s] == foundnum) 
+			{
 				Selected_segs[s] = Selected_segs[N_selected_segs-1];
 				N_selected_segs--;
 				break;
@@ -912,10 +889,12 @@ void subtract_found_segments_from_selected_list(void)
 
 // ---------------------------------------------------------------------------------------------------
 //	Add all elements in Found_segs to selected list.
-void add_found_segments_to_selected_list(void) {
+void add_found_segments_to_selected_list(void) 
+{
 	int	s,f;
 
-	for (f=0; f<N_found_segs; f++) {
+	for (f=0; f<N_found_segs; f++) 
+	{
 		int	foundnum = Found_segs[f];
 
 		for (s=0; s<N_selected_segs; s++)
@@ -927,15 +906,17 @@ void add_found_segments_to_selected_list(void) {
 	}
 }
 
-void gamestate_restore_check() {
+void gamestate_restore_check() 
+{
 	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	obj_position Save_position;
 
-	if (gamestate_not_restored) {
+	if (gamestate_not_restored)
+	{
 		sprintf( Message, "Do you wish to restore game state?\n");
 	
-		if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
-
+		if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1)
+		{
 			// Save current position
 			Save_position.pos = ConsoleObject->pos;
 			Save_position.orient = ConsoleObject->orient;
@@ -944,7 +925,8 @@ void gamestate_restore_check() {
 			load_level("GAMESAVE.LVL");
 
 			// Restore current position
-			if (Save_position.segnum <= Highest_segment_index) {
+			if (Save_position.segnum <= Highest_segment_index) 
+			{
 				ConsoleObject->pos = Save_position.pos;
 				ConsoleObject->orient = Save_position.orient;
 				obj_relink(ConsoleObject-Objects,Save_position.segnum);
@@ -1083,11 +1065,13 @@ void editor(void)
 		check_wall_validity();
 		Assert(Num_walls>=0);
 
-		if (Gameview_lockstep) {
+		if (Gameview_lockstep) 
+		{
 			static segment *old_cursegp=NULL;
 			static int old_curside=-1;
 
-			if (old_cursegp!=Cursegp || old_curside!=Curside) {
+			if (old_cursegp!=Cursegp || old_curside!=Curside) 
+			{
 				SetPlayerFromCursegMinusOne();
 				old_cursegp = Cursegp;
 				old_curside = Curside;
@@ -1097,10 +1081,10 @@ void editor(void)
 //		mprintf((0, "%d	", ui_get_idle_seconds() ));
 
 		if ( ui_get_idle_seconds() > COMPRESS_INTERVAL ) 
-			{
+		{
 			med_compress_mine();
 			ui_reset_idle_seconds();
-			}
+		}
   
 //	Commented out because it occupies about 25% of time in twirling the mine.
 // Removes some Asserts....
@@ -1139,7 +1123,8 @@ void editor(void)
 
 		//=================== DO FUNCTIONS ====================
 
-		if ( KeyFunction[ last_keypress ] != NULL )	{
+		if ( KeyFunction[ last_keypress ] != NULL )	
+		{
 			KeyFunction[last_keypress]();
 			last_keypress = 0;
 		}
@@ -1211,16 +1196,19 @@ void editor(void)
 		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)FrontViewBox) new_cv=&FrontView;
 		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)RightViewBox) new_cv=&RightView;
 #endif
-		if (new_cv != current_view ) {
+		if (new_cv != current_view )
+		{
 			current_view->ev_changed = 1;
 			new_cv->ev_changed = 1;
 			current_view = new_cv;
 		}
 
 		calc_frame_time();
-		if (slew_frame(0)) {		//do movement and check keys
+		if (slew_frame(0)) //do movement and check keys
+		{
 			Update_flags |= UF_GAME_VIEW_CHANGED;
-			if (Gameview_lockstep) {
+			if (Gameview_lockstep)
+			{
 				Cursegp = &Segments[ConsoleObject->segnum];
 				med_create_new_segment_from_cursegp();
 				Update_flags |= UF_ED_STATE_CHANGED;
@@ -1230,7 +1218,6 @@ void editor(void)
 		// DO TEXTURE STUFF
 		texpage_do();
 		objpage_do();
-
 
 		// Process selection of Cursegp using mouse.
 		if (LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && !render_3d_in_big_window) 
@@ -1249,7 +1236,8 @@ void editor(void)
 
   			Found_seg_index = 0;	
 		
-			if (N_found_segs > 0) {
+			if (N_found_segs > 0)
+			{
 				sort_seg_list(N_found_segs,Found_segs,&ConsoleObject->pos);
 				Cursegp = &Segments[Found_segs[0]];
 				med_create_new_segment_from_cursegp();
@@ -1260,7 +1248,8 @@ void editor(void)
 			Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
 		}
 
-		if (GameViewBox->mouse_onme && GameViewBox->b1_dragging) {
+		if (GameViewBox->mouse_onme && GameViewBox->b1_dragging) 
+		{
 			int	x, y;
 			x = GameViewBox->b1_drag_x2;
 			y = GameViewBox->b1_drag_y2;
@@ -1270,19 +1259,20 @@ void editor(void)
 			gr_setcolor( 15 );
 			gr_rect( x-1, y-1, x+1, y+1 );
 			ui_mouse_show();
-
 		}
 		
 		// Set current segment and side by clicking on a polygon in game window.
 		//	If ctrl pressed, also assign current texture map to that side.
 		//if (GameViewBox->mouse_onme && (GameViewBox->b1_done_dragging || GameViewBox->b1_clicked)) {
 		if ((GameViewBox->mouse_onme && GameViewBox->b1_clicked && !render_3d_in_big_window) ||
-			(LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && render_3d_in_big_window)) {
+			(LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && render_3d_in_big_window))
+		{
 
 			int	xcrd,ycrd;
 			int seg,side,face,poly,tmap;
 
-			if (render_3d_in_big_window) {
+			if (render_3d_in_big_window) 
+			{
 				xcrd = LargeViewBox->b1_drag_x1;
 				ycrd = LargeViewBox->b1_drag_y1;
 			}
@@ -1293,40 +1283,45 @@ void editor(void)
 	
 			//Int3();
 
-			if (find_seg_side_face(xcrd,ycrd,&seg,&side,&face,&poly)) {
-
-
-				if (seg<0) {							//found an object
-
+			if (find_seg_side_face(xcrd,ycrd,&seg,&side,&face,&poly)) 
+			{
+				if (seg<0) //found an object
+				{
 					Cur_object_index = -seg-1;
 					editor_status("Object %d selected.",Cur_object_index);
 
 					Update_flags |= UF_ED_STATE_CHANGED;
 				}
-				else {
-
+				else 
+				{
 					//	See if either shift key is down and, if so, assign texture map
-					if (keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) {
+					if (keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) 
+					{
 						Cursegp = &Segments[seg];
 						Curside = side;
 						AssignTexture();
 						med_create_new_segment_from_cursegp();
 						editor_status("Texture assigned");
-					} else if (keyd_pressed[KEY_G])	{
+					} 
+					else if (keyd_pressed[KEY_G])	
+					{
 						tmap = Segments[seg].sides[side].tmap_num;
 						texpage_grab_current(tmap);
 						editor_status( "Texture grabbed." );
-					} else if (keyd_pressed[ KEY_LAPOSTRO] ) {
+					} 
+					else if (keyd_pressed[ KEY_LAPOSTRO] )
+					{
 						ui_mouse_hide();
 						move_object_to_mouse_click();
-					} else {
+					} 
+					else 
+					{
 						Cursegp = &Segments[seg];
 						Curside = side;
 						med_create_new_segment_from_cursegp();
 						editor_status("Curseg and curside selected");
 					}
 				}
-
 				Update_flags |= UF_ED_STATE_CHANGED;
 			}
 			else 
@@ -1335,26 +1330,33 @@ void editor(void)
 		}
 
 		// Allow specification of LargeView using mouse
-		if (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]) {
+		if (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ])
+		{
 			ui_mouse_hide();
-			if ( (Mouse.dx!=0) && (Mouse.dy!=0) ) {
+			if ( (Mouse.dx!=0) && (Mouse.dy!=0) ) 
+			{
 				GetMouseRotation( Mouse.dx, Mouse.dy, &MouseRotMat );
 				vm_matrix_x_matrix(&tempm,&LargeView.ev_matrix,&MouseRotMat);
 				LargeView.ev_matrix = tempm;
 				LargeView.ev_changed = 1;
 				Large_view_index = -1;			// say not one of the orthogonal views
 			}
-		} else  {
+		} else  
+		{
 			ui_mouse_show();
 		}
 
-		if ( keyd_pressed[ KEY_Z ] ) {
+		if ( keyd_pressed[ KEY_Z ] ) 
+		{
 			ui_mouse_hide();
-			if ( Mouse.dy!=0 ) {
+			if ( Mouse.dy!=0 ) 
+			{
 				current_view->ev_dist += Mouse.dy*10000;
 				current_view->ev_changed = 1;
 			}
-		} else {
+		}
+		else
+		{
 			ui_mouse_show();
 		}
 		I_DrawCurrentCanvas(0);
@@ -1364,7 +1366,6 @@ void editor(void)
 	clear_warn_func(med_show_warning);
 
 	//kill our camera object
-
 	Viewer = ConsoleObject;					//reset viewer
 	//@@obj_delete(camera_objnum);
 
@@ -1380,14 +1381,16 @@ void test_fade(void)
 {
 	int	i,c;
 
-	for (c=0; c<256; c++) {
+	for (c=0; c<256; c++) 
+	{
 		printf("%4i: {%3i %3i %3i} ",c,gr_palette[3*c],gr_palette[3*c+1],gr_palette[3*c+2]);
-		for (i=0; i<16; i++) {
+		for (i=0; i<16; i++) 
+		{
 			int col = gr_fade_table[256*i+c];
 
 			printf("[%3i %3i %3i] ",gr_palette[3*col],gr_palette[3*col+1],gr_palette[3*col+2]);
 		}
-		if ( (c%16) == 15)
+		if ((c%16) == 15)
 			printf("\n");
 		printf("\n");
 	}
@@ -1402,9 +1405,11 @@ void dump_stuff(void)
 	for (i=0; i<256; i++)
 		printf("%3i: %2i %2i %2i\n",i,gr_palette[3*i],gr_palette[3*i+1],gr_palette[3*i+2]);
 
-	for (i=0; i<16; i++) {
+	for (i=0; i<16; i++) 
+	{
 		printf("\nFade table #%i\n",i);
-		for (j=0; j<256; j++) {
+		for (j=0; j<256; j++) 
+		{
 			int	c = gr_fade_table[i*256 + j];
 			printf("[%3i %2i %2i %2i] ",c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
 			if ((j % 8) == 7)
@@ -1414,10 +1419,12 @@ void dump_stuff(void)
 
 	printf("Colors indexed by intensity:\n");
 	printf(". = change from previous, * = no change\n");
-	for (j=0; j<256; j++) {
+	for (j=0; j<256; j++) 
+	{
 		printf("%3i: ",j);
 		prev_color = -1;
-		for (i=0; i<16; i++) {
+		for (i=0; i<16; i++) 
+		{
 			int	c = gr_fade_table[i*256 + j];
 			if (c == prev_color)
 				printf("*");
@@ -1426,13 +1433,13 @@ void dump_stuff(void)
 			prev_color = c;
 		}
 		printf("  ");
-		for (i=0; i<16; i++) {
+		for (i=0; i<16; i++) 
+		{
 			int	c = gr_fade_table[i*256 + j];
 			printf("[%3i %2i %2i %2i] ", c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
 		}
 		printf("\n");
 	}
-
 }
 
 

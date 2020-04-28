@@ -1518,7 +1518,7 @@ int SaveGroup()
 	//mprintf((0, "Saving %d vertices, %d segments\n", GroupList[Current_group].num_vertices, GroupList[Current_group].num_segments));
 	med_save_group("TEMP.GRP", &GroupList[Current_group].vertices[0], &GroupList[Current_group].segments[0], 
 		GroupList[Current_group].num_vertices, GroupList[Current_group].num_segments);
-   if (ui_get_filename( group_filename, "*.GRP", "SAVE GROUP" ))
+   if (ui_get_filename( group_filename, 128, "*.GRP", "SAVE GROUP" ))
 	{
       checkforgrpext(group_filename);
 		if (med_save_group(group_filename, &GroupList[Current_group].vertices[0], &GroupList[Current_group].segments[0], 
@@ -1548,7 +1548,7 @@ int LoadGroup()
 		}
 	 	else Current_group = 0;
 
-   if (ui_get_filename( group_filename, "*.GRP", "LOAD GROUP" ))
+   if (ui_get_filename( group_filename, 128, "*.GRP", "LOAD GROUP" ))
 	{
       checkforgrpext(group_filename);
       med_load_group(group_filename, &GroupList[Current_group].vertices[0], &GroupList[Current_group].segments[0],

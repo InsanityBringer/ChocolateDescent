@@ -17,9 +17,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdint.h>
 
+#define FF_TYPE_FILE 1
+#define FF_TYPE_DIR 2
+
 typedef struct FILEFINDSTRUCT 
 {
 	uint32_t size;
+	uint32_t type;
 	char name[FF_PATHSIZE];
 } FILEFINDSTRUCT;
 

@@ -530,14 +530,17 @@ int bm_init_use_tbl()
 		}
 
 		arg = strtok( inputline, space );
-		if (arg[0] == '@') {
-			arg++;
-			Registered_only = 1;
-		} else
-			Registered_only = 0;
 
 		while (arg != NULL )
+		{
+			if (arg[0] == '@') 
 			{
+				arg++;
+				Registered_only = 1;
+			}
+			else
+				Registered_only = 0;
+
 			// Check all possible flags and defines.
 			if (*arg == '$') bm_flag = BM_NONE; // reset to no flags as default.
 

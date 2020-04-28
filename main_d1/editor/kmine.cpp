@@ -104,7 +104,7 @@ int SaveMine()
 {
 	// Save mine
 //	med_save_mine("TEMP.MIN");
-    if (ui_get_filename( mine_filename, "*.MIN", "SAVE MINE" ))
+    if (ui_get_filename( mine_filename, 128, "*.MIN", "SAVE MINE" ))
 	{
         checkforext(mine_filename, "MIN");
         if (med_save_mine(mine_filename))
@@ -279,7 +279,7 @@ _splitpath(filename,NULL,NULL,mine_name,NULL);
 //	-----------------------------------------------------------------------------
 int SaveSituation(void)
 {
-	if (ui_get_filename( sit_filename, "*.SIT", "Save Situation" )) {
+	if (ui_get_filename( sit_filename, 128, "*.SIT", "Save Situation" )) {
 		set_extension(sit_filename, "MIN");
 		if (med_save_mine(sit_filename)) {
 			mprintf((0, "Unable to save mine in SaveSituation.\n"));
@@ -299,7 +299,7 @@ int SaveSituation(void)
 int LoadSituation(void)
 {
 	if (SafetyCheck())  {
-		if (ui_get_filename( sit_filename, "*.sit", "Load Situation" ))	{
+		if (ui_get_filename( sit_filename, 128, "*.sit", "Load Situation" ))	{
          checkforext(sit_filename, "SIT");
          if (med_load_situation(sit_filename))
  				return 0;

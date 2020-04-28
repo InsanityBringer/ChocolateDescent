@@ -80,7 +80,7 @@ void draw_blob_outline(void)
 	//v3x = blob_vertices[4] - blob_vertices[2] + blob_vertices[0];
 	v3x = blob_vertices[2].x - blob_vertices[1].x + blob_vertices[0].x;
 	//v3y = blob_vertices[5] - blob_vertices[3] + blob_vertices[1];
-	v3x = blob_vertices[2].y - blob_vertices[1].y + blob_vertices[0].y;
+	v3y = blob_vertices[2].y - blob_vertices[1].y + blob_vertices[0].y;
 
 	gr_setcolor(BM_XRGB(63, 63, 63));
 
