@@ -1772,6 +1772,24 @@ void init_all_vertices(void)
 
 }
 
+//[ISB] this function is needed to ensure certain editor data is initalized when switching from FMODE_GAME to FMODE_EDITOR
+void init_editor_data_for_mine()
+{
+	int s;
+
+	Cursegp = Segments;	// Say current segment is the only segment.
+	Curside = WBACK;		// The active side is the back side
+	Markedsegp = 0;		// Say there is no marked segment.
+	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
+	for (s = 0; s < MAX_GROUPS + 1; s++) 
+	{
+		GroupList[s].num_segments = 0;
+		GroupList[s].num_vertices = 0;
+		Groupsegp[s] = NULL;
+		Groupside[s] = 0;
+	}
+}
+
 // --------------------------------------------------------------------------------------
 //	Create a new mine, set global variables.
 int create_new_mine(void)
@@ -1805,7 +1823,8 @@ int create_new_mine(void)
 	Curside = WBACK;		// The active side is the back side
 	Markedsegp = 0;		// Say there is no marked segment.
 	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
-	for (s=0;s<MAX_GROUPS+1;s++) {
+	for (s=0;s<MAX_GROUPS+1;s++)
+	{
 		GroupList[s].num_segments = 0;		
 		GroupList[s].num_vertices = 0;		
 		Groupsegp[s] = NULL;

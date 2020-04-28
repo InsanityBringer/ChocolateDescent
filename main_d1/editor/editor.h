@@ -298,6 +298,8 @@ extern	int med_save_group( char *filename, short *vertex_ids, short *segment_ids
 // Updates the screen... (I put the prototype here for curves.c)
 extern   int medlisp_update_screen();
 
+void init_editor_data_for_mine();
+
 // Returns 0 if no error, 1 if error, whatever that might be.
 // Sets globals:
 //    Num_segments

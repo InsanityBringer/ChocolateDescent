@@ -773,6 +773,13 @@ int D_DescentMain(int argc, const char** argv)
 			game();
 			if (Function_mode == FMODE_MENU)
 				songs_play_song(SONG_TITLE, 1);
+#ifdef EDITOR
+			else if (Function_mode == FMODE_EDITOR) //[ISB] If you do menu->game->editor cursegp won't be valid. Fix this. 
+			{
+				if (!Cursegp)
+					init_editor_data_for_mine();
+			}
+#endif
 			break;
 #ifdef EDITOR
 		case FMODE_EDITOR:
