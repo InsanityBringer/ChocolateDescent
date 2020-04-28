@@ -11,7 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-//#include <i86.h>
+#ifdef EDITOR
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>												  
@@ -328,3 +329,5 @@ void info_display_all( UI_WINDOW * wnd )
 	}
 	grd_curcanv = save_canvas;
 }
+
+#endif

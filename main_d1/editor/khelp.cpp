@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include "main_d1/inferno.h"
 #include "editor.h"
 
@@ -137,3 +139,5 @@ int DoHelp()
 	}
 	return 1;
 }
+
+#endif

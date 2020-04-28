@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdio.h>
 #include <string.h>
 
@@ -1993,3 +1995,5 @@ int MarkGroupSegment( void )
 		}
 	else return 0;
 }
+
+#endif

@@ -635,7 +635,7 @@ add_executable(ChocolateDescent WIN32 MACOSX_BUNDLE ${SHARED_SOURCES} ${NOT_COMP
 add_executable(ChocolateDescent2 WIN32 MACOSX_BUNDLE ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT2_SOURCES})
 
 if (BUILD_EDITOR)
-	target_compile_definitions(ChocolateDescent PUBLIC EDITOR)
+	target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:DEBUG>:EDITOR>")
 endif()
 
 set_target_properties(ChocolateDescent ChocolateDescent2 PROPERTIES CXX_STANDARD 11)

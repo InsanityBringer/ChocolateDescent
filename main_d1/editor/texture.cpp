@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -451,3 +453,5 @@ int	TexStretchUp(void)
 	return TexStretchCommon(1);
 
 }
+
+#endif

@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include "main_d1/inferno.h"
 #include "main_d1/segment.h"
 #include "editor.h"
@@ -80,3 +82,5 @@ int Cur_robot_type = 0;
 
 //	!0 if a degenerate segment has been found.
 int	Degenerate_segment_found=0;
+
+#endif

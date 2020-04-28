@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 //#define DEMO 1
 
 #define	DIAGNOSTIC_MESSAGE_MAX				90
@@ -989,7 +991,8 @@ void editor(void)
 
 	restore_effect_bitmap_icons();
 
-	if (!set_screen_mode(SCREEN_EDITOR))	{
+	if (!set_screen_mode(SCREEN_EDITOR))	
+	{
 		set_screen_mode(SCREEN_GAME);
 		Function_mode=FMODE_GAME;			//force back into game
 		return;
@@ -1003,8 +1006,6 @@ void editor(void)
 	set_warn_func(med_show_warning);
 
 	keyd_repeat = 1;		// Allow repeat in editor
-
-//	_MARK_("start of editor");//Nuked to compile -KRB
 
 	ui_mouse_hide();
 
@@ -1043,8 +1044,6 @@ void editor(void)
 	//gr_setcolor( CBLACK );
 	//gr_deaccent_canvas();
 	//gr_grey_canvas();
-
-	I_SetRelative(1);
 	
 	ui_mouse_show();
 
@@ -1055,6 +1054,7 @@ void editor(void)
 
 	while (Function_mode == FMODE_EDITOR) 
 	{
+		I_SetRelative(1); //[ISB] mouse relative mode can be lost, so keep it going.
 		I_MarkStart();
 		I_DoEvents();
 		gr_set_curfont(editor_font);
@@ -1361,8 +1361,6 @@ void editor(void)
 		I_MarkEnd(US_60FPS);
 	}
 
-//	_MARK_("end of editor");//Nuked to compile -KRB
-
 	clear_warn_func(med_show_warning);
 
 	//kill our camera object
@@ -1442,7 +1440,6 @@ int MarkStart(void)
 {
 	char mystr[30];
 	sprintf(mystr,"mark %i start",Mark_count);
-//	_MARK_(mystr);//Nuked to compile -KRB
 
 	return 1;
 }
@@ -1452,7 +1449,8 @@ int MarkEnd(void)
 	char mystr[30];
 	sprintf(mystr,"mark %i end",Mark_count);
 	Mark_count++;
-//	_MARK_(mystr);//Nuked to compile -KRB
 
 	return 1;
 }
+
+#endif

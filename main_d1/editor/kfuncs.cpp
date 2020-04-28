@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdlib.h>
 
 #include "main_d1/inferno.h"
@@ -399,3 +401,5 @@ void init_med_functions()
 {
 	func_init(med_functions, (sizeof(med_functions)/sizeof(FUNCTION))-1 );
 }
+
+#endif

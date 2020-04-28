@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdlib.h>
 
 #include "main_d1/inferno.h"
@@ -418,3 +420,5 @@ int	PerturbCursideBig(void)
 
 	return 1;
 }
+
+#endif

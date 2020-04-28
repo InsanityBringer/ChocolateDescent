@@ -11,13 +11,12 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdlib.h>
 #include <stdio.h>
-//#include <conio.h>
 #include <math.h>
-//#include <dos.h>
 #include <string.h>
-//#include <direct.h>
 
 #include "main_d1/screens.h"
 #include "main_d1/inferno.h"
@@ -479,3 +478,5 @@ void do_hostage_window()
 
 	LastHostageIndex = CurrentHostageIndex;
 }
+
+#endif

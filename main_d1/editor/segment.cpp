@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -22,14 +24,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "main_d1/inferno.h"
 #include "main_d1/segment.h"
-// #include "segment2.h"
 #include	"editor.h"
 #include "misc/error.h"
 #include "main_d1/object.h"
 
 #include "main_d1/gameseg.h"
 #include "main_d1/render.h"
-//#include "demo.h"
 #include "main_d1/game.h"
 
 #include "main_d1/wall.h"
@@ -2114,10 +2114,13 @@ void check_for_overlapping_segments(void)
 
 	med_compress_mine();
 
-	for (i=0; i<=Highest_segment_index; i++) {
+	for (i=0; i<=Highest_segment_index; i++)
+	{
 		mprintf((0, "+"));
 		check_for_overlapping_segment(i);
 	}
 
 	mprintf((0, "\nDone!\n"));
 }
+
+#endif

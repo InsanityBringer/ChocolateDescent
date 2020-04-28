@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -32,11 +34,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "platform/mono.h"
 #include "misc/error.h"
-//#include "medlisp.h"
 #include "mem/mem.h"
 #include "main_d1/render.h"
 #include "main_d1/game.h"
-//#include "slew.h"
 #include "kdefs.h"
 #include "func.h"
 #include "main_d1/textures.h"
@@ -989,3 +989,5 @@ void meddraw_init_views( grs_canvas * canvas)
 	Views[3]->ev_canv = RightViewBox->canvas;
 #endif
 }
+
+#endif

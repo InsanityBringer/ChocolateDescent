@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 // Num_robot_types -->  N_polygon_models
 // Cur_robot_type --> Cur_robot_type
 // Texture[Cur_robot_type]->bitmap  ---> robot_bms[robot_bm_nums[ Cur_robot_type ] ] 
@@ -431,3 +433,5 @@ void objpage_do()
 		}
 	}
 }
+
+#endif

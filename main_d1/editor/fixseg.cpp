@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -194,3 +196,5 @@ int make_curside_planar(void)
 	//	We tried, but we failed, to make Curside planer.
 	return 1;
 }
+
+#endif

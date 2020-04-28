@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef EDITOR
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -311,3 +313,5 @@ void do_replacements_all(void)
 	}
 
 }
+
+#endif
