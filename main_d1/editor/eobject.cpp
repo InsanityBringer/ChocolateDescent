@@ -107,16 +107,15 @@ int get_next_object(segment *seg,int id)
 //	------------------------------------------------------------------------------------
 int place_object(segment *segp, vms_vector *object_pos, int object_type)
 {
-	short objnum;
+	short objnum = -1;
 	object *obj;
 	vms_matrix seg_matrix;
 
 	med_extract_matrix_from_segment(segp,&seg_matrix);
 
-	switch(ObjType[object_type]) {
-
+	switch(ObjType[object_type]) 
+	{
 		case OL_HOSTAGE:
-
 			objnum = obj_create(OBJ_HOSTAGE, -1, 
 					segp-Segments,object_pos,&seg_matrix,HOSTAGE_SIZE,
 					CT_NONE,MT_NONE,RT_HOSTAGE);
@@ -134,11 +133,8 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 			obj->rtype.vclip_info.vclip_num = Hostage_vclip_num[ObjId[object_type]];
 			obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 			obj->rtype.vclip_info.framenum = 0;
-
 			break;
-
 		case OL_ROBOT:
-
 			objnum = obj_create(OBJ_ROBOT,ObjId[object_type],segp-Segments,object_pos,
 				&seg_matrix,Polygon_models[Robot_info[ObjId[object_type]].model_num].rad,
 				CT_AI,MT_PHYSICS,RT_POLYOBJ);
@@ -162,16 +158,17 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 
 			obj->shields = Robot_info[obj->id].strength;
 
-			{	int	hide_segment;
-			if (Markedsegp)
-				hide_segment = Markedsegp-Segments;
-			else
-				hide_segment = -1;
-			//	robots which lunge forward to attack cannot have behavior type still.
-			if (Robot_info[obj->id].attack_type)
-				init_ai_object(obj-Objects, AIB_NORMAL, hide_segment);
-			else
-				init_ai_object(obj-Objects, AIB_STILL, hide_segment);
+			{	
+				int	hide_segment;
+				if (Markedsegp)
+					hide_segment = Markedsegp-Segments;
+				else
+					hide_segment = -1;
+				//	robots which lunge forward to attack cannot have behavior type still.
+				if (Robot_info[obj->id].attack_type)
+					init_ai_object(obj-Objects, AIB_NORMAL, hide_segment);
+				else
+					init_ai_object(obj-Objects, AIB_STILL, hide_segment);
 			}
 			break;
 
@@ -204,11 +201,13 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 		{
 			int obj_type,control_type;
 
-			if (ObjType[object_type]==OL_CONTROL_CENTER) {
+			if (ObjType[object_type]==OL_CONTROL_CENTER) 
+			{
 				obj_type = OBJ_CNTRLCEN;
 				control_type = CT_CNTRLCEN;
 			}
-			else {
+			else
+			{
 				obj_type = OBJ_CLUTTER;
 				control_type = CT_NONE;
 			}
@@ -232,7 +231,8 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 			break;
 		}
 
-		case OL_PLAYER:	{
+		case OL_PLAYER:	
+		{
 			objnum = obj_create(OBJ_PLAYER,ObjId[object_type],segp-Segments,object_pos,
 				&seg_matrix,Polygon_models[Player_ship->model_num].rad,
 				CT_NONE,MT_PHYSICS,RT_POLYOBJ);
@@ -263,6 +263,11 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 			break;	
 		}
 
+	if (objnum == -1)
+	{
+		editor_status("place_object: bad object type: %d.", object_type);
+		return 0;
+	}
 	Cur_object_index = objnum;
 	//Cur_object_seg = Cursegp;
 
