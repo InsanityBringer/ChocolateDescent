@@ -2994,7 +2994,7 @@ void ReadControls()
 		case KEY_F1: 				do_show_help();			break;
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();			break;
-		case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
+		//case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
 		case KEY_F5:
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_stop_recording();

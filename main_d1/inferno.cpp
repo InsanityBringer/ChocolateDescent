@@ -820,7 +820,9 @@ int D_DescentMain(int argc, const char** argv)
 }
 
 
-void check_joystick_calibration() {
+void check_joystick_calibration()
+{
+	/*
 	int x1, y1, x2, y2, c;
 	fix t1;
 
@@ -839,7 +841,9 @@ void check_joystick_calibration() {
 	joy_get_pos(&x2, &y2);
 
 	// If joystick hasn't moved...
-	if ((abs(x2 - x1) < 30) && (abs(y2 - y1) < 30)) {
+	
+	if ((abs(x2 - x1) < 30) && (abs(y2 - y1) < 30)) 
+	{
 		if ((abs(x1) > 30) || (abs(x2) > 30) || (abs(y1) > 30) || (abs(y2) > 30)) {
 			c = nm_messagebox(NULL, 2, TXT_CALIBRATE, TXT_SKIP, TXT_JOYSTICK_NOT_CEN);
 			if (c == 0) {
@@ -847,7 +851,7 @@ void check_joystick_calibration() {
 			}
 		}
 	}
-
+	*/
 }
 
 void show_order_form()

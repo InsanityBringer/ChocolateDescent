@@ -43,22 +43,6 @@ int oflow_check(fix a, fix b)
 	return (tmp >> 47) ? 1 : 0;
 }
 
-/*
-#pragma aux oflow_check parm [eax] [ebx] value [eax] modify exact [eax ebx edx] = \
-   "cdq"				\
-	"xor eax,edx"	\
-	"sub eax,edx"	\
-	"xchg eax,ebx"	\
-   "cdq"				\
-	"xor eax,edx"	\
-	"sub eax,edx"	\
-	"imul ebx"		\
-	"sar  edx,15"	\
-	"or   dx,dx"	\
-	"setnz al"		\
-	"movzx eax,al";
-*/
-
 //find the point on the specified plane where the line intersects
 //returns true if point found, false if line parallel to plane
 //new_pnt is the found point on the plane
@@ -66,7 +50,7 @@ int oflow_check(fix a, fix b)
 //p0 & p1 are the ends of the line
 int find_plane_line_intersection(vms_vector* new_pnt, vms_vector* plane_pnt, vms_vector* plane_norm, vms_vector* p0, vms_vector* p1, fix rad)
 {
-	vms_vector d, w, fuckingbullshit;
+	vms_vector d, w, clone;
 	fix num, den;
 	int foundK;
 
@@ -75,9 +59,9 @@ int find_plane_line_intersection(vms_vector* new_pnt, vms_vector* plane_pnt, vms
 
 	num = vm_vec_dot(plane_norm, &w);
 	den = -vm_vec_dot(plane_norm, &d);
-	fuckingbullshit.x = d.x;
-	fuckingbullshit.y = d.y;
-	fuckingbullshit.z = d.z;
+	clone.x = d.x;
+	clone.y = d.y;
+	clone.z = d.z;
 
 	//Why does this assert hit so often
 	//	Assert(num > -rad);

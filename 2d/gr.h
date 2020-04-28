@@ -163,19 +163,6 @@ typedef struct _grs_screen // This is a video screen
 // canvas.  Saves the current VGA state and screen mode.
 
 int gr_init(int mode);
-//void gr_enable_default_palette_loading();
-//void gr_disable_default_palette_loading();
-
-// These 4 functions actuall change screen colors.
-//WOULD IT REALLY FUCKING KILL YOU TO DEFINE THESE FUNCS IN THE FUCKING LIBRARY
-//THEY BELONG TO? HOLY CRAP...
-/*
-extern void gr_pal_fade_out(unsigned char* pal);
-extern void gr_pal_fade_in(unsigned char* pal);
-extern void gr_pal_clear();
-extern void gr_pal_setblock(int start, int number, unsigned char* pal);
-extern void gr_pal_getblock(int start, int number, unsigned char* pal);*/
-//[ISB] also uncalled apparently
 
 //shut down the 2d.  Restore the screen mode.
 void gr_close();
@@ -256,11 +243,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* sr
 
 //[ISB] apparently this function was never prototyped anywhere
 void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest);
-
-void gr_bitblt_cockpit(grs_bitmap* bm);
-
-//void gr_update_buffer(void* sbuf1, void* sbuf2, void* dbuf, int size); 
-//[ISB] appears to have no callers and isn't defined in some random file in /main/ so..............
 
 //=========================================================================
 // Color functions:
@@ -408,17 +390,6 @@ extern void gr_remap_bitmap_good(grs_bitmap* bmp, uint8_t* palette, int transpar
 extern void gr_palette_step_up(int r, int g, int b);
 
 extern void gr_bitmap_check_transparency(grs_bitmap* bmp);
-
-// Allocates a selector that has a base address at 'address' and length 'size'.
-// Returns 0 if successful... BE SURE TO CHECK the return value since there
-// is a limited number of selectors available!!!
-//for the record this is implemented in /main/texmerge.c
-//i want to fucking cry
-//extern int get_selector(void* address, int size, unsigned int* selector); //[ISB] defined in texmerge
-
-// Assigns a selector to a bitmap. Returns 0 if successful.  BE SURE TO CHECK
-// this return value since there is a limited number of selectors!!!!!!!
-extern int gr_bitmap_assign_selector(grs_bitmap* bmp);
 
 //#define GR_GETCOLOR(r,g,b) (gr_inverse_table[( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )])
 //#define gr_getcolor(r,g,b) (gr_inverse_table[( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )])
