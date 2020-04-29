@@ -185,7 +185,7 @@ void I_SetAngle(int handle, int angle)
 	x = (float)cos(flang);
 	y = (float)sin(flang);
 
-	alSource3f(sourceNames[handle], AL_POSITION, -x, 0.0f, y);
+	alSource3f(sourceNames[handle], AL_POSITION, -x, 0.0f, -y);
 	AL_ErrorCheck("Setting sound angle");
 }
 
@@ -325,7 +325,7 @@ void I_CreateMusicSource()
 {
 	alGenSources(1, &MusicSource);
 	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
-	alSource3f(MusicSource, AL_POSITION, 1.0f, 0.0f, 0.0f);
+	alSource3f(MusicSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
 	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
 	AL_ErrorCheck("Creating music source");
@@ -456,7 +456,7 @@ void I_CreateMovieSource()
 {
 	alGenSources(1, &mveSndSourceName);
 	alSourcef(mveSndSourceName, AL_ROLLOFF_FACTOR, 0.0f);
-	alSource3f(mveSndSourceName, AL_POSITION, 1.0f, 0.0f, 0.0f);
+	alSource3f(mveSndSourceName, AL_POSITION, 0.0f, 0.0f, 0.0f);
 	AL_ErrorCheck("Creating movie source");
 }
 
