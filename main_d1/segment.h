@@ -90,7 +90,13 @@ typedef struct side {
 } side;
 #endif
 
-typedef struct segment {
+#ifdef EDITOR
+#define SEGMENT_SIZEOF 522
+#else
+#define SEGMENT_SIZEOF sizeof(segment)
+#endif
+typedef struct segment 
+{
 #ifdef	EDITOR
 	short		segnum;								// segment number, not sure what it means
 #endif

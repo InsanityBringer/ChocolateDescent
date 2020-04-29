@@ -44,6 +44,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "cntrlcen.h"
 
+#ifdef EDITOR
+#define FIX_STARTS
+#endif
+
 #define CF_ReadFix(a) ((fix)CF_ReadInt(a))
 
 uint8_t Sounds[MAX_SOUNDS];
@@ -472,12 +476,14 @@ void bm_read_all(CFILE* fp)
 	First_multi_bitmap_num = CF_ReadInt(fp);
 	N_controlcen_guns = CF_ReadInt(fp);
 
-	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++) {
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++) 
+	{
 		controlcen_gun_points[i].x = CF_ReadFix(fp);
 		controlcen_gun_points[i].y = CF_ReadFix(fp);
 		controlcen_gun_points[i].z = CF_ReadFix(fp);
 	}
-	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++) {
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++) 
+	{
 		controlcen_gun_dirs[i].x = CF_ReadFix(fp);
 		controlcen_gun_dirs[i].y = CF_ReadFix(fp);
 		controlcen_gun_dirs[i].z = CF_ReadFix(fp);
@@ -486,73 +492,24 @@ void bm_read_all(CFILE* fp)
 	exit_modelnum = CF_ReadInt(fp);
 	destroyed_exit_modelnum = CF_ReadInt(fp);
 
-	//[ISB] horrid, unportable, dangerous PC code stubbed. maintained here for the moment 
-	//to try to debug the inevitable problem with the mac code reading differently. 
-	/*int i;
+#ifdef FIX_STARS
+	init_endlevel();
+#endif
 
-	cfread(&NumTextures, sizeof(int), 1, fp);
-	cfread(Textures, sizeof(bitmap_index), MAX_TEXTURES, fp);
-	cfread(TmapInfo, sizeof(tmap_info), MAX_TEXTURES, fp);
-
-	cfread(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
-	cfread(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
-
-	cfread(&Num_vclips, sizeof(int), 1, fp);
-	cfread(Vclip, sizeof(vclip), VCLIP_MAXNUM, fp);
-
-	cfread(&Num_effects, sizeof(int), 1, fp);
-	cfread(Effects, sizeof(eclip), MAX_EFFECTS, fp);
-
-	cfread(&Num_wall_anims, sizeof(int), 1, fp);
-	cfread(WallAnims, sizeof(wclip), MAX_WALL_ANIMS, fp);
-
-	cfread(&N_robot_types, sizeof(int), 1, fp);
-	cfread(Robot_info, sizeof(robot_info), MAX_ROBOT_TYPES, fp);
-
-	cfread(&N_robot_joints, sizeof(int), 1, fp);
-	cfread(Robot_joints, sizeof(jointpos), MAX_ROBOT_JOINTS, fp);
-
-	cfread(&N_weapon_types, sizeof(int), 1, fp);
-	cfread(Weapon_info, sizeof(weapon_info), MAX_WEAPON_TYPES, fp);
-
-	cfread(&N_powerup_types, sizeof(int), 1, fp);
-	cfread(Powerup_info, sizeof(powerup_type_info), MAX_POWERUP_TYPES, fp);
-
-	cfread(&N_polygon_models, sizeof(int), 1, fp);
-	cfread(Polygon_models, sizeof(polymodel), N_polygon_models, fp);
-
-	for (i = 0; i < N_polygon_models; i++) {
-		Polygon_models[i].model_data = malloc(Polygon_models[i].model_data_size);
-		Assert(Polygon_models[i].model_data != NULL);
-		cfread(Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp);
+	//[ISB] I'm normally not huge about changing game logic, but this isn't user facing most of the time, so lets do it anyways
+	//This code will make the editor work better when run without parsing bitmaps.tbl. 
+#ifdef EDITOR
+	N_hostage_types++;
+	Hostage_vclip_num[0] = 33;
+	//Construct TMAP list
+	for (i = 0; i < NumTextures; i++)
+	{
+		if (i >= WallAnims[0].frames[0]) //Don't include doors
+		{
+			break;
+		}
+		TmapList[i] = i;
+		Num_tmaps++;
 	}
-
-	cfread(Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS, fp);
-
-	cfread(Dying_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp);
-	cfread(Dead_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp);
-
-	cfread(ObjBitmaps, sizeof(bitmap_index), MAX_OBJ_BITMAPS, fp);
-	cfread(ObjBitmapPtrs, sizeof(uint16_t), MAX_OBJ_BITMAPS, fp);
-
-	cfread(&only_player_ship, sizeof(player_ship), 1, fp);
-
-	cfread(&Num_cockpits, sizeof(int), 1, fp);
-	cfread(cockpit_bitmap, sizeof(bitmap_index), N_COCKPIT_BITMAPS, fp);
-
-	cfread(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
-	cfread(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
-
-	cfread(&Num_total_object_types, sizeof(int), 1, fp);
-	cfread(ObjType, sizeof(int8_t), MAX_OBJTYPE, fp);
-	cfread(ObjId, sizeof(int8_t), MAX_OBJTYPE, fp);
-	cfread(ObjStrength, sizeof(fix), MAX_OBJTYPE, fp);
-
-	cfread(&First_multi_bitmap_num, sizeof(int), 1, fp);
-
-	cfread(&N_controlcen_guns, sizeof(int), 1, fp);
-	cfread(controlcen_gun_points, sizeof(vms_vector), MAX_CONTROLCEN_GUNS, fp);
-	cfread(controlcen_gun_dirs, sizeof(vms_vector), MAX_CONTROLCEN_GUNS, fp);
-	cfread(&exit_modelnum, sizeof(int), 1, fp);
-	cfread(&destroyed_exit_modelnum, sizeof(int), 1, fp);*/
+#endif
 }

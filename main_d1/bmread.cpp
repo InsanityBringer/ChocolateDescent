@@ -190,7 +190,8 @@ bitmap_index bm_load_sub(char* filename)
 	bitmap_num.index = 0;
 
 #ifdef SHAREWARE
-	if (Registered_only) {
+	if (Registered_only) 
+	{
 		//mprintf( 0, "Skipping registered-only bitmap '%s'\n", filename );
 		return bitmap_num;
 	}
@@ -199,7 +200,8 @@ bitmap_index bm_load_sub(char* filename)
 	_splitpath(filename, NULL, NULL, fname, NULL);
 
 	bitmap_num = piggy_find_bitmap(fname);
-	if (bitmap_num.index) {
+	if (bitmap_num.index) 
+	{
 		//mprintf(( 0, "Found bitmap '%s' in pig!\n", fname ));
 		return bitmap_num;
 	}
@@ -208,7 +210,8 @@ bitmap_index bm_load_sub(char* filename)
 	//newbm = (grs_bitmap*)malloc(1 * sizeof(grs_bitmap));
 	iff_error = iff_read_bitmap(filename, newbm, BM_LINEAR, newpal);
 	newbm->bm_selector = 0;
-	if (iff_error != IFF_NO_ERROR) {
+	if (iff_error != IFF_NO_ERROR)
+	{
 		mprintf((1, "File %s - IFF error: %s", filename, iff_errormsg(iff_error)));
 		Error("File %s - IFF error: %s", filename, iff_errormsg(iff_error));
 	}
@@ -237,7 +240,8 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 	char tempname[20];
 
 #ifdef SHAREWARE
-	if (Registered_only) {
+	if (Registered_only) 
+	{
 		Assert(bogus_bitmap_initialized != 0);
 		mprintf((0, "Skipping registered-only animation '%s'\n", filename));
 		bmp[0] = &bogus_bitmap;
@@ -249,7 +253,8 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 
 	_splitpath(filename, NULL, NULL, fname, NULL);
 
-	for (i = 0; i < MAX_BITMAPS_PER_BRUSH; i++) {
+	for (i = 0; i < MAX_BITMAPS_PER_BRUSH; i++) 
+	{
 		sprintf(tempname, "%s#%d", fname, i);
 		bi = piggy_find_bitmap(tempname);
 		if (!bi.index)
@@ -258,18 +263,21 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 		//mprintf(( 0, "Found animation frame %d, %s, in piggy file\n", i, tempname ));
 	}
 
-	if (i) {
+	if (i) 
+	{
 		*nframes = i;
 		return;
 	}
 
 	iff_error = iff_read_animbrush(filename, bm, MAX_BITMAPS_PER_BRUSH, nframes, &newpal[0]);
-	if (iff_error != IFF_NO_ERROR) {
+	if (iff_error != IFF_NO_ERROR) 
+	{
 		mprintf((1, "File %s - IFF error: %s", filename, iff_errormsg(iff_error)));
 		Error("File %s - IFF error: %s", filename, iff_errormsg(iff_error));
 	}
 
-	for (i = 0; i < *nframes; i++) {
+	for (i = 0; i < *nframes; i++)
+	{
 		bitmap_index new_bmp;
 		sprintf(tempname, "%s#%d", fname, i);
 		if (iff_has_transparency)
@@ -286,7 +294,8 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 	}
 }
 
-int ds_load(char* filename) {
+int ds_load(char* filename) 
+{
 	int i;
 	CFILE* cfp;
 	digi_sound newbm;
@@ -294,7 +303,8 @@ int ds_load(char* filename) {
 	char rawname[100];
 
 #ifdef SHAREWARE
-	if (Registered_only) {
+	if (Registered_only) 
+	{
 		//mprintf( 0, "Skipping registered-only sound '%s'\n", filename );
 		return &bogus_sound;
 	}
@@ -310,7 +320,8 @@ int ds_load(char* filename) {
 
 	cfp = cfopen(rawname, "rb");
 
-	if (cfp != NULL) {
+	if (cfp != NULL) 
+	{
 		newbm.length = cfilelength(cfp);
 		MALLOC(newbm.data, uint8_t, newbm.length );
 		//newbm.data = (uint8_t*)malloc(new.length * sizeof(uint8_t));
@@ -319,7 +330,8 @@ int ds_load(char* filename) {
 		mprintf((0, "S"));
 		mprintf((0, "<%s>", rawname));
 	}
-	else {
+	else 
+	{
 		mprintf((1, "Warning: Couldn't find '%s'\n", filename));
 		return 255;
 	}
@@ -2023,9 +2035,11 @@ void bm_read_hostage()
 	// Process arguments
 	arg = strtok(NULL, space);
 
-	while (arg != NULL) {
+	while (arg != NULL) 
+	{
 		equal_ptr = strchr(arg, '=');
-		if (equal_ptr) {
+		if (equal_ptr) 
+		{
 			*equal_ptr = '\0';
 			equal_ptr++;
 

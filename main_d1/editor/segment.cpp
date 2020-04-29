@@ -1947,13 +1947,14 @@ void find_concave_segs()
 // -----------------------------------------------------------------------------
 void warn_if_concave_segments(void)
 {
-	char temp[1];
+	char temp[2]; //[ISB] changed from 1 because apparently someone forgot null terminators
 
 	find_concave_segs();
 
-	if (N_warning_segs) {
+	if (N_warning_segs) 
+	{
 		editor_status("*** WARNING *** %d concave segments in mine! *** WARNING ***",N_warning_segs);
-		sprintf( temp, "%d", N_warning_segs );
+		snprintf( temp, 2, "%d", N_warning_segs );
     }
 }
 
@@ -1961,17 +1962,19 @@ void warn_if_concave_segments(void)
 //	Check segment s, if concave, warn
 void warn_if_concave_segment(segment *s)
 {
-    char temp[1];
+    char temp[2];
 	int	result;
 
 	result = check_seg_concavity(s);
 
-	if (result) {
+	if (result) 
+	{
 		Warning_segs[N_warning_segs++] = s-Segments;
 
-        if (N_warning_segs) {
+        if (N_warning_segs) 
+		{
 			editor_status("*** WARNING *** New segment is concave! *** WARNING ***");
-            sprintf( temp, "%d", N_warning_segs );
+            snprintf( temp, 2, "%d", N_warning_segs );
         }
         //else
            // editor_status("");
