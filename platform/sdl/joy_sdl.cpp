@@ -47,9 +47,8 @@ void I_InitSDLJoysticks()
 }
 
 #define joybtn(x) (1 << x)
-int rawToDescentMapping[] = { joybtn(1) | joybtn(6), joybtn(2) | joybtn(5), joybtn(3) | joybtn(7), joybtn(4) | joybtn(9), joybtn(5), joybtn(6), joybtn(7),
-								joybtn(8), joybtn(9), joybtn(10), joybtn(11), joybtn(12), joybtn(13), joybtn(14), joybtn(15),
-								joybtn(16), joybtn(17), joybtn(18), joybtn(19), joybtn(20) };
+int rawToDescentMapping[] = { joybtn(1) | joybtn(6), joybtn(2) | joybtn(5), joybtn(3) | joybtn(7), joybtn(4) | joybtn(9), joybtn(5),
+							joybtn(10), joybtn(11), joybtn(13), joybtn(14), joybtn(15), joybtn(17), joybtn(18), joybtn(19)};
 
 void I_JoystickHandler()
 {
@@ -90,7 +89,7 @@ void I_JoystickHandler()
 			axisState[3] = 127;
 		}
 
-		int numButtons = std::min(20, SDL_JoystickNumButtons(joysticks[0]));
+		int numButtons = std::min(12, SDL_JoystickNumButtons(joysticks[0]));
 		for (int i = 0; i < numButtons; i++)
 		{
 			if (SDL_JoystickGetButton(joysticks[0], i))

@@ -345,9 +345,9 @@ void joydefs_config()
 				// nothing...
 				Config_control_type = 0;
 			else if (Config_control_type < 5)
-				kconfig(1, CONTROL_TEXT(Config_control_type));
+				kconfig(1, control_text[Config_control_type]);
 			else
-				kconfig(2, CONTROL_TEXT(Config_control_type));
+				kconfig(2, control_text[Config_control_type]);
 
 			masks = 0;
 			for (i = 0; i < 4; i++)
