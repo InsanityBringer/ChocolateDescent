@@ -323,15 +323,25 @@ int Laser_create_new(vms_vector* direction, vms_vector* position, int segnum, in
 
 	//	Re-enable, 09/09/94:
 	volume = F1_0;
-	if (Weapon_info[obj->id].flash_sound > -1) {
-		if (make_sound) {
-			if (parent == (Viewer - Objects)) {
+	if (Weapon_info[obj->id].flash_sound > -1)
+	{
+		if (make_sound) 
+		{
+			if (parent == (Viewer - Objects)) 
+			{
 				if (weapon_type == VULCAN_ID)			// Make your own vulcan gun  1/2 as loud.
 					volume = F1_0 / 2;
-				digi_play_sample(Weapon_info[obj->id].flash_sound, volume);
+				else if (weapon_type <= 3)
+					volume = F2_0 / 3;
+				else if (weapon_type == PLASMA_ID)
+					volume = F2_0 / 3;
+				//digi_play_sample(Weapon_info[obj->id].flash_sound, volume);
+				digi_link_sound_to_object(Weapon_info[obj->id].flash_sound, objnum, 0, volume);
 			}
-			else {
-				digi_link_sound_to_pos(Weapon_info[obj->id].flash_sound, obj->segnum, 0, &obj->pos, 0, volume);
+			else 
+			{
+				//digi_link_sound_to_pos(Weapon_info[obj->id].flash_sound, obj->segnum, 0, &obj->pos, 0, volume);
+				digi_link_sound_to_object(Weapon_info[obj->id].flash_sound, objnum, 0, volume);
 			}
 		}
 	}
@@ -1130,7 +1140,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 	switch (weapon_num) {
 	case LASER_INDEX: {
 		Laser_player_fire(objp, level, 0, 1, 0);
-		Laser_player_fire(objp, level, 1, 0, 0);
+		Laser_player_fire(objp, level, 1, 1, 0);
 
 		if (flags & LASER_QUAD) {
 			//	hideous system to make quad laser 1.5x powerful as normal laser, make every other quad laser bolt harmless
@@ -1169,7 +1179,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 #ifndef SHAREWARE
 	case PLASMA_INDEX:
 		Laser_player_fire(objp, PLASMA_ID, 0, 1, 0);
-		Laser_player_fire(objp, PLASMA_ID, 1, 0, 0);
+		Laser_player_fire(objp, PLASMA_ID, 1, 1, 0);
 		if (nfires > 1) {
 			Laser_player_fire_spread_delay(objp, PLASMA_ID, 0, 0, 0, FrameTime / 2, 1, 0);
 			Laser_player_fire_spread_delay(objp, PLASMA_ID, 1, 0, 0, FrameTime / 2, 0, 0);
@@ -1241,10 +1251,12 @@ int create_homing_missile(object* objp, int goal_obj, int objtype, int make_soun
 	vms_vector	random_vector;
 	//vms_vector	goal_pos;
 
-	if (goal_obj == -1) {
+	if (goal_obj == -1) 
+	{
 		make_random_vector(&vector_to_goal);
 	}
-	else {
+	else 
+	{
 		vm_vec_sub(&vector_to_goal, &Objects[goal_obj].pos, &objp->pos);
 		vm_vec_normalize_quick(&vector_to_goal);
 		make_random_vector(&random_vector);
@@ -1329,8 +1341,10 @@ void create_smart_children(object* objp)
 
 		make_sound = 1;
 		if (numobjs == 0) {
-			for (i = 0; i < NUM_SMART_CHILDREN; i++) {
-				if (parent_type == OBJ_PLAYER) {
+			for (i = 0; i < NUM_SMART_CHILDREN; i++) 
+			{
+				if (parent_type == OBJ_PLAYER) 
+				{
 					int	hobjnum;
 					hobjnum = create_homing_missile(objp, -1, PLAYER_SMART_HOMING_ID, make_sound);
 					// mprintf((0, "Object #%i is a PLAYER smart blob.\n", hobjnum));
@@ -1343,9 +1357,12 @@ void create_smart_children(object* objp)
 				make_sound = 0;
 			}
 		}
-		else {
-			for (i = 0; i < NUM_SMART_CHILDREN; i++) {
-				if (parent_type == OBJ_PLAYER) {
+		else 
+		{
+			for (i = 0; i < NUM_SMART_CHILDREN; i++)
+			{
+				if (parent_type == OBJ_PLAYER) 
+				{
 					int	hobjnum;
 					hobjnum = create_homing_missile(objp, objlist[(P_Rand() * numobjs) >> 15].objnum, PLAYER_SMART_HOMING_ID, make_sound);
 					// mprintf((0, "Object #%i is a PLAYER smart blob.\n", hobjnum));
@@ -1390,7 +1407,8 @@ void do_missile_firing(void)
 		else
 			Next_missile_fire_time = GameTime + F1_0 / 25;
 
-		switch (Secondary_weapon) {
+		switch (Secondary_weapon)
+		{
 		case CONCUSSION_INDEX:
 			Laser_player_fire(ConsoleObject, CONCUSSION_ID, CONCUSSION_GUN + (Missile_gun & 1), 1, 0);
 			Missile_gun++;

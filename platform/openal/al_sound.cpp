@@ -82,7 +82,7 @@ void AL_InitSource(ALuint source)
 	alSourcef(source, AL_MAX_GAIN, 1.f);
 	alSourcef(source, AL_GAIN, 1.f);
 	alSourcef(source, AL_PITCH, 1.f);
-	alSourcef(source, AL_DOPPLER_FACTOR, 0.f);
+	//alSourcef(source, AL_DOPPLER_FACTOR, 0.f);
 	AL_ErrorCheck("Init AL source");
 }
 
@@ -124,6 +124,7 @@ int I_InitAudio()
 		printf("OpenAL implementation doesn't support OpenAL soft loop points. Are you not using OpenAL soft?\n");
 	}
 	AL_ErrorCheck("Checking exts");
+	alDopplerFactor(0.3f);
 
 	AL_initialized = 1;
 
@@ -167,6 +168,7 @@ int I_GetSoundHandle()
 		alGetSourcei(sourceNames[i], AL_SOURCE_STATE, &state);
 		if (state != AL_PLAYING)
 		{
+			AL_InitSource(sourceNames[i]); //Set sane defaults
 			return i;
 		}
 	}

@@ -1140,6 +1140,7 @@ int digi_link_sound_to_object2(int org_soundnum, short objnum, int forever, fix 
 	}*/
 
 	i = digi_find_sound_object();
+	SoundObjects[i].objnum = objnum;
 
 	objp = &Objects[SoundObjects[i].objnum];
 	if (i==MAX_SOUND_OBJECTS) 
@@ -1152,7 +1153,6 @@ int digi_link_sound_to_object2(int org_soundnum, short objnum, int forever, fix 
 	SoundObjects[i].flags = SOF_USED | SOF_LINK_TO_OBJ;
 	if ( forever )
 		SoundObjects[i].flags |= SOF_PLAY_FOREVER;
-	SoundObjects[i].objnum = objnum;
 	SoundObjects[i].objsignature = Objects[objnum].signature;
 	SoundObjects[i].max_volume = max_volume;
 	SoundObjects[i].max_distance = max_distance * 5 / 4;
