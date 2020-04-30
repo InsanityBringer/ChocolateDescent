@@ -371,7 +371,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, float xleft, float xright, 
 		if (fx_xright > Window_clip_right)
 			fx_xright = Window_clip_right;
 
-		c_tmap_scanline_pln_nolight();
+		c_tmap_scanline_per_nolight();
 		break;
 	case 1: 
 	{
@@ -401,15 +401,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, float xleft, float xright, 
 		if (fx_xright > Window_clip_right)
 			fx_xright = Window_clip_right;
 
-#ifdef TEXMAP_ANTIALIAS
-		c_tmap_scanline_pln_aa();
-#else
-#ifdef TEXMAP_DITHER
-		c_tmap_scanline_per_dither();
-#else
-		c_tmap_scanline_pln();
-#endif
-#endif
+		c_tmap_scanline_per();
 		break;
 	}
 	case 2:

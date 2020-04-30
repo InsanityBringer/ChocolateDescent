@@ -409,8 +409,8 @@ void c_tmap_scanline_pln()
 	dvdx = fx_dv_dx;
 	dzdx = fx_dz_dx;
 
-	l = fx_l >> 8;
-	dldx = fx_dl_dx >> 8;
+	l = fx_l;
+	dldx = fx_dl_dx;
 	dest = (uint8_t*)(write_buffer + y_pointers[fx_y] + fx_xleft);
 	if (dldx < 0)
 		dldx++; //round towards 0 for negative deltas
@@ -439,9 +439,9 @@ void c_tmap_scanline_pln()
 	V0 = pdiv(v, z);
 	U0 = pdiv(u, z);
 
-	dudx = fx_du_dx << NBITS;
-	dvdx = fx_dv_dx << NBITS;
-	dzdx = fx_dz_dx << NBITS;
+	dudx = fx_du_dx / 16;
+	dvdx = fx_dv_dx / 16;
+	dzdx = fx_dz_dx / 16;
 
 	for (x = loop_count; x > 0; x--)
 	{
@@ -662,8 +662,8 @@ void c_tmap_scanline_pln_nolight()
 	dvdx = fx_dv_dx;
 	dzdx = fx_dz_dx;
 
-	l = fx_l >> 8;
-	dldx = fx_dl_dx >> 8;
+	l = fx_l;
+	dldx = fx_dl_dx;
 	dest = (uint8_t*)(write_buffer + y_pointers[fx_y] + fx_xleft);
 	if (dldx < 0)
 		dldx++; //round towards 0 for negative deltas
@@ -692,9 +692,9 @@ void c_tmap_scanline_pln_nolight()
 	V0 = pdiv(v, z);
 	U0 = pdiv(u, z);
 
-	dudx = fx_du_dx << NBITS;
-	dvdx = fx_dv_dx << NBITS;
-	dzdx = fx_dz_dx << NBITS;
+	dudx = fx_du_dx / 16;
+	dvdx = fx_dv_dx / 16;
+	dzdx = fx_dz_dx / 16;
 
 	for (x = loop_count; x > 0; x--)
 	{
