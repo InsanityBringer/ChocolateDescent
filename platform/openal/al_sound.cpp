@@ -76,7 +76,6 @@ void I_CreateMusicSource();
 
 void AL_InitSource(ALuint source)
 {
-	alSourcef(source, AL_ROLLOFF_FACTOR, 0.0f);
 	alSource3f(source, AL_DIRECTION, 0.f, 0.f, 0.f);
 	alSource3f(source, AL_VELOCITY, 0.f, 0.f, 0.f);
 	alSource3f(source, AL_POSITION, 0.f, 0.f, 0.f);
@@ -114,6 +113,8 @@ int I_InitAudio()
 		AL_InitSource(sourceNames[i]);
 	}
 
+	alDistanceModel(AL_LINEAR_DISTANCE);
+
 	if (!alIsExtensionPresent("AL_EXT_FLOAT32"))
 	{
 		printf("OpenAL implementation doesn't support floating point samples for HQ Music.\n");
@@ -127,6 +128,22 @@ int I_InitAudio()
 	AL_initialized = 1;
 
 	return 0;
+}
+
+void I_SetListenerPos(vms_vector *pos, vms_vector *vel, vms_matrix *mat)
+{
+	float almat[6];
+	almat[0] = -f2fl(mat->fvec.x);
+	almat[1] = f2fl(mat->fvec.y);
+	almat[2] = f2fl(mat->fvec.z);
+	almat[3] = -f2fl(mat->uvec.x);
+	almat[4] = f2fl(mat->uvec.y);
+	almat[5] = f2fl(mat->uvec.z);
+
+	alListener3f(AL_POSITION, -f2fl(pos->x), f2fl(pos->y), f2fl(pos->z));
+	alListener3f(AL_VELOCITY, -f2fl(vel->x), f2fl(vel->y), f2fl(vel->z));
+	alListenerfv(AL_ORIENTATION, almat);
+	AL_ErrorCheck("Setting listener position");
 }
 
 void I_ShutdownAudio()
@@ -168,25 +185,55 @@ void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
 	AL_ErrorCheck("Setting sound data");
 }
 
-void I_SetSoundInformation(int handle, int volume, int angle)
+void I_SetSoundInformation(int handle, int volume, vms_vector* pos)
 {
 	if (handle >= _MAX_VOICES) return;
-	I_SetAngle(handle, angle);
+
 	I_SetVolume(handle, volume);
+	I_SetPosition(handle, pos);
 }
 
-void I_SetAngle(int handle, int angle)
+void I_SetRolloff(int handle, float maxdist)
 {
 	if (handle >= _MAX_VOICES) return;
 
-	float x, y;
-	float flang = (angle / 65536.0f) * (3.1415927f);
+	//Sound is positional, so ensure the rolloff factor is correct
+	alSourcef(sourceNames[handle], AL_ROLLOFF_FACTOR, 1.0f);
+	alSourcef(sourceNames[handle], AL_MAX_DISTANCE, maxdist);
 
-	x = (float)cos(flang);
-	y = (float)sin(flang);
+	AL_ErrorCheck("Setting sound rolloff");
+}
 
-	alSource3f(sourceNames[handle], AL_POSITION, -x, 0.0f, -y);
-	AL_ErrorCheck("Setting sound angle");
+void I_SetPosition(int handle, vms_vector* pos)
+{
+	if (handle >= _MAX_VOICES) return;
+	
+	alSourcei(sourceNames[handle], AL_SOURCE_RELATIVE, AL_FALSE);
+	alSource3f(sourceNames[handle], AL_POSITION, -f2fl(pos->x), f2fl(pos->y), f2fl(pos->z));
+	//printf("Sound %d placed at (%f %f %f)\n", handle, f2fl(pos->x), f2fl(pos->y), f2fl(pos->z));
+	AL_ErrorCheck("Setting sound position");
+}
+
+void I_SetVelocity(int handle, vms_vector* vel)
+{
+	if (handle >= _MAX_VOICES) return;
+
+	alSource3f(sourceNames[handle], AL_VELOCITY, -f2fl(vel->x), f2fl(vel->y), f2fl(vel->z));
+	//printf("Sound %d moving at (%f %f %f)\n", handle, f2fl(vel->x), f2fl(vel->y), f2fl(vel->z));
+	AL_ErrorCheck("Setting sound position");
+}
+
+void I_SetUISound(int handle)
+{
+	if (handle >= _MAX_VOICES) return;
+
+	//Sound is not positional, so ensure the rolloff factor is correct
+	alSourcef(sourceNames[handle], AL_ROLLOFF_FACTOR, 0.0f);
+	//Set relative to the listener and position at 0, 0, 0
+	alSourcei(sourceNames[handle], AL_SOURCE_RELATIVE, AL_TRUE);
+	alSource3f(sourceNames[handle], AL_POSITION, 0, 0, 0);
+
+	AL_ErrorCheck("Setting sound global");
 }
 
 void I_SetVolume(int handle, int volume)
@@ -325,6 +372,8 @@ void I_CreateMusicSource()
 {
 	alGenSources(1, &MusicSource);
 	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
+	//Sound is not positional, so ensure the rolloff factor is correct
+	alSourcei(MusicSource, AL_SOURCE_RELATIVE, AL_TRUE);
 	alSource3f(MusicSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
 	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);

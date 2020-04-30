@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "s_midi.h"
+#include "vecmat/vecmat.h"
 
 //-----------------------------------------------------------------------------
 // Constants
@@ -24,6 +25,8 @@ int I_InitAudio();
 //Shutdown the audio library
 void I_ShutdownAudio();
 
+void I_SetListenerPos(vms_vector* pos, vms_vector* vel, vms_matrix* mat);
+
 //-----------------------------------------------------------------------------
 // Handles and data
 //-----------------------------------------------------------------------------
@@ -34,9 +37,15 @@ int I_GetSoundHandle();
 //Provide the PCM data for this sound effect
 void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate);
 
-void I_SetSoundInformation(int handle, int volume, int angle);
+void I_SetSoundInformation(int handle, int volume, vms_vector *pos);
 
-void I_SetAngle(int handle, int angle);
+void I_SetRolloff(int handle, float maxdist);
+
+void I_SetPosition(int handle, vms_vector *pos);
+
+void I_SetVelocity(int handle, vms_vector* vel);
+
+void I_SetUISound(int handle);
 
 void I_SetVolume(int handle, int volume);
 
