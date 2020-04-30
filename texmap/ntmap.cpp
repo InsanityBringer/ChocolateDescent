@@ -22,7 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>
-#include <conio.h>
 #include <stdlib.h>
 
 #include "platform/mono.h"
@@ -338,8 +337,6 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, float xleft, float xright, 
 	if ((dx < 0) || (xright < 0) || (xleft > xright))		// the (xleft > xright) term is not redundant with (dx < 0) because dx is computed using integers
 		return;
 
-	if (xleft < 0)
-		fx_xleft = 0; //[ISB] godawful hack
 	if (fx_xright > Window_clip_right)
 		fx_xright = Window_clip_right;
 
@@ -374,7 +371,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, float xleft, float xright, 
 		if (fx_xright > Window_clip_right)
 			fx_xright = Window_clip_right;
 
-		c_tmap_scanline_per_nolight();
+		c_tmap_scanline_pln_nolight();
 		break;
 	case 1: 
 	{
@@ -404,7 +401,15 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, float xleft, float xright, 
 		if (fx_xright > Window_clip_right)
 			fx_xright = Window_clip_right;
 
-		c_tmap_scanline_per();
+#ifdef TEXMAP_ANTIALIAS
+		c_tmap_scanline_pln_aa();
+#else
+#ifdef TEXMAP_DITHER
+		c_tmap_scanline_per_dither();
+#else
+		c_tmap_scanline_pln();
+#endif
+#endif
 		break;
 	}
 	case 2:
@@ -643,8 +648,6 @@ void ntmap_scanline_lighted_linear(grs_bitmap* srcb, int y, float xleft, float x
 	fx_xright = (int)(xright);
 	fx_xleft = (int)(xleft);
 
-	if (xleft < 0)
-		fx_xleft = 0; //[ISB] godawful hack
 	if (fx_xright > Window_clip_right)
 		fx_xright = Window_clip_right;
 
@@ -990,4 +993,3 @@ void draw_tmap(grs_bitmap* bp, int nverts, g3s_point** vertbuf)
 	Lighting_on = lighting_on_save;
 }
 
-

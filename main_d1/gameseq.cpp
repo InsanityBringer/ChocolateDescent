@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <errno.h>
 #include <time.h>
+#include "misc/rand.h"
 #include "inferno.h"
 #include "game.h"
 #include "platform/key.h"
@@ -85,7 +86,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmerge.h"
 #include "paging.h"
 #include "mission.h"
-#include "State.h"
+#include "state.h"
 #include "songs.h"
 #include "netmisc.h"
 
@@ -1308,7 +1309,7 @@ void InitPlayerPosition(int random)
 		int i, closest = -1, trys = 0;
 		fix closest_dist = 0x7ffffff, dist;
 
-		srand(clock());
+		P_SRand(clock());
 
 #ifndef NDEBUG
 		if (NumNetPlayerPositions != MAX_NUM_NET_PLAYERS)
@@ -1324,7 +1325,7 @@ void InitPlayerPosition(int random)
 				mprintf((0, "Can't start in location %d because its too close to player %d\n", NewPlayer, closest));
 			}
 			trys++;
-			NewPlayer = rand() % NumNetPlayerPositions;
+			NewPlayer = P_Rand() % NumNetPlayerPositions;
 
 			closest = -1;
 			closest_dist = 0x7fffffff;

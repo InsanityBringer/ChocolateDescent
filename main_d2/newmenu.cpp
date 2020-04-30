@@ -20,8 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-//#include <unistd.h>
 
+#include "platform/posixstub.h"
 #include "2d/i_gr.h"
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "misc/error.h"
@@ -139,7 +139,7 @@ void nm_remap_background()
 
 extern char last_palette_loaded[];
 
-void nm_draw_background1(char* filename)
+void nm_draw_background1(const char* filename)
 {
 	int pcx_error;
 	grs_bitmap* bmp;
@@ -424,7 +424,7 @@ void nm_string_black(bkg* b, int w1, int x, int y, char* s)
 
 
 // Draw a right justfied string
-void nm_rstring(bkg* b, int w1, int x, int y, char* s)
+void nm_rstring(bkg* b, int w1, int x, int y, const char* s)
 {
 	int w, h, aw;
 	gr_get_string_size(s, &w, &h, &aw);
@@ -629,34 +629,34 @@ void strip_end_whitespace(char* text)
 	}
 }
 
-int newmenu_do4(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, char* filename, int width, int height, int TinyMode);
+int newmenu_do4(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, const char* filename, int width, int height, int TinyMode);
 
-int newmenu_do(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
+int newmenu_do(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
 {
 	return newmenu_do3(title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1);
 }
-int newmenu_dotiny(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
+int newmenu_dotiny(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
 {
 	return newmenu_do4(title, subtitle, nitems, item, subfunction, 0, NULL, LHX(310), -1, 1);
 }
 
-int newmenu_dotiny2(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
+int newmenu_dotiny2(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem))
 {
 	return newmenu_do4(title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1, 1);
 }
 
 
-int newmenu_do1(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem)
+int newmenu_do1(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem)
 {
 	return newmenu_do3(title, subtitle, nitems, item, subfunction, citem, NULL, -1, -1);
 }
 
 
-int newmenu_do2(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, char* filename)
+int newmenu_do2(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, const char* filename)
 {
 	return newmenu_do3(title, subtitle, nitems, item, subfunction, citem, filename, -1, -1);
 }
-int newmenu_do3(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, char* filename, int width, int height)
+int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, const char* filename, int width, int height)
 {
 	return newmenu_do4(title, subtitle, nitems, item, subfunction, citem, filename, width, height, 0);
 }
@@ -726,7 +726,7 @@ void draw_close_box(int x, int y)
 
 void show_extra_netgame_info(int choice);
 
-int newmenu_do4(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, char* filename, int width, int height, int TinyMode)
+int newmenu_do4(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int citem, const char* filename, int width, int height, int TinyMode)
 {
 	int old_keyd_repeat, done;
 	int  choice, old_choice, i, j, x, y, w, h, aw, tw, th, twidth, fm, right_offset;
@@ -1174,7 +1174,7 @@ RePaintNewmenu4:
 
 	while (!done)
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 
 #ifdef WINDOWS
@@ -1887,7 +1887,9 @@ RePaintNewmenu4:
 		{
 			gr_palette_fade_in(gr_palette, 32, 0);
 		}
-		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
+	}
 
 	MAC(hide_cursor());
 	WIN(HideCursorW());
@@ -1945,7 +1947,7 @@ RePaintNewmenu4:
 }
 
 
-int nm_messagebox1(char* title, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int nchoices, ...)
+int nm_messagebox1(const char* title, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem), int nchoices, ...)
 {
 	int i;
 	char* format;
@@ -1973,7 +1975,7 @@ int nm_messagebox1(char* title, void (*subfunction)(int nitems, newmenu_item* it
 	return newmenu_do(title, nm_text, nchoices, nm_message_items, subfunction);
 }
 
-int nm_messagebox(char* title, int nchoices, ...)
+int nm_messagebox(const char* title, int nchoices, ...)
 {
 	int i;
 	char* format;
@@ -2044,7 +2046,7 @@ void delete_player_saved_games(char* name)
 
 int MakeNewPlayerFile(int allow_abort);
 
-int newmenu_get_filename(char* title, char* filespec, char* filename, int allow_abort_flag)
+int newmenu_get_filename(const char* title, const char* filespec, char* filename, int allow_abort_flag)
 {
 	int i;
 	FILEFINDSTRUCT find;
@@ -2259,7 +2261,7 @@ ReadFileNames:
 		newmenu_file_sort(NumFiles - 1, &filenames[14]);		// Don't sort first one!
 #endif
 		for (i = 0; i < NumFiles; i++) {
-			if (!_stricmp(Players[Player_num].callsign, &filenames[i * 14])) {
+			if (!_strfcmp(Players[Player_num].callsign, &filenames[i * 14])) {
 #if defined(WINDOWS) || defined(MACINTOSH) 
 				dblclick_flag = 1;
 #endif
@@ -2281,7 +2283,7 @@ ReadFileNames:
 
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 
 #ifdef WINDOWS
@@ -2694,7 +2696,9 @@ ReadFileNames:
 
 
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
-		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
+	}
 
 ExitFileMenuEarly:
 	MAC(hide_cursor());
@@ -2765,12 +2769,12 @@ ExitFileMenu:
 
 #define LB_ITEMS_ON_SCREEN 8
 
-int newmenu_listbox(char* title, int nitems, char* items[], int allow_abort_flag, int (*listbox_callback)(int* citem, int* nitems, char* items[], int* keypress))
+int newmenu_listbox(const char* title, int nitems, char* items[], int allow_abort_flag, int (*listbox_callback)(int* citem, int* nitems, char* items[], int* keypress))
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, listbox_callback);
 }
 
-int newmenu_listbox1(char* title, int nitems, char* items[], int allow_abort_flag, int default_item, int (*listbox_callback)(int* citem, int* nitems, char* items[], int* keypress))
+int newmenu_listbox1(const char* title, int nitems, char* items[], int allow_abort_flag, int default_item, int (*listbox_callback)(int* citem, int* nitems, char* items[], int* keypress))
 {
 	int i;
 	int done, ocitem, citem, ofirst_item, first_item, key, redraw;
@@ -2895,7 +2899,7 @@ RePaintNewmenuListbox:
 
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 
 #ifdef WINDOWS
@@ -2938,12 +2942,12 @@ RePaintNewmenuListbox:
 		}
 #endif
 
-		if (key < -1) {
+		if (key < -1)
+		{
 			citem = key;
 			key = -1;
 			done = 1;
 		}
-
 
 #ifdef WINDOWS
 		if (simukey == -1)
@@ -2953,7 +2957,8 @@ RePaintNewmenuListbox:
 		simukey = 0;
 #endif
 
-		switch (key) {
+		switch (key)
+		{
 		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
 		case KEY_PRINT_SCREEN:
 			MAC(hide_cursor());
@@ -2989,7 +2994,8 @@ RePaintNewmenuListbox:
 			citem -= LB_ITEMS_ON_SCREEN;
 			break;
 		case KEY_ESC:
-			if (allow_abort_flag) {
+			if (allow_abort_flag)
+			{
 				citem = -1;
 				done = 1;
 			}
@@ -3012,19 +3018,23 @@ RePaintNewmenuListbox:
 #endif
 
 		default:
-			if (key > 0) {
+			if (key > 0) 
+			{
 				int ascii = key_to_ascii(key);
-				if (ascii < 255) {
+				if (ascii < 255) 
+				{
 					int cc, cc1;
 					cc = cc1 = citem + 1;
 					if (cc1 < 0)  cc1 = 0;
 					if (cc1 >= nitems)  cc1 = 0;
-					while (1) {
+					while (1)
+					{
 						if (cc < 0) cc = 0;
 						if (cc >= nitems) cc = 0;
 						if (citem == cc) break;
 
-						if (toupper(items[cc][0]) == toupper(ascii)) {
+						if (toupper(items[cc][0]) == toupper(ascii)) 
+						{
 							citem = cc;
 							break;
 						}
@@ -3136,20 +3146,24 @@ RePaintNewmenuListbox:
 		}
 #endif
 
-		if ((ofirst_item != first_item) || redraw) {
+		if ((ofirst_item != first_item) || redraw) 
+		{
 			MAC(hide_cursor());
 			WIN(HideCursorW());
 			WIN(DDGRLOCK(dd_grd_curcanv));
 
 			gr_setcolor(BM_XRGB(0, 0, 0));
-			for (i = first_item; i < first_item + LB_ITEMS_ON_SCREEN; i++) {
+			for (i = first_item; i < first_item + LB_ITEMS_ON_SCREEN; i++) 
+			{
 				int w, h, aw, y;
 				y = (i - first_item) * (grd_curfont->ft_h + 2) + wy;
-				if (i >= nitems) {
+				if (i >= nitems) 
+				{
 					gr_setcolor(BM_XRGB(0, 0, 0));
 					gr_rect(wx, y - 1, wx + width - 1, y + grd_curfont->ft_h + 1);
 				}
-				else {
+				else
+				{
 					if (i == citem)
 						grd_curcanv->cv_font = SELECTED_FONT;
 					else
@@ -3181,15 +3195,14 @@ RePaintNewmenuListbox:
 				nm_draw_background(wx - LHX(10), wy + total_height - LHY(7), wx - 2, wy + total_height);
 				No_darkening = 0;
 		}
-
 #endif
-
 
 			WIN(DDGRUNLOCK(dd_grd_curcanv));
 			WIN(ShowCursorW());
 			MAC(show_cursor());
 		}
-		else if (citem != ocitem) {
+		else if (citem != ocitem)
+		{
 			int w, h, aw, y;
 
 			MAC(hide_cursor());
@@ -3198,7 +3211,8 @@ RePaintNewmenuListbox:
 			WIN(DDGRLOCK(dd_grd_curcanv));
 
 			i = ocitem;
-			if ((i >= 0) && (i < nitems)) {
+			if ((i >= 0) && (i < nitems)) 
+			{
 				y = (i - first_item) * (grd_curfont->ft_h + 2) + wy;
 				if (i == citem)
 					grd_curcanv->cv_font = SELECTED_FONT;
@@ -3209,7 +3223,8 @@ RePaintNewmenuListbox:
 				gr_string(wx + 5, y, items[i]);
 			}
 			i = citem;
-			if ((i >= 0) && (i < nitems)) {
+			if ((i >= 0) && (i < nitems))
+			{
 				y = (i - first_item) * (grd_curfont->ft_h + 2) + wy;
 				if (i == citem)
 					grd_curcanv->cv_font = SELECTED_FONT;
@@ -3224,6 +3239,8 @@ RePaintNewmenuListbox:
 			WIN(ShowCursorW());
 			MAC(show_cursor());
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 	}
 	MAC(hide_cursor());
 	WIN(HideCursorW());

@@ -14,11 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <direct.h>
-#include <ctype.h>
-#include <conio.h>
-#include <fcntl.h>
-#include <io.h>
 #include <sys\types.h>
 #include <sys\stat.h>
 #include "fix/fix.h"
@@ -28,15 +23,22 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "platform/mono.h"
 #include "platform/timer.h"
+#include "platform/disk.h"
+#include "platform/findfile.h"
+#include "platform/posixstub.h"
 #include "mem/mem.h"
 #include "misc/error.h"
-
-//#define TICKER (*(volatile int *)0x46C)
 
 char filename_list[300][13];
 char directory_list[100][13];
 
-static const char* Message[] = {
+int CurDrive = 0;
+
+static int FirstTime = 1;
+static char CurDir[512];
+
+static const char* Message[] = 
+{
 	"Disk is write protected",
 	"Unknown unit",
 	"Drive not ready",
@@ -52,31 +54,6 @@ static const char* Message[] = {
 	"General Failure" };
 
 static int error_mode = 0;
-
-/*int __far critical_error_handler(unsigned deverr, unsigned errcode, unsigned far* devhdr)
-{
-	int x;
-
-	devhdr = devhdr; deverr = deverr;
-
-	if (error_mode == 1) return _HARDERR_FAIL;
-
-	x = MessageBox(-2, -2, 2, Message[errcode], "Retry", "Fail");
-
-	switch (x)
-	{
-	case 1: return _HARDERR_RETRY;
-	case 2: return _HARDERR_FAIL;
-	default: return _HARDERR_FAIL;
-	}
-}
-
-void InstallErrorHandler()
-{
-	_harderr((void*)critical_error_handler);
-	//Above line modified by KRB, added (void *) cast
-	//for the compiler.
-}*/
 
 void file_sort(int n, char list[][13])
 {
@@ -106,24 +83,11 @@ void file_sort(int n, char list[][13])
 	}
 }
 
-
-int SingleDrive()
-{
-	Warning("SingleDrive: STUB\n");
-	return 0;
-}
-
-void SetFloppy(int d)
-{
-	Warning("SetFloppy: STUB\n");
-}
-
-
 void file_capitalize(char* s)
 {
-	while (*s++ = toupper(*s));
+	//[ISB]I don't think this is important?
+	//while (*s++ = toupper(*s));
 }
-
 
 // Changes to a drive if valid.. 1=A, 2=B, etc
 // If flag, then changes to it.
@@ -134,7 +98,6 @@ int file_chdrive(int DriveNum, int flag)
 	return 0;
 }
 
-
 // Changes to directory in dir.  Even drive is changed.
 // Returns 1 if failed.
 //  0 = Changed ok.
@@ -143,27 +106,172 @@ int file_chdrive(int DriveNum, int flag)
 
 int file_chdir(char* dir)
 {
-	Warning("file_chdir: STUB\n");
+	char cwd[512];
+	char* Drive;
+	memset(cwd, 0, 512);
+	strncpy(cwd, CurDir, 255);
+
+	Drive = strchr(dir, ':');
+	mprintf((0, "starting at %s\n", CurDir));
+
+	if (Drive) //path is rooted
+	{
+		strncpy(CurDir, dir, 255);
+		mprintf((0, "got rooted path"));
+	}
+	else if (strncmp(dir, "..", 2) == 0) //path is up one level
+	{
+		//agh
+		char* ptr1 = strrchr(cwd, '/');
+#ifdef _WIN32
+		char* ptr2 = strrchr(cwd, '\\');
+
+		if ((uintptr_t)ptr2 > (uintptr_t)ptr1)
+			ptr1 = ptr2;
+#endif
+		*ptr1 = '\0';
+		if (!ptr1)
+			Warning("Trying to go up but path is too shallow");
+		else
+		{
+			mprintf((0, "trying to go up\n"));
+			strncpy(CurDir, cwd, 511);
+		}
+	}
+	else
+	{
+		//turboagh
+		//need to strip \.
+		char* ptr1 = strrchr(dir, '/');
+#ifdef _WIN32
+		char* ptr2 = strrchr(dir, '\\');
+
+		if ((uintptr_t)ptr2 > (uintptr_t)ptr1)
+			ptr1 = ptr2;
+#endif
+		if (ptr1)
+			*ptr1 = '\0';
+		strcat(cwd, "/");
+		strcat(cwd, dir);
+		if (strlen(cwd) >= 256)
+		{
+			mprintf((0, "directory switch failed: resultant directory too large"));
+			return 2; //TOO LARGE AAA
+		}
+
+		strncpy(CurDir, cwd, 511);
+	}
+
+	mprintf((0, "switching to %s, full path %s\n", dir, CurDir));
+	//Warning("file_chdir: %s\n", dir);
 	return 0;
 }
-
 
 int file_getdirlist(int MaxNum, char list[][13])
 {
-	Warning("file_getdirlist: STUB\n");
-	return 0;
+	FILEFINDSTRUCT find;
+	int NumDirs = 0, i, CurDrive;
+	char cwd[512];
+	memset(cwd, 0, 512);
+	strncpy(cwd, CurDir, 256);
+	strncat(cwd, "/", 1);
+	strncat(cwd, "*.", 4);
+
+	if (strlen(cwd) >= 4)
+	{
+		sprintf(list[NumDirs++], "..");
+	}
+
+	CurDrive = cwd[0] - 'A' + 1;
+
+	mprintf((0, "trying to iterate %s for directories\n", cwd));
+
+	if (!FileFindFirst(cwd, &find))
+	{
+		if (find.type == FF_TYPE_DIR) 
+		{
+			if (strcmp("..", find.name) && strcmp(".", find.name))
+				strncpy(list[NumDirs++], find.name, 13);
+		}
+
+		while (!FileFindNext(&find))
+		{
+			if (find.type == FF_TYPE_DIR)
+			{
+				if (strcmp("..", find.name) && strcmp(".", find.name))
+				{
+					if (NumDirs == 74)
+					{
+						MessageBox(-2, -2, 1, "Only the first 74 directories will be displayed.", "Ok");
+						break;
+					}
+					else 
+					{
+						strncpy(list[NumDirs++], find.name, 13);
+					}
+				}
+			}
+		}
+		FileFindClose();
+	}
+
+	file_sort(NumDirs, list);
+
+	for (i = 1; i <= 26; i++)
+	{
+		if (IsDrivePresent(i) && (i != CurDrive))
+		{
+			sprintf(list[NumDirs++], "%c:", i + 'A' - 1);
+		}
+	}
+
+	return NumDirs;
 }
 
-int file_getfilelist(int MaxNum, char list[][13], char* filespec)
+int file_getfilelist(int MaxNum, char list[][13], const char* filespec)
 {
-	Warning("file_getfilelist: STUB\n");
-	return 0;
+	FILEFINDSTRUCT find;
+	int NumFiles = 0;
+
+	char cwd[512];
+	memset(cwd, 0, 512);
+	strncpy(cwd, CurDir, 256);
+	strncat(cwd, "//", 1);
+	strncat(cwd, filespec, 8);
+
+	mprintf((0, "trying to iterate %s\n", cwd));
+
+	if (!FileFindFirst(cwd, &find))
+	{
+		mprintf((0, "testing %s, type %d\n", find.name, find.type));
+		if (find.type == FF_TYPE_FILE)
+			strncpy(list[NumFiles++], find.name, 13);
+
+		while (!FileFindNext(&find))
+		{
+			mprintf((0, "testing %s, type %d\n", find.name, find.type));
+			if (find.type == FF_TYPE_FILE)
+			{
+				if (NumFiles == 300)
+				{
+					MessageBox(-2, -2, 1, "Only the first 300 files will be displayed.", "Ok");
+					break;
+				}
+				else 
+				{
+					strncpy(list[NumFiles++], find.name, 13);
+				}
+			}
+		}
+		FileFindClose();
+	}
+
+	file_sort(NumFiles, list);
+
+	return NumFiles;
 }
 
-static int FirstTime = 1;
-static char CurDir[128];
-
-int ui_get_filename(char* filename, char* Filespec, char* message)
+int ui_get_filename(char* filename, int bufsize, const char* Filespec, const char* message)
 {
 	FILE* TempFile;
 	int NumFiles, NumDirs, i;
@@ -185,13 +293,13 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 	char fullfname[_MAX_FNAME + _MAX_EXT];
 
 
-	char OrgDir[128];
+	char OrgDir[512];
 	char* hack; //[ISB] should actually do something with this...
 
-	hack = _getcwd(OrgDir, 128); //[ISB] need to make this portable, and call getcwd on not MSVC shit
+	hack = _getcwd(OrgDir, 512); //[ISB] need to make this portable, and call getcwd on not MSVC shit
 
 	if (FirstTime)
-		hack = _getcwd(CurDir, 128);
+		hack = _getcwd(CurDir, 512);
 	FirstTime = 0;
 
 	file_chdir(CurDir);
@@ -209,7 +317,7 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 
 	ui_wprintf_at(wnd, 10, 5, message);
 
-	_splitpath_s(filename, drive, 3, dir, 256, fname, 256, ext, 256);
+	_splitpath(filename, drive, dir, fname, ext);
 
 	sprintf_s(InputText, 100, "%s%s", fname, ext);
 
@@ -298,8 +406,7 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 
 			error_mode = 1; // Critical error handler automatically fails.
 
-			//TempFile = fopen(UserFile->text, "r");
-			errno_t err = fopen_s(&TempFile, UserFile->text, "r");
+			TempFile = fopen(UserFile->text, "r");
 			if (TempFile)
 			{
 				// Looks like a valid filename that already exists!
@@ -308,8 +415,7 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 			}
 
 			// File doesn't exist, but can we create it?
-			//TempFile = fopen(UserFile->text, "w");
-			err = fopen_s(&TempFile, UserFile->text, "w");
+			TempFile = fopen(UserFile->text, "w");
 			if (TempFile)
 			{
 				// Looks like a valid filename!
@@ -360,7 +466,7 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 				ui_listbox_change(wnd, ListBox2, NumDirs, (char*)directory_list, 13);
 				new_listboxes = 0;
 
-				hack = _getcwd(CurDir, 35);
+				//hack = _getcwd(CurDir, 35);
 				ui_wprintf_at(wnd, 20, 60, "%s", Spaces);
 				ui_wprintf_at(wnd, 20, 60, "%s", CurDir);
 
@@ -393,7 +499,7 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 	if (strlen(fulldir) > 1)
 		file_chdir(fulldir);
 
-	hack = _getcwd(CurDir, 35);
+	//hack = _getcwd(CurDir, 35);
 
 	if (strlen(CurDir) > 0)
 	{
@@ -401,7 +507,7 @@ int ui_get_filename(char* filename, char* Filespec, char* message)
 			CurDir[strlen(CurDir) - 1] = 0;
 	}
 
-	sprintf_s(filename, strlen(filename), "%s\\%s", CurDir, fullfname);
+	snprintf(filename, bufsize, "%s\\%s", CurDir, fullfname);
 	//MessageBox( -2, -2, 1, filename, "Ok" );
 
 	file_chdir(OrgDir);

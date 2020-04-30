@@ -345,7 +345,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short* vp, int tma
 	{
 		int save_lighting;
 		grs_bitmap* bm;
-		uvl uvl_copy[8];
+		g3s_uvl uvl_copy[8];
 		g3s_point* pointlist[4];
 
 		if (tmap2 > 0)
@@ -355,7 +355,10 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short* vp, int tma
 
 		for (i = 0; i < nv; i++) 
 		{
-			uvl_copy[i] = uvlp[i];
+			//uvl_copy[i] = uvlp[i];
+			uvl_copy[i].u = uvlp[i].u;
+			uvl_copy[i].v = uvlp[i].v;
+			uvl_copy[i].l = uvlp[i].l;
 			pointlist[i] = &Segment_points[vp[i]];
 		}
 
@@ -1680,7 +1683,7 @@ void render_mine(int start_seg_num, fix eye_offset)
 
 #if defined(EDITOR) && !defined(NDEUBG)
 	if (Show_only_curside) {
-		rotate_list(8, &Cursegp->verts);
+		rotate_list(8, &Cursegp->verts[0]);
 		render_side(Cursegp, Curside);
 		goto done_rendering;
 	}
@@ -1688,7 +1691,8 @@ void render_mine(int start_seg_num, fix eye_offset)
 
 
 #ifdef EDITOR
-	if (_search_mode || eye_offset > 0) {
+	if (_search_mode || eye_offset > 0) 
+	{
 		//lcnt = lcnt_save;
 		//scnt = scnt_save;
 	}
@@ -1833,7 +1837,7 @@ void render_mine(int start_seg_num, fix eye_offset)
 #ifdef EDITOR
 #ifndef NDEUBG
 //draw curedge stuff
-	if (Outline_mode) outline_seg_side(Cursegp, Curside, Curedge, Curvert);
+	if (Outline_mode && Cursegp) outline_seg_side(Cursegp, Curside, Curedge, Curvert);
 #endif
 
 done_rendering:

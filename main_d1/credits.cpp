@@ -151,7 +151,7 @@ void credits_show()
 
 		for (i = 0; i < ROW_SPACING; i++) 
 		{
-			I_DrawCurrentCanvas(0);
+			I_MarkStart();
 			I_DoEvents();
 			int y;
 
@@ -240,6 +240,8 @@ void credits_show()
 				songs_play_song(SONG_TITLE, 1);
 				return;
 			}
+			I_DrawCurrentCanvas(0);
+			I_Delay(US_70FPS);
 		}
 
 		if (buffer[(buffer_line + 1) % NUM_LINES][0] == '!') 

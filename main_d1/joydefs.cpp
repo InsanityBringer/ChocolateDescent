@@ -64,7 +64,8 @@ extern int WriteConfigFile();
 
 void joydefs_calibrate()
 {
-	uint8_t masks;
+	nm_messagebox(NULL, 1, TXT_OK, "Joystick calibration not\npossible in chocolate.");
+	/*uint8_t masks;
 	int org_axis_min[4];
 	int org_axis_center[4];
 	int org_axis_max[4];
@@ -252,11 +253,13 @@ void joydefs_calibrate()
 	}
 	joy_set_cal_vals(axis_min, axis_cen, axis_max);
 
-	WriteConfigFile();
+	WriteConfigFile();*/
 }
 
 
-//char *control_text[CONTROL_MAX_TYPES] = { "Keyboard only", "Joystick", "Flightstick Pro", "Thrustmaster FCS", "Gravis Gamepad", "Mouse", "Cyberman" };
+char *control_text[CONTROL_MAX_TYPES] = { "Keyboard only", "Joystick (1-2)", "Gamepad", "Joystick w/ throttle", "-", "Mouse", "-"};
+int choco_menu_remap[CONTROL_MAX_TYPES] = { 0, 1, 2, 3, 5, 0, 0 }; //Remaps the new options to the old input ID
+int choco_id_to_menu_remap[CONTROL_MAX_TYPES] = { 0, 1, 2, 3, 0, 4, 0 }; //Remaps an old ID to the new menu option
 
 void joydef_menuset_1(int nitems, newmenu_item* items, int* last_key, int citem)
 {
@@ -267,17 +270,17 @@ void joydef_menuset_1(int nitems, newmenu_item* items, int* last_key, int citem)
 	last_key = last_key;
 	citem = citem;
 
-	for (i = 0; i < CONTROL_MAX_TYPES; i++)
-		if (items[i].value) Config_control_type = i;
+	for (i = 0; i < 5; i++)
+		if (items[i].value) Config_control_type = choco_menu_remap[i];
 
-	if ((oc_type != Config_control_type) && (Config_control_type == CONTROL_THRUSTMASTER_FCS)) 
+	/*if ((oc_type != Config_control_type) && (Config_control_type == CONTROL_THRUSTMASTER_FCS)) 
 	{
 		nm_messagebox(TXT_IMPORTANT_NOTE, 1, TXT_OK, TXT_FCS);
-	}
+	}*/
 
 	if (oc_type != Config_control_type) 
 	{
-		switch (Config_control_type)
+		/*switch (Config_control_type)
 		{
 			//		case	CONTROL_NONE:
 		case	CONTROL_JOYSTICK:
@@ -287,7 +290,7 @@ void joydef_menuset_1(int nitems, newmenu_item* items, int* last_key, int citem)
 			//		case	CONTROL_MOUSE:
 			//		case	CONTROL_CYBERMAN:
 			joydefs_calibrate_flag = 1;
-		}
+		}*/
 		kc_set_controls();
 	}
 
@@ -307,17 +310,15 @@ void joydefs_config()
 
 	do 
 	{
-		nitems = 10;
-		m[0].type = NM_TYPE_RADIO; m[0].text = CONTROL_TEXT(0); m[0].value = 0; m[0].group = 0;
-		m[1].type = NM_TYPE_RADIO; m[1].text = CONTROL_TEXT(1); m[1].value = 0; m[1].group = 0;
-		m[2].type = NM_TYPE_RADIO; m[2].text = CONTROL_TEXT(2); m[2].value = 0; m[2].group = 0;
-		m[3].type = NM_TYPE_RADIO; m[3].text = CONTROL_TEXT(3); m[3].value = 0; m[3].group = 0;
-		m[4].type = NM_TYPE_RADIO; m[4].text = CONTROL_TEXT(4); m[4].value = 0; m[4].group = 0;
-		m[5].type = NM_TYPE_RADIO; m[5].text = CONTROL_TEXT(5); m[5].value = 0; m[5].group = 0;
-		m[6].type = NM_TYPE_RADIO; m[6].text = CONTROL_TEXT(6); m[6].value = 0; m[6].group = 0;
-		m[7].type = NM_TYPE_MENU; m[7].text = TXT_CUST_ABOVE;
-		m[8].type = NM_TYPE_TEXT; m[8].text = (char*)"";
-		m[9].type = NM_TYPE_MENU; m[9].text = TXT_CUST_KEYBOARD;
+		nitems = 8;
+		m[0].type = NM_TYPE_RADIO; m[0].text = control_text[0]; m[0].value = 0; m[0].group = 0;
+		m[1].type = NM_TYPE_RADIO; m[1].text = control_text[1]; m[1].value = 0; m[1].group = 0;
+		m[2].type = NM_TYPE_RADIO; m[2].text = control_text[2]; m[2].value = 0; m[2].group = 0;
+		m[3].type = NM_TYPE_RADIO; m[3].text = control_text[3]; m[3].value = 0; m[3].group = 0;
+		m[4].type = NM_TYPE_RADIO; m[4].text = control_text[5]; m[4].value = 0; m[4].group = 0;
+		m[5].type = NM_TYPE_MENU; m[5].text = TXT_CUST_ABOVE;
+		m[6].type = NM_TYPE_TEXT; m[6].text = (char*)"";
+		m[7].type = NM_TYPE_MENU; m[7].text = TXT_CUST_KEYBOARD;
 
 		if (kc_use_external_control) 
 		{
@@ -326,13 +327,13 @@ void joydefs_config()
 			nitems = nitems + 1;
 		}
 
-		m[Config_control_type].value = 1;
+		m[choco_id_to_menu_remap[Config_control_type]].value = 1;
 
 		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, joydef_menuset_1, i1);
 
 		switch (i1) 
 		{
-		case 7: 
+		case 5: 
 		{
 			old_masks = 0;
 			for (i = 0; i < 4; i++)
@@ -344,9 +345,9 @@ void joydefs_config()
 				// nothing...
 				Config_control_type = 0;
 			else if (Config_control_type < 5)
-				kconfig(1, CONTROL_TEXT(Config_control_type));
+				kconfig(1, control_text[Config_control_type]);
 			else
-				kconfig(2, CONTROL_TEXT(Config_control_type));
+				kconfig(2, control_text[Config_control_type]);
 
 			masks = 0;
 			for (i = 0; i < 4; i++)
@@ -355,7 +356,8 @@ void joydefs_config()
 					masks |= (1 << i);
 			}
 
-			switch (Config_control_type) {
+			switch (Config_control_type) 
+			{
 			case	CONTROL_JOYSTICK:
 			case	CONTROL_FLIGHTSTICK_PRO:
 			case	CONTROL_THRUSTMASTER_FCS:
@@ -370,7 +372,7 @@ void joydefs_config()
 			}
 		}
 				break;
-		case 9:
+		case 7:
 			kconfig(0, TXT_KEYBOARD);
 			break;
 		}
@@ -382,7 +384,7 @@ void joydefs_config()
 
 	} while (i1 > -1);
 
-	switch (Config_control_type) 
+	/*switch (Config_control_type) 
 	{
 	case	CONTROL_JOYSTICK:
 	case	CONTROL_FLIGHTSTICK_PRO:
@@ -391,5 +393,5 @@ void joydefs_config()
 		if (joydefs_calibrate_flag)
 			joydefs_calibrate();
 		break;
-	}
+	}*/
 }

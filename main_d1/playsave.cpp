@@ -14,6 +14,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+
+#include "platform/posixstub.h"
 #include "misc/error.h"
 #include "inferno.h"
 #include "gameseq.h"
@@ -81,7 +83,7 @@ hli highest_levels[MAX_MISSIONS];
 typedef struct saved_game 
 {
 	char		name[GAME_NAME_LEN + 1];		//extra char for terminating zero
-	player	player;
+	player	playerinst;
 	int		difficulty_level;		//which level game is played at
 	int		primary_weapon;		//which weapon selected
 	int		secondary_weapon;		//which weapon selected
@@ -335,7 +337,7 @@ int read_player_file()
 		{
 			if (saved_games[i].name[0]) 
 			{
-				state_save_old_game(i, saved_games[i].name, &saved_games[i].player,
+				state_save_old_game(i, saved_games[i].name, &saved_games[i].playerinst,
 					saved_games[i].difficulty_level, saved_games[i].primary_weapon,
 					saved_games[i].secondary_weapon, saved_games[i].next_level_num);
 			}
@@ -353,7 +355,7 @@ int find_hli_entry()
 	int i;
 
 	for (i = 0; i < n_highest_levels; i++)
-		if (!_stricmp(highest_levels[i].shortname, Mission_list[Current_mission_num].filename))
+		if (!_strfcmp(highest_levels[i].shortname, Mission_list[Current_mission_num].filename))
 			break;
 
 	if (i == n_highest_levels) //not found.  create entry
@@ -397,7 +399,7 @@ int get_highest_level(void)
 	if (strlen(Mission_list[Current_mission_num].filename) == 0)
 	{
 		for (i = 0; i < n_highest_levels; i++)
-			if (!_stricmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
+			if (!_strfcmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
 				highest_saturn_level = highest_levels[i].level_num;
 	}
 #endif
@@ -517,7 +519,7 @@ int save_player_game(int slot_num, const char* text)
 
 	strcpy(saved_games[slot_num].name, text);
 
-	saved_games[slot_num].player = Players[Player_num];
+	saved_games[slot_num].playerinst = Players[Player_num];
 
 	saved_games[slot_num].difficulty_level = Difficulty_level;
 	saved_games[slot_num].auto_leveling_on = Auto_leveling_on;
@@ -546,7 +548,7 @@ int load_player_game(int slot_num)
 	Assert(saved_games[slot_num].name[0] != 0);
 
 	strcpy(save_callsign, Players[Player_num].callsign);
-	Players[Player_num] = saved_games[slot_num].player;
+	Players[Player_num] = saved_games[slot_num].playerinst;
 	strcpy(Players[Player_num].callsign, save_callsign);
 
 	Difficulty_level = saved_games[slot_num].difficulty_level;

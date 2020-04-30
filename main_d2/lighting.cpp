@@ -15,6 +15,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>	// for memset()
 #include <algorithm>
 
+#include "misc/rand.h"
+
 #include "inferno.h"
 #include "segment.h"
 #include "misc/error.h"
@@ -338,7 +340,7 @@ fix compute_light_intensity(int objnum)
 		fix tval = Weapon_info[obj->id].light;
 		if (Game_mode & GM_MULTI)
 			if (obj->id == OMEGA_ID)
-				if (rand() > 8192)
+				if (P_Rand() > 8192)
 					return 0;		//	3/4 of time, omega blobs will cast 0 light!
 
 		if (obj->id == FLARE_ID)

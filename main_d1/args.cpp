@@ -15,6 +15,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
+#include "platform/posixstub.h"
+
 int Num_args = 0;
 char* Args[100];
 

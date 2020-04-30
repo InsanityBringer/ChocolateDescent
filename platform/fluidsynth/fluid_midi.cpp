@@ -22,9 +22,19 @@ MidiFluidSynth::MidiFluidSynth()
 	FluidSynth = new_fluid_synth(FluidSynthSettings);
 	//AudioDriver = new_fluid_audio_driver(FluidSynthSettings, FluidSynth);
 	AudioDriver = nullptr;
-	//I_SetSoundfontFilename(SoundFontFilename);
+
+	if (FluidSynthSettings)
+	{
+		fluid_settings_setint(FluidSynthSettings, "synth.chorus.active", 0);
+		fluid_settings_setint(FluidSynthSettings, "synth.reverb.active", 0);
+	}
 
 	//if (FluidSynth == nullptr) return 1;
+}
+
+void MidiFluidSynth::SetSampleRate(uint32_t newSampleRate)
+{
+	fluid_settings_setnum(FluidSynthSettings, "synth.sample-rate", (double)newSampleRate);
 }
 
 void MidiFluidSynth::Shutdown()
@@ -39,14 +49,15 @@ void MidiFluidSynth::SetSoundfont(const char* filename)
 	fluid_synth_sfload(FluidSynth, filename, 1);
 }
 
-void MidiFluidSynth::RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer)
+void MidiFluidSynth::RenderMIDI(int numTicks, unsigned short* buffer)
 {
-	fluid_synth_write_s16(FluidSynth, numTicks * samplesPerTick, (void*)buffer, 0, 2, (void*)buffer, 1, 2);
+	fluid_synth_write_s16(FluidSynth, numTicks, (void*)buffer, 0, 2, (void*)buffer, 1, 2);
 }
 
 //I_MidiEvent(chunk->events[chunk->nextEvent]);
 void MidiFluidSynth::DoMidiEvent(midievent_t *ev)
 {
+	//printf("event %d channel %d param 1 %d param 2 %d\n", ev->type, ev->channel, ev->param1, ev->param2);
 	switch (ev->type)
 	{
 	case EVENT_NOTEON:
@@ -79,9 +90,10 @@ void MidiFluidSynth::StopSound()
 {
 	for (int chan = 0; chan < 16; chan++)
 	{
-		fluid_synth_cc(FluidSynth, chan, 0x79, 0);
+		fluid_synth_system_reset(FluidSynth);
+		//fluid_synth_cc(FluidSynth, chan, 0x79, 0);
 		//[ISB] this was originally an All Notes Off, but I misremembered the original game, it doesn't bleed midi notes, at least in some quick testing
-		fluid_synth_cc(FluidSynth, chan, 0x78, 0);
+		//fluid_synth_cc(FluidSynth, chan, 0x78, 0);
 	}
 }
 

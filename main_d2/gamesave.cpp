@@ -16,6 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
+#include "platform/posixstub.h"
 #include "platform/mono.h"
 #include "platform/key.h"
 #include "2d/gr.h"
@@ -218,12 +219,12 @@ int is_real_level(char* filename)
 		return 0;
 
 	//mprintf((0, "String = [%s]\n", &filename[len-11]));
-	return !_strnicmp(&filename[len - 11], "level", 5);
+	return !_strnfcmp(&filename[len - 11], "level", 5);
 
 }
 #endif
 
-void change_filename_extension(char* dest, char* src, char* new_ext)
+void change_filename_extension(char* dest, const char* src, const char* new_ext)
 {
 	int i;
 

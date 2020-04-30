@@ -15,15 +15,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "winapp.h"
-#else
-#include <conio.h>
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-//#include <dos.h>
 
 #include "misc/types.h"
 #include "game.h"
@@ -34,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/palette.h"
 #include "platform/joy.h"
 #include "songs.h"
-#include "misc/args.h" //[iSB] IF YOU DON'T FIX THIS GODDAMNED HACK I SWEAR TO GOD
+#include "misc/args.h"
 #include "player.h"
 #include "mission.h"
 #include "platform/mono.h"
@@ -47,30 +44,30 @@ uint8_t Config_control_type = 0;
 uint8_t Config_channels_reversed = 0;
 uint8_t Config_joystick_sensitivity = 8;
 
-static char *digi_dev8_str = "DigiDeviceID8";
-static char *digi_dev16_str = "DigiDeviceID16";
-static char *digi_port_str = "DigiPort";
-static char *digi_irq_str = "DigiIrq";
-static char *digi_dma8_str = "DigiDma8";
-static char *digi_dma16_str = "DigiDma16";
-static char *digi_volume_str = "DigiVolume";
-static char *midi_volume_str = "MidiVolume";
-static char *redbook_enabled_str = "RedbookEnabled";
-static char *redbook_volume_str = "RedbookVolume";
-static char *midi_dev_str = "MidiDeviceID";
-static char *midi_port_str = "MidiPort";
-static char *detail_level_str = "DetailLevel";
-static char *gamma_level_str = "GammaLevel";
-static char *stereo_rev_str = "StereoReverse";
-static char *joystick_min_str = "JoystickMin";
-static char *joystick_max_str = "JoystickMax";
-static char *joystick_cen_str = "JoystickCen";
-static char *last_player_str = "LastPlayer";
-static char *last_mission_str = "LastMission";
-static char *config_vr_type_str = "VR_type";
-static char *config_vr_resolution_str = "VR_resolution";
-static char *config_vr_tracking_str = "VR_tracking";
-static char *movie_hires_str = "MovieHires";
+static const char *digi_dev8_str = "DigiDeviceID8";
+static const char *digi_dev16_str = "DigiDeviceID16";
+static const char *digi_port_str = "DigiPort";
+static const char *digi_irq_str = "DigiIrq";
+static const char *digi_dma8_str = "DigiDma8";
+static const char *digi_dma16_str = "DigiDma16";
+static const char *digi_volume_str = "DigiVolume";
+static const char *midi_volume_str = "MidiVolume";
+static const char *redbook_enabled_str = "RedbookEnabled";
+static const char *redbook_volume_str = "RedbookVolume";
+static const char *midi_dev_str = "MidiDeviceID";
+static const char *midi_port_str = "MidiPort";
+static const char *detail_level_str = "DetailLevel";
+static const char *gamma_level_str = "GammaLevel";
+static const char *stereo_rev_str = "StereoReverse";
+static const char *joystick_min_str = "JoystickMin";
+static const char *joystick_max_str = "JoystickMax";
+static const char *joystick_cen_str = "JoystickCen";
+static const char *last_player_str = "LastPlayer";
+static const char *last_mission_str = "LastMission";
+static const char *config_vr_type_str = "VR_type";
+static const char *config_vr_resolution_str = "VR_resolution";
+static const char *config_vr_tracking_str = "VR_tracking";
+static const char *movie_hires_str = "MovieHires";
 
 #define _CRYSTAL_LAKE_8_ST		0xe201
 #define _CRYSTAL_LAKE_16_ST	0xe202

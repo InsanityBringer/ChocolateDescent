@@ -6,6 +6,7 @@ Instead, it is released under the terms of the MIT License.
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <thread>
 #include <mutex>
@@ -23,6 +24,8 @@ Instead, it is released under the terms of the MIT License.
 
 ALCdevice *ALDevice = NULL;
 ALCcontext *ALContext = NULL;
+
+int AL_initialized = 0;
 
 ALuint bufferNames[_MAX_VOICES];
 ALuint sourceNames[_MAX_VOICES];
@@ -49,7 +52,9 @@ bool HQMusicPlaying = false;
 
 int MusicVolume;
 
-void I_ErrorCheck(const char* context)
+MidiPlayer* midiPlayer;
+
+void AL_ErrorCheck(const char* context)
 {
 	int error;
 	error = alGetError();
@@ -68,6 +73,19 @@ void I_ErrorCheck(const char* context)
 }
 
 void I_CreateMusicSource();
+
+void AL_InitSource(ALuint source)
+{
+	alSourcef(source, AL_ROLLOFF_FACTOR, 0.0f);
+	alSource3f(source, AL_DIRECTION, 0.f, 0.f, 0.f);
+	alSource3f(source, AL_VELOCITY, 0.f, 0.f, 0.f);
+	alSource3f(source, AL_POSITION, 0.f, 0.f, 0.f);
+	alSourcef(source, AL_MAX_GAIN, 1.f);
+	alSourcef(source, AL_GAIN, 1.f);
+	alSourcef(source, AL_PITCH, 1.f);
+	alSourcef(source, AL_DOPPLER_FACTOR, 0.f);
+	AL_ErrorCheck("Init AL source");
+}
 
 int I_InitAudio()
 {
@@ -88,21 +106,25 @@ int I_InitAudio()
 	alcMakeContextCurrent(ALContext);
 
 	alGenBuffers(_MAX_VOICES, &bufferNames[0]);
-	I_ErrorCheck("Creating buffers");
+	AL_ErrorCheck("Creating buffers");
 	alGenSources(_MAX_VOICES, &sourceNames[0]);
-	I_ErrorCheck("Creating sources");
-	/*for (i = 0; i < _MAX_VOICES; i++)
+	AL_ErrorCheck("Creating sources");
+	for (i = 0; i < _MAX_VOICES; i++)
 	{
-		alSourcef(sourceNames[i], AL_ROLLOFF_FACTOR, 0.0f);
-	}*/
-	//float orientation[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
-	//alListenerfv(AL_ORIENTATION, &orientation[0]);
-	//I_ErrorCheck("Listener hack");
+		AL_InitSource(sourceNames[i]);
+	}
 
 	if (!alIsExtensionPresent("AL_EXT_FLOAT32"))
 	{
-		printf("Well for some reason your OpenAL implementation can't support floating point samples.\n");
+		printf("OpenAL implementation doesn't support floating point samples for HQ Music.\n");
 	}
+	if (!alIsExtensionPresent("AL_SOFT_loop_points"))
+	{
+		printf("OpenAL implementation doesn't support OpenAL soft loop points. Are you not using OpenAL soft?\n");
+	}
+	AL_ErrorCheck("Checking exts");
+
+	AL_initialized = 1;
 
 	return 0;
 }
@@ -115,6 +137,7 @@ void I_ShutdownAudio()
 		if (ALContext)
 			alcDestroyContext(ALContext);
 		alcCloseDevice(ALDevice);
+		AL_initialized = 0;
 	}
 }
 
@@ -127,14 +150,10 @@ int I_GetSoundHandle()
 		alGetSourcei(sourceNames[i], AL_SOURCE_STATE, &state);
 		if (state != AL_PLAYING)
 		{
-			alDeleteSources(1, &sourceNames[i]); //[ISB] delete the previous source before using this handle. Fixes problems with distant sounds briefly sounding loud
-			alGenSources(1, &sourceNames[i]);
-			alDeleteBuffers(1, &bufferNames[i]);
-			alGenBuffers(1, &bufferNames[i]);
 			return i;
 		}
 	}
-	I_ErrorCheck("Getting handle");
+	AL_ErrorCheck("Getting handle");
 	return _ERR_NO_SLOTS;
 }
 
@@ -142,12 +161,11 @@ void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
 {
 	if (handle >= _MAX_VOICES) return;
 
-	alSourcei(sourceNames[handle], AL_BUFFER, NULL);
-	alSourcef(sourceNames[handle], AL_ROLLOFF_FACTOR, 0.0f);
+	alSourcei(sourceNames[handle], AL_BUFFER, 0);
 	alBufferData(bufferNames[handle], AL_FORMAT_MONO8, data, length, sampleRate);
-	alSourcei(sourceNames[handle], AL_BUFFER, bufferNames[handle]);
+	I_SetLoopPoints(handle, 0, length);
 
-	I_ErrorCheck("Setting sound data");
+	AL_ErrorCheck("Setting sound data");
 }
 
 void I_SetSoundInformation(int handle, int volume, int angle)
@@ -167,32 +185,50 @@ void I_SetAngle(int handle, int angle)
 	x = (float)cos(flang);
 	y = (float)sin(flang);
 
-	alSource3f(sourceNames[handle], AL_POSITION, -x, 0.0f, y);
-	I_ErrorCheck("Setting sound angle");
+	alSource3f(sourceNames[handle], AL_POSITION, -x, 0.0f, -y);
+	AL_ErrorCheck("Setting sound angle");
 }
 
 void I_SetVolume(int handle, int volume)
 {
 	if (handle >= _MAX_VOICES) return;
 
-	float gain = volume / 65536.0f;
+	float gain = volume / 32768.0f;
 	alSourcef(sourceNames[handle], AL_GAIN, gain);
-	I_ErrorCheck("Setting sound volume");
+	AL_ErrorCheck("Setting sound volume");
+}
+
+void I_SetLoopPoints(int handle, int start, int end)
+{
+	if (start == -1) start = 0;
+	if (end == -1)
+	{
+		ALint len;
+		alGetBufferi(bufferNames[handle], AL_SIZE, &len);
+		end = len;
+		AL_ErrorCheck("Getting buffer length");
+	}
+	ALint loopPoints[2];
+	loopPoints[0] = start;
+	loopPoints[1] = end;
+	alBufferiv(bufferNames[handle], AL_LOOP_POINTS_SOFT, &loopPoints[0]);
+	AL_ErrorCheck("Setting loop points");
 }
 
 void I_PlaySound(int handle, int loop)
 {
 	if (handle >= _MAX_VOICES) return;
+	alSourcei(sourceNames[handle], AL_BUFFER, bufferNames[handle]);
 	alSourcei(sourceNames[handle], AL_LOOPING, loop);
 	alSourcePlay(sourceNames[handle]);
-	I_ErrorCheck("Playing sound");
+	AL_ErrorCheck("Playing sound");
 }
 
 void I_StopSound(int handle)
 {
 	if (handle >= _MAX_VOICES) return;
 	alSourceStop(sourceNames[handle]);
-	I_ErrorCheck("Stopping sound");
+	AL_ErrorCheck("Stopping sound");
 }
 
 int I_CheckSoundPlaying(int handle)
@@ -218,8 +254,30 @@ int I_CheckSoundDone(int handle)
 //-----------------------------------------------------------------------------
 bool playing = false;
 
+int I_StartMIDI(MidiSequencer* sequencer)
+{
+	midiPlayer = new MidiPlayer(sequencer, sequencer->GetSynth());
+	if (midiPlayer == nullptr || midiPlayer->IsError())
+	{
+		Error("S_InitMusic: Cannot allocate MIDI player");
+		return 1;
+	}
+	midiPlayer->Start();
+
+	return 0;
+}
+
+void I_ShutdownMIDI()
+{
+	if (midiPlayer != nullptr)
+	{
+		midiPlayer->Shutdown();
+	}
+}
+
 void I_SetMusicVolume(int volume)
 {
+	if (!AL_initialized) return;
 	//printf("Music volume %d\n", volume);
 	MusicVolume = volume;
 	if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
@@ -230,7 +288,7 @@ void I_SetMusicVolume(int volume)
 	{
 		alSourcef(HQMusicSource, AL_GAIN, MusicVolume / 127.0f);
 	}
-	I_ErrorCheck("Setting music volume");
+	AL_ErrorCheck("Setting music volume");
 }
 
 void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
@@ -240,14 +298,14 @@ void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
 	alSource3f(HQMusicSource, AL_POSITION, 1.0f, 0.0f, 0.0f);
 	alSourcef(HQMusicSource, AL_GAIN, MusicVolume / 127.0f);
 	alSourcei(HQMusicSource, AL_LOOPING, loop);
-	I_ErrorCheck("Creating HQ music source");
+	AL_ErrorCheck("Creating HQ music source");
 
 	alGenBuffers(1, &HQMusicBuffer);
 	alBufferData(HQMusicBuffer, AL_FORMAT_STEREO_FLOAT32, (ALvoid*)song_data.data(), song_data.size() * sizeof(float), sample_rate);
-	I_ErrorCheck("Creating HQ music buffer");
+	AL_ErrorCheck("Creating HQ music buffer");
 	alSourcei(HQMusicSource, AL_BUFFER, HQMusicBuffer);
 	alSourcePlay(HQMusicSource);
-	I_ErrorCheck("Playing HQ music");
+	AL_ErrorCheck("Playing HQ music");
 	HQMusicPlaying = true;
 }
 
@@ -258,7 +316,7 @@ void I_StopHQSong()
 		alSourceStop(HQMusicSource);
 		alDeleteSources(1, &HQMusicSource);
 		alDeleteBuffers(1, &HQMusicBuffer);
-		I_ErrorCheck("Stopping HQ music");
+		AL_ErrorCheck("Stopping HQ music");
 		HQMusicPlaying = false;
 	}
 }
@@ -267,23 +325,10 @@ void I_CreateMusicSource()
 {
 	alGenSources(1, &MusicSource);
 	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
-	alSource3f(MusicSource, AL_POSITION, 1.0f, 0.0f, 0.0f);
+	alSource3f(MusicSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
 	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
-	I_ErrorCheck("Creating music source");
-	if (!alIsSource(MusicSource))
-	{
-		fprintf(stderr, "what the fuck\n");
-		Int3();
-	}
-
-/*	//Immediately kick off the first buffer if possible
-	int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
-	alGenBuffers(1, &BufferQueue[0]);
-	alBufferData(BufferQueue[0], AL_FORMAT_STEREO16, MusicBufferData, finalTicks * S_GetSamplesPerTick() * sizeof(ALushort) * 2, 44100);
-	alSourceQueueBuffers(MusicSource, 1, &BufferQueue[0]);
-	alSourcePlay(MusicSource);
-	I_ErrorCheck("Queueing music buffers");*/
+	AL_ErrorCheck("Creating music source");
 }
 
 void I_DestroyMusicSource()
@@ -297,26 +342,28 @@ void I_DestroyMusicSource()
 	}
 	I_ErrorCheck("Destroying lingering music buffers");*/
 	alDeleteSources(1, &MusicSource);
-	I_ErrorCheck("Destroying music source");
+	AL_ErrorCheck("Destroying music source");
 	alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
-	I_ErrorCheck("Destroying lingering buffers");
+	AL_ErrorCheck("Destroying lingering buffers");
 	free(MusicBufferData);
 	MusicSource = 0;
 }
 
-bool I_CanQueueMusicBuffer()
+bool AL_CanQueueMusicBuffer()
 {
+	if (!AL_initialized) return false;
 	if (!alIsSource(MusicSource))
 	{
 		Int3();
 	}
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
-	I_ErrorCheck("Checking can queue buffers");
+	AL_ErrorCheck("Checking can queue buffers");
 	return CurrentBuffers < MAX_BUFFERS_QUEUED;
 }
 
-void I_DequeueMusicBuffers()
+void AL_DequeueMusicBuffers()
 {
+	if (!AL_initialized) return;
 	int BuffersProcessed;
 	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
 	if (BuffersProcessed > 0)
@@ -329,60 +376,65 @@ void I_DequeueMusicBuffers()
 		}
 		//printf("Killing %d buffers\n", BuffersProcessed);
 	}
-	I_ErrorCheck("Unqueueing music buffers");
+	AL_ErrorCheck("Unqueueing music buffers");
 }
 
-void I_QueueMusicBuffer(int numTicks, uint16_t *data)
+void AL_QueueMusicBuffer(int numTicks, uint16_t *data)
 {
+	if (!AL_initialized) return;
 	//printf("Queuing %d ticks\n", numTicks);
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
 	if (CurrentBuffers < MAX_BUFFERS_QUEUED)
 	{
 		//int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
 		alGenBuffers(1, &BufferQueue[CurrentBuffers]);
-		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * MIDI_SAMPLESPERTICK * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
+		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
 		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
-		I_ErrorCheck("Queueing music buffers");
+		AL_ErrorCheck("Queueing music buffers");
 	}
-	if (!playing)
+	int playstatus = 0;
+	alGetSourcei(MusicSource, AL_SOURCE_STATE, &playstatus);
+	if (playstatus != AL_PLAYING)
 	{
 		playing = true;
 		alSourcePlay(MusicSource);
-		I_ErrorCheck("Playing music source");
+		AL_ErrorCheck("Playing music source");
 		//printf("Kicking this mess off\n");
 	}
 }
 
-void I_MIDIThread()
+void I_StartMIDISong(hmpheader_t* song, bool loop)
 {
-/*	std::unique_lock<std::mutex> lock(MIDIMutex);
-	S_StartMIDISong(CurrentSong, LoopMusic);
-	I_CreateMusicSource();
-	while (!StopMIDI)
-	{
-		lock.unlock();
-		I_QueueMusicBuffer();
-		lock.lock();
-	}
-	S_StopSequencer();
-	I_DestroyMusicSource();*/
-}
-
-void I_StartMIDISong()
-{
-	StopMIDI = false;
-	playing = false;
-	I_CreateMusicSource();
-	I_ErrorCheck("Creating source");
+	midiPlayer->SetSong(song, loop);
 }
 
 void I_StopMIDISong()
 {
+	midiPlayer->StopSong();
+}
+
+uint32_t I_GetPreferredMIDISampleRate()
+{
+	return MIDI_SAMPLERATE;
+}
+
+void AL_StartMIDISong()
+{
+	StopMIDI = false;
+	playing = false;
+	if (!AL_initialized) return;
+	I_CreateMusicSource();
+	AL_ErrorCheck("Creating source");
+}
+
+void AL_StopMIDISong()
+{
 	StopMIDI = true;
+	if (!AL_initialized) return;
 	alSourceStop(MusicSource);
-	I_DequeueMusicBuffers();
+	AL_DequeueMusicBuffers();
 	I_DestroyMusicSource();
-	I_ErrorCheck("Destroying source");
+	AL_ErrorCheck("Destroying source");
 }
 
 //-----------------------------------------------------------------------------
@@ -404,8 +456,8 @@ void I_CreateMovieSource()
 {
 	alGenSources(1, &mveSndSourceName);
 	alSourcef(mveSndSourceName, AL_ROLLOFF_FACTOR, 0.0f);
-	alSource3f(mveSndSourceName, AL_POSITION, 1.0f, 0.0f, 0.0f);
-	I_ErrorCheck("Creating movie source");
+	alSource3f(mveSndSourceName, AL_POSITION, 0.0f, 0.0f, 0.0f);
+	AL_ErrorCheck("Creating movie source");
 }
 
 void I_InitMovieAudio(int format, int samplerate, int stereo)
@@ -448,7 +500,7 @@ void I_DequeueMovieAudioBuffers(int all)
 		if (mveSndBufferTail == NUMMVESNDBUFFERS)
 			mveSndBufferTail = 0;
 	}
-	I_ErrorCheck("Dequeing movie buffers");
+	AL_ErrorCheck("Dequeing movie buffers");
 	//kill all remaining buffers if we're told to stop
 	if (all)
 	{
@@ -462,7 +514,7 @@ void I_DequeueMovieAudioBuffers(int all)
 			if (mveSndBufferTail == NUMMVESNDBUFFERS)
 				mveSndBufferTail = 0;
 		}
-		I_ErrorCheck("Dequeing excess movie buffers");
+		AL_ErrorCheck("Dequeing excess movie buffers");
 	}
 }
 
@@ -475,7 +527,7 @@ void I_QueueMovieAudioBuffer(int len, short* data)
 	alGenBuffers(1, &mveSndRingBuffer[mveSndBufferHead]);
 	alBufferData(mveSndRingBuffer[mveSndBufferHead], mveSndFormat, (ALvoid*)data, len, mveSndSampleRate);
 
-	I_ErrorCheck("Creating movie buffers");
+	AL_ErrorCheck("Creating movie buffers");
 	//Queue the buffer, and if this source isn't playing, kick it off
 	alSourceQueueBuffers(mveSndSourceName, 1, &mveSndRingBuffer[mveSndBufferHead]);
 	if (mveSndPlaying == AL_FALSE)
@@ -488,7 +540,7 @@ void I_QueueMovieAudioBuffer(int len, short* data)
 	if (mveSndBufferHead == NUMMVESNDBUFFERS)
 		mveSndBufferHead = 0;
 
-	I_ErrorCheck("Queuing movie buffers");
+	AL_ErrorCheck("Queuing movie buffers");
 }
 
 void I_DestroyMovieAudio()

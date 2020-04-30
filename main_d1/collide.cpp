@@ -15,6 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
+#include "misc/rand.h"
 #include "2d/rle.h"
 #include "inferno.h"
 #include "game.h"
@@ -338,8 +339,8 @@ void scrape_object_on_wall(object* obj, short hitseg, short hitside, vms_vector*
 				vm_vec_normalize_quick(&hit_dir);
 				bump_one_object(obj, &hit_dir, F1_0 * 8);
 
-				obj->mtype.phys_info.rotvel.x = (rand() - 16384) / 2;
-				obj->mtype.phys_info.rotvel.z = (rand() - 16384) / 2;
+				obj->mtype.phys_info.rotvel.x = (P_Rand() - 16384) / 2;
+				obj->mtype.phys_info.rotvel.z = (P_Rand() - 16384) / 2;
 
 			}
 			else {
@@ -1097,7 +1098,7 @@ void drop_player_eggs(object* player)
 		if (Game_mode & GM_MULTI)
 		{
 			Net_create_loc = 0;
-			srand(5483L);
+			P_SRand(5483L);
 		}
 #endif
 

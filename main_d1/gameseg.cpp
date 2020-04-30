@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <malloc.h>
 #include <string.h>
 #include <algorithm>
+#include "misc/rand.h"
 #include "inferno.h"
 #include "game.h"
 #include "misc/error.h"
@@ -724,7 +725,7 @@ int	Doing_lighting_hack_flag = 0;
 
 //figure out what seg the given point is in, tracing through segments
 //returns segment number, or -1 if can't find segment
-int trace_segs(vms_vector * p0, int oldsegnum)
+int trace_segs(vms_vector * p0, int oldsegnum, int trace_segs_iterations)
 {
 	int centermask;
 	segment* seg;
@@ -732,7 +733,8 @@ int trace_segs(vms_vector * p0, int oldsegnum)
 
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
 
-	/*if (stackavail() < 1024) //if no debugging, we'll get past assert
+	//if (stackavail() < 1024) //if no debugging, we'll get past assert
+	if (trace_segs_iterations > 1024)
 	{		
 #ifndef NDEBUG
 		if (!Doing_lighting_hack_flag)
@@ -743,7 +745,7 @@ int trace_segs(vms_vector * p0, int oldsegnum)
 #endif
 
 		return oldsegnum;				//just say we're in this segment and be done with it
-	}*/
+	}
 
 
 	centermask = get_side_dists(p0, oldsegnum, side_dists);		//check old segment
@@ -779,7 +781,7 @@ int trace_segs(vms_vector * p0, int oldsegnum)
 
 				side_dists[biggest_side] = 0;
 
-				check = trace_segs(p0, seg->children[biggest_side]);	//trace into adjacent segment
+				check = trace_segs(p0, seg->children[biggest_side], trace_segs_iterations+1);	//trace into adjacent segment
 
 				if (check != -1)		//we've found a segment
 					return check;
@@ -808,7 +810,7 @@ int find_point_seg(vms_vector* p, int segnum)
 
 	if (segnum != -1) 
 	{
-		newseg = trace_segs(p, segnum);
+		newseg = trace_segs(p, segnum, 0);
 
 		if (newseg != -1)			//we found a segment!
 			return newseg;
@@ -1804,9 +1806,9 @@ void pick_random_point_in_seg(vms_vector* new_pos, int segnum)
 	vms_vector	vec2;
 
 	compute_segment_center(new_pos, &Segments[segnum]);
-	vnum = (rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
+	vnum = (P_Rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	vm_vec_sub(&vec2, &Vertices[Segments[segnum].verts[vnum]], new_pos);
-	vm_vec_scale(&vec2, rand());			//	rand() always in 0..1/2
+	vm_vec_scale(&vec2, P_Rand());			//	rand() always in 0..1/2
 	vm_vec_add2(new_pos, &vec2);
 }
 

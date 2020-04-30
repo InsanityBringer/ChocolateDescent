@@ -1,19 +1,24 @@
 Everything described in this document is in a very early state, and is subject
 to change. I'll confess I barely know what I'm doing with CMake, so there's
-a number of limitations so far. Things will only build with Visual Studio on
-Windows, and library finding is spotty. Here's a quick rundown of what you will
-need to do to build.
+a number of limitations so far. 
 
-There are three external libraries, but most are optional on Windows
+The project can be built on Windows (only tested with Visual Studio 2019)
+or Linux (only tested with gcc ATM, clang support is desired though)
 
-SDL 2.0.10 - Optional
+There are three external libraries, but most are optional.
+
+SDL 2.0.10 - Required on Linux, Optional on Windows
 OpenAL (OpenAL Soft implementation preferred) - Optional
-FluidSynth - Currently Required
+FluidSynth - Optional
 
 There are two Graphics/Input and Audio backends available on Windows. If these
 libraries are not present, a native Windows backend provided by dpJudas will be
 used. This isn't fully featured at the moment, but I try to keep it compilable.
+Only the SDL and OpenAL backends are available on Linux right now.
 
+-------------------------------------------------------------------------------
+Building on Windows
+-------------------------------------------------------------------------------
 Here's a step by step outline to building on Windows with CMake-gui. I don't 
 know enough about the CLI version to give instructions there, sorry.
 
@@ -39,3 +44,24 @@ values, and then click Generate to make the project files.
 
 6. Open up the generated solution file in Visual Studio, and then build the
 projects as desired. 
+
+-------------------------------------------------------------------------------
+Building on Linux
+-------------------------------------------------------------------------------
+Due to the large amount of variances in Linux installations, I can't give a
+detailed set of instructions, but here's the basic idea:
+
+-Install desired libraries. All of them should be available through your
+current package manager
+
+-Navigate to the source directory and run cmake with a desired build directory
+  Unlike the Windows code ATM, the library detection code should find
+  the three libraries without any issue, at least they do on my machine
+  
+-Navigate to the build directory and run make. Assuming everything goes well,
+this should produce ChocolateDescent and ChocolateDescent2. You can use
+
+  make ChocolateDescent
+  or make ChocolateDescent2
+  
+to build just one of the projects.

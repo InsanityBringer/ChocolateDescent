@@ -16,8 +16,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include <stdlib.h>
-//#include <unistd.h>
 
+#include "platform/posixstub.h"
 #include "misc/error.h"
 #include "platform/mono.h"
 
@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "fireball.h"
 #include "endlevel.h"
+#include "misc/rand.h"
 
 //@@vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 //@@vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
@@ -131,7 +132,7 @@ void do_countdown_frame();
 void do_controlcen_dead_frame(void)
 {
 	if ((Dead_controlcen_object_num != -1) && (Countdown_seconds_left > 0))
-		if (rand() < FrameTime*4)
+		if (P_Rand() < FrameTime*4)
 			create_small_fireball_on_object(&Objects[Dead_controlcen_object_num], F1_0, 1);
 
 	if (Control_center_destroyed && !Endlevel_sequence)
@@ -168,8 +169,8 @@ void do_countdown_frame()
 	if (Difficulty_level == 0)
 		div_scale = 4;
 
-	ConsoleObject->mtype.phys_info.rotvel.x += (fixmul(rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
-	ConsoleObject->mtype.phys_info.rotvel.z += (fixmul(rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
+	ConsoleObject->mtype.phys_info.rotvel.x += (fixmul(P_Rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
+	ConsoleObject->mtype.phys_info.rotvel.z += (fixmul(P_Rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
 	//	Hook in the rumble sound effect here.
 
 	old_time = Countdown_timer;
@@ -248,11 +249,7 @@ void do_controlcen_destroyed_stuff(object *objp)
 	//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
 	if (Current_level_num < 0) {
 		int	rval;
-		#ifndef MACINTOSH
 		rval = _unlink("secret.sgc");
-		#else
-		rval = _unlink(":Players:secret.sgc");
-		#endif
 		mprintf((0, "Deleting secret.sgc, return value = %i\n", rval));
 	}
 
@@ -384,7 +381,7 @@ void do_controlcen_frame(object *obj)
 			//	some of time, based on level, fire another thing, not directly at player, so it might hit him if he's constantly moving.
 			rand_prob = F1_0/(abs(Current_level_num)/4+2);
 			count = 0;
-			while ((rand() > rand_prob) && (count < 4)) {
+			while ((P_Rand() > rand_prob) && (count < 4)) {
 				vms_vector	randvec;
 
 				make_random_vector(&randvec);
@@ -446,6 +443,13 @@ void init_controlcen_for_level(void)
 	if (cntrlcen_objnum == -1) 
 	{
 		mprintf((1, "Warning: No control center.\n"));
+		//	Say the control center has not yet been hit.
+		//[ISB] clean up the state
+		Control_center_been_hit = 0;
+		Control_center_player_been_seen = 0;
+		Control_center_next_fire_time = 0;
+
+		Dead_controlcen_object_num = -1;
 		return;
 	}
 //#endif

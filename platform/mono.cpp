@@ -1,17 +1,30 @@
+/*
+The code contained in this file is not the property of Parallax Software,
+and is not under the terms of the Parallax Software Source license.
+Instead, it is released under the terms of the MIT License,
+as described in copying.txt.
+*/
 //[ISB]: Stub MDA implemetation for the moment tbh
 #ifndef NDEBUG
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
+#include <algorithm>
 
 #include "platform/mono.h"
 
-int windowStates[32];
+#define NUMWINDOWS 2
+
+int windowStates[NUMWINDOWS];
+char windowNames[NUMWINDOWS][256];
+
+int lastWindow = -1;
 
 int minit()
 {
-	fprintf(stderr, "minit: STUB\n");
+	//fprintf(stderr, "minit: STUB\n");
 	return 0;
 }
 
@@ -22,8 +35,13 @@ void mclose(int num)
 
 void mopen(int n, int row, int col, int width, int height, const char* title)
 {
-	windowStates[n] = 1;
-	fprintf(stderr, "Opened mono window %d: %s\n", n, title);
+	if (n < NUMWINDOWS)
+	{
+		windowStates[n] = 1;
+		fprintf(stderr, "Opened mono window %d: %s\n", n, title);
+		//is this sufficient error checking?
+		strncpy(windowNames[n], title, std::min(strlen(title), (size_t)255));
+	}
 }
 
 void mclear(int n)
@@ -36,10 +54,14 @@ void _mprintf(int n, const char* format, ...)
 	//[ISB] console IO on Windows is the slowest thing on planet earth, so actually check if open
 	if (!windowStates[n]) return;
 	va_list args;
-	fprintf(stderr, "_mprintf to window %d:\n", n);
+	if (lastWindow != n)
+	{
+		fprintf(stderr, "%s:\n_______________________________\n", windowNames[n]);
+	}
 	va_start(args, format);
 	vfprintf(stderr, format, args);
 	va_end(args);
+	lastWindow = n;
 }
 
 void _mprintf_at(int n, int row, int col, const char* format, ...)

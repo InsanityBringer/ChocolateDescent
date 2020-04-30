@@ -67,7 +67,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct Edge_info {
 	union {
 		short	verts[2];		// 4 bytes
-		long vv;
+		int32_t vv;
 	};
 	uint8_t sides[4];			// 4 bytes
 	short segnum[4];			// 8 bytes	// This might not need to be stored... If you can access the normals of a side.
@@ -441,7 +441,6 @@ void do_automap(int key_code)
 	while (!done) 
 	{
 		startTime = I_GetUS();
-		I_DoEvents();
 		if (leave_mode == 0 && Controls.automap_state && (timer_get_fixed_seconds() - entry_time) > LEAVE_TIME)
 			leave_mode = 1;
 
@@ -565,8 +564,6 @@ void do_automap(int key_code)
 		if (ViewDist > ZOOM_MAX_VALUE) ViewDist = ZOOM_MAX_VALUE;
 
 		draw_automap();
-		if (!done) //[ISB] don't swap twice if we're getting outta here
-			I_DrawCurrentCanvas(0);
 
 		if (first_time) 
 		{
@@ -574,6 +571,8 @@ void do_automap(int key_code)
 			gr_palette_load(gr_palette);
 		}
 
+		I_DrawCurrentCanvas(0);
+		I_DoEvents();
 		//[ISB] framerate limiter 
 		//waiting loop for polled fps mode
 		//With suggestions from dpjudas.
@@ -775,7 +774,7 @@ void draw_all_edges()
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
 static int automap_find_edge(int v0, int v1, Edge_info** edge_ptr)
 {
-	long vv;
+	int32_t vv;
 	short hash, oldhash;
 	int ret;
 

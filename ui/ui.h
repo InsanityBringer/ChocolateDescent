@@ -344,7 +344,7 @@ int file_chdir(const char* dir);
 
 int file_getdirlist(int MaxNum, char list[][13]);
 int file_getfilelist(int MaxNum, char list[][13], const char* filespec);
-int ui_get_filename(const char* filename, const char* Filespec, const char* message);
+int ui_get_filename(char* filename, int bufsize, const char* Filespec, const char* message);
 
 //[ISB] unused
 //void* ui_malloc(int size);
@@ -382,7 +382,7 @@ UI_GADGET_ICON* ui_add_gadget_icon(UI_WINDOW* wnd, const char* text, short x, sh
 
 int GetKeyCode(const char* text);
 int DecodeKeyText(const char* text);
-void GetKeyDescription(const char* text, size_t len, int keypress);
+void GetKeyDescription(char* text, size_t len, int keypress);
 
 extern void menubar_init(const char* filename);
 extern void menubar_do(int keypress);

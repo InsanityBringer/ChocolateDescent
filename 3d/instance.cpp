@@ -10,13 +10,17 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+#include <stddef.h>
 
 #include "misc/error.h"
 
 #include "3d/3d.h"
 #include "globvars.h"
 
-#define MAX_INSTANCE_DEPTH	5
+//[ISB] bumped for the moment, from 5. Because fan levels like corrupting memory. 
+//[ISB] but I also can't blame them, Parallax never published these static limits. 
+//[ISB] TODO: Look into emulating memory corruption
+#define MAX_INSTANCE_DEPTH	10
 
 struct instance_context {
 	vms_matrix m;

@@ -22,6 +22,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef WIN32
 #include <Windows.h>
 #include <debugapi.h>
+#else
+#include <signal.h>
 #endif
 
 #define MAX_MSG_LEN 256
@@ -67,7 +69,11 @@ void set_exit_message(const char* fmt, ...)
 void _Assert(int expr, const char* expr_text, const char* filename, int linenum)
 {
 #ifndef NDEBUG
-	if (!(expr)) Error("Assertion failed: %s, file %s, line %d", expr_text, filename, linenum);
+	if (!(expr))
+	{
+		Int3();
+		Error("Assertion failed: %s, file %s, line %d", expr_text, filename, linenum);
+	}
 #endif
 }
 
@@ -77,8 +83,7 @@ void Int3()
 #ifdef WIN32
 	DebugBreak();
 #else
-	Warning("int3 raised\n");
-	return;
+	raise(SIGTRAP);
 #endif
 #endif
 }

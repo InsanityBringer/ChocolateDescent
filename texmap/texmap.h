@@ -22,6 +22,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_LIGHTING_VALUE	((NUM_LIGHTING_LEVELS-1)*F1_0/NUM_LIGHTING_LEVELS)
 #define MIN_LIGHTING_VALUE	(F1_0/NUM_LIGHTING_LEVELS)
 
+//[ISB] Uncomment for a drug induced nightmare. 
+//#define TEXMAP_ANTIALIAS
+//[ISB] Uncomment for dithering of lighting. Slow since it's perspective only ATM. 
+//#define TEXMAP_DITHER
+
 #ifdef BUILD_DESCENT2
 //variables for clipping the texture-mapper to screen region
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;

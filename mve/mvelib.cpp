@@ -5,12 +5,7 @@
 
 #include "mvelib.h"
 
-#ifdef WIN32
-#include <io.h> //[ISB] godawful hack, esposes POSIX-y functionality
-//[ISB] should be deprecated but CMake messes with MSVC deprecation. 
-#else
-#include <unistd.h>
-#endif
+#include "platform/posixstub.h"
 
 static const char  MVE_HEADER[]  = "Interplay MVE File\x1A";
 static const short MVE_HDRCONST1 = 0x001A;

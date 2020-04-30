@@ -78,7 +78,7 @@ void ui_draw_icon(UI_GADGET_ICON* icon)
 }
 
 
-UI_GADGET_ICON* ui_add_gadget_icon(UI_WINDOW* wnd, char* text, short x, short y, short w, short h, int k, int (*f)(void))
+UI_GADGET_ICON* ui_add_gadget_icon(UI_WINDOW* wnd, const char* text, short x, short y, short w, short h, int k, int (*f)(void))
 {
 	UI_GADGET_ICON* icon;
 
@@ -87,6 +87,7 @@ UI_GADGET_ICON* ui_add_gadget_icon(UI_WINDOW* wnd, char* text, short x, short y,
 	icon->width = w;
 	icon->height = h;
 	MALLOC( icon->text, char, strlen( text )+2);//Hack by KRB //[ISB] whoops, forgot to unhack by ISB
+	icon->textLen = strlen(text) + 2;
 	//icon->text = (char*)malloc((strlen(text) + 2) * sizeof(char));
 	strcpy_s(icon->text, icon->textLen, text);
 	icon->trap_key = k;

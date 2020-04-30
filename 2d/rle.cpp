@@ -493,4 +493,4 @@ void gr_rle_expand_scanline_generic(grs_bitmap* dest, int dx, int dy, uint8_t* s
 		}
 	}
 }
-
+

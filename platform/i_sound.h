@@ -40,6 +40,8 @@ void I_SetAngle(int handle, int angle);
 
 void I_SetVolume(int handle, int volume);
 
+void I_SetLoopPoints(int handle, int start, int end);
+
 //-----------------------------------------------------------------------------
 // Emitting noise at player
 //-----------------------------------------------------------------------------
@@ -55,14 +57,29 @@ int I_CheckSoundDone(int handle);
 // Emitting pleasing rythmic sequences at player
 //-----------------------------------------------------------------------------
 
+//Starts the audio system's MIDI system with the specified sequencer for playback.
+int I_StartMIDI(MidiSequencer *sequencer);
+//Gets the synth's sample rate. This lets the Windows backend run the synth at its preferred sample rate
+uint32_t I_GetPreferredMIDISampleRate();
+//Stops the audio system's MIDI system
+void I_ShutdownMIDI();
+//Sets the current music volume. In the range 0-127.
 void I_SetMusicVolume(int volume);
 
-bool I_CanQueueMusicBuffer();
-void I_DequeueMusicBuffers();
-void I_QueueMusicBuffer(int numTicks, uint16_t* data);
-
-void I_StartMIDISong();
+//Starts a given song
+void I_StartMIDISong(hmpheader_t* song, bool loop);
 void I_StopMIDISong();
+
+//[ISB] sigh. Hindsight's 20/20.
+
+#ifdef USE_OPENAL
+bool AL_CanQueueMusicBuffer();
+void AL_DequeueMusicBuffers();
+void AL_QueueMusicBuffer(int numTicks, uint16_t* data);
+
+void AL_StartMIDISong();
+void AL_StopMIDISong();
+#endif
 
 //-----------------------------------------------------------------------------
 // Emitting recordings of pleasing rythmic sequences at player

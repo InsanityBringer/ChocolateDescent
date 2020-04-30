@@ -437,4 +437,4 @@ void draw_morph_object(object* obj)
 		newdemo_record_morph_frame(md);
 
 }
-
+

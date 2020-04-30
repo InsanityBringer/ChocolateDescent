@@ -19,12 +19,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "2d/i_gr.h"
 #include "platform/s_midi.h"
+#include "platform/mouse.h"
 
 static const char* WindowWidthStr = "WindowWidth";
 static const char* WindowHeightStr = "WindowHeight";
 static const char* FitModeStr = "FitMode";
 static const char* FullscreenStr = "Fullscreen";
 static const char* SoundFontPath = "SoundFontPath";
+static const char* MouseScalarStr = "MouseScalar";
 
 //[ISB] to be honest, I hate this configuration parser. I should try to create something more flexible at some point.
 int I_ReadChocolateConfig()
@@ -37,12 +39,13 @@ int I_ReadChocolateConfig()
 	WindowWidth = 800;
 	WindowHeight = 600;
 
-	errno_t err = fopen_s(&infile, "chocolatedescent.cfg", "rt"); //[ISB] can someone remind me again why I undefined _CRT_SECURE_NO_WARNINGS? I don't know myself
-	//[ISB] Can't wait for it to cause severe issues down the line when running on linux.......
+	//errno_t err = fopen_s(&infile, "chocolatedescent.cfg", "rt"); //[ISB] can someone remind me again why I undefined _CRT_SECURE_NO_WARNINGS? I don't know myself
+	infile = fopen("chocolatedescent.cfg", "rt");
 	if (infile == NULL) 
 	{
 		//Try creating a default config file
-		err = fopen_s(&infile, "chocolatedescent.cfg", "w");
+		//err = fopen_s(&infile, "chocolatedescent.cfg", "w");
+		infile = fopen("chocolatedescent.cfg", "w");
 		if (infile != NULL)
 		{
 			fprintf(infile, "%s=%d\n", WindowWidthStr, WindowWidth);
@@ -64,8 +67,8 @@ int I_ReadChocolateConfig()
 			ptr++;
 		if (*ptr != '\0') 
 		{
-			token = strtok_s(ptr, "=", &next);
-			value = strtok_s(NULL, "=", &next);
+			token = strtok(ptr, "=");
+			value = strtok(NULL, "=");
 			if (!strcmp(token, WindowWidthStr))
 				WindowWidth = strtol(value, NULL, 10);
 			else if (!strcmp(token, WindowHeightStr))
@@ -74,6 +77,8 @@ int I_ReadChocolateConfig()
 				BestFit = strtol(value, NULL, 10);
 			else if (!strcmp(token, FullscreenStr))
 				Fullscreen = strtol(value, NULL, 10);
+			else if (!strcmp(token, MouseScalarStr))
+				MouseScalar = strtof(value, NULL);
 			else if (!strcmp(token, SoundFontPath))
 			{
 				char* p;

@@ -16,16 +16,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <conio.h>
 #include <string.h>
-#include <io.h>
+
+#include "platform/posixstub.h"
 
 #include "misc/types.h"
 #include "inferno.h"
 #include "2d/gr.h"
 #include "bm.h"
 #include "mem/mem.h"
-#include "cflib.h"
+#include "cfile/cfile.h"
 #include "platform/mono.h"
 #include "misc/error.h"
 #include "object.h"
@@ -85,6 +85,21 @@ int	TmapList[MAX_TEXTURES];
 char	Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
 char	Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
 
+//	For the sake of LINT, defining prototypes to module's functions
+void bm_read_robot_ai(void);
+void bm_read_powerup(int unused_flag);
+void bm_read_hostage(void);
+void bm_read_robot(void);
+void bm_read_weapon(int unused_flag);
+void bm_read_object(void);
+void bm_read_exitmodel(void);
+void bm_read_player_ship(void);
+void bm_read_some_file(void);
+void bm_read_sound(void);
+void verify_textures(void);
+void bm_read_hostage_face(void);
+
+
 //---------------- Internal variables ---------------------------
 static int 			Registered_only = 0;		//	Gets set by ! in column 1.
 static int			SuperX = -1;
@@ -133,29 +148,29 @@ void remove_char(char* s, char c)
 }
 
 //---------------------------------------------------------------
-int compute_average_pixel(grs_bitmap* new)
+int compute_average_pixel(grs_bitmap* newbm)
 {
 	int	row, column, color;
-	char* pptr;
+	unsigned char* pptr;
 	int	total_red, total_green, total_blue;
 
-	pptr = new->bm_data;
+	pptr = newbm->bm_data;
 
 	total_red = 0;
 	total_green = 0;
 	total_blue = 0;
 
-	for (row = 0; row < new->bm_h; row++)
-		for (column = 0; column < new->bm_w; column++) {
+	for (row = 0; row < newbm->bm_h; row++)
+		for (column = 0; column < newbm->bm_w; column++) {
 			color = *pptr++;
 			total_red += gr_palette[color * 3];
 			total_green += gr_palette[color * 3 + 1];
 			total_blue += gr_palette[color * 3 + 2];
 		}
 
-	total_red /= (new->bm_h * new->bm_w);
-	total_green /= (new->bm_h * new->bm_w);
-	total_blue /= (new->bm_h * new->bm_w);
+	total_red /= (newbm->bm_h * newbm->bm_w);
+	total_green /= (newbm->bm_h * newbm->bm_w);
+	total_blue /= (newbm->bm_h * newbm->bm_w);
 
 	return BM_XRGB(total_red / 2, total_green / 2, total_blue / 2);
 }
@@ -167,7 +182,7 @@ int compute_average_pixel(grs_bitmap* new)
 bitmap_index bm_load_sub(char* filename)
 {
 	bitmap_index bitmap_num;
-	grs_bitmap* new;
+	grs_bitmap* newbm;
 	uint8_t newpal[256 * 3];
 	int iff_error;		//reference parm to avoid warning message
 	char fname[20];
@@ -175,7 +190,8 @@ bitmap_index bm_load_sub(char* filename)
 	bitmap_num.index = 0;
 
 #ifdef SHAREWARE
-	if (Registered_only) {
+	if (Registered_only) 
+	{
 		//mprintf( 0, "Skipping registered-only bitmap '%s'\n", filename );
 		return bitmap_num;
 	}
@@ -184,30 +200,32 @@ bitmap_index bm_load_sub(char* filename)
 	_splitpath(filename, NULL, NULL, fname, NULL);
 
 	bitmap_num = piggy_find_bitmap(fname);
-	if (bitmap_num.index) {
+	if (bitmap_num.index) 
+	{
 		//mprintf(( 0, "Found bitmap '%s' in pig!\n", fname ));
 		return bitmap_num;
 	}
 
-	//MALLOC( new, grs_bitmap, 1 );//hack KRB
-	new = (grs_bitmap*)malloc(1 * sizeof(grs_bitmap));
-	iff_error = iff_read_bitmap(filename, new, BM_LINEAR, newpal);
-	new->bm_selector = 0;
-	if (iff_error != IFF_NO_ERROR) {
+	MALLOC(newbm, grs_bitmap, 1 );
+	//newbm = (grs_bitmap*)malloc(1 * sizeof(grs_bitmap));
+	iff_error = iff_read_bitmap(filename, newbm, BM_LINEAR, newpal);
+	newbm->bm_selector = 0;
+	if (iff_error != IFF_NO_ERROR)
+	{
 		mprintf((1, "File %s - IFF error: %s", filename, iff_errormsg(iff_error)));
 		Error("File %s - IFF error: %s", filename, iff_errormsg(iff_error));
 	}
 
 	if (iff_has_transparency)
-		gr_remap_bitmap_good(new, newpal, iff_transparent_color, SuperX);
+		gr_remap_bitmap_good(newbm, newpal, iff_transparent_color, SuperX);
 	else
-		gr_remap_bitmap_good(new, newpal, -1, SuperX);
+		gr_remap_bitmap_good(newbm, newpal, -1, SuperX);
 
-	new->avg_color = compute_average_pixel(new);
+	newbm->avg_color = compute_average_pixel(newbm);
 
 	mprintf((0, "N"));
-	bitmap_num = piggy_register_bitmap(new, fname, 0);
-	free(new);
+	bitmap_num = piggy_register_bitmap(newbm, fname, 0);
+	free(newbm);
 	return bitmap_num;
 }
 
@@ -222,7 +240,8 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 	char tempname[20];
 
 #ifdef SHAREWARE
-	if (Registered_only) {
+	if (Registered_only) 
+	{
 		Assert(bogus_bitmap_initialized != 0);
 		mprintf((0, "Skipping registered-only animation '%s'\n", filename));
 		bmp[0] = &bogus_bitmap;
@@ -234,7 +253,8 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 
 	_splitpath(filename, NULL, NULL, fname, NULL);
 
-	for (i = 0; i < MAX_BITMAPS_PER_BRUSH; i++) {
+	for (i = 0; i < MAX_BITMAPS_PER_BRUSH; i++) 
+	{
 		sprintf(tempname, "%s#%d", fname, i);
 		bi = piggy_find_bitmap(tempname);
 		if (!bi.index)
@@ -243,18 +263,21 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 		//mprintf(( 0, "Found animation frame %d, %s, in piggy file\n", i, tempname ));
 	}
 
-	if (i) {
+	if (i) 
+	{
 		*nframes = i;
 		return;
 	}
 
-	iff_error = iff_read_animbrush(filename, bm, MAX_BITMAPS_PER_BRUSH, nframes, &newpal);
-	if (iff_error != IFF_NO_ERROR) {
+	iff_error = iff_read_animbrush(filename, bm, MAX_BITMAPS_PER_BRUSH, nframes, &newpal[0]);
+	if (iff_error != IFF_NO_ERROR) 
+	{
 		mprintf((1, "File %s - IFF error: %s", filename, iff_errormsg(iff_error)));
 		Error("File %s - IFF error: %s", filename, iff_errormsg(iff_error));
 	}
 
-	for (i = 0; i < *nframes; i++) {
+	for (i = 0; i < *nframes; i++)
+	{
 		bitmap_index new_bmp;
 		sprintf(tempname, "%s#%d", fname, i);
 		if (iff_has_transparency)
@@ -271,15 +294,17 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 	}
 }
 
-int ds_load(char* filename) {
+int ds_load(char* filename) 
+{
 	int i;
 	CFILE* cfp;
-	digi_sound new;
+	digi_sound newbm;
 	char fname[20];
 	char rawname[100];
 
 #ifdef SHAREWARE
-	if (Registered_only) {
+	if (Registered_only) 
+	{
 		//mprintf( 0, "Skipping registered-only sound '%s'\n", filename );
 		return &bogus_sound;
 	}
@@ -295,20 +320,22 @@ int ds_load(char* filename) {
 
 	cfp = cfopen(rawname, "rb");
 
-	if (cfp != NULL) {
-		new.length = cfilelength(cfp);
-		//MALLOC( new.data, uint8_t, new.length );//hack by KRB
-		new.data = (uint8_t*)malloc(new.length * sizeof(uint8_t));
-		cfread(new.data, 1, new.length, cfp);
+	if (cfp != NULL) 
+	{
+		newbm.length = cfilelength(cfp);
+		MALLOC(newbm.data, uint8_t, newbm.length );
+		//newbm.data = (uint8_t*)malloc(new.length * sizeof(uint8_t));
+		cfread(newbm.data, 1, newbm.length, cfp);
 		cfclose(cfp);
 		mprintf((0, "S"));
 		mprintf((0, "<%s>", rawname));
 	}
-	else {
+	else 
+	{
 		mprintf((1, "Warning: Couldn't find '%s'\n", filename));
 		return 255;
 	}
-	i = piggy_register_sound(&new, fname, 0);
+	i = piggy_register_sound(&newbm, fname, 0);
 	return i;
 }
 
@@ -426,21 +453,26 @@ int bm_init_use_tbl()
 
 	cfseek(InfoFile, 0L, SEEK_SET);
 
-	while (cfgets(inputline, LINEBUF_SIZE, InfoFile)) {
+	while (cfgets(inputline, LINEBUF_SIZE, InfoFile)) 
+	{
 		int l;
 		char* temp_ptr;
 
 		linenum++;
 
-		if (have_bin_tbl) {				// is this a binary tbl file
-			for (i = 0; i < strlen(inputline) - 1; i++) {
+		if (have_bin_tbl) // is this a binary tbl file
+		{
+			for (i = 0; i < strlen(inputline) - 1; i++) 
+			{
 				encode_rotate_left(&(inputline[i]));
 				inputline[i] = inputline[i] ^ BITMAP_TBL_XOR;
 				encode_rotate_left(&(inputline[i]));
 			}
 		}
-		else {
-			while (inputline[(l = strlen(inputline)) - 2] == '\\') {
+		else 
+		{
+			while (inputline[(l = strlen(inputline)) - 2] == '\\') 
+			{
 				cfgets(inputline + l - 2, LINEBUF_SIZE - (l - 2), InfoFile);
 				linenum++;
 			}
@@ -454,20 +486,22 @@ int bm_init_use_tbl()
 
 		SuperX = -1;
 
-		if ((temp_ptr = strstr(inputline, "superx="))) {
+		if ((temp_ptr = strstr(inputline, "superx=")))
+		{
 			SuperX = atoi(&temp_ptr[7]);
 		}
 
 		arg = strtok(inputline, space);
-		if (arg[0] == '@') {
-			arg++;
-			Registered_only = 1;
-		}
-		else
-			Registered_only = 0;
-
 		while (arg != NULL)
 		{
+			if (arg[0] == '@') //[ISB] validate when we know it isn't null
+			{
+				arg++;
+				Registered_only = 1;
+			}
+			else
+				Registered_only = 0;
+
 			// Check all possible flags and defines.
 			if (*arg == '$') bm_flag = BM_NONE; // reset to no flags as default.
 
@@ -637,7 +671,7 @@ void set_lighting_flag(int8_t* bp)
 		*bp &= (0xff ^ BM_FLAG_NO_LIGHTING);
 }
 
-set_texture_name(char* name)
+void set_texture_name(char* name)
 {
 	strcpy(TmapInfo[texture_count].filename, name);
 	REMOVE_DOTS(TmapInfo[texture_count].filename);
@@ -960,7 +994,7 @@ void clear_to_end_of_line(void)
 		arg = strtok(NULL, space);
 }
 
-bm_read_sound()
+void bm_read_sound()
 {
 	int sound_num;
 	int alt_sound_num;
@@ -1039,22 +1073,26 @@ grs_bitmap* load_polymodel_bitmap(char* name)
 
 	//	Assert( N_ObjBitmaps == N_ObjBitmapPtrs );
 
-	if (name[0] == '%') {		//an animating bitmap!
+	if (name[0] == '%') //an animating bitmap!
+	{
 		int eclip_num;
 
 		eclip_num = atoi(name + 1);
 
-		if (Effects[eclip_num].changing_object_texture == -1) {		//first time referenced
+		if (Effects[eclip_num].changing_object_texture == -1) //first time referenced
+		{
 			Effects[eclip_num].changing_object_texture = N_ObjBitmaps;
 			ObjBitmapPtrs[N_ObjBitmapPtrs++] = N_ObjBitmaps;
 			N_ObjBitmaps++;
 		}
-		else {
+		else 
+		{
 			ObjBitmapPtrs[N_ObjBitmapPtrs++] = Effects[eclip_num].changing_object_texture;
 		}
 		return NULL;
 	}
-	else {
+	else 
+	{
 		ObjBitmaps[N_ObjBitmaps] = bm_load_sub(name);
 		ObjBitmapPtrs[N_ObjBitmapPtrs++] = N_ObjBitmaps;
 		N_ObjBitmaps++;
@@ -1094,7 +1132,8 @@ void bm_read_robot()
 	Assert(N_robot_types < MAX_ROBOT_TYPES);
 
 #ifdef SHAREWARE
-	if (Registered_only) {
+	if (Registered_only) 
+	{
 		Robot_info[N_robot_types].model_num = -1;
 		N_robot_types++;
 		Num_total_object_types++;
@@ -1110,91 +1149,117 @@ void bm_read_robot()
 	// Process bitmaps 
 	bm_flag = BM_ROBOT;
 	arg = strtok(NULL, space);
-	while (arg != NULL) {
+	while (arg != NULL) 
+	{
 		equal_ptr = strchr(arg, '=');
-		if (equal_ptr) {
+		if (equal_ptr) 
+		{
 			*equal_ptr = '\0';
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			if (!stricmp(arg, "exp1_vclip")) {
+			if (!stricmp(arg, "exp1_vclip")) 
+			{
 				exp1_vclip_num = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "exp2_vclip")) {
+			else if (!stricmp(arg, "exp2_vclip")) 
+			{
 				exp2_vclip_num = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "exp1_sound")) {
+			else if (!stricmp(arg, "exp1_sound"))
+			{
 				exp1_sound_num = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "exp2_sound")) {
+			else if (!stricmp(arg, "exp2_sound")) 
+			{
 				exp2_sound_num = atoi(equal_ptr);
 			}
 			else if (!stricmp(arg, "lighting")) {
 				lighting = fl2f(atof(equal_ptr));
-				if ((lighting < 0) || (lighting > F1_0)) {
+				if ((lighting < 0) || (lighting > F1_0)) 
+				{
 					mprintf((1, "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting)));
 					Error("In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
 			}
-			else if (!stricmp(arg, "weapon_type")) {
+			else if (!stricmp(arg, "weapon_type")) 
+			{
 				weapon_type = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "strength")) {
+			else if (!stricmp(arg, "strength")) 
+			{
 				strength = i2f(atoi(equal_ptr));
 			}
-			else if (!stricmp(arg, "mass")) {
+			else if (!stricmp(arg, "mass")) 
+			{
 				mass = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "drag")) {
+			else if (!stricmp(arg, "drag"))
+			{
 				drag = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "contains_id")) {
+			else if (!stricmp(arg, "contains_id")) 
+			{
 				contains_id = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "contains_type")) {
+			else if (!stricmp(arg, "contains_type")) 
+			{
 				contains_type = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "contains_count")) {
+			else if (!stricmp(arg, "contains_count")) 
+			{
 				contains_count = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "contains_prob")) {
+			else if (!stricmp(arg, "contains_prob")) 
+			{
 				contains_prob = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "cloak_type")) {
+			else if (!stricmp(arg, "cloak_type")) 
+			{
 				cloak_type = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "attack_type")) {
+			else if (!stricmp(arg, "attack_type")) 
+			{
 				attack_type = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "boss")) {
+			else if (!stricmp(arg, "boss")) 
+			{
 				boss_flag = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "score_value")) {
+			else if (!stricmp(arg, "score_value")) 
+			{
 				score_value = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "see_sound")) {
+			else if (!stricmp(arg, "see_sound")) 
+			{
 				see_sound = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "attack_sound")) {
+			else if (!stricmp(arg, "attack_sound"))
+			{
 				attack_sound = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "claw_sound")) {
+			else if (!stricmp(arg, "claw_sound")) 
+			{
 				claw_sound = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "name")) {
+			else if (!stricmp(arg, "name")) 
+			{
 				Assert(strlen(equal_ptr) < ROBOT_NAME_LENGTH);	//	Oops, name too long.
 				strcpy(name, &equal_ptr[1]);
 				name[strlen(name) - 1] = 0;
 			}
-			else if (!stricmp(arg, "simple_model")) {
+			else if (!stricmp(arg, "simple_model"))
+			{
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
 			}
-			else {
+			else 
+			{
 				mprintf((1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr));
 			}
 		}
-		else {			// Must be a texture specification...
+		else // Must be a texture specification...
+		{			
 			load_polymodel_bitmap(arg);
 		}
 		arg = strtok(NULL, space);
@@ -1207,9 +1272,10 @@ void bm_read_robot()
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
-	for (i = 0; i < n_models; i++) {
+	for (i = 0; i < n_models; i++) 
+	{
 		int n_textures;
-		int model_num, last_model_num;
+		int model_num, last_model_num = 0;
 
 		n_textures = first_bitmap_num[i + 1] - first_bitmap_num[i];
 
@@ -1278,17 +1344,19 @@ void bm_read_object()
 	arg = strtok(NULL, space);
 	first_bitmap_num = N_ObjBitmapPtrs;
 
-	while (arg != NULL) {
-
+	while (arg != NULL)
+	{
 		equal_ptr = strchr(arg, '=');
 
-		if (equal_ptr) {
+		if (equal_ptr) 
+		{
 			*equal_ptr = '\0';
 			equal_ptr++;
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			if (!stricmp(arg, "type")) {
+			if (!stricmp(arg, "type"))
+			{
 				if (!stricmp(equal_ptr, "controlcen"))
 					type = OL_CONTROL_CENTER;
 				else if (!stricmp(equal_ptr, "clutter"))
@@ -1296,31 +1364,38 @@ void bm_read_object()
 				else if (!stricmp(equal_ptr, "exit"))
 					type = OL_EXIT;
 			}
-			else if (!stricmp(arg, "exp_vclip")) {
+			else if (!stricmp(arg, "exp_vclip")) 
+			{
 				explosion_vclip_num = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "dead_pof")) {
+			else if (!stricmp(arg, "dead_pof"))
+			{
 				model_name_dead = equal_ptr;
 				first_bitmap_num_dead = N_ObjBitmapPtrs;
 			}
-			else if (!stricmp(arg, "exp_sound")) {
+			else if (!stricmp(arg, "exp_sound")) 
+			{
 				explosion_sound_num = atoi(equal_ptr);
 			}
 			else if (!stricmp(arg, "lighting")) {
 				lighting = fl2f(atof(equal_ptr));
-				if ((lighting < 0) || (lighting > F1_0)) {
+				if ((lighting < 0) || (lighting > F1_0))
+				{
 					mprintf((1, "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting)));
 					Error("In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
 			}
-			else if (!stricmp(arg, "strength")) {
+			else if (!stricmp(arg, "strength")) 
+			{
 				strength = fl2f(atof(equal_ptr));
 			}
-			else {
+			else 
+			{
 				mprintf((1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr));
 			}
 		}
-		else {			// Must be a texture specification...
+		else // Must be a texture specification...
+		{			
 			load_polymodel_bitmap(arg);
 		}
 		arg = strtok(NULL, space);
@@ -1351,7 +1426,8 @@ void bm_read_object()
 	//printf( "Object type %d is a control center\n", Num_total_object_types );
 	Num_total_object_types++;
 
-	if (type == OL_EXIT) {
+	if (type == OL_EXIT) 
+	{
 		exit_modelnum = model_num;
 		destroyed_exit_modelnum = Dead_modelnums[model_num];
 	}
@@ -1376,24 +1452,27 @@ void bm_read_player_ship()
 	Player_ship->mass = Player_ship->drag = 0;	//stupid defaults
 	Player_ship->expl_vclip_num = -1;
 
-	while (arg != NULL) {
-
+	while (arg != NULL)
+	{
 		equal_ptr = strchr(arg, '=');
 
-		if (equal_ptr) {
+		if (equal_ptr)
+		{
 
 			*equal_ptr = '\0';
 			equal_ptr++;
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			if (!stricmp(arg, "model")) {
+			if (!stricmp(arg, "model")) 
+			{
 				Assert(n_models == 0);
 				model_name[0] = equal_ptr;
 				first_bitmap_num[0] = N_ObjBitmapPtrs;
 				n_models = 1;
 			}
-			else if (!stricmp(arg, "simple_model")) {
+			else if (!stricmp(arg, "simple_model")) 
+			{
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
@@ -1421,11 +1500,13 @@ void bm_read_player_ship()
 				model_name_dying = equal_ptr;
 			else if (!stricmp(arg, "expl_vclip_num"))
 				Player_ship->expl_vclip_num = atoi(equal_ptr);
-			else {
+			else 
+			{
 				mprintf((1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr));
 			}
 		}
-		else if (!stricmp(arg, "multi_textures")) {
+		else if (!stricmp(arg, "multi_textures")) 
+		{
 
 			First_multi_bitmap_num = N_ObjBitmapPtrs;
 			first_bitmap_num[n_models] = N_ObjBitmapPtrs;
@@ -1446,11 +1527,15 @@ void bm_read_player_ship()
 	if (First_multi_bitmap_num == -1)
 		first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
+#ifndef NETWORK //ISB hack
+#define MAX_NUM_NET_PLAYERS 8
+#endif
 	Assert(last_multi_bitmap_num - First_multi_bitmap_num == (MAX_NUM_NET_PLAYERS - 1) * 2);
 
-	for (i = 0; i < n_models; i++) {
+	for (i = 0; i < n_models; i++)
+	{
 		int n_textures;
-		int model_num, last_model_num;
+		int model_num, last_model_num = 0;
 
 		n_textures = first_bitmap_num[i + 1] - first_bitmap_num[i];
 
@@ -1464,7 +1549,8 @@ void bm_read_player_ship()
 		last_model_num = model_num;
 	}
 
-	if (model_name_dying) {
+	if (model_name_dying)
+	{
 		Assert(n_models);
 		Dying_modelnums[Player_ship->model_num] = load_polygon_model(model_name_dying, first_bitmap_num[1] - first_bitmap_num[0], first_bitmap_num[0], NULL);
 	}
@@ -1483,30 +1569,30 @@ void bm_read_player_ship()
 		r = &ri;
 		pm = &Polygon_models[Player_ship->model_num];
 
-		for (gun_num = 0; gun_num < r->n_guns; gun_num++) {
+		for (gun_num = 0; gun_num < r->n_guns; gun_num++)
+		{
 
 			pnt = r->gun_points[gun_num];
 			mn = r->gun_submodels[gun_num];
 
 			//instance up the tree for this gun
-			while (mn != 0) {
+			while (mn != 0)
+			{
 				vm_vec_add2(&pnt, &pm->submodel_offsets[mn]);
 				mn = pm->submodel_parents[mn];
 			}
 
 			Player_ship->gun_points[gun_num] = pnt;
-
 		}
 	}
-
-
 }
 
 void bm_read_some_file()
 {
-
-	switch (bm_flag) {
-	case BM_COCKPIT: {
+	switch (bm_flag) 
+	{
+	case BM_COCKPIT:
+	{
 		bitmap_index bitmap;
 		bitmap = bm_load_sub(arg);
 		Assert(Num_cockpits < N_COCKPIT_BITMAPS);
@@ -1527,7 +1613,8 @@ void bm_read_some_file()
 	case BM_ECLIP:
 		bm_read_eclip();
 		break;
-	case BM_TEXTURES: {
+	case BM_TEXTURES: 
+	{
 		bitmap_index bitmap;
 		bitmap = bm_load_sub(arg);
 		Assert(tmap_count < MAX_TEXTURES);
@@ -1564,13 +1651,15 @@ void bm_read_weapon(int unused_flag)
 	n = N_weapon_types;
 	N_weapon_types++;
 
-	if (unused_flag) {
+	if (unused_flag) 
+	{
 		clear_to_end_of_line();
 		return;
 	}
 
 #ifdef SHAREWARE
-	if (Registered_only) {
+	if (Registered_only) 
+	{
 		clear_to_end_of_line();
 		return;
 	}
@@ -1621,135 +1710,171 @@ void bm_read_weapon(int unused_flag)
 
 	lighted = 1;			//assume first texture is lighted
 
-	while (arg != NULL) {
+	while (arg != NULL) 
+	{
 		equal_ptr = strchr(arg, '=');
-		if (equal_ptr) {
+		if (equal_ptr) 
+		{
 			*equal_ptr = '\0';
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			if (!stricmp(arg, "laser_bmp")) {
+			if (!stricmp(arg, "laser_bmp")) 
+			{
 				// Load bitmap with name equal_ptr
 
 				Weapon_info[n].bitmap = bm_load_sub(equal_ptr);		//load_polymodel_bitmap(equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_LASER;
 
 			}
-			else if (!stricmp(arg, "blob_bmp")) {
+			else if (!stricmp(arg, "blob_bmp")) 
+			{
 				// Load bitmap with name equal_ptr
 
 				Weapon_info[n].bitmap = bm_load_sub(equal_ptr);		//load_polymodel_bitmap(equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_BLOB;
 
 			}
-			else if (!stricmp(arg, "weapon_vclip")) {
+			else if (!stricmp(arg, "weapon_vclip")) 
+			{
 				// Set vclip to play for this weapon.
 				Weapon_info[n].bitmap.index = 0;
 				Weapon_info[n].render_type = WEAPON_RENDER_VCLIP;
 				Weapon_info[n].weapon_vclip = atoi(equal_ptr);
 
 			}
-			else if (!stricmp(arg, "none_bmp")) {
+			else if (!stricmp(arg, "none_bmp")) 
+			{
 				Weapon_info[n].bitmap = bm_load_sub(equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_NONE;
 
 			}
-			else if (!stricmp(arg, "weapon_pof")) {
+			else if (!stricmp(arg, "weapon_pof")) 
+			{
 				// Load pof file
 				Assert(n_models == 0);
 				model_name[0] = equal_ptr;
 				first_bitmap_num[0] = N_ObjBitmapPtrs;
 				n_models = 1;
 			}
-			else if (!stricmp(arg, "simple_model")) {
+			else if (!stricmp(arg, "simple_model")) 
+			{
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
 			}
-			else if (!stricmp(arg, "weapon_pof_inner")) {
+			else if (!stricmp(arg, "weapon_pof_inner")) 
+			{
 				// Load pof file
 				pof_file_inner = equal_ptr;
 			}
-			else if (!stricmp(arg, "strength")) {
-				for (i = 0; i < NDL - 1; i++) {
+			else if (!stricmp(arg, "strength")) 
+			{
+				for (i = 0; i < NDL - 1; i++) 
+				{
 					Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
 					equal_ptr = strtok(NULL, space);
 				}
 				Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
 			}
-			else if (!stricmp(arg, "mass")) {
+			else if (!stricmp(arg, "mass")) 
+			{
 				Weapon_info[n].mass = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "drag")) {
+			else if (!stricmp(arg, "drag")) 
+			{
 				Weapon_info[n].drag = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "thrust")) {
+			else if (!stricmp(arg, "thrust")) 
+			{
 				Weapon_info[n].thrust = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "matter")) {
+			else if (!stricmp(arg, "matter")) 
+			{
 				Weapon_info[n].matter = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "bounce")) {
+			else if (!stricmp(arg, "bounce")) 
+			{
 				Weapon_info[n].bounce = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "speed")) {
-				for (i = 0; i < NDL - 1; i++) {
+			else if (!stricmp(arg, "speed")) 
+			{
+				for (i = 0; i < NDL - 1; i++) 
+				{
 					Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
 					equal_ptr = strtok(NULL, space);
 				}
 				Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
 			}
-			else if (!stricmp(arg, "flash_vclip")) {
+			else if (!stricmp(arg, "flash_vclip")) 
+			{
 				Weapon_info[n].flash_vclip = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "flash_sound")) {
+			else if (!stricmp(arg, "flash_sound")) 
+			{
 				Weapon_info[n].flash_sound = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "flash_size")) {
+			else if (!stricmp(arg, "flash_size")) 
+			{
 				Weapon_info[n].flash_size = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "blob_size")) {
+			else if (!stricmp(arg, "blob_size")) 
+			{
 				Weapon_info[n].blob_size = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "robot_hit_vclip")) {
+			else if (!stricmp(arg, "robot_hit_vclip")) 
+			{
 				Weapon_info[n].robot_hit_vclip = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "robot_hit_sound")) {
+			else if (!stricmp(arg, "robot_hit_sound")) 
+			{
 				Weapon_info[n].robot_hit_sound = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "wall_hit_vclip")) {
+			else if (!stricmp(arg, "wall_hit_vclip")) 
+			{
 				Weapon_info[n].wall_hit_vclip = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "wall_hit_sound")) {
+			else if (!stricmp(arg, "wall_hit_sound")) 
+			{
 				Weapon_info[n].wall_hit_sound = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "impact_size")) {
+			else if (!stricmp(arg, "impact_size")) 
+			{
 				Weapon_info[n].impact_size = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "lighted")) {
+			else if (!stricmp(arg, "lighted")) 
+			{
 				lighted = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "lw_ratio")) {
+			else if (!stricmp(arg, "lw_ratio"))
+			{
 				Weapon_info[n].po_len_to_width_ratio = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "lightcast")) {
+			else if (!stricmp(arg, "lightcast")) 
+			{
 				Weapon_info[n].light = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "persistent")) {
+			else if (!stricmp(arg, "persistent")) 
+			{
 				Weapon_info[n].persistent = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "energy_usage")) {
+			else if (!stricmp(arg, "energy_usage")) 
+			{
 				Weapon_info[n].energy_usage = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "ammo_usage")) {
+			else if (!stricmp(arg, "ammo_usage")) 
+			{
 				Weapon_info[n].ammo_usage = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "fire_wait")) {
+			else if (!stricmp(arg, "fire_wait")) 
+			{
 				Weapon_info[n].fire_wait = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "fire_count")) {
+			else if (!stricmp(arg, "fire_count")) 
+			{
 				Weapon_info[n].fire_count = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "damage_radius")) {
+			else if (!stricmp(arg, "damage_radius")) 
+			{
 				Weapon_info[n].damage_radius = fl2f(atof(equal_ptr));
 				//--01/19/95, mk--			} else if (!stricmp(arg, "damage_force" )) {
 				//--01/19/95, mk--				Weapon_info[n].damage_force = fl2f(atof(equal_ptr));
@@ -1757,25 +1882,33 @@ void bm_read_weapon(int unused_flag)
 			else if (!stricmp(arg, "lifetime")) {
 				Weapon_info[n].lifetime = fl2f(atof(equal_ptr));
 			}
-			else if (!stricmp(arg, "destroyable")) {
+			else if (!stricmp(arg, "destroyable")) 
+			{
 				Weapon_info[n].destroyable = atoi(equal_ptr);
 			}
-			else if (!stricmp(arg, "picture")) {
+			else if (!stricmp(arg, "picture"))
+			{
 				Weapon_info[n].picture = bm_load_sub(equal_ptr);
 			}
-			else if (!stricmp(arg, "homing")) {
+			else if (!stricmp(arg, "homing")) 
+			{
 				Weapon_info[n].homing_flag = !!atoi(equal_ptr);
 			}
-			else {
+			else 
+			{
 				mprintf((1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr));
 			}
 		}
-		else {			// Must be a texture specification...
+		else // Must be a texture specification...
+		{			
 			grs_bitmap* bm;
 
 			bm = load_polymodel_bitmap(arg);
-			if (!lighted)
-				bm->bm_flags |= BM_FLAG_NO_LIGHTING;
+			if (bm) //[ISB] load_polymodel_bitmap returns NULL on a EClip.
+			{
+				if (!lighted)
+					bm->bm_flags |= BM_FLAG_NO_LIGHTING;
+			}
 
 			lighted = 1;			//default for next bitmap is lighted
 		}
@@ -1784,15 +1917,17 @@ void bm_read_weapon(int unused_flag)
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
-	for (i = 0; i < n_models; i++) {
+	for (i = 0; i < n_models; i++) 
+	{
 		int n_textures;
-		int model_num, last_model_num;
+		int model_num, last_model_num = 0;
 
 		n_textures = first_bitmap_num[i + 1] - first_bitmap_num[i];
 
 		model_num = load_polygon_model(model_name[i], n_textures, first_bitmap_num[i], NULL);
 
-		if (i == 0) {
+		if (i == 0)
+		{
 			Weapon_info[n].render_type = WEAPON_RENDER_POLYMODEL;
 			Weapon_info[n].model_num = model_num;
 		}
@@ -1802,7 +1937,8 @@ void bm_read_weapon(int unused_flag)
 		last_model_num = model_num;
 	}
 
-	if (pof_file_inner) {
+	if (pof_file_inner) 
+	{
 		Assert(n_models);
 		Weapon_info[n].model_num_inner = load_polygon_model(pof_file_inner, first_bitmap_num[1] - first_bitmap_num[0], first_bitmap_num[0], NULL);
 	}
@@ -1830,7 +1966,8 @@ void bm_read_powerup(int unused_flag)
 	n = N_powerup_types;
 	N_powerup_types++;
 
-	if (unused_flag) {
+	if (unused_flag) 
+	{
 		clear_to_end_of_line();
 		return;
 	}
@@ -1898,9 +2035,11 @@ void bm_read_hostage()
 	// Process arguments
 	arg = strtok(NULL, space);
 
-	while (arg != NULL) {
+	while (arg != NULL) 
+	{
 		equal_ptr = strchr(arg, '=');
-		if (equal_ptr) {
+		if (equal_ptr) 
+		{
 			*equal_ptr = '\0';
 			equal_ptr++;
 

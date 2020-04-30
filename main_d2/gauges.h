@@ -45,7 +45,7 @@ extern void HUD_clear_messages();
 
 // Call to flash a message on the HUD.  Returns true if message drawn.
 //  (message might not be drawn if previous message was same)
-extern int HUD_init_message(char * format, ... );
+extern int HUD_init_message(const char * format, ... );
 
 #define gauge_message HUD_init_message
 
@@ -84,7 +84,7 @@ extern rgb player_rgb[];
 //user is one of the WBU_ constants.  If rear_view_flag is set, show a
 //rear view.  If label is non-NULL, print the label at the top of the
 //window.
-void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,char *label);
+void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,const char *label);
 
 #ifdef MACINTOSH
 	#include "QuickDraw.h"

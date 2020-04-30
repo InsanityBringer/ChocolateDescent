@@ -115,13 +115,11 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
 /*************************
  * timer handlers
  *************************/
-
-#if !HAVE_STRUCT_TIMEVAL
-struct timeval {
+//[ISB] I should fix the definition but that was annoying
+struct timeval_s {
 	long    tv_sec;
 	long    tv_usec;
 };
-#endif
 
 /*
  * timer variables
@@ -129,7 +127,7 @@ struct timeval {
 static int timer_created = 0;
 static int micro_frame_delay=0;
 static int timer_started=0;
-static struct timeval timer_expire = {0, 0};
+static struct timeval_s timer_expire = {0, 0};
 
 static uint64_t nextTimerTick;
 
@@ -151,7 +149,7 @@ int nanosleep(struct timespec *ts, void *rem);
 #ifdef __WIN32
 #include <sys/timeb.h>
 
-int gettimeofday(struct timeval *tv, void *tz)
+int gettimeofday(struct timeval_s *tv, void *tz)
 {
 	static int counter = 0;
 	struct timeb tm;
@@ -230,7 +228,7 @@ static void do_timer_wait(void)
 	/*
 	int nsec=0;
 	struct timespec ts;
-	struct timeval tv;
+	struct timeval_s tv;
 	if (! timer_started)
 		return;
 

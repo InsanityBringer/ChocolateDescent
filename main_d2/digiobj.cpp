@@ -13,20 +13,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
-//#include<dos.h>
-//#include<fcntl.h> 
 #include <malloc.h> 
 #include <algorithm>
-
-/*
-#ifndef MACINTOSH
-	#include<bios.h>
-#endif*/
-
-//#include<io.h>
-//#include<conio.h> 
-#include<string.h>
-#include<ctype.h>
+#include <string.h>
+#include <ctype.h>
 
 #include "fix/fix.h"
 #include "object.h"
@@ -39,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "newdemo.h"
 #include "game.h"
-//#include "dpmi.h"
 #include "misc/error.h"
 #include "wall.h"
 #include "cfile/cfile.h"

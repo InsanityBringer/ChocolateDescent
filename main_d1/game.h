@@ -104,6 +104,7 @@ void calc_frame_time(void);
 
 #ifdef EDITOR
 void do_flythrough(object* obj, int first_time);
+void init_cockpit();
 #endif
 
 extern jmp_buf LeaveGame;					// Do a long jump to this when game is over.

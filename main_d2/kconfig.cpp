@@ -18,6 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <ctype.h>
 
@@ -39,24 +40,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "joydefs.h"
 #include "songs.h"
-//#include "vfx.h"
 #include "render.h"
 #include "arcade.h"
 #include "digi.h"
 #include "newmenu.h"
-//#include "victor.h"
 #include "endlevel.h"
 #include "multi.h"
 #include "platform/timer.h"
 #include "text.h"
 #include "player.h"
 #include "menu.h"
-//#include "iglasses.h"
 #include "automap.h"
 #include "misc/args.h"
 #include "lighting.h"
 #include "ai.h"
 #include "cntrlcen.h"
+
 #if defined (TACTILE)
 #include "tactile.h"
 #endif
@@ -89,6 +88,26 @@ int8_t fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26
 
 int invert_text[2] = { TNUM_N, TNUM_Y };
 
+const char* choco_gamepad_text[28] = 
+{ "0", "1", "2", "3", 
+"RTRIG", "LTRIG", "LB", "PADL", 
+"RB", "9", "A", "PADD", 
+"12", "13", "B", "PADR", 
+"X", "17", "Y", "PADU", 
+"20", "21", "22", "23", 
+"24", "25", "26", "27" };
+
+const char* choco_joybutton_text[28] = 
+//Basic inputs
+{ "BTN 1", "BTN 2", "BTN 3", "BTN 4", 
+//"Extended" Flightstick inputs, default ATM. 
+"BTN 1", "BTN 2", "BTN 3", "HAT ", 
+"BTN 4", "BTN 5", "BTN 6", "HAT €", 
+"BTN 7", "BTN 8", "BTN 9", "HAT ", 
+"BTN 10", "BTN 11", "BTN 12", "HAT ‚",
+//[ISB] can't bind above 20...
+"-20-", "-21-", "-22-", "-23-",
+"-24-", "-25-", "-26-", "-27-" };
 
 int joybutton_text[28] =
 { TNUM_BTN_1, TNUM_BTN_2, TNUM_BTN_3, TNUM_BTN_4,
@@ -105,7 +124,7 @@ int mouseaxis_text[2] = { TNUM_L_R, TNUM_F_B };
 
 int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
 
-char* key_text[256] = { \
+const char* key_text[256] = { \
 "","ESC","1","2","3","4","5","6","7","8","9","0","-", 			\
 "=","BSPC","TAB","Q","W","E","R","T","Y","U","I","O",				\
 "P","[","]","ƒ","LCTRL","A","S","D","F",        \
@@ -153,7 +172,7 @@ fix Cruise_speed = 0;
 #define BT_JOY_AXIS			4
 #define BT_INVERT				5
 
-char* btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
+const char* btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 
 #define INFO_Y 28
 
@@ -165,7 +184,7 @@ typedef struct kc_item
 	short w2;
 	short u, d, l, r;
 	//short text_num1;
-	char* text;
+	const char* text;
 	uint8_t type;
 	uint8_t value;		// what key,button,etc
 } kc_item;
@@ -515,23 +534,16 @@ void kc_change_invert(kc_item* item);
 
 void kconfig_sub(kc_item* items, int nitems, char* title)
 {
-	WINDOS(
-		dd_grs_canvas * save_canvas,
-		grs_canvas * save_canvas
-	);
+	grs_canvas* save_canvas;
 	grs_font* save_font;
 	int old_keyd_repeat;
-#if defined(MACINTOSH) || defined(WINDOWS) 
+#ifdef MENU_MOUSE_ENABLED
 	int mouse_state, omouse_state, mx, my, x1, x2, y1, y2;
 	int close_x, close_y, close_size;
 #endif
 
 	int i, k, ocitem, citem;
 	int time_stopped = 0;
-	WIN(char* old_bg_pcx);
-
-	WIN(old_bg_pcx = _SCRContext.bkg_filename);
-	WIN(DEFINE_SCREEN(NULL));
 
 	All_items = items;
 	Num_items = nitems;
@@ -542,23 +554,9 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 		stop_time();
 	}
 
-	//	if (Config_control_type == CONTROL_WINJOYSTICK) {
-	//		WINDOS(
-	//			joydefsw_win_joyselect(title2); title = title2,
-	//			Int3()
-	//		);												// Get Samir...
-	//	}
+	save_canvas = grd_curcanv;
 
-	WINDOS(
-		save_canvas = dd_grd_curcanv,
-		save_canvas = grd_curcanv
-	);
-
-
-	WINDOS(
-		dd_gr_set_current_canvas(NULL),
-		gr_set_current_canvas(NULL)
-	);
+	gr_set_current_canvas(NULL);
 	save_font = grd_curcanv->cv_font;
 
 KConfigPaint:
@@ -572,26 +570,13 @@ KConfigPaint:
 	gr_palette_load(gr_palette);
 
 	grd_curcanv->cv_font = MEDIUM3_FONT;
+	char* p;
+	p = strchr(title, '\n');
+	if (p)*p = 32;
+	gr_string(0x8000, LHY(8), title);
+	if (p)*p = '\n';
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
-	{
-		char* p;
-		p = strchr(title, '\n');
-		if (p)* p = 32;
-		gr_string(0x8000, LHY(8), title);
-		if (p)* p = '\n';
-	}
-
-
-	//	if ( items == kc_keyboard )	{
-	//		gr_string( 0x8000, 8, "Keyboard" );
-	//	} else if ( items == kc_joystick )	{
-	//		gr_string( 0x8000, 8, "Joysticks" );
-	//	} else if ( items == kc_mouse )	{
-	//		gr_string( 0x8000, 8, "Mouse" );
-	//	}
-
-#if defined(MACINTOSH) || defined(WINDOWS)
+#ifdef MENU_MOUSE_ENABLED
 	close_x = close_y = 15;
 	close_size = 10;
 	gr_setcolor(BM_XRGB(0, 0, 0));
@@ -603,13 +588,11 @@ KConfigPaint:
 	grd_curcanv->cv_font = GAME_FONT;
 	gr_set_fontcolor(BM_XRGB(28, 28, 28), -1);
 
-#ifndef MACINTOSH
 	gr_string(0x8000, LHY(20), TXT_KCONFIG_STRING_1);
-#else
-	gr_string(0x8000, LHY(20), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
-#endif
+
 	gr_set_fontcolor(BM_XRGB(28, 28, 28), -1);
-	if (items == kc_keyboard) {
+	if (items == kc_keyboard) 
+	{
 		gr_set_fontcolor(BM_XRGB(31, 27, 6), -1);
 		gr_setcolor(BM_XRGB(31, 27, 6));
 
@@ -631,7 +614,9 @@ KConfigPaint:
 
 		gr_string(LHX(264), LHY(40), "OR");
 
-	} if (items == kc_joystick) {
+	} 
+	if (items == kc_joystick)
+	{
 		gr_set_fontcolor(BM_XRGB(31, 27, 6), -1);
 		gr_setcolor(BM_XRGB(31, 27, 6));
 		gr_scanline(LHX(18), LHX(135), LHY(37));
@@ -646,7 +631,8 @@ KConfigPaint:
 		gr_string(LHX(222), LHY(137 + 8), TXT_AXIS);
 		gr_string(LHX(252), LHY(137 + 8), TXT_INVERT);
 	}
-	else if (items == kc_mouse) {
+	else if (items == kc_mouse)
+	{
 		gr_set_fontcolor(BM_XRGB(31, 27, 6), -1);
 		gr_setcolor(BM_XRGB(31, 27, 6));
 		gr_scanline(LHX(18), LHX(135), LHY(37));
@@ -659,29 +645,27 @@ KConfigPaint:
 		gr_string(LHX(169), LHY(129), TXT_AXIS);
 		gr_string(LHX(199), LHY(129), TXT_INVERT);
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-	for (i = 0; i < nitems; i++) {
+	for (i = 0; i < nitems; i++)
+	{
 		kc_drawitem(&items[i], 0);
 	}
 
 	citem = 0;
 	kc_drawitem(&items[citem], 1);
 
-	WIN(ShowCursorW());
-	MAC(show_cursor();)
+	//WIN(ShowCursorW());
 
-#if defined(MACINTOSH) || defined(WINDOWS) 
+#ifdef MENU_MOUSE_ENABLED
 		mouse_state = omouse_state = 0;
 #endif
 
 	while (1)
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
-		//	Windows addendum to allow for kconfig input.
 
-			//see if redbook song needs to be restarted
+		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
 
 		k = key_inkey();
@@ -775,35 +759,34 @@ KConfigPaint:
 		case KEY_ESC:
 			grd_curcanv->cv_font = save_font;
 
-			WIN(DEFINE_SCREEN(old_bg_pcx));
-
-			WINDOS(
-				dd_gr_set_current_canvas(save_canvas),
-				gr_set_current_canvas(save_canvas)
-			);
+			gr_set_current_canvas(save_canvas);
 			keyd_repeat = old_keyd_repeat;
 			game_flush_inputs();
-			WIN(HideCursorW());
-			MAC(hide_cursor(); )
+			//WIN(HideCursorW());
+
 				if (time_stopped)
 					start_time();
 			return;
 #ifdef TABLE_CREATION
-		case KEY_DEBUGGED + KEY_F12: {
+		case KEY_DEBUGGED + KEY_F12: 
+		{
 			FILE* fp;
-			for (i = 0; i < NUM_KEY_CONTROLS; i++) {
+			for (i = 0; i < NUM_KEY_CONTROLS; i++) 
+			{
 				kc_keyboard[i].u = find_next_item_up(kc_keyboard, NUM_KEY_CONTROLS, i);
 				kc_keyboard[i].d = find_next_item_down(kc_keyboard, NUM_KEY_CONTROLS, i);
 				kc_keyboard[i].l = find_next_item_left(kc_keyboard, NUM_KEY_CONTROLS, i);
 				kc_keyboard[i].r = find_next_item_right(kc_keyboard, NUM_KEY_CONTROLS, i);
 			}
-			for (i = 0; i < NUM_OTHER_CONTROLS; i++) {
+			for (i = 0; i < NUM_OTHER_CONTROLS; i++) 
+			{
 				kc_joystick[i].u = find_next_item_up(kc_joystick, NUM_OTHER_CONTROLS, i);
 				kc_joystick[i].d = find_next_item_down(kc_joystick, NUM_OTHER_CONTROLS, i);
 				kc_joystick[i].l = find_next_item_left(kc_joystick, NUM_OTHER_CONTROLS, i);
 				kc_joystick[i].r = find_next_item_right(kc_joystick, NUM_OTHER_CONTROLS, i);
 			}
-			for (i = 0; i < NUM_OTHER_CONTROLS; i++) {
+			for (i = 0; i < NUM_OTHER_CONTROLS; i++) 
+			{
 				kc_mouse[i].u = find_next_item_up(kc_mouse, NUM_OTHER_CONTROLS, i);
 				kc_mouse[i].d = find_next_item_down(kc_mouse, NUM_OTHER_CONTROLS, i);
 				kc_mouse[i].l = find_next_item_left(kc_mouse, NUM_OTHER_CONTROLS, i);
@@ -812,7 +795,8 @@ KConfigPaint:
 			fp = fopen("kconfig.cod", "wt");
 
 			fprintf(fp, "uint8_t default_kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS] = {\n");
-			for (i = 0; i < CONTROL_MAX_TYPES; i++) {
+			for (i = 0; i < CONTROL_MAX_TYPES; i++) 
+			{
 				int j;
 				fprintf(fp, "{0x%x", kconfig_settings[i][0]);
 				for (j = 1; j < MAX_CONTROLS; j++)
@@ -822,7 +806,8 @@ KConfigPaint:
 			fprintf(fp, "};\n");
 
 			fprintf(fp, "\nkc_item kc_keyboard[NUM_KEY_CONTROLS] = {\n");
-			for (i = 0; i < NUM_KEY_CONTROLS; i++) {
+			for (i = 0; i < NUM_KEY_CONTROLS; i++)
+			{
 				fprintf(fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n",
 					kc_keyboard[i].id, kc_keyboard[i].x, kc_keyboard[i].y, kc_keyboard[i].w1, kc_keyboard[i].w2,
 					kc_keyboard[i].u, kc_keyboard[i].d, kc_keyboard[i].l, kc_keyboard[i].r,
@@ -863,13 +848,13 @@ KConfigPaint:
 
 		if (ocitem != citem)
 		{
-			MAC(hide_cursor();)
-				WIN(HideCursorW());
+			//WIN(HideCursorW());
 			kc_drawitem(&items[ocitem], 0);
 			kc_drawitem(&items[citem], 1);
-			WIN(ShowCursorW());
-			MAC(show_cursor();)
+			//WIN(ShowCursorW());
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 	}
 }
 
@@ -879,14 +864,12 @@ void kc_drawitem(kc_item* item, int is_current)
 	int x, w, h, aw;
 	char btext[16];
 	//	PA_DFX (pa_set_frontbuffer_current());
-	WIN(DDGRLOCK(dd_grd_curcanv));
 
 	if (is_current)
 		gr_set_fontcolor(BM_XRGB(20, 20, 29), -1);
 	else
 		gr_set_fontcolor(BM_XRGB(15, 15, 24), -1);
 	gr_string(LHX(item->x), LHY(item->y), item->text);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	if (item->value == 255)
 	{
@@ -903,10 +886,18 @@ void kc_drawitem(kc_item* item, int is_current)
 		case BT_MOUSE_AXIS:
 			strncpy(btext, Text_string[mouseaxis_text[item->value]], 10); break;
 		case BT_JOY_BUTTON:
-			if (joybutton_text[item->value] != -1)
-				strncpy(btext, Text_string[joybutton_text[item->value]], 10);
+			if (Config_control_type == CONTROL_FLIGHTSTICK_PRO)
+			{
+				strncpy(btext, choco_gamepad_text[item->value], 10);
+			}
 			else
-				sprintf(btext, "BTN%d", item->value);
+			{
+				/*if (joybutton_text[item->value] != -1)
+					strncpy(btext, Text_string[joybutton_text[item->value]], 10);
+				else
+					sprintf(btext, "BTN%d", item->value);*/
+				strncpy(btext, choco_joybutton_text[item->value], 10);
+			}
 			break;
 		case BT_JOY_AXIS:
 			strncpy(btext, Text_string[joyaxis_text[item->value]], 10); break;
@@ -916,7 +907,6 @@ void kc_drawitem(kc_item* item, int is_current)
 	}
 	if (item->w1)
 	{
-		WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_get_string_size(btext, &w, &h, &aw);
 
 		if (is_current)
@@ -931,8 +921,6 @@ void kc_drawitem(kc_item* item, int is_current)
 
 		gr_string(x, LHY(item->y), btext);
 		//		PA_DFX (pa_set_backbuffer_current());
-
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 }
 
@@ -943,8 +931,7 @@ void kc_drawquestion(kc_item* item)
 {
 	int c, x, w, h, aw;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
-	// PA_DFX (pa_set_frontbuffer_current());
+	//PA_DFX (pa_set_frontbuffer_current());
 
 	gr_get_string_size("?", &w, &h, &aw);
 
@@ -963,7 +950,6 @@ void kc_drawquestion(kc_item* item)
 
 	gr_string(x, LHY(item->y), "?");
 	//	PA_DFX (pa_set_backbuffer_current());
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 void kc_change_key(kc_item* item)
@@ -971,11 +957,8 @@ void kc_change_key(kc_item* item)
 	int i, n, f, k;
 	uint8_t keycode;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor(BM_XRGB(28, 28, 28), -1);
-
 	gr_string(0x8000, LHY(INFO_Y), TXT_PRESS_NEW_KEY);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	game_flush_inputs();
 	keycode = 255;
@@ -985,22 +968,11 @@ void kc_change_key(kc_item* item)
 	{
 		I_DrawCurrentCanvas(0);
 		I_DoEvents();
-#ifdef WINDOWS
-		{
-			MSG msg;
-
-			DoMessageStuff(&msg);
-			DDGRRESTORE;
-
-		}
-#endif
 
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
 #endif
-		//		if ( Game_mode & GM_MULTI )
-		//			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
 		I_Delay(10);
 		kc_drawquestion(item);
@@ -1049,11 +1021,8 @@ void kc_change_joybutton(kc_item* item)
 	int n, i, k;
 	uint8_t code;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor(BM_XRGB(28, 28, 28), -1);
-
 	gr_string(0x8000, LHY(INFO_Y), TXT_PRESS_NEW_JBUTTON);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	game_flush_inputs();
 	code = 255;
@@ -1076,9 +1045,6 @@ void kc_change_joybutton(kc_item* item)
 
 		kc_drawquestion(item);
 
-		WIN(code = joydefsw_do_button());
-
-#if !defined(WINDOWS) && !defined(MACINTOSH)
 		if (Config_control_type == CONTROL_THRUSTMASTER_FCS) 
 		{
 			int axis[4];
@@ -1088,7 +1054,8 @@ void kc_change_joybutton(kc_item* item)
 			if (joy_get_button_state(11)) code = 11;
 			if (joy_get_button_state(15)) code = 15;
 			if (joy_get_button_state(19)) code = 19;
-			for (i = 0; i < 4; i++) 
+			//for (i = 0; i < 4; i++) 
+			for (i = 4; i < 20; i++)
 			{
 				if (joy_get_button_state(i))
 					code = i;
@@ -1113,7 +1080,6 @@ void kc_change_joybutton(kc_item* item)
 					code = i;
 			}
 		}
-#endif
 	}
 	if (code != 255) 
 	{
@@ -1138,12 +1104,8 @@ void kc_change_mousebutton(kc_item* item)
 	int n, i, b, k;
 	uint8_t code;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor(BM_XRGB(28, 28, 28), -1);
-
 	gr_string(0x8000, LHY(INFO_Y), TXT_PRESS_NEW_MBUTTON);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
-
 
 	game_flush_inputs();
 	code = 255;
@@ -1199,25 +1161,16 @@ void kc_change_joyaxis(kc_item* item)
 	int old_axis[7];
 	int n, i, k;
 	uint8_t code;
-	WINDOS(
-		int numaxis = 7,
-		int numaxis = 4
-	);
+	int numaxis = 4;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor(BM_XRGB(28, 28, 28), -1);
-
 	gr_string(0x8000, LHY(INFO_Y), TXT_MOVE_NEW_JOY_AXIS);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	game_flush_inputs();
 	code = 255;
 	k = 255;
 
-	WINDOS(
-		joystick_read_raw_axis(JOY_ALL_AXIS + JOY_EXT_AXIS, old_axis),
-		joystick_read_raw_axis(JOY_ALL_AXIS, old_axis)
-	);
+	joystick_read_raw_axis(JOY_ALL_AXIS, old_axis);
 
 	while ((k != KEY_ESC) && (code == 255))
 	{
@@ -1235,10 +1188,7 @@ void kc_change_joyaxis(kc_item* item)
 
 		kc_drawquestion(item);
 
-		WINDOS(
-			joystick_read_raw_axis(JOY_ALL_AXIS + JOY_EXT_AXIS, axis),
-			joystick_read_raw_axis(JOY_ALL_AXIS, axis)
-		);
+		joystick_read_raw_axis(JOY_ALL_AXIS, axis);
 
 		for (i = 0; i < numaxis; i++) 
 		{
@@ -1246,7 +1196,7 @@ void kc_change_joyaxis(kc_item* item)
 			{
 				code = i;
 			}
-			//old_axis[i] = axis[i];
+			old_axis[i] = axis[i];
 		}
 		for (i = 0; i < Num_items; i++)
 		{
@@ -1359,10 +1309,6 @@ void kconfig(int n, char* title)
 
 	kc_set_controls();
 
-	//save screen
-	WIN(mouse_set_mode(0));
-	WIN(dd_gr_set_current_canvas(NULL));
-
 #if defined(POLY_ACC)
 	save_bm = gr_create_bitmap2(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, grd_curcanv->cv_bitmap.bm_type, NULL);
 #else
@@ -1370,10 +1316,8 @@ void kconfig(int n, char* title)
 #endif
 	Assert(save_bm != NULL);
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_w,
 		0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	switch (n) 
 	{
@@ -1387,11 +1331,7 @@ void kconfig(int n, char* title)
 	}
 
 	//restore screen
-	WIN(mouse_set_mode(1));
-	WIN(dd_gr_set_current_canvas(NULL));
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_bitmap(0, 0, save_bm);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 	gr_free_bitmap(save_bm);
 
 	reset_cockpit();		//force cockpit redraw next time

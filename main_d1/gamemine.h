@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/types.h"
 
+#define MTFI_SIZEOF 8
 struct mtfi 
 {
 	uint16_t  fileinfo_signature;
@@ -66,12 +67,16 @@ struct mfi
 	int		unused_sizeof;			//was: doors_sizeof
 };
 
-struct mh {
+#define MH_SIZEOF 8
+struct mh 
+{
 	int     num_vertices;
 	int     num_segments;
 };
 
-struct me {
+#define ME_SIZEOF 112
+struct me 
+{
 	int     current_seg;
 	int     newsegment_offset;
 	int     newsegment_size;
@@ -80,8 +85,8 @@ struct me {
 	int     Markedside;
 	int	  Groupsegp[10];
 	int 	  Groupside[10];
-	int	  num_groups;
-	int 	  current_group;
+	int	  Num_groups;
+	int 	  Current_group;
 	//	int	  num_objects;
 };
 

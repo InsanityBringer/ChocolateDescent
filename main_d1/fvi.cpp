@@ -36,58 +36,12 @@ extern int Physics_cheat_flag;
 
 #define face_type_num(nfaces,face_num,tri_edge) ((nfaces==1)?0:(tri_edge*2 + face_num))
 
-#if 0
-//[ISB] HORRIBLE ATTEMPT AT PORTING OH GOD
-int oflow_check(fix a, fix b)
-{
-	int c = 0;
-	int bit = a & 0x80000000;
-	if (bit) c = 0xFFFFFFFF;
-	int d = a ^ c;
-	d -= c;
-
-	c = 0;
-	bit = b & 0x80000000;
-	if (bit) c = 0xFFFFFFFF;
-	int e = b ^ c;
-	e -= c;
-
-	long long f = (long long)e * (long long)d;
-
-	int high = (f >> 32) & 0xFFFFFFFF;
-	high >>= 15;
-	int highlow = high & 0xFFFF;
-
-	if (highlow != 0) return 1;
-	return 0;
-	/*long long hack = (long long)abs(a) * (long long)abs(b);
-	long long hack2 = hack >> (long long)16;
-	if (hack2 > 0x7FFFFFFF || hack2 < -2147483647) return 1;
-	return 0;*/
-}
-#endif
 //[ISB] Credits to Parabolicus for the not horrible port
 int oflow_check(fix a, fix b)
 {
-	long long tmp = (long long)abs(a) * (long long)abs(b);
+	int64_t tmp = (int64_t)abs(a) * (int64_t)abs(b);
 	return (tmp >> 47) ? 1 : 0;
 }
-
-/*
-#pragma aux oflow_check parm [eax] [ebx] value [eax] modify exact [eax ebx edx] = \
-   "cdq"				\
-	"xor eax,edx"	\
-	"sub eax,edx"	\
-	"xchg eax,ebx"	\
-   "cdq"				\
-	"xor eax,edx"	\
-	"sub eax,edx"	\
-	"imul ebx"		\
-	"sar  edx,15"	\
-	"or   dx,dx"	\
-	"setnz al"		\
-	"movzx eax,al";
-*/
 
 //find the point on the specified plane where the line intersects
 //returns true if point found, false if line parallel to plane
@@ -96,7 +50,7 @@ int oflow_check(fix a, fix b)
 //p0 & p1 are the ends of the line
 int find_plane_line_intersection(vms_vector* new_pnt, vms_vector* plane_pnt, vms_vector* plane_norm, vms_vector* p0, vms_vector* p1, fix rad)
 {
-	vms_vector d, w, fuckingbullshit;
+	vms_vector d, w, clone;
 	fix num, den;
 	int foundK;
 
@@ -105,9 +59,9 @@ int find_plane_line_intersection(vms_vector* new_pnt, vms_vector* plane_pnt, vms
 
 	num = vm_vec_dot(plane_norm, &w);
 	den = -vm_vec_dot(plane_norm, &d);
-	fuckingbullshit.x = d.x;
-	fuckingbullshit.y = d.y;
-	fuckingbullshit.z = d.z;
+	clone.x = d.x;
+	clone.y = d.y;
+	clone.z = d.z;
 
 	//Why does this assert hit so often
 	//	Assert(num > -rad);

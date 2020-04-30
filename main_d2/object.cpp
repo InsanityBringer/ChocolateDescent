@@ -19,6 +19,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <algorithm>
 
+#include "misc/rand.h"
+
 #include "inferno.h"
 #include "game.h"
 #include "2d/gr.h"
@@ -560,7 +562,7 @@ void create_small_fireball_on_object(object* objp, fix size_scale, int sound_fla
 
 	vm_vec_add2(&pos, &rand_vec);
 
-	size = fixmul(size_scale, F1_0 / 2 + rand() * 4 / 2);
+	size = fixmul(size_scale, F1_0 / 2 + P_Rand() * 4 / 2);
 
 	segnum = find_point_seg(&pos, objp->segnum);
 	if (segnum != -1) 
@@ -570,7 +572,7 @@ void create_small_fireball_on_object(object* objp, fix size_scale, int sound_fla
 		if (!expl_obj)
 			return;
 		obj_attach(objp, expl_obj);
-		if (rand() < 8192) 
+		if (P_Rand() < 8192) 
 		{
 			fix	vol = F1_0 / 2;
 			if (objp->type == OBJ_ROBOT)
@@ -595,7 +597,7 @@ void create_vclip_on_object(object* objp, fix size_scale, int vclip_num)
 
 	vm_vec_add2(&pos, &rand_vec);
 
-	size = fixmul(size_scale, F1_0 + rand() * 4);
+	size = fixmul(size_scale, F1_0 + P_Rand() * 4);
 
 	segnum = find_point_seg(&pos, objp->segnum);
 	if (segnum != -1) {
@@ -1585,7 +1587,7 @@ void dead_player_frame(void)
 					}
 				}
 		else {
-			if (rand() < FrameTime * 4) {
+			if (P_Rand() < FrameTime * 4) {
 #ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_create_explosion(Player_num);

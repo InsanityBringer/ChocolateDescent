@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
-#include <conio.h>
+#include <stdint.h>
 #include <string.h>
 #include "mem/mem.h"
 #include "iff/iff.h"
@@ -70,7 +70,7 @@ typedef struct fake_file {
 
 #define MIN(a,b) ((a<b)?a:b)
 
-#define MAKE_SIG(a,b,c,d) (((long)(a)<<24)+((long)(b)<<16)+((c)<<8)+(d))
+#define MAKE_SIG(a,b,c,d) (((int32_t)(a)<<24)+((int32_t)(b)<<16)+((c)<<8)+(d))
 
 #define form_sig MAKE_SIG('F','O','R','M')
 #define ilbm_sig MAKE_SIG('I','L','B','M')
@@ -84,7 +84,7 @@ typedef struct fake_file {
 #define dlta_sig MAKE_SIG('D','L','T','A')
 
 #ifndef NDEBUG
-//void printsig(long s)
+//void printsig(int32_t s)
 //{
 //	char *t=(char *) &s;
 //
@@ -93,7 +93,7 @@ typedef struct fake_file {
 //}
 #endif
 
-long get_sig(FFILE* f)
+int32_t get_sig(FFILE* f)
 {
 	char s[4];
 
@@ -111,10 +111,10 @@ long get_sig(FFILE* f)
 	if (f->position >= f->length) return EOF;
 	s[0] = f->data[f->position++];
 
-	return(*((long*)s));
+	return(*((int32_t*)s));
 }
 
-int put_sig(long sig, FILE* f)
+int put_sig(int32_t sig, FILE* f)
 {
 	char* s = (char*)& sig;
 
@@ -160,7 +160,7 @@ int put_word(int n, FILE* f)
 	return put_byte(c1, f);
 }
 
-int put_long(long n, FILE* f)
+int put_long(int32_t n, FILE* f)
 {
 	int n0, n1;
 
@@ -178,7 +178,7 @@ char get_byte(FFILE* f)
 	return f->data[f->position++];
 }
 
-long get_long(FFILE* f)
+int32_t get_long(FFILE* f)
 {
 	unsigned char c0, c1, c2, c3;
 
@@ -200,11 +200,11 @@ long get_long(FFILE* f)
 
 	//  if (c0==0xff) return(EOF);
 
-	return(((long)c3 << 24) + ((long)c2 << 16) + ((long)c1 << 8) + c0);
+	return(((int32_t)c3 << 24) + ((int32_t)c2 << 16) + ((int32_t)c1 << 8) + c0);
 
 }
 
-int parse_bmhd(FFILE* ifile, long len, iff_bitmap_header* bmheader)
+int parse_bmhd(FFILE* ifile, int32_t len, iff_bitmap_header* bmheader)
 {
 	len++;  /* so no "parm not used" warning */
 
@@ -245,7 +245,7 @@ int parse_bmhd(FFILE* ifile, long len, iff_bitmap_header* bmheader)
 
 
 //  the buffer pointed to by raw_data is stuffed with a pointer to decompressed pixel data
-int parse_body(FFILE* ifile, long len, iff_bitmap_header* bmheader)
+int parse_body(FFILE* ifile, int32_t len, iff_bitmap_header* bmheader)
 {
 	unsigned char* p = bmheader->raw_data;
 	int width = 0, depth = 0;
@@ -347,6 +347,7 @@ int parse_body(FFILE* ifile, long len, iff_bitmap_header* bmheader)
 
 		}
 
+#ifndef BUILD_DESCENT2
 	if (bmheader->masking == mskHasMask && p == data_end && ifile->position == end_pos - 2)		//I don't know why...
 		ifile->position++;		//...but if I do this it works
 
@@ -358,6 +359,17 @@ int parse_body(FFILE* ifile, long len, iff_bitmap_header* bmheader)
 			//			debug("IFF Error: p=%x, data_end=%x, cnt=%d\n",p,data_end,cnt);
 			return IFF_CORRUPT;
 		}
+#else
+	if (p != data_end)				//if we don't have the whole bitmap...
+		return IFF_CORRUPT;		//...the give an error
+
+	//Pretend we read the whole chuck, because if we didn't, it's because
+	//we didn't read the last mask like or the last rle record for padding
+	//or whatever and it's not important, because we check to make sure
+	//we got the while bitmap, and that's what really counts.
+
+	ifile->position = end_pos;
+#endif
 
 	if (ignore) ignore++;   // haha, suppress the evil warning message
 
@@ -365,11 +377,11 @@ int parse_body(FFILE* ifile, long len, iff_bitmap_header* bmheader)
 }
 
 //modify passed bitmap
-int parse_delta(FFILE* ifile, long len, iff_bitmap_header* bmheader)
+int parse_delta(FFILE* ifile, int32_t len, iff_bitmap_header* bmheader)
 {
 	unsigned char* p = bmheader->raw_data;
 	int y;
-	long chunk_end = ifile->position + len;
+	int32_t chunk_end = ifile->position + len;
 
 	get_long(ifile);		//longword, seems to be equal to 4.  Don't know what it is
 
@@ -434,7 +446,7 @@ int parse_delta(FFILE* ifile, long len, iff_bitmap_header* bmheader)
 }
 
 //  the buffer pointed to by raw_data is stuffed with a pointer to bitplane pixel data
-void skip_chunk(FFILE* ifile, long len)
+void skip_chunk(FFILE* ifile, int32_t len)
 {
 	//int c,i;
 	int ilen;
@@ -456,11 +468,11 @@ void skip_chunk(FFILE* ifile, long len)
 
 //read an ILBM or PBM file
 // Pass pointer to opened file, and to empty bitmap_header structure, and form length
-int iff_parse_ilbm_pbm(FFILE* ifile, long form_type, iff_bitmap_header* bmheader, int form_len, grs_bitmap* prev_bm)
+int iff_parse_ilbm_pbm(FFILE* ifile, int32_t form_type, iff_bitmap_header* bmheader, int form_len, grs_bitmap* prev_bm)
 {
-	long sig, len;
+	int32_t sig, len;
 	//char ignore=0;
-	long start_pos, end_pos;
+	int32_t start_pos, end_pos;
 
 	start_pos = ifile->position;
 	end_pos = start_pos - 4 + form_len;
@@ -504,8 +516,7 @@ int iff_parse_ilbm_pbm(FFILE* ifile, long form_type, iff_bitmap_header* bmheader
 			}
 			else {
 
-				//MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );//Hack by KRB
-				bmheader->raw_data = (uint8_t*)malloc((bmheader->w * bmheader->h) * sizeof(uint8_t));
+				MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );
 				if (!bmheader->raw_data)
 					return IFF_NO_MEM;
 			}
@@ -522,8 +533,7 @@ int iff_parse_ilbm_pbm(FFILE* ifile, long form_type, iff_bitmap_header* bmheader
 			bmheader->h = prev_bm->bm_h;
 			bmheader->type = prev_bm->bm_type;
 
-			//MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );//Hack by KRB
-			bmheader->raw_data = (uint8_t*)malloc((bmheader->w * bmheader->h) * sizeof(uint8_t));
+			MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );
 
 			memcpy(bmheader->raw_data, prev_bm->bm_data, bmheader->w * bmheader->h);
 			skip_chunk(ifile, len);
@@ -590,8 +600,7 @@ int convert_ilbm_to_pbm(iff_bitmap_header* bmheader)
 	int bytes_per_row, byteofs;
 	uint8_t checkmask, newbyte, setbit;
 
-	//MALLOC( new_data, int8_t, bmheader->w * bmheader->h );//hack by KRB
-	new_data = (int8_t*)malloc((bmheader->w * bmheader->h) * sizeof(int8_t));
+	MALLOC( new_data, int8_t, bmheader->w * bmheader->h );
 	if (new_data == NULL) return IFF_NO_MEM;
 
 	destptr = new_data;
@@ -642,8 +651,7 @@ int convert_rgb15(grs_bitmap* bm, iff_bitmap_header* bmheader)
 
 	//        if ((new_data = malloc(bm->bm_w * bm->bm_h * 2)) == NULL)
 	//            {ret=IFF_NO_MEM; goto done;}
-		   //MALLOC(new_data, uint16_t, bm->bm_w * bm->bm_h * 2);//hack by KRB also a bug I believe. It is allocating twice the needed memory.
-	new_data = (uint16_t*)malloc(bm->bm_w * bm->bm_h * 2);//I left it as previously done, thinking the *2 means sizeof(uint16_t)
+	MALLOC(new_data, uint16_t, bm->bm_w * bm->bm_h * 2);
 	if (new_data == NULL)
 		return IFF_NO_MEM;
 
@@ -677,8 +685,7 @@ int open_fake_file(char* ifilename, FFILE* ffile)
 
 	ffile->length = cfilelength(ifile);
 
-	MALLOC(ffile->data,uint8_t,ffile->length);//Hack by KRB
-	//ffile->data = (uint8_t*)malloc(ffile->length * sizeof(uint8_t)); //[ISB] yet again unhack
+	MALLOC(ffile->data,uint8_t,ffile->length);
 
 	if ((int)cfread(ffile->data, 1, ffile->length, ifile) < ffile->length)
 		ret = IFF_READ_ERROR;
@@ -720,8 +727,8 @@ int iff_parse_bitmap(FFILE* ifile, grs_bitmap* bm, int bitmap_type, int8_t* pale
 {
 	int ret;			//return code
 	iff_bitmap_header bmheader;
-	long sig, form_len;
-	long form_type;
+	int32_t sig, form_len;
+	int32_t form_type;
 
 	bmheader.raw_data = bm->bm_data;
 
@@ -832,7 +839,7 @@ done:
 int write_bmhd(FILE * ofile, iff_bitmap_header * bitmap_header)
 {
 	put_sig(bmhd_sig, ofile);
-	put_long((long)BMHD_SIZE, ofile);
+	put_long((int32_t)BMHD_SIZE, ofile);
 
 	put_word(bitmap_header->w, ofile);
 	put_word(bitmap_header->h, ofile);
@@ -969,17 +976,16 @@ int write_body(FILE* ofile, iff_bitmap_header* bitmap_header, int compression_on
 {
 	int w = bitmap_header->w, h = bitmap_header->h;
 	int y, odd = w & 1;
-	long len = EVEN(w) * h, newlen, total_len = 0;
+	int32_t len = EVEN(w) * h, newlen, total_len = 0;
 	uint8_t* p = bitmap_header->raw_data, * new_span;
-	long save_pos;
+	int32_t save_pos;
 
 	put_sig(body_sig, ofile);
 	save_pos = ftell(ofile);
 	put_long(len, ofile);
 
 	//if (! (new_span = malloc(bitmap_header->w+(bitmap_header->w/128+2)*2))) return IFF_NO_MEM;
-   // MALLOC( new_span, uint8_t, bitmap_header->w + (bitmap_header->w/128+2)*2);//hack by KRB, also allocating twice the needed memory, probably a bug
-	new_span = (uint8_t*)malloc(bitmap_header->w + (bitmap_header->w / 128 + 2) * 2);//left it alone, as in 2 lines above -KRB
+	MALLOC( new_span, uint8_t, bitmap_header->w + (bitmap_header->w/128+2)*2);
 	if (new_span == NULL) return IFF_NO_MEM;
 
 	for (y = bitmap_header->h; y--;) {
@@ -1017,7 +1023,7 @@ int write_tiny(CFILE* ofile, iff_bitmap_header* bitmap_header, int compression_o
 	int x, y, xofs, odd;
 	uint8_t* p = bitmap_header->raw_data;
 	uint8_t tspan[80], new_span[80 * 2];
-	long save_pos;
+	int32_t save_pos;
 
 	skip = max((bitmap_header->w + 79) / 80, (bitmap_header->h + 63) / 64);
 
@@ -1064,9 +1070,9 @@ int write_tiny(CFILE* ofile, iff_bitmap_header* bitmap_header, int compression_o
 int write_pbm(FILE* ofile, iff_bitmap_header* bitmap_header, int compression_on)			/* writes a pbm iff file */
 {
 	int ret;
-	long raw_size = EVEN(bitmap_header->w) * bitmap_header->h;
-	long body_size, tiny_size, pbm_size = 4 + BMHD_SIZE + 8 + EVEN(raw_size) + sizeof(pal_entry) * (1 << bitmap_header->nplanes) + 8;
-	long save_pos;
+	int32_t raw_size = EVEN(bitmap_header->w) * bitmap_header->h;
+	int32_t body_size, tiny_size, pbm_size = 4 + BMHD_SIZE + 8 + EVEN(raw_size) + sizeof(pal_entry) * (1 << bitmap_header->nplanes) + 8;
+	int32_t save_pos;
 
 	//printf("write_pbm\n");
 
@@ -1158,8 +1164,8 @@ int iff_read_animbrush(char* ifilename, grs_bitmap** bm_list, int max_bitmaps, i
 	int ret;			//return code
 	FFILE ifile;
 	iff_bitmap_header bmheader;
-	long sig, form_len;
-	long form_type;
+	int32_t sig, form_len;
+	int32_t form_type;
 
 	*n_bitmaps = 0;
 
@@ -1189,8 +1195,7 @@ int iff_read_animbrush(char* ifilename, grs_bitmap** bm_list, int max_bitmaps, i
 
 			prev_bm = *n_bitmaps > 0 ? bm_list[*n_bitmaps - 1] : NULL;
 
-			//MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );//hack by KRB
-			bm_list[*n_bitmaps] = (grs_bitmap*)malloc(1 * sizeof(grs_bitmap));
+			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
 			bm_list[*n_bitmaps]->bm_data = NULL;
 
 			ret = iff_parse_bitmap(&ifile, bm_list[*n_bitmaps], form_type, (int8_t*)(*n_bitmaps > 0 ? NULL : palette), prev_bm);

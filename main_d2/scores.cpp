@@ -20,7 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <io.h>
+
+#include "platform/posixstub.h"
 
 #include "misc/error.h"
 #include "misc/types.h"
@@ -292,7 +293,7 @@ void scores_maybe_add_player(int abort_flag)
 	scores_view(position);
 }
 
-void scores_rprintf(int x, int y, char* format, ...)
+void scores_rprintf(int x, int y, const char* format, ...)
 {
 	va_list args;
 	char buffer[128];
@@ -429,7 +430,7 @@ ReshowScores:
 
 	while (!done)
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		if (citem > -1)
 		{
@@ -491,6 +492,9 @@ ReshowScores:
 			done = 1;
 			break;
 			}
+
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 		}
 
 	// Restore background and exit

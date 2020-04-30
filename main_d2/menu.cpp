@@ -24,9 +24,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #include <algorithm>
 
+#include "misc/rand.h"
+
 //#include "pa_enabl.h"                   //$$POLY_ACC
 //#include "vga.h"
-
+#include "platform/posixstub.h"
 #include "menu.h"
 #include "inferno.h"
 #include "game.h"
@@ -198,7 +200,7 @@ void autodemo_menu_check(int nitems, newmenu_item* items, int* last_key, int cit
 			int n_demos;
 			n_demos = newdemo_count_demos();
 		try_again:;
-			if ((rand() % (n_demos + 1)) == 0)
+			if ((P_Rand() % (n_demos + 1)) == 0)
 			{
 #ifndef SHAREWARE
 #ifdef WINDOWS
@@ -264,12 +266,12 @@ void create_main_menu(newmenu_item * m, int* menu_choice, int* callers_num_optio
 #ifndef RELEASE
 	if (!(Game_mode & GM_MULTI))
 	{
-		ADD_ITEM("  Load level...", MENU_LOAD_LEVEL, KEY_N);
+		ADD_ITEM(const_cast<char*>("  Load level..."), MENU_LOAD_LEVEL, KEY_N);
 #ifdef EDITOR
-		ADD_ITEM("  Editor", MENU_EDITOR, KEY_E);
+		ADD_ITEM(const_cast<char*>("  Editor"), MENU_EDITOR, KEY_E);
 #endif
 	}
-	//ADD_ITEM( "  Play song", MENU_PLAY_SONG, -1 );
+	//ADD_ITEM(const_cast<char*>("  Play song"), MENU_PLAY_SONG, -1 );
 #endif
 
 	* callers_num_options = num_options;
@@ -572,7 +574,7 @@ void do_detail_level_menu(void)
 	m[2].type = NM_TYPE_MENU; m[2].text = MENU_DETAIL_TEXT(2);
 	m[3].type = NM_TYPE_MENU; m[3].text = MENU_DETAIL_TEXT(3);
 	m[4].type = NM_TYPE_MENU; m[4].text = MENU_DETAIL_TEXT(4);
-	m[5].type = NM_TYPE_TEXT; m[5].text = "";
+	m[5].type = NM_TYPE_TEXT; m[5].text = const_cast<char*>("");
 	m[6].type = NM_TYPE_MENU; m[6].text = MENU_DETAIL_TEXT(5);
 
 	s = newmenu_do1(NULL, TXT_DETAIL_LEVEL, NDL + 2, m, NULL, Detail_level);
@@ -757,20 +759,14 @@ void set_display_mode(int mode)
 	if ((Current_display_mode == -1) || (VR_render_mode != VR_NONE))	//special VR mode
 		return;								//...don't change
 
-#if !defined(MACINTOSH) && !defined(WINDOWS)
 	if (mode >= 5 && !FindArg("-superhires"))
 		mode = 4;
-#endif
 
 	if (!MenuHiresAvailable && (mode != 2))
 		mode = 0;
 
 	if (gr_check_mode(display_mode_info[mode].VGA_mode) != 0)		//can't do mode //[ISB]vga_check_mode
-#ifndef MACINTOSH
 		mode = 0;
-#else
-		mode = 1;
-#endif
 
 	Current_display_mode = mode;
 
@@ -801,29 +797,22 @@ void do_screen_res_menu()
 		return;
 	}
 
-	m[0].type = NM_TYPE_TEXT;	 m[0].value = 0;    			  m[0].text = "Modes w/ Cockpit:";
+	m[0].type = NM_TYPE_TEXT;	 m[0].value = 0;    			  m[0].text = const_cast<char*>("Modes w/ Cockpit:");
 
-	m[1].type = NM_TYPE_RADIO; m[1].value = 0; m[1].group = 0; m[1].text = " 320x200";
+	m[1].type = NM_TYPE_RADIO; m[1].value = 0; m[1].group = 0; m[1].text = const_cast<char*>(" 320x200");
 
-	m[2].type = NM_TYPE_RADIO; m[2].value = 0; m[2].group = 0; m[2].text = " 640x480";
-	m[3].type = NM_TYPE_TEXT;	 m[3].value = 0;   				  m[3].text = "Modes w/o Cockpit:";
-#ifdef WINDOWS
-	m[4].type = NM_TYPE_RADIO; m[4].value = 0; m[4].group = 0; m[4].text = " 640x400";
-	m[5].type = NM_TYPE_RADIO; m[5].value = 0; m[5].group = 0; m[5].text = " 800x600";
-	//	m[6].type=NM_TYPE_RADIO; m[6].value=0; m[6].group=0; m[6].text=" 1024x768";
-	n_items = 6;
-#else
-	m[4].type = NM_TYPE_RADIO; m[4].value = 0; m[4].group = 0; m[4].text = " 320x400";
-	m[5].type = NM_TYPE_RADIO; m[5].value = 0; m[5].group = 0; m[5].text = " 640x480";
-	m[6].type = NM_TYPE_RADIO; m[6].value = 0; m[6].group = 0; m[6].text = " 800x600";
+	m[2].type = NM_TYPE_RADIO; m[2].value = 0; m[2].group = 0; m[2].text = const_cast<char*>(" 640x480");
+	m[3].type = NM_TYPE_TEXT;	 m[3].value = 0;   				  m[3].text = const_cast<char*>("Modes w/o Cockpit:");
+	m[4].type = NM_TYPE_RADIO; m[4].value = 0; m[4].group = 0; m[4].text = const_cast<char*>(" 320x400");
+	m[5].type = NM_TYPE_RADIO; m[5].value = 0; m[5].group = 0; m[5].text = const_cast<char*>(" 640x480");
+	m[6].type = NM_TYPE_RADIO; m[6].value = 0; m[6].group = 0; m[6].text = const_cast<char*>(" 800x600");
 	n_items = 7;
 	if (FindArg("-superhires"))
 	{
-		m[7].type = NM_TYPE_RADIO; m[7].value = 0; m[7].group = 0; m[7].text = " 1024x768";
-		m[8].type = NM_TYPE_RADIO; m[8].value = 0; m[8].group = 0; m[8].text = " 1280x1024";
+		m[7].type = NM_TYPE_RADIO; m[7].value = 0; m[7].group = 0; m[7].text = const_cast<char*>(" 1024x768");
+		m[8].type = NM_TYPE_RADIO; m[8].value = 0; m[8].group = 0; m[8].text = const_cast<char*>(" 1280x1024");
 		n_items += 2;
 	}
-#endif
 
 	citem = Current_display_mode + 1;
 
@@ -976,59 +965,34 @@ void do_options_menu()
 	int i = 0;
 
 	do {
-		m[0].type = NM_TYPE_MENU;   m[0].text = "Sound effects & music...";
-		m[1].type = NM_TYPE_TEXT;   m[1].text = "";
-#if defined(MACINTOSH) && defined(APPLE_DEMO)
-		m[2].type = NM_TYPE_TEXT;   m[2].text = "";
-#else
+		m[0].type = NM_TYPE_MENU;   m[0].text = const_cast<char*>("Sound effects & music...");
+		m[1].type = NM_TYPE_TEXT;   m[1].text = const_cast<char*>("");
 		m[2].type = NM_TYPE_MENU;   m[2].text = TXT_CONTROLS_;
-#endif
-#ifdef WINDOWS
-		m[3].type = NM_TYPE_MENU;   m[3].text = "INVOKE JOYSTICK CONTROL PANEL";
-#else
 		m[3].type = NM_TYPE_MENU;   m[3].text = TXT_CAL_JOYSTICK;
-#endif
-		m[4].type = NM_TYPE_TEXT;   m[4].text = "";
+		m[4].type = NM_TYPE_TEXT;   m[4].text = const_cast<char*>("");
 
 #if defined(POLY_ACC)
-#ifdef MACINTOSH
-
-		if (!PAEnabled)
-		{
-			m[5].type = NM_TYPE_SLIDER;
-			m[5].text = TXT_BRIGHTNESS;
-			m[5].value = gr_palette_get_gamma();
-			m[5].min_value = 0;
-			m[5].max_value = 8;
-		}
-		else
-		{
-			m[5].type = NM_TYPE_TEXT;   m[5].text = "";
-		}
-
-#else
-		m[5].type = NM_TYPE_TEXT;   m[5].text = "";
-#endif
+		m[5].type = NM_TYPE_TEXT;   m[5].text = const_cast<char*>("");
 #else
 		m[5].type = NM_TYPE_SLIDER; m[5].text = TXT_BRIGHTNESS; m[5].value = gr_palette_get_gamma(); m[5].min_value = 0; m[5].max_value = 8;
 #endif
 
 
 #ifdef PA_3DFX_VOODOO
-		m[6].type = NM_TYPE_TEXT;   m[6].text = "";
+		m[6].type = NM_TYPE_TEXT;   m[6].text = const_cast<char*>("");
 #else
 		m[6].type = NM_TYPE_MENU;   m[6].text = TXT_DETAIL_LEVELS;
 #endif
 
 #if defined(POLY_ACC)
-		m[7].type = NM_TYPE_TEXT;   m[7].text = "";
+		m[7].type = NM_TYPE_TEXT;   m[7].text = const_cast<char*>("");
 #else
-		m[7].type = NM_TYPE_MENU;   m[7].text = "Screen resolution...";
+		m[7].type = NM_TYPE_MENU;   m[7].text = const_cast<char*>("Screen resolution...");
 #endif
-		m[8].type = NM_TYPE_TEXT;   m[8].text = "";
-		m[9].type = NM_TYPE_MENU;   m[9].text = "Primary autoselect ordering...";
-		m[10].type = NM_TYPE_MENU;   m[10].text = "Secondary autoselect ordering...";
-		m[11].type = NM_TYPE_MENU;   m[11].text = "Toggles...";
+		m[8].type = NM_TYPE_TEXT;   m[8].text = const_cast<char*>("");
+		m[9].type = NM_TYPE_MENU;   m[9].text = const_cast<char*>("Primary autoselect ordering...");
+		m[10].type = NM_TYPE_MENU;   m[10].text = const_cast<char*>("Secondary autoselect ordering...");
+		m[11].type = NM_TYPE_MENU;   m[11].text = const_cast<char*>("Toggles...");
 
 		i = newmenu_do1(NULL, TXT_OPTIONS, sizeof(m) / sizeof(*m), m, options_menuset, i);
 
@@ -1131,32 +1095,19 @@ void do_sound_menu()
 	do
 	{
 		m[0].type = NM_TYPE_SLIDER; m[0].text = TXT_FX_VOLUME; m[0].value = Config_digi_volume; m[0].min_value = 0; m[0].max_value = 8;
-		m[1].type = (Redbook_playing ? NM_TYPE_TEXT : NM_TYPE_SLIDER); m[1].text = "MIDI music volume"; m[1].value = Config_midi_volume; m[1].min_value = 0; m[1].max_value = 8;
+		m[1].type = (Redbook_playing ? NM_TYPE_TEXT : NM_TYPE_SLIDER); m[1].text = const_cast<char*>("MIDI music volume"); m[1].value = Config_midi_volume; m[1].min_value = 0; m[1].max_value = 8;
 
 #ifdef SHAREWARE
-		m[2].type = NM_TYPE_TEXT; m[2].text = "";
-		m[3].type = NM_TYPE_TEXT; m[3].text = "";
-		m[4].type = NM_TYPE_TEXT; m[4].text = "";
-#ifdef MACINTOSH
-		m[3].type = NM_TYPE_SLIDER; m[3].text = "Sound Manager Volume"; m[3].value = Config_master_volume; m[3].min_value = 0; m[3].max_value = 8;
-
-#ifdef APPLE_DEMO
-		m[2].type = (Redbook_playing ? NM_TYPE_SLIDER : NM_TYPE_TEXT); m[2].text = "CD music volume"; m[2].value = Config_redbook_volume; m[2].min_value = 0; m[2].max_value = 8;
-		m[4].type = NM_TYPE_CHECK;  m[4].text = "CD Music (Redbook) enabled"; m[4].value = (Redbook_playing != 0);
-#endif
-
-#endif
+		m[2].type = NM_TYPE_TEXT; m[2].text = const_cast<char*>("");
+		m[3].type = NM_TYPE_TEXT; m[3].text = const_cast<char*>("");
+		m[4].type = NM_TYPE_TEXT; m[4].text = const_cast<char*>("");
 
 #else		// ifdef SHAREWARE
-		m[2].type = (Redbook_playing ? NM_TYPE_SLIDER : NM_TYPE_TEXT); m[2].text = "CD music volume"; m[2].value = Config_redbook_volume; m[2].min_value = 0; m[2].max_value = 8;
+		m[2].type = (Redbook_playing ? NM_TYPE_SLIDER : NM_TYPE_TEXT); m[2].text = const_cast<char*>("CD music volume"); m[2].value = Config_redbook_volume; m[2].min_value = 0; m[2].max_value = 8;
 
-#ifndef MACINTOSH
-		m[3].type = NM_TYPE_TEXT; m[3].text = "";
-#else
-		m[3].type = NM_TYPE_SLIDER; m[3].text = "Sound Manager Volume"; m[3].value = Config_master_volume; m[3].min_value = 0; m[3].max_value = 8;
-#endif
+		m[3].type = NM_TYPE_TEXT; m[3].text = const_cast<char*>("");
 
-		m[4].type = NM_TYPE_CHECK;  m[4].text = "CD Music (Redbook) enabled"; m[4].value = (Redbook_playing != 0);
+		m[4].type = NM_TYPE_CHECK;  m[4].text = const_cast<char*>("CD Music (Redbook) enabled"); m[4].value = (Redbook_playing != 0);
 #endif
 
 		m[5].type = NM_TYPE_CHECK;  m[5].text = TXT_REVERSE_STEREO; m[5].value = Config_channels_reversed;
@@ -1193,29 +1144,17 @@ void do_toggles_menu()
 
 	do
 	{
-		ADD_CHECK(0, "Ship auto-leveling", Auto_leveling_on);
-		ADD_CHECK(1, "Show reticle", Reticle_on);
-		ADD_CHECK(2, "Missile view", Missile_view_enabled);
-		ADD_CHECK(3, "Headlight on when picked up", Headlight_active_default);
-		ADD_CHECK(4, "Show guided missile in main display", Guided_in_big_window);
-		ADD_CHECK(5, "Escort robot hot keys", EscortHotKeys);
-#ifdef MACINTOSH
-		if (!PAEnabled) {
-			ADD_CHECK(6, "Pixel Double", Scanline_double);
-		}
-#else
+		ADD_CHECK(0, const_cast<char*>("Ship auto-leveling"), Auto_leveling_on);
+		ADD_CHECK(1, const_cast<char*>("Show reticle"), Reticle_on);
+		ADD_CHECK(2, const_cast<char*>("Missile view"), Missile_view_enabled);
+		ADD_CHECK(3, const_cast<char*>("Headlight on when picked up"), Headlight_active_default);
+		ADD_CHECK(4, const_cast<char*>("Show guided missile in main display"), Guided_in_big_window);
+		ADD_CHECK(5, const_cast<char*>("Escort robot hot keys"), EscortHotKeys);
 #if !defined(POLY_ACC)
-		ADD_CHECK(6, "Always show HighRes Automap", std::min(MenuHiresAvailable, Automap_always_hires));
-#endif
+		ADD_CHECK(6, const_cast<char*>("Always show HighRes Automap"), std::min(MenuHiresAvailable, Automap_always_hires));
 #endif
 		//when adding more options, change N_TOGGLE_ITEMS above
-
-#ifdef MACINTOSH
-		if (PAEnabled)		// when doing RAVE, no pixel doubling
-			i = newmenu_do1(NULL, "Toggles", N_TOGGLE_ITEMS - 1, m, NULL, i);
-		else
-#endif		// note link to if
-			i = newmenu_do1(NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i);
+		i = newmenu_do1(NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i);
 
 		Auto_leveling_on = m[0].value;
 		Reticle_on = m[1].value;
@@ -1254,11 +1193,6 @@ void do_multi_player_menu()
 		//  ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1 );
 		//  ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1 );
 
-#ifdef MACINTOSH
-		ADD_ITEM("Start Appletalk Netgame", MENU_START_APPLETALK_NETGAME, -1);
-		ADD_ITEM("Join Appletalk Netgame\n", MENU_JOIN_APPLETALK_NETGAME, -1);
-#endif
-
 		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
 
 		choice = newmenu_do1(NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice);
@@ -1279,7 +1213,7 @@ void DoNewIPAddress()
 	char IPText[30];
 	int choice;
 
-	m[0].type = NM_TYPE_TEXT; m[0].text = "Enter an address or hostname:";
+	m[0].type = NM_TYPE_TEXT; m[0].text = const_cast<char*>("Enter an address or hostname:");
 	m[1].type = NM_TYPE_INPUT; m[1].text_len = 50; m[1].text = IPText;
 	IPText[0] = 0;
 

@@ -15,6 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 
+#include "platform/posixstub.h"
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "3d/3d.h"
 #include "2d/gr.h"
@@ -37,7 +38,7 @@ char Current_level_palette[FILENAME_LEN];
 extern int Color_0_31_0, HUD_color;
 
 //give a filename a new extension
-void change_filename_ext( char *dest, char *src, char *ext )
+void change_filename_ext( char *dest, const char *src, const char *ext )
 {
 	char *p;
 
@@ -98,7 +99,7 @@ void remap_fonts_and_menus(int do_fadetable_hack)
 //if used_for_level is set, load pig, etc.
 //if no_change_screen is set, the current screen does not get remapped,
 //and the hardware palette does not get changed
-int load_palette(char *name,int used_for_level,int no_change_screen)
+int load_palette(const char *name,int used_for_level,int no_change_screen)
 {
 	char pigname[FILENAME_LEN];
 	uint8_t old_pal[256*3];

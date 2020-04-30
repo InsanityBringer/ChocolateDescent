@@ -15,7 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "desw.h"
 #endif
 
-
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
@@ -23,7 +22,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <errno.h>
 #include <time.h>
-//#include <unistd.h>
+
+#include "misc/rand.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "2d/i_gr.h"
@@ -92,7 +92,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmerge.h"
 #include "paging.h"
 #include "mission.h"
-#include "State.h"
+#include "state.h"
 #include "songs.h"
 #include "netmisc.h"
 #include "gamepal.h"
@@ -810,7 +810,7 @@ do_menu_again:
 	return 1;
 }
 
-extern void change_filename_extension(char* dest, char* src, char* new_ext);
+extern void change_filename_extension(char* dest, const char* src, const char* new_ext);
 extern char last_palette_loaded_pig[];
 
 uint8_t* Bitmap_replacement_data = NULL;
@@ -826,6 +826,9 @@ typedef struct DiskBitmapHeader
 	uint8_t avg_color;
 	int offset;
 } DiskBitmapHeader;
+
+//from piggy code, needed to properly figure out how much memory to allocate
+#define BITMAP_HEADER_SIZE 18
 
 void load_bitmap_replacements(char* level_name)
 {
@@ -861,19 +864,16 @@ void load_bitmap_replacements(char* level_name)
 
 		MALLOC(indices, uint16_t, n_bitmaps);
 
-#ifndef MACINTOSH	// silly, silly, must swap shorts on the mac.
-		cfread(indices, sizeof(*indices), n_bitmaps, ifile);
-#else
 		for (i = 0; i < n_bitmaps; i++)
 		{
 			indices[i] = cfile_read_short(ifile);
 		}
-#endif
 
-		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - (sizeof(DiskBitmapHeader) * n_bitmaps);
+		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - (BITMAP_HEADER_SIZE * n_bitmaps);
 		MALLOC(Bitmap_replacement_data, uint8_t, bitmap_data_size);
 
-		for (i = 0; i < n_bitmaps; i++) {
+		for (i = 0; i < n_bitmaps; i++)
+		{
 			DiskBitmapHeader bmh;
 			grs_bitmap temp_bitmap;
 
@@ -1320,7 +1320,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 	ThisLevelTime = 0;
 
 	m[0].type = NM_TYPE_TEXT;
-	m[0].text = " ";
+	m[0].text = const_cast<char*>(" ");
 
 	last_drawn_cockpit[0] = -1;
 	last_drawn_cockpit[1] = -1;
@@ -1409,7 +1409,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 
 			pw_save = Primary_weapon;
 			sw_save = Secondary_weapon;
-			state_restore_all(1, 1, SECRETC_FILENAME);
+			state_restore_all(1, 1, const_cast<char*>(SECRETC_FILENAME));
 			Primary_weapon = pw_save;
 			Secondary_weapon = sw_save;
 			reset_special_effects();
@@ -1464,7 +1464,7 @@ void ExitSecretLevel(void)
 
 	if (!Control_center_destroyed)
 	{
-		state_save_all(0, 2, SECRETC_FILENAME);
+		state_save_all(0, 2, const_cast<char*>(SECRETC_FILENAME));
 	}
 
 	if ((fp = fopen(SECRETB_FILENAME, "rb")) != NULL)
@@ -1475,7 +1475,7 @@ void ExitSecretLevel(void)
 		fclose(fp);
 		pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
-		state_restore_all(1, 1, SECRETB_FILENAME);
+		state_restore_all(1, 1, const_cast<char*>(SECRETB_FILENAME));
 		Primary_weapon = pw_save;
 		Secondary_weapon = sw_save;
 	}
@@ -1770,7 +1770,7 @@ void load_stars_palette()
 }
 #endif
 
-void nm_draw_background1(char* filename);
+void nm_draw_background1(const char* filename);
 
 void load_stars()
 {
@@ -1949,7 +1949,7 @@ void DoPlayerDead()
 			{
 				fclose(fp);
 				returning_to_level_message();
-				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
+				state_restore_all(1, 2, const_cast<char*>(SECRETB_FILENAME));			//	2 means you died
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 			}
@@ -1978,8 +1978,8 @@ void DoPlayerDead()
 			fclose(fp);
 			returning_to_level_message();
 			if (!Control_center_destroyed)
-				state_save_all(0, 2, SECRETC_FILENAME);
-			state_restore_all(1, 2, SECRETB_FILENAME);
+				state_save_all(0, 2, const_cast<char*>(SECRETC_FILENAME));
+			state_restore_all(1, 2, const_cast<char*>(SECRETB_FILENAME));
 			set_pos_from_return_segment();
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 		}
@@ -2131,9 +2131,9 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 }
 
 #ifdef NETWORK
-extern void bash_to_shield(int, char*);
+extern void bash_to_shield(int, const char*);
 #else
-void bash_to_shield(int i, char* s)
+void bash_to_shield(int i, const char* s)
 {
 	int type = Objects[i].id;
 
@@ -2293,7 +2293,7 @@ void InitPlayerPosition(int random_flag)
 		int i, closest = -1, trys = 0;
 		fix closest_dist = 0x7ffffff, dist;
 
-		srand(clock());
+		P_SRand(clock());
 
 #ifndef NDEBUG
 		if (NumNetPlayerPositions != MAX_NUM_NET_PLAYERS)
@@ -2311,7 +2311,7 @@ void InitPlayerPosition(int random_flag)
 			}
 			trys++;
 
-			NewPlayer = rand() % NumNetPlayerPositions;
+			NewPlayer = P_Rand() % NumNetPlayerPositions;
 
 			closest = -1;
 			closest_dist = 0x7fffffff;

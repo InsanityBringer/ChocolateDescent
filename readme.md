@@ -1,8 +1,10 @@
-Chocolate Descent, a barebones software-rendered focused port of the Descent game.
+## Chocolate Descent 
+
+A barebones software-rendered focused port of the Descent game.
 
 Building:
-See building.txt for details. Currently only building on Windows with 
-Visual Studio is supported.
+See building.txt for details. The project has been successfully built 
+on Windows using Visual Studio 2019 and Linux with gnu make and gcc
 
 Running:
 Chocolate Descent needs game data to run. At the moment, Chocolate Descent

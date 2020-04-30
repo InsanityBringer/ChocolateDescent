@@ -16,7 +16,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <io.h> //[ISB] TODO: a file that actually fucking uses IO.H. need to make portable
+
+#include "platform/posixstub.h"
+
 #include "2d/i_gr.h"
 #include "misc/error.h"
 #include "misc/types.h"
@@ -401,7 +403,7 @@ ReshowScores:
 	time_out_value = timer_get_fixed_seconds() + i2f(60 * 5);
 	while (!done) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		if (citem > -1) 
 		{
@@ -444,6 +446,8 @@ ReshowScores:
 			done = 1;
 			break;
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(US_70FPS);
 	}
 
 	// Restore background and exit
@@ -452,4 +456,4 @@ ReshowScores:
 
 	game_flush_inputs();
 }
-
+

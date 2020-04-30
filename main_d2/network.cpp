@@ -6448,7 +6448,7 @@ void network_send_player_names (sequence_packet *their)
  
 #endif
 
-extern int file_exists (char *);
+extern int file_exists (const char *);
 
 int HoardEquipped ()
 {

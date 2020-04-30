@@ -21,6 +21,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int Mouse_installed = 0;
 
+float MouseScalar = 1.0f;
+
 typedef struct event_info
 {
 	short x;

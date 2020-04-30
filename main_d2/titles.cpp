@@ -121,7 +121,7 @@ int local_key_inkey(void)
 	return rval;
 }
 
-int show_title_screen(char* filename, int allow_keys, int from_hog_only)
+int show_title_screen(const char* filename, int allow_keys, int from_hog_only)
 {
 	fix timer;
 	int pcx_error;
@@ -545,7 +545,7 @@ int load_briefing_screen(int screen_num)
 
 void DoBriefingColorStuff();
 
-int load_new_briefing_screen(char* fname)
+int load_new_briefing_screen(const char* fname)
 {
 	int	pcx_error;
 
@@ -1122,7 +1122,7 @@ char* get_briefing_message(int screen_num)
 
 // -----------------------------------------------------------------------------
 //	Load Descent briefing text.
-int load_screen_text(char* filename, char** buf)
+int load_screen_text(const char* filename, char** buf)
 {
 	CFILE* tfile;
 	CFILE* ifile;
@@ -1139,7 +1139,7 @@ int load_screen_text(char* filename, char** buf)
 		if ((ifile = cfopen(nfilename, "rb")) == NULL)
 		{
 			mprintf((0, "can't open %s!\n", nfilename));
-			return (NULL);
+			return 0;
 			//Error("Cannot open file %s or %s", filename, nfilename); 
 		}
 
@@ -1198,7 +1198,7 @@ int show_briefing_text(int screen_num)
 
 	message_ptr = get_briefing_message(screen_num);
 	if (message_ptr == NULL)
-		return (NULL);
+		return 0;
 
 	DoBriefingColorStuff();
 
@@ -1266,7 +1266,7 @@ int show_briefing_screen(int screen_num, int allow_keys)
 
 
 //	-----------------------------------------------------------------------------
-void do_briefing_screens(char* filename, int level_num)
+void do_briefing_screens(const char* filename, int level_num)
 {
 	MVEPaletteCalls = 0;
 

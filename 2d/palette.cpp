@@ -11,10 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <conio.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <io.h>
 #include <string.h>
 #include "misc/types.h"
 #include "mem/mem.h"
@@ -26,6 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "fix/fix.h"
 #include "2d/palette.h"
+#include "misc/rand.h"
 
 extern int gr_installed;
 
@@ -116,7 +115,7 @@ void add_computed_color(int r, int g, int b, int color_num)
 		Num_computed_colors++;
 	}
 	else
-		add_index = (rand() * MAX_COMPUTED_COLORS) >> 15;
+		add_index = (P_Rand() * MAX_COMPUTED_COLORS) >> 15;
 
 	Computed_colors[add_index].r = r;
 	Computed_colors[add_index].g = g;
@@ -363,7 +362,6 @@ int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys)
 	for (j = 0; j < nsteps; j++) 
 	{
 		gr_sync_display();
-		I_DoEvents();
 		for (i = 0; i < 768; i++) 
 		{
 			fade_palette[i] += fade_palette_delta[i];
@@ -378,6 +376,7 @@ int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys)
 		I_BlitCanvas(grd_curcanv);
 #endif
 		I_DrawCurrentCanvas(0);
+		I_DoEvents();
 	}
 	gr_palette_faded_out = 0;
 	return 0;

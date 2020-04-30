@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "controls.h"
 #include "kconfig.h"
+#include "misc/rand.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -124,7 +125,7 @@ int	Believed_player_seg;
 
 #ifndef NDEBUG
 //	Index into this array with ailp->mode
-char* mode_text[18] = {
+const char* mode_text[18] = {
 	{"STILL"},
 	{"WANDER"},
 	{"FOL_PATH"},
@@ -147,7 +148,7 @@ char* mode_text[18] = {
 };
 
 //	Index into this array with aip->behavior
-char	behavior_text[6][9] = {
+const char	behavior_text[6][9] = {
 	"STILL   ",
 	"NORMAL  ",
 	"HIDE    ",
@@ -157,7 +158,7 @@ char	behavior_text[6][9] = {
 };
 
 //	Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-char	state_text[8][5] = {
+const char	state_text[8][5] = {
 	"NONE",
 	"REST",
 	"SRCH",
@@ -462,8 +463,8 @@ void do_ai_frame(object* obj)
 		//	Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
 	if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI) && (robptr->companion != 1) && (robptr->thief != 1))
 		if (Overall_agitation > 70) {
-			if ((dist_to_player < F1_0 * 200) && (rand() < FrameTime / 4)) {
-				if (rand() * (Overall_agitation - 40) > F1_0 * 5) {
+			if ((dist_to_player < F1_0 * 200) && (P_Rand() < FrameTime / 4)) {
+				if (P_Rand() * (Overall_agitation - 40) > F1_0 * 5) {
 					// -- mprintf((0, "(1) Object #%i going from still to path in frame %i.\n", objnum, FrameCount));
 					create_path_to_player(obj, 4 + Overall_agitation / 8 + Difficulty_level, 1);
 					return;
@@ -575,7 +576,7 @@ void do_ai_frame(object* obj)
 
 
 	if (Player_is_dead && (ailp->player_awareness_type == 0))
-		if ((dist_to_player < F1_0 * 200) && (rand() < FrameTime / 8)) {
+		if ((dist_to_player < F1_0 * 200) && (P_Rand() < FrameTime / 8)) {
 			if ((aip->behavior != AIB_STILL) && (aip->behavior != AIB_RUN_FROM)) {
 				if (!ai_multiplayer_awareness(obj, 30))
 					return;
@@ -611,7 +612,7 @@ void do_ai_frame(object* obj)
 	else if (((obj_ref & 3) == 0) && !previous_visibility && (dist_to_player < F1_0 * 100)) {
 		fix	sval, rval;
 
-		rval = rand();
+		rval = P_Rand();
 		sval = (dist_to_player * (Difficulty_level + 1)) / 64;
 
 		// -- mprintf((0, "Object #%3i: dist = %7.3f, rval = %8x, sval = %8x", obj-Objects, f2fl(dist_to_player), rval, sval));
@@ -815,7 +816,7 @@ void do_ai_frame(object* obj)
 				Laser_create_new_easy(&obj->orient.fvec, &obj->pos, obj - Objects, FLARE_ID, 1);
 				ailp->next_fire = F1_0 / 2;
 				if (!Buddy_allowed_to_talk)	//	If buddy not talking, make him fire flares less often.
-					ailp->next_fire += rand() * 4;
+					ailp->next_fire += P_Rand() * 4;
 			}
 
 		}
@@ -840,7 +841,7 @@ void do_ai_frame(object* obj)
 				Laser_create_new_easy(&obj->orient.fvec, &obj->pos, obj - Objects, FLARE_ID, 1);
 				ailp->next_fire = F1_0 / 2;
 				if (Stolen_item_index == 0)		//	If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
-					ailp->next_fire += rand() * 4;
+					ailp->next_fire += P_Rand() * 4;
 			}
 		}
 	}
@@ -882,8 +883,8 @@ void do_ai_frame(object* obj)
 
 		if ((aip->CURRENT_STATE == AIS_REST) && (aip->GOAL_STATE == AIS_REST)) {
 			if (player_visibility) {
-				if (rand() < FrameTime * player_visibility) {
-					if (dist_to_player / 256 < rand() * player_visibility) {
+				if (P_Rand() < FrameTime * player_visibility) {
+					if (dist_to_player / 256 < P_Rand() * player_visibility) {
 						// mprintf((0, "Object %i searching for player.\n", obj-Objects));
 						aip->GOAL_STATE = AIS_SRCH;
 						aip->CURRENT_STATE = AIS_SRCH;
@@ -1115,9 +1116,9 @@ void do_ai_frame(object* obj)
 		if ((dist_to_player < F1_0 * 120 + Difficulty_level * F1_0 * 20) || (ailp->player_awareness_type >= PA_WEAPON_ROBOT_COLLISION - 1)) {
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
-			//	turn towards vector if visible this time or last time, or rand
+			//	turn towards vector if visible this time or last time, or P_Rand
 			// new!
-			if ((player_visibility == 2) || (previous_visibility == 2)) { // -- MK, 06/09/95:  || ((rand() > 0x4000) && !(Game_mode & GM_MULTI))) {
+			if ((player_visibility == 2) || (previous_visibility == 2)) { // -- MK, 06/09/95:  || ((P_Rand() > 0x4000) && !(Game_mode & GM_MULTI))) {
 				if (!ai_multiplayer_awareness(obj, 71)) {
 					if (maybe_ai_do_actual_firing_stuff(obj, aip))
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
@@ -1397,7 +1398,7 @@ int add_awareness_event(object* objp, int type)
 	if (Num_awareness_events < MAX_AWARENESS_EVENTS) {
 		if ((type == PA_WEAPON_WALL_COLLISION) || (type == PA_WEAPON_ROBOT_COLLISION))
 			if (objp->id == VULCAN_ID)
-				if (rand() > 3276)
+				if (P_Rand() > 3276)
 					return 0;		//	For vulcan cannon, only about 1/10 actually cause awareness
 
 		Awareness_events[Num_awareness_events].segnum = objp->segnum;
@@ -1421,7 +1422,7 @@ void create_awareness_event(object* objp, int type)
 	//	If not in multiplayer, or in multiplayer with robots, do this, else unnecessary!
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS)) {
 		if (add_awareness_event(objp, type)) {
-			if (((rand() * (type + 4)) >> 15) > 4)
+			if (((P_Rand() * (type + 4)) >> 15) > 4)
 				Overall_agitation++;
 			if (Overall_agitation > OVERALL_AGITATION_MAX)
 				Overall_agitation = OVERALL_AGITATION_MAX;
@@ -1494,7 +1495,7 @@ FILE* Ai_dump_file = NULL;
 char	Ai_error_message[128] = "";
 
 // ----------------------------------------------------------------------------------
-void force_dump_ai_objects_all(char* msg)
+void force_dump_ai_objects_all(const char* msg)
 {
 	int	tsave;
 

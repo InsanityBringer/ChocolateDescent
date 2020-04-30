@@ -27,6 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <string.h>
 
+#include "misc/rand.h"
+
 #include "3d/3d.h"
 #include "misc/error.h"
 #include "2d/gr.h"
@@ -645,20 +647,20 @@ do_endlevel_frame()
 			static int sound_count;
 
 			vm_vec_scale_add(&tpnt,&ConsoleObject->pos,&ConsoleObject->orient.fvec,-ConsoleObject->size*5);
-			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.rvec,(rand()-RAND_MAX/2)*15);
-			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(rand()-RAND_MAX/2)*15);
+			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.rvec,(P_Rand()-PRAND_MAX/2)*15);
+			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(P_Rand()-PRAND_MAX/2)*15);
 
 			segnum = find_point_seg(&tpnt,ConsoleObject->segnum);
 
 			if (segnum != -1) {
 				expl = object_create_explosion(segnum,&tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
-				if (rand()<10000 || ++sound_count==7) {		//pseudo-random
+				if (P_Rand()<10000 || ++sound_count==7) {		//pseudo-random
 					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, 0, &tpnt, 0, F1_0 );
 					sound_count=0;
 				}
 			}
 
-			explosion_wait1 = 0x2000 + rand()/4;
+			explosion_wait1 = 0x2000 + P_Rand()/4;
 
 		}
 	}
@@ -672,14 +674,14 @@ do_endlevel_frame()
 
 			//create little explosion on wall
 
-			vm_vec_copy_scale(&tpnt,&ConsoleObject->orient.rvec,(rand()-RAND_MAX/2)*100);
-			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(rand()-RAND_MAX/2)*100);
+			vm_vec_copy_scale(&tpnt,&ConsoleObject->orient.rvec,(P_Rand()-PRAND_MAX/2)*100);
+			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(P_Rand()-PRAND_MAX/2)*100);
 			vm_vec_add2(&tpnt,&ConsoleObject->pos);
 
 			if (Endlevel_sequence == EL_FLYTHROUGH)
-				vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.fvec,rand()*200);
+				vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.fvec,P_Rand()*200);
 			else
-				vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.fvec,rand()*60);
+				vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.fvec,P_Rand()*60);
 
 			//find hit point on wall
 
@@ -694,9 +696,9 @@ do_endlevel_frame()
 			find_vector_intersection(&fq,&hit_data);
 
 			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=-1)
-				object_create_explosion(hit_data.hit_seg,&hit_data.hit_pnt,i2f(3)+rand()*6,VCLIP_SMALL_EXPLOSION);
+				object_create_explosion(hit_data.hit_seg,&hit_data.hit_pnt,i2f(3)+P_Rand()*6,VCLIP_SMALL_EXPLOSION);
 
-			explosion_wait2 = (0xa00 + rand()/8)/2;
+			explosion_wait2 = (0xa00 + P_Rand()/8)/2;
 		}
 
 	switch (Endlevel_sequence) {
@@ -1069,9 +1071,9 @@ generate_starfield()
 
 	for (i=0;i<MAX_STARS;i++) {
 
-		stars[i].x = (rand() - RAND_MAX/2) << 14;
-		stars[i].z = (rand() - RAND_MAX/2) << 14;
-		stars[i].y = (rand()/2) << 14;
+		stars[i].x = (P_Rand() - PRAND_MAX/2) << 14;
+		stars[i].z = (P_Rand() - PRAND_MAX/2) << 14;
+		stars[i].y = (P_Rand()/2) << 14;
 
 	}
 }

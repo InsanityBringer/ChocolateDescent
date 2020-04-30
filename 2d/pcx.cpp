@@ -14,6 +14,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 #include "2d/gr.h"
 #include "mem/mem.h"
 #include "2d/pcx.h"
@@ -66,11 +67,14 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 	xsize = header.Xmax - header.Xmin + 1;
 	ysize = header.Ymax - header.Ymin + 1;
 
-	if (bitmap_type == BM_LINEAR) {
-		if (bmp->bm_data == NULL) {
+	if (bitmap_type == BM_LINEAR) 
+	{
+		if (bmp->bm_data == NULL) 
+		{
 			memset(bmp, 0, sizeof(grs_bitmap));
 			bmp->bm_data = (unsigned char*)malloc(xsize * ysize);
-			if (bmp->bm_data == NULL) {
+			if (bmp->bm_data == NULL) 
+			{
 				cfclose(PCXfile);
 				return PCX_ERROR_MEMORY;
 			}
@@ -80,17 +84,23 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 		}
 	}
 
-	if (bmp->bm_type == BM_LINEAR) {
-		for (row = 0; row < ysize; row++) {
+	//if (bmp->bm_type == BM_LINEAR) 
+	{
+		for (row = 0; row < ysize; row++) 
+		{
 			pixdata = &bmp->bm_data[bmp->bm_rowsize * row];
-			for (col = 0; col < xsize; ) {
-				if (cfread(&data, 1, 1, PCXfile) != 1) {
+			for (col = 0; col < xsize; ) 
+			{
+				if (cfread(&data, 1, 1, PCXfile) != 1) 
+				{
 					cfclose(PCXfile);
 					return PCX_ERROR_READING;
 				}
-				if ((data & 0xC0) == 0xC0) {
+				if ((data & 0xC0) == 0xC0) 
+				{
 					count = data & 0x3F;
-					if (cfread(&data, 1, 1, PCXfile) != 1) {
+					if (cfread(&data, 1, 1, PCXfile) != 1) 
+					{
 						cfclose(PCXfile);
 						return PCX_ERROR_READING;
 					}
@@ -98,23 +108,30 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 					pixdata += count;
 					col += count;
 				}
-				else {
+				else 
+				{
 					*pixdata++ = data;
 					col++;
 				}
 			}
 		}
 	}
-	else {
-		for (row = 0; row < ysize; row++) {
-			for (col = 0; col < xsize; ) {
-				if (cfread(&data, 1, 1, PCXfile) != 1) {
+	/*else 
+	{
+		for (row = 0; row < ysize; row++) 
+		{
+			for (col = 0; col < xsize; ) 
+			{
+				if (cfread(&data, 1, 1, PCXfile) != 1) 
+				{
 					cfclose(PCXfile);
 					return PCX_ERROR_READING;
 				}
-				if ((data & 0xC0) == 0xC0) {
+				if ((data & 0xC0) == 0xC0) 
+				{
 					count = data & 0x3F;
-					if (cfread(&data, 1, 1, PCXfile) != 1) {
+					if (cfread(&data, 1, 1, PCXfile) != 1) 
+					{
 						cfclose(PCXfile);
 						return PCX_ERROR_READING;
 					}
@@ -122,20 +139,25 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 						gr_bm_pixel(bmp, col + i, row, data);
 					col += count;
 				}
-				else {
+				else 
+				{
 					gr_bm_pixel(bmp, col, row, data);
 					col++;
 				}
 			}
 		}
-	}
+	}*/
 
 	// Read the extended palette at the end of PCX file
-	if (palette != NULL) {
+	if (palette != NULL) 
+	{
 		// Read in a character which should be 12 to be extended palette file
-		if (cfread(&data, 1, 1, PCXfile) == 1) {
-			if (data == 12) {
-				if (cfread(palette, 768, 1, PCXfile) != 1) {
+		if (cfread(&data, 1, 1, PCXfile) == 1) 
+		{
+			if (data == 12) 
+			{
+				if (cfread(palette, 768, 1, PCXfile) != 1) 
+				{
 					cfclose(PCXfile);
 					return PCX_ERROR_READING;
 				}
@@ -143,7 +165,8 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 					palette[i] >>= 2;
 			}
 		}
-		else {
+		else 
+		{
 			cfclose(PCXfile);
 			return PCX_ERROR_NO_PALETTE;
 		}
@@ -173,8 +196,9 @@ int pcx_write_bitmap(const char* filename, grs_bitmap* bmp, uint8_t* palette)
 	header.Ymax = bmp->bm_h - 1;
 	header.BytesPerLine = bmp->bm_w;
 
-	//PCXfile = fopen(filename, "wb");
-	errno_t err = fopen_s(&PCXfile, filename, "wb");
+	//[ISB] knew this was a bad idea.....
+	PCXfile = fopen(filename, "wb");
+	//errno_t err = fopen_s(&PCXfile, filename, "wb");
 	if (!PCXfile)
 		return PCX_ERROR_OPENING;
 

@@ -19,6 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix/fix.h"
 #include "misc/types.h"
 #include "2d/gr.h"
+#include "2d/i_gr.h"
 #include "ui.h"
 #include "platform/key.h"
 #include "platform/mono.h"
@@ -340,6 +341,8 @@ int ui_get_idle_seconds()
 
 void ui_mega_process()
 {
+	I_MarkStart();
+	I_DoEvents();
 	int mx, my;
 	unsigned char k;
 
@@ -596,7 +599,8 @@ void ui_mega_process()
 	}
 
 	ui_mouse_process();
-
+	I_DrawCurrentCanvas(0);
+	I_MarkEnd(US_60FPS);
 }
 
 void ui_wprintf(UI_WINDOW* wnd, char* format, ...)

@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+#include <stddef.h>
 
 #include "misc/error.h"
 #include "3d/3d.h"
@@ -245,22 +246,37 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 
 		case OP_FLATPOLY: 
 		{
+			int light = 0;
+			int drawindex;
 			int nv = w(p + 2);
 
 			Assert(nv < MAX_POINTS_PER_POLY);
-			if (g3_check_normal_facing(vp(p + 4), vp(p + 16)) > 0) 
+
+			if (g3_check_normal_facing(vp(p + 4), vp(p + 16)) > 0)
 			{
 				int i;
 #ifdef BUILD_DESCENT2
-				gr_setcolor(interp_color_table[w(p + 28)].pal_entry);
+				drawindex = interp_color_table[w(p + 28)].pal_entry;
+				if (glow_num != -1)
+				{
+					light = glow_values[glow_num];
+					glow_num = -1;
+					//printf("light: %d\n", light);
+					//[ISB] there's code to try to vary brightness based on the glow value, but it seems to be unused and buggy.
+					if (light == -2)
+						drawindex = 255;
+				}
 #else
-				gr_setcolor(w(p + 28));
+				drawindex = w(p + 28);
 #endif
+				if (light != -3)
+				{
+					gr_setcolor(drawindex);
 
-				for (i = 0; i < nv; i++)
-					point_list[i] = Interp_point_list + wp(p + 30)[i];
-
-				g3_draw_poly(nv, point_list);
+					for (i = 0; i < nv; i++)
+						point_list[i] = Interp_point_list + wp(p + 30)[i];
+					g3_draw_poly(nv, point_list);
+				}
 			}
 
 			p += 30 + ((nv & ~1) + 1) * 2;
@@ -282,7 +298,6 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 
 				if (glow_num < 0) //no glow
 				{
-
 					light = -vm_vec_dot(&View_matrix.fvec, vp(p + 16));
 					light = f1_0 / 4 + (light * 3) / 4;
 					light = fixmul(light, model_light);
@@ -412,7 +427,11 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			int nv = w(p + 2);
 			int i, ntris;
 
+#ifdef BUILD_DESCENT2
+			gr_setcolor(interp_color_table[w(p + 28)].pal_entry);
+#else
 			gr_setcolor(w(p + 28));
+#endif
 
 			for (i = 0; i < 2; i++)
 				point_list[i] = Interp_point_list + wp(p + 30)[i];

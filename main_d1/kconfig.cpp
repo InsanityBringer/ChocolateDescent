@@ -59,6 +59,27 @@ int8_t fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26
 //char * mouseaxis_text[2] = { "L/R", "F/B" };
 //char * mousebutton_text[3] = { "Left", "Right", "Mid" };
 
+const char* choco_gamepad_text[28] =
+{ "0", "1", "2", "3",
+"RTRIG", "LTRIG", "LB", "PADL",
+"RB", "9", "A", "PADD",
+"12", "13", "B", "PADR",
+"X", "17", "Y", "PADU",
+"20", "21", "22", "23",
+"24", "25", "26", "27" };
+
+const char* choco_joybutton_text[28] =
+//Basic inputs
+{ "BTN 1", "BTN 2", "BTN 3", "BTN 4",
+//"Extended" Flightstick inputs, default ATM. 
+"BTN 1", "BTN 2", "BTN 3", "HAT ",
+"BTN 4", "BTN 5", "BTN 6", "HAT €",
+"BTN 7", "BTN 8", "BTN 9", "HAT ",
+"BTN 10", "BTN 11", "BTN 12", "HAT ‚",
+//[ISB] can't bind above 20...
+"-20-", "-21-", "-22-", "-23-",
+"-24-", "-25-", "-26-", "-27-" };
+
 int invert_text[2] = { TNUM_N, TNUM_Y };
 int joybutton_text[28] =
 { TNUM_BTN_1, TNUM_BTN_2, TNUM_BTN_3, TNUM_BTN_4,
@@ -480,7 +501,7 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 
 	while (1) 
 	{
-		I_DrawCurrentCanvas(0);
+		I_MarkStart();
 		I_DoEvents();
 		k = key_inkey();
 		if (!time_stopped)
@@ -641,6 +662,8 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 			kc_drawitem(&items[ocitem], 0);
 			kc_drawitem(&items[citem], 1);
 		}
+		I_DrawCurrentCanvas(0);
+		I_MarkEnd(US_70FPS);
 	}
 }
 
@@ -671,10 +694,18 @@ void kc_drawitem(kc_item* item, int is_current)
 		case BT_MOUSE_AXIS:
 			strncpy(btext, Text_string[mouseaxis_text[item->value]], 10); break;
 		case BT_JOY_BUTTON:
-			if (joybutton_text[item->value] != -1)
-				strncpy(btext, Text_string[joybutton_text[item->value]], 10);
+			if (Config_control_type == CONTROL_FLIGHTSTICK_PRO)
+			{
+				strncpy(btext, choco_gamepad_text[item->value], 10);
+			}
 			else
-				sprintf(btext, "BTN%d", item->value);
+			{
+				/*if (joybutton_text[item->value] != -1)
+					strncpy(btext, Text_string[joybutton_text[item->value]], 10);
+				else
+					sprintf(btext, "BTN%d", item->value);*/
+				strncpy(btext, choco_joybutton_text[item->value], 10);
+			}
 			break;
 		case BT_JOY_AXIS:
 			strncpy(btext, Text_string[joyaxis_text[item->value]], 10); break;
@@ -822,7 +853,8 @@ void kc_change_joybutton(kc_item* item)
 			if (joy_get_button_state(11)) code = 11;
 			if (joy_get_button_state(15)) code = 15;
 			if (joy_get_button_state(19)) code = 19;
-			for (i = 0; i < 4; i++) 
+			//for (i = 0; i < 4; i++) 
+			for (i = 4; i < 20; i++) //Use Flightstick button assignments
 			{
 				if (joy_get_button_state(i))
 					code = i;
@@ -947,8 +979,6 @@ void kc_change_joyaxis(kc_item* item)
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
 #endif
-		//		if ( Game_mode & GM_MULTI )
-		//			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
 		I_Delay(10);
 
@@ -1836,21 +1866,6 @@ int SenseGetData(int function, int cls, fix* yaw, fix* pitch, fix* roll, int* bu
 	return 0;
 }
 
-//--unused-- int SenseSetVideo( int function, int cls, int mode )
-//--unused-- {
-//--unused-- 	union  REGS     regs;
-//--unused-- 	struct SREGS    sregs;
-//--unused-- 	memset( &regs, 0, sizeof(regs));
-//--unused-- 	memset( &sregs, 0, sizeof(sregs));
-//--unused-- 	regs.x.eax = function | SET_DEVICE_DATA;
-//--unused-- 	regs.x.ebx = 1 | (cls << 8);
-//--unused-- 	regs.x.ecx = mode;
-//--unused-- 
-//--unused-- 	int386x( SENSE_VECTOR, &regs, &regs, &sregs);
-//--unused--     
-//--unused-- 	return( (int)(regs.x.eax >> 8) );
-//--unused-- }
-
 void kconfig_center_headset()
 {
 	Warning("kconfig_center_headset: STUB\n");
@@ -1861,20 +1876,6 @@ int SenseSetZero(int function, int cls)
 	Warning("SenseSetZero: STUB\n");
 	return 0;
 }
-
-//--unused-- int SenseReSetZero( int function, int cls )
-//--unused-- {
-//--unused-- 	union  REGS     regs;
-//--unused-- 	struct SREGS    sregs;
-//--unused-- 	memset( &regs, 0, sizeof(regs));
-//--unused-- 	memset( &sregs, 0, sizeof(sregs));
-//--unused-- 	regs.x.eax = function | RESET_ZERO;
-//--unused-- 	regs.x.ebx = 1 | (cls << 8);
-//--unused-- 
-//--unused-- 	int386x( SENSE_VECTOR, &regs, &regs, &sregs);
-//--unused--     
-//--unused-- 	return( (int)(regs.x.eax >> 8) );
-//--unused-- }
 
 void kconfig_sense_init()
 {

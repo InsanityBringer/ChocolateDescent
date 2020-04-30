@@ -110,4 +110,4 @@ extern void diminish_towards_max(void);
 
 extern void do_megawow_powerup(int quantity);
 
-extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *format, ...);
+extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...);

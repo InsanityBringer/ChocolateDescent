@@ -13,14 +13,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
-//#include <dos.h>
-//#include< fcntl.h> 
-#include<malloc.h> 
-//#include <bios.h>
-#include<io.h>
-#include<conio.h> 
-#include<string.h>
-#include<ctype.h>
+#include <malloc.h> 
+#include <string.h>
+#include <ctype.h>
 
 #include "platform/i_sound.h"
 #include "platform/s_midi.h"
@@ -497,7 +492,6 @@ extern int SoundQ_channel;
 extern void SoundQ_end();
 
 // Volume 0-F1_0
-//[ISB] TODO: Investigate if loop_start and loop_end are ever not 0. Can't find any examples so far
 int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj )
 {
 	int i, starting_channel;
@@ -511,26 +505,7 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 	memset( &DigiSampleData, 0, sizeof(sampledata_t));
 
 	//Assert(GameSounds[soundnum].data != -1);
-		
-	/*sSOSSampleData.wChannel 				= _CENTER_CHANNEL;
-	sSOSSampleData.wSampleID				= soundnum;
-	sSOSSampleData.dwSampleSize 			= ( LONG )GameSounds[soundnum].length;
-	sSOSSampleData.lpSamplePtr				= GameSounds[soundnum].data;
-	sSOSSampleData.lpCallback				= _NULL;		//sosDIGISampleCallback;
-	sSOSSampleData.wSamplePanLocation	= pan;			// 0 - 0xFFFF
-	sSOSSampleData.wSamplePanSpeed 		= 0;
-	sSOSSampleData.wVolume					= fixmuldiv(volume,digi_volume,F1_0);
-	sSOSSampleData.wSampleFlags			= _DIGI_SAMPLE_FLAGS;
-	if (looping )	{
-		sSOSSampleData.wLoopCount			= -1;				// loop forever.
-		sSOSSampleData.wSampleFlags 		|= _LOOPING; 		// Mark it as a looper.
-	}
-	if (loop_start != -1 ) {
-		Assert( loop_end != -1);
-		sSOSSampleData.wSampleFlags		|= _STAGE_LOOP;
-		sSOSSampleData.dwSampleLoopPoint	= loop_start;
-		sSOSSampleData.dwSampleLoopLength = loop_end - loop_start;
-	}*/
+	
 	DigiSampleData.angle = pan;
 	DigiSampleData.volume = fixmuldiv(volume, digi_volume, F1_0);
 	DigiSampleData.data = GameSounds[soundnum].data;
@@ -585,6 +560,8 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 	}
 	I_SetSoundInformation(sHandle, DigiSampleData.volume, DigiSampleData.angle);
 	I_SetSoundData(sHandle, DigiSampleData.data, DigiSampleData.length, digi_sample_rate);
+	if (looping)
+		I_SetLoopPoints(sHandle, loop_start, loop_end);
 	I_PlaySound(sHandle, DigiSampleData.loop);
 
 	#ifndef NDEBUG

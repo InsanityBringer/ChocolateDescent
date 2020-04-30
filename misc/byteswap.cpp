@@ -23,17 +23,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 uint16_t swapshort(uint16_t s)
 {
-	//return ((s >> 8) & 0x00ff) | ((s << 8) & 0xff00);
 	return s; 
 }
 
 uint32_t swapint(uint32_t i)
 {
-	/*uint16_t s1, s2;
-
-	s1 = (i >> 16) & 0x0000ffff;
-	s2 = i & 0x0000ffff;
-	return ((swapshort(s2) << 16) | swapshort(s1));*/
 	return i;
 }
 

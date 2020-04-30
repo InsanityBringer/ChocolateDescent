@@ -10,7 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-//[ISB] BIG TODO: Implement a linux compatible version of this, using dirent perhaps
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -24,9 +23,18 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 
 	_FindFileHandle = FindFirstFileA((LPSTR)search_str, &find);
 	if (_FindFileHandle == INVALID_HANDLE_VALUE) return 1;
-	else {
+	else
+	{
 		ffstruct->size = find.nFileSizeLow;
-		strcpy_s(ffstruct->name, FF_PATHSIZE, find.cFileName);
+		if (find.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			ffstruct->type = FF_TYPE_DIR;
+		else
+			ffstruct->type = FF_TYPE_FILE;
+		//Provide shortnames in case of long names, to avoid problems. 
+		if (strlen(find.cAlternateFileName) != 0)
+			strncpy(ffstruct->name, find.cAlternateFileName, FF_PATHSIZE);
+		else
+			strncpy(ffstruct->name, find.cFileName, FF_PATHSIZE);
 		return 0;
 	}
 }
@@ -40,11 +48,15 @@ int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 	{
 		//printf("%s, shortname len %d\n", find.cFileName, strlen(find.cAlternateFileName));
 		ffstruct->size = find.nFileSizeLow;
+		if (find.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			ffstruct->type = FF_TYPE_DIR;
+		else
+			ffstruct->type = FF_TYPE_FILE;
 		//Provide shortnames in case of long names, to avoid problems. 
 		if (strlen(find.cAlternateFileName) != 0)
-			strcpy_s(ffstruct->name, FF_PATHSIZE, find.cAlternateFileName);
+			strncpy(ffstruct->name, find.cAlternateFileName, FF_PATHSIZE);
 		else
-			strcpy_s(ffstruct->name, FF_PATHSIZE, find.cFileName);
+			strncpy(ffstruct->name, find.cFileName, FF_PATHSIZE);
 		return 0;
 	}
 }

@@ -26,7 +26,6 @@ as described in copying.txt.
 int CurrentDevice = 0;
 
 char SoundFontFilename[256] = "TestSoundfont.sf2";
-MidiPlayer *player = nullptr;
 MidiSynth* synth = nullptr;
 MidiSequencer* sequencer = nullptr;
 std::thread* midiThread = nullptr;
@@ -75,130 +74,12 @@ void S_PrintEvent(midievent_t* ev)
 
 #endif
 
-MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
-{
-	sequencer = newSequencer;
-	synth = newSynth;
-	nextSong = curSong = nullptr;
-	nextLoop = false;
-	nextTimerTick = 0;
-	shouldEnd = false;
-	shouldStop = false;
-	initialized = false;
-
-	hasEnded = false;
-	hasChangedSong = false;
-
-	songBuffer = new uint16_t[MIDI_TICKSPERSECOND * MIDI_SAMPLESPERTICK * 2];
-}
-
-void MidiPlayer::SetSong(hmpheader_t* newSong, bool loop)
-{
-	std::unique_lock<std::mutex> lock(songMutex);
-	nextSong = newSong;
-	nextLoop = loop;
-	lock.unlock();
-	//[ISB] I don't like this, but I can't think of a better way to do it atm...
-	//This is very contestable, but maybe we can get away with it by merit of this only happening on main thread?
-	while (!hasChangedSong);
-	hasChangedSong = false;
-}
-
-void MidiPlayer::StopSong()
-{
-	std::unique_lock<std::mutex> lock(songMutex);
-	shouldStop = true;
-	lock.unlock();
-	//[ISB] I need to learn how to write threaded programs tbh
-	//Avoid race condition by waiting for the MIDI thread to get the message
-	while (!hasChangedSong);
-	hasChangedSong = false;
-}
-
-void MidiPlayer::Shutdown()
-{
-	std::unique_lock<std::mutex> lock(songMutex);
-	if (!initialized) return; //already ded
-	shouldEnd = true;
-	lock.unlock();
-	while (!hasEnded);
-	hasEnded = false; 
-	midiThread->join();
-	sequencer->StopSong();
-	synth->Shutdown();
-}
-
-void MidiPlayer::Run()
-{
-	initialized = true;
-	nextTimerTick = I_GetUS();
-	I_StartMIDISong();
-	for (;;)
-	{
-		//printf("I'm goin\n");
-		std::unique_lock<std::mutex> lock(songMutex);
-		if (shouldEnd)
-		{
-			initialized = false;
-			break;
-		}
-		else if (shouldStop)
-		{
-			if (curSong)
-			{
-				sequencer->StopSong();
-				S_FreeHMPData(curSong);
-			}
-			shouldStop = false;
-			curSong = nullptr;
-			hasChangedSong = true;
-		}
-		else if (nextSong)
-		{
-			if (curSong)
-			{
-				sequencer->StopSong();
-				S_FreeHMPData(curSong);
-			}
-			//printf("Starting new song\n");
-			sequencer->StartSong(nextSong, nextLoop);
-			//I_StartMIDISong(nextSong, nextLoop);
-			curSong = nextSong;
-			nextSong = nullptr;
-			hasChangedSong = true;
-		}
-		lock.unlock();
-
-		//Soft synth operation
-		if (synth->ClassifySynth() == MIDISYNTH_SOFT)
-		{
-			I_DequeueMusicBuffers();
-			if (I_CanQueueMusicBuffer())
-			{
-				int ticks = sequencer->Render(4, songBuffer);
-				I_QueueMusicBuffer(ticks, songBuffer);
-			}
-		}
-
-		uint64_t startTick = I_GetUS();
-		uint64_t numTicks = nextTimerTick - startTick;
-		if (numTicks > 2000) //[ISB] again inspired by dpJudas, with 2000 US number from GZDoom
-			I_DelayUS(numTicks - 2000);
-		while (I_GetUS() < nextTimerTick);
-		nextTimerTick += 8333;
-	}
-	I_StopMIDISong();
-	shouldEnd = false;
-	hasEnded = true;
-	//printf("Midi thread rip\n");
-}
-
 int S_InitMusic(int device)
 {
 	if (CurrentDevice != 0) return 0; //already initalized
 	//[ISB] TODO: I really need to add a switcher to allow the use of multiple synths. Agh
 	//I_InitMIDI();
-	MidiSynth* synth = nullptr;
+	//MidiSynth* synth = nullptr;
 	switch (device)
 	{
 	case _MIDI_GEN:
@@ -207,9 +88,10 @@ int S_InitMusic(int device)
 		MidiFluidSynth* fluidSynth = new MidiFluidSynth();
 		if (fluidSynth == nullptr)
 		{
-			Error("S_InitMusic: Cannot allocate fluid synth");
+			Error("S_InitMusic: Fatal: Cannot allocate fluid synth.");
 			return 1;
 		}
+		fluidSynth->SetSampleRate(I_GetPreferredMIDISampleRate());
 		fluidSynth->SetSoundfont(SoundFontFilename);
 		synth = (MidiSynth*)fluidSynth;
 #else
@@ -220,23 +102,24 @@ int S_InitMusic(int device)
 	}
 	if (synth == nullptr)
 	{
-		Warning("S_InitMusic: Unknown device\n");
+		Warning("S_InitMusic: Unknown device.\n");
 		return 1;
 	}
-
-	sequencer = new MidiSequencer(synth);
+	sequencer = new MidiSequencer(synth, I_GetPreferredMIDISampleRate());
 
 	if (sequencer == nullptr)
 	{
-		Error("S_InitMusic: Cannot allocate sequencer");
+		Error("S_InitMusic: Fatal: Cannot allocate sequencer.");
 		return 1;
 	}
-	player = new MidiPlayer(sequencer, synth);
+	//Start the platform-dependent MIDI system
+	if (I_StartMIDI(sequencer))
+	{
+		Warning("S_InitMusic: I_StartMIDI failed.");
+		return 1;
+	}
 
 	CurrentDevice = device;
-
-	//Kick off the MIDI thread
-	midiThread = new std::thread(&MidiPlayer::Run, player);
 
 	return 0;
 }
@@ -244,19 +127,24 @@ int S_InitMusic(int device)
 void S_ShutdownMusic()
 {
 	if (CurrentDevice == 0) return;
-	//I_ShutdownMIDI();
-	if (player != nullptr)
+	I_ShutdownMIDI();
+	/*if (player != nullptr)
 	{
 		player->Shutdown();
-	}
-	if (midiThread)
+	}*/
+	if (synth)
 	{
-		delete midiThread;
+		synth->Shutdown();
+		delete synth;
+	}
+	if (sequencer)
+	{
+		delete sequencer;
 	}
 	CurrentDevice = 0;
 }
 
-int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
+int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* song)
 {
 	int done, oldpointer, position, value, i;
 	int command;
@@ -354,7 +242,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 			position+=7;
 			pointer++;
 		}
-		chunk->events[i].delta = value;
+		chunk->events[i].delta = (uint64_t)value * (I_GetPreferredMIDISampleRate() / song->bpm);
 		b = data[pointer]; pointer++;
 		if (b == 0xff)
 			command = 0xff;
@@ -372,6 +260,21 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk)
 		case EVENT_PITCH:
 			chunk->events[i].param1 = data[pointer++];
 			chunk->events[i].param2 = data[pointer++];
+
+			if (command == EVENT_CONTROLLER && chunk->events[i].param1 == 110)
+			{
+				int j;
+				if (song->loopStart == 0) //descent 1 game02.hmp has two loop points. uh?
+				{
+					for (j = 0; j < i; j++)
+					{
+						song->loopStart += chunk->events[j].delta;
+					}
+				}
+				//printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, song->loopStart);
+			}
+			//if (command == EVENT_CONTROLLER && chunk->events[i].param1 == 111)
+				//printf("Loop end on track %d channel %d, event %d with delta %d\n", chunk->chunkNum, chunk->events[i].channel, i, value);
 			break;
 		case EVENT_PATCH:
 		case EVENT_PRESSURE:
@@ -441,8 +344,7 @@ uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle)
 		return 1;
 	}
 	*handle = 0; //heh
-	player->SetSong(song, loop);
-	//I_StartMIDISong(song, loop);
+	I_StartMIDISong(song, loop);
 	return 0;
 }
 
@@ -450,8 +352,7 @@ uint16_t S_StopSong()
 {
 	if (CurrentDevice == 0) return 1;
 	
-	player->StopSong();
-	//I_StopMIDISong();
+	I_StopMIDISong();
 	return 0;
 }
 
@@ -466,7 +367,9 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 	song->length = BS_MakeInt(&data[32]);
 	song->numChunks = BS_MakeInt(&data[48]);
 	song->bpm = BS_MakeInt(&data[56]);
+	//printf("bpm %d\n", song->bpm);
 	song->seconds = BS_MakeInt(&data[60]);
+	song->loopStart = 0;
 
 	song->chunks = (midichunk_t*)malloc(sizeof(midichunk_t) * song->numChunks);
 	if (song->chunks == nullptr)
@@ -479,7 +382,7 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 	pointer = 776;
 	for (i = 0; i < song->numChunks; i++)
 	{
-		pointer = S_ReadHMPChunk(pointer, data, &song->chunks[i]);
+		pointer = S_ReadHMPChunk(pointer, data, &song->chunks[i], song);
 	}
 
 	return 0;

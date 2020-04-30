@@ -320,14 +320,14 @@ int do_change_walls(int8_t trigger_num)
 	return ret;
 }
 
-void print_trigger_message (int pnum,int trig,int shot,char *message)
+void print_trigger_message (int pnum,int trig,int shot,const char *message)
  {
 	char *pl;		//points to 's' or nothing for plural word
 
    if (pnum!=Player_num)
 		return;
 
-	pl = (Triggers[trig].num_links>1)?"s":"";
+	pl = const_cast<char*>((Triggers[trig].num_links>1)?"s":"");
   
     if (!(Triggers[trig].flags & TF_NO_MESSAGE) && shot)
      HUD_init_message (message,pl);

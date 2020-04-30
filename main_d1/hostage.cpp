@@ -14,6 +14,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "misc/rand.h"
 #include "misc/error.h"
 #include "3d/3d.h"
 #include "platform/mono.h"
@@ -159,7 +160,7 @@ void draw_hostage(object* obj)
 //------------- Called once when a hostage is rescued ------------------------------------------
 void hostage_rescue(int hostage_number)
 {
-	//mprintf( (0, "Rescued hostage %d", hostage_number ));
+	mprintf( (0, "Rescued hostage %d", hostage_number ));
 
 	if ((hostage_number < 0) || (hostage_number >= MAX_HOSTAGES))
 	{
@@ -187,7 +188,7 @@ void hostage_rescue(int hostage_number)
 		if (Hostage_num_globals > 0) 
 		{
 			int mn;
-			mn = (rand() * Hostage_num_globals) / RAND_MAX;
+			mn = (P_Rand() * Hostage_num_globals) / PRAND_MAX;
 			if (mn >= 0 && mn < Hostage_num_globals)
 				gauge_message("%s", &Hostage_global_message[mn][0]);
 		}

@@ -18,9 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>	//	for memset()
 #include <algorithm>
 
-#ifdef MACINTOSH
-#include <Memory.h>
-#endif
+#include "misc/rand.h"
 
 #include "inferno.h"
 #include "game.h"
@@ -107,7 +105,7 @@ int get_num_faces(side *sidep)
 			Error("Illegal type = %i\n", sidep->type);
 			break;
 	}
-
+	return 0; //shut up warning
 }
 
 // Fill in array with four absolute point numbers for a given side
@@ -740,7 +738,7 @@ int	Doing_lighting_hack_flag=0;
 
 //figure out what seg the given point is in, tracing through segments
 //returns segment number, or -1 if can't find segment
-int trace_segs(vms_vector *p0,int oldsegnum)
+int trace_segs(vms_vector *p0,int oldsegnum, int trace_segs_iterations)
 {
 	int centermask;
 	segment *seg;
@@ -748,37 +746,38 @@ int trace_segs(vms_vector *p0,int oldsegnum)
 
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
 
-
-#if defined(MACINTOSH)
-	if (StackSpace() < 1024) {
-#elif defined(WINDOWS)
-	/*if (stackavail() < 10240)*/ {
-#else
-	/*if (stackavail() < 1024)*/ {		//if no debugging, we'll get past assert
-#endif
-/* //[ISB] I dunno tbh
-		#ifndef NDEBUG
+	/*if (stackavail() < 1024)*/ 
+	if (trace_segs_iterations > 1024)
+	{		//if no debugging, we'll get past assert
+#ifndef NDEBUG
 		if (!Doing_lighting_hack_flag)
 			Int3();	// Please get Matt, or if you cannot, then type 
 						// "?p0->xyz,segnum" at the DBG prompt, write down
 						// the values (a 3-element vector and a segment number), 
 						// and make a copy of the mine you are playing.
-		#endif
+		else
+#endif
+			//[ISB] this function is really bad. really really bad. agonizingly bad.
+			//This doesn't even begin to replicate it vanilla like, but I'd rather do this than rely on stupid shit
+			//like stack availability. It would make more sense to do an exhaustive test if this fails but that's not what vanilla does.
+			//or maybe they could have just used a saner search algorithm...
+			fprintf(stderr, "trace_segs: iteration limit hit\n");
 
-		return oldsegnum;				//just say we're in this segment and be done with it*/
+		return oldsegnum;				//just say we're in this segment and be done with it
 	}
-
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
 
 	if (centermask == 0)		//we're in the old segment
-
 		return oldsegnum;		//..say so
 
-	else {						//not in old seg.  trace through to find seg
+	//not in old seg.  trace through to find seg
+	else 
+	{						
 		int biggest_side;
 
-		do {
+		do 
+		{
 			int sidenum,bit;
 			fix biggest_val;
 
@@ -788,17 +787,19 @@ int trace_segs(vms_vector *p0,int oldsegnum)
 
 			for (sidenum=0,bit=1;sidenum<6;sidenum++,bit<<=1)
 				if ((centermask&bit) && (seg->children[sidenum]>-1))
-					if (side_dists[sidenum] < biggest_val) {
+					if (side_dists[sidenum] < biggest_val) 
+					{
 						biggest_val = side_dists[sidenum];
 						biggest_side = sidenum;
 					}
 
-			if (biggest_side != -1) {
+			if (biggest_side != -1) 
+			{
 				int check;
 
 				side_dists[biggest_side] = 0;
 
-				check = trace_segs(p0,seg->children[biggest_side]);	//trace into adjacent segment
+				check = trace_segs(p0,seg->children[biggest_side], trace_segs_iterations+1);	//trace into adjacent segment
 
 				if (check != -1)		//we've found a segment
 					return check;	
@@ -828,7 +829,7 @@ int find_point_seg(vms_vector *p,int segnum)
 	Assert((segnum <= Highest_segment_index) && (segnum >= -1));
 
 	if (segnum != -1) {
-		newseg = trace_segs(p,segnum);
+		newseg = trace_segs(p,segnum, 0);
 
 		if (newseg != -1)			//we found a segment!
 			return newseg;
@@ -1867,9 +1868,9 @@ void pick_random_point_in_seg(vms_vector *new_pos, int segnum)
 	vms_vector	vec2;
 
 	compute_segment_center(new_pos, &Segments[segnum]);
-	vnum = (rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
+	vnum = (P_Rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	vm_vec_sub(&vec2, &Vertices[Segments[segnum].verts[vnum]], new_pos);
-	vm_vec_scale(&vec2, rand());			//	rand() always in 0..1/2
+	vm_vec_scale(&vec2, P_Rand());			//	P_Rand() always in 0..1/2
 	vm_vec_add2(new_pos, &vec2);
 }
 

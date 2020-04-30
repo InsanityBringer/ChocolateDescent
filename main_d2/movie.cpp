@@ -11,15 +11,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-//#include <dos.h>
-#include <io.h>
-#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include <malloc.h>
 #include <string.h>
 #include <ctype.h>
+
+#include "platform/posixstub.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "2d/i_gr.h"
@@ -78,12 +76,12 @@ subtitle Subtitles[MAX_SUBTITLES];
 int Num_subtitles;
 
 // ----------------------------------------------------------------------
-void* __cdecl MPlayAlloc(unsigned size)
+void* MPlayAlloc(unsigned size)
 {
 	return malloc(size);
 }
 
-void __cdecl MPlayFree(void* p)
+void MPlayFree(void* p)
 {
 	free(p);
 }
@@ -94,7 +92,7 @@ int HiResRoboMovie = 0;
 
 //-----------------------------------------------------------------------
 
-unsigned __cdecl FileRead(int handle, void* buf, unsigned count)
+unsigned FileRead(int handle, void* buf, unsigned count)
 {
 	unsigned numread;
 	numread = _read(handle, buf, count);
@@ -190,7 +188,7 @@ int PlayMovie(const char* filename, int must_have)
 
 //uint8_t localPal[768];
 
-void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty)
+void MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h, uint32_t dstx, uint32_t dsty)
 {
 	grs_bitmap source_bm;
 
@@ -210,7 +208,7 @@ void __cdecl MovieShowFrame(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t
 }
 
 //our routine to set the pallete, called from the movie code
-void __cdecl MovieSetPalette(unsigned char* p, unsigned start, unsigned count)
+void MovieSetPalette(unsigned char* p, unsigned start, unsigned count)
 {
 	//memcpy(localPal, gr_palette, 768); //[ISB] test hack
 	if (count == 0)
@@ -291,7 +289,7 @@ void clear_pause_message()
 	}
 }
 
-int open_movie_file(char* filename, int must_have);
+int open_movie_file(const char* filename, int must_have);
 void draw_subtitles(int frame_num);
 
 //returns status.  see movie.h
@@ -381,7 +379,7 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 	while ((result = MVE_rmStepMovie()) == 0) 
 	{
 		int key;
-		I_DoEvents();
+		I_DoEvents(); //Timed from rmStepMovie
 
 		draw_subtitles(frame_num);
 
@@ -401,8 +399,10 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 			show_pause_message(TXT_PAUSE);
 			while (!key_inkey())
 			{
+				I_MarkStart();
 				I_DoEvents();
 				I_DrawCurrentCanvas(0);
+				I_MarkEnd(MovieHires ? US_60FPS : US_70FPS);
 			}
 			clear_pause_message();
 		}
@@ -513,7 +513,7 @@ int MyShowFrame(void)
 
 	FlipFlop = 1 - FlipFlop;
 
-	return (NULL);
+	return 0;
 }
 
 #ifdef BUFFER_MOVIE
@@ -615,6 +615,7 @@ int RotateRobot()
 		Int3();
 		return 0;
 	}
+	return 0;
 }
 
 void FreeRoboBuffer(int n)
@@ -656,7 +657,7 @@ void DeInitRobotMovie()
 	_close(RoboFile);                           // Close Movie File
 }
 
-void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
+void PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 {
 	int i;
 
@@ -670,11 +671,11 @@ void __cdecl PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 	//MVE_SetPalette(p, start, count); //[ISB] I need to figure out if I should do something here
 	//[ISB] for whatever reason, the implication of the above line is that the palette is set without actually informing the game's palette code
 	//Replicate this by using a raw palette push call. 
-	I_WritePalette(start, start + count, p + (start*3));
+	I_WritePalette(start, start + count - 1, p + (start*3));
 }
 
 
-int InitRobotMovie(char* filename)
+int InitRobotMovie(const char* filename)
 {
 #ifdef BUFFER_MOVIE
 	int i;
@@ -710,13 +711,13 @@ int InitRobotMovie(char* filename)
 	if ((FirstVid = (char*)calloc(65000L, 1)) == NULL)
 	{
 		FreeRoboBuffer(49);
-		return (NULL);
+		return (0);
 	}
 	if ((SecondVid = (char*)calloc(65000L, 1)) == NULL)
 	{
 		free(FirstVid);
 		FreeRoboBuffer(49);
-		return (NULL);
+		return (0);
 	}
 
 	//MVE_SOS_sndInit(-1);		//tell movies to play no sound for robots
@@ -793,10 +794,10 @@ uint8_t* next_field(uint8_t * p)
 	return p;
 }
 
-void change_filename_ext(char* dest, char* src, char* ext);
+void change_filename_ext(char* dest, const char* src, const char* ext);
 void decode_text_line(char* p);
 
-int init_subtitles(char* filename)
+int init_subtitles(const char* filename)
 {
 	CFILE* ifile;
 	int size, read_count;
@@ -960,7 +961,7 @@ typedef struct
 
 #define MAX_MOVIES_PER_LIB		50		//determines size of malloc
 
-movielib * init_new_movie_lib(char* filename, FILE * fp)
+movielib * init_new_movie_lib(const char* filename, FILE * fp)
 {
 	int nfiles, offset;
 	int i, n;
@@ -1000,7 +1001,7 @@ movielib * init_new_movie_lib(char* filename, FILE * fp)
 	return table;
 }
 
-movielib* init_old_movie_lib(char* filename, FILE * fp)
+movielib* init_old_movie_lib(const char* filename, FILE * fp)
 {
 	int nfiles, size;
 	int i;
@@ -1051,7 +1052,7 @@ movielib* init_old_movie_lib(char* filename, FILE * fp)
 }
 
 //find the specified movie library, and read in list of movies in it   
-movielib* init_movie_lib(char* filename)
+movielib* init_movie_lib(const char* filename)
 {
 	//note: this based on cfile_init_hogfile()
 
@@ -1059,6 +1060,22 @@ movielib* init_movie_lib(char* filename)
 	FILE* fp;
 
 	fp = fopen(filename, "rb");
+#ifndef _WINDOWS
+	if (!fp)
+	{
+		char* filename2 = (char*)malloc(sizeof(char) * (strlen(filename) + 1));
+		strcpy(filename2, filename);
+		_strupr(filename2);
+		fp = fopen(filename2, "rb");
+		if (!fp)
+		{
+			strcpy(filename2, filename);
+			_strupr(filename2);
+			fp = fopen(filename2, "rb");
+		}
+		free(filename2);
+	}
+#endif
 	if (fp == NULL)
 		return NULL;
 
@@ -1078,9 +1095,9 @@ movielib* init_movie_lib(char* filename)
 }
 
 #ifdef D2_OEM
-char* movielib_files[] = { "intro-l.mvl","other-l.mvl","robots-l.mvl","oem-l.mvl" };
+const char* movielib_files[] = { "intro-l.mvl","other-l.mvl","robots-l.mvl","oem-l.mvl" };
 #else
-char* movielib_files[] = { "intro-l.mvl","other-l.mvl","robots-l.mvl" };
+const char* movielib_files[] = { "intro-l.mvl","other-l.mvl","robots-l.mvl" };
 #endif
 
 #define N_BUILTIN_MOVIE_LIBS (sizeof(movielib_files)/sizeof(*movielib_files))
@@ -1116,60 +1133,13 @@ extern int force_rb_register;
 //CD may not have been inserted
 int request_cd()
 {
-	/*
-	uint8_t save_pal[256 * 3];
-	grs_canvas* save_canv, * tcanv;
-	int ret, was_faded = gr_palette_faded_out;
-
-	gr_palette_clear();
-
-	save_canv = grd_curcanv;
-	tcanv = gr_create_canvas(grd_curcanv->cv_w, grd_curcanv->cv_h);
-
-	gr_set_current_canvas(tcanv);
-	gr_ubitmap(0, 0, &save_canv->cv_bitmap);
-	gr_set_current_canvas(save_canv);
-
-	gr_clear_canvas(BM_XRGB(0, 0, 0));
-
-	memcpy(save_pal, gr_palette, sizeof(save_pal));
-
-	memcpy(gr_palette, last_palette_for_color_fonts, sizeof(gr_palette));
-
-try_again:;
-
-	ret = nm_messagebox("CD ERROR", 1, "Ok", "Please insert your Descent II CD");
-
-	if (ret == -1) {
-		int ret2;
-
-		ret2 = nm_messagebox("CD ERROR", 2, "Try Again", "Leave Game", "You must insert your\nDescent II CD to Continue");
-
-		if (ret2 == -1 || ret2 == 0)
-			goto try_again;
-	}
-
-	force_rb_register = 1;	//disc has changed; force register new CD    
-
-	gr_palette_clear();
-
-	memcpy(gr_palette, save_pal, sizeof(save_pal));
-
-	gr_ubitmap(0, 0, &tcanv->cv_bitmap);
-
-	if (!was_faded)
-		gr_palette_load(gr_palette);
-
-	gr_free_canvas(tcanv);
-
-	return ret;*/
 	return 0;
 }
 
 //do we have the robot movies available
 int robot_movies = 0;	//0 means none, 1 means lowres, 2 means hires
 
-void init_movie(char* filename, int libnum, int is_robots, int required)
+void init_movie(const char* filename, int libnum, int is_robots, int required)
 {
 	int high_res;
 	char tempBuffer[FILENAME_LEN]; //[ISB] I dunno
@@ -1211,7 +1181,7 @@ try_again:;
 		else {
 			if (required) {
 #if defined(RELEASE) && !defined(D2_OEM)		//allow no movies if not release
-				strupr(tempBuffer);
+				_strupr(tempBuffer);
 				Error("Cannot open movie file <%s>", tempBuffer);
 #endif
 			}
@@ -1223,7 +1193,7 @@ try_again:;
 				goto try_again;
 			}
 			else if (is_robots == 2) {		//failed twice. bail with error
-				strupr(tempBuffer);
+				_strupr(tempBuffer);
 				Error("Cannot open movie file <%s>", filename);
 			}
 #endif
@@ -1267,7 +1237,7 @@ int movie_handle, movie_start;
 
 //looks through a movie library for a movie file
 //returns filehandle, with fileposition at movie, or -1 if can't find
-int search_movie_lib(movielib * lib, char* filename, int must_have)
+int search_movie_lib(movielib * lib, const char* filename, int must_have)
 {
 	int i;
 	int filehandle;
@@ -1285,8 +1255,16 @@ int search_movie_lib(movielib * lib, char* filename, int must_have)
 				songs_stop_redbook();		//ready to read from CD
 
 			do {		//keep trying until we get the file handle
-
 				movie_handle = filehandle = _open(lib->name, O_RDONLY + O_BINARY);
+
+#ifndef _WINDOWS
+				if (filehandle == -1)
+				{
+					//horrible hack for opening multiple filename cases.
+					_strupr(lib->name);
+					return search_movie_lib(lib, filename, must_have);
+				}
+#endif
 
 				if (must_have && from_cd && filehandle == -1) {		//didn't get file!
 
@@ -1306,7 +1284,7 @@ int search_movie_lib(movielib * lib, char* filename, int must_have)
 }
 
 //returns file handle
-int open_movie_file(char* filename, int must_have)
+int open_movie_file(const char* filename, int must_have)
 {
 	int filehandle, i;
 

@@ -63,31 +63,6 @@ extern int8_t	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, 
 
 void set_custom_detail_vars(void);
 
-
-#define CL_MC0 0xF8F
-#define CL_MC1 0xF8D
-
-void CrystalLakeWriteMCP(uint16_t mc_addr, uint8_t mc_data)
-{
-	Warning("CrystalLakeWriteMCP: STUB\n");
-}
-
-uint8_t CrystalLakeReadMCP(uint16_t mc_addr)
-{
-	Warning("CrystalLakeReadMCP: STUB\n");
-	return 0;
-}
-
-void CrystalLakeSetSB(void)
-{
-	Warning("CrystalLakeSetMCP: STUB\n");
-}
-
-void CrystalLakeSetWSS()
-{
-	Warning("CrystalLakeSetWSS: STUB\n");
-}
-
 int ReadConfigFile()
 {
 	FILE* infile;
@@ -119,16 +94,19 @@ int ReadConfigFile()
 	Config_channels_reversed = 0;
 
 	infile = fopen("descent.cfg", "rt");
-	if (infile == NULL) {
+	if (infile == NULL) 
+	{
 		return 1;
 	}
-	while (!feof(infile)) {
+	while (!feof(infile))
+	{
 		memset(line, 0, 80);
 		fgets(line, 80, infile);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;
-		if (*ptr != '\0') {
+		if (*ptr != '\0') 
+		{
 			token = strtok(ptr, "=");
 			value = strtok(NULL, "=");
 			if (!strcmp(token, digi_dev_str))
@@ -149,18 +127,22 @@ int ReadConfigFile()
 				Config_midi_volume = (uint8_t)strtol(value, NULL, 10);
 			else if (!strcmp(token, stereo_rev_str))
 				Config_channels_reversed = (uint8_t)strtol(value, NULL, 10);
-			else if (!strcmp(token, gamma_level_str)) {
+			else if (!strcmp(token, gamma_level_str)) 
+			{
 				gamma = (uint8_t)strtol(value, NULL, 10);
 				gr_palette_set_gamma(gamma);
 			}
-			else if (!strcmp(token, detail_level_str)) {
+			else if (!strcmp(token, detail_level_str)) 
+			{
 				Detail_level = strtol(value, NULL, 10);
-				if (Detail_level == NUM_DETAIL_LEVELS - 1) {
+				if (Detail_level == NUM_DETAIL_LEVELS - 1)
+				{
 					int count, dummy, oc, od, wd, wrd, da, sc;
 
 					count = sscanf(value, "%d,%d,%d,%d,%d,%d,%d\n", &dummy, &oc, &od, &wd, &wrd, &da, &sc);
 
-					if (count == 7) {
+					if (count == 7) 
+					{
 						Object_complexity = oc;
 						Object_detail = od;
 						Wall_detail = wd;
@@ -171,33 +153,40 @@ int ReadConfigFile()
 					}
 				}
 			}
-			else if (!strcmp(token, joystick_min_str)) {
+			/*else if (!strcmp(token, joystick_min_str)) 
+			{ //[ISB] cut calibration stuff since it's not usable for chocolate. 
 				sscanf(value, "%d,%d,%d,%d", &joy_axis_min[0], &joy_axis_min[1], &joy_axis_min[2], &joy_axis_min[3]);
 			}
-			else if (!strcmp(token, joystick_max_str)) {
+			else if (!strcmp(token, joystick_max_str)) 
+			{
 				sscanf(value, "%d,%d,%d,%d", &joy_axis_max[0], &joy_axis_max[1], &joy_axis_max[2], &joy_axis_max[3]);
 			}
-			else if (!strcmp(token, joystick_cen_str)) {
+			else if (!strcmp(token, joystick_cen_str)) 
+			{
 				sscanf(value, "%d,%d,%d,%d", &joy_axis_center[0], &joy_axis_center[1], &joy_axis_center[2], &joy_axis_center[3]);
-			}
-			else if (!strcmp(token, last_player_str)) {
+			}*/
+			else if (!strcmp(token, last_player_str)) 
+			{
 				char* p;
 				memset(config_last_player, '\0', CALLSIGN_LEN + 1 * sizeof(char));
 				strncpy(config_last_player, value, CALLSIGN_LEN);
 				p = strchr(config_last_player, '\n');
 				if (p)* p = 0;
 			}
-			else if (!strcmp(token, last_mission_str)) {
+			else if (!strcmp(token, last_mission_str)) 
+			{
 				char* p;
 				memset(config_last_mission, '\0', MISSION_NAME_LEN + 1 * sizeof(char));
 				strncpy(config_last_mission, value, MISSION_NAME_LEN);
 				p = strchr(config_last_mission, '\n');
 				if (p)* p = 0;
 			}
-			else if (!strcmp(token, config_vr_type_str)) {
+			else if (!strcmp(token, config_vr_type_str))
+			{
 				Config_vr_type = strtol(value, NULL, 10);
 			}
-			else if (!strcmp(token, config_vr_tracking_str)) {
+			else if (!strcmp(token, config_vr_tracking_str))
+			{
 				Config_vr_tracking = strtol(value, NULL, 10);
 			}
 		}
@@ -234,17 +223,6 @@ int ReadConfigFile()
 	Config_midi_type = digi_midi_type;
 	Config_digi_type = digi_driver_board;
 
-	// HACK!!! 
-	//Hack to make the Crytal Lake look like Microsoft Sound System
-	if (digi_driver_board == 0xe200) {
-		uint8_t tmp;
-		tmp = CrystalLakeReadMCP(CL_MC1);
-		if (!(tmp & 0x80))
-			atexit(CrystalLakeSetSB);		// Restore to SB when done.
-		CrystalLakeSetWSS();
-		digi_driver_board = 0;//_MICROSOFT_8_ST;<was this microsoft thing, but its irrelevant, because we have no sound here yet,being that its also undefined, I set it to 0 -KRB
-	}
-
 	return 0;
 }
 
@@ -260,7 +238,8 @@ int WriteConfigFile()
 	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 
 	infile = fopen("descent.cfg", "wt");
-	if (infile == NULL) {
+	if (infile == NULL) 
+	{
 		return 1;
 	}
 	sprintf(str, "%s=0x%x\n", digi_dev_str, Config_digi_type);

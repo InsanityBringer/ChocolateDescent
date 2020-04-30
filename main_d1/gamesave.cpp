@@ -15,6 +15,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+
+#include "platform/posixstub.h"
 #include "platform/mono.h"
 #include "platform/key.h"
 #include "2d/gr.h"
@@ -197,7 +199,7 @@ int is_real_level(char* filename)
 		return 0;
 
 	//mprintf((0, "String = [%s]\n", &filename[len-11]));
-	return !_strnicmp(&filename[len - 11], "level", 5);
+	return !_strnfcmp(&filename[len - 11], "level", 5);
 
 }
 
@@ -579,37 +581,38 @@ static void G_ReadMatcen(matcen_info* center, CFILE* fp)
 #ifdef EDITOR
 static void gs_write_int(int i, FILE* file)
 {
-	if (fwrite(&i, sizeof(i), 1, file) != 1)
-		Error("Error reading int in gamesave.c");
+	/*if (fwrite(&i, sizeof(i), 1, file) != 1)
+		Error("Error reading int in gamesave.c");*/
+	F_WriteInt(file, i);
 
 }
 
 static void gs_write_fix(fix f, FILE* file)
 {
-	if (fwrite(&f, sizeof(f), 1, file) != 1)
-		Error("Error reading fix in gamesave.c");
-
+	/*if (fwrite(&f, sizeof(f), 1, file) != 1)
+		Error("Error reading fix in gamesave.c");*/
+	F_WriteInt(file, f);
 }
 
 static void gs_write_short(short s, FILE* file)
 {
-	if (fwrite(&s, sizeof(s), 1, file) != 1)
-		Error("Error reading short in gamesave.c");
-
+	/*if (fwrite(&s, sizeof(s), 1, file) != 1)
+		Error("Error reading short in gamesave.c");*/
+	F_WriteShort(file, s);
 }
 
 static void gs_write_fixang(fixang f, FILE* file)
 {
-	if (fwrite(&f, sizeof(f), 1, file) != 1)
-		Error("Error reading fixang in gamesave.c");
-
+	/*if (fwrite(&f, sizeof(f), 1, file) != 1)
+		Error("Error reading fixang in gamesave.c");*/
+	F_WriteShort(file, f);
 }
 
 static void gs_write_byte(int8_t b, FILE* file)
 {
-	if (fwrite(&b, sizeof(b), 1, file) != 1)
-		Error("Error reading byte in gamesave.c");
-
+	/*if (fwrite(&b, sizeof(b), 1, file) != 1)
+		Error("Error reading byte in gamesave.c");*/
+	F_WriteByte(file, b);
 }
 
 static void gr_write_vector(vms_vector* v, FILE* file)
@@ -834,49 +837,46 @@ void read_object(object* obj, CFILE* f, int version)
 //writes one object to the given file
 void write_object(object* obj, FILE* f)
 {
-	gs_write_byte(obj->type, f);
-	gs_write_byte(obj->id, f);
+	F_WriteByte(f, obj->type);
+	F_WriteByte(f, obj->id);
 
-	gs_write_byte(obj->control_type, f);
-	gs_write_byte(obj->movement_type, f);
-	gs_write_byte(obj->render_type, f);
-	gs_write_byte(obj->flags, f);
+	F_WriteByte(f, obj->control_type);
+	F_WriteByte(f, obj->movement_type);
+	F_WriteByte(f, obj->render_type);
+	F_WriteByte(f, obj->flags);
 
-	gs_write_short(obj->segnum, f);
+	F_WriteShort(f, obj->segnum);
 
 	gr_write_vector(&obj->pos, f);
 	gs_write_matrix(&obj->orient, f);
 
-	gs_write_fix(obj->size, f);
-	gs_write_fix(obj->shields, f);
+	F_WriteInt(f, obj->size);
+	F_WriteInt(f, obj->shields);
 
 	gr_write_vector(&obj->last_pos, f);
 
-	gs_write_byte(obj->contains_type, f);
-	gs_write_byte(obj->contains_id, f);
-	gs_write_byte(obj->contains_count, f);
+	F_WriteByte(f, obj->contains_type);
+	F_WriteByte(f, obj->contains_id);
+	F_WriteByte(f, obj->contains_count);
 
-	switch (obj->movement_type) {
-
+	switch (obj->movement_type)
+	{
 	case MT_PHYSICS:
-
 		gr_write_vector(&obj->mtype.phys_info.velocity, f);
 		gr_write_vector(&obj->mtype.phys_info.thrust, f);
 
-		gs_write_fix(obj->mtype.phys_info.mass, f);
-		gs_write_fix(obj->mtype.phys_info.drag, f);
-		gs_write_fix(obj->mtype.phys_info.brakes, f);
+		F_WriteInt(f, obj->mtype.phys_info.mass);
+		F_WriteInt(f, obj->mtype.phys_info.drag);
+		F_WriteInt(f, obj->mtype.phys_info.brakes);
 
 		gr_write_vector(&obj->mtype.phys_info.rotvel, f);
 		gr_write_vector(&obj->mtype.phys_info.rotthrust, f);
 
-		gs_write_fixang(obj->mtype.phys_info.turnroll, f);
-		gs_write_short(obj->mtype.phys_info.flags, f);
-
+		F_WriteShort(f, obj->mtype.phys_info.turnroll);
+		F_WriteShort(f, obj->mtype.phys_info.flags);
 		break;
 
 	case MT_SPINNING:
-
 		gr_write_vector(&obj->mtype.spin_rate, f);
 		break;
 
@@ -887,32 +887,34 @@ void write_object(object* obj, FILE* f)
 		Int3();
 	}
 
-	switch (obj->control_type) {
+	switch (obj->control_type)
+	{
 
-	case CT_AI: {
+	case CT_AI:
+	{
 		int i;
 
-		gs_write_byte(obj->ctype.ai_info.behavior, f);
+		F_WriteByte(f, obj->ctype.ai_info.behavior);
 
 		for (i = 0; i < MAX_AI_FLAGS; i++)
-			gs_write_byte(obj->ctype.ai_info.flags[i], f);
+			F_WriteByte(f, obj->ctype.ai_info.flags[i]);
 
-		gs_write_short(obj->ctype.ai_info.hide_segment, f);
-		gs_write_short(obj->ctype.ai_info.hide_index, f);
-		gs_write_short(obj->ctype.ai_info.path_length, f);
-		gs_write_short(obj->ctype.ai_info.cur_path_index, f);
+		F_WriteShort(f, obj->ctype.ai_info.hide_segment);
+		F_WriteShort(f, obj->ctype.ai_info.hide_index);
+		F_WriteShort(f, obj->ctype.ai_info.path_length);
+		F_WriteShort(f, obj->ctype.ai_info.cur_path_index);
 
-		gs_write_short(obj->ctype.ai_info.follow_path_start_seg, f);
-		gs_write_short(obj->ctype.ai_info.follow_path_end_seg, f);
+		F_WriteShort(f, obj->ctype.ai_info.follow_path_start_seg);
+		F_WriteShort(f, obj->ctype.ai_info.follow_path_end_seg);
 
 		break;
 	}
 
 	case CT_EXPLOSION:
 
-		gs_write_fix(obj->ctype.expl_info.spawn_time, f);
-		gs_write_fix(obj->ctype.expl_info.delete_time, f);
-		gs_write_short(obj->ctype.expl_info.delete_objnum, f);
+		F_WriteInt(f, obj->ctype.expl_info.spawn_time);
+		F_WriteInt(f, obj->ctype.expl_info.delete_time);
+		F_WriteShort(f, obj->ctype.expl_info.delete_objnum);
 
 		break;
 
@@ -920,23 +922,23 @@ void write_object(object* obj, FILE* f)
 
 		//do I really need to write these objects?
 
-		gs_write_short(obj->ctype.laser_info.parent_type, f);
-		gs_write_short(obj->ctype.laser_info.parent_num, f);
-		gs_write_int(obj->ctype.laser_info.parent_signature, f);
-
-		break;
+		F_WriteShort(f, obj->ctype.laser_info.parent_type);
+		F_WriteShort(f, obj->ctype.laser_info.parent_num);
+		F_WriteInt(f, obj->ctype.laser_info.parent_signature);
 
 		break;
 
 	case CT_LIGHT:
 
-		gs_write_fix(obj->ctype.light_info.intensity, f);
+		F_WriteInt(f, obj->ctype.light_info.intensity);
 		break;
 
 	case CT_POWERUP:
 
-		gs_write_int(obj->ctype.powerup_info.count, f);
+		F_WriteInt(f, obj->ctype.powerup_info.count);
+
 		break;
+
 
 	case CT_NONE:
 	case CT_FLYING:
@@ -947,33 +949,35 @@ void write_object(object* obj, FILE* f)
 		break;
 
 	case CT_CNTRLCEN:
-		break;			//control center object.
+		break;
 
 	case CT_MORPH:
-	case CT_REPAIRCEN:
 	case CT_FLYTHROUGH:
+	case CT_REPAIRCEN:
 	default:
 		Int3();
 
 	}
 
-	switch (obj->render_type) {
+	switch (obj->render_type)
+	{
 
 	case RT_NONE:
 		break;
 
 	case RT_MORPH:
-	case RT_POLYOBJ: {
+	case RT_POLYOBJ:
+	{
 		int i;
 
-		gs_write_int(obj->rtype.pobj_info.model_num, f);
+		F_WriteInt(f, obj->rtype.pobj_info.model_num);
 
 		for (i = 0; i < MAX_SUBMODELS; i++)
 			gs_write_angvec(&obj->rtype.pobj_info.anim_angles[i], f);
 
-		gs_write_int(obj->rtype.pobj_info.subobj_flags, f);
+		F_WriteInt(f, obj->rtype.pobj_info.subobj_flags);
 
-		gs_write_int(obj->rtype.pobj_info.tmap_override, f);
+		F_WriteInt(f, obj->rtype.pobj_info.tmap_override);
 
 		break;
 	}
@@ -983,9 +987,9 @@ void write_object(object* obj, FILE* f)
 	case RT_POWERUP:
 	case RT_FIREBALL:
 
-		gs_write_int(obj->rtype.vclip_info.vclip_num, f);
-		gs_write_fix(obj->rtype.vclip_info.frametime, f);
-		gs_write_byte(obj->rtype.vclip_info.framenum, f);
+		F_WriteInt(f, obj->rtype.vclip_info.vclip_num);
+		F_WriteInt(f, obj->rtype.vclip_info.frametime);
+		F_WriteByte(f, obj->rtype.vclip_info.framenum);
 
 		break;
 
@@ -1477,7 +1481,7 @@ int load_level(char* filename_passed)
 }
 
 #ifdef EDITOR
-void get_level_name()
+int get_level_name()
 {
 	//NO_UI!!!	UI_WINDOW 				*NameWindow = NULL;
 	//NO_UI!!!	UI_GADGET_INPUTBOX	*NameText;
@@ -1515,11 +1519,47 @@ void get_level_name()
 
 	newmenu_do(NULL, "Enter mine name", 2, m, NULL);
 
+	return 0;
 }
 #endif
 
 
 #ifdef EDITOR
+
+static void GS_WriteGameData(FILE* SaveFile)
+{
+	int i;
+	F_WriteShort(SaveFile, game_fileinfo.fileinfo_signature);
+
+	F_WriteShort(SaveFile, game_fileinfo.fileinfo_version);
+	F_WriteInt(SaveFile, game_fileinfo.fileinfo_sizeof);
+	for (i = 0; i < 15; i++)
+		F_WriteByte(SaveFile, game_fileinfo.mine_filename[i]);
+	F_WriteInt(SaveFile, game_fileinfo.level);
+	F_WriteInt(SaveFile, game_fileinfo.player_offset);				// Player info
+	F_WriteInt(SaveFile, game_fileinfo.player_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.object_offset);				// Object info
+	F_WriteInt(SaveFile, game_fileinfo.object_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.object_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.walls_offset);
+	F_WriteInt(SaveFile, game_fileinfo.walls_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.walls_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.doors_offset);
+	F_WriteInt(SaveFile, game_fileinfo.doors_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.doors_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.triggers_offset);
+	F_WriteInt(SaveFile, game_fileinfo.triggers_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.triggers_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.links_offset);
+	F_WriteInt(SaveFile, game_fileinfo.links_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.links_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.control_offset);
+	F_WriteInt(SaveFile, game_fileinfo.control_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.control_sizeof);
+	F_WriteInt(SaveFile, game_fileinfo.matcen_offset);
+	F_WriteInt(SaveFile, game_fileinfo.matcen_howmany);
+	F_WriteInt(SaveFile, game_fileinfo.matcen_sizeof);
+}
 
 int	Errors_in_mine;
 
@@ -1537,7 +1577,7 @@ int save_game_data(FILE* SaveFile)
 	game_fileinfo.fileinfo_signature = 0x6705;
 	game_fileinfo.fileinfo_version = GAME_VERSION;
 	game_fileinfo.level = Current_level_num;
-	game_fileinfo.fileinfo_sizeof = sizeof(game_fileinfo);
+	game_fileinfo.fileinfo_sizeof = 119; //[ISB] canonical size rather than aligned size
 	game_fileinfo.player_offset = -1;
 	game_fileinfo.player_sizeof = sizeof(player);
 	game_fileinfo.object_offset = -1;
@@ -1560,19 +1600,31 @@ int save_game_data(FILE* SaveFile)
 	game_fileinfo.matcen_sizeof = sizeof(matcen_info);
 
 	// Write the fileinfo
-	fwrite(&game_fileinfo, sizeof(game_fileinfo), 1, SaveFile);
+	GS_WriteGameData(SaveFile);
 
 	// Write the mine name
-	fprintf(SaveFile, Current_level_name);
-	fputc(0, SaveFile);		//terminator for string
+	char c;
+	for (int i = 0; i < LEVEL_NAME_LEN; i++) //[ISB] tbh this is overkill
+	{
+		c = Current_level_name[i];
+		F_WriteByte(SaveFile, c);
+		if (c == 0) break;
+	}
 
-	fwrite(&N_save_pof_names, 2, 1, SaveFile);
-	fwrite(Pof_names, N_polygon_models, 13, SaveFile);
+	//fwrite(&N_save_pof_names, 2, 1, SaveFile);
+	F_WriteShort(SaveFile, (short)N_save_pof_names);
+	for (int i = 0; i < N_polygon_models; i++)
+	{
+		fwrite(&Pof_names[i], 1, 13, SaveFile); //also overkill but I'm paranoid
+	}
+	//fwrite(Pof_names, N_polygon_models, 13, SaveFile);
 
 	//==================== SAVE PLAYER INFO ===========================
 
 	player_offset = ftell(SaveFile);
-	fwrite(&Players[Player_num], sizeof(player), 1, SaveFile);
+	//fwrite(&Players[Player_num], sizeof(player), 1, SaveFile);
+	//Well this isn't very useful
+	P_WritePlayer(&Players[Player_num], SaveFile);
 
 	//==================== SAVE OBJECT INFO ===========================
 
@@ -1587,22 +1639,29 @@ int save_game_data(FILE* SaveFile)
 	//==================== SAVE WALL INFO =============================
 
 	walls_offset = ftell(SaveFile);
-	fwrite(Walls, sizeof(wall), game_fileinfo.walls_howmany, SaveFile);
+	//fwrite(Walls, sizeof(wall), game_fileinfo.walls_howmany, SaveFile);
+	for (int i = 0; i < game_fileinfo.walls_howmany; i++)
+		P_WriteWall(&Walls[i], SaveFile);
 
 	//==================== SAVE DOOR INFO =============================
 
 	doors_offset = ftell(SaveFile);
-	fwrite(ActiveDoors, sizeof(active_door), game_fileinfo.doors_howmany, SaveFile);
+	//fwrite(ActiveDoors, sizeof(active_door), game_fileinfo.doors_howmany, SaveFile);
+	for (int i = 0; i < game_fileinfo.doors_howmany; i++)
+		P_WriteActiveDoor(&ActiveDoors[i], SaveFile);
 
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = ftell(SaveFile);
-	fwrite(Triggers, sizeof(trigger), game_fileinfo.triggers_howmany, SaveFile);
+	//fwrite(Triggers, sizeof(trigger), game_fileinfo.triggers_howmany, SaveFile);
+	for (int i = 0; i < game_fileinfo.triggers_howmany; i++)
+		P_WriteTrigger(&Triggers[i], SaveFile);
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
 	control_offset = ftell(SaveFile);
-	fwrite(&ControlCenterTriggers, sizeof(control_center_triggers), 1, SaveFile);
+	//fwrite(&ControlCenterTriggers, sizeof(control_center_triggers), 1, SaveFile);
+	P_WriteReactorTrigger(&ControlCenterTriggers, SaveFile);
 
 
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
@@ -1613,7 +1672,9 @@ int save_game_data(FILE* SaveFile)
 	// for (i=0; i<game_fileinfo.matcen_howmany; i++)
 	// 	mprintf((0, "   %i: robot_flags = %08x\n", i, RobotCenters[i].robot_flags));
 	// }
-	fwrite(RobotCenters, sizeof(matcen_info), game_fileinfo.matcen_howmany, SaveFile);
+	//fwrite(RobotCenters, sizeof(matcen_info), game_fileinfo.matcen_howmany, SaveFile);
+	for (int i = 0; i < game_fileinfo.matcen_howmany; i++)
+		P_WriteMatcen(&RobotCenters[i], SaveFile);
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 
@@ -1631,7 +1692,7 @@ int save_game_data(FILE* SaveFile)
 
 	// Write the fileinfo
 	fseek(SaveFile, start_offset, SEEK_SET);  // Move to TOF
-	fwrite(&game_fileinfo, sizeof(game_fileinfo), 1, SaveFile);
+	GS_WriteGameData(SaveFile);
 
 	// Go back to end of data
 	fseek(SaveFile, end_offset, SEEK_SET);
@@ -1649,6 +1710,8 @@ int save_level_sub(char* filename, int compiled_version)
 	char temp_filename[128];
 	int sig = 'PLVL', version = LEVEL_FILE_VERSION;
 	int minedata_offset, gamedata_offset, hostagetext_offset;
+
+	minedata_offset = gamedata_offset = hostagetext_offset = 0; //[ISB] Avoid CRT runtime error with uninitialized variables.
 
 	if (!compiled_version) {
 		write_game_text_file(filename);
@@ -1743,7 +1806,8 @@ int save_level_sub(char* filename, int compiled_version)
 	//==================== CLOSE THE FILE =============================
 	fclose(SaveFile);
 
-	if (!compiled_version) {
+	if (!compiled_version) 
+	{
 		if (Function_mode == FMODE_EDITOR)
 			editor_status("Saved mine %s, \"%s\"", filename, Current_level_name);
 	}

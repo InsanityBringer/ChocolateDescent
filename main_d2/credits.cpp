@@ -306,7 +306,7 @@ get_line:;
 		//[ISB] I'm confused...
 		for (i = 0; i < ROW_SPACING; i += (MenuHires ? 2 : 1)) 
 		{
-			I_DrawCurrentCanvas(0);
+			I_MarkStart();
 			I_DoEvents();
 			int y;
 
@@ -515,6 +515,9 @@ get_line:;
 			
 				return;
 			}
+
+			I_DrawCurrentCanvas(0);
+			I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 		}
 
 		if (buffer[(buffer_line + 1 ) %  NUM_LINES][0] == '!') 

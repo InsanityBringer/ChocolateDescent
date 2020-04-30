@@ -53,6 +53,53 @@ struct me mine_editor;
 
 #ifdef EDITOR
 
+//[ISB] segment structure is unaligned so this is needed
+void load_v16_side(side* sidep, CFILE* LoadFile)
+{
+	int i;
+	sidep->type = CF_ReadByte(LoadFile);
+	sidep->pad = CF_ReadByte(LoadFile);
+	sidep->wall_num = CF_ReadShort(LoadFile);
+	sidep->tmap_num = CF_ReadShort(LoadFile);
+	sidep->tmap_num2 = CF_ReadShort(LoadFile);
+	for (i = 0; i < 4; i++)
+	{
+		sidep->uvls[i].u = CF_ReadInt(LoadFile);
+		sidep->uvls[i].v = CF_ReadInt(LoadFile);
+		sidep->uvls[i].l = CF_ReadInt(LoadFile);
+	}
+	for (i = 0; i < 2; i++)
+	{
+		sidep->normals[i].x = CF_ReadInt(LoadFile);
+		sidep->normals[i].y = CF_ReadInt(LoadFile);
+		sidep->normals[i].z = CF_ReadInt(LoadFile);
+	}
+}
+
+void load_v16_segment(segment* segp, CFILE* LoadFile)
+{
+	int i;
+	segp->segnum = CF_ReadShort(LoadFile);
+	for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
+	{
+		load_v16_side(&segp->sides[i], LoadFile);
+	}
+	for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
+	{
+		segp->children[i] = CF_ReadShort(LoadFile);
+	}
+	for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
+	{
+		segp->verts[i] = CF_ReadShort(LoadFile);
+	}
+	segp->group = CF_ReadShort(LoadFile);
+	segp->objects = CF_ReadShort(LoadFile);
+	segp->special = CF_ReadByte(LoadFile);
+	segp->matcen_num = CF_ReadByte(LoadFile);
+	segp->value = CF_ReadShort(LoadFile);
+	segp->static_light = CF_ReadInt(LoadFile);
+}
+
 static char old_tmap_list[MAX_TEXTURES][13];
 short tmap_xlate_table[MAX_TEXTURES];
 static short tmap_times_used[MAX_TEXTURES];
@@ -197,7 +244,8 @@ int load_mine_data(CFILE* LoadFile)
 
 		// Remove all the file extensions in the textures list
 
-		for (i = 0; i < NumTextures; i++) {
+		for (i = 0; i < NumTextures; i++) 
+		{
 			temptr = strchr(TmapInfo[i].filename, '.');
 			if (temptr)* temptr = '\0';
 			hashtable_insert(&ht, TmapInfo[i].filename, i);
@@ -205,13 +253,15 @@ int load_mine_data(CFILE* LoadFile)
 
 		// For every texture, search through the texture list
 		// to find a matching name.
-		for (j = 0; j < mine_fileinfo.texture_howmany; j++) {
+		for (j = 0; j < mine_fileinfo.texture_howmany; j++) 
+		{
 			// Remove this texture name's extension
 			temptr = strchr(old_tmap_list[j], '.');
 			if (temptr)* temptr = '\0';
 
 			tmap_xlate_table[j] = hashtable_search(&ht, old_tmap_list[j]);
-			if (tmap_xlate_table[j] < 0) {
+			if (tmap_xlate_table[j] < 0) 
+			{
 				//tmap_xlate_table[j] = 0;
 				// mprintf( (0, "Couldn't find texture '%s'\n", old_tmap_list[j] ));
 				;
@@ -255,42 +305,47 @@ int load_mine_data(CFILE* LoadFile)
 			Vertices[i].y = 1;
 			Vertices[i].z = 1;
 
-			if (cfread(&Vertices[i], mine_fileinfo.vertex_sizeof, 1, LoadFile) != 1)
-				Error("Error reading Vertices[i] in gamemine.c");
+			Vertices[i].x = CF_ReadInt(LoadFile);
+			Vertices[i].y = CF_ReadInt(LoadFile);
+			Vertices[i].z = CF_ReadInt(LoadFile);
+
+			//if (cfread(&Vertices[i], mine_fileinfo.vertex_sizeof, 1, LoadFile) != 1)
+			//	Error("Error reading Vertices[i] in gamemine.c");
 		}
 	}
 
 	//==================== READ SEGMENT INFO ===========================
 
 	// New check added to make sure we don't read in too many segments.
-	if (mine_fileinfo.segment_howmany > MAX_SEGMENTS) {
+	if (mine_fileinfo.segment_howmany > MAX_SEGMENTS) 
+	{
 		mprintf((0, "Num segments exceeds maximum.  Loading MAX %d segments\n", MAX_SEGMENTS));
 		mine_fileinfo.segment_howmany = MAX_SEGMENTS;
 	}
 
 	// [commented out by mk on 11/20/94 (weren't we supposed to hit final in October?) because it looks redundant.  I think I'll test it now...]  fuelcen_reset();
 
-	if ((mine_fileinfo.segment_offset > -1) && (mine_fileinfo.segment_howmany > 0)) {
-
+	if ((mine_fileinfo.segment_offset > -1) && (mine_fileinfo.segment_howmany > 0)) 
+	{
 		if (cfseek(LoadFile, mine_fileinfo.segment_offset, SEEK_SET))
-
 			Error("Error seeking to segment_offset in gamemine.c");
 
 		Highest_segment_index = mine_fileinfo.segment_howmany - 1;
 
-		for (i = 0; i < mine_fileinfo.segment_howmany; i++) {
+		for (i = 0; i < mine_fileinfo.segment_howmany; i++) 
+		{
 			segment v16_seg;
 
 			// Set the default values for this segment (clear to zero )
 			//memset( &Segments[i], 0, sizeof(segment) );
 
-			if (mine_top_fileinfo.fileinfo_version >= 16) {
+			if (mine_top_fileinfo.fileinfo_version >= 16) 
+			{
+				Assert(mine_fileinfo.segment_sizeof == SEGMENT_SIZEOF);
 
-				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
-
-				if (cfread(&v16_seg, mine_fileinfo.segment_sizeof, 1, LoadFile) != 1)
-					Error("Error reading segments in gamemine.c");
-
+				//if (cfread(&v16_seg, mine_fileinfo.segment_sizeof, 1, LoadFile) != 1)
+				//	Error("Error reading segments in gamemine.c");
+				load_v16_segment(&v16_seg, LoadFile);
 			}
 			else
 				Error("Invalid mine version");
@@ -302,11 +357,13 @@ int load_mine_data(CFILE* LoadFile)
 			Segments[i].group = -1;
 #endif
 
-			if (mine_top_fileinfo.fileinfo_version < 15) {	//used old uvl ranges
+			if (mine_top_fileinfo.fileinfo_version < 15) //used old uvl ranges
+			{
 				int sn, uvln;
 
 				for (sn = 0; sn < MAX_SIDES_PER_SEGMENT; sn++)
-					for (uvln = 0; uvln < 4; uvln++) {
+					for (uvln = 0; uvln < 4; uvln++)
+					{
 						Segments[i].sides[sn].uvls[uvln].u /= 64;
 						Segments[i].sides[sn].uvls[uvln].v /= 64;
 						Segments[i].sides[sn].uvls[uvln].l /= 32;
@@ -316,23 +373,27 @@ int load_mine_data(CFILE* LoadFile)
 			fuelcen_activate(&Segments[i], Segments[i].special);
 
 			if (translate == 1)
-				for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
+				for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) 
+				{
 					unsigned short orient;
 					tmap_xlate = Segments[i].sides[j].tmap_num;
 					Segments[i].sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
 					if ((WALL_IS_DOORWAY(&Segments[i], j) & WID_RENDER_FLAG))
-						if (Segments[i].sides[j].tmap_num < 0) {
+						if (Segments[i].sides[j].tmap_num < 0) 
+						{
 							mprintf((0, "Couldn't find texture '%s' for Segment %d, side %d\n", old_tmap_list[tmap_xlate], i, j));
 							Int3();
 							Segments[i].sides[j].tmap_num = 0;
 						}
 					tmap_xlate = Segments[i].sides[j].tmap_num2 & 0x3FFF;
 					orient = Segments[i].sides[j].tmap_num2 & (~0x3FFF);
-					if (tmap_xlate != 0) {
+					if (tmap_xlate != 0)
+					{
 						int xlated_tmap = tmap_xlate_table[tmap_xlate];
 
 						if ((WALL_IS_DOORWAY(&Segments[i], j) & WID_RENDER_FLAG))
-							if (xlated_tmap <= 0) {
+							if (xlated_tmap <= 0) 
+							{
 								mprintf((0, "Couldn't find texture '%s' for Segment %d, side %d\n", old_tmap_list[tmap_xlate], i, j));
 								Int3();
 								Segments[i].sides[j].tmap_num2 = 0;
@@ -357,8 +418,9 @@ int load_mine_data(CFILE* LoadFile)
 	{
 		if (cfseek(LoadFile, mine_editor.newsegment_offset, SEEK_SET))
 			Error("Error seeking to newsegment_offset in gamemine.c");
-		if (cfread(&New_segment, mine_editor.newsegment_size, 1, LoadFile) != 1)
-			Error("Error reading new_segment in gamemine.c");
+		load_v16_segment(&New_segment, LoadFile);
+		//if (cfread(&New_segment, mine_editor.newsegment_size, 1, LoadFile) != 1)
+		//	Error("Error reading new_segment in gamemine.c");
 	}
 
 	if ((mine_fileinfo.newseg_verts_offset > -1) && (mine_fileinfo.newseg_verts_howmany > 0))
@@ -372,8 +434,12 @@ int load_mine_data(CFILE* LoadFile)
 			Vertices[NEW_SEGMENT_VERTICES + i].y = 1;
 			Vertices[NEW_SEGMENT_VERTICES + i].z = 1;
 
-			if (cfread(&Vertices[NEW_SEGMENT_VERTICES + i], mine_fileinfo.newseg_verts_sizeof, 1, LoadFile) != 1)
-				Error("Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c");
+			Vertices[NEW_SEGMENT_VERTICES + 1].x = CF_ReadInt(LoadFile);
+			Vertices[NEW_SEGMENT_VERTICES + 1].y = CF_ReadInt(LoadFile);
+			Vertices[NEW_SEGMENT_VERTICES + 1].z = CF_ReadInt(LoadFile);
+
+			//if (cfread(&Vertices[NEW_SEGMENT_VERTICES + i], mine_fileinfo.newseg_verts_sizeof, 1, LoadFile) != 1)
+			//	Error("Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c");
 
 			New_segment.verts[i] = NEW_SEGMENT_VERTICES + i;
 		}
@@ -403,8 +469,8 @@ int load_mine_data(CFILE* LoadFile)
 	else
 		Markedsegp = NULL;
 
-	num_groups = 0;
-	current_group = -1;
+	Num_groups = 0;
+	Current_group = -1;
 
 #endif
 

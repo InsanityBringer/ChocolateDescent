@@ -1441,11 +1441,11 @@ void hud_show_afterburner(void)
 	}
 }
 
-char* d2_very_short_secondary_weapon_names[] = { "Flash","Guided","SmrtMine","Mercury","Shaker" };
+const char* d2_very_short_secondary_weapon_names[] = { "Flash","Guided","SmrtMine","Mercury","Shaker" };
 
 #define SECONDARY_WEAPON_NAMES_VERY_SHORT(weapon_num) 					\
 	((weapon_num <= MEGA_INDEX)?(*(&TXT_CONCUSSION + (weapon_num))):	\
-	d2_very_short_secondary_weapon_names[weapon_num-SMISSILE1_INDEX])
+	const_cast<char*>(d2_very_short_secondary_weapon_names[weapon_num-SMISSILE1_INDEX]))
 
 //return which bomb will be dropped next time the bomb key is pressed
 extern int which_bomb();
@@ -3667,7 +3667,7 @@ int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
 //user is one of the WBU_ constants.  If rear_view_flag is set, show a
 //rear view.  If label is non-NULL, print the label at the top of the
 //window.
-void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int user, char* label)
+void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int user, const char* label)
 {
 	WINDOS(
 		dd_grs_canvas window_canv,

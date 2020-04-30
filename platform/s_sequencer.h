@@ -26,23 +26,24 @@ class MidiSequencer
 {
 	hmpheader_t* song;
 	int ticks;
-	int nextTick;
-	int lastRenderedTick;
+	uint64_t nextTick;
+	uint64_t lastRenderedTick;
 
 	int sampleRate;
 	//[ISB] TODO: This is imprecise, ugh. Song is slightly faster than it should be...
-	int samplesPerTick; //Amount of samples per each MIDI tick
 	bool loop; //Whether or not the song should loop at the end or not
 
 	MidiSynth* synth;
 
 public:
-	MidiSequencer(MidiSynth* newSynth);
+	MidiSequencer(MidiSynth* newSynth, int newSampleRate);
 
 	int StartSong(hmpheader_t* song, bool loop);
 	void StopSong();
-	void RewindSong();
+	//if resetLoop is true, the song is rewound to the point in time set by the loop point. If not, it is rewound to the beginning of the song. 
+	void RewindSong(bool resetLoop);
 
-	int Tick();
+	uint64_t Tick();
 	int Render(int ticksToRender, unsigned short* buffer);
+	MidiSynth* GetSynth();
 };

@@ -17,9 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include <fcntl.h>
-//#include <unistd.h>
-
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "mem/mem.h"
 
@@ -366,9 +363,9 @@ int gr_internal_string2(int x, int y, char* s)
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int page_switched, skip_lines = 0;
 
-	unsigned int VideoOffset, VideoOffset1;
+	uintptr_t VideoOffset, VideoOffset1;
 
-	VideoOffset1 = (unsigned int)DATA + y * ROWSIZE + x;
+	VideoOffset1 = (uintptr_t)DATA + y * ROWSIZE + x;
 
 	//gr_vesa_setpage(VideoOffset1 >> 16);
 
@@ -562,177 +559,6 @@ int gr_internal_string2(int x, int y, char* s)
 					}
 				}
 				text_ptr++;
-			}
-
-			y++;
-			VideoOffset1 += ROWSIZE;
-
-			if (VideoOffset1 > 0xFFFF) {
-				VideoOffset1 -= 0xFFFF + 1;
-				//if (!page_switched)
-					//gr_vesa_incpage();
-			}
-		}
-
-		y += skip_lines;
-		VideoOffset1 += ROWSIZE * skip_lines;
-		skip_lines = 0;
-	}
-	return 0;
-}
-
-int gr_internal_string2m(int x, int y, char* s)
-{
-	unsigned char* fp;
-	char* text_ptr, * next_row, * text_ptr1;
-	int r, BitMask, i, bits, width, spacing, letter, underline;
-	int page_switched, skip_lines = 0;
-
-	unsigned int VideoOffset, VideoOffset1;
-
-	VideoOffset1 = (unsigned int)DATA + y * ROWSIZE + x;
-
-	//gr_vesa_setpage(VideoOffset1 >> 16);
-
-	VideoOffset1 &= 0xFFFF;
-
-	next_row = s;
-
-	while (next_row != NULL)
-	{
-		text_ptr1 = next_row;
-		next_row = NULL;
-
-		if (x == 0x8000) {			//centered
-			int xx = get_centered_x(text_ptr1);
-			VideoOffset1 = y * ROWSIZE + xx;
-			//gr_vesa_setpage(VideoOffset1 >> 16);
-			VideoOffset1 &= 0xFFFF;
-		}
-
-		for (r = 0; r < FHEIGHT; r++)
-		{
-			text_ptr = text_ptr1;
-
-			VideoOffset = VideoOffset1;
-
-			page_switched = 0;
-
-			while (*text_ptr)
-			{
-				if (*text_ptr == '\n')
-				{
-					next_row = &text_ptr[1];
-					break;
-				}
-
-				if (*text_ptr == CC_COLOR) {
-					FG_COLOR = *(text_ptr + 1);
-					text_ptr += 2;
-					continue;
-				}
-
-				if (*text_ptr == CC_LSPACING) {
-					skip_lines = *(text_ptr + 1) - '0';
-					text_ptr += 2;
-					continue;
-				}
-
-				underline = 0;
-				if (*text_ptr == CC_UNDERLINE)
-				{
-					if ((r == FBASELINE + 2) || (r == FBASELINE + 3))
-						underline = 1;
-					text_ptr++;
-				}
-
-				get_char_width(text_ptr[0], text_ptr[1], &width, &spacing);
-
-				letter = *text_ptr - FMINCHAR;
-
-				if (!INFONT(letter)) {	//not in font, draw as space
-					VideoOffset += width;
-					text_ptr++;
-					continue;
-				}
-
-				if (FFLAGS & FT_PROPORTIONAL)
-					fp = FCHARS[letter];
-				else
-					fp = FDATA + letter * BITS_TO_BYTES(width) * FHEIGHT;
-
-				if (underline)
-				{
-					if (VideoOffset + width > 0xFFFF)
-					{
-						for (i = 0; i < width; i++)
-						{
-							gr_video_memory[VideoOffset++] = FG_COLOR;
-
-							if (VideoOffset > 0xFFFF)
-							{
-								VideoOffset -= 0xFFFF + 1;
-								page_switched = 1;
-								//gr_vesa_incpage();
-							}
-						}
-					}
-					else
-					{
-						for (i = 0; i < width; i++)
-							gr_video_memory[VideoOffset++] = FG_COLOR;
-					}
-				}
-				else
-				{
-					fp += BITS_TO_BYTES(width) * r;
-
-					BitMask = 0;
-
-					if (VideoOffset + width > 0xFFFF)
-					{
-						for (i = 0; i < width; i++)
-						{
-							if (BitMask == 0) {
-								bits = *fp++;
-								BitMask = 0x80;
-							}
-
-							if (bits & BitMask)
-								gr_video_memory[VideoOffset++] = FG_COLOR;
-							else
-								VideoOffset++;
-
-							BitMask >>= 1;
-
-							if (VideoOffset > 0xFFFF)
-							{
-								VideoOffset -= 0xFFFF + 1;
-								page_switched = 1;
-								//gr_vesa_incpage();
-							}
-
-						}
-					}
-					else {
-						for (i = 0; i < width; i++)
-						{
-							if (BitMask == 0) {
-								bits = *fp++;
-								BitMask = 0x80;
-							}
-
-							if (bits & BitMask)
-								gr_video_memory[VideoOffset++] = FG_COLOR;
-							else
-								VideoOffset++;;
-							BitMask >>= 1;
-						}
-					}
-				}
-				text_ptr++;
-
-				VideoOffset += spacing - width;
 			}
 
 			y++;
@@ -1133,11 +959,7 @@ int gr_ustring(int x, int y, const char* s)
 			return gr_internal_string0m(x, y, s);
 		else
 			return gr_internal_string0(x, y, s);
-		/*case BM_SVGA:
-			if (BG_COLOR == -1)
-				return gr_internal_string2m(x, y, s);
-			else
-				return gr_internal_string2(x, y, s);
+/*
 #if defined(POLY_ACC)
 		case BM_LINEAR15:
 			if (BG_COLOR == -1)
@@ -1254,30 +1076,99 @@ void gr_remap_color_fonts()
 }
 
 void build_colormap_good(uint8_t* palette, uint8_t* colormap, int* freq);
-void decode_data_asm(uint8_t* data, int num_pixels, uint8_t* colormap, int* count);
-#pragma aux decode_data_asm parm [esi] [ecx] [edi] [ebx] modify exact [esi edi eax ebx ecx] = \
-"again_ddn:"							\
-	"xor	eax,eax"				\
-	"mov	al,[esi]"			\
-	"inc	dword ptr [ebx+eax*4]"		\
-	"mov	al,[edi+eax]"		\
-	"mov	[esi],al"			\
-	"inc	esi"					\
-	"dec	ecx"					\
-	"jne	again_ddn"
+
+extern void decode_data_asm(uint8_t* data, int num_pixels, uint8_t* colormap, int* count); //[ISB] fucking hack
+
+//[ISB] saner font handling
+//implying that there's anything sane about this font format, sadly...
+void GR_ReadFont(grs_font* font, CFILE* fp, int len)
+{
+	int dataPtr, charPtr, widthPtr, kernPtr;
+	int nchars;
+	int i;
+	uint8_t* ptr;
+
+	font->ft_datablock = (uint8_t*)malloc(len);
+
+	font->ft_w = CF_ReadShort(fp);
+	font->ft_h = CF_ReadShort(fp);
+	font->ft_flags = CF_ReadShort(fp);
+	font->ft_baseline = CF_ReadShort(fp);
+	font->ft_minchar = CF_ReadByte(fp);
+	font->ft_maxchar = CF_ReadByte(fp);
+	font->ft_bytewidth = CF_ReadShort(fp);
+	dataPtr = CF_ReadInt(fp);
+	charPtr = CF_ReadInt(fp);
+	widthPtr = CF_ReadInt(fp);
+	kernPtr = CF_ReadInt(fp);
+
+	cfseek(fp, 8, SEEK_SET);
+	cfread(font->ft_datablock, len, 1, fp);
+
+	nchars = font->ft_maxchar - font->ft_minchar + 1;
+
+	//printf(" dimensions: %d x %d\n", font->ft_w, font->ft_h);
+	//printf(" flags: %d\n", font->ft_flags);
+	//printf(" baseline: %d\n", font->ft_baseline);
+	//printf(" range: %d - %d (%d chars)\n", font->ft_minchar, font->ft_maxchar, nchars);
+
+	if (font->ft_flags & FT_PROPORTIONAL)
+	{
+		//font->ft_widths = (short*)(((int)font->ft_widths) + ((uint8_t*)font));
+		font->ft_widths = (short*)&font->ft_datablock[widthPtr];
+		font->ft_data = &font->ft_datablock[dataPtr];
+		font->ft_chars = (unsigned char**)malloc(nchars * sizeof(unsigned char*));
+		ptr = font->ft_data;
+
+		for (i = 0; i < nchars; i++)
+		{
+			font->ft_chars[i] = ptr;
+			if (font->ft_flags & FT_COLOR)
+				ptr += font->ft_widths[i] * font->ft_h;
+			else
+				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
+		}
+	}
+	else
+	{
+		//font->ft_data = ((unsigned char*)font) + sizeof(*font);
+		font->ft_data = &font->ft_datablock[dataPtr];
+		font->ft_chars = NULL;
+		font->ft_widths = NULL;
+
+		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
+	}
+
+	if (font->ft_flags & FT_KERNED)
+		font->ft_kerndata = &font->ft_datablock[kernPtr];
+
+	if (font->ft_flags & FT_COLOR) //remap palette
+	{
+		uint8_t palette[256 * 3];
+		uint8_t colormap[256];
+		int freq[256];
+
+		cfread(palette, 3, 256, fp);		//read the palette
+
+		build_colormap_good(&palette[0], &colormap[0], freq);
+
+		colormap[255] = 255;
+
+		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq);
+	}
+}
 
 grs_font * gr_init_font(const char* fontname)
 {
 	static int first_time = 1;
 	grs_font* font;
-	int i, fontnum;
-	unsigned char* ptr;
-	int nchars;
 	CFILE* fontfile;
+	int fontnum;
 	int file_id;
 	int datasize;		//size up to (but not including) palette
 
-	if (first_time) {
+	if (first_time) 
+	{
 		int i;
 		for (i = 0; i < MAX_OPEN_FONTS; i++)
 			open_font[i].ptr = NULL;
@@ -1295,108 +1186,18 @@ grs_font * gr_init_font(const char* fontname)
 	if (!fontfile)
 		Error("Can't open font file %s", fontname);
 
-	file_id = cfile_read_int(fontfile);
-	datasize = cfile_read_int(fontfile);
+	cfread(&file_id, sizeof(file_id), 1, fontfile);
+	datasize = CF_ReadInt(fontfile);
 
 	if (file_id != 'NFSP')
 		Error("File %s is not a font file", fontname);
 
 	font = (grs_font*)malloc(datasize);
 
+	//printf("loading font %s\n", fontname);
+	GR_ReadFont(font, fontfile, datasize);
+
 	open_font[fontnum].ptr = font;
-
-	cfread(font, 1, datasize, fontfile);
-
-#ifdef MACINTOSH
-	// gotta translate those endian things
-
-	font->ft_w = SWAPSHORT(font->ft_w);
-	font->ft_h = SWAPSHORT(font->ft_h);
-	font->ft_flags = SWAPSHORT(font->ft_flags);
-	font->ft_bytewidth = SWAPSHORT(font->ft_bytewidth);
-	font->ft_data = (uint8_t*)SWAPINT((int)(font->ft_data));
-	font->ft_chars = (uint8_t * *)SWAPINT((int)(font->ft_chars));
-	font->ft_widths = (short*)SWAPINT((int)(font->ft_widths));
-	font->ft_kerndata = (uint8_t*)SWAPINT((int)(font->ft_kerndata));
-#endif
-
-	nchars = font->ft_maxchar - font->ft_minchar + 1;
-
-	if (font->ft_flags & FT_PROPORTIONAL) {
-
-		font->ft_widths = (short*)(((int)font->ft_widths) + ((uint8_t*)font));
-
-#ifdef MACINTOSH
-		for (i = 0; i < nchars; i++)
-			font->ft_widths[i] = SWAPSHORT(font->ft_widths[i]);
-#endif
-
-		font->ft_data = ((int)font->ft_data) + ((uint8_t*)font);
-
-		font->ft_chars = (unsigned char**)malloc(nchars * sizeof(unsigned char*));
-
-		ptr = font->ft_data;
-
-		for (i = 0; i < nchars; i++) {
-			font->ft_chars[i] = ptr;
-			if (font->ft_flags & FT_COLOR)
-				ptr += font->ft_widths[i] * font->ft_h;
-			else
-				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
-		}
-
-	}
-	else {
-
-		font->ft_data = ((unsigned char*)font) + sizeof(*font);
-
-		font->ft_chars = NULL;
-		font->ft_widths = NULL;
-
-		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
-	}
-
-	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = ((int)font->ft_kerndata) + ((uint8_t*)font);
-
-
-	if (font->ft_flags & FT_COLOR) {		//remap palette
-		uint8_t palette[256 * 3];
-		uint8_t colormap[256];
-		int freq[256];
-
-		cfread(palette, 3, 256, fontfile);		//read the palette
-
-#ifdef MACINTOSH			// swap the first and last palette entries (black and white)
-		{
-			int i;
-			uint8_t c;
-
-			for (i = 0; i < 3; i++) {
-				c = palette[i];
-				palette[i] = palette[765 + i];
-				palette[765 + i] = c;
-			}
-
-			//  we also need to swap the data entries as well.  black is white and white is black
-
-			for (i = 0; i < ptr - font->ft_data; i++) {
-				if (font->ft_data[i] == 0)
-					font->ft_data[i] = 255;
-				else if (font->ft_data[i] == 255)
-					font->ft_data[i] = 0;
-			}
-
-		}
-#endif
-
-		build_colormap_good(&palette[0], colormap, freq);
-
-		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;		// chaged from colormap[255] = 255 to this for macintosh
-
-		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq);
-
-	}
 
 	cfclose(fontfile);
 
@@ -1407,7 +1208,6 @@ grs_font * gr_init_font(const char* fontname)
 	BG_COLOR = 0;
 
 	return font;
-
 }
 
 //remap a font by re-reading its data & palette
@@ -1434,45 +1234,12 @@ void gr_remap_font(grs_font* font, char* fontname)
 	if (file_id != 'NFSP')
 		Error("File %s is not a font file", fontname);
 
-	nchars = font->ft_maxchar - font->ft_minchar + 1;
+	//font = (grs_font*)malloc(datasize);
 
-	//compute data length
-	data_len = 0;
-	if (font->ft_flags & FT_PROPORTIONAL)
-	{
-		for (i = 0; i < nchars; i++)
-		{
-			if (font->ft_flags & FT_COLOR)
-				data_len += font->ft_widths[i] * font->ft_h;
-			else
-				data_len += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
-		}
+	//printf("loading font %s\n", fontname);
+	//[ISB] This isn't as efficient, but it makes it easier.
+	GR_ReadFont(font, fontfile, datasize);
 
-	}
-	else
-		data_len = nchars * font->ft_w * font->ft_h;
-
-	data_ofs = font->ft_data - ((uint8_t*)font);
-
-	cfseek(fontfile, data_ofs, SEEK_CUR);
-	cfread(font->ft_data, 1, data_len, fontfile);		//read raw data
-
-	if (font->ft_flags & FT_COLOR) //remap palette
-	{
-		uint8_t palette[256 * 3];
-		uint8_t colormap[256];
-		int freq[256];
-
-		cfseek(fontfile, -sizeof(palette), SEEK_END);
-
-		cfread(palette, 3, 256, fontfile);		//read the palette
-
-		build_colormap_good(&palette[0], colormap, freq);
-
-		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;	// changed from		colormap[255] = 255;
-
-		decode_data_asm(font->ft_data, data_len, colormap, freq);
-	}
 	cfclose(fontfile);
 }
 

@@ -23,6 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
+#include "misc/rand.h"
+
 #ifdef MACINTOSH
 #include <Files.h>
 #include <StandardFile.h>
@@ -1661,8 +1663,8 @@ void afterburner_shake(void)
 {
 	int	rx, rz;
 
-	rx = (Ab_scale * fixmul(rand() - 16384, F1_0/8 + (((GameTime + 0x4000)*4) & 0x3fff)))/16;
-	rz = (Ab_scale * fixmul(rand() - 16384, F1_0/2 + ((GameTime*4) & 0xffff)))/16;
+	rx = (Ab_scale * fixmul(P_Rand() - 16384, F1_0/8 + (((GameTime + 0x4000)*4) & 0x3fff)))/16;
+	rz = (Ab_scale * fixmul(P_Rand() - 16384, F1_0/2 + ((GameTime*4) & 0xffff)))/16;
 
 	// -- mprintf((0, "AB: %8x %8x\n", rx, rz));
 	ConsoleObject->mtype.phys_info.rotvel.x += rx;
@@ -1782,7 +1784,7 @@ void diminish_palette_towards_normal(void)
 	//	Diminish at DIMINISH_RATE units/second.
 	//	For frame rates > DIMINISH_RATE Hz, use randomness to achieve this.
 	if (FrameTime < F1_0/DIMINISH_RATE) {
-		if (rand() < FrameTime*DIMINISH_RATE/2)	//	Note: rand() is in 0..32767, and 8 Hz means decrement every frame
+		if (P_Rand() < FrameTime*DIMINISH_RATE/2)	//	Note: P_Rand() is in 0..32767, and 8 Hz means decrement every frame
 			dec_amount = 1;
 	} else {
 		dec_amount = f2i(FrameTime*DIMINISH_RATE);		// one second = DIMINISH_RATE counts
@@ -1808,7 +1810,7 @@ void diminish_palette_towards_normal(void)
 		if (Flash_effect < 0)
 			Flash_effect = 0;
 
-		if (force_do || (rand() > 4096 )) {
+		if (force_do || (P_Rand() > 4096 )) {
       	if ( (Newdemo_state==ND_STATE_RECORDING) && (PaletteRedAdd || PaletteGreenAdd || PaletteBlueAdd) )
 	      	newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 
@@ -1927,64 +1929,34 @@ void full_palette_save(void)
 }
 
 extern int Death_sequence_aborted;
-extern int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) );
+extern int newmenu_dotiny2( const char * title, const char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) );
 
 void show_help()
 {
 	int nitems;
 	newmenu_item m[25];
-	#ifdef MACINTOSH
-	char command_help[64], pixel_double_help[64], save_help[64], restore_help[64];
-	#endif
 
 	m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_HELP_ESC;
-	#ifndef MACINTOSH
 	m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_HELP_ALT_F2;
 	m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_HELP_ALT_F3;
-	#else
-	sprintf(save_help, "OPT-F2 (%c-s)\t Save Game", 133);
-	sprintf(restore_help, "OPT-F3 (%c-o)\t Load Game", 133);
-	m[ 1].type = NM_TYPE_TEXT; m[1].text = save_help;
-	m[ 2].type = NM_TYPE_TEXT; m[2].text = restore_help;
-	#endif
 	m[ 3].type = NM_TYPE_TEXT; m[ 3].text = TXT_HELP_F2;
 	m[ 4].type = NM_TYPE_TEXT; m[ 4].text = TXT_HELP_F3;
 	m[ 5].type = NM_TYPE_TEXT; m[ 5].text = TXT_HELP_F4;
 	m[ 6].type = NM_TYPE_TEXT; m[ 6].text = TXT_HELP_F5;
-	#ifndef MACINTOSH
 	m[ 7].type = NM_TYPE_TEXT; m[ 7].text = TXT_HELP_PAUSE;
-	#else
-	m[ 7].type = NM_TYPE_TEXT; m[ 7].text = "Pause (F15)\t  Pause";
-	#endif
 	m[ 8].type = NM_TYPE_TEXT; m[ 8].text = TXT_HELP_MINUSPLUS;
-	#ifndef MACINTOSH
 	m[ 9].type = NM_TYPE_TEXT; m[ 9].text = TXT_HELP_PRTSCN;
-	#else
-	m[ 9].type = NM_TYPE_TEXT; m[ 9].text = "printscrn (F13)\t  save screen shot";
-	#endif
 	m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_1TO5;
 	m[11].type = NM_TYPE_TEXT; m[11].text = TXT_HELP_6TO10;
-	m[12].type = NM_TYPE_TEXT; m[12].text = "Shift-F1\t  Cycle left window";
-	m[13].type = NM_TYPE_TEXT; m[13].text = "Shift-F2\t  Cycle right window";
-	m[14].type = NM_TYPE_TEXT; m[14].text = "Shift-F4\t  GuideBot menu";
-	#ifndef MACINTOSH
-	m[15].type = NM_TYPE_TEXT; m[15].text = "Alt-Shift-F4\t  Rename GuideBot";
-	#else
-	m[15].type = NM_TYPE_TEXT; m[15].text = "Opt-Shift-F4\t  Rename GuideBot";
-	#endif
-	m[16].type = NM_TYPE_TEXT; m[16].text = "Shift-F5\t  Drop primary";
-	m[17].type = NM_TYPE_TEXT; m[17].text = "Shift-F6\t  Drop secondary";
-	m[18].type = NM_TYPE_TEXT; m[18].text = "Shift-F7\t  Calibrate joystick";
-	m[19].type = NM_TYPE_TEXT; m[19].text = "Shift-number\t  GuideBot commands";
+	m[12].type = NM_TYPE_TEXT; m[12].text = const_cast<char*>("Shift-F1\t  Cycle left window");
+	m[13].type = NM_TYPE_TEXT; m[13].text = const_cast<char*>("Shift-F2\t  Cycle right window");
+	m[14].type = NM_TYPE_TEXT; m[14].text = const_cast<char*>("Shift-F4\t  GuideBot menu");
+	m[15].type = NM_TYPE_TEXT; m[15].text = const_cast<char*>("Alt-Shift-F4\t  Rename GuideBot");
+	m[16].type = NM_TYPE_TEXT; m[16].text = const_cast<char*>("Shift-F5\t  Drop primary");
+	m[17].type = NM_TYPE_TEXT; m[17].text = const_cast<char*>("Shift-F6\t  Drop secondary");
+	m[18].type = NM_TYPE_TEXT; m[18].text = const_cast<char*>("Shift-F7\t  Calibrate joystick");
+	m[19].type = NM_TYPE_TEXT; m[19].text = const_cast<char*>("Shift-number\t  GuideBot commands");
 	nitems = 20;
-	#ifdef MACINTOSH
-	sprintf(pixel_double_help, "%c-D\t  Toggle Pixel Double Mode", 133);
-	m[20].type = NM_TYPE_TEXT; m[20].text = pixel_double_help;
-	m[21].type = NM_TYPE_TEXT; m[21].text = "";
-	sprintf(command_help, "(Use %c-# for F#. i.e. %c-1 for F1)", 133, 133);
-	m[22].type = NM_TYPE_TEXT; m[22].text = command_help;
-	nitems = 23;
-	#endif
 
 	full_palette_save();
 
@@ -2219,11 +2191,11 @@ void game()
 	ProfilerSetStatus(1);
 #endif
 
+	startTime = I_GetUS();
 	if ( setjmp(LeaveGame)==0 )
 	{
 		while (1) 
 		{
-			startTime = I_GetUS();
 			int player_shields;
 
 			// GAME LOOP!
@@ -2327,6 +2299,8 @@ void game()
 				longjmp(LeaveGame,0);
 			#endif
 
+			I_DrawCurrentCanvas(0);
+			I_DoEvents();
 			//waiting loop for polled fps mode
 			//With suggestions from dpjudas.
 			uint64_t numUS = 1000000 / FPSLimit;
@@ -2335,6 +2309,7 @@ void game()
 			if (diff > 2000) //[ISB] Sleep only if there's sufficient time to do so, since the scheduler isn't precise enough
 				I_DelayUS(diff - 2000);
 			while (I_GetUS() < startTime + numUS);
+			startTime = I_GetUS();
 		}
 	}
 
@@ -2600,7 +2575,7 @@ void do_ambient_sounds()
 	if (has_lava) //has lava
 	{
 		sound = SOUND_AMBIENT_LAVA;
-		if (has_water && (rand() & 1))	//both, pick one
+		if (has_water && (P_Rand() & 1))	//both, pick one
 			sound = SOUND_AMBIENT_WATER;
 	}
 	else if (has_water)						//just water
@@ -2608,9 +2583,9 @@ void do_ambient_sounds()
 	else
 		return;
 
-	if (((rand() << 3) < FrameTime)) //play the sound
+	if (((P_Rand() << 3) < FrameTime)) //play the sound
 	{
-		fix volume = rand() + f1_0/2;
+		fix volume = P_Rand() + f1_0/2;
 		digi_play_sample(sound,volume);
 	}
 }
@@ -2626,7 +2601,6 @@ void flicker_lights();
 
 void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
-	I_DoEvents();
 	//[ISB] Okay I really don't want to track all the changes and mini loops and shit
 	//so the game loop will ensure the mouse is always in relative mode
 	I_SetRelative(1);
@@ -2737,8 +2711,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			#endif
 
 		}
-
-		I_DrawCurrentCanvas(0);
 
 		//mprintf(0,"Velocity %2.2f\n", f2fl(vm_vec_mag(&ConsoleObject->phys_info.velocity)));
 
@@ -2885,8 +2857,8 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 
 					Global_laser_firing_count = 0;
 
-					ConsoleObject->mtype.phys_info.rotvel.x += (rand() - 16384)/8;
-					ConsoleObject->mtype.phys_info.rotvel.z += (rand() - 16384)/8;
+					ConsoleObject->mtype.phys_info.rotvel.x += (P_Rand() - 16384)/8;
+					ConsoleObject->mtype.phys_info.rotvel.z += (P_Rand() - 16384)/8;
 					make_random_vector(&rand_vec);
 
 					bump_amount = F1_0*4;
@@ -3189,7 +3161,7 @@ void FireLaser()
 			if (Fusion_next_sound_time < GameTime) {
 				if (Fusion_charge > F1_0*2) {
 					digi_play_sample( 11, F1_0 );
-					apply_damage_to_player(ConsoleObject, ConsoleObject, rand() * 4);
+					apply_damage_to_player(ConsoleObject, ConsoleObject, P_Rand() * 4);
 				} else {
 					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
@@ -3199,7 +3171,7 @@ void FireLaser()
 					#endif
 				}
 				Fusion_last_sound_time = GameTime;
-				Fusion_next_sound_time = GameTime + F1_0/8 + rand()/4;
+				Fusion_next_sound_time = GameTime + F1_0/8 + P_Rand()/4;
 			}
 		}
 	}
@@ -3309,7 +3281,7 @@ int mark_player_path_to_segment(int segnum)
 		obj->rtype.vclip_info.vclip_num = Powerup_info[obj->id].vclip_num;
 		obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 		obj->rtype.vclip_info.framenum = 0;
-		obj->lifeleft = F1_0*100 + rand() * 4;
+		obj->lifeleft = F1_0*100 + P_Rand() * 4;
 	}
 
 	mprintf((0, "\n"));

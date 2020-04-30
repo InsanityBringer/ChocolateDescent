@@ -11,22 +11,17 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-char inferno_rcsid[] = "$Id: inferno.c 2.190 1996/10/29 18:02:51 matt Exp $";
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
 
-//#include <dos.h>
-#include <conio.h>
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <direct.h>
 #include <math.h>
-//#include <unistd.h>
-#include <conio.h>
 #include <ctype.h>
 
+#include "platform/posixstub.h"
 #include "2d/i_gr.h"
 //#include "pa_enabl.h"       //$$POLY_ACC
 #include "2d/gr.h"
@@ -152,7 +147,7 @@ void check_id_checksum_and_date()
 	const char name[sizeof(DESC_ID_TAG) - 1 + DESC_ID_LEN] = DESC_ID_TAG;
 	char time_str[] = DESC_DEAD_TIME_TAG "00000000";	//second part gets overwritten
 	int i, found;
-	unsigned long* checksum, test_checksum;
+	uint32_t* checksum, test_checksum;
 	time_t current_time, saved_time;
 
 	saved_time = (time_t)strtol(time_str + strlen(DESC_DEAD_TIME_TAG), NULL, 16);
@@ -177,7 +172,7 @@ void check_id_checksum_and_date()
 		if (found)
 			test_checksum |= 0x80000000;
 	}
-	checksum = (unsigned long*)(desc_id_checksum_str + strlen(DESC_ID_CHKSUM_TAG));
+	checksum = (uint32_t*)(desc_id_checksum_str + strlen(DESC_ID_CHKSUM_TAG));
 	if (test_checksum != *checksum)
 		desc_id_exit_num = 2;
 
@@ -348,19 +343,6 @@ void print_commandline_help()
 			continue;		//don't show comments
 
 		printf("%s", line);
-
-		//[ISB] THIS IS A SERIOUS PROBLEM if you're piping
-		/*
-		if (isatty(stdout->_handle) && ++line_count == screen_lines-1)
-		{
-			char c;
-			printf("\n%s",TXT_PRESS_ANY_KEY3);
-			c = key_getch();
-			printf("\n");
-			if (c=='q' || c=='Q' || c==27)
-				return;
-			line_count=0;
-		}*/
 	}
 
 	cfclose(ifile);
@@ -734,9 +716,8 @@ int D_DescentMain(int argc, const char** argv)
 
 #ifdef EDITOR
 	if (!Inferno_is_800x600_available) {
-		printf("The editor will not be available, press any key to start game...\n");
+		printf("The editor will not be available...\n");
 		Function_mode = FMODE_MENU;
-		getch();
 	}
 #endif
 
@@ -796,11 +777,7 @@ Here:
 	{
 		if (digi_init())
 		{
-			int key;
-			/*printf("\n%s\n", "Press ESC to exit Descent II, or any other key to continue.");
-			key = key_getch();
-			if (key == KEY_ESC)
-				exit(0);*/
+			printf("\nFailed to start sound.\n");
 		}
 	}
 	else 
@@ -824,12 +801,6 @@ Here:
 	if (!VR_offscreen_buffer)	//if hasn't been initialied (by headset init)
 		set_display_mode(0);		//..then set default display mode
 #endif
-
-	/*i = FindArg("-xcontrol"); //[ISB] oh god no
-	if (i > 0) 
-	{
-		kconfig_init_external_controls(strtol(Args[i + 1], NULL, 0), strtol(Args[i + 2], NULL, 0));
-	}*/
 
 	verbose("\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 	if (FindArg("-nofade"))

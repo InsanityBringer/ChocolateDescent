@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 
 #define MAXMENUS 30
-#define MAXITEMS 30
+#define MAXITEMS 40
 
 typedef struct {
 	short 			x, y, w, h;
@@ -603,27 +603,29 @@ void menubar_do(int keypress)
 void CommaParse(int n, char* dest, char* source)
 {
 	int i = 0, j = 0, cn = 0;
+	unsigned char* srchack = (unsigned char*)source;
+	unsigned char* dsthack = (unsigned char*)dest;
 
 	// Go to the n'th comma
 	while (cn < n)
-		if (source[i++] == ',')
+		if (srchack[i++] == ',')
 			cn++;
 	// Read all the whitespace
-	while (source[i] == ' ' || source[i] == '\t' || source[i] == 13 || source[i] == 10)
+	while (srchack[i] == ' ' || srchack[i] == '\t' || srchack[i] == 13 || srchack[i] == 10)
 		i++;
 
 	// Read up until the next comma
-	while (source[i] != ',')
+	while (srchack[i] != ',')
 	{
-		dest[j] = source[i++];
+		dsthack[j] = srchack[i++];
 		j++;
 	}
 
 	// Null-terminate	
-	dest[j++] = 0;
+	dsthack[j++] = 0;
 }
 
-void menubar_init(char* file)
+void menubar_init(const char* file)
 {
 	int i, j, np;
 	int aw, w, h;
@@ -670,13 +672,13 @@ void menubar_init(char* file)
 		CommaParse(2, buf1, buffer);
 
 		//[ISB] i suppose this is what you get when you aren't ever intending to release this publically. 
-		if (menu >= 30)
+		if (menu >= MAXMENUS)
 		{
 			Error("menubar_init: Menu ID %d is beyond the maximum amount of menus.\n", menu);
 			return;
 		}
 
-		if (item >= 30)
+		if (item >= MAXITEMS)
 		{
 			Error("menubar_init: Item %d for menu %d is beyond the maximum amount of menu items.\n", item, menu);
 			return;

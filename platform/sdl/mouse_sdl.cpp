@@ -12,9 +12,13 @@
 //variables for relative reads
 int lastReadX = 0, lastReadY = 0;
 
+//[ISB] argh but I don't want this a public function ATM
+extern void I_ScaleMouseToWindow(int* x, int* y);
+
 void mouse_get_pos(int* x, int* y)
 {
 	SDL_GetMouseState(x, y);
+	I_ScaleMouseToWindow(x, y);
 	lastReadX = *x; lastReadY = *y;
 }
 
@@ -33,6 +37,8 @@ void mouse_get_delta(int* dx, int* dy)
 		*dy = ldy - lastReadY;
 		lastReadX = ldx; lastReadY = ldy;
 	}
+	*dx = (int)(*dx * MouseScalar);
+	*dy = (int)(*dy * MouseScalar);
 }
 
 #define mousebtn(x) (1 << x)

@@ -13,16 +13,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
 
-#include <io.h>
-//#include <dos.h>
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
-#include <conio.h>
 #include <time.h>
-//#include <dos.h>
-#include <direct.h>
+
+#include "platform/posixstub.h"
 
 #include "2d/gr.h"
 #include "ui/ui.h"
@@ -109,6 +106,8 @@ int WVIDEO_running = 0;		//debugger can set to 1 if running
 
 #ifdef EDITOR
 int Inferno_is_800x600_available = 0;
+//[ISB] ugh
+extern int bm_init_use_tbl();
 #endif
 
 //--unused-- int Cyberman_installed=0;			// SWIFT device present
@@ -378,37 +377,16 @@ int D_DescentMain(int argc, const char** argv)
 
 	//[ISB] cut DPMI
 
-#ifdef USE_CD
-	i = find_descent_cd();
-	if (i > 0) {
-		sprintf(destsat_cdpath, "%c:\\descent\\", i + 'a' - 1);
-		cfile_use_alternate_hogdir(destsat_cdpath);
-	}
-#ifdef REQUIRE_CD
-	else {		// NOTE ABOVE LINK!!!!!!!!!!!!!!!!!!
-		printf("\n\n");
-#ifdef DEST_SAT
-		printf("Couldn't find the 'Descent: Destination Saturn' CD-ROM.\n");
-#else
-		printf("Couldn't find the Descent CD-ROM.\n");
-#endif
-		printf("Please make sure that it is in your CD-ROM drive and\n");
-		printf("that your CD-ROM drivers are loaded correctly.\n");
-		exit(1);
-	}
-#endif
-#endif
-
-	if (!cfile_init("descent.hog"))
+	/*if (!cfile_init("DESCENT.HOG")) //[ISB] changed, don't actually init hogfile for obscure vanilla compatibility reasons. 
 	{
-		Error("Could not find required file <%s>", "descent.hog");
-	}
+		Error("Could not find required file <%s>", "DESCENT.HOG");
+	}*/
 
 	load_text();
 
 	//	set_exit_message("\n\n%s", TXT_THANKS);
 
-	printf("\nDESCENT   %s\n", VERSION_NAME);
+	printf("\nDESCENT   %s %s %s\n", VERSION_NAME, __DATE__, __TIME__);
 	printf("%s\n%s\n", TXT_COPYRIGHT, TXT_TRADEMARK);
 
 	check_id_checksum_and_date();
@@ -430,14 +408,9 @@ int D_DescentMain(int argc, const char** argv)
 		printf("%s\n", TXT_COMMAND_LINE_3);
 		printf("%s\n", TXT_COMMAND_LINE_4);
 		printf("%s\n", TXT_COMMAND_LINE_5);
-		//		printf( "\n");
 		printf("%s\n", TXT_COMMAND_LINE_6);
 		printf("%s\n", TXT_COMMAND_LINE_7);
 		printf("%s\n", TXT_COMMAND_LINE_8);
-		//		printf( "\n");
-		printf("\n%s\n", TXT_PRESS_ANY_KEY3);
-		_getch();
-		printf("\n");
 		printf("%s\n", TXT_COMMAND_LINE_9);
 		printf("%s\n", TXT_COMMAND_LINE_10);
 		printf("%s\n", TXT_COMMAND_LINE_11);
@@ -498,9 +471,8 @@ int D_DescentMain(int argc, const char** argv)
 
 #ifdef EDITOR
 	if (!Inferno_is_800x600_available) {
-		printf("The editor will not be available, press any key to start game...\n");
+		printf("The editor will not be available...\n");
 		Function_mode = FMODE_MENU;
-		getch();
 	}
 #endif
 
@@ -545,8 +517,7 @@ int D_DescentMain(int argc, const char** argv)
 	{
 		if (digi_init()) 
 		{
-			printf("\n%s\n", TXT_PRESS_ANY_KEY3);
-			//key_getch();
+			printf("\nFailed to start sound.\n");
 		}
 	}
 	else 
@@ -666,14 +637,6 @@ int D_DescentMain(int argc, const char** argv)
 	}
 
 	VR_switch_eyes = 0;
-
-#ifdef ARCADE
-	i = FindArg("-arcade");
-	if (i > 0) {
-		arcade_init();
-		coindev_init(0);
-	}
-#endif
 
 #ifdef NETWORK
 	//	i = FindArg( "-rinvul" );
@@ -810,12 +773,19 @@ int D_DescentMain(int argc, const char** argv)
 			game();
 			if (Function_mode == FMODE_MENU)
 				songs_play_song(SONG_TITLE, 1);
+#ifdef EDITOR
+			else if (Function_mode == FMODE_EDITOR) //[ISB] If you do menu->game->editor cursegp won't be valid. Fix this. 
+			{
+				if (!Cursegp)
+					init_editor_data_for_mine();
+			}
+#endif
 			break;
 #ifdef EDITOR
 		case FMODE_EDITOR:
 			keyd_editor_mode = 1;
 			editor();
-			_harderr((void*)descent_critical_error_handler);		// Reinstall game error handler
+			//_harderr((void*)descent_critical_error_handler);		// Reinstall game error handler
 			if (Function_mode == FMODE_GAME) {
 				Game_mode = GM_EDITOR;
 				editor_reset_stuff_on_level();
@@ -850,7 +820,9 @@ int D_DescentMain(int argc, const char** argv)
 }
 
 
-void check_joystick_calibration() {
+void check_joystick_calibration()
+{
+	/*
 	int x1, y1, x2, y2, c;
 	fix t1;
 
@@ -869,7 +841,9 @@ void check_joystick_calibration() {
 	joy_get_pos(&x2, &y2);
 
 	// If joystick hasn't moved...
-	if ((abs(x2 - x1) < 30) && (abs(y2 - y1) < 30)) {
+	
+	if ((abs(x2 - x1) < 30) && (abs(y2 - y1) < 30)) 
+	{
 		if ((abs(x1) > 30) || (abs(x2) > 30) || (abs(y1) > 30) || (abs(y2) > 30)) {
 			c = nm_messagebox(NULL, 2, TXT_CALIBRATE, TXT_SKIP, TXT_JOYSTICK_NOT_CEN);
 			if (c == 0) {
@@ -877,7 +851,7 @@ void check_joystick_calibration() {
 			}
 		}
 	}
-
+	*/
 }
 
 void show_order_form()
@@ -909,117 +883,15 @@ void show_order_form()
 			fix time_out_value = timer_get_approx_seconds() + i2f(60 * 5);
 			while (!done) 
 			{
-				I_DrawCurrentCanvas(0);
+				I_MarkStart();
 				I_DoEvents();
 				if (timer_get_approx_seconds() > time_out_value) done = 1;
 				if (key_inkey()) done = 1;
+				I_DrawCurrentCanvas(0);
+				I_MarkEnd(US_70FPS);
 			}
 		}
 		gr_palette_fade_out(title_pal, 32, 0);
 	}
 	key_flush();
 }
-
-
-#ifdef USE_CD
-
-#include <dos.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "dpmi.h"
-
-typedef struct {
-	char unit;
-	uint16_t dev_offset;
-	uint16_t dev_segment;
-} dev_list;
-
-typedef struct _Dev_Hdr {
-	unsigned int dev_next;
-	unsigned short dev_att;
-	uint16_t dev_stat;
-	uint16_t dev_int;
-	char dev_name[8];
-	short dev_resv;
-	char dev_letr;
-	char dev_units;
-} dev_header;
-
-int find_descent_cd()
-{
-	dpmi_real_regs rregs;
-
-	// Get dos memory for call...
-	dev_list* buf;
-	dev_header* device;
-	int num_drives, i;
-	unsigned cdrive, cur_drive, cdrom_drive;
-
-	memset(&rregs, 0, sizeof(dpmi_real_regs));
-	rregs.eax = 0x1500;
-	rregs.ebx = 0;
-	dpmi_real_int386x(0x2f, &rregs);
-	if ((rregs.ebx & 0xffff) == 0) {
-		return -1;			// No cdrom
-	}
-	num_drives = rregs.ebx;
-
-	buf = (dev_list*)dpmi_get_temp_low_buffer(sizeof(dev_list) * 26);
-	if (buf == NULL) {
-		return -2;			// Error getting memory!
-	}
-
-	memset(&rregs, 0, sizeof(dpmi_real_regs));
-	rregs.es = DPMI_real_segment(buf);
-	rregs.ebx = DPMI_real_offset(buf);
-	rregs.eax = 0x1501;
-	dpmi_real_int386x(0x2f, &rregs);
-	cdrom_drive = 0;
-	_dos_getdrive(&cdrive);
-	for (i = 0; i < num_drives; i++) {
-		device = (dev_header*)((buf[i].dev_segment << 4) + buf[i].dev_offset);
-		_dos_setdrive(device->dev_letr, &cur_drive);
-		_dos_getdrive(&cur_drive);
-		if (cur_drive == device->dev_letr) {
-			if (!chdir("\\descent")) {
-				FILE* fp;
-#ifdef DEST_SAT
-				fp = fopen("saturn.hog", "rb");
-#else
-				fp = fopen("descent.hog", "rb");
-#endif
-				if (fp) {
-					int write_failed = 1;
-					fclose(fp);
-					fp = fopen("descent.tmp", "wb");
-					if (fp) {
-						int temp = 0x15A90C23;
-						if (fwrite(&temp, sizeof(int), 1, fp) == 1) {
-							fp = fopen("descent.tmp", "rb");
-							if (fp) {
-								temp = 0;
-								if (fread(&temp, sizeof(int), 1, fp) == 1) {
-									if (temp == 0x15A90C23)
-										write_failed = 0;
-								}
-								fclose(fp);
-								unlink("descent.tmp");
-							}
-						}
-						fclose(fp);
-					}
-					if (write_failed) {
-						cdrom_drive = device->dev_letr;
-						break;
-					}
-				}
-			}
-		}
-	}
-	_dos_setdrive(cdrive, &cur_drive);
-	return cdrom_drive;
-}
-
-#endif

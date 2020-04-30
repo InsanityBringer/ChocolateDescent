@@ -30,6 +30,7 @@ int joy_init()
 		joystick.axis_min[i] = -127;
 		joystick.axis_center[i] = 0;
 		joystick.axis_max[i] = 127;
+		joystick.axis_value[i] = 0; //[ISB] if no physical joystick present this should avoid issues
 	}
 	return 1;
 }
@@ -155,7 +156,8 @@ void JoystickInput(int buttons, int axes[4], int presentmask)
 	fix elapsedtime = curtime - lasttime;
 	for (int btn = 0; btn < MAX_BUTTONS; btn++)
 	{
-		if (buttons & (1 << btn))
+		//[ISB] Increment the bit by one, so button 0 can actually be read
+		if (buttons & (1 << (btn+1)))
 		{
 			if (!joystick.buttons[btn].down)
 			{

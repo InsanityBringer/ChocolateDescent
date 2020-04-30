@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
+#include "platform/posixstub.h"
 #include "misc/types.h"
 #include "inferno.h"
 #include "2d/gr.h"
@@ -38,6 +39,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile/cfile.h"
 #include "newmenu.h"
 #include "2d/i_gr.h"
+
+int piggy_is_substitutable_bitmap(char* name, char* subst_name);
 
 //#define NO_DUMP_SOUNDS	1		//if set, dump bitmaps but not sounds
 

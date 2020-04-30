@@ -34,8 +34,7 @@ void free_text()
 }
 
 // rotates a byte left one bit, preserving the bit falling off the right
-void
-encode_rotate_left(char *c)
+void encode_rotate_left(char *c)
 {
 	int found;
 
@@ -64,7 +63,7 @@ void load_text()
 	CFILE *ifile;
 	int len,i, have_binary = 0;
 	char *tptr;
-	char *filename="descent.tex";
+	const char *filename="descent.tex";
 
 	if ((i=FindArg("-text"))!=0)
 		filename = Args[i+1];

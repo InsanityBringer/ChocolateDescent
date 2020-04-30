@@ -354,7 +354,8 @@ void read_polygon_models(CFILE *fp, int inNumPolygonModelsToRead, int inOffset)
 	{
 		Polygon_models[i].n_models = cfile_read_int(fp);
 		Polygon_models[i].model_data_size = cfile_read_int(fp);
-		Polygon_models[i].model_data = (uint8_t *)cfile_read_int(fp);
+		/*Polygon_models[i].model_data = (uint8_t *)*/cfile_read_int(fp);
+		Polygon_models[i].model_data = NULL; //shut up compiler warning, data isn't useful anyways
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			Polygon_models[i].submodel_ptrs[j] = cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
@@ -765,7 +766,7 @@ void bm_read_extra_robots(char *fname,int type)
 	cfclose(fp);
 }
 
-extern void change_filename_extension( char *dest, char *src, char *new_ext );
+extern void change_filename_extension( char *dest, const char *src, const char *new_ext );
 
 int Robot_replacements_loaded = 0;
 

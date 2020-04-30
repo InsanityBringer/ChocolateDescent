@@ -19,6 +19,7 @@ static char rcsid[] = "$Id: hash.c 2.2 1995/08/17 11:32:54 matt Exp $";
 #include <stdio.h>
 #include <string.h>
 
+#include "platform/posixstub.h"
 #include "error.h"
 #include "hash.h"
 

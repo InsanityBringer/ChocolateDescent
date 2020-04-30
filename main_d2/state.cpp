@@ -20,13 +20,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-//#include <unistd.h>
 #include <errno.h>
-#ifdef MACINTOSH
-#include <Files.h>
-#endif
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
+#include "platform/posixstub.h"
 #include "platform/mono.h"
 #include "inferno.h"
 #include "segment.h"
@@ -293,7 +290,7 @@ int state_get_restore_file(char* fname, int multi)
 	int valid;
 
 	nsaves = 0;
-	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
+	m[0].type = NM_TYPE_TEXT; m[0].text = const_cast<char*>("\n\n\n\n");
 	for (i = 0; i < NUM_SAVES + 1; i++)
 	{
 		sc_bmp[i] = NULL;
@@ -393,7 +390,7 @@ int state_get_restore_file(char* fname, int multi)
 
 //	-----------------------------------------------------------------------------------
 //	Return true if the file named *filename exists, else return false.
-int file_exists(char* filename)
+int file_exists(const char* filename)
 {
 	FILE* fp;
 
@@ -410,7 +407,7 @@ int file_exists(char* filename)
 
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...
-int copy_file(char* old_file, char* new_file)
+int copy_file(const char* old_file, const char* new_file)
 {
 	int8_t	buf[CF_BUF_SIZE];
 	FILE* in_file, * out_file;
@@ -453,13 +450,8 @@ int copy_file(char* old_file, char* new_file)
 	return 0;
 }
 
-#ifndef MACINTOSH
 #define SECRETB_FILENAME	"secret.sgb"
 #define SECRETC_FILENAME	"secret.sgc"
-#else
-#define SECRETB_FILENAME	":Players:secret.sgb"
-#define SECRETC_FILENAME	":Players:secret.sgc"
-#endif
 
 extern int Final_boss_is_dead;
 int state_save_all_sub(char* filename, char* desc, int between_levels);

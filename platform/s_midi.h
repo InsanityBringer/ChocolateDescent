@@ -25,15 +25,13 @@ as described in copying.txt
 #define _MIDI_OPL3 0xA009
 #define _MIDI_GUS 0xA00A
 
-#define MIDI_TICKSPERSECOND 120
 #define MIDI_SAMPLERATE 44100
-#define MIDI_SAMPLESPERTICK (MIDI_SAMPLERATE / 120)
 
 extern char SoundFontFilename[];
 
 typedef struct
 {
-	int delta;
+	uint64_t delta;
 
 	uint8_t channel;
 	uint8_t type;
@@ -55,7 +53,7 @@ typedef struct
 
 	//Track sequencing data
 	int nextEvent; //Next event to play, -1 if this track is finished
-	int nextEventTime; //At what MIDI tick should this event be played?
+	uint64_t nextEventTime; //At what MIDI tick should this event be played? In samples
 } midichunk_t;
 
 typedef struct
@@ -65,6 +63,9 @@ typedef struct
 	int numChunks;
 	int bpm;
 	int seconds;
+
+	//Go straight to this offset when looping the song
+	int loopStart;
 
 	midichunk_t* chunks;
 } hmpheader_t;
@@ -92,8 +93,9 @@ class MidiSynth
 	MidiSequencer* sequencer;
 public:
 	virtual int ClassifySynth() = 0;
+	virtual void SetSampleRate(uint32_t newSampleRate) = 0;
 	virtual void DoMidiEvent(midievent_t* ev) = 0;
-	virtual void RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer) = 0;
+	virtual void RenderMIDI(int numTicks, unsigned short* buffer) = 0;
 	virtual void StopSound() = 0;
 	virtual void Shutdown() = 0;
 };
@@ -102,8 +104,9 @@ class DummyMidiSynth : public MidiSynth
 {
 public:
 	int ClassifySynth() override { return MIDISYNTH_SOFT; }
+	void SetSampleRate(uint32_t newSampleRate) override { }
 	void DoMidiEvent(midievent_t* ev) override { }
-	void RenderMIDI(int numTicks, int samplesPerTick, unsigned short* buffer) override { }
+	void RenderMIDI(int numTicks, unsigned short* buffer) override { }
 	void StopSound() override { }
 	void Shutdown() override { }
 };
@@ -120,6 +123,7 @@ class MidiPlayer
 	hmpheader_t* nextSong;
 	hmpheader_t* curSong;
 	bool nextLoop;
+	std::thread *midiThread;
 	std::mutex songMutex;
 
 	uint16_t* songBuffer;
@@ -136,7 +140,10 @@ class MidiPlayer
 public:
 	MidiPlayer(MidiSequencer *newSequencer, MidiSynth *newSynth);
 	void SetSong(hmpheader_t* song, bool loop);
+	void Start();
 	void StopSong();
 	void Run();
 	void Shutdown();
+	//dumb things, pls improve
+	bool IsError();
 };

@@ -18,38 +18,66 @@ as described in copying.txt.
 
 //sequencerstate_t Sequencer;
 
-MidiSequencer::MidiSequencer(MidiSynth* newSynth)
+MidiSequencer::MidiSequencer(MidiSynth* newSynth, int newSampleRate)
 {
 	synth = newSynth;
 	lastRenderedTick = nextTick = ticks = 0;
 	song = nullptr;
 	loop = false;
-	sampleRate = MIDI_SAMPLERATE;
-	samplesPerTick = MIDI_SAMPLESPERTICK;
+	sampleRate = newSampleRate;
+}
+
+MidiSynth* MidiSequencer::GetSynth()
+{
+	return synth;
 }
 
 int MidiSequencer::StartSong(hmpheader_t* newSong, bool newLoop)
 {
 	song = newSong;
 	loop = newLoop;
-	samplesPerTick = MIDI_SAMPLESPERTICK; //[ISB] aaaaaa
-	RewindSong();
+	RewindSong(false);
 
 	return 0;
 }
 
-void MidiSequencer::RewindSong()
+void MidiSequencer::RewindSong(bool resetLoop)
 {
 	midichunk_t* chunk;
 	ticks = lastRenderedTick = 0;
+	int cumlTime;
 
 	for (int i = 0; i < song->numChunks; i++)
 	{
 		chunk = &song->chunks[i];
+		cumlTime = 0;
 		if (chunk->numEvents > 0)
 		{
-			chunk->nextEvent = 0;
-			chunk->nextEventTime = chunk->events[0].delta;
+			if (resetLoop)
+			{
+				chunk->nextEvent = 0;
+				chunk->nextEventTime = chunk->events[0].delta;
+				//Find the first event at or after the loop
+				//This will mess up on unaligned events, they'll play too early.
+				//Dan Wentz implies that events need to be aligned when discussing Descent MIDI composition,
+				//so maybe it's safe to assume HMI SOS would do the same? This should be investigated in detail. 
+				while (cumlTime < song->loopStart)
+				{
+					chunk->nextEvent++;
+					if (chunk->nextEvent >= chunk->numEvents) //not enough events
+					{
+						chunk->nextEvent = -1;
+						break;
+					}
+					cumlTime += chunk->nextEventTime;
+					chunk->nextEventTime = chunk->events[chunk->nextEvent].delta;
+				}
+			}
+			else
+			{
+				chunk->nextEvent = 0;
+				chunk->nextEventTime = chunk->events[0].delta;
+			}
 		}
 	}
 }
@@ -60,11 +88,12 @@ void MidiSequencer::StopSong()
 	song = nullptr;
 }
 
-int MidiSequencer::Tick()
+uint64_t MidiSequencer::Tick()
 {
 	int i;
 	int nextTick = INT_MAX;
 	midichunk_t* chunk;
+	midievent_t* ev;
 
 	for (i = 0; i < song->numChunks; i++)
 	{
@@ -72,7 +101,18 @@ int MidiSequencer::Tick()
 
 		while (chunk->nextEvent != -1 && chunk->nextEventTime == ticks)
 		{
-			synth->DoMidiEvent(&chunk->events[chunk->nextEvent]);
+			ev = &chunk->events[chunk->nextEvent];
+			//loop hack
+			if (loop) //Specs say to have loops on track 1 but this seems to vary some? I'm very frequently seeing it on Track 2
+			{
+				if (ev->type == EVENT_CONTROLLER && ev->param1 == 111)
+				{
+					//Cause an immediate rewind
+					//TODO: Evalulate whether or not the events on this tick should be played. descent2.com is unclear. 
+					return UINT64_MAX;
+				}
+			}
+			synth->DoMidiEvent(ev);
 			//chunk->nextEventTime += chunk->events[chunk->nextEvent].delta;
 			chunk->nextEvent++;
 			if (chunk->nextEvent >= chunk->numEvents)
@@ -103,16 +143,16 @@ int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 	//If there's no song, just render out the requested amount of ticks so that lingering notes fade out even over the fade to black
 	if (!song)
 	{
-		synth->RenderMIDI(ticksToRender, samplesPerTick, buffer);
+		synth->RenderMIDI(ticksToRender, buffer);
 		return ticksToRender;
 	}
 
-	int currentTick = lastRenderedTick;
-	int destinationTick = lastRenderedTick + ticksToRender;
+	uint64_t currentTick = lastRenderedTick;
+	uint64_t destinationTick = lastRenderedTick + ticksToRender;
 
-	int numTicks;
-	int numTicksRendered = 0;
-	int nextTick;
+	uint64_t numTicks;
+	uint64_t numTicksRendered = 0;
+	uint64_t nextTick;
 
 	bool done = false;
 
@@ -128,27 +168,27 @@ int MidiSequencer::Render(int ticksToRender, unsigned short* buffer)
 		//If there's still ticks to render, render them
 		if (numTicks > 0)
 		{
-			synth->RenderMIDI(numTicks, samplesPerTick, buffer);
+			synth->RenderMIDI(numTicks, buffer);
 			numTicksRendered += numTicks;
 			lastRenderedTick = currentTick;
-			buffer += samplesPerTick * numTicks * 2;
+			buffer += numTicks * 2;
 		}
 
 		if (currentTick == ticks) //Still ticks to render
 		{
 			nextTick = Tick();
-			if (nextTick == INT_MAX && loop)
+			if (nextTick == UINT64_MAX && loop)
 			{
 				//printf("Song end hit, looping!\n");
 				numTicks = ticks - lastRenderedTick; //Render as much as possible
 				if (numTicks > 0)
 				{
-					synth->RenderMIDI(numTicks, samplesPerTick, buffer);
+					synth->RenderMIDI(numTicks, buffer);
 					numTicksRendered += numTicks;
 					lastRenderedTick = currentTick;
-					buffer += samplesPerTick * numTicks * 2;
+					buffer += numTicks * 2;
 				}
-				RewindSong();
+				RewindSong(true);
 				done = true;
 			}
 			else

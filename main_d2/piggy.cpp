@@ -21,9 +21,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <dos.h>
 #include <errno.h>
 
+#include "platform/posixstub.h"
 #include "misc/types.h"
 #include "inferno.h"
 #include "2d/gr.h"
@@ -150,6 +150,9 @@ typedef struct DiskSoundHeader
 	int offset;
 } DiskSoundHeader;
 
+//Not as much as a problem since its longword aligned, but just in case
+#define SOUND_HEADER_SIZE 20
+
 uint8_t BigPig = 0;
 
 #ifdef MACINTOSH
@@ -173,7 +176,7 @@ void swap_0_255(grs_bitmap* bmp)
 }
 #endif
 
-bitmap_index piggy_register_bitmap(grs_bitmap* bmp, char* name, int in_file)
+bitmap_index piggy_register_bitmap(grs_bitmap* bmp, const char* name, int in_file)
 {
 	bitmap_index temp;
 	Assert(Num_bitmap_files < MAX_BITMAP_FILES);
@@ -203,7 +206,7 @@ bitmap_index piggy_register_bitmap(grs_bitmap* bmp, char* name, int in_file)
 	return temp;
 }
 
-int piggy_register_sound(digi_sound* snd, char* name, int in_file)
+int piggy_register_sound(digi_sound* snd, const char* name, int in_file)
 {
 	int i;
 
@@ -238,7 +241,7 @@ bitmap_index piggy_find_bitmap(char* name)
 		* t = 0;
 
 	for (i = 0; i < Num_aliases; i++)
-		if (_stricmp(name, alias_list[i].alias_name) == 0)
+		if (_strfcmp(name, alias_list[i].alias_name) == 0)
 		{
 			if (t) //extra stuff for ABMs
 			{
@@ -265,11 +268,11 @@ bitmap_index piggy_find_bitmap(char* name)
 	return bmp;
 }
 
-int piggy_find_sound(char* name)
+int piggy_find_sound(const char* name)
 {
 	int i;
 
-	i = hashtable_search(&AllDigiSndNames, name);
+	i = hashtable_search(&AllDigiSndNames, const_cast<char*>(name));
 
 	if (i < 0)
 		return 255;
@@ -305,59 +308,16 @@ int request_cd(void);
 
 //copies a pigfile from the CD to the current dir
 //retuns file handle of new pig
-CFILE* copy_pigfile_from_cd(char* filename)
+CFILE* copy_pigfile_from_cd(const char* filename)
 {
-	Error("Cannot copy PIG file from CD.\n");
-	/*
-	char name[80];
-	FILEFINDSTRUCT find;
-	int ret;
-
-	show_boxed_message("Copying bitmap data from CD...");
-	gr_palette_load(gr_palette);    //I don't think this line is really needed
-
-	//First, delete all PIG files currently in the directory
-
-	if( !FileFindFirst( "*.pig", &find ) ) {
-		do      {
-			remove(find.name);
-		} while( !FileFindNext( &find ) );
-		FileFindClose();
-	}
-
-	//Now, copy over new pig
-
-	songs_stop_redbook();           //so we can read off the cd
-
-	//new code to unarj file
-	strcpy(name,CDROM_dir);
-	strcat(name,"descent2.sow");
-
-	do {
-		ret = unarj_specific_file(name,filename,filename);
-
-		if (ret != EXIT_SUCCESS) {
-
-			//delete file, so we don't leave partial file
-			remove(filename);
-
-			#ifndef MACINTOSH
-			if (request_cd() == -1)
-			#endif
-				//NOTE LINK TO ABOVE IF
-				Error("Cannot load file <%s> from CD",filename);
-		}
-
-	} while (ret != EXIT_SUCCESS);
-
-	return cfopen(filename, "rb");*/
+	Error("Cannot copy PIG file from CD. stub function\n");
 	return NULL;
 }
 
 
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
-void piggy_init_pigfile(char* filename)
+void piggy_init_pigfile(const char* filename)
 {
 	int i;
 	char temp_name[16];
@@ -372,7 +332,7 @@ void piggy_init_pigfile(char* filename)
 	piggy_close_file();             //close old pig if still open
 
 #ifdef SHAREWARE                //rename pigfile for shareware
-	if (stricmp(filename, DEFAULT_PIGFILE_REGISTERED) == 0)
+	if (strfcmp(filename, DEFAULT_PIGFILE_REGISTERED) == 0)
 		filename = DEFAULT_PIGFILE_SHAREWARE;
 #endif
 
@@ -478,7 +438,7 @@ extern int compute_average_pixel(grs_bitmap * newbm);
 
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
-void piggy_new_pigfile(char* pigname)
+void piggy_new_pigfile(const char* pigname)
 {
 	int i;
 	char temp_name[16];
@@ -492,11 +452,11 @@ void piggy_new_pigfile(char* pigname)
 #endif
 
 #ifdef SHAREWARE                //rename pigfile for shareware
-	if (stricmp(pigname, DEFAULT_PIGFILE_REGISTERED) == 0)
+	if (strfcmp(pigname, DEFAULT_PIGFILE_REGISTERED) == 0)
 		pigname = DEFAULT_PIGFILE_SHAREWARE;
 #endif
 
-	if (_strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0)
+	if (_strnfcmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0)
 		return;         //already have correct pig
 
 	if (!Pigfile_initialized) //have we ever opened a pigfile?
@@ -514,8 +474,8 @@ void piggy_new_pigfile(char* pigname)
 	Piggy_fp = cfopen(pigname, "rb");
 
 #ifndef EDITOR
-	if (!Piggy_fp)
-		Piggy_fp = copy_pigfile_from_cd(pigname);
+	//if (!Piggy_fp)
+	//	Piggy_fp = copy_pigfile_from_cd(pigname);
 #endif
 
 	if (Piggy_fp) //make sure pig is valid type file & is up-to-date
@@ -852,7 +812,7 @@ int read_sndfile()
 	length = size;
 	mprintf((0, "\nReading data (%d KB) ", size / 1024));
 
-	header_size = N_sounds * sizeof(DiskSoundHeader);
+	header_size = N_sounds * SOUND_HEADER_SIZE;
 
 	//Read sounds
 
@@ -1032,7 +992,7 @@ extern int descent_critical_error;
 extern unsigned descent_critical_deverror;
 extern unsigned descent_critical_errcode;
 
-char* crit_errors[13] = { "Write Protected", "Unknown Unit", "Drive Not Ready", "Unknown Command", "CRC Error", \
+const char* crit_errors[13] = { "Write Protected", "Unknown Unit", "Drive Not Ready", "Unknown Command", "CRC Error", \
 "Bad struct length", "Seek Error", "Unknown media type", "Sector not found", "Printer out of paper", "Write Fault", \
 "Read fault", "General Failure" };
 
@@ -1190,9 +1150,9 @@ void piggy_load_level_data()
 
 #ifdef EDITOR
 
-void change_filename_ext(char* dest, char* src, char* ext);
+void change_filename_ext(char* dest, const char* src, const char* ext);
 
-void piggy_write_pigfile(char* filename)
+void piggy_write_pigfile(const char* filename)
 {
 	FILE* pig_fp;
 	int bitmap_data_start, data_offset;
@@ -1460,7 +1420,7 @@ int piggy_does_bitmap_exist_slow(char* name)
 
 
 #define NUM_GAUGE_BITMAPS 23
-char* gauge_bitmap_names[NUM_GAUGE_BITMAPS] = {
+const char* gauge_bitmap_names[NUM_GAUGE_BITMAPS] = {
 	"gauge01", "gauge01b",
 	"gauge02", "gauge02b",
 	"gauge06", "gauge06b",

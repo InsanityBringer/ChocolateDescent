@@ -23,7 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-//#include <dos.h> [ISB] does every last file really need to include DOS
 #include <malloc.h>
 #include <inttypes.h>
 

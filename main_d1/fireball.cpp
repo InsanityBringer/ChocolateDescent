@@ -13,6 +13,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <string.h>
+#include "misc/rand.h"
 #include "misc/error.h"
 #include "3d/3d.h"
 #include "inferno.h"
@@ -264,11 +265,11 @@ object* object_create_debris(object* parent, int subobj_num)
 
 	po = &Polygon_models[obj->rtype.pobj_info.model_num];
 
-	obj->mtype.phys_info.velocity.x = RAND_MAX / 2 - rand();
-	obj->mtype.phys_info.velocity.y = RAND_MAX / 2 - rand();
-	obj->mtype.phys_info.velocity.z = RAND_MAX / 2 - rand();
+	obj->mtype.phys_info.velocity.x = PRAND_MAX / 2 - P_Rand();
+	obj->mtype.phys_info.velocity.y = PRAND_MAX / 2 - P_Rand();
+	obj->mtype.phys_info.velocity.z = PRAND_MAX / 2 - P_Rand();
 	vm_vec_normalize_quick(&obj->mtype.phys_info.velocity);
-	vm_vec_scale(&obj->mtype.phys_info.velocity, i2f(10 + (30 * rand() / RAND_MAX)));
+	vm_vec_scale(&obj->mtype.phys_info.velocity, i2f(10 + (30 * P_Rand() / PRAND_MAX)));
 
 	vm_vec_add2(&obj->mtype.phys_info.velocity, &parent->mtype.phys_info.velocity);
 
@@ -357,8 +358,8 @@ int pick_connected_segment(object * objp, int max_depth)
 		tail &= QUEUE_SIZE - 1;
 
 		//	to make random, switch a pair of entries in side_rand.
-		ind1 = (rand() * MAX_SIDES_PER_SEGMENT) >> 15;
-		ind2 = (rand() * MAX_SIDES_PER_SEGMENT) >> 15;
+		ind1 = (P_Rand() * MAX_SIDES_PER_SEGMENT) >> 15;
+		ind2 = (P_Rand() * MAX_SIDES_PER_SEGMENT) >> 15;
 		temp = side_rand[ind1];
 		side_rand[ind1] = side_rand[ind2];
 		side_rand[ind2] = temp;
@@ -410,15 +411,15 @@ int choose_drop_segment(void)
 {
 	int	pnum = 0;
 	int	segnum = -1;
-	int	initial_drop_depth = BASE_NET_DROP_DEPTH + ((rand() * 10) >> 15);
+	int	initial_drop_depth = BASE_NET_DROP_DEPTH + ((P_Rand() * 10) >> 15);
 	int	cur_drop_depth = initial_drop_depth;
 	int	count;
 
-	srand(timer_get_fixed_seconds());
+	P_SRand(timer_get_fixed_seconds());
 
 	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH / 2)) 
 	{
-		pnum = (rand() * N_players) >> 15;
+		pnum = (P_Rand() * N_players) >> 15;
 		count = 0;
 		while ((Players[pnum].connected == 0) && (count < N_players)) 
 		{
@@ -429,7 +430,7 @@ int choose_drop_segment(void)
 		if (count == N_players) 
 		{
 			mprintf((1, "Warning: choose_drop_segment: Couldn't find legal drop segment because no connected players.\n"));
-			return (rand() * Highest_segment_index) >> 15;
+			return (P_Rand() * Highest_segment_index) >> 15;
 		}
 
 		segnum = pick_connected_segment(&Objects[Players[pnum].objnum], cur_drop_depth);
@@ -441,7 +442,7 @@ int choose_drop_segment(void)
 	if (segnum == -1) 
 	{
 		mprintf((1, "Warning: Unable to find a connected segment.  Picking a random one.\n"));
-		return (rand() * Highest_segment_index) >> 15;
+		return (P_Rand() * Highest_segment_index) >> 15;
 	}
 	else
 		return segnum;
@@ -460,7 +461,7 @@ void maybe_drop_net_powerup(int powerup_type)
 			return;
 
 		segnum = choose_drop_segment();
-		//--old-- 		segnum = (rand() * Highest_segment_index) >> 15;
+		//--old-- 		segnum = (P_Rand() * Highest_segment_index) >> 15;
 		//--old-- 		Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 		//--old-- 		if (segnum < 0)
 		//--old-- 			segnum = -segnum;
@@ -576,7 +577,7 @@ void maybe_replace_powerup_with_energy(object* del_obj)
 	{
 		if ((player_has_weapon(weapon_index, 0) & HAS_WEAPON_FLAG) || weapon_nearby(del_obj, del_obj->contains_id)) 
 		{
-			if (rand() > 16384) 
+			if (P_Rand() > 16384) 
 			{
 				del_obj->contains_count = 1;
 				del_obj->contains_type = OBJ_POWERUP;
@@ -596,7 +597,7 @@ void maybe_replace_powerup_with_energy(object* del_obj)
 	else if (del_obj->contains_id == POW_QUAD_FIRE)
 		if ((Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, del_obj->contains_id)) 
 		{
-			if (rand() > 16384) 
+			if (P_Rand() > 16384) 
 			{
 				del_obj->contains_count = 1;
 				del_obj->contains_type = OBJ_POWERUP;
@@ -672,9 +673,9 @@ int object_create_egg(object* objp)
 			else
 				rand_scale = 2;
 
-			new_velocity.x += fixmul(old_mag + F1_0 * 32, rand() * rand_scale - 16384 * rand_scale);
-			new_velocity.y += fixmul(old_mag + F1_0 * 32, rand() * rand_scale - 16384 * rand_scale);
-			new_velocity.z += fixmul(old_mag + F1_0 * 32, rand() * rand_scale - 16384 * rand_scale);
+			new_velocity.x += fixmul(old_mag + F1_0 * 32, P_Rand() * rand_scale - 16384 * rand_scale);
+			new_velocity.y += fixmul(old_mag + F1_0 * 32, P_Rand() * rand_scale - 16384 * rand_scale);
+			new_velocity.z += fixmul(old_mag + F1_0 * 32, P_Rand() * rand_scale - 16384 * rand_scale);
 
 			// Give keys zero velocity so they can be tracked better in multi
 
@@ -682,9 +683,9 @@ int object_create_egg(object* objp)
 				vm_vec_zero(&new_velocity);
 
 			new_pos = objp->pos;
-			//				new_pos.x += (rand()-16384)*8;
-			//				new_pos.y += (rand()-16384)*8;
-			//				new_pos.z += (rand()-16384)*8;
+			//				new_pos.x += (P_Rand()-16384)*8;
+			//				new_pos.y += (P_Rand()-16384)*8;
+			//				new_pos.z += (P_Rand()-16384)*8;
 
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)
@@ -734,13 +735,13 @@ int object_create_egg(object* objp)
 			case POW_MISSILE_4:
 			case POW_SHIELD_BOOST:
 			case POW_ENERGY:
-				obj->lifeleft = (rand() + F1_0 * 3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
+				obj->lifeleft = (P_Rand() + F1_0 * 3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
 				if (Game_mode & GM_MULTI)
 					obj->lifeleft /= 2;
 				break;
 			default:
 				//						if (Game_mode & GM_MULTI)
-				//							obj->lifeleft = (rand() + F1_0*3) * 64;		//	Lives for 5 to 5.5 binary minutes (a binary minute is 64 seconds)
+				//							obj->lifeleft = (P_Rand() + F1_0*3) * 64;		//	Lives for 5 to 5.5 binary minutes (a binary minute is 64 seconds)
 				break;
 			}
 		}
@@ -761,17 +762,17 @@ int object_create_egg(object* objp)
 //				else
 			rand_scale = 2;
 
-			new_velocity.x += (rand() - 16384) * 2;
-			new_velocity.y += (rand() - 16384) * 2;
-			new_velocity.z += (rand() - 16384) * 2;
+			new_velocity.x += (P_Rand() - 16384) * 2;
+			new_velocity.y += (P_Rand() - 16384) * 2;
+			new_velocity.z += (P_Rand() - 16384) * 2;
 
 			vm_vec_normalize_quick(&new_velocity);
 			vm_vec_scale(&new_velocity, (F1_0 * 32 + old_mag) * rand_scale);
 			new_pos = objp->pos;
 			//	This is dangerous, could be outside mine.
-//				new_pos.x += (rand()-16384)*8;
-//				new_pos.y += (rand()-16384)*7;
-//				new_pos.z += (rand()-16384)*6;
+//				new_pos.x += (P_Rand()-16384)*8;
+//				new_pos.y += (P_Rand()-16384)*7;
+//				new_pos.z += (P_Rand()-16384)*6;
 
 			objnum = obj_create(OBJ_ROBOT, objp->contains_id, objp->segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[ObjId[objp->contains_type]].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
@@ -1030,9 +1031,9 @@ void do_explosion_sequence(object* obj)
 			robot_info* robptr = &Robot_info[del_obj->id];
 			if (robptr->contains_count) 
 			{
-				if (((rand() * 16) >> 15) < robptr->contains_prob) 
+				if (((P_Rand() * 16) >> 15) < robptr->contains_prob) 
 				{
-					del_obj->contains_count = ((rand() * robptr->contains_count) >> 15) + 1;
+					del_obj->contains_count = ((P_Rand() * robptr->contains_count) >> 15) + 1;
 					del_obj->contains_type = robptr->contains_type;
 					del_obj->contains_id = robptr->contains_id;
 					maybe_replace_powerup_with_energy(del_obj);
@@ -1208,8 +1209,8 @@ void do_exploding_wall_frame()
 				vm_vec_sub(&vv0, v0, v1);
 				vm_vec_sub(&vv1, v2, v1);
 
-				vm_vec_scale_add(&pos, v1, &vv0, rand() * 2);
-				vm_vec_scale_add2(&pos, &vv1, rand() * 2);
+				vm_vec_scale_add(&pos, v1, &vv0, P_Rand() * 2);
+				vm_vec_scale_add2(&pos, &vv1, P_Rand() * 2);
 
 				size = EXPL_WALL_FIREBALL_SIZE + (2 * EXPL_WALL_FIREBALL_SIZE * e / EXPL_WALL_TOTAL_FIREBALLS);
 

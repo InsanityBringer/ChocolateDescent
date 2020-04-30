@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <algorithm>
+#include "misc/rand.h"
 #include "inferno.h"
 #include "game.h"
 #include "platform/key.h"
@@ -1650,7 +1651,7 @@ void diminish_palette_towards_normal(void)
 	//	Diminish at DIMINISH_RATE units/second.
 	//	For frame rates > DIMINISH_RATE Hz, use randomness to achieve this.
 	if (FrameTime < F1_0 / DIMINISH_RATE) {
-		if (rand() < FrameTime * DIMINISH_RATE / 2)	//	Note: rand() is in 0..32767, and 8 Hz means decrement every frame
+		if (P_Rand() < FrameTime * DIMINISH_RATE / 2)	//	Note: P_Rand() is in 0..32767, and 8 Hz means decrement every frame
 			dec_amount = 1;
 	}
 	else {
@@ -1862,9 +1863,11 @@ int do_game_pause(int allow_menu)
 	gr_palette_load(gr_palette);
 
 	show_boxed_message(TXT_PAUSE);
+	//I_DrawCurrentCanvas(0);
 
 	while (paused) 
 	{
+		I_MarkStart();
 		I_DrawCurrentCanvas(0);
 		I_DoEvents();
 		key = key_getch();
@@ -1900,6 +1903,8 @@ int do_game_pause(int allow_menu)
 			paused = 0;
 			break;
 		}
+
+		I_MarkEnd(1000000 / FPSLimit);
 	}
 
 	game_flush_inputs();
@@ -2264,6 +2269,9 @@ void game()
 			if (Function_mode != FMODE_GAME)
 				longjmp(LeaveGame, 0);
 
+			//[ISB] assumption is that anything calling without renderflag (basically network mode) will already be updating. 
+			I_DrawCurrentCanvas(0);
+			I_DoEvents();
 			//waiting loop for polled fps mode
 			uint64_t numUS = 1000000 / FPSLimit;
 			//[ISB] Combine a sleep with the polling loop to try to spare CPU cycles
@@ -2334,7 +2342,7 @@ grs_canvas* get_current_game_screen()
 uint8_t exploding_flag = 0;
 
 #ifdef EDITOR
-extern dump_used_textures_all();
+extern void dump_used_textures_all();
 #endif
 //extern kconfig_center_headset();
 
@@ -2986,7 +2994,7 @@ void ReadControls()
 		case KEY_F1: 				do_show_help();			break;
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();			break;
-		case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
+		//case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
 		case KEY_F5:
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_stop_recording();
@@ -3158,7 +3166,9 @@ void ReadControls()
 #ifdef EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
+#ifdef NETWORK
 			network_leave_game();
+#endif
 			Function_mode = FMODE_EDITOR;
 			break;
 
@@ -3288,7 +3298,8 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 {
 	static int desc_dead_countdown = 100;   /*  used if player shouldn't be playing */
 
-	I_DoEvents();
+	//I_DrawCurrentCanvas(0);
+	//I_DoEvents();
 	//[ISB] Okay I really don't want to track all the changes and mini loops and shit
 	//so the game loop will ensure the mouse is always in relative mode
 	I_SetRelative(1);
@@ -3349,8 +3360,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 	mem_fill();
 	mem_check();
 #endif
-
-	I_DrawCurrentCanvas(0);
 
 	calc_frame_time();
 
@@ -3456,7 +3465,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 						if (Fusion_charge > F1_0 * 2)
 						{
 							digi_play_sample(11, F1_0);
-							apply_damage_to_player(ConsoleObject, ConsoleObject, rand() * 4);
+							apply_damage_to_player(ConsoleObject, ConsoleObject, P_Rand() * 4);
 						}
 						else
 						{
@@ -3467,7 +3476,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 								multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
 #endif
 						}
-						Fusion_next_sound_time = GameTime + F1_0 / 8 + rand() / 4;
+						Fusion_next_sound_time = GameTime + F1_0 / 8 + P_Rand() / 4;
 					}
 				}
 			}
@@ -3488,8 +3497,8 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 
 				Global_laser_firing_count = 0;
 
-				ConsoleObject->mtype.phys_info.rotvel.x += (rand() - 16384) / 8;
-				ConsoleObject->mtype.phys_info.rotvel.z += (rand() - 16384) / 8;
+				ConsoleObject->mtype.phys_info.rotvel.x += (P_Rand() - 16384) / 8;
+				ConsoleObject->mtype.phys_info.rotvel.z += (P_Rand() - 16384) / 8;
 				make_random_vector(&rand_vec);
 
 				bump_amount = F1_0 * 4;
@@ -3626,7 +3635,7 @@ int mark_player_path_to_segment(int segnum)
 		obj->rtype.vclip_info.vclip_num = Powerup_info[obj->id].vclip_num;
 		obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 		obj->rtype.vclip_info.framenum = 0;
-		obj->lifeleft = F1_0 * 100 + rand() * 4;
+		obj->lifeleft = F1_0 * 100 + P_Rand() * 4;
 	}
 
 	mprintf((0, "\n"));

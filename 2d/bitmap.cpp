@@ -209,26 +209,23 @@ void gr_remap_bitmap_good(grs_bitmap* bmp, uint8_t* palette, int transparent_col
 	if ((transparent_color >= 0) && (transparent_color <= 255))
 		colormap[transparent_color] = 255;
 
-	decode_data_asm(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq);
+	//[ISB] From Descent 2, fixes automap bug
+	if (bmp->bm_w == bmp->bm_rowsize)
+		decode_data_asm(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq);
+	else 
+	{
+		int y;
+		uint8_t* p = bmp->bm_data;
+		for (y = 0; y < bmp->bm_h; y++, p += bmp->bm_rowsize)
+			decode_data_asm(p, bmp->bm_w, colormap, freq);
+	}
+	//decode_data_asm(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq);
 
 	if ((transparent_color >= 0) && (transparent_color <= 255) && (freq[transparent_color] > 0))
 		bmp->bm_flags |= BM_FLAG_TRANSPARENT;
 
 	if ((super_transparent_color >= 0) && (super_transparent_color <= 255) && (freq[super_transparent_color] > 0))
 		bmp->bm_flags |= BM_FLAG_SUPER_TRANSPARENT;
-}
-
-
-int gr_bitmap_assign_selector(grs_bitmap* bmp)
-{
-	//Warning("gr_bitmap_assign_selector: STUB\n");
-#if 0
-	if (!dpmi_allocate_selector(bmp->bm_data, bmp->bm_w * bmp->bm_h, &bmp->bm_selector)) {
-		bmp->bm_selector = 0;
-		return 1;
-	}
-#endif
-	return 0;
 }
 
 void gr_bitmap_check_transparency(grs_bitmap* bmp)
