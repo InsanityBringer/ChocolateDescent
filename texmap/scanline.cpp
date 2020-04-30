@@ -217,8 +217,8 @@ void c_tmap_scanline_per()
 	l = fx_l;
 	dldx = fx_dl_dx;
 	dest = (uint8_t*)(write_buffer + y_pointers[fx_y] + fx_xleft);
-	if (dldx < 0)
-		dldx++; //round towards 0 for negative deltas
+	//if (dldx < 0)
+	//	dldx++; //round towards 0 for negative deltas
 
 	if (!Transparency_on) 
 	{
