@@ -841,6 +841,61 @@ void c_tmap_scanline_pln_nolight()
 
 }
 
+#define zonk 1
+
+//[ISB] TODO: This isn't 100% correct to the original editor, since that based the editor tmap off of the per 16 texture mapper
+void c_tmap_scanline_editor()
+{
+	uint8_t* dest;
+	uint32_t c;
+	int x;
+	fix u, v, z, l, dudx, dvdx, dzdx, dldx;
+
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
+
+	u = fx_u;
+	v = fx_v;
+	z = fx_z;
+	dudx = fx_du_dx;
+	dvdx = fx_dv_dx;
+	dzdx = fx_dz_dx;
+
+	l = fx_l >> 8;
+	dldx = fx_dl_dx >> 8;
+	dest = (uint8_t*)(write_buffer + y_pointers[fx_y] + fx_xleft);
+	if (dldx < 0)
+		dldx++; //round towards 0 for negative deltas
+
+	if (!Transparency_on)
+	{
+		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
+		{
+			*dest++ = zonk;
+			l += dldx;
+			u += dudx;
+			v += dvdx;
+			z += dzdx;
+			if (z == 0) return;
+		}
+	}
+	else
+	{
+		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
+		{
+			c = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
+			if (c != 255)
+				*dest = zonk;
+			dest++;
+			l += dldx;
+			u += dudx;
+			v += dvdx;
+			z += dzdx;
+			if (z == 0) return;
+		}
+	}
+}
+
 #ifdef TEXMAP_ANTIALIAS
 //[ISB] I could have cfopen'ed a blendtbl.raw but this method is more disgusting I love it. 
 #include "blendtable.h"

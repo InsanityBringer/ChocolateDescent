@@ -316,6 +316,8 @@ fix compute_dz_dy(g3ds_tmap* t, int top_vertex, int bottom_vertex, fix recip_dy)
 }
 int Skip_short_flag = 0;
 
+extern void c_tmap_scanline_editor();
+
 // -------------------------------------------------------------------------------------
 //	Texture map current scanline in perspective.
 // -------------------------------------------------------------------------------------
@@ -415,7 +417,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, fix xleft, fix xright, fix 
 		fx_xright = f2i(xright);
 		fx_xleft = f2i(xleft);
 
-		//asm_tmap_scanline_matt(); //[ISB] todo
+		c_tmap_scanline_editor();
 #else
 		Int3();	//	Illegal, called an editor only routine!
 #endif
