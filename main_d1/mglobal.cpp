@@ -32,7 +32,9 @@ int FrameCount = 0;
 
 //	This is the global mine which create_new_mine returns.
 segment	Segments[MAX_SEGMENTS];
-//lsegment	Lsegments[MAX_SEGMENTS];
+#ifdef RESTORE_REPAIRCENTER
+lsegment	Lsegments[MAX_SEGMENTS];
+#endif
 
 // Number of vertices in current mine (ie, Vertices, pointed to by Vp)
 int		Num_vertices = 0;

@@ -1196,11 +1196,22 @@ void game_draw_hud_stuff()
 {
 
 #ifndef NDEBUG
-	if (Debug_pause) {
+	if (Debug_pause)
+	{
 		gr_set_curfont(HELP_FONT);
 		gr_set_fontcolor(gr_getcolor(31, 31, 31), -1); // gr_getcolor(31,0,0));
 		gr_ustring(0x8000, 85 / 2, "Debug Pause - Press P to exit");
 	}
+#endif
+
+#ifdef RESTORE_REPAIRCENTER
+ 	if (RepairObj) 
+	{
+ 		gr_set_curfont( HELP_FONT );
+ 		gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
+ 		gr_ustring( 124, 10, "Repairing");
+ 		gr_ustring( 0x8000, 20, "Press SHIFT-Q to abort" );
+ 	}
 #endif
 
 #ifdef CROSSHAIR
@@ -1387,6 +1398,14 @@ void game_render_frame_mono(void)
 
 void game_render_frame()
 {
+#ifdef RESTORE_REPAIRCENTER
+ 	if (!check_lsegments_validity())
+	{
+ 		mprintf((1, "Oops, Lsegments array appears to be bogus.  Recomputing.\n"));
+ 		create_local_segment_data();
+ 	}
+#endif
+
 	set_screen_mode(SCREEN_GAME);
 
 	update_cockpits(0);

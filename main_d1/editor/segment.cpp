@@ -910,7 +910,9 @@ void med_compress_mine(void)
 	compress_vertices();
 	set_vertex_counts();
 
-	//--repair-- create_local_segment_data();
+#ifdef RESTORE_REPAIRCENTER
+	create_local_segment_data();
+#endif
 
 	//	This is necessary becuase a segment search (due to click in 3d window) uses the previous frame's
 	//	segment information, which could get changed by this.
@@ -1845,7 +1847,9 @@ int create_new_mine(void)
 	N_selected_segs = 0;
 	N_warning_segs = 0;
 
-	//--repair-- create_local_segment_data();
+#ifdef RESTORE_REPAIRCENTER
+	create_local_segment_data();
+#endif
 
 	ControlCenterTriggers.num_links = 0;
 

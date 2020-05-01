@@ -69,8 +69,10 @@ void fuelcen_update_all();
 // Called when hit by laser.
 //void fuelcen_damage(segment* segp, fix AmountOfDamage); //[ISB] cut
 
+#ifdef RESTORE_REPAIRCENTER
 // Called to repair an object
-//--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
+int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
+#endif
 
 #define MAX_NUM_FUELCENS	50
 
@@ -88,14 +90,16 @@ extern char Special_names[MAX_CENTER_TYPES][11];
 extern int Fuelcen_control_center_destroyed;
 extern int Fuelcen_seconds_left;
 
-//--repair-- //do the repair center for this frame
-//--repair-- void do_repair_sequence(object *obj);
-//--repair-- 
-//--repair-- //see if we should start the repair center
-//--repair-- void check_start_repair_center(object *obj);
-//--repair-- 
-//--repair-- //if repairing, cut it short
-//--repair-- abort_repair_center();
+#ifdef RESTORE_REPAIRCENTER
+//do the repair center for this frame
+void do_repair_sequence(object *obj);
+
+//see if we should start the repair center
+void check_start_repair_center(object *obj);
+
+//if repairing, cut it short
+void abort_repair_center();
+#endif
 
 typedef struct control_center_triggers {
 	short		num_links;
@@ -140,7 +144,9 @@ extern matcen_info RobotCenters[MAX_ROBOT_CENTERS];
 extern int Fuelcen_control_center_dead_modelnum;
 extern fix Fuelcen_control_center_strength;
 
-//--repair-- extern object *RepairObj;			//which object getting repaired, or NULL
+#ifdef RESTORE_REPAIRCENTER
+extern object *RepairObj;			//which object getting repaired, or NULL
+#endif
 
 //	Called when a materialization center gets triggered by the player flying through some trigger!
 extern void trigger_matcen(int segnum);

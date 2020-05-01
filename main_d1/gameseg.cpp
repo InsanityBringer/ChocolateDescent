@@ -839,74 +839,76 @@ int find_point_seg(vms_vector* p, int segnum)
 }
 
 
-//--repair-- //	------------------------------------------------------------------------------
-//--repair-- void clsd_repair_center(int segnum)
-//--repair-- {
-//--repair-- 	int	sidenum;
-//--repair-- 
-//--repair-- 	//	--- Set repair center bit for all repair center segments.
-//--repair-- 	if (Segments[segnum].special == SEGMENT_IS_REPAIRCEN) {
-//--repair-- 		Lsegments[segnum].special_type |= SS_REPAIR_CENTER;
-//--repair-- 		Lsegments[segnum].special_segment = segnum;
-//--repair-- 	}
-//--repair-- 
-//--repair-- 	//	--- Set repair center bit for all segments adjacent to a repair center.
-//--repair-- 	for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-//--repair-- 		int	s = Segments[segnum].children[sidenum];
-//--repair-- 
-//--repair-- 		if ( (s != -1) && (Segments[s].special==SEGMENT_IS_REPAIRCEN) ) {
-//--repair-- 			Lsegments[segnum].special_type |= SS_REPAIR_CENTER;
-//--repair-- 			Lsegments[segnum].special_segment = s;
-//--repair-- 		}
-//--repair-- 	}
-//--repair-- }
+#ifdef RESTORE_REPAIRCENTER
+//	------------------------------------------------------------------------------
+void clsd_repair_center(int segnum)
+{
+	int	sidenum;
 
-//--repair-- //	------------------------------------------------------------------------------
-//--repair-- //	--- Set destination points for all Materialization centers.
-//--repair-- void clsd_materialization_center(int segnum)
-//--repair-- {
-//--repair-- 	if (Segments[segnum].special == SEGMENT_IS_ROBOTMAKER) {
-//--repair-- 
-//--repair-- 	}
-//--repair-- }
-//--repair-- 
-//--repair-- int	Lsegment_highest_segment_index, Lsegment_highest_vertex_index;
-//--repair-- 
-//--repair-- //	------------------------------------------------------------------------------
-//--repair-- //	Create data specific to mine which doesn't get written to disk.
-//--repair-- //	Highest_segment_index and Highest_object_index must be valid.
-//--repair-- //	07/21:	set repair center bit
-//--repair-- void create_local_segment_data(void)
-//--repair-- {
-//--repair-- 	int	segnum;
-//--repair-- 
-//--repair-- 	//	--- Initialize all Lsegments.
-//--repair-- 	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
-//--repair-- 		Lsegments[segnum].special_type = 0;
-//--repair-- 		Lsegments[segnum].special_segment = -1;
-//--repair-- 	}
-//--repair-- 
-//--repair-- 	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
-//--repair-- 
-//--repair-- 		clsd_repair_center(segnum);
-//--repair-- 		clsd_materialization_center(segnum);
-//--repair-- 	
-//--repair-- 	}
-//--repair-- 
-//--repair-- 	//	Set check variables.
-//--repair-- 	//	In main game loop, make sure these are valid, else Lsegments is not valid.
-//--repair-- 	Lsegment_highest_segment_index = Highest_segment_index;
-//--repair-- 	Lsegment_highest_vertex_index = Highest_vertex_index;
-//--repair-- }
-//--repair-- 
-//--repair-- //	------------------------------------------------------------------------------------------
-//--repair-- //	Sort of makes sure create_local_segment_data has been called for the currently executing mine.
-//--repair-- //	It is not failsafe, as you will see if you look at the code.
-//--repair-- //	Returns 1 if Lsegments appears valid, 0 if not.
-//--repair-- int check_lsegments_validity(void)
-//--repair-- {
-//--repair-- 	return ((Lsegment_highest_segment_index == Highest_segment_index) && (Lsegment_highest_vertex_index == Highest_vertex_index));
-//--repair-- }
+	//	--- Set repair center bit for all repair center segments.
+	if (Segments[segnum].special == SEGMENT_IS_REPAIRCEN) {
+		Lsegments[segnum].special_type |= SS_REPAIR_CENTER;
+		Lsegments[segnum].special_segment = segnum;
+	}
+
+	//	--- Set repair center bit for all segments adjacent to a repair center.
+	for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
+		int	s = Segments[segnum].children[sidenum];
+
+		if ( (s != -1) && (Segments[s].special==SEGMENT_IS_REPAIRCEN) ) {
+			Lsegments[segnum].special_type |= SS_REPAIR_CENTER;
+			Lsegments[segnum].special_segment = s;
+		}
+	}
+}
+
+//	------------------------------------------------------------------------------
+//	--- Set destination points for all Materialization centers.
+void clsd_materialization_center(int segnum)
+{
+	if (Segments[segnum].special == SEGMENT_IS_ROBOTMAKER) {
+
+	}
+}
+
+int	Lsegment_highest_segment_index, Lsegment_highest_vertex_index;
+
+//	------------------------------------------------------------------------------
+//	Create data specific to mine which doesn't get written to disk.
+//	Highest_segment_index and Highest_object_index must be valid.
+//	07/21:	set repair center bit
+void create_local_segment_data(void)
+{
+	int	segnum;
+
+	//	--- Initialize all Lsegments.
+	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
+		Lsegments[segnum].special_type = 0;
+		Lsegments[segnum].special_segment = -1;
+	}
+
+	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
+
+		clsd_repair_center(segnum);
+		clsd_materialization_center(segnum);
+	
+	}
+
+	//	Set check variables.
+	//	In main game loop, make sure these are valid, else Lsegments is not valid.
+	Lsegment_highest_segment_index = Highest_segment_index;
+	Lsegment_highest_vertex_index = Highest_vertex_index;
+}
+
+//	------------------------------------------------------------------------------------------
+//	Sort of makes sure create_local_segment_data has been called for the currently executing mine.
+//	It is not failsafe, as you will see if you look at the code.
+//	Returns 1 if Lsegments appears valid, 0 if not.
+int check_lsegments_validity(void)
+{
+	return ((Lsegment_highest_segment_index == Highest_segment_index) && (Lsegment_highest_vertex_index == Highest_vertex_index));
+}
+#endif
 
 #define	MAX_LOC_POINT_SEGS	64
 

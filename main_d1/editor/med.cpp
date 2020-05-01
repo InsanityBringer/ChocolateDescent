@@ -429,9 +429,12 @@ int fuelcen_create_from_curseg()
 
 int repaircen_create_from_curseg()
 {
+#ifndef RESTORE_REPAIRCENTER
 	Int3();	//	-- no longer supported!
-//	Cursegp->special = SEGMENT_IS_REPAIRCEN;
-//	fuelcen_activate( Cursegp, Cursegp->special);
+#else
+	Cursegp->special = SEGMENT_IS_REPAIRCEN;
+	fuelcen_activate( Cursegp, Cursegp->special);
+#endif
 	return 1;
 }
 

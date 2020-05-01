@@ -127,10 +127,13 @@ extern void get_side_normals(segment* sp, int sidenum, vms_vector* vm1, vms_vect
 //	existing data on disk.
 #define	SS_REPAIR_CENTER	0x01				//	Bitmask for this segment being part of repair center.
 
-//--repair-- typedef struct {
-//--repair-- 	int	special_type;
-//--repair-- 	short	special_segment;						// if special_type indicates repair center, this is the base of the repair center
-//--repair-- } lsegment;
+#ifdef RESTORE_REPAIRCENTER
+typedef struct 
+{
+	int	special_type;
+	short	special_segment;						// if special_type indicates repair center, this is the base of the repair center
+} lsegment;
+#endif
 
 typedef struct {
 	int		num_segments;
@@ -142,7 +145,9 @@ typedef struct {
 // Globals from mglobal.c
 extern	vms_vector	Vertices[];
 extern	segment		Segments[];
-//--repair-- extern	lsegment		Lsegments[];
+#ifdef RESTORE_REPAIRCENTER
+extern	lsegment		Lsegments[];
+#endif
 extern	int			Num_segments;
 extern	int			Num_vertices;
 

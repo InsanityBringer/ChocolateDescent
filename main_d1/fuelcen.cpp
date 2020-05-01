@@ -823,275 +823,279 @@ fix fuelcen_give_fuel(segment* segp, fix MaxAmountCanTake)
 //--unused-- 	}
 //--unused-- }
 
-//--unused-- //	----------------------------------------------------------------------------------------------------------
-//--unused-- fixang my_delta_ang(fixang a,fixang b)
-//--unused-- {
-//--unused-- 	fixang delta0,delta1;
-//--unused-- 
-//--unused-- 	return (abs(delta0 = a - b) < abs(delta1 = b - a)) ? delta0 : delta1;
-//--unused-- 
-//--unused-- }
+#ifdef RESTORE_REPAIRCENTER
+//	----------------------------------------------------------------------------------------------------------
+fixang my_delta_ang(fixang a,fixang b)
+{
+	fixang delta0,delta1;
 
-//--unused-- //	----------------------------------------------------------------------------------------------------------
-//--unused-- //return though which side of seg0 is seg1
-//--unused-- int john_find_connect_side(int seg0,int seg1)
-//--unused-- {
-//--unused-- 	segment *Seg=&Segments[seg0];
-//--unused-- 	int i;
-//--unused-- 
-//--unused-- 	for (i=MAX_SIDES_PER_SEGMENT;i--;) if (Seg->children[i]==seg1) return i;
-//--unused-- 
-//--unused-- 	return -1;
-//--unused-- }
+	return (abs(delta0 = a - b) < abs(delta1 = b - a)) ? delta0 : delta1;
+
+}
 
 //	----------------------------------------------------------------------------------------------------------
-//--unused-- vms_angvec start_angles, delta_angles, goal_angles;
-//--unused-- vms_vector start_pos, delta_pos, goal_pos;
-//--unused-- int FuelStationSeg;
-//--unused-- fix current_time,delta_time;
-//--unused-- int next_side, side_index;
-//--unused-- int * sidelist;
+//return though which side of seg0 is seg1
+int john_find_connect_side(int seg0,int seg1)
+{
+	segment *Seg=&Segments[seg0];
+	int i;
+ 
+ 	for (i=MAX_SIDES_PER_SEGMENT;i--;) if (Seg->children[i]==seg1) return i;
 
-//--repair-- int Repairing;
-//--repair-- vms_vector repair_save_uvec;		//the player's upvec when enter repaircen
-//--repair-- object *RepairObj=NULL;		//which object getting repaired
-//--repair-- int disable_repair_center=0;
-//--repair-- fix repair_rate;
-//--repair-- #define FULL_REPAIR_RATE i2f(10)
+ 	return -1;
+ }
 
-//--unused-- uint8_t save_control_type,save_movement_type;
+//	----------------------------------------------------------------------------------------------------------
+vms_angvec start_angles, delta_angles, goal_angles;
+vms_vector start_pos, delta_pos, goal_pos;
+int FuelStationSeg;
+fix current_time,delta_time;
+int next_side, side_index;
+int * sidelist;
+int Repairing;
 
-//--unused-- int SideOrderBack[] = {WFRONT, WRIGHT, WTOP, WLEFT, WBOTTOM, WBACK};
-//--unused-- int SideOrderFront[] =  {WBACK, WLEFT, WTOP, WRIGHT, WBOTTOM, WFRONT};
-//--unused-- int SideOrderLeft[] =  { WRIGHT, WBACK, WTOP, WFRONT, WBOTTOM, WLEFT };
-//--unused-- int SideOrderRight[] =  { WLEFT, WFRONT, WTOP, WBACK, WBOTTOM, WRIGHT };
-//--unused-- int SideOrderTop[] =  { WBOTTOM, WLEFT, WBACK, WRIGHT, WFRONT, WTOP };
-//--unused-- int SideOrderBottom[] =  { WTOP, WLEFT, WFRONT, WRIGHT, WBACK, WBOTTOM };
+vms_vector repair_save_uvec;		//the player's upvec when enter repaircen
+object *RepairObj=NULL;		//which object getting repaired
+int disable_repair_center=0;
+fix repair_rate;
+#define FULL_REPAIR_RATE i2f(10)
 
-//--unused-- int SideUpVector[] = {WBOTTOM, WFRONT, WBOTTOM, WFRONT, WBOTTOM, WBOTTOM };
+uint8_t save_control_type,save_movement_type;
 
-//--repair-- //	----------------------------------------------------------------------------------------------------------
-//--repair-- void refuel_calc_deltas(object *obj, int next_side, int repair_seg)
-//--repair-- {
-//--repair-- 	vms_vector nextcenter, headfvec, *headuvec;
-//--repair-- 	vms_matrix goal_orient;
-//--repair-- 
-//--repair-- 	// Find time for this movement
-//--repair-- 	delta_time = F1_0;		// one second...
-//--repair-- 		
-//--repair-- 	// Find start and goal position
-//--repair-- 	start_pos = obj->pos;
-//--repair-- 	
-//--repair-- 	// Find delta position to get to goal position
-//--repair-- 	compute_segment_center(&goal_pos,&Segments[repair_seg]);
-//--repair-- 	vm_vec_sub( &delta_pos,&goal_pos,&start_pos);
-//--repair-- 	
-//--repair-- 	// Find start angles
-//--repair-- 	//angles_from_vector(&start_angles,&obj->orient.fvec);
-//--repair-- 	vm_extract_angles_matrix(&start_angles,&obj->orient);
-//--repair-- 	
-//--repair-- 	// Find delta angles to get to goal orientation
-//--repair-- 	med_compute_center_point_on_side(&nextcenter,&Segments[repair_seg],next_side);
-//--repair-- 	vm_vec_sub(&headfvec,&nextcenter,&goal_pos);
-//--repair-- 	//mprintf( (0, "Next_side = %d, Head fvec = %d,%d,%d\n", next_side, headfvec.x, headfvec.y, headfvec.z ));
-//--repair-- 
-//--repair-- 	if (next_side == 5)						//last side
-//--repair-- 		headuvec = &repair_save_uvec;
-//--repair-- 	else
-//--repair-- 		headuvec = &Segments[repair_seg].sides[SideUpVector[next_side]].normals[0];
-//--repair-- 
-//--repair-- 	vm_vector_2_matrix(&goal_orient,&headfvec,headuvec,NULL);
-//--repair-- 	vm_extract_angles_matrix(&goal_angles,&goal_orient);
-//--repair-- 	delta_angles.p = my_delta_ang(start_angles.p,goal_angles.p);
-//--repair-- 	delta_angles.b = my_delta_ang(start_angles.b,goal_angles.b);
-//--repair-- 	delta_angles.h = my_delta_ang(start_angles.h,goal_angles.h);
-//--repair-- 	current_time = 0;
-//--repair-- 	Repairing = 0;
-//--repair-- }
-//--repair-- 
-//--repair-- //	----------------------------------------------------------------------------------------------------------
-//--repair-- //if repairing, cut it short
-//--repair-- abort_repair_center()
-//--repair-- {
-//--repair-- 	if (!RepairObj || side_index==5)
-//--repair-- 		return;
-//--repair-- 
-//--repair-- 	current_time = 0;
-//--repair-- 	side_index = 5;
-//--repair-- 	next_side = sidelist[side_index];
-//--repair-- 	refuel_calc_deltas(RepairObj, next_side, FuelStationSeg);
-//--repair-- }
-//--repair-- 
-//--repair-- //	----------------------------------------------------------------------------------------------------------
-//--repair-- void repair_ship_damage()
-//--repair-- {
-//--repair--  	//mprintf((0,"Repairing ship damage\n"));
-//--repair-- }
-//--repair-- 
-//--repair-- //	----------------------------------------------------------------------------------------------------------
-//--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg )	{
-//--repair-- 
-//--repair-- 	obj->mtype.phys_info.velocity.x = 0;				
-//--repair-- 	obj->mtype.phys_info.velocity.y = 0;				
-//--repair-- 	obj->mtype.phys_info.velocity.z = 0;				
-//--repair-- 
-//--repair-- 	if (first_time)	{
-//--repair-- 		int entry_side;
-//--repair-- 		current_time = 0;
-//--repair-- 
-//--repair-- 		digi_play_sample( SOUND_REPAIR_STATION_PLAYER_ENTERING, F1_0 );
-//--repair-- 
-//--repair-- 		entry_side = john_find_connect_side(repair_seg,obj->segnum );
-//--repair-- 		Assert( entry_side > -1 );
-//--repair-- 
-//--repair-- 		switch( entry_side )	{
-//--repair-- 		case WBACK: sidelist = SideOrderBack; break;
-//--repair-- 		case WFRONT: sidelist = SideOrderFront; break;
-//--repair-- 		case WLEFT: sidelist = SideOrderLeft; break;
-//--repair-- 		case WRIGHT: sidelist = SideOrderRight; break;
-//--repair-- 		case WTOP: sidelist = SideOrderTop; break;
-//--repair-- 		case WBOTTOM: sidelist = SideOrderBottom; break;
-//--repair-- 		}
-//--repair-- 		side_index = 0;
-//--repair-- 		next_side = sidelist[side_index];
-//--repair-- 
-//--repair-- 		refuel_calc_deltas(obj,next_side, repair_seg);
-//--repair-- 	} 
-//--repair-- 
-//--repair-- 	//update shields
-//--repair-- 	if (Players[Player_num].shields < MAX_SHIELDS) {	//if above max, don't mess with it
-//--repair-- 
-//--repair-- 		Players[Player_num].shields += fixmul(FrameTime,repair_rate);
-//--repair-- 
-//--repair-- 		if (Players[Player_num].shields > MAX_SHIELDS)
-//--repair-- 			Players[Player_num].shields = MAX_SHIELDS;
-//--repair-- 	}
-//--repair-- 
-//--repair-- 	current_time += FrameTime;
-//--repair-- 
-//--repair-- 	if (current_time >= delta_time )	{
-//--repair-- 		vms_angvec av;
-//--repair-- 		obj->pos = goal_pos;
-//--repair-- 		av	= goal_angles;
-//--repair-- 		vm_angles_2_matrix(&obj->orient,&av);
-//--repair-- 
-//--repair-- 		if (side_index >= 5 )	
-//--repair-- 			return 1;		// Done being repaired...
-//--repair-- 
-//--repair-- 		if (Repairing==0)		{
-//--repair-- 			//mprintf( (0, "<MACHINE EFFECT ON SIDE %d>\n", next_side ));
-//--repair-- 			//digi_play_sample( SOUND_REPAIR_STATION_FIXING );
-//--repair-- 			Repairing=1;
-//--repair-- 
-//--repair-- 			switch( next_side )	{
-//--repair-- 			case 0:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_1,F1_0 ); break;
-//--repair-- 			case 1:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_2,F1_0 ); break;
-//--repair-- 			case 2:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_3,F1_0 ); break;
-//--repair-- 			case 3:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_4,F1_0 ); break;
-//--repair-- 			case 4:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_1,F1_0 ); break;
-//--repair-- 			case 5:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_2,F1_0 ); break;
-//--repair-- 			}
-//--repair-- 		
-//--repair-- 			repair_ship_damage();
-//--repair-- 
-//--repair-- 		}
-//--repair-- 
-//--repair-- 		if (current_time >= (delta_time+(F1_0/2)) )	{
-//--repair-- 			current_time = 0;
-//--repair-- 			// Find next side...
-//--repair-- 			side_index++;
-//--repair-- 			if (side_index >= 6 ) return 1;
-//--repair-- 			next_side = sidelist[side_index];
-//--repair-- 	
-//--repair-- 			refuel_calc_deltas(obj, next_side, repair_seg);
-//--repair-- 		}
-//--repair-- 
-//--repair-- 	} else {
-//--repair-- 		fix factor, p,b,h;	
-//--repair-- 		vms_angvec av;
-//--repair-- 
-//--repair-- 		factor = fixdiv( current_time,delta_time );
-//--repair-- 
-//--repair-- 		// Find object's current position
-//--repair-- 		obj->pos = delta_pos;
-//--repair-- 		vm_vec_scale( &obj->pos, factor );
-//--repair-- 		vm_vec_add2( &obj->pos, &start_pos );
-//--repair-- 			
-//--repair-- 		// Find object's current orientation
-//--repair-- 		p	= fixmul(delta_angles.p,factor);
-//--repair-- 		b	= fixmul(delta_angles.b,factor);
-//--repair-- 		h	= fixmul(delta_angles.h,factor);
-//--repair-- 		av.p = (fixang)p + start_angles.p;
-//--repair-- 		av.b = (fixang)b + start_angles.b;
-//--repair-- 		av.h = (fixang)h + start_angles.h;
-//--repair-- 		vm_angles_2_matrix(&obj->orient,&av);
-//--repair-- 
-//--repair-- 	}
-//--repair-- 
-//--repair-- 	update_object_seg(obj);		//update segment
-//--repair-- 
-//--repair-- 	return 0;
-//--repair-- }
-//--repair-- 
-//--repair-- //	----------------------------------------------------------------------------------------------------------
-//--repair-- //do the repair center for this frame
-//--repair-- void do_repair_sequence(object *obj)
-//--repair-- {
-//--repair-- 	Assert(obj == RepairObj);
-//--repair-- 
-//--repair-- 	if (refuel_do_repair_effect( obj, 0, FuelStationSeg )) {
-//--repair-- 		if (Players[Player_num].shields < MAX_SHIELDS)
-//--repair-- 			Players[Player_num].shields = MAX_SHIELDS;
-//--repair-- 		obj->control_type = save_control_type;
-//--repair-- 		obj->movement_type = save_movement_type;
-//--repair-- 		disable_repair_center=1;
-//--repair-- 		RepairObj = NULL;
-//--repair-- 
-//--repair-- 
-//--repair-- 		//the two lines below will spit the player out of the rapair center,
-//--repair-- 		//but what happen is that the ship just bangs into the door
-//--repair-- 		//if (obj->movement_type == MT_PHYSICS)
-//--repair-- 		//	vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&obj->orient.fvec,i2f(200));
-//--repair-- 	}
-//--repair-- 
-//--repair-- }
-//--repair-- 
-//--repair-- //	----------------------------------------------------------------------------------------------------------
-//--repair-- //see if we should start the repair center
-//--repair-- void check_start_repair_center(object *obj)
-//--repair-- {
-//--repair-- 	if (RepairObj != NULL) return;		//already in repair center
-//--repair-- 
-//--repair-- 	if (Lsegments[obj->segnum].special_type & SS_REPAIR_CENTER) {
-//--repair-- 
-//--repair-- 		if (!disable_repair_center) {
-//--repair-- 			//have just entered repair center
-//--repair-- 
-//--repair-- 			RepairObj = obj;
-//--repair-- 			repair_save_uvec = obj->orient.uvec;
-//--repair-- 
-//--repair-- 			repair_rate = fixmuldiv(FULL_REPAIR_RATE,(MAX_SHIELDS - Players[Player_num].shields),MAX_SHIELDS);
-//--repair-- 
-//--repair-- 			save_control_type = obj->control_type;
-//--repair-- 			save_movement_type = obj->movement_type;
-//--repair-- 
-//--repair-- 			obj->control_type = CT_REPAIRCEN;
-//--repair-- 			obj->movement_type = MT_NONE;
-//--repair-- 
-//--repair-- 			FuelStationSeg	= Lsegments[obj->segnum].special_segment;
-//--repair-- 			Assert(FuelStationSeg != -1);
-//--repair-- 
-//--repair-- 			if (refuel_do_repair_effect( obj, 1, FuelStationSeg )) {
-//--repair-- 				Int3();		//can this happen?
-//--repair-- 				obj->control_type = CT_FLYING;
-//--repair-- 				obj->movement_type = MT_PHYSICS;
-//--repair-- 			}
-//--repair-- 		}
-//--repair-- 	}
-//--repair-- 	else
-//--repair-- 		disable_repair_center=0;
-//--repair-- 
-//--repair-- }
+int SideOrderBack[] = {WFRONT, WRIGHT, WTOP, WLEFT, WBOTTOM, WBACK};
+int SideOrderFront[] =  {WBACK, WLEFT, WTOP, WRIGHT, WBOTTOM, WFRONT};
+int SideOrderLeft[] =  { WRIGHT, WBACK, WTOP, WFRONT, WBOTTOM, WLEFT };
+int SideOrderRight[] =  { WLEFT, WFRONT, WTOP, WBACK, WBOTTOM, WRIGHT };
+int SideOrderTop[] =  { WBOTTOM, WLEFT, WBACK, WRIGHT, WFRONT, WTOP };
+int SideOrderBottom[] =  { WTOP, WLEFT, WFRONT, WRIGHT, WBACK, WBOTTOM };
+
+int SideUpVector[] = {WBOTTOM, WFRONT, WBOTTOM, WFRONT, WBOTTOM, WBOTTOM };
+
+//	----------------------------------------------------------------------------------------------------------
+void refuel_calc_deltas(object *obj, int next_side, int repair_seg)
+{
+	vms_vector nextcenter, headfvec, *headuvec;
+	vms_matrix goal_orient;
+
+	// Find time for this movement
+	delta_time = F1_0;		// one second...
+		
+	// Find start and goal position
+	start_pos = obj->pos;
+	
+	// Find delta position to get to goal position
+	compute_segment_center(&goal_pos,&Segments[repair_seg]);
+	vm_vec_sub( &delta_pos,&goal_pos,&start_pos);
+	
+	// Find start angles
+	//angles_from_vector(&start_angles,&obj->orient.fvec);
+	vm_extract_angles_matrix(&start_angles,&obj->orient);
+	
+	// Find delta angles to get to goal orientation
+	compute_center_point_on_side(&nextcenter,&Segments[repair_seg],next_side);
+	vm_vec_sub(&headfvec,&nextcenter,&goal_pos);
+	//mprintf( (0, "Next_side = %d, Head fvec = %d,%d,%d\n", next_side, headfvec.x, headfvec.y, headfvec.z ));
+
+	if (next_side == 5)						//last side
+		headuvec = &repair_save_uvec;
+	else
+		headuvec = &Segments[repair_seg].sides[SideUpVector[next_side]].normals[0];
+
+	vm_vector_2_matrix(&goal_orient,&headfvec,headuvec,NULL);
+	vm_extract_angles_matrix(&goal_angles,&goal_orient);
+	delta_angles.p = my_delta_ang(start_angles.p,goal_angles.p);
+	delta_angles.b = my_delta_ang(start_angles.b,goal_angles.b);
+	delta_angles.h = my_delta_ang(start_angles.h,goal_angles.h);
+	current_time = 0;
+	Repairing = 0;
+}
+
+//	----------------------------------------------------------------------------------------------------------
+//if repairing, cut it short
+void abort_repair_center()
+{
+	if (!RepairObj || side_index==5)
+		return;
+
+	current_time = 0;
+	side_index = 5;
+	next_side = sidelist[side_index];
+	refuel_calc_deltas(RepairObj, next_side, FuelStationSeg);
+}
+
+//	----------------------------------------------------------------------------------------------------------
+void repair_ship_damage()
+{
+ 	//mprintf((0,"Repairing ship damage\n"));
+}
+
+//	----------------------------------------------------------------------------------------------------------
+int refuel_do_repair_effect( object * obj, int first_time, int repair_seg )	{
+
+	obj->mtype.phys_info.velocity.x = 0;				
+	obj->mtype.phys_info.velocity.y = 0;				
+	obj->mtype.phys_info.velocity.z = 0;				
+
+	if (first_time)	{
+		int entry_side;
+		current_time = 0;
+
+		//digi_play_sample( SOUND_REPAIR_STATION_PLAYER_ENTERING, F1_0 );
+
+		entry_side = john_find_connect_side(repair_seg,obj->segnum );
+		Assert( entry_side > -1 );
+
+		switch( entry_side )	{
+		case WBACK: sidelist = SideOrderBack; break;
+		case WFRONT: sidelist = SideOrderFront; break;
+		case WLEFT: sidelist = SideOrderLeft; break;
+		case WRIGHT: sidelist = SideOrderRight; break;
+		case WTOP: sidelist = SideOrderTop; break;
+		case WBOTTOM: sidelist = SideOrderBottom; break;
+		}
+		side_index = 0;
+		next_side = sidelist[side_index];
+
+		refuel_calc_deltas(obj,next_side, repair_seg);
+	} 
+
+	//update shields
+	if (Players[Player_num].shields < MAX_SHIELDS) {	//if above max, don't mess with it
+
+		Players[Player_num].shields += fixmul(FrameTime,repair_rate);
+
+		if (Players[Player_num].shields > MAX_SHIELDS)
+			Players[Player_num].shields = MAX_SHIELDS;
+	}
+
+	current_time += FrameTime;
+
+	if (current_time >= delta_time )	{
+		vms_angvec av;
+		obj->pos = goal_pos;
+		av	= goal_angles;
+		vm_angles_2_matrix(&obj->orient,&av);
+
+		if (side_index >= 5 )	
+			return 1;		// Done being repaired...
+
+		if (Repairing==0)		{
+			//mprintf( (0, "<MACHINE EFFECT ON SIDE %d>\n", next_side ));
+			//digi_play_sample( SOUND_REPAIR_STATION_FIXING );
+			Repairing=1;
+
+			/*switch( next_side )	
+			{
+			case 0:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_1,F1_0 ); break;
+			case 1:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_2,F1_0 ); break;
+			case 2:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_3,F1_0 ); break;
+			case 3:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_4,F1_0 ); break;
+			case 4:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_1,F1_0 ); break;
+			case 5:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_2,F1_0 ); break;
+			}*/
+		
+			repair_ship_damage();
+
+		}
+
+		if (current_time >= (delta_time+(F1_0/2)) )	{
+			current_time = 0;
+			// Find next side...
+			side_index++;
+			if (side_index >= 6 ) return 1;
+			next_side = sidelist[side_index];
+	
+			refuel_calc_deltas(obj, next_side, repair_seg);
+		}
+
+	} else {
+		fix factor, p,b,h;	
+		vms_angvec av;
+
+		factor = fixdiv( current_time,delta_time );
+
+		// Find object's current position
+		obj->pos = delta_pos;
+		vm_vec_scale( &obj->pos, factor );
+		vm_vec_add2( &obj->pos, &start_pos );
+			
+		// Find object's current orientation
+		p	= fixmul(delta_angles.p,factor);
+		b	= fixmul(delta_angles.b,factor);
+		h	= fixmul(delta_angles.h,factor);
+		av.p = (fixang)p + start_angles.p;
+		av.b = (fixang)b + start_angles.b;
+		av.h = (fixang)h + start_angles.h;
+		vm_angles_2_matrix(&obj->orient,&av);
+
+	}
+
+	update_object_seg(obj);		//update segment
+
+	return 0;
+}
+
+//	----------------------------------------------------------------------------------------------------------
+//do the repair center for this frame
+void do_repair_sequence(object *obj)
+{
+	Assert(obj == RepairObj);
+
+	if (refuel_do_repair_effect( obj, 0, FuelStationSeg )) {
+		if (Players[Player_num].shields < MAX_SHIELDS)
+			Players[Player_num].shields = MAX_SHIELDS;
+		obj->control_type = save_control_type;
+		obj->movement_type = save_movement_type;
+		disable_repair_center=1;
+		RepairObj = NULL;
+
+
+		//the two lines below will spit the player out of the rapair center,
+		//but what happen is that the ship just bangs into the door
+		//if (obj->movement_type == MT_PHYSICS)
+		//	vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&obj->orient.fvec,i2f(200));
+	}
+
+}
+
+//	----------------------------------------------------------------------------------------------------------
+//see if we should start the repair center
+void check_start_repair_center(object *obj)
+{
+	if (RepairObj != NULL) return;		//already in repair center
+
+	if (Lsegments[obj->segnum].special_type & SS_REPAIR_CENTER) {
+
+		if (!disable_repair_center) {
+			//have just entered repair center
+
+			RepairObj = obj;
+			repair_save_uvec = obj->orient.uvec;
+
+			repair_rate = fixmuldiv(FULL_REPAIR_RATE,(MAX_SHIELDS - Players[Player_num].shields),MAX_SHIELDS);
+
+			save_control_type = obj->control_type;
+			save_movement_type = obj->movement_type;
+
+			obj->control_type = CT_REPAIRCEN;
+			obj->movement_type = MT_NONE;
+
+			FuelStationSeg	= Lsegments[obj->segnum].special_segment;
+			Assert(FuelStationSeg != -1);
+
+			if (refuel_do_repair_effect( obj, 1, FuelStationSeg )) {
+				Int3();		//can this happen?
+				obj->control_type = CT_FLYING;
+				obj->movement_type = MT_PHYSICS;
+			}
+		}
+	}
+	else
+		disable_repair_center=0;
+
+}
+
+#endif
 
 //	--------------------------------------------------------------------------------------------
 void disable_matcens(void)

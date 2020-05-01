@@ -1609,6 +1609,9 @@ void object_move_one(object* obj)
 		if (fuel > 0) {
 			Players[Player_num].energy += fuel;
 		}
+#ifdef RESTORE_REPAIRCENTER
+		check_start_repair_center(obj);
+#endif
 	}
 
 	if (obj->lifeleft != IMMORTAL_TIME)	//if not immortal...
@@ -1628,7 +1631,11 @@ void object_move_one(object* obj)
 
 		break;
 
-	case CT_REPAIRCEN: Int3();	// -- hey! these are no longer supported!! -- do_repair_sequence(obj); break;
+#ifdef RESTORE_REPAIRCENTER
+	case CT_REPAIRCEN: do_repair_sequence(obj); break;
+#else
+	case CT_REPAIRCEN: Int3();	// -- hey! these are no longer supported!!
+#endif
 
 	case CT_POWERUP: do_powerup_frame(obj); break;
 
