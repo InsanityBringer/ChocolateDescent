@@ -470,8 +470,8 @@ void digi_set_max_channels(int n)
 
 	if (digi_max_channels < 1)
 		digi_max_channels = 1;
-	if (digi_max_channels > (32-MAX_SOUND_OBJECTS))
-		digi_max_channels = (32-MAX_SOUND_OBJECTS);
+	if (digi_max_channels > 32)
+		digi_max_channels = 32;
 
 	if ( !Digi_initialized ) return;
 	if ( digi_driver_board <= 0 )	return;
@@ -1365,7 +1365,10 @@ void digi_sync_sounds()
 
 				objp = &Objects[SoundObjects[i].objnum];
 
-				if ((objp->type==OBJ_NONE) || (objp->signature!=SoundObjects[i].objsignature))	
+				oldvolume = digi_get_sound_audible(&Viewer->orient, &Viewer->pos, Viewer->segnum,
+					&objp->pos, objp->segnum, SoundObjects[i].max_distance); //Always must be done
+
+				if ((objp->type==OBJ_NONE) || (objp->signature!=SoundObjects[i].objsignature) || (objp->flags & OF_SHOULD_BE_DEAD))	
 				{
 					// The object that this is linked to is dead, so just end this sound if it is looping.
 					if ( (SoundObjects[i].flags & SOF_PLAYING)  && (SoundObjects[i].flags & SOF_PLAY_FOREVER))	
@@ -1377,7 +1380,11 @@ void digi_sync_sounds()
 					else
 					{
 						mprintf((0, "low-prioritizing sound object %d due to source dead\n", i));
-						SoundObjects[i].flags |= SOF_LOW_PRIORITY;	// Mark as dead, so some other sound can use this sound	
+						SoundObjects[i].flags |= SOF_LOW_PRIORITY | SOF_LINK_TO_POS;	// Mark as dead, so some other sound can use this sound	
+						SoundObjects[i].flags &= ~SOF_LINK_TO_OBJ; //Switch to linked to a position so it doesn't refer to a bad entity. 
+						SoundObjects[i].position = objp->pos;
+						SoundObjects[i].segnum = objp->segnum;
+						vm_vec_zero(&SoundObjects[i].vel);
 					}
 				}
 				else 
@@ -1387,8 +1394,6 @@ void digi_sync_sounds()
 					{
 						I_SetVelocity(SoundObjects[i].handle, &objp->mtype.phys_info.velocity);
 					}
-					oldvolume = digi_get_sound_audible(&Viewer->orient, &Viewer->pos, Viewer->segnum,
-						&objp->pos, objp->segnum, SoundObjects[i].max_distance);
 				}
 			}
 
