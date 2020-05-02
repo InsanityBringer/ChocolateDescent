@@ -16,7 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "object.h"
 
- //#define HOSTAGE_FACES	1		//if defined, hostage faces are in
+//#define HOSTAGE_FACES	1		//if defined, hostage faces are in
 
 #define HOSTAGE_SIZE i2f(5)	//3d size of a hostage
 

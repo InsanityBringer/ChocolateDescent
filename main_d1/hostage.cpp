@@ -118,7 +118,7 @@ void stop_hostage_clip()
 {
 	get_hostage_window_coords(&Hostage_monitor_x, &Hostage_monitor_y, &Hostage_monitor_w, &Hostage_monitor_h);
 
-	nosound();								// Turn off sound		
+	//nosound();								// Turn off sound		
 	Hostage_animation_time = -1;		// Consider this vclip done
 
 	if (N_hostage_clips)			//more in queue?
@@ -231,7 +231,7 @@ int do_hostage_effects()
 	get_hostage_window_coords(&Hostage_monitor_x, &Hostage_monitor_y, &Hostage_monitor_w, &Hostage_monitor_h);
 
 	PIGGY_PAGE_IN(Hostage_vclip->frames[bitmapnum]);
-	gr_bitmap(Hostage_monitor_x, Hostage_monitor_y, Hostage_vclip->frames[bitmapnum]);
+	gr_bitmap(Hostage_monitor_x, Hostage_monitor_y, &GameBitmaps[Hostage_vclip->frames[bitmapnum].index]);
 
 	// Increment the hostage rescue time scaled to playback speed.
 	// This means that the integer part of the fix is the frame number
@@ -298,7 +298,11 @@ void hostage_init_info(int objnum)
 	Hostages[i].objnum = objnum;
 	Hostages[i].objsig = Objects[objnum].signature;
 	//Hostages[i].type = 0;
+#ifdef HOSTAGE_FACES //[ISB] needed to make editor happy. 
+	Hostages[i].vclip_num = Hostage_vclip_num[0];
+#else
 	Hostages[i].vclip_num = -1;
+#endif
 	//Hostages[i].sound_num = -1;
 	strcpy(Hostages[i].text, "\0");
 	Objects[objnum].id = i;

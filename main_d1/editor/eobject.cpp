@@ -133,6 +133,7 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 			obj->rtype.vclip_info.vclip_num = Hostage_vclip_num[ObjId[object_type]];
 			obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 			obj->rtype.vclip_info.framenum = 0;
+
 			break;
 		case OL_ROBOT:
 			objnum = obj_create(OBJ_ROBOT,ObjId[object_type],segp-Segments,object_pos,

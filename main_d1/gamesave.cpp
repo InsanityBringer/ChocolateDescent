@@ -99,6 +99,11 @@ char* Registered_level_names[NUM_REGISTERED_LEVELS] = {
 };
 #endif
 
+#ifdef HOSTAGE_FACES
+void load_hostage_data(CFILE* fp, int do_read);
+void save_hostage_data(FILE* fp);
+#endif
+
 char Gamesave_current_filename[128];
 
 #define GAME_VERSION					25
