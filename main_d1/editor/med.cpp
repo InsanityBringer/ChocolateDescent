@@ -970,6 +970,7 @@ void editor(void)
 	vms_matrix	MouseRotMat,tempm;
 	//@@short camera_objnum;			//a camera for viewing
 
+	I_SetRelative(1);
 	init_editor();
 
 	InitCurve();
