@@ -91,7 +91,7 @@ void MidiSequencer::StopSong()
 uint64_t MidiSequencer::Tick()
 {
 	int i;
-	int nextTick = INT_MAX;
+	uint64_t nextTick = UINT64_MAX;
 	midichunk_t* chunk;
 	midievent_t* ev;
 

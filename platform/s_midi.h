@@ -65,7 +65,7 @@ typedef struct
 	int seconds;
 
 	//Go straight to this offset when looping the song
-	int loopStart;
+	uint64_t loopStart;
 
 	midichunk_t* chunks;
 } hmpheader_t;

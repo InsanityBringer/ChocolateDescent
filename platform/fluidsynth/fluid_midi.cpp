@@ -27,6 +27,7 @@ MidiFluidSynth::MidiFluidSynth()
 	{
 		fluid_settings_setint(FluidSynthSettings, "synth.chorus.active", 0);
 		fluid_settings_setint(FluidSynthSettings, "synth.reverb.active", 0);
+		fluid_settings_setnum(FluidSynthSettings, "synth.gain", 0.5);
 	}
 
 	//if (FluidSynth == nullptr) return 1;
