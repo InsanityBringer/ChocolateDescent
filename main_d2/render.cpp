@@ -381,6 +381,110 @@ void render_face(int segnum, int sidenum, int nv, short* vp, int tmap1, int tmap
 #endif
 }
 
+//Chocolate specific function for eventual demo support. Passes in normal which is needed for old lighting system
+void render_face_demo(int segnum, int sidenum, int nv, short* vp, int tmap1, int tmap2, uvl* uvlp, int wid_flags, vms_vector *norm)
+{
+	fix			face_light;
+	grs_bitmap* bm;
+	fix			reflect;
+	uvl			uvl_copy[8];
+	int			i;
+	g3s_point* pointlist[8];
+
+	Assert(nv <= 8);
+
+	for (i = 0; i < nv; i++)
+	{
+		uvl_copy[i] = uvlp[i];
+		pointlist[i] = &Segment_points[vp[i]];
+	}
+
+	//handle cloaked walls
+	if (wid_flags & WID_CLOAKED_FLAG) 
+	{
+		int wall_num = Segments[segnum].sides[sidenum].wall_num;
+		Assert(wall_num != -1);
+		Gr_scanline_darkening_level = Walls[wall_num].cloak_value;
+		gr_setcolor(BM_XRGB(0, 0, 0));	//set to black (matters for s3)
+
+		g3_draw_poly(nv, pointlist);		//draw as flat poly
+
+		Gr_scanline_darkening_level = GR_FADE_LEVELS;
+
+		return;
+	}
+
+	face_light = -vm_vec_dot(&Viewer->orient.fvec,norm);
+
+	if (tmap1 >= NumTextures)
+	{
+		mprintf((0, "Invalid tmap number %d, NumTextures=%d, changing to 0\n", tmap1, NumTextures));
+
+#ifndef RELEASE
+		//Int3();
+#endif
+		Segments[segnum].sides[sidenum].tmap_num = 0;
+	}
+
+	// New code for overlapping textures...
+	if (tmap2 != 0)
+	{
+		bm = texmerge_get_cached_bitmap(tmap1, tmap2);
+	}
+	else
+	{
+		bm = &GameBitmaps[Textures[tmap1].index];
+		PIGGY_PAGE_IN(Textures[tmap1]);
+	}
+
+	Assert(!(bm->bm_flags & BM_FLAG_PAGED_OUT));
+
+	//reflect = fl2f((1.0-TmapInfo[p->tmap_num].reflect)/2.0 + 0.5);
+	//reflect = fl2f((1.0-TmapInfo[p->tmap_num].reflect));
+
+	reflect = Face_reflectivity;		// f1_0;	//until we figure this stuff out...
+
+	//set light values for each vertex & build pointlist
+	{
+		int i;
+
+		face_light = fixmul(face_light,reflect);
+
+		for (i = 0; i < nv; i++) {
+
+			//the uvl struct has static light already in it
+
+			//scale static light for destruction effect
+			if (Control_center_destroyed || Seismic_tremor_magnitude)	//make lights flash
+				uvl_copy[i].l = fixmul(flash_scale, uvl_copy[i].l);
+
+			//add in dynamic light (from explosions, etc.)
+			uvl_copy[i].l += Dynamic_light[vp[i]];
+
+			//add in light from player's headlight
+			uvl_copy[i].l += compute_headlight_light(&Segment_points[vp[i]].p3_vec,face_light);
+
+			//saturate at max value
+			if (uvl_copy[i].l > MAX_LIGHT)
+				uvl_copy[i].l = MAX_LIGHT;
+
+		}
+	}
+
+#ifdef EDITOR
+	if ((Render_only_bottom) && (sidenum == WBOTTOM))
+		g3_draw_tmap(nv, pointlist, (g3s_uvl*)uvl_copy, &GameBitmaps[Textures[Bottom_bitmap_num].index]);
+	else
+#endif
+
+		g3_draw_tmap(nv, pointlist, (g3s_uvl*)uvl_copy, bm);
+
+#ifndef NDEBUG
+	if (Outline_mode) draw_outline(nv, pointlist);
+#endif
+}
+
+
 #ifdef EDITOR
 // -----------------------------------------------------------------------------------
 //	Only called if editor active.
@@ -516,6 +620,7 @@ void render_side(segment* segp, int sidenum)
 
 		if (v_dot_n0 >= 0) {
 			render_face(segp - Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			//render_face_demo(segp - Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags, &normals[0]);
 #ifdef EDITOR
 			check_face(segp - Segments, sidenum, 0, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 #endif
@@ -560,6 +665,7 @@ void render_side(segment* segp, int sidenum)
 				goto im_so_ashamed;
 
 			render_face(segp - Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			//render_face_demo(segp - Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags, &normals[0]);
 #ifdef EDITOR
 			check_face(segp - Segments, sidenum, 0, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 #endif
@@ -569,6 +675,7 @@ void render_side(segment* segp, int sidenum)
 			if (sidep->type == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
 					render_face(segp - Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+					//render_face_demo(segp - Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags, &normals[0]);
 #ifdef EDITOR
 					check_face(segp - Segments, sidenum, 0, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 #endif
@@ -578,6 +685,7 @@ void render_side(segment* segp, int sidenum)
 					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[2];		temp_uvls[2] = sidep->uvls[3];
 					vertnum_list[1] = vertnum_list[2];	vertnum_list[2] = vertnum_list[3];	// want to render from vertices 0, 2, 3 on side
 					render_face(segp - Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
+					//render_face_demo(segp - Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags, &normals[1]);
 #ifdef EDITOR
 					check_face(segp - Segments, sidenum, 1, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 #endif
@@ -586,6 +694,7 @@ void render_side(segment* segp, int sidenum)
 			else if (sidep->type == SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
 					render_face(segp - Segments, sidenum, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], wid_flags);	// rendering 1,2,3, so just skip 0
+					//render_face_demo(segp - Segments, sidenum, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], wid_flags, &normals[1]);
 #ifdef EDITOR
 					check_face(segp - Segments, sidenum, 1, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 #endif
@@ -595,6 +704,7 @@ void render_side(segment* segp, int sidenum)
 					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[1];		temp_uvls[2] = sidep->uvls[3];
 					vertnum_list[2] = vertnum_list[3];		// want to render from vertices 0,1,3
 					render_face(segp - Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
+					//render_face_demo(segp - Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags, &normals[0]);
 #ifdef EDITOR
 					check_face(segp - Segments, sidenum, 0, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 #endif

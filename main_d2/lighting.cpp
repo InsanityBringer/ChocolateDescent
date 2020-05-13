@@ -647,3 +647,64 @@ fix compute_object_light(object* obj, vms_vector* rotated_pnt)
 
 	return light;
 }
+
+// ---------------------------------------------------------
+
+//[ISB] this is needed for eventual Descent 2 Demo support. 
+ //Compute the lighting from the headlight for a given vertex on a face.
+ //Takes:
+ //  point - the 3d coords of the point
+ //  face_light - a scale factor derived from the surface normal of the face
+ //If no surface normal effect is wanted, pass F1_0 for face_light
+fix compute_headlight_light(vms_vector* point, fix face_light)
+{
+	fix light;
+	int use_beam = 0;		//flag for beam effect
+
+	light = Beam_brightness;
+
+	if ((Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT) && (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON) && Viewer == &Objects[Players[Player_num].objnum] && Players[Player_num].energy > 0) 
+	{
+		light *= HEADLIGHT_BOOST_SCALE;
+		use_beam = 1;	//give us beam effect
+	}
+
+	if (light) //if no beam, don't bother with the rest of this
+	{				
+		fix point_dist;
+
+		point_dist = vm_vec_mag_quick(point);
+
+		if (point_dist >= MAX_DIST)
+
+			light = 0;
+
+		else 
+		{
+			fix dist_scale, face_scale;
+
+			dist_scale = (MAX_DIST - point_dist) >> MAX_DIST_LOG;
+			light = fixmul(light, dist_scale);
+
+			if (face_light < 0)
+				face_light = 0;
+
+			face_scale = f1_0 / 4 + face_light / 2;
+			light = fixmul(light, face_scale);
+
+			if (use_beam) 
+			{
+				fix beam_scale;
+
+				if (face_light > f1_0 * 3 / 4 && point->z > i2f(12)) 
+				{
+					beam_scale = fixdiv(point->z, point_dist);
+					beam_scale = fixmul(beam_scale, beam_scale);	//square it
+					light = fixmul(light, beam_scale);
+				}
+			}
+		}
+	}
+
+	return light;
+}
