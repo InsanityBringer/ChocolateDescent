@@ -13,6 +13,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <stdio.h>
+
 #include "2d/gr.h"
 #include "piggy.h"
 
