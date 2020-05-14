@@ -2117,68 +2117,89 @@ void bm_write_all(FILE* fp)
 	int i;
 
 	fwrite(&NumTextures, sizeof(int), 1, fp);
-	fwrite(Textures, sizeof(bitmap_index), MAX_TEXTURES, fp);
-	fwrite(TmapInfo, sizeof(tmap_info), MAX_TEXTURES, fp);
+	for (i = 0; i < MAX_TEXTURES; i++)
+		F_WriteShort(fp, Textures[i].index);
+	write_tmap_info(fp);
 
 	fwrite(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 	fwrite(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
-	fwrite(&Num_vclips, sizeof(int), 1, fp);
-	fwrite(Vclip, sizeof(vclip), VCLIP_MAXNUM, fp);
+	F_WriteInt(fp, Num_vclips);
+	write_vclip_info(fp);
 
-	fwrite(&Num_effects, sizeof(int), 1, fp);
-	fwrite(Effects, sizeof(eclip), MAX_EFFECTS, fp);
+	F_WriteInt(fp, Num_effects);
+	write_effect_info(fp);
 
-	fwrite(&Num_wall_anims, sizeof(int), 1, fp);
-	fwrite(WallAnims, sizeof(wclip), MAX_WALL_ANIMS, fp);
+	F_WriteInt(fp, Num_wall_anims);
+	write_wallanim_info(fp);
 
-	fwrite(&N_robot_types, sizeof(int), 1, fp);
-	fwrite(Robot_info, sizeof(robot_info), MAX_ROBOT_TYPES, fp);
+	F_WriteInt(fp, N_robot_types);
+	write_robot_info(fp);
 
-	fwrite(&N_robot_joints, sizeof(int), 1, fp);
-	fwrite(Robot_joints, sizeof(jointpos), MAX_ROBOT_JOINTS, fp);
+	F_WriteInt(fp, N_robot_joints);
+	write_robot_joints_info(fp);
 
-	fwrite(&N_weapon_types, sizeof(int), 1, fp);
-	fwrite(Weapon_info, sizeof(weapon_info), MAX_WEAPON_TYPES, fp);
+	F_WriteInt(fp, N_weapon_types);
+	write_weapon_info(fp);
 
-	fwrite(&N_powerup_types, sizeof(int), 1, fp);
-	fwrite(Powerup_info, sizeof(powerup_type_info), MAX_POWERUP_TYPES, fp);
+	F_WriteInt(fp, N_powerup_types);
+	write_powerup_info(fp);
 
-	fwrite(&N_polygon_models, sizeof(int), 1, fp);
-	fwrite(Polygon_models, sizeof(polymodel), N_polygon_models, fp);
+	F_WriteInt(fp, N_polygon_models);
+	write_polygon_models(fp);
 
-	for (i = 0; i < N_polygon_models; i++) {
+	for (i = 0; i < N_polygon_models; i++) 
+	{
 		fwrite(Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp);
 	}
 
-	fwrite(Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS, fp);
+	for (i = 0; i < MAX_GAUGE_BMS; i++)
+		F_WriteShort(fp, Gauges[i].index);
 
-	fwrite(Dying_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp);
-	fwrite(Dead_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp);
+	for (i = 0; i < MAX_POLYGON_MODELS; i++)
+		F_WriteInt(fp, Dying_modelnums[i]);
+	for (i = 0; i < MAX_POLYGON_MODELS; i++)
+		F_WriteInt(fp, Dead_modelnums[i]);
 
-	fwrite(ObjBitmaps, sizeof(bitmap_index), MAX_OBJ_BITMAPS, fp);
-	fwrite(ObjBitmapPtrs, sizeof(uint16_t), MAX_OBJ_BITMAPS, fp);
+	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
+		F_WriteShort(fp, ObjBitmaps[i].index);
+	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
+		F_WriteShort(fp, ObjBitmapPtrs[i]);
 
-	fwrite(&only_player_ship, sizeof(player_ship), 1, fp);
+	write_player_ship(fp);
 
-	fwrite(&Num_cockpits, sizeof(int), 1, fp);
-	fwrite(cockpit_bitmap, sizeof(bitmap_index), N_COCKPIT_BITMAPS, fp);
+	F_WriteInt(fp, Num_cockpits);
+	for (i = 0; i < N_COCKPIT_BITMAPS; i++)
+		F_WriteShort(fp, cockpit_bitmap[i].index);
 
 	fwrite(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 	fwrite(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
-	fwrite(&Num_total_object_types, sizeof(int), 1, fp);
-	fwrite(ObjType, sizeof(int8_t), MAX_OBJTYPE, fp);
-	fwrite(ObjId, sizeof(int8_t), MAX_OBJTYPE, fp);
-	fwrite(ObjStrength, sizeof(fix), MAX_OBJTYPE, fp);
+	F_WriteInt(fp, Num_total_object_types);
+	for (i = 0; i < MAX_OBJTYPE; i++)
+		F_WriteByte(fp, ObjType[i]);
+	for (i = 0; i < MAX_OBJTYPE; i++)
+		F_WriteByte(fp, ObjId[i]);
+	for (i = 0; i < MAX_OBJTYPE; i++)
+		F_WriteInt(fp, ObjStrength[i]);
 
-	fwrite(&First_multi_bitmap_num, sizeof(int), 1, fp);
+	F_WriteInt(fp, First_multi_bitmap_num);
 
-	fwrite(&N_controlcen_guns, sizeof(int), 1, fp);
-	fwrite(controlcen_gun_points, sizeof(vms_vector), MAX_CONTROLCEN_GUNS, fp);
-	fwrite(controlcen_gun_dirs, sizeof(vms_vector), MAX_CONTROLCEN_GUNS, fp);
-	fwrite(&exit_modelnum, sizeof(int), 1, fp);
-	fwrite(&destroyed_exit_modelnum, sizeof(int), 1, fp);
+	F_WriteInt(fp, N_controlcen_guns);
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
+	{
+		F_WriteInt(fp, controlcen_gun_points[i].x);
+		F_WriteInt(fp, controlcen_gun_points[i].y);
+		F_WriteInt(fp, controlcen_gun_points[i].z);
+	}
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
+	{
+		F_WriteInt(fp, controlcen_gun_dirs[i].x);
+		F_WriteInt(fp, controlcen_gun_dirs[i].y);
+		F_WriteInt(fp, controlcen_gun_dirs[i].z);
+	}
+	F_WriteInt(fp, exit_modelnum);
+	F_WriteInt(fp, destroyed_exit_modelnum);
 }
 
 #endif

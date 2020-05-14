@@ -111,7 +111,8 @@ int32_t get_sig(FFILE* f)
 	if (f->position >= f->length) return EOF;
 	s[0] = f->data[f->position++];
 
-	return(*((int32_t*)s));
+	//return(*((int32_t*)s));
+	return MAKE_SIG(s[3], s[2], s[1], s[0]);
 }
 
 int put_sig(int32_t sig, FILE* f)
@@ -355,7 +356,8 @@ int parse_body(FFILE* ifile, int32_t len, iff_bitmap_header* bmheader)
 		//ignore = cfgetc(ifile);		//get pad byte
 		ifile->position++;
 	else
-		if (ifile->position != end_pos || p != data_end) {
+		if (ifile->position != end_pos || p != data_end) 
+		{
 			//			debug("IFF Error: p=%x, data_end=%x, cnt=%d\n",p,data_end,cnt);
 			return IFF_CORRUPT;
 		}
@@ -456,10 +458,10 @@ void skip_chunk(FFILE* ifile, int32_t len)
 
 	ifile->position += ilen;
 
-	if (ifile->position >= ifile->length) {
+	if (ifile->position >= ifile->length)
+	{
 		ifile->position = ifile->length;
 	}
-
 
 	//	for (i=0; i<ilen; i++ )
 	//		c = cfgetc(ifile);
@@ -486,8 +488,8 @@ int iff_parse_ilbm_pbm(FFILE* ifile, int32_t form_type, iff_bitmap_header* bmhea
 	else
 		bmheader->type = TYPE_ILBM;
 
-	while ((ifile->position < end_pos) && (sig = get_sig(ifile)) != EOF) {
-
+	while ((ifile->position < end_pos) && (sig = get_sig(ifile)) != EOF) 
+	{
 		len = get_long(ifile);
 		if (len == EOF) break;
 
@@ -495,9 +497,11 @@ int iff_parse_ilbm_pbm(FFILE* ifile, int32_t form_type, iff_bitmap_header* bmhea
 		//              printsig(sig);
 		//              printf(" %ld\n",len);
 
-		switch (sig) {
+		switch (sig)
+		{
 
-		case bmhd_sig: {
+		case bmhd_sig: 
+		{
 			int ret;
 			int save_w = bmheader->w, save_h = bmheader->h;
 
@@ -508,14 +512,14 @@ int iff_parse_ilbm_pbm(FFILE* ifile, int32_t form_type, iff_bitmap_header* bmhea
 			if (ret != IFF_NO_ERROR)
 				return ret;
 
-			if (bmheader->raw_data) {
-
+			if (bmheader->raw_data) 
+			{
 				if (save_w != bmheader->w || save_h != bmheader->h)
 					return IFF_BM_MISMATCH;
 
 			}
-			else {
-
+			else 
+			{
 				MALLOC( bmheader->raw_data, uint8_t, bmheader->w * bmheader->h );
 				if (!bmheader->raw_data)
 					return IFF_NO_MEM;
@@ -546,7 +550,8 @@ int iff_parse_ilbm_pbm(FFILE* ifile, int32_t form_type, iff_bitmap_header* bmhea
 			unsigned char r, g, b;
 
 			//printf("Parsing RGB map\n");
-			for (cnum = 0; cnum < ncolors; cnum++) {
+			for (cnum = 0; cnum < ncolors; cnum++) 
+			{
 				//							r=cfgetc(ifile);
 				//							g=cfgetc(ifile);
 				//							b=cfgetc(ifile);
@@ -729,17 +734,21 @@ int iff_parse_bitmap(FFILE* ifile, grs_bitmap* bm, int bitmap_type, int8_t* pale
 	iff_bitmap_header bmheader;
 	int32_t sig, form_len;
 	int32_t form_type;
+	
+	memset(&bmheader, 0, sizeof(iff_bitmap_header)); //[ISB] need to initialize this data.
 
 	bmheader.raw_data = bm->bm_data;
 
-	if (bmheader.raw_data) {
+	if (bmheader.raw_data) 
+	{
 		bmheader.w = bm->bm_w;
 		bmheader.h = bm->bm_h;
 	}
 
 	sig = get_sig(ifile);
 
-	if (sig != form_sig) {
+	if (sig != form_sig) 
+	{
 		ret = IFF_NOT_IFF;
 		goto done;
 	}
@@ -755,17 +764,19 @@ int iff_parse_bitmap(FFILE* ifile, grs_bitmap* bm, int bitmap_type, int8_t* pale
 	else
 		ret = IFF_UNKNOWN_FORM;
 
-	if (ret != IFF_NO_ERROR) {		//got an error parsing
+	if (ret != IFF_NO_ERROR) //got an error parsing
+	{
 		if (bmheader.raw_data) free(bmheader.raw_data);
 		goto done;
 	}
 
 	//If IFF file is ILBM, convert to PPB
-	if (bmheader.type == TYPE_ILBM) {
-
+	if (bmheader.type == TYPE_ILBM) 
+	{
 		ret = convert_ilbm_to_pbm(&bmheader);
 
-		if (ret != IFF_NO_ERROR) goto done;
+		if (ret != IFF_NO_ERROR) 
+			goto done;
 	}
 
 	//Copy data from iff_bitmap_header structure into grs_bitmap structure
@@ -776,9 +787,11 @@ int iff_parse_bitmap(FFILE* ifile, grs_bitmap* bm, int bitmap_type, int8_t* pale
 
 	//Now do post-process if required
 
-	if (bitmap_type == BM_RGB15) {
+	if (bitmap_type == BM_RGB15)
+	{
 		ret = convert_rgb15(bm, &bmheader);
-		if (ret != IFF_NO_ERROR) goto done;
+		if (ret != IFF_NO_ERROR) 
+			goto done;
 	}
 
 done:
@@ -1186,10 +1199,12 @@ int iff_read_animbrush(char* ifilename, grs_bitmap** bm_list, int max_bitmaps, i
 
 	if ((form_type == pbm_sig) || (form_type == ilbm_sig))
 		ret = IFF_FORM_BITMAP;
-	else if (form_type == anim_sig) {
+	else if (form_type == anim_sig) 
+	{
 		int anim_end = ifile.position + form_len - 4;
 
-		while (ifile.position < anim_end && *n_bitmaps < max_bitmaps) {
+		while (ifile.position < anim_end && *n_bitmaps < max_bitmaps) 
+		{
 
 			grs_bitmap* prev_bm;
 

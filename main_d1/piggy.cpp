@@ -689,7 +689,8 @@ void piggy_dump_all()
 		return;
 
 	mprintf((0, "Paging in all piggy bitmaps..."));
-	for (i = 0; i < Num_bitmap_files; i++) {
+	for (i = 0; i < Num_bitmap_files; i++) 
+	{
 		bitmap_index bi;
 		bi.index = i;
 		PIGGY_PAGE_IN(bi);
@@ -700,7 +701,8 @@ void piggy_dump_all()
 
 	mprintf((0, "Creating DESCENT.PIG..."));
 	filename = "DESCENT.PIG";
-	if ((i = FindArg("-piggy"))) {
+	if ((i = FindArg("-piggy"))) 
+	{
 		filename = Args[i + 1];
 		mprintf((0, "Dumping alternate pigfile, '%s'\n", filename));
 	}
@@ -718,35 +720,41 @@ void piggy_dump_all()
 	fwrite(&i, sizeof(int), 1, fp);
 	bm_write_all(fp);
 	xlat_offset = ftell(fp);
-	fwrite(GameBitmapXlat, sizeof(uint16_t) * MAX_BITMAP_FILES, 1, fp);
+	for (i = 0; i < MAX_BITMAP_FILES; i++)
+	{
+		F_WriteShort(fp, GameBitmapXlat[i]);
+	}
 	i = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
-	fwrite(&i, sizeof(int), 1, fp);
+	F_WriteInt(fp, i);
 	fseek(fp, i, SEEK_SET);
 
 	Num_bitmap_files--;
-	fwrite(&Num_bitmap_files, sizeof(int), 1, fp);
+	F_WriteInt(fp, Num_bitmap_files);
 	Num_bitmap_files++;
-	fwrite(&Num_sound_files, sizeof(int), 1, fp);
+	F_WriteInt(fp, Num_sound_files);
 
 	header_offset = ftell(fp);
-	header_offset += ((Num_bitmap_files - 1) * sizeof(DiskBitmapHeader)) + (Num_sound_files * sizeof(DiskSoundHeader));
+	header_offset += ((Num_bitmap_files - 1) * BITMAP_HEADER_SIZE) + (Num_sound_files * SOUND_HEADER_SIZE);
 	data_offset = header_offset;
 
-	for (i = 1; i < Num_bitmap_files; i++) {
+	for (i = 1; i < Num_bitmap_files; i++) 
+	{
 		int* size;
 		grs_bitmap* bmp;
 
 		{
 			char* p, * p1;
 			p = strchr(AllBitmaps[i].name, '#');
-			if (p) {
+			if (p) 
+			{
 				int n;
 				p1 = p; p1++;
 				n = atoi(p1);
 				*p = 0;
 #ifndef RELEASE
-				if (n == 0) {
+				if (n == 0) 
+				{
 					fprintf(fp2, "%s.abm\n", AllBitmaps[i].name);
 				}
 #endif
@@ -755,7 +763,8 @@ void piggy_dump_all()
 				bmh.dflags = DBM_FLAG_ABM + n;
 				*p = '#';
 			}
-			else {
+			else 
+			{
 #ifndef RELEASE
 				fprintf(fp2, "%s.bbm\n", AllBitmaps[i].name);
 #endif
@@ -774,7 +783,8 @@ void piggy_dump_all()
 		bmh.offset = data_offset - header_offset;
 		fseek(fp, data_offset, SEEK_SET);
 
-		if (bmp->bm_flags & BM_FLAG_RLE) {
+		if (bmp->bm_flags & BM_FLAG_RLE) 
+		{
 			size = (int*)bmp->bm_data;
 			fwrite(bmp->bm_data, sizeof(uint8_t), *size, fp);
 			data_offset += *size;
@@ -783,7 +793,8 @@ void piggy_dump_all()
 			fprintf(fp1, ", and is already compressed to %d bytes.\n", *size);
 #endif
 		}
-		else {
+		else 
+		{
 			fwrite(bmp->bm_data, sizeof(uint8_t), bmp->bm_rowsize * bmp->bm_h, fp);
 			data_offset += bmp->bm_rowsize * bmp->bm_h;
 			//bmh.data_length = bmp->bm_rowsize * bmp->bm_h;
@@ -792,18 +803,21 @@ void piggy_dump_all()
 #endif
 		}
 		fseek(fp, org_offset, SEEK_SET);
-		if (GameBitmaps[i].bm_w > 255) {
+		if (GameBitmaps[i].bm_w > 255)
+		{
 			Assert(GameBitmaps[i].bm_w < 512);
 			bmh.width = GameBitmaps[i].bm_w - 256;
 			bmh.dflags |= DBM_FLAG_LARGE;
 		}
-		else {
+		else
+		{
 			bmh.width = GameBitmaps[i].bm_w;
 		}
 		Assert(GameBitmaps[i].bm_h < 256);
 		bmh.height = GameBitmaps[i].bm_h;
 		bmh.flags = GameBitmaps[i].bm_flags;
-		if (piggy_is_substitutable_bitmap(AllBitmaps[i].name, subst_name)) {
+		if (piggy_is_substitutable_bitmap(AllBitmaps[i].name, subst_name)) 
+		{
 			bitmap_index other_bitmap;
 			other_bitmap = piggy_find_bitmap(subst_name);
 			GameBitmapXlat[i] = other_bitmap.index;
@@ -811,19 +825,27 @@ void piggy_dump_all()
 			//mprintf(( 0, "Skipping bitmap %d\n", i ));
 			//mprintf(( 0, "Marking '%s' as substitutible\n", AllBitmaps[i].name ));
 		}
-		else {
+		else 
+		{
 #ifdef BUILD_PSX_DATA
 			count_colors(i, &GameBitmaps[i]);
 #endif
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
 		bmh.avg_color = GameBitmaps[i].avg_color;
-		fwrite(&bmh, sizeof(DiskBitmapHeader), 1, fp);			// Mark as a bitmap
+		fwrite(bmh.name, 1, 8, fp); // Mark as a bitmap
+		F_WriteByte(fp, bmh.dflags);
+		F_WriteByte(fp, bmh.width);
+		F_WriteByte(fp, bmh.height);
+		F_WriteByte(fp, bmh.flags);
+		F_WriteByte(fp, bmh.avg_color);
+		F_WriteInt(fp, bmh.offset);
 	}
 
 	mprintf((0, "\nDumping sounds..."));
 
-	for (i = 0; i < Num_sound_files; i++) {
+	for (i = 0; i < Num_sound_files; i++)
+	{
 		digi_sound* snd;
 
 		snd = &GameSounds[i];
@@ -838,7 +860,11 @@ void piggy_dump_all()
 		fwrite(snd->data, sizeof(uint8_t), snd->length, fp);
 		data_offset += snd->length;
 		fseek(fp, org_offset, SEEK_SET);
-		fwrite(&sndh, sizeof(DiskSoundHeader), 1, fp);			// Mark as a bitmap
+		//fwrite(&sndh, sizeof(DiskSoundHeader), 1, fp);			// Mark as a bitmap
+		fwrite(sndh.name, 1, 8, fp);
+		F_WriteInt(fp, sndh.length);
+		F_WriteInt(fp, sndh.data_length);
+		F_WriteInt(fp, sndh.offset);
 
 #ifndef RELEASE
 		fprintf(fp1, "SND: %s, size %d bytes\n", AllSounds[i].name, snd->length);
@@ -848,7 +874,10 @@ void piggy_dump_all()
 	}
 
 	fseek(fp, xlat_offset, SEEK_SET);
-	fwrite(GameBitmapXlat, sizeof(uint16_t) * MAX_BITMAP_FILES, 1, fp);
+	for (i = 0; i < MAX_BITMAP_FILES; i++) //[ISB] I guess we're doing this again for some reason
+	{
+		F_WriteShort(fp, GameBitmapXlat[i]);
+	}
 
 	fclose(fp);
 

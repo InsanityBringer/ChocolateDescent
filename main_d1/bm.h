@@ -74,3 +74,15 @@ extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
 extern uint16_t ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;
+
+//[ISB] Functions for writing data structures, for the editor.
+void write_tmap_info(FILE* fp);
+void write_vclip_info(FILE* fp);
+void write_effect_info(FILE* fp);
+void write_wallanim_info(FILE* fp);
+void write_robot_info(FILE* fp);
+void write_robot_joints_info(FILE* fp);
+void write_weapon_info(FILE* fp);
+void write_powerup_info(FILE* fp);
+void write_polygon_models(FILE* fp);
+void write_player_ship(FILE* fp);
