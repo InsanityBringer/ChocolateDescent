@@ -39,7 +39,8 @@ void c_tmap_scanline_flat()
 
 	for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 	{
-		*dest++ = tmap_flat_color;
+		*dest = tmap_flat_color;
+		dest++;
 	}
 }
 
@@ -58,7 +59,8 @@ void c_tmap_scanline_shaded()
 	fade = tmap_flat_shade_value << 8;
 	for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 	{
-		*dest++ = gr_fade_table[fade | (*dest)];
+		*dest = gr_fade_table[fade | (*dest)];
+		dest++;
 	}
 }
 
@@ -83,7 +85,8 @@ void c_tmap_scanline_lin_nolight()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			*dest++ = (uint32_t)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
+			*dest = (uint32_t)pixptr[(f2i(v) & (64 * 63)) + (f2i(u) & 63)];
+			dest++;
 			u += dudx;
 			v += dvdx;
 		}
@@ -129,7 +132,8 @@ void c_tmap_scanline_lin()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)]];
+			*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)]];
+			dest++;
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -173,7 +177,8 @@ void c_tmap_scanline_per_nolight()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			*dest++ = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
+			*dest = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
+			dest++;
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
@@ -222,7 +227,8 @@ void c_tmap_scanline_per()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
 		{
-			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]];
+			*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]];
+			dest++;
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -290,7 +296,8 @@ void c_tmap_scanline_per_dither()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
 		{
-			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]];
+			*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]];
+			dest++
 			l += dldx;
 			fx_dl_dx1 = fx_dl_dx2;
 			fx_dl_dx2 = dldx;
@@ -334,11 +341,13 @@ fix pdiv(int a, int b)
 }
 
 //even and odd
-#define C_TMAP_SCANLINE_PLN_LOOP        *dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+#define C_TMAP_SCANLINE_PLN_LOOP        *dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+										dest++; \
 										ut = (ut + ui); \
 										vt = (vt + vi); \
 										l += dldx;\
-										*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+										*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+										dest++; \
 										ut = (ut + ui);\
 										vt = (vt + vi);\
 										l += dldx;
@@ -358,12 +367,14 @@ fix pdiv(int a, int b)
 										dest++;\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLN_LOOP_F 				*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+#define C_TMAP_SCANLINE_PLN_LOOP_F 				*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+												dest++; \
 												ut = (ut + ui);\
 												vt = (vt + vi);\
 												l += dldx;\
 												if (--num_left_over == 0) return;\
-												*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+												*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+												dest++; \
 												ut = (ut + ui); \
 												vt = (vt + vi); \
 												l += dldx;\
@@ -561,7 +572,8 @@ void c_tmap_scanline_pln()
 	{
 		for (x = num_left_over; x > 0; --x)
 		{
-			*dest++ = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)]];
+			*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)]];
+			dest++;
 			//*dest++ = 15;
 			l += dldx;
 			u += fx_du_dx;
@@ -590,11 +602,13 @@ void c_tmap_scanline_pln()
 }
 
 //even and odd
-#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP 		*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP 		*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										dest++;\
 										ut = (ut + ui);\
 										vt = (vt + vi);\
 										l += dldx;\
-										*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										dest++; \
 										ut = (ut + ui);\
 										vt = (vt + vi);\
 										l += dldx;
@@ -614,12 +628,14 @@ void c_tmap_scanline_pln()
 										dest++;\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP_F		*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP_F		*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+												dest++; \
 												ut = (ut + ui);\
 												vt = (vt + vi);\
 												l += dldx;\
 												if (--num_left_over == 0) return;\
-												*dest++ = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+												*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+												dest++; \
 												ut = (ut + ui);\
 												vt = (vt + vi);\
 												l += dldx;\
@@ -814,7 +830,8 @@ void c_tmap_scanline_pln_nolight()
 	{
 		for (x = num_left_over; x > 0; --x)
 		{
-			*dest++ = pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
+			*dest = pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
+			dest++;
 			//*dest++ = 15;
 			l += dldx;
 			u += fx_du_dx;
@@ -871,7 +888,8 @@ void c_tmap_scanline_editor()
 	{
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
 		{
-			*dest++ = zonk;
+			*dest = zonk;
+			dest++;
 			l += dldx;
 			u += dudx;
 			v += dvdx;
