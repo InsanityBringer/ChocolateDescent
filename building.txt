@@ -3,7 +3,7 @@ to change. I'll confess I barely know what I'm doing with CMake, so there's
 a number of limitations so far. 
 
 The project can be built on Windows (only tested with Visual Studio 2019)
-or Linux (only tested with gcc ATM, clang support is desired though)
+or Linux (Tested with clang and gcc)
 
 There are three external libraries, but most are optional.
 
