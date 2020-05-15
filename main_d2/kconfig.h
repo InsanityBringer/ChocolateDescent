@@ -149,7 +149,7 @@ extern void kconfig(int n, char * title );
 extern uint8_t kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
 extern uint8_t default_kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
 
-extern char *control_text[CONTROL_MAX_TYPES];
+extern const char *control_text[CONTROL_MAX_TYPES];
 
 extern void kc_set_controls();
 

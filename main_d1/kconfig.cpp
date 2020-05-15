@@ -391,6 +391,8 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 	int i, k, ocitem, citem;
 	int time_stopped = 0;
 
+	char* titlebuf;
+
 
 	All_items = items;
 	Num_items = nitems;
@@ -416,10 +418,14 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 
 	{
 		char* p;
-		p = strchr(title, '\n');
+
+		titlebuf = (char*)malloc(sizeof(char) * (strlen(title)+1));
+		strcpy(titlebuf, title);
+		p = strchr(titlebuf, '\n');
 		if (p)* p = 32;
-		gr_string(0x8000, 8, title);
+		gr_string(0x8000, 8, titlebuf);
 		if (p)* p = '\n';
+		free(titlebuf);
 	}
 
 

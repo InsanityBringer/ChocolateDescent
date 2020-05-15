@@ -544,6 +544,7 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 
 	int i, k, ocitem, citem;
 	int time_stopped = 0;
+	char* titlebuf;
 
 	All_items = items;
 	Num_items = nitems;
@@ -569,12 +570,17 @@ KConfigPaint:
 	nm_draw_background(0, 0, grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
 	gr_palette_load(gr_palette);
 
+	titlebuf = (char*)malloc(sizeof(char) * (strlen(title)+1));
+	strcpy(titlebuf, title);
+
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 	char* p;
-	p = strchr(title, '\n');
+	p = strchr(titlebuf, '\n');
 	if (p)*p = 32;
-	gr_string(0x8000, LHY(8), title);
+	gr_string(0x8000, LHY(8), titlebuf);
 	if (p)*p = '\n';
+
+	free(titlebuf);
 
 #ifdef MENU_MOUSE_ENABLED
 	close_x = close_y = 15;
