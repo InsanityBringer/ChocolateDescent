@@ -71,7 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "weapon.h"
 #include "sounds.h"
-#include "misc/args.h" //[ISB] THIS SHITTY HACK REGEN THE PROJECT DAMNIT
+#include "misc/args.h"
 #include "gameseq.h"
 #include "automap.h"
 #include "text.h"
@@ -109,10 +109,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "fix/fix.h"
 //#include "3dmax.h"
-
-#ifndef WINDOWS
-//#include "vga.h" //[ISB] Ugh 2.0. Should be covered by gr.h? I hope..........
-#endif
 
 #ifdef MWPROFILER
 #include <profiler.h>

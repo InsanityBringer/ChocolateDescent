@@ -103,28 +103,10 @@ int ml_sort_func(mle* e0, mle* e1)
 //returns 1 if file read ok, else 0
 int read_mission_file(char* filename, int count, int location)
 {
-	char filename2[256]; //[ISB] your fucking search function returns 256 chars. do you LIKE buffer overflows?
-	//[ISB] this doesn't even fix it because you could have a 256 char path and 256 char filename. 
+	char filename2[512]; //[ISB] path can be up to 255+nul, filename can be up to 255+nul, so hopefully this will be large enough
 	CFILE* mfile;
 
-	/*switch (location) 
-	{
-	case ML_MISSIONDIR:
-		strcpy(filename2, MISSION_DIR);
-		break;
-
-	case ML_CDROM:
-		songs_stop_redbook();		//so we can read from the CD
-		strcpy(filename2, CDROM_dir);
-		break;
-
-	default:
-		Int3();		//fall through
-
-	case ML_CURDIR:*/
-		strcpy(filename2, ""); //[ISB] always assume current dir for Descent 1
-		/*break;
-	}*/
+	strcpy(filename2, ""); //[ISB] always assume current dir for Descent 1
 	strcat(filename2, filename);
 
 	mfile = cfopen(filename2, "rb");
@@ -143,9 +125,9 @@ int read_mission_file(char* filename, int count, int location)
 		Mission_list[count].anarchy_only_flag = 0;
 		//Mission_list[count].location = location;
 
-		//[ISB] uh, doesn't this desync cfile?
+		//[ISB] uh, doesn't this desync cfile? Seems benign though...
 		p = get_parm_value("name", mfile->file);
-		//[ISB] kill vertigo and the like
+		
 		if (p) 
 		{
 			char* t;
@@ -195,18 +177,12 @@ int build_mission_list(int anarchy_mode)
 	count = 1;
 #endif
 
-	//[ISB] shouldn't find builtin mission
-	//if (!read_mission_file(BUILTIN_MISSION, 0, ML_CURDIR))		//read built-in first
-	//	Error("Could not find required mission file <%s>", BUILTIN_MISSION);
-
 	special_count = count = 1;
 
 	if (!FileFindFirst(search_name, &find)) 
 	{
 		do 
 		{
-			//if (stricmp(find.name, BUILTIN_MISSION) == 0)
-			//	continue;		//skip the built-in
 			if (read_mission_file(find.name, count, 0)) 
 			{
 				if (anarchy_mode || !Mission_list[count].anarchy_only_flag)
@@ -244,19 +220,10 @@ int load_mission(int mission_num)
 
 	mprintf((0, "Loading mission %d\n", mission_num));
 
-#ifndef DEST_SAT
 	if (mission_num == 0) //built-in mission
 	{
 		int i;
 
-#ifdef ROCKWELL_CODE
-		Last_level = 7;
-		Last_secret_level = 0;
-
-		//build level names
-		for (i = 0; i < Last_level; i++)
-			sprintf(Level_names[i], "LEVEL%02d.RDL", i + 1);
-#else
 		Last_level = BIM_LAST_LEVEL;
 		Last_secret_level = BIM_LAST_SECRET_LEVEL;
 
@@ -269,13 +236,12 @@ int load_mission(int mission_num)
 		Secret_level_table[0] = 10;
 		Secret_level_table[1] = 21;
 		Secret_level_table[2] = 24;
-#endif
+
 		strcpy(Briefing_text_filename, BIM_BRIEFING_FILE);
 		strcpy(Ending_text_filename, BIM_ENDING_FILE);
 		cfile_use_alternate_hogfile(NULL);		//disable alternate
 	}
 	else
-#endif
 	{		 //NOTE LINK TO ABOVE IF!!!!!
 			//read mission from file 
 		FILE* mfile;
@@ -289,17 +255,9 @@ int load_mission(int mission_num)
 		cfile_use_alternate_hogfile(tmp);
 
 		mfile = fopen(buf, "rt");
-#ifdef USE_CD
-		if (mfile == NULL) {
-			if (strlen(destsat_cdpath)) {
-				char temp_spec[128];
-				strcpy(temp_spec, destsat_cdpath);
-				strcat(temp_spec, buf);
-				mfile = fopen(temp_spec, "rt");
-			}
-		}
-#endif
-		if (mfile == NULL) {
+
+		if (mfile == NULL)
+		{
 			Current_mission_num = -1;
 			return 0;		//error!
 		}
@@ -309,14 +267,6 @@ int load_mission(int mission_num)
 		Last_secret_level = 0;
 		Briefing_text_filename[0] = 0;
 		Ending_text_filename[0] = 0;
-
-#ifdef DEST_SAT
-		if (!_strfcmp(Mission_list[mission_num].filename, "DESTSAT")) //	Destination Saturn.
-		{
-			strcpy(Briefing_text_filename, "briefsat.tex");
-			strcpy(Ending_text_filename, "endsat.tex");
-		}
-#endif
 
 		while (mfgets(buf, 80, mfile))
 		{

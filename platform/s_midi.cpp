@@ -173,7 +173,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 				done = 1;
 				b &= 0x7F;
 			}
-			value += (b << (position * 8));
+			value += (b << (position * 7));
 			position++;
 			pointer++;
 		}
