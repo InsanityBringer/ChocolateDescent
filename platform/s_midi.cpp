@@ -144,6 +144,44 @@ void S_ShutdownMusic()
 	CurrentDevice = 0;
 }
 
+int S_ReadDelta(int* pointer, uint8_t* data)
+{
+	int done = 0, position = 0, value = 0;
+	uint8_t b;
+	while (!done)
+	{
+		b = data[*pointer];
+		if (b & 0x80) //We're done now
+		{
+			done = 1;
+			b &= 0x7F;
+		}
+		value += (b << (position * 7));
+		position++;
+		*pointer = *pointer + 1;
+	}
+	return value;
+}
+
+int S_ReadMIDIDelta(int* pointer, uint8_t* data)
+{
+	int done = 0, position = 0, value = 0;
+	uint8_t b;
+	while (!done)
+	{
+		b = data[*pointer];
+		if ((b & 0x80) == 0) //We're done now
+		{
+			done = 1;
+		}
+		b &= 0x7F;
+		value += (b << (position * 7));
+		position++;
+		*pointer = *pointer + 1;
+	}
+	return value;
+}
+
 int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* song)
 {
 	int done, oldpointer, position, value, i;
@@ -197,8 +235,8 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 			pointer += 1;
 			break;
 		case 0xff:
-			pointer++; //skip command
-			value = data[pointer]; pointer += value + 1;
+ 			pointer++; //skip command
+			value = S_ReadMIDIDelta(&pointer, data); pointer += value;
 			break;
 		default:
 			fprintf(stderr, "Unknown event %d in hmp file", command);
@@ -230,7 +268,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 	{
 		done = 0; position = 0; value = 0;
 		memset(&chunk->events[i], 0, sizeof(midievent_t));
-		while (!done)
+		/*while (!done)
 		{
 			b = data[pointer];
 			if (b & 0x80) //We're done now
@@ -241,7 +279,8 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 			value += ((b & 0x7F) << position);
 			position+=7;
 			pointer++;
-		}
+		}*/
+		value = S_ReadDelta(&pointer, data);
 		chunk->events[i].delta = (uint64_t)value * (I_GetPreferredMIDISampleRate() / song->bpm);
 		b = data[pointer]; pointer++;
 		if (b == 0xff)
@@ -282,7 +321,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 			break;
 		case 0xff:
 			chunk->events[i].param1 = data[pointer++];
-			chunk->events[i].dataLength = data[pointer++];
+			chunk->events[i].dataLength = S_ReadMIDIDelta(&pointer, data);
 			if (chunk->events[i].dataLength != 0)
 			{
 				chunk->events[i].data = (uint8_t*)malloc(chunk->events[i].dataLength * sizeof(uint8_t));

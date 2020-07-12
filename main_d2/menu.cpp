@@ -271,7 +271,7 @@ void create_main_menu(newmenu_item * m, int* menu_choice, int* callers_num_optio
 		ADD_ITEM(const_cast<char*>("  Editor"), MENU_EDITOR, KEY_E);
 #endif
 	}
-	//ADD_ITEM(const_cast<char*>("  Play song"), MENU_PLAY_SONG, -1 );
+	ADD_ITEM(const_cast<char*>("  Play song"), MENU_PLAY_SONG, -1 );
 #endif
 
 	* callers_num_options = num_options;
