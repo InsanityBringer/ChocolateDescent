@@ -47,6 +47,8 @@ void MidiSequencer::RewindSong(bool resetLoop)
 	ticks = lastRenderedTick = 0;
 	int cumlTime;
 
+	//[ISB] For now. In a full implementation this should be a special function to only reset controllers.
+	synth->StopSound();
 	for (int i = 0; i < song->numChunks; i++)
 	{
 		chunk = &song->chunks[i];
@@ -105,7 +107,7 @@ uint64_t MidiSequencer::Tick()
 			//loop hack
 			if (loop) //Specs say to have loops on track 1 but this seems to vary some? I'm very frequently seeing it on Track 2
 			{
-				if (ev->type == EVENT_CONTROLLER && ev->param1 == 111)
+				if (ev->type == EVENT_CONTROLLER && ev->param1 == HMI_CONTROLLER_GLOBAL_LOOP_END)
 				{
 					//Cause an immediate rewind
 					//TODO: Evalulate whether or not the events on this tick should be played. descent2.com is unclear. 

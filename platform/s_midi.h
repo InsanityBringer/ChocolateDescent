@@ -19,6 +19,37 @@ as described in copying.txt
 #define EVENT_PITCH 14
 #define EVENT_SYSEX 15
 
+//HMI special events determined from docs found on archive.org
+//Note that these are from 4.0 and not all may apply to Descent
+//This is in need of research
+
+//Sets whether controllers are reset on a branch
+#define HMI_CONTROLLER_ENABLE_CONTROLLER_RESTORE 103
+#define HMI_CONTROLLER_DISABLE_CONTROLLER_RESTORE 104
+
+//Adjust priority
+#define HMI_CONTROLLER_LOCK_CHAN 106
+#define HMI_CONTROLLER_CHAN_PRIORITY 107
+
+//Local (per track) branch
+#define HMI_CONTROLLER_LOCAL_BRANCH_POS 108
+#define HMI_CONTROLLER_LOCAL_BRANCH 109
+
+//Global loop
+#define HMI_CONTROLLER_GLOBAL_LOOP_START 110
+#define HMI_CONTROLLER_GLOBAL_LOOP_END 111
+
+//Global branch
+#define HMI_CONTROLLER_GLOBAL_BRANCH_POS 113
+#define HMI_CONTROLLER_GLOBAL_BRANCH 114
+
+//Local loop
+#define HMI_CONTROLLER_LOCAL_LOOP_START 116
+#define HMI_CONTROLLER_LOCAL_LOOP_END 117
+
+//Call trigger, unused by descent
+#define HMI_CONTROLLER_CALL_TRIGGER 119
+
 #define _MIDI_GEN 0xA001
 #define _MIDI_FM 0xA002
 #define _MIDI_AWE32 0xA008 //[ISB] no idea what this would entail...

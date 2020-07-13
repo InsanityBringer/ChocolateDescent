@@ -300,17 +300,58 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 			chunk->events[i].param1 = data[pointer++];
 			chunk->events[i].param2 = data[pointer++];
 
-			if (command == EVENT_CONTROLLER && chunk->events[i].param1 == 110)
+			if (command == EVENT_CONTROLLER)
 			{
-				int j;
-				if (song->loopStart == 0) //descent 1 game02.hmp has two loop points. uh?
+				switch (chunk->events[i].param1)
 				{
-					for (j = 0; j < i; j++)
+				case HMI_CONTROLLER_GLOBAL_LOOP_START:
+				{
+					int j;
+					if (song->loopStart == 0) //descent 1 game02.hmp has two loop points. uh?
 					{
-						song->loopStart += chunk->events[j].delta;
+						for (j = 0; j < i; j++)
+						{
+							song->loopStart += chunk->events[j].delta;
+						}
 					}
+#ifdef DEBUG_SPECIAL_CONTROLLERS
+					printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d, loop count %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, song->loopStart, chunk->events[i].param2);
+#endif
 				}
-				//printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, song->loopStart);
+				break;
+#ifdef DEBUG_SPECIAL_CONTROLLERS
+				case HMI_CONTROLLER_ENABLE_CONTROLLER_RESTORE:
+					printf("Controller restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+				break;
+				case HMI_CONTROLLER_DISABLE_CONTROLLER_RESTORE:
+					printf("Controller restore disable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_LOCAL_BRANCH_POS:
+					printf("Local branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_LOCAL_BRANCH:
+					printf("Local branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_GLOBAL_BRANCH_POS:
+					printf("Global branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_GLOBAL_BRANCH:
+					printf("Global branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_LOCAL_LOOP_START:
+					printf("Local loop pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_CALL_TRIGGER:
+					printf("Call trigger (but why) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_LOCK_CHAN:
+					printf("Channel lock on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_CHAN_PRIORITY:
+					printf("Channel priority on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+#endif
+				}
 			}
 			//if (command == EVENT_CONTROLLER && chunk->events[i].param1 == 111)
 				//printf("Loop end on track %d channel %d, event %d with delta %d\n", chunk->chunkNum, chunk->events[i].channel, i, value);

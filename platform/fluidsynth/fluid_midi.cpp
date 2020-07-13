@@ -89,13 +89,13 @@ void MidiFluidSynth::DoMidiEvent(midievent_t *ev)
 
 void MidiFluidSynth::StopSound()
 {
-	for (int chan = 0; chan < 16; chan++)
+	fluid_synth_system_reset(FluidSynth);
+	/*for (int chan = 0; chan < 16; chan++)
 	{
-		fluid_synth_system_reset(FluidSynth);
 		//fluid_synth_cc(FluidSynth, chan, 0x79, 0);
 		//[ISB] this was originally an All Notes Off, but I misremembered the original game, it doesn't bleed midi notes, at least in some quick testing
 		//fluid_synth_cc(FluidSynth, chan, 0x78, 0);
-	}
+	}*/
 }
 
 #endif
