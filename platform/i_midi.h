@@ -31,6 +31,7 @@ public:
 	void RenderMIDI(int numTicks, unsigned short* buffer) override;
 	void StopSound() override;
 	void Shutdown() override;
+	void SetDefaults() override;
 };
 
 #endif

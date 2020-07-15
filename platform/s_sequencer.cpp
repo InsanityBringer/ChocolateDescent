@@ -46,9 +46,8 @@ void MidiSequencer::RewindSong(bool resetLoop)
 	midichunk_t* chunk;
 	ticks = lastRenderedTick = 0;
 	int cumlTime;
+	int diff;
 
-	//[ISB] For now. In a full implementation this should be a special function to only reset controllers.
-	synth->StopSound();
 	for (int i = 0; i < song->numChunks; i++)
 	{
 		chunk = &song->chunks[i];
@@ -74,9 +73,21 @@ void MidiSequencer::RewindSong(bool resetLoop)
 					cumlTime += chunk->nextEventTime;
 					chunk->nextEventTime = chunk->events[chunk->nextEvent].delta;
 				}
+				if (chunk->nextEvent != -1)
+				{
+					diff = cumlTime - song->loopStart;
+					if (diff < 0)
+						fprintf(stderr, "MidiSequencer::RewindSong: negative delta adjusting next delta\n");
+
+					//printf("Adjusting delta by %d\n", diff);
+					chunk->nextEventTime -= diff;
+				}
 			}
 			else
 			{
+				//This needs a lot of TODO, to make it work on only specific channels, and it needs to execute even when looping
+				//For now this is a hack to ensure controllers are still in sane values while looping
+				synth->SetDefaults();
 				chunk->nextEvent = 0;
 				chunk->nextEventTime = chunk->events[0].delta;
 			}

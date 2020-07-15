@@ -123,12 +123,20 @@ class MidiSynth
 {
 	MidiSequencer* sequencer;
 public:
+	//Synth classification. Returns MIDISYNTH_SOFT if using a softsynth, MIDISYNTH_LIVE if using a hardware synth
 	virtual int ClassifySynth() = 0;
+	//Changes the sample rate for soft synths.
 	virtual void SetSampleRate(uint32_t newSampleRate) = 0;
+	//Executes a midi event.
 	virtual void DoMidiEvent(midievent_t* ev) = 0;
+	//Renders a softsynth's output into a buffer. For stereo sounds samples are interleaved.
 	virtual void RenderMIDI(int numTicks, unsigned short* buffer) = 0;
+	//Stops all sounds from the synthesizer.
 	virtual void StopSound() = 0;
+	//Closes the midi synth.
 	virtual void Shutdown() = 0;
+	//Resets the default state for the synth, because HMI SOS has unusual specifications.
+	virtual void SetDefaults() = 0;
 };
 
 class DummyMidiSynth : public MidiSynth
@@ -140,6 +148,7 @@ public:
 	void RenderMIDI(int numTicks, unsigned short* buffer) override { }
 	void StopSound() override { }
 	void Shutdown() override { }
+	void SetDefaults() override { }
 };
 
 //Class which represents the midi thread. Has a Sequencer and a Synthesizer, and invokes the current audio backend to run

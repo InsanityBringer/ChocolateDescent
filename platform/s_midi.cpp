@@ -268,18 +268,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 	{
 		done = 0; position = 0; value = 0;
 		memset(&chunk->events[i], 0, sizeof(midievent_t));
-		/*while (!done)
-		{
-			b = data[pointer];
-			if (b & 0x80) //We're done now
-			{
-				done = 1;
-				//b &= 0x7F;
-			}
-			value += ((b & 0x7F) << position);
-			position+=7;
-			pointer++;
-		}*/
+
 		value = S_ReadDelta(&pointer, data);
 		chunk->events[i].delta = (uint64_t)value * (I_GetPreferredMIDISampleRate() / song->bpm);
 		b = data[pointer]; pointer++;
@@ -307,7 +296,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 				case HMI_CONTROLLER_GLOBAL_LOOP_START:
 				{
 					int j;
-					if (song->loopStart == 0) //descent 1 game02.hmp has two loop points. uh?
+					if (song->loopStart == 0) //descent 1 game02.hmp has two loop points. On different tracks, so probably need to match them.
 					{
 						for (j = 0; j < i; j++)
 						{
@@ -320,6 +309,9 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 				}
 				break;
 #ifdef DEBUG_SPECIAL_CONTROLLERS
+				case HMI_CONTROLLER_GLOBAL_LOOP_END:
+					printf("Loop end restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+				break;
 				case HMI_CONTROLLER_ENABLE_CONTROLLER_RESTORE:
 					printf("Controller restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
 				break;
@@ -329,7 +321,7 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 				case HMI_CONTROLLER_LOCAL_BRANCH_POS:
 					printf("Local branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
 					break;
-				case HMI_CONTROLLER_LOCAL_BRANCH:
+				case HMI_CONTROLLER_LOCAL_BRANCH:f 
 					printf("Local branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
 					break;
 				case HMI_CONTROLLER_GLOBAL_BRANCH_POS:
@@ -353,8 +345,6 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 #endif
 				}
 			}
-			//if (command == EVENT_CONTROLLER && chunk->events[i].param1 == 111)
-				//printf("Loop end on track %d channel %d, event %d with delta %d\n", chunk->chunkNum, chunk->events[i].channel, i, value);
 			break;
 		case EVENT_PATCH:
 		case EVENT_PRESSURE:
