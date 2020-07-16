@@ -8,6 +8,7 @@ as described in copying.txt
 
 #include <thread>
 #include <mutex>
+#include <vector>
 #include <stdint.h>
 
 #define EVENT_NOTEOFF 8
@@ -100,6 +101,51 @@ typedef struct
 
 	midichunk_t* chunks;
 } hmpheader_t;
+
+class HMPTrack
+{
+	int chunkNum;
+	int num;
+
+	//Track sequencing data
+	//TODO: Tracks need their own playhead
+	int nextEvent; //Next event to play, -1 if this track is finished
+	uint64_t nextEventTime; //At what MIDI tick should this event be played? This value's unit is what the particular sequencer wants.
+
+	//TODO: Convert midievent_t into class
+	std::vector<midievent_t> events;
+
+public:
+	HMPTrack(int chunkn, int n);
+
+	void AddEvent(midievent_t ev)
+	{
+		events.push_back(ev);
+	}
+
+	void StartSequence();
+
+};
+
+class HMPFile
+{
+	char header[32]; //Should be "HMIMIDIP", null padded to 32 bytes.
+	int numChunks; //Amount of chunks. TODO: Should chunks be separated from "tracks"?
+	int ticksPerQuarter; //Ticks per quarter note. Should always be 60, other values cause problems in Descent, according to Parabolicus. 
+	int tempo; //formerly bpm. Ticks per second.
+	int seconds; //Length of the song in seconds. I don't think this has a technical use, but useful for debugging.
+
+	std::vector<HMPTrack> tracks;
+
+	//TODO: This needs to be per track.
+	uint64_t loopStart;
+
+	//private member for reading events from a chunk. Returns the new pointer.
+	int ReadChunk(int ptr, uint8_t* data);
+
+public:
+	HMPFile(int len, uint8_t* data);
+};
 
 int S_InitMusic(int device);
 void S_ShutdownMusic();

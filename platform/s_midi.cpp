@@ -23,6 +23,8 @@ as described in copying.txt.
 //Will probably overflow your console buffer, so make it really long if you must
 //#define DEBUG_MIDI_READING
 
+//#define DEBUG_SPECIAL_CONTROLLERS
+
 int CurrentDevice = 0;
 
 char SoundFontFilename[256] = "TestSoundfont.sf2";
@@ -194,10 +196,6 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 	chunk->chunkLen = BS_MakeInt(&data[pointer + 4]);
 	chunk->chunkTrack = BS_MakeInt(&data[pointer + 8]);
 
-#ifdef DEBUG_MIDI_READING
-	fprintf(stderr, "Chunk %d:\n Length: %d\n Track: %d\n Events:\n", chunk->chunkNum, chunk->chunkLen, chunk->chunkTrack);
-#endif
-
 	//Count events. Couldn't we have gotten something useful in the header like an event count? eh
 	pointer += 12; oldpointer = pointer;
 	while (pointer < (basepointer + chunk->chunkLen))
@@ -363,10 +361,6 @@ int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* 
 			fprintf(stderr, "Unknown event %d in hmp file", command);
 			break;
 		}
-
-#ifdef DEBUG_MIDI_READING
-		S_PrintEvent(&chunk->events[i]);
-#endif
 	}
 
 	//Ready the chunk for sequencing
@@ -455,5 +449,189 @@ int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
 		pointer = S_ReadHMPChunk(pointer, data, &song->chunks[i], song);
 	}
 
+	//DEBUG
+	HMPFile test = HMPFile(length, data);
+
 	return 0;
+}
+
+HMPTrack::HMPTrack(int chunknum, int tracknum)
+{
+	chunkNum = chunknum;
+	num = tracknum;
+
+	//Set basic sequencing data
+	nextEvent = 0;
+	nextEventTime = 0;
+
+	//Create empty event list.
+	events = std::vector<midievent_t>();
+}
+
+void HMPTrack::StartSequence()
+{
+	if (events.size() > 0)
+	{
+		nextEvent = 0;
+		nextEventTime = events[0].delta;
+	}
+	else
+		nextEvent = -1;
+}
+
+HMPFile::HMPFile(int len, uint8_t* data)
+{
+	int branchTableOffset, pointer, i;
+
+	memcpy(header, data, 32); //Check for version 1 HMP
+
+	branchTableOffset = BS_MakeInt(&data[32]);
+	//3 dummy dwords here
+	numChunks = BS_MakeInt(&data[48]);
+	ticksPerQuarter = BS_MakeInt(&data[52]);
+	tempo = BS_MakeInt(&data[56]);
+	seconds = BS_MakeInt(&data[60]);
+
+	//Up next would be device mapping information, but this isn't useful for Descent ATM.
+	//It might become more vital when emulation of other sound cards is implemented.
+
+	tracks = std::vector<HMPTrack>();
+	//Jump forward and read all the chunks.
+	pointer = 776; //Pointer is adjusted by the reading function
+	for (i = 0; i < numChunks; i++)
+	{
+		pointer = ReadChunk(pointer, data);
+	}
+}
+
+int HMPFile::ReadChunk(int ptr, uint8_t* data)
+{
+	uint8_t b;
+	int command, delta, tick;
+	int basePointer = ptr;
+	int destPointer;
+	int chunkNum = BS_MakeInt(&data[ptr]);
+	int chunkLen = BS_MakeInt(&data[ptr + 4]);
+	int chunkTrack = BS_MakeInt(&data[ptr + 8]);
+	ptr += 12;
+
+	//Chunk length contains the header fields.
+	destPointer = basePointer + chunkLen;
+
+	HMPTrack track = HMPTrack(chunkNum, chunkTrack);
+
+	tick = 0; //Temp hack for loop point
+
+#ifdef DEBUG_MIDI_READING
+	fprintf(stderr, "Chunk %d:\n Length: %d\n Track: %d\n Events:\n", chunkNum, chunkLen, chunkTrack);
+#endif
+
+	while (ptr < destPointer) 
+	{
+		midievent_t ev;
+		delta = S_ReadDelta(&ptr, data);
+		b = data[ptr]; ptr++;
+		tick += delta;
+
+		if (b == 0xff)
+			command = 0xff;
+		else
+			command = (b >> 4) & 0xf;
+
+		ev.type = command;
+		ev.channel = b & 0xf;
+		ev.delta = delta;
+
+		switch (command) //Actually load the params now
+		{
+		case EVENT_NOTEOFF:
+		case EVENT_NOTEON:
+		case EVENT_AFTERTOUCH:
+		case EVENT_CONTROLLER:
+		case EVENT_PITCH:
+			ev.param1 = data[ptr++];
+			ev.param2 = data[ptr++];
+
+			if (command == EVENT_CONTROLLER)
+			{
+				switch (ev.param1)
+				{
+				case HMI_CONTROLLER_GLOBAL_LOOP_START:
+				{
+					int j;
+					if (loopStart == 0) //descent 1 game02.hmp has two loop points. On different tracks, so probably need to match them.
+					{
+						loopStart = tick;
+					}
+#ifdef DEBUG_SPECIAL_CONTROLLERS
+					printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d, loop count %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, song->loopStart, chunk->events[i].param2);
+#endif
+				}
+				break;
+#ifdef DEBUG_SPECIAL_CONTROLLERS
+				case HMI_CONTROLLER_GLOBAL_LOOP_END:
+					printf("Loop end restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_ENABLE_CONTROLLER_RESTORE:
+					printf("Controller restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_DISABLE_CONTROLLER_RESTORE:
+					printf("Controller restore disable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_LOCAL_BRANCH_POS:
+					printf("Local branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_LOCAL_BRANCH:f
+					printf("Local branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_GLOBAL_BRANCH_POS:
+					printf("Global branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_GLOBAL_BRANCH:
+					printf("Global branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_LOCAL_LOOP_START:
+					printf("Local loop pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_CALL_TRIGGER:
+					printf("Call trigger (but why) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_LOCK_CHAN:
+					printf("Channel lock on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+				case HMI_CONTROLLER_CHAN_PRIORITY:
+					printf("Channel priority on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					break;
+#endif
+				}
+			}
+			break;
+		case EVENT_PATCH:
+		case EVENT_PRESSURE:
+			ev.param1 = data[ptr++];
+			break;
+		case 0xff:
+			ev.param1 = data[ptr++];
+			ev.dataLength = S_ReadMIDIDelta(&ptr, data);
+			if (ev.dataLength != 0)
+			{
+				//TODO: Determine if any meta events whatsoever are important for us. 
+				/*chunk->events[i].data = (uint8_t*)malloc(chunk->events[i].dataLength * sizeof(uint8_t));*/
+				/*memcpy(chunk->events[i].data, &data[pointer], chunk->events[i].dataLength);*/
+				ptr += ev.dataLength;
+			}
+			break;
+		default:
+			fprintf(stderr, "Unknown event %d in hmp file", command);
+			break;
+		}
+
+#ifdef DEBUG_MIDI_READING
+		S_PrintEvent(&ev);
+#endif
+		//TODO: Events are passed by value rather than by reference or via a pointer, so they get copied
+		//This needs to be changed if dynamic allocation is used for meta events
+		track.AddEvent(ev);
+	}
+	return ptr;
 }
