@@ -56,6 +56,8 @@ uint32_t localPal[256];
 //TODO: temp hack for easy readback, replace with saner code
 SDL_Color colors[256];
 
+int refreshDuration = US_70FPS;
+
 int I_Init()
 {
 	int res;
@@ -140,17 +142,18 @@ int I_SetMode(int mode)
 {
 	int w, h;
 
+	refreshDuration = US_60FPS;
 	switch (mode)
 	{
 	case SM_320x200C:
 	case SM_320x200U:
-		w = 320; h = 200;
+		w = 320; h = 200; refreshDuration = US_70FPS;
 		break;
 	case SM_320x240U:
-		w = 320; h = 240;
+		w = 320; h = 240; refreshDuration = US_70FPS; //these need to be checked
 		break;
 	case SM_360x200U:
-		w = 360; h = 200;
+		w = 360; h = 200; refreshDuration = US_70FPS;
 		break;
 	case SM_360x240U:
 		w = 360; h = 240;
@@ -350,7 +353,7 @@ void I_WaitVBL()
 {
 	//Now what is a VBL, anyways?
 	//SDL_Delay(1000 / 70);
-	I_MarkEnd(US_70FPS);
+	I_MarkEnd(refreshDuration);
 	I_MarkStart();
 }
 
