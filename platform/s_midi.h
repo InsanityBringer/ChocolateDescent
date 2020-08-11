@@ -140,6 +140,8 @@ class HMPFile
 	//TODO: This needs to be per track.
 	uint64_t loopStart;
 
+	uint8_t controllerResetTable[128]; //Table of controllers that should be reset on a loop or branch. Nonzero if they should be reset.
+
 	//private member for reading events from a chunk. Returns the new pointer.
 	int ReadChunk(int ptr, uint8_t* data);
 

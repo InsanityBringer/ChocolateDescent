@@ -513,6 +513,8 @@ set(SDL_SOURCES
 	platform/sdl/key_sdl.cpp
 	platform/sdl/mouse_sdl.cpp
     platform/sdl/joy_sdl.cpp
+	platform/sdl/gl_sdl.cpp
+	platform/sdl/gl_sdl.h
 )
 
 set(OPENAL_SOURCES

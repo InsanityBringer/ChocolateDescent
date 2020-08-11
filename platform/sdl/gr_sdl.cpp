@@ -10,6 +10,7 @@ Instead, it is released under the terms of the MIT License.
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifdef USE_SDL
 
@@ -30,15 +31,19 @@ Instead, it is released under the terms of the MIT License.
 #include "platform/key.h"
 #include "platform/timer.h"
 
+#include "platform/sdl/gl_sdl.h"
+
 #define FITMODE_BEST 1
 #define FITMODE_FILTERED 2
 
+#ifdef BUILD_DESCENT2
+const char* titleMsg = "Chocolate Descent ][ (" __DATE__ ")";
+#else
+const char* titleMsg = "Chocolate Descent (" __DATE__ ")";
+#endif
+
 int WindowWidth = 1600, WindowHeight = 900;
 SDL_Window* gameWindow = NULL;
-SDL_Renderer* renderer = NULL;
-SDL_Surface* gameSurface = NULL;
-SDL_Surface* hackSurface = NULL;
-SDL_Texture* gameTexture = NULL;
 grs_canvas* screenBuffer;
 
 int BestFit = 0;
@@ -48,11 +53,16 @@ SDL_Rect screenRectangle;
 
 uint32_t localPal[256];
 
+//TODO: temp hack for easy readback, replace with saner code
+SDL_Color colors[256];
+
 int I_Init()
 {
 	int res;
 
 	res = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
+	//Ensure a library capable of modern functions is available. 
+	SDL_GL_LoadLibrary(NULL);
 	if (res)
 	{
 		Warning("Error initalizing SDL: %s\n", SDL_GetError());
@@ -64,22 +74,24 @@ int I_Init()
 
 int I_InitWindow()
 {
-	//SDL is good, create a game window
-	//gameWindow = SDL_CreateWindow("it's a video game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, /*SDL_WINDOW_INPUT_GRABBED*/0);
-	int flags = 0;
+	int flags = SDL_WINDOW_OPENGL;
 	if (Fullscreen)
 		flags = SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
-	int result = SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, flags, &gameWindow, &renderer);
+	//SDL is good, create a game window
+	gameWindow = SDL_CreateWindow(titleMsg, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, flags);
+	//int result = SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, flags, &gameWindow, &renderer);
 	if (Fullscreen)
 		SDL_GetWindowSize(gameWindow, &WindowWidth, &WindowHeight);
 
-	if (result)
+	if (!gameWindow)
 	{
 		Warning("Error creating game window: %s\n", SDL_GetError());
 		return 1;
 	}
 	//where else do i do this...
 	I_InitSDLJoysticks();
+
+	I_InitGLContext(gameWindow);
 
 	return 0;
 }
@@ -127,12 +139,6 @@ void I_SetScreenCanvas(grs_canvas* canv)
 int I_SetMode(int mode)
 {
 	int w, h;
-	SDL_Surface* oldSurf, * oldHackSurf;
-	SDL_Texture* oldTex;
-	//Retain the old surface to bring over properties
-	oldSurf = gameSurface;
-	oldHackSurf = hackSurface;
-	oldTex = gameTexture;
 
 	switch (mode)
 	{
@@ -204,28 +210,8 @@ int I_SetMode(int mode)
 	else
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
-	//What horrid screen code tbh
-	gameSurface = SDL_CreateRGBSurface(0, w, h, 8, 0, 0, 0, 0);
-	if (!gameSurface)
-		Error("Error creating surface for mode %d: %s\n", mode, SDL_GetError());
-
-	hackSurface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGBA8888);
-	if (!hackSurface)
-		Error("Error creating RGB surface for mode %d: %s\n", mode, SDL_GetError());
-
-	gameTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, w, h);
-	if (!gameTexture)
-		Error("Error creating renderer texture for mode %d: %s\n", mode, SDL_GetError());
-
 	//[ISB] this should hopefully fix all instances of the screen flashing white when changing modes
 	I_WritePalette(0, 255, gr_palette);
-
-	if (oldSurf) 
-		SDL_FreeSurface(oldSurf);
-	if (oldHackSurf)
-		SDL_FreeSurface(oldHackSurf);
-	if (oldTex)
-		SDL_DestroyTexture(oldTex);
 
 	//Create the destination rectangle for the game screen
 	int bestWidth = WindowHeight * 4 / 3;
@@ -247,6 +233,9 @@ int I_SetMode(int mode)
 		screenRectangle.x = (WindowWidth - screenRectangle.w) / 2;
 		screenRectangle.y = (WindowHeight - screenRectangle.h) / 2;
 	}
+
+
+	GL_SetVideoMode(w, h, &screenRectangle);
 
 	return 0;
 }
@@ -324,21 +313,17 @@ void I_SetRelative(int state)
 
 void I_WritePalette(int start, int end, uint8_t* data)
 {
-	SDL_Palette *pal;
-	SDL_Color colors[256];
 	int i;
-	if (!gameSurface) return;
-	pal = gameSurface->format->palette;
-	if (!pal) return;
 
+	//TODO: don't waste time storing in the SDL color array
 	for (i = 0; i <= end-start; i++)
 	{
 		colors[i].r = (Uint8)(data[i * 3 + 0] * 255 / 63);
 		colors[i].g = (Uint8)(data[i * 3 + 1] * 255 / 63);
 		colors[i].b = (Uint8)(data[i * 3 + 2] * 255 / 63);
-		localPal[start+i] = 255 | (colors[i].r << 24) | (colors[i].g << 16) | (colors[i].b << 8);
+		localPal[start+i] = (255 << 24) | (colors[i].r) | (colors[i].g << 8) | (colors[i].b << 16);
 	}
-	SDL_SetPaletteColors(pal, &colors[0], start, end-start+1);
+	GL_SetPalette(localPal);
 }
 
 void I_BlankPalette()
@@ -351,14 +336,10 @@ void I_BlankPalette()
 void I_ReadPalette(uint8_t* dest)
 {
 	int i;
-	SDL_Palette* pal;
 	SDL_Color color;
-	if (!gameSurface) return;
-	pal = gameSurface->format->palette;
-	if (!pal) return;
 	for (i = 0; i < 256; i++)
 	{
-		color = pal->colors[i];
+		color = colors[i];
 		dest[i * 3 + 0] = (uint8_t)(color.r * 63 / 255);
 		dest[i * 3 + 1] = (uint8_t)(color.g * 63 / 255);
 		dest[i * 3 + 2] = (uint8_t)(color.b * 63 / 255);
@@ -379,39 +360,9 @@ void I_DrawCurrentCanvas(int sync)
 	{
 		SDL_Delay(1000 / 70);
 	}
-	SDL_Rect src, dest;
 
-	if (!gameSurface) return;
-
-	src.x = src.y = 0;
-	//src.w = grd_curscreen->sc_w; src.h = grd_curscreen->sc_h;
-	src.w = gameSurface->w; src.h = gameSurface->h;
-
-	dest.x = dest.y = 0; //dest.w = WindowWidth-1; dest.h = WindowHeight-1;
-
-	uint32_t* texPixels;
-	int pitch;
-	SDL_LockTexture(gameTexture, NULL, (void**)&texPixels, &pitch);
-	uint8_t *pixels = screenBuffer->cv_bitmap.bm_data;
-	int iterations = screenBuffer->cv_bitmap.bm_h * screenBuffer->cv_bitmap.bm_w;
-	for (int i = 0; i < iterations; i+=8)
-	{
-		texPixels[i] = localPal[pixels[i]];
-		texPixels[i + 1] = localPal[pixels[i + 1]];
-		texPixels[i + 2] = localPal[pixels[i + 2]];
-		texPixels[i + 3] = localPal[pixels[i + 3]];
-		texPixels[i + 4] = localPal[pixels[i + 4]];
-		texPixels[i + 5] = localPal[pixels[i + 5]];
-		texPixels[i + 6] = localPal[pixels[i + 6]];
-		texPixels[i + 7] = localPal[pixels[i + 7]];
-		//texPixels++;
-		//pixels++;
-	}
-	SDL_UnlockTexture(gameTexture);
-
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, gameTexture, &src, &screenRectangle);
-	SDL_RenderPresent(renderer);
+	GL_DrawPhase1();
+	SDL_GL_SwapWindow(gameWindow);
 }
 
 void I_BlitCanvas(grs_canvas *canv)
