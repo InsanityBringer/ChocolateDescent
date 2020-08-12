@@ -12,6 +12,7 @@ Instead, it is released under the terms of the MIT License.
 
 #include "gl_sdl.h"
 #include "2d/gr.h"
+#include "2d/i_gr.h"
 #include "misc/error.h"
 
 SDL_GLContext context;
@@ -253,6 +254,8 @@ void I_InitGLContext(SDL_Window *win)
 	sglEnableVertexAttribArray(1); //uv
 	sglVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (const void*)(sizeof(float) * 2));
 	GL_ErrorCheck("Enabling vertex attributes");
+
+	SDL_GL_SetSwapInterval(SwapInterval);
 }
 
 extern unsigned char* gr_video_memory;

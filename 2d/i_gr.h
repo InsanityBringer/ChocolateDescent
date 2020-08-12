@@ -1,4 +1,9 @@
 /*
+The code contained in this file is not the property of Parallax Software,
+and is not under the terms of the Parallax Software Source license.
+Instead, it is released under the terms of the MIT License.
+*/
+/*
 *	Horrid attempt at a system-indemendent grpahics implementation.
 *	It probably only works with SDL tbh.
 */
@@ -11,6 +16,7 @@
 extern int WindowWidth, WindowHeight;
 extern int BestFit;
 extern int Fullscreen;
+extern int SwapInterval;
 
 //-----------------------------------------------------------------------------
 //	Graphics initalization and shutdown

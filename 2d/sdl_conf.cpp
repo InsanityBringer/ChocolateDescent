@@ -27,6 +27,7 @@ static const char* FitModeStr = "FitMode";
 static const char* FullscreenStr = "Fullscreen";
 static const char* SoundFontPath = "SoundFontPath";
 static const char* MouseScalarStr = "MouseScalar";
+static const char* SwapIntervalStr = "SwapInterval";
 
 //[ISB] to be honest, I hate this configuration parser. I should try to create something more flexible at some point.
 int I_ReadChocolateConfig()
@@ -39,12 +40,10 @@ int I_ReadChocolateConfig()
 	WindowWidth = 800;
 	WindowHeight = 600;
 
-	//errno_t err = fopen_s(&infile, "chocolatedescent.cfg", "rt"); //[ISB] can someone remind me again why I undefined _CRT_SECURE_NO_WARNINGS? I don't know myself
 	infile = fopen("chocolatedescent.cfg", "rt");
 	if (infile == NULL) 
 	{
 		//Try creating a default config file
-		//err = fopen_s(&infile, "chocolatedescent.cfg", "w");
 		infile = fopen("chocolatedescent.cfg", "w");
 		if (infile != NULL)
 		{
@@ -52,6 +51,8 @@ int I_ReadChocolateConfig()
 			fprintf(infile, "%s=%d\n", WindowHeightStr, WindowHeight);
 			fprintf(infile, "%s=%d\n", FitModeStr, BestFit);
 			fprintf(infile, "%s=%d\n", FullscreenStr, Fullscreen);
+			fprintf(infile, "%s=%f\n", MouseScalarStr, MouseScalar);
+			fprintf(infile, "%s=%d\n", SwapIntervalStr, SwapInterval);
 			if (SoundFontFilename[0])
 				fprintf(infile, "%s=%s", SoundFontPath, SoundFontFilename);
 			fclose(infile);
@@ -79,6 +80,8 @@ int I_ReadChocolateConfig()
 				Fullscreen = strtol(value, NULL, 10);
 			else if (!strcmp(token, MouseScalarStr))
 				MouseScalar = strtof(value, NULL);
+			else if (!strcmp(token, SwapIntervalStr))
+				SwapInterval = strtol(value, NULL, 10);
 			else if (!strcmp(token, SoundFontPath))
 			{
 				char* p;
