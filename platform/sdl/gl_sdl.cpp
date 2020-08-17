@@ -137,6 +137,7 @@ GLuint GL_LinkProgram(GLuint vshader, GLuint fshader)
 
 void I_InitGLContext(SDL_Window *win)
 {
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	context = SDL_GL_CreateContext(win);
 	if (!context)
 	{
@@ -218,6 +219,7 @@ void I_InitGLContext(SDL_Window *win)
 	GL_ErrorCheck("Creating GL resources");
 
 	//Bind and fill out initial data for the palette texture
+	sglActiveTexture(GL_TEXTURE2);
 	sglBindTexture(GL_TEXTURE_1D, paletteName);
 	sglTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	sglTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -255,6 +257,9 @@ void I_InitGLContext(SDL_Window *win)
 	sglVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (const void*)(sizeof(float) * 2));
 	GL_ErrorCheck("Enabling vertex attributes");
 
+	int argh = sglGetUniformLocation(phase1ProgramName, "palette");
+	sglUniform1i(argh, 2);
+
 	SDL_GL_SetSwapInterval(SwapInterval);
 }
 
@@ -280,6 +285,7 @@ void GL_SetVideoMode(int w, int h, SDL_Rect *bounds)
 
 void GL_SetPalette(uint32_t* pal)
 {
+	sglActiveTexture(GL_TEXTURE2);
 	sglTexSubImage1D(GL_TEXTURE_1D, 0, 0, 256, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)pal);
 }
 
