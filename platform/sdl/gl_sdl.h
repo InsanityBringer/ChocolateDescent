@@ -25,6 +25,8 @@ void GL_SetVideoMode(int w, int h, SDL_Rect *bounds);
 void GL_SetPalette(uint32_t* pal);
 void GL_DrawPhase1();
 
+void I_ShutdownGL();
+
 //GL API
 //Literally done just to avoid pulling in a lightweight library. This was a dumb idea but for a good reason.
 //There's gotta be a simple permissively licenced thing you can drop right into your code to do this.

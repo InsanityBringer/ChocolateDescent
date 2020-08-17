@@ -64,22 +64,31 @@ int I_Init()
 	int res;
 
 	res = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
-	//Ensure a library capable of modern functions is available. 
-	SDL_GL_LoadLibrary(NULL);
 	if (res)
 	{
-		Warning("Error initalizing SDL: %s\n", SDL_GetError());
+		Error("Error initalizing SDL: %s\n", SDL_GetError());
 		return res;
 	}
+	//Ensure a library capable of modern functions is available. 
+	/*res = SDL_GL_LoadLibrary(NULL);
+	if (res)
+	{
+		Error("I_Init(): Cannot load default OpenGL library: %s\n", SDL_GetError());
+		return res;
+	}*/
 	I_ReadChocolateConfig();
 	return 0;
 }
 
 int I_InitWindow()
 {
+	//Attributes like this must be set before windows are created, apparently. 
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	int flags = SDL_WINDOW_OPENGL;
 	if (Fullscreen)
-		flags = SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
+		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
 	//SDL is good, create a game window
 	gameWindow = SDL_CreateWindow(titleMsg, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, flags);
 	//int result = SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, flags, &gameWindow, &renderer);
@@ -101,6 +110,8 @@ int I_InitWindow()
 
 void I_ShutdownGraphics()
 {
+	I_ShutdownGL();
+
 	if (gameWindow)
 		SDL_DestroyWindow(gameWindow);
 }
@@ -378,6 +389,7 @@ void I_BlitCanvas(grs_canvas *canv)
 
 void I_Shutdown()
 {
+	//SDL_GL_UnloadLibrary();
 	SDL_Quit();
 }
 

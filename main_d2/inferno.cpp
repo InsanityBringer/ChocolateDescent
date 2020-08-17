@@ -1187,6 +1187,7 @@ Here:
 		show_mem_info = 1;		// Make memory statistics show
 #endif
 
+	I_Shutdown();
 	return(0);		//presumably successful exit
 }
 

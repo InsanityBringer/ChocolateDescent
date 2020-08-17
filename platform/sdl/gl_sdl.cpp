@@ -16,6 +16,7 @@ Instead, it is released under the terms of the MIT License.
 #include "misc/error.h"
 
 SDL_GLContext context;
+SDL_Window* window;
 
 //Simple vertex buffer, two triangles, XY coords only, as triangle fan.
 const float buf[] = { -1.0f, 1.0f, 0.0f, 0.0f,
@@ -137,7 +138,7 @@ GLuint GL_LinkProgram(GLuint vshader, GLuint fshader)
 
 void I_InitGLContext(SDL_Window *win)
 {
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	window = win;
 	context = SDL_GL_CreateContext(win);
 	if (!context)
 	{
@@ -245,6 +246,9 @@ void I_InitGLContext(SDL_Window *win)
 	GL_ErrorCheck("Linking shaders");
 	sglUseProgram(phase1ProgramName);
 
+	sglDeleteShader(p1vert);
+	sglDeleteShader(p1frag);
+
 	//Create the VBO and create the vertex attributes.
 	sglGenBuffers(1, &bufName);
 	sglBindBuffer(GL_ARRAY_BUFFER, bufName);
@@ -291,6 +295,7 @@ void GL_SetPalette(uint32_t* pal)
 
 void GL_DrawPhase1()
 {
+	SDL_GL_MakeCurrent(window, context);
 	//Blit the current contents of the buffer
 	sglActiveTexture(GL_TEXTURE0);
 	//sglTexImage2D(GL_TEXTURE_2D, 0, GL_R8I, grd_curscreen->sc_w, grd_curscreen->sc_h, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, gr_video_memory);
@@ -298,6 +303,28 @@ void GL_DrawPhase1()
 
 	sglClear(GL_COLOR_BUFFER_BIT);
 	sglDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+}
+
+void I_ShutdownGL()
+{
+	if (context)
+	{
+		sglUseProgram(0);
+		sglBindBuffer(GL_ARRAY_BUFFER, 0);
+		sglActiveTexture(GL_TEXTURE2);
+		sglBindTexture(GL_TEXTURE_1D, 0);
+		sglActiveTexture(GL_TEXTURE0);
+		sglBindTexture(GL_TEXTURE_2D, 0);
+
+		sglDeleteProgram(phase1ProgramName);
+		sglDeleteBuffers(1, &bufName);
+		sglDeleteTextures(1, &paletteName);
+		sglDeleteTextures(1, &sourceFBName);
+
+		sglBindVertexArray(0);
+		sglDeleteVertexArrays(1, &vaoName);
+		SDL_GL_DeleteContext(context);
+	}
 }
 
 //stuffing API funcs here for now...
