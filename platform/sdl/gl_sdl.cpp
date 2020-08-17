@@ -145,6 +145,8 @@ void I_InitGLContext(SDL_Window *win)
 		Error("I_InitGLContext: Cannot create GL context: %s\n", SDL_GetError());
 	}
 
+	SDL_GL_MakeCurrent(win, context);
+
 	//Context created, so start loading funcs
 	//TODO: Is there a way to avoid the hideous casts in C++?
 	sglGetError = (GLenum(APIENTRY*)())SDL_GL_GetProcAddress("glGetError");
@@ -201,8 +203,6 @@ void I_InitGLContext(SDL_Window *win)
 	sglTexParameteri = (void (APIENTRY*)(GLenum target, GLenum pname, GLint param))SDL_GL_GetProcAddress("glTexParameteri");
 	sglTexParameteriv = (void (APIENTRY*)(GLenum target, GLenum pname, const GLint * params))SDL_GL_GetProcAddress("glTexParameteriv");
 	sglDrawArrays = (void (APIENTRY *)(GLenum mode, GLint first, GLsizei count))SDL_GL_GetProcAddress("glDrawArrays");
-
-	SDL_GL_MakeCurrent(win, context);
 
 	//The window size is constant, so just do this now
 	int w, h;
@@ -309,6 +309,8 @@ void I_ShutdownGL()
 {
 	if (context)
 	{
+		sglDisableVertexAttribArray(0);
+		sglDisableVertexAttribArray(1);
 		sglUseProgram(0);
 		sglBindBuffer(GL_ARRAY_BUFFER, 0);
 		sglActiveTexture(GL_TEXTURE2);

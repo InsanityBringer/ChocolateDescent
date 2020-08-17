@@ -44,7 +44,7 @@ void gr_close()
 	{
 		gr_installed = 0;
 		free(grd_curscreen);
-		//[ISB]: System specific 
+		//[ISB] Oops, gr_close is an atexit, but I_ShutdownGraphics was expected to be called on the SDL code before. Keep call for Windows code atm.
 		I_ShutdownGraphics();
 	}
 }

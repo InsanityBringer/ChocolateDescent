@@ -110,10 +110,12 @@ int I_InitWindow()
 
 void I_ShutdownGraphics()
 {
-	I_ShutdownGL();
-
 	if (gameWindow)
+	{
+		I_ShutdownGL();
 		SDL_DestroyWindow(gameWindow);
+		gameWindow = NULL;
+	}
 }
 
 int I_CheckMode(int mode)
@@ -390,6 +392,7 @@ void I_BlitCanvas(grs_canvas *canv)
 void I_Shutdown()
 {
 	//SDL_GL_UnloadLibrary();
+	I_ShutdownGraphics();
 	SDL_Quit();
 }
 
