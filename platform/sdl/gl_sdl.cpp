@@ -48,14 +48,14 @@ const char* fragmentSource =
 "out vec4 color;\n"
 "\n"
 "uniform sampler1D palette;\n"
-"uniform usampler2D framebuffer;\n"
+"uniform usampler2D srcfb;\n"
 "\n"
 "void main()\n"
 "{\n"
-"	color = texelFetch(palette, int(texture(framebuffer, uv).r), 0);\n"
+"	color = texelFetch(palette, int(texture(srcfb, uv).r), 0);\n"
 //"	color = texture(palette, gl_FragCoord.x / 256.0);\n"
 //"	color = vec4(0.0, 0.0, 0.5, 1.0);\n"
-//"	float h = texture(framebuffer, vec2(gl_FragCoord.x / 640.0, gl_FragCoord.y / 480.0)).r / 255.0;\n"
+//"	float h = texture(srcfb, vec2(gl_FragCoord.x / 640.0, gl_FragCoord.y / 480.0)).r / 255.0;\n"
 //"	color = vec4(h, h, h, 1.0);\n"
 "}\n"
 "\n";
@@ -261,8 +261,10 @@ void I_InitGLContext(SDL_Window *win)
 	sglVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (const void*)(sizeof(float) * 2));
 	GL_ErrorCheck("Enabling vertex attributes");
 
-	int argh = sglGetUniformLocation(phase1ProgramName, "palette");
-	sglUniform1i(argh, 2);
+	int paletteUniform = sglGetUniformLocation(phase1ProgramName, "palette");
+	sglUniform1i(paletteUniform, 2);
+	int srcFBUniform = sglGetUniformLocation(phase1ProgramName, "srcfb");
+	sglUniform1i(srcFBUniform, 0);
 
 	SDL_GL_SetSwapInterval(SwapInterval);
 }
@@ -271,7 +273,7 @@ extern unsigned char* gr_video_memory;
 void GL_SetVideoMode(int w, int h, SDL_Rect *bounds)
 {
 	sglActiveTexture(GL_TEXTURE0);
-
+	sglBindTexture(GL_TEXTURE_2D, sourceFBName);
 	//I'd prefer immutable textures for this, but I'd rather have wider compatibility if possible
 	//I've heard whispers that sampler objects perform better, so being able to use those too would be nice.
 
@@ -298,7 +300,12 @@ void GL_DrawPhase1()
 	SDL_GL_MakeCurrent(window, context);
 	//Blit the current contents of the buffer
 	sglActiveTexture(GL_TEXTURE0);
-	//sglTexImage2D(GL_TEXTURE_2D, 0, GL_R8I, grd_curscreen->sc_w, grd_curscreen->sc_h, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, gr_video_memory);
+	//I need to explicitly rebind the texture any time we do something with it. 
+	//Discord disrupts the binding at GL_TEXTURE0 when you start streaming using it.
+	//I could move to a "safe" slot, but if this is a problem to contend with, maybe it's safer
+	//to take the minor perf penalty and just make sure we're safely bound each frame. 
+	sglBindTexture(GL_TEXTURE_2D, sourceFBName);
+
 	sglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h, GL_RED_INTEGER, GL_UNSIGNED_BYTE, gr_video_memory);
 
 	sglClear(GL_COLOR_BUFFER_BIT);
