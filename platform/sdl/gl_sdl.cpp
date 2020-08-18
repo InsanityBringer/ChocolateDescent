@@ -19,10 +19,10 @@ SDL_GLContext context;
 SDL_Window* window;
 
 //Simple vertex buffer, two triangles, XY coords only, as triangle fan.
-const float buf[] = { -1.0f, 1.0f, 0.0f, 0.0f,
-					  -1.0f, -1.0f, 0.0f, 1.0f,
-					  1.0f, -1.0f, 1.0f, 1.0f,
-					  1.0f, 1.0f, 1.0f, 0.0f};
+const float buf[] = { -1.0f, 3.0f, 0.0f, 0.0f,
+					  -1.0f, -1.0f, 0.0f, 2.0f,
+					  3.0f, -1.0f, 2.0f, 2.0f,
+					  1.0f, 1.0f, 1.0f, 0.0f}; //rip
 
 //TODO: Need to downgrade these to 150 or so
 const char* vertexSource =
@@ -309,7 +309,7 @@ void GL_DrawPhase1()
 	sglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h, GL_RED_INTEGER, GL_UNSIGNED_BYTE, gr_video_memory);
 
 	sglClear(GL_COLOR_BUFFER_BIT);
-	sglDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	sglDrawArrays(GL_TRIANGLE_FAN, 0, 3);
 }
 
 void I_ShutdownGL()
