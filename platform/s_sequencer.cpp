@@ -107,6 +107,7 @@ uint64_t MidiSequencer::Tick()
 	uint64_t nextTick = UINT64_MAX;
 	midichunk_t* chunk;
 	midievent_t* ev;
+	int doloop = 0;
 
 	for (i = 0; i < song->numChunks; i++)
 	{
@@ -122,7 +123,8 @@ uint64_t MidiSequencer::Tick()
 				{
 					//Cause an immediate rewind
 					//TODO: Evalulate whether or not the events on this tick should be played. descent2.com is unclear. 
-					return UINT64_MAX;
+					//return UINT64_MAX;
+					doloop = 1;
 				}
 			}
 			synth->DoMidiEvent(ev);
@@ -147,6 +149,8 @@ uint64_t MidiSequencer::Tick()
 	if (synth->ClassifySynth() == MIDISYNTH_LIVE)
 		ticks = nextTick;
 
+	if (doloop)
+		return UINT64_MAX;
 	return nextTick;
 }
 
