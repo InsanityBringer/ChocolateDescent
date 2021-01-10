@@ -73,12 +73,19 @@ void I_StopMIDISong();
 //[ISB] sigh. Hindsight's 20/20.
 //[FUTURE ISB] no I really should have known better.
 #ifdef USE_OPENAL
+//Returns true if there are available buffer slots in the music source's buffer queue.
 bool AL_CanQueueMusicBuffer();
+//Clears all finished buffers from the queue.
 void AL_DequeueMusicBuffers();
-void AL_QueueMusicBuffer(int numTicks, uint16_t* data);
+//Queues a new buffer into the music source, at MIDI_SAMPLERATE sample rate.
+void AL_QueueMusicBuffer(int numSamples, uint16_t* data);
 
+//Readies the source for playing MIDI music.
 void AL_StartMIDISong();
+//Stops the MIDI music source.
 void AL_StopMIDISong();
+//Starts the MIDI source if it hasn't started already, and starts it again if it starved.
+void AL_CheckMIDIPlayStatus();
 #endif
 
 //-----------------------------------------------------------------------------

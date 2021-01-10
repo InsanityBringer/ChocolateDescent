@@ -232,14 +232,14 @@ void HMPTrack::Rescale(int oldTempo, int newTempo)
 
 	for (i = 0; i < events.size(); i++)
 	{
-		events[i].delta *= (uint64_t)newTempo / oldTempo;
+		events[i].delta *= newTempo / oldTempo;
 	}
 
 	//Rescale this too, in case it isn't 0;
-	nextEventTime *= (uint64_t)newTempo / oldTempo;
+	nextEventTime *= newTempo / oldTempo;
 }
 
-void HMPTrack::SetPlayhead(uint64_t ticks)
+void HMPTrack::SetPlayhead(uint32_t ticks)
 {
 	int diff, cumlTime = 0;
 	playhead = ticks;
@@ -276,7 +276,7 @@ void HMPTrack::SetPlayhead(uint64_t ticks)
 		nextEvent = -1;
 }
 
-void HMPTrack::AdvancePlayhead(uint64_t ticks)
+void HMPTrack::AdvancePlayhead(uint32_t ticks)
 {
 	playhead += ticks;
 }

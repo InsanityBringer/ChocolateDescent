@@ -102,8 +102,6 @@ void MidiPlayer::Shutdown()
 	sequencer->StopSong();
 }
 
-extern void AL_PokeWithStick();
-
 void MidiPlayer::Run()
 {
 	initialized = true;
@@ -165,7 +163,7 @@ void MidiPlayer::Run()
 				AL_QueueMusicBuffer(MIDI_SAMPLERATE / 120, songBuffer);
 			}
 
-			AL_PokeWithStick();
+			AL_CheckMIDIPlayStatus();
 			I_DelayUS(4000);
 		}
 	}

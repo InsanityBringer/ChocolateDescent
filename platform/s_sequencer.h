@@ -43,7 +43,7 @@ public:
 	//if resetLoop is true, the song is rewound to the point in time set by the loop point. If not, it is rewound to the beginning of the song. 
 	void RewindSong(bool resetLoop);
 
-	uint64_t Tick();
-	int Render(int ticksToRender, unsigned short* buffer);
+	void Tick();
+	void Render(int ticksToRender, unsigned short* buffer);
 	MidiSynth* GetSynth();
 };

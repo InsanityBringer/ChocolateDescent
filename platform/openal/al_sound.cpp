@@ -351,7 +351,7 @@ void I_DestroyMusicSource()
 	MusicSource = 0;
 }
 
-void AL_PokeWithStick()
+void AL_CheckMIDIPlayStatus()
 {
 	ALenum playstatus;
 	if (!playing)

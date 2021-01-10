@@ -63,7 +63,7 @@ extern char SoundFontFilename[];
 
 typedef struct
 {
-	uint64_t delta;
+	uint32_t delta;
 
 	uint8_t channel;
 	uint8_t type;
@@ -82,8 +82,8 @@ class HMPTrack
 	//Track sequencing data
 	//TODO: Tracks need their own playhead
 	int nextEvent; //Next event to play, -1 if this track is finished
-	uint64_t nextEventTime; //At what MIDI tick should this event be played? This value's unit is what the particular sequencer wants.
-	uint64_t playhead; //Tick of the current playhead. Events can be obtained with NextEvent, so long as playhead <= nextEventTime.
+	uint32_t nextEventTime; //At what MIDI tick should this event be played? This value's unit is what the particular sequencer wants.
+	uint32_t playhead; //Tick of the current playhead. Events can be obtained with NextEvent, so long as playhead <= nextEventTime.
 
 	//TODO: Convert midievent_t into class
 	std::vector<midievent_t> events;
@@ -101,9 +101,9 @@ public:
 	//Resets the playhead to the beginning of the track
 	void StartSequence();
 	//Forces the playhead to a specific tick value. Mainly for looping, can be used to implement HMI branches too.
-	void SetPlayhead(uint64_t ticks);
+	void SetPlayhead(uint32_t ticks);
 	//Advances the playhead by the amount of ticks specified. Use NextEvent to get the new events available.
-	void AdvancePlayhead(uint64_t ticks);
+	void AdvancePlayhead(uint32_t ticks);
 	//Gets the next sequenced MIDI event, if it is behind or at the playhead. Returns nullptr if there are no more available events,
 	//or all events are past the playhead.
 	midievent_t* NextEvent();
@@ -125,7 +125,7 @@ class HMPFile
 	std::vector<HMPTrack> tracks;
 
 	//TODO: This needs to be per track.
-	uint64_t loopStart;
+	uint32_t loopStart;
 
 	uint8_t controllerResetTable[128]; //Table of controllers that should be reset on a loop or branch. Nonzero if they should be reset.
 
@@ -145,7 +145,7 @@ public:
 	void Rescale(int newTempo);
 
 	//Get a global loop start for this song, 
-	uint64_t GetLoopStart(int level) //level is currently unused, for a future rewrite that supports multiple loops
+	uint32_t GetLoopStart(int level) //level is currently unused, for a future rewrite that supports multiple loops
 	{
 		return loopStart;
 	}

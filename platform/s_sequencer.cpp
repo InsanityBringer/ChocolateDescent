@@ -55,10 +55,9 @@ void MidiSequencer::StopSong()
 	song = nullptr;
 }
 
-uint64_t MidiSequencer::Tick()
+void MidiSequencer::Tick()
 {
 	int i;
-	uint64_t nextTick = UINT64_MAX;
 	HMPTrack* track;
 	midievent_t* ev;
 	bool doloop = false;
@@ -66,7 +65,7 @@ uint64_t MidiSequencer::Tick()
 
 	if (song == nullptr)
 	{
-		return 0;
+		return;
 	}
 
 	for (i = 0; i < song->NumTracks(); i++)
@@ -105,13 +104,11 @@ uint64_t MidiSequencer::Tick()
 			}
 		}
 	}
-	return 0;
 }
 
 //Returns the next tick that an event has to be performed
-int MidiSequencer::Render(int samplesToRender, unsigned short* buffer)
+void MidiSequencer::Render(int samplesToRender, unsigned short* buffer)
 {
 	//If there's no song, just render out the requested amount of ticks so that lingering notes fade out even over the fade to black
 	synth->RenderMIDI(samplesToRender, buffer);
-	return 0;
 }
