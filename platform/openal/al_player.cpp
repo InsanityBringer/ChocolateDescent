@@ -28,6 +28,9 @@ MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 	nextSong = curSong = nullptr;
 	nextLoop = false;
 	nextTimerTick = 0;
+	numSubTicks = 0;
+	TickFracDelta = 0;
+	currentTickFrac = 0;
 	shouldEnd = false;
 	shouldStop = false;
 	initialized = false;
@@ -36,7 +39,8 @@ MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 	hasChangedSong = false;
 	midiThread = nullptr;
 
-	songBuffer = new uint16_t[6 * (MIDI_SAMPLERATE / 120) * 2];
+	songBuffer = new uint16_t[(MIDI_SAMPLERATE / 120) * 4];
+	memset(songBuffer, 0, sizeof(uint16_t) * (MIDI_SAMPLERATE / 120) * 4);
 }
 
 bool MidiPlayer::IsError()
@@ -50,7 +54,7 @@ void MidiPlayer::Start()
 	midiThread = new std::thread(&MidiPlayer::Run, this);
 }
 
-void MidiPlayer::SetSong(hmpheader_t* newSong, bool loop)
+void MidiPlayer::SetSong(HMPFile* newSong, bool loop)
 {
 	std::unique_lock<std::mutex> lock(songMutex);
 	if (!initialized) return; //already ded
@@ -98,6 +102,8 @@ void MidiPlayer::Shutdown()
 	sequencer->StopSong();
 }
 
+extern void AL_PokeWithStick();
+
 void MidiPlayer::Run()
 {
 	initialized = true;
@@ -118,7 +124,7 @@ void MidiPlayer::Run()
 			if (curSong)
 			{
 				sequencer->StopSong();
-				S_FreeHMPData(curSong);
+				delete curSong;
 			}
 			shouldStop = false;
 			curSong = nullptr;
@@ -129,16 +135,11 @@ void MidiPlayer::Run()
 			if (curSong)
 			{
 				sequencer->StopSong();
-				S_FreeHMPData(curSong);
+				delete curSong;
 			}
 			//printf("Starting new song\n");
 			sequencer->StartSong(nextSong, nextLoop);
-			if (songBuffer)
-			{
-				delete[] songBuffer;
-			}
-			songBuffer = new uint16_t[6 * (44100 / nextSong->bpm) * 2];
-			//I_StartMIDISong(nextSong, nextLoop);
+			TickFracDelta = (65536 * nextSong->GetTempo()) / 120;
 			curSong = nextSong;
 			nextSong = nullptr;
 			hasChangedSong = true;
@@ -148,31 +149,25 @@ void MidiPlayer::Run()
 		//Soft synth operation
 		if (synth->ClassifySynth() == MIDISYNTH_SOFT)
 		{
+			//Ugh. This is hideous.
+			//Queue buffers as fast as possible. When done, sleep for a while. This comes close enough to avoiding starvation.
+			//Anything less than 5 120hz ticks of latency will result in OpenAL occasionally starving. It's the most I can do...
 			AL_DequeueMusicBuffers();
-			if (AL_CanQueueMusicBuffer())
+			while (AL_CanQueueMusicBuffer())
 			{
-				if (curSong != nullptr)
+				currentTickFrac += TickFracDelta;
+				while (currentTickFrac >= 65536)
 				{
-					int ticks = sequencer->Render(5 * (MIDI_SAMPLERATE / curSong->bpm), songBuffer);
-					AL_QueueMusicBuffer(ticks, songBuffer);
+					sequencer->Tick();
+					currentTickFrac -= 65536;
 				}
-				else //[ISB] current design of the stupid midi playback code can't handle being starved... I need to junk it and rewrite. 
-				{
-					int ticks = sequencer->Render(5 * (MIDI_SAMPLERATE / 120), songBuffer);
-					AL_QueueMusicBuffer(ticks, songBuffer);
-				}
+				sequencer->Render(MIDI_SAMPLERATE / 120, songBuffer);
+				AL_QueueMusicBuffer(MIDI_SAMPLERATE / 120, songBuffer);
 			}
-		}
 
-		uint64_t startTick = I_GetUS();
-		uint64_t numTicks = nextTimerTick - startTick;
-		if (numTicks > 2000) //[ISB] again inspired by dpJudas, with 2000 US number from GZDoom
-			I_DelayUS(numTicks - 2000);
-		while (I_GetUS() < nextTimerTick);
-		if (curSong == nullptr) //no song, run at 120hz
-			nextTimerTick += 8333;
-		else
-			nextTimerTick += 1000000 / curSong->bpm;
+			AL_PokeWithStick();
+			I_DelayUS(4000);
+		}
 	}
 	AL_StopMIDISong();
 	shouldEnd = false;

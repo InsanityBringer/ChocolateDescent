@@ -57,7 +57,7 @@ as described in copying.txt
 #define _MIDI_OPL3 0xA009
 #define _MIDI_GUS 0xA00A
 
-#define MIDI_SAMPLERATE 44100
+#define MIDI_SAMPLERATE 48000 //changed from 44100 since 44100/120 = 367.5 which causes timing anomalies for MIDI
 
 extern char SoundFontFilename[];
 
@@ -74,34 +74,6 @@ typedef struct
 	uint8_t* data;
 } midievent_t;
 
-typedef struct
-{
-	int chunkNum;
-	int chunkLen;
-	int chunkTrack;
-
-	int numEvents;
-	midievent_t* events;
-
-	//Track sequencing data
-	int nextEvent; //Next event to play, -1 if this track is finished
-	uint64_t nextEventTime; //At what MIDI tick should this event be played? In samples
-} midichunk_t;
-
-typedef struct
-{
-	char header[16];
-	int length;
-	int numChunks;
-	int bpm;
-	int seconds;
-
-	//Go straight to this offset when looping the song
-	uint64_t loopStart;
-
-	midichunk_t* chunks;
-} hmpheader_t;
-
 class HMPTrack
 {
 	int chunkNum;
@@ -111,6 +83,7 @@ class HMPTrack
 	//TODO: Tracks need their own playhead
 	int nextEvent; //Next event to play, -1 if this track is finished
 	uint64_t nextEventTime; //At what MIDI tick should this event be played? This value's unit is what the particular sequencer wants.
+	uint64_t playhead; //Tick of the current playhead. Events can be obtained with NextEvent, so long as playhead <= nextEventTime.
 
 	//TODO: Convert midievent_t into class
 	std::vector<midievent_t> events;
@@ -123,8 +96,22 @@ public:
 		events.push_back(ev);
 	}
 
+	//Rescales this track to be in terms of a new tempo.
+	void Rescale(int oldTempo, int newTempo);
+	//Resets the playhead to the beginning of the track
 	void StartSequence();
+	//Forces the playhead to a specific tick value. Mainly for looping, can be used to implement HMI branches too.
+	void SetPlayhead(uint64_t ticks);
+	//Advances the playhead by the amount of ticks specified. Use NextEvent to get the new events available.
+	void AdvancePlayhead(uint64_t ticks);
+	//Gets the next sequenced MIDI event, if it is behind or at the playhead. Returns nullptr if there are no more available events,
+	//or all events are past the playhead.
+	midievent_t* NextEvent();
 
+	bool CheckRemainingEvents()
+	{
+		return nextEvent != -1;
+	}
 };
 
 class HMPFile
@@ -147,6 +134,31 @@ class HMPFile
 
 public:
 	HMPFile(int len, uint8_t* data);
+
+	int GetTempo() const
+	{
+		return tempo;
+	}
+
+	//Rescale is used to adjust the tempo of the song. 
+	//This is needed because the soft synth playback works in terms of samples, not ticks
+	void Rescale(int newTempo);
+
+	//Get a global loop start for this song, 
+	uint64_t GetLoopStart(int level) //level is currently unused, for a future rewrite that supports multiple loops
+	{
+		return loopStart;
+	}
+
+	int NumTracks() const
+	{
+		return tracks.size();
+	}
+
+	HMPTrack* GetTrack(int num)
+	{
+		return &tracks[num];
+	}
 };
 
 int S_InitMusic(int device);
@@ -154,11 +166,6 @@ void S_ShutdownMusic();
 
 uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle);
 uint16_t S_StopSong();
-
-int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song);
-void S_FreeHMPData(hmpheader_t* song);
-
-//[ISB] MIDI playback rewrite
 
 //MIDI Synth modes. Affects how the attached Sequencer will work
 #define MIDISYNTH_SOFT 1 //Synth renders out audio into a PCM wave buffer.
@@ -208,8 +215,8 @@ class MidiPlayer
 	MidiSynth* synth;
 
 	bool shouldStop;
-	hmpheader_t* nextSong;
-	hmpheader_t* curSong;
+	HMPFile* nextSong;
+	HMPFile* curSong;
 	bool nextLoop;
 	std::thread *midiThread;
 	std::mutex songMutex;
@@ -219,6 +226,9 @@ class MidiPlayer
 	uint64_t nextTimerTick;
 	bool shouldEnd;
 
+	int numSubTicks; //Queue midi ticks in terms of "sub-ticks", 100 sample slices. 
+	int currentTickFrac, TickFracDelta;
+
 	//Status flags, these indicate when an event has happened
 	//Hardly a shining example of how to do communication
 	//between threads, but it works. Volatile to avoid register
@@ -227,7 +237,7 @@ class MidiPlayer
 	volatile bool hasChangedSong;
 public:
 	MidiPlayer(MidiSequencer *newSequencer, MidiSynth *newSynth);
-	void SetSong(hmpheader_t* song, bool loop);
+	void SetSong(HMPFile* song, bool loop);
 	void Start();
 	void StopSong();
 	void Run();

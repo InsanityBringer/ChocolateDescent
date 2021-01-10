@@ -9,9 +9,9 @@ as described in copying.txt
 
 #include "s_midi.h"
 
-typedef struct
+/*typedef struct
 {
-	hmpheader_t* song; //Song currently playing
+	HMPFile* song; //Song currently playing
 	int ticks; //Number of ticks passed so far. 
 	int nextTick; //The next MIDI tick where an event actually occurs. 
 	int lastRenderedTick; //Where rendering last left off
@@ -20,11 +20,11 @@ typedef struct
 	//[ISB] TODO: This is imprecise, ugh. Song is slightly faster than it should be...
 	int samplesPerTick; //Amount of samples per each MIDI tick
 	bool loop; //Whether or not the song should loop at the end or not
-} sequencerstate_t;
+} sequencerstate_t;*/
 
 class MidiSequencer
 {
-	hmpheader_t* song;
+	HMPFile* song;
 	int ticks;
 	uint64_t nextTick;
 	uint64_t lastRenderedTick;
@@ -38,7 +38,7 @@ class MidiSequencer
 public:
 	MidiSequencer(MidiSynth* newSynth, int newSampleRate);
 
-	int StartSong(hmpheader_t* song, bool loop);
+	int StartSong(HMPFile* song, bool loop);
 	void StopSong();
 	//if resetLoop is true, the song is rewound to the point in time set by the loop point. If not, it is rewound to the beginning of the song. 
 	void RewindSong(bool resetLoop);

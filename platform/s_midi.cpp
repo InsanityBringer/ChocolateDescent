@@ -14,7 +14,6 @@ as described in copying.txt.
 #include "platform/i_midi.h"
 #include "s_midi.h"
 #include "s_sequencer.h"
-//#include "mem/mem.h" //[ISB] not thread safe
 #include "misc/byteswap.h"
 #include "misc/error.h"
 #include "platform/timer.h"
@@ -23,6 +22,7 @@ as described in copying.txt.
 //Will probably overflow your console buffer, so make it really long if you must
 //#define DEBUG_MIDI_READING
 
+//Uncomment to enable diagonstics of SOS's special MIDI controllers. 
 //#define DEBUG_SPECIAL_CONTROLLERS
 
 int CurrentDevice = 0;
@@ -184,229 +184,10 @@ int S_ReadMIDIDelta(int* pointer, uint8_t* data)
 	return value;
 }
 
-int S_ReadHMPChunk(int pointer, uint8_t* data, midichunk_t* chunk, hmpheader_t* song)
-{
-	int done, oldpointer, position, value, i;
-	int command;
-	uint8_t b;
-	int eventCount = 0;
-	int basepointer = pointer; //[ISB] this code really needs to be made less terrible tbh
-
-	chunk->chunkNum = BS_MakeInt(&data[pointer]);
-	chunk->chunkLen = BS_MakeInt(&data[pointer + 4]);
-	chunk->chunkTrack = BS_MakeInt(&data[pointer + 8]);
-
-	//Count events. Couldn't we have gotten something useful in the header like an event count? eh
-	pointer += 12; oldpointer = pointer;
-	while (pointer < (basepointer + chunk->chunkLen))
-	{
-		done = 0; position = 0; value = 0;
-		while (!done)
-		{
-			b = data[pointer];
-			if (b & 0x80) //We're done now
-			{
-				done = 1;
-				b &= 0x7F;
-			}
-			value += (b << (position * 7));
-			position++;
-			pointer++;
-		}
-		b = data[pointer]; pointer++;
-		if (b == 0xff)
-			command = 0xff;
-		else
-			command = (b >> 4) & 0xf;
-
-		switch (command) //For now, just advance the pointer enough
-		{
-		case EVENT_NOTEOFF:
-		case EVENT_NOTEON:
-		case EVENT_AFTERTOUCH:
-		case EVENT_CONTROLLER:
-		case EVENT_PITCH:
-			pointer += 2;
-			break;
-		case EVENT_PATCH:
-		case EVENT_PRESSURE:
-			pointer += 1;
-			break;
-		case 0xff:
- 			pointer++; //skip command
-			value = S_ReadMIDIDelta(&pointer, data); pointer += value;
-			break;
-		default:
-			fprintf(stderr, "Unknown event %d in hmp file", command);
-			break;
-		}
-
-		eventCount++;
-	}
-
-	//Actually allocate and read events now
-	chunk->numEvents = eventCount;
-	chunk->events = (midievent_t*)malloc(sizeof(midievent_t) * eventCount);
-	if (chunk->events == NULL)
-	{
-		Error("Out of memory allocating a chunk's events");
-		return pointer;
-	}
-	memset(chunk->events, 0, sizeof(midievent_t) * eventCount);
-
-	if (chunk->events == nullptr)
-	{
-		fprintf(stderr, "Can't allocate MIDI events");
-		exit(1);
-	}
-
-	pointer = oldpointer;
-
-	for (i = 0; i < eventCount; i++)
-	{
-		done = 0; position = 0; value = 0;
-		memset(&chunk->events[i], 0, sizeof(midievent_t));
-
-		value = S_ReadDelta(&pointer, data);
-		chunk->events[i].delta = (uint64_t)value * (I_GetPreferredMIDISampleRate() / song->bpm);
-		b = data[pointer]; pointer++;
-		if (b == 0xff)
-			command = 0xff;
-		else
-			command = (b >> 4) & 0xf;
-		chunk->events[i].type = command;
-		chunk->events[i].channel = b & 0xf;
-
-		switch (command) //Actually load the params now
-		{
-		case EVENT_NOTEOFF:
-		case EVENT_NOTEON:
-		case EVENT_AFTERTOUCH:
-		case EVENT_CONTROLLER:
-		case EVENT_PITCH:
-			chunk->events[i].param1 = data[pointer++];
-			chunk->events[i].param2 = data[pointer++];
-
-			if (command == EVENT_CONTROLLER)
-			{
-				switch (chunk->events[i].param1)
-				{
-				case HMI_CONTROLLER_GLOBAL_LOOP_START:
-				{
-					int j;
-					if (song->loopStart == 0) //descent 1 game02.hmp has two loop points. On different tracks, so probably need to match them.
-					{
-						for (j = 0; j < i; j++)
-						{
-							song->loopStart += chunk->events[j].delta;
-						}
-					}
-#ifdef DEBUG_SPECIAL_CONTROLLERS
-					printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d, loop count %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, song->loopStart, chunk->events[i].param2);
-#endif
-				}
-				break;
-#ifdef DEBUG_SPECIAL_CONTROLLERS
-				case HMI_CONTROLLER_GLOBAL_LOOP_END:
-					printf("Loop end restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-				break;
-				case HMI_CONTROLLER_ENABLE_CONTROLLER_RESTORE:
-					printf("Controller restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-				break;
-				case HMI_CONTROLLER_DISABLE_CONTROLLER_RESTORE:
-					printf("Controller restore disable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-				case HMI_CONTROLLER_LOCAL_BRANCH_POS:
-					printf("Local branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-				case HMI_CONTROLLER_LOCAL_BRANCH:f 
-					printf("Local branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-				case HMI_CONTROLLER_GLOBAL_BRANCH_POS:
-					printf("Global branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-				case HMI_CONTROLLER_GLOBAL_BRANCH:
-					printf("Global branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-				case HMI_CONTROLLER_LOCAL_LOOP_START:
-					printf("Local loop pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-				case HMI_CONTROLLER_CALL_TRIGGER:
-					printf("Call trigger (but why) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-				case HMI_CONTROLLER_LOCK_CHAN:
-					printf("Channel lock on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-				case HMI_CONTROLLER_CHAN_PRIORITY:
-					printf("Channel priority on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
-					break;
-#endif
-				}
-			}
-			break;
-		case EVENT_PATCH:
-		case EVENT_PRESSURE:
-			chunk->events[i].param1 = data[pointer++];
-			break;
-		case 0xff:
-			chunk->events[i].param1 = data[pointer++];
-			chunk->events[i].dataLength = S_ReadMIDIDelta(&pointer, data);
-			if (chunk->events[i].dataLength != 0)
-			{
-				chunk->events[i].data = (uint8_t*)malloc(chunk->events[i].dataLength * sizeof(uint8_t));
-				memcpy(chunk->events[i].data, &data[pointer], chunk->events[i].dataLength); pointer += chunk->events[i].dataLength;
-			}
-			break;
-		default:
-			fprintf(stderr, "Unknown event %d in hmp file", command);
-			break;
-		}
-	}
-
-	//Ready the chunk for sequencing
-	if (chunk->numEvents != 0)
-	{
-		chunk->nextEvent = 0;
-		chunk->nextEventTime = chunk->events[0].delta;
-		//chunk->nextEventTime = 0;
-	}
-
-	return pointer;
-}
-
-void S_FreeHMPData(hmpheader_t* song)
-{
-	int i, j;
-	midichunk_t* chunk;
-	midievent_t* ev;
-	for (i = 0; i < song->numChunks; i++)
-	{
-		chunk = &song->chunks[i];
-		//Need to check for special events. Agh
-		for (j = 0; j < chunk->numEvents; j++)
-		{
-			ev = &chunk->events[j];
-			if (ev->dataLength != 0)
-			{
-				free(ev->data);
-			}
-		}
-		free(chunk->events);
-	}
-	free(song->chunks);
-}
-
 uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle)
 {
 	if (CurrentDevice == 0) return 1;
-	hmpheader_t* song = (hmpheader_t*)malloc(sizeof(hmpheader_t));
-	if (S_LoadHMP(length, data, song)) 
-	{
-		*handle = 0xFFFF;
-		//Failed to load MIDI, oops
-		free(song);
-		return 1;
-	}
+	HMPFile* song = new HMPFile(length, data);
 	*handle = 0; //heh
 	I_StartMIDISong(song, loop);
 	return 0;
@@ -417,41 +198,6 @@ uint16_t S_StopSong()
 	if (CurrentDevice == 0) return 1;
 	
 	I_StopMIDISong();
-	return 0;
-}
-
-int S_LoadHMP(int length, uint8_t* data, hmpheader_t* song)
-{
-	int i, pointer;
-	memcpy(song->header, data, 16); //Check for version 1 HMP
-	if (strcmp(song->header, "HMIMIDIP"))
-	{
-		return 1;
-	}
-	song->length = BS_MakeInt(&data[32]);
-	song->numChunks = BS_MakeInt(&data[48]);
-	song->bpm = BS_MakeInt(&data[56]);
-	//printf("bpm %d\n", song->bpm);
-	song->seconds = BS_MakeInt(&data[60]);
-	song->loopStart = 0;
-
-	song->chunks = (midichunk_t*)malloc(sizeof(midichunk_t) * song->numChunks);
-	if (song->chunks == nullptr)
-	{
-		Error("Can't allocate MIDI chunk list\n");
-		return 1;
-	}
-	memset(song->chunks, 0, sizeof(midichunk_t) * song->numChunks);
-
-	pointer = 776;
-	for (i = 0; i < song->numChunks; i++)
-	{
-		pointer = S_ReadHMPChunk(pointer, data, &song->chunks[i], song);
-	}
-
-	//DEBUG
-	HMPFile test = HMPFile(length, data);
-
 	return 0;
 }
 
@@ -470,6 +216,7 @@ HMPTrack::HMPTrack(int chunknum, int tracknum)
 
 void HMPTrack::StartSequence()
 {
+	playhead = 0;
 	if (events.size() > 0)
 	{
 		nextEvent = 0;
@@ -477,6 +224,79 @@ void HMPTrack::StartSequence()
 	}
 	else
 		nextEvent = -1;
+}
+
+void HMPTrack::Rescale(int oldTempo, int newTempo)
+{
+	int i;
+
+	for (i = 0; i < events.size(); i++)
+	{
+		events[i].delta *= (uint64_t)newTempo / oldTempo;
+	}
+
+	//Rescale this too, in case it isn't 0;
+	nextEventTime *= (uint64_t)newTempo / oldTempo;
+}
+
+void HMPTrack::SetPlayhead(uint64_t ticks)
+{
+	int diff, cumlTime = 0;
+	playhead = ticks;
+
+	//Return to the first event and advance through events until the first > playhead is found
+	if (events.size() > 0)
+	{
+		nextEvent = 0;
+		nextEventTime = events[0].delta;
+
+		while (nextEventTime < ticks)
+		{
+			cumlTime += events[nextEvent].delta;
+			nextEvent++; 
+			if (nextEvent >= events.size())
+			{
+				nextEvent = -1;
+				break;
+			}
+			nextEventTime += events[nextEvent].delta;
+		}
+
+		if (nextEvent != -1)
+		{
+			diff = cumlTime - ticks;
+			if (diff < 0)
+				fprintf(stderr, "HMPTrack::SetPlayhead: negative delta adjusting next delta\n");
+
+			//printf("Adjusting delta by %d\n", diff);
+			nextEventTime -= diff;
+		}
+	}
+	else
+		nextEvent = -1;
+}
+
+void HMPTrack::AdvancePlayhead(uint64_t ticks)
+{
+	playhead += ticks;
+}
+
+midievent_t* HMPTrack::NextEvent()
+{
+	midievent_t* ev;
+	//No more events left at all
+	if (nextEvent < 0) return nullptr;
+	//Playhead is before the next event start
+	if (playhead < nextEventTime) return nullptr;
+
+	ev = &events[nextEvent];
+	nextEvent++;
+	if (nextEvent >= events.size())
+		nextEvent = -1;
+	else
+		nextEventTime += events[nextEvent].delta;
+
+	return ev;
 }
 
 HMPFile::HMPFile(int len, uint8_t* data)
@@ -513,6 +333,10 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 	int chunkNum = BS_MakeInt(&data[ptr]);
 	int chunkLen = BS_MakeInt(&data[ptr + 4]);
 	int chunkTrack = BS_MakeInt(&data[ptr + 8]);
+#ifdef DEBUG_SPECIAL_CONTROLLERS
+	int i = 0;
+#endif
+
 	ptr += 12;
 
 	//Chunk length contains the header fields.
@@ -564,43 +388,43 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 						loopStart = tick;
 					}
 #ifdef DEBUG_SPECIAL_CONTROLLERS
-					printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d, loop count %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, song->loopStart, chunk->events[i].param2);
+					printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d, loop count %d\n", chunkNum, ev.channel, i, delta, loopStart, ev.param2);
 #endif
 				}
 				break;
 #ifdef DEBUG_SPECIAL_CONTROLLERS
 				case HMI_CONTROLLER_GLOBAL_LOOP_END:
-					printf("Loop end restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Loop end restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_ENABLE_CONTROLLER_RESTORE:
-					printf("Controller restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Controller restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_DISABLE_CONTROLLER_RESTORE:
-					printf("Controller restore disable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Controller restore disable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_LOCAL_BRANCH_POS:
-					printf("Local branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Local branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
-				case HMI_CONTROLLER_LOCAL_BRANCH:f
-					printf("Local branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+				case HMI_CONTROLLER_LOCAL_BRANCH:
+					printf("Local branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_GLOBAL_BRANCH_POS:
-					printf("Global branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Global branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_GLOBAL_BRANCH:
-					printf("Global branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Global branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_LOCAL_LOOP_START:
-					printf("Local loop pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Local loop pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_CALL_TRIGGER:
-					printf("Call trigger (but why) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Call trigger (but why) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_LOCK_CHAN:
-					printf("Channel lock on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Channel lock on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_CHAN_PRIORITY:
-					printf("Channel priority on track %d channel %d, event %d with delta %d. Specified param %d\n", chunk->chunkNum, chunk->events[i].channel, i, value, chunk->events[i].param2);
+					printf("Channel priority on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 #endif
 				}
@@ -632,6 +456,23 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 		//TODO: Events are passed by value rather than by reference or via a pointer, so they get copied
 		//This needs to be changed if dynamic allocation is used for meta events
 		track.AddEvent(ev);
+
+#ifdef DEBUG_SPECIAL_CONTROLLERS
+		i++;
+#endif
 	}
+	tracks.push_back(track);
 	return ptr;
+}
+
+void HMPFile::Rescale(int newTempo)
+{
+	int i;
+
+	for (i = 0; i < tracks.size(); i++)
+	{
+		tracks[i].Rescale(tempo, newTempo);
+	}
+
+	tempo = newTempo;
 }

@@ -67,11 +67,11 @@ void I_ShutdownMIDI();
 void I_SetMusicVolume(int volume);
 
 //Starts a given song
-void I_StartMIDISong(hmpheader_t* song, bool loop);
+void I_StartMIDISong(HMPFile* song, bool loop);
 void I_StopMIDISong();
 
 //[ISB] sigh. Hindsight's 20/20.
-
+//[FUTURE ISB] no I really should have known better.
 #ifdef USE_OPENAL
 bool AL_CanQueueMusicBuffer();
 void AL_DequeueMusicBuffers();

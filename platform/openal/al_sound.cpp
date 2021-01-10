@@ -31,9 +31,11 @@ ALuint bufferNames[_MAX_VOICES];
 ALuint sourceNames[_MAX_VOICES];
 
 //MIDI audio fields
+//MAX_BUFFERS_QUEUED is currently in terms of individual MIDI ticks at 120hz
+//At the moment, 5 seems to be the bare minimum needed to make the game be able
+//to reliably play back MIDI without ever starving the buffer. 
 #define MAX_BUFFERS_QUEUED 5
 
-hmpheader_t* CurrentSong;
 bool StopMIDI = true;
 bool LoopMusic;
 
@@ -349,13 +351,35 @@ void I_DestroyMusicSource()
 	MusicSource = 0;
 }
 
+void AL_PokeWithStick()
+{
+	ALenum playstatus;
+	if (!playing)
+	{
+		playing = true;
+		alSourcePlay(MusicSource);
+		AL_ErrorCheck("Playing music source");
+	}
+	else
+	{
+		alGetSourcei(MusicSource, AL_SOURCE_STATE, &playstatus);
+		if (playstatus != AL_PLAYING)
+		{
+			//If this happens, the buffer starved, kick it back up
+			//This should happen as rarely as humanly possible, otherwise there's a pop because of the brief stall in the stream.
+			//I need to find ways to reduce the amount of overhead in the setup. 
+			//printf("yep it starved again\n");
+			alSourcePlay(MusicSource);
+		}
+	}
+}
+
 bool AL_CanQueueMusicBuffer()
 {
 	if (!AL_initialized) return false;
-	if (!alIsSource(MusicSource))
-	{
-		Int3();
-	}
+	//[ISB] this used to check if the source was a source and break if it wasn't.
+	//This hasn't happened in eons so I think the bug was fixed. 
+
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
 	AL_ErrorCheck("Checking can queue buffers");
 	return CurrentBuffers < MAX_BUFFERS_QUEUED;
@@ -386,26 +410,17 @@ void AL_QueueMusicBuffer(int numTicks, uint16_t *data)
 	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
 	if (CurrentBuffers < MAX_BUFFERS_QUEUED)
 	{
-		//int finalTicks = S_SequencerRender(S_GetTicksPerSecond(), MusicBufferData);
 		alGenBuffers(1, &BufferQueue[CurrentBuffers]);
 		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
 		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
 		AL_ErrorCheck("Queueing music buffers");
 	}
-	int playstatus = 0;
-	alGetSourcei(MusicSource, AL_SOURCE_STATE, &playstatus);
-	if (playstatus != AL_PLAYING)
-	{
-		playing = true;
-		alSourcePlay(MusicSource);
-		AL_ErrorCheck("Playing music source");
-		//printf("Kicking this mess off\n");
-	}
 }
 
-void I_StartMIDISong(hmpheader_t* song, bool loop)
+void I_StartMIDISong(HMPFile* song, bool loop)
 {
 	midiPlayer->SetSong(song, loop);
+	playing = false;
 }
 
 void I_StopMIDISong()
