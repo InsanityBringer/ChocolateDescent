@@ -84,6 +84,11 @@ int Default_leveling_on = 1;
 extern uint8_t SecondaryOrder[], PrimaryOrder[];
 extern void InitWeaponOrdering();
 
+//[ISB] hack
+extern const char* control_text[];
+extern int choco_menu_remap[];
+extern int choco_id_to_menu_remap[];
+
 int new_player_config()
 {
 	int nitems;
@@ -92,7 +97,8 @@ int new_player_config()
 	int mct = CONTROL_MAX_TYPES;
 
 #ifndef WINDOWS
-	mct--;
+	//mct--;
+	mct = 5;
 #endif
 
 	InitWeaponOrdering();		//setup default weapon priorities 
@@ -102,51 +108,22 @@ int new_player_config()
 	{
 #endif
 	RetrySelection:
-#if !defined(MACINTOSH) && !defined(WINDOWS)
-		for (i = 0; i < mct; i++) {
-			m[i].type = NM_TYPE_MENU; m[i].text = CONTROL_TEXT(i);
+		for (i = 0; i < mct; i++) 
+		{
+			m[i].type = NM_TYPE_MENU; m[i].text = const_cast<char*>(control_text[choco_menu_remap[i]]);
 		}
-#elif defined(WINDOWS)
-		m[0].type = NM_TYPE_MENU; m[0].text = CONTROL_TEXT(0);
-		m[1].type = NM_TYPE_MENU; m[1].text = CONTROL_TEXT(5);
-		m[2].type = NM_TYPE_MENU; m[2].text = CONTROL_TEXT(7);
-		i = 3;
-#else
-		for (i = 0; i < 6; i++) {
-			m[i].type = NM_TYPE_MENU; m[i].text = CONTROL_TEXT(i);
-		}
-		m[4].text = "Gravis Firebird/Mousetick II";
-		m[3].text = "Thrustmaster";
-#endif
 
 		nitems = i;
 		m[0].text = TXT_CONTROL_KEYBOARD;
 
-#ifdef WINDOWS
-		if (Config_control_type == CONTROL_NONE) control_choice = 0;
-		else if (Config_control_type == CONTROL_MOUSE) control_choice = 1;
-		else if (Config_control_type == CONTROL_WINJOYSTICK) control_choice = 2;
-		else control_choice = 0;
-#else
 		control_choice = Config_control_type;				// Assume keyboard
-#endif
 
-#ifndef APPLE_DEMO
 		control_choice = newmenu_do1(NULL, TXT_CHOOSE_INPUT, i, m, NULL, control_choice);
-#else
-		control_choice = 0;
-#endif
 
 		if (control_choice < 0)
 			return 0;
 
-#if defined(MACINTOSH) && defined(USE_ISP)
-	}
-	else	// !!!!NOTE ... link to above if (!ISpEnabled()), this is a really crappy function
-	{
-		control_choice = 0;
-	}
-#endif
+		control_choice = choco_menu_remap[control_choice];
 
 	for (i = 0; i < CONTROL_MAX_TYPES; i++)
 		for (j = 0; j < MAX_CONTROLS; j++)
@@ -154,58 +131,6 @@ int new_player_config()
 	kc_set_controls();
 
 	Config_control_type = control_choice;
-
-#ifdef WINDOWS
-	if (control_choice == 1) Config_control_type = CONTROL_MOUSE;
-	else if (control_choice == 2) Config_control_type = CONTROL_WINJOYSTICK;
-
-	//	if (Config_control_type == CONTROL_WINJOYSTICK) 
-	//		joydefs_calibrate();
-#else
-#ifndef MACINTOSH
-	if (Config_control_type == CONTROL_THRUSTMASTER_FCS) {
-		i = nm_messagebox(TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, TXT_FCS);
-		if (i == 0) goto RetrySelection;
-	}
-
-	if ((Config_control_type > 0) && (Config_control_type < 5)) {
-		joydefs_calibrate();
-	}
-#else		// some macintosh only stuff here
-	if (Config_control_type == CONTROL_THRUSTMASTER_FCS) {
-		extern char* tm_warning;
-
-		i = nm_messagebox(TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, tm_warning);
-		if (i == 0) goto RetrySelection;
-	}
-	else 	if (Config_control_type == CONTROL_FLIGHTSTICK_PRO) {
-		extern char* ch_warning;
-
-		i = nm_messagebox(TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, ch_warning);
-		if (i == 0) goto RetrySelection;
-	}
-	else 	if (Config_control_type == CONTROL_GRAVIS_GAMEPAD) {
-		extern char* ms_warning;
-
-		i = nm_messagebox(TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, ms_warning);
-		if (i == 0) goto RetrySelection;
-		// stupid me -- get real default setting for either mousestick or firebird
-		joydefs_set_type(Config_control_type);
-		if (joy_have_firebird())
-			for (i = 0; i < NUM_OTHER_CONTROLS; i++)
-				kconfig_settings[Config_control_type][i] = default_firebird_settings[i];
-		else
-			for (i = 0; i < NUM_OTHER_CONTROLS; i++)
-				kconfig_settings[Config_control_type][i] = default_mousestick_settings[i];
-		kc_set_controls();		// reset the joystick control
-	}
-	if ((Config_control_type > 0) && (Config_control_type < 5)) {
-		joydefs_set_type(Config_control_type);
-		joydefs_calibrate();
-	}
-
-#endif
-#endif
 
 	Player_default_difficulty = 1;
 	Auto_leveling_on = Default_leveling_on = 1;

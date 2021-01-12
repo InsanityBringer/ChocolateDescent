@@ -142,24 +142,32 @@ void init_game_list()
 		saved_games[i].name[0] = 0;
 }
 
+//[ISB] hack
+extern const char* control_text[];
+extern int choco_menu_remap[];
+extern int choco_id_to_menu_remap[];
+
 int new_player_config()
 {
 	int i, j, control_choice;
 	newmenu_item m[7];
 
 RetrySelection:
-	for (i = 0; i < CONTROL_MAX_TYPES; i++) 
+	for (i = 0; i < 5; i++) 
 	{
-		m[i].type = NM_TYPE_MENU; m[i].text = CONTROL_TEXT(i);
+		m[i].type = NM_TYPE_MENU; m[i].text = const_cast<char*>(control_text[choco_menu_remap[i]]);
 	}
 	m[0].text = TXT_CONTROL_KEYBOARD;
 
 	control_choice = Config_control_type;				// Assume keyboard
 
-	control_choice = newmenu_do1(NULL, TXT_CHOOSE_INPUT, CONTROL_MAX_TYPES, m, NULL, control_choice);
+	control_choice = newmenu_do1(NULL, TXT_CHOOSE_INPUT, 5, m, NULL, control_choice);
 
 	if (control_choice < 0)
 		return 0;
+
+	//[ISB]: Remap chocolate input into the original input method. 
+	control_choice = choco_menu_remap[control_choice];
 
 	for (i = 0; i < CONTROL_MAX_TYPES; i++)
 		for (j = 0; j < MAX_CONTROLS; j++)
@@ -167,17 +175,6 @@ RetrySelection:
 	kc_set_controls();
 
 	Config_control_type = control_choice;
-
-	if (Config_control_type == CONTROL_THRUSTMASTER_FCS) 
-	{
-		i = nm_messagebox(TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, TXT_FCS);
-		if (i == 0) goto RetrySelection;
-	}
-
-	if ((Config_control_type > 0) && (Config_control_type < 5)) 
-	{
-		joydefs_calibrate();
-	}
 
 	Player_default_difficulty = 1;
 	Auto_leveling_on = Default_leveling_on = 1;
