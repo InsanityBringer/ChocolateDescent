@@ -459,7 +459,9 @@ void robotmaker_proc(FuelCenter* robotcen)
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
 			for (i = 0; i <= Highest_object_index; i++)
 				if (Objects[i].type == OBJ_ROBOT)
-					if ((Objects[i].matcen_creator ^ 0x80) == my_station_num)
+					//[ISB] This weird cast is needed due to oddness with type promotion in Watcom C. Types don't promote to the larger type of the literal as specified in the C/C++ specs,
+					//messing this calculation up. Thanks Arne for pointing this out. 
+					if ((int8_t)(Objects[i].matcen_creator ^ 0x80) == my_station_num) 
 						count++;
 			if (count > Difficulty_level + 3) 
 			{
