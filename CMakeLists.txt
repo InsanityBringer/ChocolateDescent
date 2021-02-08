@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.11)
 project(ChocolateDescent)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 1 only. Won't link outside of Windows ATM. ")
+set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 1 only. Won't link outside of Windows ATM.")
+set(NETWORK OFF CACHE BOOL "Build with NETWORK. At the moment, there are no networking capabilities. RIP.")
 #These features are intended for testing.
 set(DESCENT1_TEXMAP_IN_DESCENT2 OFF CACHE BOOL "Swaps Descent 1's texture mapper into Descent 2.")
 set(DESCENT2_TEXMAP_IN_DESCENT1 OFF CACHE BOOL "Swaps Descent 2's texture mapper into Descent 1. ")
@@ -184,8 +185,6 @@ set(DESCENT1_SOURCES
 	main_d1/newdemo.h
 	main_d1/newmenu.cpp
 	main_d1/newmenu.h
-	main_d1/nocomlib.cpp
-	main_d1/nocomlib.h
 	main_d1/object.cpp
 	main_d1/object.h
 	main_d1/paging.cpp
@@ -545,6 +544,13 @@ set(LINUX_SOURCES
 	platform/linux/strutil.cpp
 )
 
+set (NETWORK_SOURCES
+	platform/net/nocomlib.cpp
+	platform/net/nocomlib.h
+	platform/net/nullipx.cpp
+	platform/net/nullipx.h
+)
+
 set(SHARED_LIBS
 )
 
@@ -606,6 +612,10 @@ else()
 	set(DESCENT2_SOURCES ${DESCENT2_SOURCES} ${DESCENT2_TEXMAP_SOURCES})
 endif()
 
+if (NETWORK)
+	add_definitions(-DNETWORK)
+	set(SHARED_SOURCES ${SHARED_SOURCES} ${NETWORK_SOURCES})
+endif()
 
 if (WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
@@ -670,6 +680,7 @@ source_group("mve" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/mve/.+")
 source_group("platform" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("platform\\fluidsynth" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/platform/fluidsynth/.+")
 source_group("platform\\openal" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/platform/openal/.+")
+source_group("platform\\net" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/platform/net/.+")
 source_group("platform\\sdl" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/platform/sdl/.+")
 source_group("platform\\win32" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("ui" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/ui/.+")

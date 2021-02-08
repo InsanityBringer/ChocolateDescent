@@ -43,7 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamesave.h"
 #include "netmisc.h"
 #include "fuelcen.h"
-#include "dpmi.h"
+//#include "dpmi.h"
 //#include "commlib.h" -Don't have these either! -KRB
 //#include "glfmodem.h" -Don't have these either! -KRB
 #include "multi.h"
@@ -57,7 +57,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 
 //This include is just to allow compiling. It doesn't mean it will work. Values in here are only dummy values
-#include "nocomlib.h"
+#include "platform/net/nocomlib.h"
+
+void com_send_choice(int choice);
+void serial_sync_abort(int val);
 
 #define MIN_COMM_GAP 8000
 #define INIT_STRING_LEN 20
@@ -88,7 +91,8 @@ int default_irq[4] = { 4, 3, 4, 3 };
 
 // Program determined variables for serial play
 
-typedef struct com_sync_pack {
+typedef struct com_sync_pack 
+{
 	char type;
 	int8_t proto_version;
 	long sync_time;
@@ -156,6 +160,8 @@ void modem_dialout(void);
 void modem_answer(void);
 int com_sync(int id);
 void com_sync_poll(int nitem, newmenu_item* menus, int* key, int citem);
+void com_process_sync(char* buf, int len);
+void serial_link_start(void);
 
 #if 0
 #define	codex(name_start, name_end)	\
@@ -192,54 +198,12 @@ codex(code_01s, code_01e)
 
 int detect_UART(unsigned baseaddr, int* loc, int* code)
 {
-	// this function returns 0 if no UART is installed.
-	// 1: 8250, 2: 16450 or 8250 with scratch reg., 3: 16550, 4: 16550A
-	int x, olddata, temp;
-
-	*loc = 0; *code = 0;
-
-	// check if a UART is present.  This is code John hacked by looking at the return
-	 // values from peoples computers.  
-	olddata = inp(baseaddr + 4);
-	outp(baseaddr + 4, 0x1f);			// Enable Loopback mode, sets RTS & DTR to 1.
-	delay(1);
-	_disable();
-	temp = inp(baseaddr + 6);			// Read the state of RTS and DTR.
-	temp = inp(baseaddr + 6);			// Do this twice, so that lower 4 bits are clear. OS/2 returns 0xB0 after this,
-											// instead of 0xff if no port is there.
-	_enable();
-	if ((temp & 0x3f) != 0x30) {
-		*loc = 1; *code = temp;
-		return 0;
-	}
-	outp(baseaddr + 4, olddata);		// Restore RTS & DTR
-	delay(1);
-	// next thing to do is look for the scratch register
-	olddata = inp(baseaddr + 7);
-	outp(baseaddr + 7, 0x55);
-	delay(1);
-	if (inp(baseaddr + 7) != 0x55) return 1;
-	outp(baseaddr + 7, 0xAA);
-	delay(1);
-	if (inp(baseaddr + 7) != 0xAA) return 1;
-	outp(baseaddr + 7, olddata); // we don't need to restore it if it's not there
-	delay(1);
-	// then check if there's a FIFO
-	outp(baseaddr + 2, 1);
-	delay(1);
-	x = inp(baseaddr + 2);
-	// some old-fashioned software relies on this!
-	outp(baseaddr + 2, 0x0);
-	delay(1);
-	if ((x & 0x80) == 0) return 2;
-	if ((x & 0x40) == 0) return 3;
-	return 4;
+	return 0;
 }
 
 codex(code_02s, code_02e)
 
-int
-com_type_detect()
+int com_type_detect()
 {
 	//	static long port;
 	//	short *ptr;
@@ -264,7 +228,8 @@ com_type_detect()
 
 	mprintf((0, "com port %x.\n", portaddr));
 
-	switch (detect_UART(portaddr, &loc, &code)) {
+	switch (detect_UART(portaddr, &loc, &code)) 
+	{
 	case 0:  // No UART
 		mprintf((0, "No UART detected. (LOC:%d, CODE:0x%x)\n", loc, code));
 		return -1;
@@ -296,8 +261,7 @@ com_dump_string(char* string)
 
 codex(code_03s, code_03e)
 
-int
-com_enable()
+int com_enable()
 {
 	// Detect and enable the COM port selected by the user
 
@@ -427,8 +391,7 @@ com_disable()
 
 codex(code_04s, code_04e)
 
-void
-com_abort(void)
+void com_abort(void)
 {
 	// this is the safest way to get out of some modem/serial negotiation
 	// and back to the main menu.  Use this whenever this have gone too far
@@ -444,8 +407,7 @@ com_abort(void)
 	Game_mode = GM_GAME_OVER; // Force main menu selection
 }
 
-void
-com_hangup(void)
+void com_hangup(void)
 {
 	// Close the serial link
 
@@ -453,8 +415,7 @@ com_hangup(void)
 	com_abort();
 }
 
-void
-com_carrier_lost(void)
+void com_carrier_lost(void)
 {
 	// Carrier lost, inform and abort
 
@@ -476,7 +437,7 @@ codex(code_05s, code_05e)
 extern uint8_t cockpit_mode_save; // From object.c
 extern int old_cockpit_mode; // From game.c
 
-com_reset_game(void)
+void com_reset_game(void)
 {
 	int i;
 
@@ -509,8 +470,7 @@ com_reset_game(void)
 
 codex(code_06s, code_06e)
 
-void
-com_save_settings(void)
+void com_save_settings(void)
 {
 	FILE* settings;
 	int i;
@@ -549,9 +509,10 @@ com_save_settings(void)
 error:
 	nm_messagebox(NULL, 1, TXT_OK, TXT_ERROR_SERIAL_CFG);
 
-	if (settings) {
+	if (settings) 
+	{
 		fclose(settings);
-		unlink("serial.cfg");
+		_unlink("serial.cfg");
 	}
 
 	return;
@@ -559,8 +520,7 @@ error:
 
 codex(code_07s, code_07e)
 
-void
-com_load_settings(void)
+void com_load_settings(void)
 {
 	FILE* settings;
 	int i, cfg_size;
@@ -568,7 +528,7 @@ com_load_settings(void)
 	if ((settings = fopen("serial.cfg", "rb")) == NULL)
 		goto defaults;
 
-	cfg_size = filelength(fileno(settings));
+	cfg_size = _filelength(_fileno(settings));
 
 	// Read the data from the file
 
@@ -669,8 +629,23 @@ serial_leave_game(void)
 
 codex(code_08s, code_08e)
 
-void
-com_send_data(char* ptr, int len, int repeat)
+void com_send_ptr(char* ptr, int len)
+{
+	register	int count;
+	register char dat;
+
+	for (count = 0, dat = ptr[0]; count < len; dat = ptr[++count])
+	{
+		WriteChar(com_port, dat);
+		if (dat == EOR_MARK)
+			WriteChar(com_port, EOR_MARK); // double in-band endmarkers
+	}
+	WriteChar(com_port, EOR_MARK);  // EOR
+	WriteChar(com_port, 0);         // EOR
+	chars_sent += len;
+}
+
+void com_send_data(char* ptr, int len, int repeat)
 {
 	int i;
 
@@ -700,26 +675,9 @@ com_send_data(char* ptr, int len, int repeat)
 			com_send_ptr(ptr, len);
 }
 
-com_send_ptr(char* ptr, int len)
-{
-	register	int count;
-	register char dat;
-
-	for (count = 0, dat = ptr[0]; count < len; dat = ptr[++count])
-	{
-		WriteChar(com_port, dat);
-		if (dat == EOR_MARK)
-			WriteChar(com_port, EOR_MARK); // double in-band endmarkers
-	}
-	WriteChar(com_port, EOR_MARK);  // EOR
-	WriteChar(com_port, 0);         // EOR
-	chars_sent += len;
-}
-
 codex(code_09s, code_09e)
 
-void
-com_flush()
+void com_flush()
 {
 	// Get rid of all waiting data in the serial buffer
 
@@ -735,8 +693,7 @@ com_flush()
 	mprintf((0, "%d characters.\n", i));
 }
 
-int
-com_getchar()
+int com_getchar()
 {
 	register int i;
 	static int eor_recv = 0;
@@ -1093,8 +1050,7 @@ com_menu_poll(int nitems, newmenu_item * menus, int* key, int citem)
 		* key = -2;
 }
 
-void
-com_send_choice(int choice)
+void com_send_choice(int choice)
 {
 	sendbuf[0] = (char)MULTI_MENU_CHOICE;
 	sendbuf[1] = (char)choice;
@@ -1749,6 +1705,22 @@ com_start_game()
 // Modem control functions, dialing, answering, etc.
 //
 
+void add_phone_number(char* src, char* num)
+{
+	char p;
+	int l;
+	l = strlen(num);
+	if (l < 15) {
+		strcat(src, num);
+		return;
+	}
+	p = num[15];
+	num[15] = 0;
+	strcat(src, num);
+	num[15] = p;
+	strcat(src, "...");
+}
+
 void modem_edit_phonebook(newmenu_item* m)
 {
 	int choice, choice2;
@@ -1804,22 +1776,6 @@ edit:
 
 
 codex(code_16s, code_16e)
-
-void add_phone_number(char* src, char* num)
-{
-	char p;
-	int l;
-	l = strlen(num);
-	if (l < 15) {
-		strcat(src, num);
-		return;
-	}
-	p = num[15];
-	num[15] = 0;
-	strcat(src, num);
-	num[15] = p;
-	strcat(src, "...");
-}
 
 int modem_dial_menu(void)
 {
@@ -2362,7 +2318,7 @@ com_process_sync(char* buf, int len)
 	{
 	case MULTI_END_SYNC:
 	{
-		com_process_end_sync(buf);
+		com_process_end_sync((int8_t*)buf);
 		break;
 	}
 	case MULTI_BEGIN_SYNC:

@@ -17,8 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <dos.h>
-#include <conio.h>
 #include <string.h>
 #include <time.h>
 
@@ -51,12 +49,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "kmatrix.h"
 //#include "glfmodem.h"//This and the next file aren't part of the public release -KRB
-//#include "commlib.h"
+#include "platform/net/nocomlib.h"
 #include "multibot.h"
 #include "gameseq.h"
 #include "physics.h"
 #include "config.h"
 #include "state.h"
+
 
 //*******************************************
 typedef struct {
@@ -65,14 +64,15 @@ typedef struct {
 	unsigned char read_index;
 } BUFFER;
 
-typedef struct {
-	void (interrupt far* old_vector)();
+/*typedef struct {
+	void (*old_vector)();
 	int uart_base;
 	int irq_mask;
 	int interrupt_number;
 	BUFFER in;
 	BUFFER out;
-} PORT; //I added this from serial.c, it will compile, but I doubt it works. -KRB
+} PORT; //I added this from serial.c, it will compile, but I doubt it works. -KRB how did any of this compile at all -ISB*/
+
 //*******************************************
 //
 // Local macros and prototypes
@@ -233,6 +233,13 @@ int message_length[MULTI_MAX_TYPE + 1] = {
 	1 + 1, 	// MULTI_REQ_PLAYER
 	sizeof(netplayer_stats),			// MULTI_SEND_PLAYER
 };
+
+//this file's prototype festival
+void multi_reset_player_object(object* objp);
+void multi_save_game(uint8_t slot, uint32_t id, char* desc);
+void multi_restore_game(uint8_t slot, uint32_t id);
+void extract_netplayer_stats(netplayer_stats* ps, player* pd);
+void multi_set_robot_ai(void);
 
 //
 //  Functions that replace what used to be macros
@@ -427,7 +434,7 @@ multi_choose_mission(int* anarchy_only)
 		default_mission = 0;
 		for (i = 0; i < n_missions; i++) {
 			m[i] = Mission_list[i].mission_name;
-			if (!stricmp(m[i], config_last_mission))
+			if (!_stricmp(m[i], config_last_mission))
 				default_mission = i;
 		}
 
@@ -792,7 +799,7 @@ multi_send_data(char* buf, int len, int repeat)
 	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
 		com_send_data(buf, len, repeat);
 	else if (Game_mode & GM_NETWORK)
-		network_send_data(buf, len, repeat);
+		network_send_data((uint8_t*)buf, len, repeat);
 }
 
 void
@@ -894,8 +901,8 @@ multi_menu_poll(void)
 	//	t1 = timer_get_fixed_seconds();
 	//	while (timer_get_fixed_seconds() < t1+F1_0/20)
 	//		;
-	t1 = TICKER + 1;		// Wait 1/18th of a second...
-	while (TICKER < t1)
+	t1 = I_GetTicks() + 1;		// Wait 1/18th of a second...
+	while (I_GetTicks() < t1)
 		;
 
 
@@ -1837,7 +1844,7 @@ void multi_do_req_player(char* buf)
 		extract_netplayer_stats(&ps, &Players[Player_num]);
 		ps.Player_num = Player_num;
 		ps.message_type = MULTI_SEND_PLAYER;		// SET
-		multi_send_data((uint8_t*)& ps, sizeof(netplayer_stats), 1);
+		multi_send_data((char*)&ps, sizeof(netplayer_stats), 1);
 	}
 }
 
@@ -2436,7 +2443,6 @@ multi_send_play_sound(int sound_num, fix volume)
 	multi_send_data(multibuf, count, 1);
 }
 
-#pragma off (unreferenced)
 void
 multi_send_audio_taunt(int taunt_num)
 {
@@ -2458,7 +2464,6 @@ multi_send_audio_taunt(int taunt_num)
 	multi_send_play_sound(audio_taunts[taunt_num], F1_0);
 #endif
 }
-#pragma on (unreferenced)
 
 #ifndef SHAREWARE
 void

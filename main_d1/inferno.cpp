@@ -56,7 +56,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "player.h"
 #include "text.h"
 #ifdef NETWORK
-#include "ipx.h"
+#include "platform/net/nullipx.h"
 #endif
 #include "newdemo.h"
 //#include "victor.h"

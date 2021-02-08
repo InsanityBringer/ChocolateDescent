@@ -1105,11 +1105,10 @@ void do_shareware_end_game(void)
 		//			}
 		//		}
 		//
-				//MALLOC(Briefing_text, char, 4); // Dummy //Can't compile -KRB
-		Briefing_text = (char*)malloc(4 * sizeof(char));//my hack -KRB
+		MALLOC(Briefing_text, char, 4); // Dummy
 //		sprintf(Briefing_text, "$S1\n$C1\n\n%s!\n\n%s has won with %d kills.\n\n$S2\n", TXT_SHAREWARE_DONE,Players[winner].callsign, Players[winner].net_kills_total);
 
-		kmatrix_view();
+		kmatrix_view(0);
 		return;
 	}
 	else

@@ -55,7 +55,7 @@ int Change8259Priority(int a)
 	return 0;
 }
 
-int FastSetPortHardware(PORT* port, int IRQ, int baseaddr)
+int FastSetPortHardware(int port, int IRQ, int baseaddr)
 {
 	return 0;
 }
@@ -68,7 +68,7 @@ void FastSet16550UseTXFifos(int a)
 	return;
 }
 
-void FastSavePortParameters(PORT* port)
+void FastSavePortParameters(int port)
 {
 	return;
 }
@@ -132,4 +132,9 @@ void ClearTXBuffer(PORT* port)
 void WriteBuffer(PORT* port, char* pbuff, int len)
 {
 	return;
+}
+
+int GetLineStatus(PORT* port)
+{
+	return 0;
 }

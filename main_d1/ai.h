@@ -87,3 +87,6 @@ extern fix AI_proc_time;
 void validate_all_paths();
 void maybe_ai_path_garbage_collect();
 void ai_path_set_orient_and_vel(object* objp, vms_vector* goal_point);
+
+//[ISB] net stuff
+extern void ai_multi_send_robot_position(int objnum, int force);

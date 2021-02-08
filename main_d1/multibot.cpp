@@ -44,6 +44,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "physics.h" 
 
+//prototypes because the original dev doesn't believe in function prototypes
+int multi_add_controlled_robot(int objnum, int agitation);
+void multi_send_release_robot(int objnum);
+void multi_delete_controlled_robot(int objnum);
+void multi_send_robot_position_sub(int objnum);
+
 //
 // Code for controlling robots in multiplayer games
 //
@@ -383,7 +389,7 @@ multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data(robot_fire_buf[sending], 18, 0);
+				multi_send_data((char*)robot_fire_buf[sending], 18, 0);
 			}
 
 			if (!(Game_mode & GM_NETWORK))

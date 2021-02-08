@@ -15,4 +15,4 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int kmatrix_kills_changed;
 
-void kmatrix_view();
+void kmatrix_view(int network);

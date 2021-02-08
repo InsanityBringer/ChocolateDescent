@@ -13,18 +13,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef NETWORK
 
-#include <i86.h>
-#include <dos.h>
+//#include <i86.h>
+//#include <dos.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <conio.h>
+//#include <conio.h>
 
 #include "misc/types.h"
 #include "args.h"
 #include "platform/timer.h"
 #include "platform/mono.h"
-#include "ipx.h"
+#include "platform/net/nullipx.h"
 #include "newmenu.h"
 #include "platform/key.h"
 #include "gauges.h"
@@ -137,9 +137,23 @@ extern obj_position Player_init[MAX_PLAYERS];
 #define DUMP_LEVEL 6
 
 int network_wait_for_snyc();
+//there was a dark, dark time where this language didn't require prototypes at all. 
+void network_flush();
+void network_send_endlevel_sub(int player_num);
+void network_listen();
+void network_update_netgame(void);
+void network_dump_player(uint8_t* server, uint8_t* node, int why);
+void network_send_objects(void);
+void network_send_rejoin_sync(int player_num);
+void network_update_netgame(void);
+void network_send_game_info(sequence_packet* their);
+void network_send_data(uint8_t* ptr, int len, int urgent);
+void network_read_sync_packet(netgame_info* sp);
+void network_read_pdata_packet(frame_info* pd);
+void network_read_object_packet(uint8_t* data);
+void network_read_endlevel_packet(uint8_t* data);
 
-void
-network_init(void)
+void network_init(void)
 {
 	// So you want to play a netgame, eh?  Let's a get a few things
 	// straight
@@ -254,8 +268,7 @@ network_endlevel_poll(int nitems, newmenu_item * menus, int* key, int citem)
 	}
 }
 
-void
-network_endlevel_poll2(int nitems, newmenu_item* menus, int* key, int citem)
+void network_endlevel_poll2(int nitems, newmenu_item* menus, int* key, int citem)
 {
 	// Polling loop for End-of-level menu
 
@@ -296,8 +309,7 @@ network_endlevel_poll2(int nitems, newmenu_item* menus, int* key, int citem)
 	}
 }
 
-int
-network_endlevel(int* secret)
+int network_endlevel(int* secret)
 {
 	// Do whatever needs to be done between levels
 
@@ -406,7 +418,7 @@ can_join_netgame(netgame_info* game)
 
 
 	for (i = 0; i < num_players; i++)
-		if ((!stricmp(Players[Player_num].callsign, game->players[i].callsign)) &&
+		if ((!_stricmp(Players[Player_num].callsign, game->players[i].callsign)) &&
 			(!memcmp(My_Seq.player.node, game->players[i].node, 6)) &&
 			(!memcmp(My_Seq.player.server, game->players[i].server, 4)))
 			break;
@@ -552,7 +564,7 @@ void network_welcome_player(sequence_packet* their)
 
 	for (i = 0; i < N_players; i++)
 	{
-		if ((!stricmp(Players[i].callsign, their->player.callsign)) && (!memcmp(Players[i].net_address, local_address, 6)))
+		if ((!_stricmp(Players[i].callsign, their->player.callsign)) && (!memcmp(Players[i].net_address, local_address, 6)))
 		{
 			player_num = i;
 			break;
@@ -782,7 +794,7 @@ void network_stop_resync(sequence_packet* their)
 {
 	if ((!memcmp(Network_player_rejoining.player.node, their->player.node, 6)) &&
 		(!memcmp(Network_player_rejoining.player.server, their->player.server, 4)) &&
-		(!stricmp(Network_player_rejoining.player.callsign, their->player.callsign)))
+		(!_stricmp(Network_player_rejoining.player.callsign, their->player.callsign)))
 	{
 		mprintf((0, "Aborting resync for player %s.\n", their->player.callsign));
 		Network_send_objects = 0;
@@ -790,7 +802,7 @@ void network_stop_resync(sequence_packet* their)
 	}
 }
 
-int8_t object_buffer[IPX_MAX_DATA_SIZE];
+uint8_t object_buffer[IPX_MAX_DATA_SIZE];
 
 void network_send_objects(void)
 {
@@ -1205,17 +1217,17 @@ int network_send_request(void)
 void network_process_gameinfo(uint8_t* data)
 {
 	int i, j;
-	netgame_info* new;
+	netgame_info* newgame;
 
-	new = (netgame_info*)data;
+	newgame = (netgame_info*)data;
 
 	Network_games_changed = 1;
 
-	mprintf((0, "Got game data for game %s.\n", new->game_name));
+	mprintf((0, "Got game data for game %s.\n", newgame->game_name));
 
 	for (i = 0; i < num_active_games; i++)
-		if (!stricmp(Active_games[i].game_name, new->game_name) && !memcmp(Active_games[i].players[0].node, new->players[0].node, 6)
-			&& !memcmp(Active_games[i].players[0].server, new->players[0].server, 4))
+		if (!_stricmp(Active_games[i].game_name, newgame->game_name) && !memcmp(Active_games[i].players[0].node, newgame->players[0].node, 6)
+			&& !memcmp(Active_games[i].players[0].server, newgame->players[0].server, 4))
 			break;
 
 	if (i == MAX_ACTIVE_NETGAMES)
@@ -1254,7 +1266,7 @@ void network_process_request(sequence_packet* their)
 	mprintf((0, "Player %s ready for sync.\n", their->player.callsign));
 
 	for (i = 0; i < N_players; i++)
-		if (!memcmp(their->player.server, Netgame.players[i].server, 4) && !memcmp(their->player.node, Netgame.players[i].node, 6) && (!stricmp(their->player.callsign, Netgame.players[i].callsign))) {
+		if (!memcmp(their->player.server, Netgame.players[i].server, 4) && !memcmp(their->player.node, Netgame.players[i].node, 6) && (!_stricmp(their->player.callsign, Netgame.players[i].callsign))) {
 			Players[i].connected = 1;
 			break;
 		}
@@ -1648,7 +1660,6 @@ int opt_cinvul;
 int last_cinvul = 0;
 int opt_mode;
 
-#pragma off (unreferenced)
 void network_game_param_poll(int nitems, newmenu_item* menus, int* key, int citem)
 {
 #ifdef SHAREWARE
@@ -1674,7 +1685,6 @@ void network_game_param_poll(int nitems, newmenu_item* menus, int* key, int cite
 
 #endif
 }
-#pragma on (unreferenced)
 
 int network_get_game_params(char* game_name, int* mode, int* game_flags, int* level)
 {
@@ -1763,7 +1773,7 @@ menu:
 		int j;
 
 		for (j = 0; j < num_active_games; j++)
-			if (!stricmp(Active_games[j].game_name, name))
+			if (!_stricmp(Active_games[j].game_name, name))
 			{
 				nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_DUPLICATE_NAME);
 				goto menu;
@@ -1920,7 +1930,7 @@ void network_read_sync_packet(netgame_info* sp)
 
 	for (i = 0; i < N_players; i++) {
 		if ((!memcmp(sp->players[i].node, My_Seq.player.node, 6)) &&
-			(!stricmp(sp->players[i].callsign, temp_callsign)))
+			(!_stricmp(sp->players[i].callsign, temp_callsign)))
 		{
 			Assert(Player_num == -1); // Make sure we don't find ourselves twice!  Looking for interplay reported bug
 			change_playernum_to(i);
@@ -1985,14 +1995,13 @@ void network_read_sync_packet(netgame_info* sp)
 
 }
 
-void
-network_send_sync(void)
+void network_send_sync(void)
 {
 	int i, j, np;
 
 	// Randomize their starting locations...
 
-	srand(TICKER);
+	srand(I_GetTicks());
 	for (i = 0; i < MaxNumNetPlayers; i++)
 	{
 		if (Players[i].connected)
@@ -2025,7 +2034,8 @@ network_send_sync(void)
 	Netgame.type = PID_SYNC;
 	Netgame.segments_checksum = my_segments_checksum;
 
-	for (i = 0; i < N_players; i++) {
+	for (i = 0; i < N_players; i++) 
+	{
 		if ((!Players[i].connected) || (i == Player_num))
 			continue;
 
@@ -2898,21 +2908,24 @@ void network_read_pdata_packet(frame_info* pd)
 #endif
 	object* TheirObj = NULL;
 
-	if (TheirPlayernum < 0) {
+	if (TheirPlayernum < 0)
+	{
 		Int3(); // This packet is bogus!!
 		return;
 	}
-	if (!multi_quit_game && (TheirPlayernum >= N_players)) {
+	if (!multi_quit_game && (TheirPlayernum >= N_players)) 
+	{
 		Int3(); // We missed an important packet!
 		network_consistency_error();
 		return;
 	}
-	if (Endlevel_sequence || (Network_status == NETSTAT_ENDLEVEL)) {
+	if (Endlevel_sequence || (Network_status == NETSTAT_ENDLEVEL)) 
+	{
 		int old_Endlevel_sequence = Endlevel_sequence;
 		Endlevel_sequence = 1;
 		if (pd->data_size > 0) {
 			// pass pd->data to some parser function....
-			multi_process_bigdata(pd->data, pd->data_size);
+			multi_process_bigdata((char*)pd->data, pd->data_size);
 		}
 		Endlevel_sequence = old_Endlevel_sequence;
 		return;
@@ -2961,7 +2974,8 @@ void network_read_pdata_packet(frame_info* pd)
 		set_thrust_from_velocity(TheirObj);
 
 	//------------ Welcome them back if reconnecting --------------
-	if (!Players[TheirPlayernum].connected) {
+	if (!Players[TheirPlayernum].connected) 
+	{
 		Players[TheirPlayernum].connected = 1;
 
 #ifndef SHAREWARE
@@ -2983,9 +2997,10 @@ void network_read_pdata_packet(frame_info* pd)
 
 	//------------ Parse the extra data at the end ---------------
 
-	if (pd->data_size > 0) {
+	if (pd->data_size > 0) 
+	{
 		// pass pd->data to some parser function....
-		multi_process_bigdata(pd->data, pd->data_size);
+		multi_process_bigdata((char*)pd->data, pd->data_size);
 	}
 	//	mprintf( (0, "Got packet with %d bytes on it!\n", pd->data_size ));
 

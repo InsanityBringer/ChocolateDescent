@@ -1776,7 +1776,7 @@ void show_reticle(int force_big_one)
 }
 
 #ifdef NETWORK
-hud_show_kill_list()
+void hud_show_kill_list()
 {
 	int n_players, player_list[MAX_NUM_NET_PLAYERS];
 	int n_left, i, x0, x1, y, save_y, fth;
