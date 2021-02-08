@@ -137,3 +137,7 @@ void P_ReadFuelCenter(FuelCenter* center, FILE* fp);
 
 void P_WriteMatcen(matcen_info* center, FILE* fp);
 void P_WriteFuelCenter(FuelCenter* center, FILE* fp);
+
+#ifdef NETWORK
+void fuelcen_check_for_hoard_goal(segment* segp);
+#endif

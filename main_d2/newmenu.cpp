@@ -701,7 +701,7 @@ int check_button_press()
 	return 0;
 }
 
-extern int network_request_player_names(int);
+extern void network_request_player_names(int);
 extern int RestoringMenu;
 
 #if defined(WINDOWS) || defined(MACINTOSH)
@@ -3318,7 +3318,7 @@ void show_extra_netgame_info(int choice)
 
 	for (i = 0; i < 5; i++)
 	{
-		m[i].text = &mtext[i];
+		m[i].text = mtext[i];
 		m[i].type = NM_TYPE_TEXT;
 	}
 

@@ -14,8 +14,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 // The default socket to use.
+#ifndef BUILD_DESCENT2
 //[ISB] this was removed in Descent 2 for reasons, need to figure out why. 
 #define IPX_DEFAULT_SOCKET 0x5100		// 0x869d
+#endif
 
 //---------------------------------------------------------------
 // Initializes all IPX internals. 

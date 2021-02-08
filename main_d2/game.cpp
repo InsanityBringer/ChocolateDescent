@@ -1670,7 +1670,7 @@ void afterburner_shake(void)
 
 //	------------------------------------------------------------------------------------
 #ifdef NETWORK
-extern int multi_send_sound_function (char,char);
+extern void multi_send_sound_function (char,char);
 #endif
 
 void do_afterburner_stuff(void)

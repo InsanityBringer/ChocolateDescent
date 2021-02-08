@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -22,9 +22,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // The default socket to use.
 
 #ifdef SHAREWARE
-	#define IPX_DEFAULT_SOCKET 0x5110		
+#define IPX_DEFAULT_SOCKET 0x5110		
 #else
-	#define IPX_DEFAULT_SOCKET 0x5130		
+#define IPX_DEFAULT_SOCKET 0x5130		
 #endif
 
 #define NETSTAT_MENU					0
@@ -56,9 +56,9 @@ extern int Network_game_type;
 #endif
 
 typedef struct sequence_packet {
-	ubyte					type;
+	uint8_t					type;
 	int 					Security;
-   ubyte pad1[3];
+	uint8_t pad1[3];
 	netplayer_info		player;
 } sequence_packet;
 
@@ -72,44 +72,46 @@ typedef struct sequence_packet {
 //		shorts on even byte boundries
 //		ints on even byte boundries
 
-typedef struct frame_info {
-	ubyte				type;						// What type of packet
-	ubyte				pad[3];					// Pad out length of frame_info packet
-	int				numpackets;			
+typedef struct frame_info
+{
+	uint8_t				type;						// What type of packet
+	uint8_t				pad[3];					// Pad out length of frame_info packet
+	int				numpackets;
 	vms_vector		obj_pos;
 	vms_matrix		obj_orient;
 	vms_vector		phys_velocity;
 	vms_vector		phys_rotvel;
 	short				obj_segnum;
-	ushort			data_size;		// Size of data appended to the net packet
-	ubyte				playernum;
-	ubyte				obj_render_type;
-	ubyte				level_num;
-	ubyte				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
+	uint16_t			data_size;		// Size of data appended to the net packet
+	uint8_t				playernum;
+	uint8_t				obj_render_type;
+	uint8_t				level_num;
+	uint8_t				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
 } frame_info;
 
 // short_frame_info is not aligned -- 01/18/96 -- MWA
 // won't align because of shortpos.  Shortpos needs
 // to stay in current form.
 
-typedef struct short_frame_info {
-	ubyte				type;						// What type of packet
-	ubyte				pad[3];					// Pad out length of frame_info packet
-	int				numpackets;			
+typedef struct short_frame_info
+{
+	uint8_t				type;						// What type of packet
+	uint8_t				pad[3];					// Pad out length of frame_info packet
+	int				numpackets;
 	shortpos			thepos;
-	ushort			data_size;		// Size of data appended to the net packet
-	ubyte				playernum;
-	ubyte				obj_render_type;
-	ubyte				level_num;
-	ubyte				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
+	uint16_t			data_size;		// Size of data appended to the net packet
+	uint8_t				playernum;
+	uint8_t				obj_render_type;
+	uint8_t				level_num;
+	uint8_t				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
 } short_frame_info;
 
 void network_start_game();
 void network_join_game();
 void network_rejoin_game();
 void network_leave_game();
-int network_endlevel(int *secret);
-void network_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
+int network_endlevel(int* secret);
+void network_endlevel_poll2(int nitems, struct newmenu_item* menus, int* key, int citem);
 
 
 int network_level_sync();
@@ -118,7 +120,10 @@ void network_send_endlevel_packet();
 int network_delete_extra_objects();
 int network_find_max_net_players();
 int network_objnum_is_past(int objnum);
-char * network_get_player_name( int objnum );
+char* network_get_player_name(int objnum);
+void network_send_naked_packet(char* buf, short len, int who);
+
+int HoardEquipped();
 
 void network_disconnect_player(int playernum);
 
@@ -133,7 +138,7 @@ extern int Network_status;
 
 extern fix LastPacketTime[MAX_PLAYERS];
 
-extern ushort my_segments_checksum;
+extern uint16_t my_segments_checksum;
 // By putting an up-to-20-char-message into Network_message and 
 // setting Network_message_reciever to the player num you want to
 // send it to (100 for broadcast) the next frame the player will
@@ -144,7 +149,7 @@ void network_do_frame(int force, int listen);
 
 // Tacks data of length 'len' onto the end of the next
 // packet that we're transmitting.
-void network_send_data( ubyte * ptr, int len, int urgent );
+void network_send_data(uint8_t* ptr, int len, int urgent);
 
 #endif
 #endif

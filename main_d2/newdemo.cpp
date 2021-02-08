@@ -1478,7 +1478,7 @@ int newdemo_read_demo_start(int rnd_demo)
 	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
 	if (Newdemo_game_mode & GM_TEAM) 
 	{
-		nd_read_byte(&(Netgame.team_vector));
+		nd_read_byte((int8_t*)&(Netgame.team_vector));
 		nd_read_string(Netgame.team_name[0]);
 		nd_read_string(Netgame.team_name[1]);
 	}
@@ -1487,7 +1487,7 @@ int newdemo_read_demo_start(int rnd_demo)
 	{
 #ifdef NETWORK
 		multi_new_game();
-		nd_read_byte(&c);
+		nd_read_byte((int8_t*)&c);
 		N_players = (int)c;
 		// changed this to above two lines -- breaks on the mac because of
 		// endian issues

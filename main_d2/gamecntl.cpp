@@ -685,7 +685,7 @@ int do_game_pause()
 		return key;
 }
 
-extern int newmenu_dotiny2(char* title, char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem));
+extern int newmenu_dotiny2(const char* title, const char* subtitle, int nitems, newmenu_item* item, void (*subfunction)(int nitems, newmenu_item* items, int* last_key, int citem));
 extern int network_who_is_master(), network_how_many_connected(), GetMyNetRanking();
 extern int TotalMissedPackets, TotalPacketsGot;
 extern char Pauseable_menu;

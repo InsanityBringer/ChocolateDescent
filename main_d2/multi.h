@@ -120,7 +120,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Exported functions
 
 int objnum_remote_to_local(int remote_obj, int owner);
-int objnum_local_to_remote(int local_obj, byte *owner);
+int objnum_local_to_remote(int local_obj, int8_t *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(int objnum);
 
@@ -140,7 +140,7 @@ void multi_send_reappear();
 void multi_send_kill(int objnum);
 void multi_send_remobj(int objnum);
 void multi_send_quit(int why);
-void multi_send_door_open(int segnum, int side,ubyte flag);
+void multi_send_door_open(int segnum, int side,uint8_t flag);
 void multi_send_create_explosion(int player_num);
 void multi_send_controlcen_fire(vms_vector *to_target, int gun_num, int objnum);
 void multi_send_cloak(void);
@@ -151,7 +151,7 @@ void multi_send_audio_taunt(int taunt_num);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);
-void multi_send_netplayer_stats_request(ubyte player_num);
+void multi_send_netplayer_stats_request(uint8_t player_num);
 void multi_send_drop_weapon (int objnum,int seed);
 void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[]);
 void multi_send_guided_info (object *miss,char);
@@ -178,6 +178,7 @@ int multi_choose_mission(int *anarchy_only);
 void multi_reset_stuff(void);
 
 void multi_send_data(char *buf, int len, int repeat);
+void multi_send_got_orb(char pnum);
 
 int get_team(int pnum);
 
@@ -220,7 +221,7 @@ extern int Network_message_reciever;
 
 extern short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Network object num for each 
 extern short local_to_remote[MAX_OBJECTS];   // Local object num for each network objnum
-extern byte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
+extern int8_t object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
 
 extern int multi_in_menu; // Flag to tell if we're executing GameLoop from within a newmenu.
 extern int multi_leave_menu;
@@ -232,6 +233,10 @@ extern void multi_message_input_sub( int key );
 extern void multi_send_message_start();
 
 extern int control_invul_time;
+
+extern void multi_send_orb_bonus(char pnum);
+extern void multi_add_lifetime_kills();
+extern void bash_to_shield(int i, const char* s);
 
 #define N_PLAYER_SHIP_TEXTURES 6
 
@@ -258,24 +263,24 @@ typedef struct netplayer_info {
 	char		callsign[CALLSIGN_LEN+1];
 	union {
 		struct {
-			ubyte		server[4];
-			ubyte		node[6];
+			uint8_t		server[4];
+			uint8_t		node[6];
 		} ipx;
 		struct {
-			ushort		net;
-			ubyte		node;
-			ubyte		socket;
+			uint16_t		net;
+			uint8_t		node;
+			uint8_t		socket;
 		} appletalk;
 	} network;
 
-   ubyte version_major;
-   ubyte version_minor;
+   uint8_t version_major;
+   uint8_t version_minor;
 	enum comp_type computer_type;
-	byte 		connected;
+	int8_t 		connected;
 
-	ushort	socket;
+	uint16_t	socket;
 
-   ubyte rank;
+   uint8_t rank;
 
 } netplayer_info;
 
@@ -286,25 +291,26 @@ typedef struct AllNetPlayers_info
   struct netplayer_info players[MAX_PLAYERS+4];
  } AllNetPlayers_info;
 
-typedef struct netgame_info {
-	ubyte					type;
+typedef struct netgame_info 
+{
+	uint8_t					type;
    int               Security;
 	char					game_name[NETGAME_NAME_LEN+1];
 	char					mission_title[MISSION_NAME_LEN+1];
 	char					mission_name[9];
 	int					levelnum;
-	ubyte					gamemode;
-	ubyte				   RefusePlayers;
-	ubyte					difficulty;
-	ubyte 				game_status;
-	ubyte					numplayers;
-	ubyte					max_numplayers;
-	ubyte					numconnected;
-	ubyte					game_flags;
-	ubyte					protocol_version;
-   ubyte 				version_major;
-   ubyte 				version_minor;
-	ubyte					team_vector;
+	uint8_t					gamemode;
+	uint8_t				   RefusePlayers;
+	uint8_t					difficulty;
+	uint8_t 				game_status;
+	uint8_t					numplayers;
+	uint8_t					max_numplayers;
+	uint8_t					numconnected;
+	uint8_t					game_flags;
+	uint8_t					protocol_version;
+   uint8_t 				version_major;
+   uint8_t 				version_minor;
+	uint8_t					team_vector;
 
 // change the order of the bit fields for the mac compiler.
 // doing so will mean I don't have to do screwy things to
@@ -381,7 +387,7 @@ typedef struct netgame_info {
 	char					team_name[2][CALLSIGN_LEN+1];
    int               locations[MAX_PLAYERS];
    short             kills[MAX_PLAYERS][MAX_PLAYERS];
-	ushort				segments_checksum;
+	uint16_t				segments_checksum;
 	short					team_kills[2];
    short             killed[MAX_PLAYERS];
    short             player_kills[MAX_PLAYERS];
@@ -391,9 +397,9 @@ typedef struct netgame_info {
 	int					control_invul_time;
 	int 					monitor_vector;
    int               player_score[MAX_PLAYERS];
-   ubyte             player_flags[MAX_PLAYERS];
+   uint8_t             player_flags[MAX_PLAYERS];
 	short					PacketsPerSec;
-	ubyte					ShortPackets;
+	uint8_t					ShortPackets;
 	
 } netgame_info;
 

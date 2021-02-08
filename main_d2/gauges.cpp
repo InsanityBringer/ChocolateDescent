@@ -28,6 +28,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "physics.h"
 #include "misc/error.h"
+#include "3d/3d.h"
+#include "3d/globvars.h"
 
 #include "menu.h"			// For the font.
 #include "platform/mono.h"

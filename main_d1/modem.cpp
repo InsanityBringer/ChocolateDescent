@@ -19,11 +19,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <dos.h>
-#include <conio.h>
 #include <string.h>
 #include <time.h>
-#include <io.h>
 
 //#include "fast.h" // Commlib stuff //Don't have fast.h -KRB
 #include "game.h"
@@ -58,6 +55,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //This include is just to allow compiling. It doesn't mean it will work. Values in here are only dummy values
 #include "platform/net/nocomlib.h"
+
+#include "platform/posixstub.h"
 
 void com_send_choice(int choice);
 void serial_sync_abort(int val);

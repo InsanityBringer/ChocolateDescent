@@ -1212,7 +1212,7 @@ void DoEndLevelScoreGlitz(int network)
 
 #ifdef NETWORK
 	if (network && (Game_mode & GM_NETWORK))
-		newmenu_do2(NULL, title, c, m, (void(*))network_endlevel_poll2, 0, STARS_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, network_endlevel_poll2, 0, STARS_BACKGROUND);
 	else
 #endif
 		newmenu_do2(NULL, title, c, m, NULL, 0, STARS_BACKGROUND);

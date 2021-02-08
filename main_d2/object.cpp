@@ -1494,6 +1494,18 @@ extern void multi_cap_objects();
 extern int Proximity_dropped, Smartmines_dropped;
 
 //	------------------------------------------------------------------------------------------------------------------
+void AdjustMineSpawn()
+{
+	if (!(Game_mode & GM_NETWORK))
+		return;  // No need for this function in any other mode
+
+	if (!(Game_mode & GM_HOARD))
+		Players[Player_num].secondary_ammo[PROXIMITY_INDEX] += Proximity_dropped;
+	Players[Player_num].secondary_ammo[SMART_MINE_INDEX] += Smartmines_dropped;
+	Proximity_dropped = 0;
+	Smartmines_dropped = 0;
+}
+
 void dead_player_frame(void)
 {
 	fix	time_dead;
@@ -1633,18 +1645,6 @@ void dead_player_frame(void)
 			}
 		}
 
-
-void AdjustMineSpawn()
-{
-	if (!(Game_mode & GM_NETWORK))
-		return;  // No need for this function in any other mode
-
-	if (!(Game_mode & GM_HOARD))
-		Players[Player_num].secondary_ammo[PROXIMITY_INDEX] += Proximity_dropped;
-	Players[Player_num].secondary_ammo[SMART_MINE_INDEX] += Smartmines_dropped;
-	Proximity_dropped = 0;
-	Smartmines_dropped = 0;
-}
 
 
 
