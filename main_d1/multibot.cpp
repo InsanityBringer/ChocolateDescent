@@ -21,7 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat/vecmat.h"
 #include "multibot.h"
 #include "game.h"
-#include "modem.h"
 #include "network.h"
 #include "multi.h"
 #include "object.h"

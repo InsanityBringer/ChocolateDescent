@@ -43,11 +43,11 @@ extern int ft_preference;
 
 //	The following bits define the game modes.
 #define GM_EDITOR						1			//	You came into the game from the editor
-#define GM_SERIAL						2			// You are in serial mode
+//#define GM_SERIAL						2			// You are in serial mode. Unused in Chocolate. 
 #define GM_NETWORK					4			// You are in network mode
 #define GM_MULTI_ROBOTS				8			//	You are in a multiplayer mode with robots.
 #define GM_MULTI_COOP				16			//	You are in a multiplayer mode and can't hurt other players.
-#define GM_MODEM						32       // You are in a modem (serial) game
+//#define GM_MODEM						32       // You are in a modem (serial) game. Unused in Chocolate.
 
 #define GM_UNKNOWN					64			//	You are not in any mode, kind of dangerous...
 #define GM_GAME_OVER					128		//	Game has been finished

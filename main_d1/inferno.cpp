@@ -30,7 +30,6 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "bm.h"
 #include "inferno.h"
 #include "misc/error.h"
-//#include "cflib.h"
 #include "cfile/cfile.h"
 //#include "div0.h" //[ISB] one worry
 #include "game.h"
@@ -59,9 +58,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "platform/net/nullipx.h"
 #endif
 #include "newdemo.h"
-//#include "victor.h"
 #include "network.h"
-#include "modem.h"
 #include "gamefont.h"
 #include "kconfig.h"
 #ifdef ARCADE
@@ -70,13 +67,11 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #endif
 #include "platform/mouse.h"
 #include "platform/joy.h"
-//#include "dpmi.h"
 #include "newmenu.h"
 #include "desc_id.h"
 #include "config.h"
 #include "joydefs.h"
 #include "multi.h"
-//#include "iglasses.h"
 #include "songs.h"
 #include "cfile/cfile.h"
 #ifdef USE_CDROM
@@ -558,15 +553,6 @@ int D_DescentMain(int argc, const char** argv)
 	else {
 		if (Inferno_verbose) printf("%s\n", TXT_NETWORK_DISABLED);
 		Network_active = 0;		// Assume no network
-	}
-
-	if (!FindArg("-noserial"))
-	{
-		serial_active = 1;
-	}
-	else
-	{
-		serial_active = 0;
 	}
 #endif
 

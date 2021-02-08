@@ -25,7 +25,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "2d/i_gr.h"
 //#include "pa_enabl.h"       //$$POLY_ACC
 #include "2d/gr.h"
-//#include "vga.h" //[ISB] REGRETS
 #include "platform/mono.h"
 #include "platform/key.h"
 #include "platform/timer.h"
@@ -33,7 +32,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "bm.h"
 #include "inferno.h"
 #include "misc/error.h"
-//#include "div0.h"
 #include "game.h"
 #include "segment.h"		//for Side_to_verts
 #include "mem/mem.h"
@@ -49,16 +47,14 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "iff/iff.h"
 #include "2d/pcx.h"
 #include "2d/palette.h"
-#include "misc/args.h" //[ISB] WHAT THE FUCK IS WRONG WITH ME //[ISB] I fixed it its okay
+#include "misc/args.h"
 #include "sounds.h"
 #include "titles.h"
 #include "player.h"
 #include "text.h"
 #include "platform/net/nullipx.h"
 #include "newdemo.h"
-//#include "victor.h"
 #include "network.h"
-#include "modem.h"
 #include "gamefont.h"
 #include "kconfig.h"
 #include "platform/mouse.h"
@@ -68,16 +64,13 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "config.h"
 #include "joydefs.h"
 #include "multi.h"
-//#include "iglasses.h"
 #include "songs.h"
 #include "cfile/cfile.h"
 #include "gameseq.h"
 #include "gamepal.h"
 #include "mission.h"
-//#include "dpmi.h"
 #include "movie.h"
 #include "compbit.h"
-//#include "vfx.h"
 #include "misc/types.h"
 
 #ifdef TACTILE
@@ -787,11 +780,6 @@ Here:
 
 #ifdef NETWORK
 	do_network_init();
-
-	if (!FindArg("-noserial"))
-		serial_active = 1;
-	else
-		serial_active = 0;
 #endif
 
 #if defined(POLY_ACC)

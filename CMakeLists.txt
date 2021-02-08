@@ -169,8 +169,6 @@ set(DESCENT1_SOURCES
 	main_d1/mglobal.cpp
 	main_d1/mission.cpp
 	main_d1/mission.h
-	main_d1/modem.cpp
-	main_d1/modem.h
 	main_d1/morph.cpp
 	main_d1/morph.h
 	main_d1/multi.cpp
@@ -412,8 +410,6 @@ set(DESCENT2_SOURCES
 	main_d2/mglobal.cpp
 	main_d2/mission.cpp
 	main_d2/mission.h
-	main_d2/modem.cpp
-	main_d2/modem.h
 	main_d2/morph.cpp
 	main_d2/morph.h
 	main_d2/movie.cpp
@@ -545,8 +541,6 @@ set(LINUX_SOURCES
 )
 
 set (NETWORK_SOURCES
-	platform/net/nocomlib.cpp
-	platform/net/nocomlib.h
 	platform/net/nullipx.cpp
 	platform/net/nullipx.h
 )

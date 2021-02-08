@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <errno.h>
 #include <time.h>
+
 #include "misc/rand.h"
 #include "inferno.h"
 #include "game.h"
@@ -79,7 +80,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "cntrlcen.h"
 #include "powerup.h"
-#include "modem.h"
 #include "text.h"
 #include "cfile/cfile.h"
 #include "piggy.h"
@@ -1202,11 +1202,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 	if (Game_mode & GM_NETWORK)
 	{
 		if (network_level_sync()) // After calling this, Player_num is set
-			return;
-	}
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		if (com_level_sync())
 			return;
 	}
 #endif

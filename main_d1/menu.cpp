@@ -50,7 +50,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "network.h"
 #include "scores.h"
 #include "joydefs.h"
-#include "modem.h"
 #include "playsave.h"
 #include "multi.h"
 #include "kconfig.h"
@@ -228,12 +227,6 @@ int DoMenu()
 		return 0;
 	}
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)) 
-	{
-		do_option(MENU_START_SERIAL);
-		return 0;
-	}
-
 	create_main_menu(m, menu_choice, &num_options);
 
 	do 
@@ -369,7 +362,7 @@ void do_option(int select)
 		break;
 	case MENU_START_SERIAL:
 #ifdef NETWORK
-		com_main_menu();
+		nm_messagebox("Chocolate Note:", 1, TXT_OK, "Emulation of modem support is\nunlikely. Start a normal\nnetwork game.");
 #endif
 		break;
 	case MENU_MULTIPLAYER:

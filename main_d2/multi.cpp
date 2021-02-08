@@ -22,7 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 #include "game.h"
-#include "modem.h"
 #include "network.h"
 #include "multi.h"
 #include "object.h"
@@ -50,8 +49,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "text.h"
 #include "kmatrix.h"
-//#include "glfmodem.h"
-#include "platform/net/nocomlib.h"
 #include "multibot.h"
 #include "gameseq.h"
 #include "physics.h"
@@ -461,9 +458,6 @@ multi_endlevel_score(void)
 int
 get_team(int pnum)
 {
-	if ((Game_mode & GM_CAPTURE) && ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)))
-		return pnum;
-
 	if (Netgame.team_vector & (1 << pnum))
 		return 1;
 	else
@@ -932,14 +926,7 @@ multi_do_frame(void)
 	}
 #endif  
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		com_do_frame();
-	}
-	else
-	{
-		network_do_frame(0, 1);
-	}
+	network_do_frame(0, 1);
 
 	if (multi_quit_game && !multi_in_menu)
 	{
@@ -958,9 +945,7 @@ multi_send_data(char* buf, int len, int repeat)
 	if (Game_mode & GM_NETWORK)
 		Assert(buf[0] > 0);
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		com_send_data(buf, len, repeat);
-	else if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_NETWORK)
 		network_send_data((uint8_t*)buf, len, repeat);
 }
 
@@ -991,8 +976,6 @@ multi_leave_game(void)
 	mprintf((1, "Sending leave game.\n"));
 	multi_send_quit(MULTI_QUIT);
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		serial_leave_game();
 	if (Game_mode & GM_NETWORK)
 		network_leave_game();
 
@@ -1026,9 +1009,7 @@ multi_endlevel(int* secret)
 {
 	int result = 0;
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		com_endlevel(secret);          // an opportunity to re-sync or whatever
-	else if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_NETWORK)
 		result = network_endlevel(secret);
 
 	return(result);
@@ -1038,10 +1019,6 @@ multi_endlevel(int* secret)
 // Part 2 : functions that act on network/serial messages and change the
 //          the state of the game in some way.
 //
-
-#ifndef MACINTOSH
-extern PORT* com_port;
-#endif
 
 int
 multi_menu_poll(void)
@@ -1082,14 +1059,6 @@ multi_menu_poll(void)
 		return(-1);
 	}
 
-#if !defined(WINDOWS) && !defined(MACINTOSH)
-	if ((Game_mode & GM_MODEM) && (!GetCd(com_port)))
-	{
-		multi_leave_menu = 1;
-		return(-1);
-	}
-#endif
-
 	return(0);
 }
 
@@ -1115,7 +1084,8 @@ multi_define_macro(int key)
 		Int3();
 	}
 
-	if (multi_defining_message) {
+	if (multi_defining_message) 
+	{
 		multi_message_index = 0;
 		Network_message[multi_message_index] = 0;
 	}
@@ -1998,15 +1968,6 @@ multi_do_quit(char* buf)
 		}
 	}
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		Function_mode = FMODE_MENU;
-		multi_quit_game = 1;
-		multi_leave_menu = 1;
-		nm_messagebox(NULL, 1, TXT_OK, TXT_OPPONENT_LEFT);
-		Function_mode = FMODE_GAME;
-		multi_reset_stuff();
-	}
 	return;
 }
 

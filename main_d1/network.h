@@ -97,6 +97,7 @@ char* network_get_player_name(int objnum);
 
 void network_disconnect_player(int playernum);
 
+#define MISSILE_ADJUST 6
 
 extern int Network_send_objects;
 extern int Network_send_objnum;

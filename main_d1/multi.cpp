@@ -21,7 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <time.h>
 
 #include "game.h"
-#include "modem.h"
 #include "network.h"
 #include "multi.h"
 #include "object.h"
@@ -48,8 +47,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "text.h"
 #include "kmatrix.h"
-//#include "glfmodem.h"//This and the next file aren't part of the public release -KRB
-#include "platform/net/nocomlib.h"
 #include "multibot.h"
 #include "gameseq.h"
 #include "physics.h"
@@ -63,15 +60,6 @@ typedef struct {
 	unsigned char write_index;
 	unsigned char read_index;
 } BUFFER;
-
-/*typedef struct {
-	void (*old_vector)();
-	int uart_base;
-	int irq_mask;
-	int interrupt_number;
-	BUFFER in;
-	BUFFER out;
-} PORT; //I added this from serial.c, it will compile, but I doubt it works. -KRB how did any of this compile at all -ISB*/
 
 //*******************************************
 //
@@ -770,14 +758,7 @@ multi_do_frame(void)
 	}
 #endif	
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		com_do_frame();
-	}
-	else
-	{
-		network_do_frame(0, 1);
-	}
+	network_do_frame(0, 1);
 
 	if (multi_quit_game && !multi_in_menu)
 	{
@@ -796,9 +777,7 @@ multi_send_data(char* buf, int len, int repeat)
 	if (Game_mode & GM_NETWORK)
 		Assert(buf[0] > 0);
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		com_send_data(buf, len, repeat);
-	else if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_NETWORK)
 		network_send_data((uint8_t*)buf, len, repeat);
 }
 
@@ -825,8 +804,6 @@ multi_leave_game(void)
 	mprintf((1, "Sending leave game.\n"));
 	multi_send_quit(MULTI_QUIT);
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		serial_leave_game();
 	if (Game_mode & GM_NETWORK)
 		network_leave_game();
 
@@ -858,9 +835,7 @@ multi_endlevel(int* secret)
 {
 	int result = 0;
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		com_endlevel(secret);          // an opportunity to re-sync or whatever
-	else if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_NETWORK)
 		result = network_endlevel(secret);
 
 	return(result);
@@ -871,10 +846,7 @@ multi_endlevel(int* secret)
 //          the state of the game in some way.
 //
 
-extern PORT* com_port;
-
-int
-multi_menu_poll(void)
+int multi_menu_poll(void)
 {
 	fix old_shields;
 	int t1;
@@ -912,11 +884,6 @@ multi_menu_poll(void)
 		return(-1);
 	}
 	if ((Fuelcen_control_center_destroyed) && (Fuelcen_seconds_left < 10))
-	{
-		multi_leave_menu = 1;
-		return(-1);
-	}
-	if ((Game_mode & GM_MODEM) && (!GetCd(com_port)))
 	{
 		multi_leave_menu = 1;
 		return(-1);
@@ -1541,15 +1508,6 @@ multi_do_quit(char* buf)
 		}
 	}
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		Function_mode = FMODE_MENU;
-		multi_quit_game = 1;
-		multi_leave_menu = 1;
-		nm_messagebox(NULL, 1, TXT_OK, TXT_OPPONENT_LEFT);
-		Function_mode = FMODE_GAME;
-		multi_reset_stuff();
-	}
 	return;
 }
 

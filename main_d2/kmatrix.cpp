@@ -79,30 +79,34 @@ void kmatrix_draw_item(int  i, int* sorted)
 	// Print player name.
 
 	gr_printf(LHX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign);
+	gr_printf(LHX(CENTERING_OFFSET(N_players) - 15), y, "%c", ConditionLetters[Players[sorted[i]].connected]);
 
-	if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-		gr_printf(LHX(CENTERING_OFFSET(N_players) - 15), y, "%c", ConditionLetters[Players[sorted[i]].connected]);
-
-	for (j = 0; j < N_players; j++) {
-
+	for (j = 0; j < N_players; j++)
+	{
 		x = LHX(70 + CENTERING_OFFSET(N_players) + j * 25);
 
-		if (sorted[i] == sorted[j]) {
-			if (kill_matrix[sorted[i]][sorted[j]] == 0) {
+		if (sorted[i] == sorted[j])
+		{
+			if (kill_matrix[sorted[i]][sorted[j]] == 0) 
+			{
 				gr_set_fontcolor(BM_XRGB(10, 10, 10), -1);
 				gr_printf(x, y, "%d", kill_matrix[sorted[i]][sorted[j]]);
 			}
-			else {
+			else 
+			{
 				gr_set_fontcolor(BM_XRGB(25, 25, 25), -1);
 				gr_printf(x, y, "-%d", kill_matrix[sorted[i]][sorted[j]]);
 			}
 		}
-		else {
-			if (kill_matrix[sorted[i]][sorted[j]] <= 0) {
+		else
+		{
+			if (kill_matrix[sorted[i]][sorted[j]] <= 0)
+			{
 				gr_set_fontcolor(BM_XRGB(10, 10, 10), -1);
 				gr_printf(x, y, "%d", kill_matrix[sorted[i]][sorted[j]]);
 			}
-			else {
+			else 
+			{
 				gr_set_fontcolor(BM_XRGB(25, 25, 25), -1);
 				gr_printf(x, y, "%d", kill_matrix[sorted[i]][sorted[j]]);
 			}
@@ -200,9 +204,6 @@ void kmatrix_reactor(char* message)
 	static char oldmessage[50] = { 0 };
 	int sw, sh, aw;
 
-	if ((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL))
-		return;
-
 	grd_curcanv->cv_font = SMALL_FONT;
 
 	if (oldmessage[0] != 0)
@@ -226,9 +227,6 @@ void kmatrix_phallic()
 	char message[80];
 
 	if (!(Game_mode & GM_HOARD))
-		return;
-
-	if ((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL))
 		return;
 
 	if (PhallicMan == -1)
@@ -259,14 +257,11 @@ void kmatrix_draw_deaths(int* sorted)
 		gr_set_fontcolor(gr_find_closest_color(63, 20, 0), -1);
 		gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw);
 
-		if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-			gr_printf(CENTERSCREEN - (sw / 2), y, "P-Playing E-Escaped D-Died");
+		gr_printf(CENTERSCREEN - (sw / 2), y, "P-Playing E-Escaped D-Died");
 
 		y += (sh + 5);
 		gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw);
-
-		if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-			gr_printf(CENTERSCREEN - (sw / 2), y, "V-Viewing scores W-Waiting");
+		gr_printf(CENTERSCREEN - (sw / 2), y, "V-Viewing scores W-Waiting");
 
 	}
 
@@ -313,7 +308,8 @@ void kmatrix_draw_coop_deaths(int* sorted)
 	x = CENTERSCREEN + LHX(50);
 	gr_printf(x, y, TXT_DEATHS);
 
-	for (j = 0; j < N_players; j++) {
+	for (j = 0; j < N_players; j++) 
+	{
 		x = CENTERSCREEN + LHX(50);
 		gr_printf(x, y, "%d", Players[sorted[j]].net_killed_total);
 	}
@@ -327,16 +323,12 @@ void kmatrix_draw_coop_deaths(int* sorted)
 
 		gr_set_fontcolor(gr_find_closest_color(63, 20, 0), -1);
 		gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw);
-
-		if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-			gr_printf(CENTERSCREEN - (sw / 2), y, "P-Playing E-Escaped D-Died");
+		gr_printf(CENTERSCREEN - (sw / 2), y, "P-Playing E-Escaped D-Died");
 
 
 		y += (sh + 5);
 		gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw);
-
-		if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-			gr_printf(CENTERSCREEN - (sw / 2), y, "V-Viewing scores W-Waiting");
+		gr_printf(CENTERSCREEN - (sw / 2), y, "V-Viewing scores W-Waiting");
 
 	}
 
@@ -680,11 +672,6 @@ void kmatrix_view(int network)
 		switch (k) {
 		case KEY_ENTER:
 		case KEY_SPACEBAR:
-			if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-			{
-				done = 1;
-				break;
-			}
 
 #if defined (D2_OEM)
 			if (Current_level_num == 8)
@@ -761,12 +748,6 @@ void kmatrix_view(int network)
 				return;
 			}
 #endif
-
-			if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-			{
-				done = 1;
-				break;
-			}
 			Players[Player_num].connected = 7;
 			if (network)
 				network_send_endlevel_packet();

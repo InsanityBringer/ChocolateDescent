@@ -42,7 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "network.h"
 #include "ai.h"
-#include "modem.h"
 #include "powerup.h"
 #include "multi.h"
 #include "physics.h"

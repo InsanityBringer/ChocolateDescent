@@ -85,7 +85,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "cntrlcen.h"
 #include "powerup.h"
-#include "modem.h"
 #include "text.h"
 #include "cfile/cfile.h"
 #include "piggy.h"
@@ -1669,12 +1668,7 @@ void DoEndGame(void)
 	}
 
 	Function_mode = FMODE_MENU;
-
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		Game_mode |= GM_GAME_OVER;		//preserve modem setting so go back into modem menu
-	else
-		Game_mode = GM_GAME_OVER;
-
+	Game_mode = GM_GAME_OVER;
 
 	longjmp(LeaveGame, 0);		// Exit out of game loop
 }
@@ -2041,11 +2035,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	if (Game_mode & GM_NETWORK)
 	{
 		if (network_level_sync()) // After calling this, Player_num is set
-			return;
-	}
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		if (com_level_sync())
 			return;
 	}
 #endif

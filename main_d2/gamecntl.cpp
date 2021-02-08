@@ -60,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "weapon.h"
 #include "sounds.h"
-#include "misc/args.h" //[ISB] THAT HACK AGAIN
+#include "misc/args.h"
 #include "gameseq.h"
 #include "automap.h"
 #include "text.h"
@@ -117,14 +117,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #include "editor\editor.h"
 #endif
-
-//#define _MARK_ON 1
-#ifdef __WATCOMC__
-#if __WATCOMC__ < 1000
-#include <wsample.h>		//should come after inferno.h to get mark setting
-#endif
-#endif
-
 
 extern void full_palette_save(void);
 extern void object_goto_prev_viewer(void);

@@ -25,14 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/rand.h"
 
-#ifdef MACINTOSH
-#include <Files.h>
-#include <StandardFile.h>
-#include <Quickdraw.h>
-#include <Script.h>
-#include <Strings.h>
-#endif
-
 #include "2d/i_gr.h"
 //#include "pa_enabl.h"       //$$POLY_ACC //[ISB] todo figure out something here aaa
 #include "inferno.h"
@@ -108,7 +100,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "playsave.h"
 #include "fix/fix.h"
-//#include "3dmax.h"
 
 #ifdef MWPROFILER
 #include <profiler.h>
@@ -124,19 +115,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define Arcade_mode 0
 #endif
 
-//#include "victor.h"
-
-//#include "vfx.h"
-
 #ifdef EDITOR
 #include "editor\editor.h"
-#endif
-
-//#define _MARK_ON 1
-#ifdef __WATCOMC__
-#if __WATCOMC__ < 1000
-#include <wsample.h>            //should come after inferno.h to get mark setting
-#endif
 #endif
 
 //-----------------------------------------------------------------------------
