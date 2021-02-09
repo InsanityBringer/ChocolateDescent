@@ -68,6 +68,7 @@ void MidiSequencer::Tick()
 
 	for (i = 0; i < song->NumTracks(); i++)
 	{
+		if (i != 1) continue;
 		track = song->GetTrack(i);
 		track->AdvancePlayhead(1);
 		eventsRemaining |= track->CheckRemainingEvents();
@@ -75,9 +76,24 @@ void MidiSequencer::Tick()
 		ev = track->NextEvent();
 		while (ev != nullptr)
 		{
-			if (ev->type == EVENT_CONTROLLER && ev->param1 == HMI_CONTROLLER_GLOBAL_LOOP_END)
+			//handle special controllers
+			if (ev->type == EVENT_CONTROLLER)
 			{
-				doloop = true;
+				switch (ev->param1)
+				{
+				case HMI_CONTROLLER_GLOBAL_LOOP_END:
+					doloop = true;
+					break;
+				case HMI_CONTROLLER_GLOBAL_BRANCH:
+					printf("gbranch\n");
+					break;
+				case HMI_CONTROLLER_LOCAL_BRANCH:
+					if (ev->param2 < 128)
+					{
+						//I dunno. 
+					}
+					break;
+				}
 			}
 			synth->DoMidiEvent(ev);
 			ev = track->NextEvent();

@@ -26,7 +26,7 @@ as described in copying.txt.
 //#define DEBUG_MIDI_READING
 
 //Uncomment to enable diagonstics of SOS's special MIDI controllers. 
-//#define DEBUG_SPECIAL_CONTROLLERS
+#define DEBUG_SPECIAL_CONTROLLERS
 
 int CurrentDevice = 0;
 
@@ -306,6 +306,7 @@ HMPFile::HMPFile(int len, uint8_t* data)
 {
 	int branchTableOffset, pointer, i;
 
+	loopStart = 0;
 	memcpy(header, data, 32); //Check for version 1 HMP
 
 	branchTableOffset = BS_MakeInt(&data[32]);
@@ -395,6 +396,19 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 #endif
 				}
 				break;
+
+				case HMI_CONTROLLER_LOCAL_BRANCH_POS:
+				{
+					if (chunkNum < 16 && ev.param2 < 128)
+					{
+						branchTickTable[chunkNum][ev.param2] = tick;
+					}
+#ifdef DEBUG_SPECIAL_CONTROLLERS
+					printf("Local branch pos on track %d channel %d, event %d with delta %d. Branch point %d, at tick %d\n", chunkNum, ev.channel, i, delta, ev.param2, tick);
+#endif
+				}
+					break;
+
 #ifdef DEBUG_SPECIAL_CONTROLLERS
 				case HMI_CONTROLLER_GLOBAL_LOOP_END:
 					printf("Loop end restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
@@ -404,9 +418,6 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 					break;
 				case HMI_CONTROLLER_DISABLE_CONTROLLER_RESTORE:
 					printf("Controller restore disable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
-					break;
-				case HMI_CONTROLLER_LOCAL_BRANCH_POS:
-					printf("Local branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_LOCAL_BRANCH:
 					printf("Local branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
