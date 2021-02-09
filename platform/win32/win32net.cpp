@@ -44,7 +44,7 @@ int NetInit(int socket_number, int show_address)
 	}
 
 	port = socket_number;
-	NetChangeRole(0); //start as a client
+	NetChangeRole(0);
 
 	return 0; //We're good
 }
@@ -80,10 +80,7 @@ int NetChangeRole(dbool host)
 	localAddressIn.sin_family = AF_INET;
 	//localAddressIn.sin_addr.s_addr = inet_addr(inet_ntoa(*(struct in_addr*)*localHost->h_addr_list));
 	localAddressIn.sin_addr.s_addr = INADDR_ANY;
-	if (host)
-		localAddressIn.sin_port = htons(port);
-	else
-		localAddressIn.sin_port = 0; //Pick a unused port. 
+	localAddressIn.sin_port = htons(port); //Pick a unused port. 
 
 	if (bind(netSocket, (SOCKADDR*)&localAddressIn, sizeof(localAddressIn)))
 	{
@@ -197,7 +194,6 @@ int NetGetPacketData(uint8_t* data)
 		return 0;
 	}
 	
-	printf("there's data yo\n");
 	//optimize? one memcpy every packet sucks, but need to put data in buffer
 	memcpy(data, packetBuffer, size);
 
@@ -239,7 +235,7 @@ void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* server, uin
 	{
 		mprintf((0, "Failed to send packet, returned error code %d\n", WSAGetLastError()));
 	}
-	printf("sending packet over port %d to %d.%d.%d.%d\n", BS_MakeShort(server), address[0], address[1], address[2], address[3]);
+	//printf("sending packet over port %d to %d.%d.%d.%d\n", BS_MakeShort(server), address[0], address[1], address[2], address[3]);
 }
 
 void ipx_read_user_file(char* filename)

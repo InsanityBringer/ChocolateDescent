@@ -528,6 +528,8 @@ void network_welcome_player(sequence_packet* their)
 	int player_num;
 	int i;
 
+	NetGetLastPacketOrigin(their->player.node);
+
 	// Don't accept new players if we're ending this level.  Its safe to
 	// ignore since they'll request again later
 
@@ -566,7 +568,7 @@ void network_welcome_player(sequence_packet* their)
 
 	for (i = 0; i < N_players; i++)
 	{
-		if ((!_stricmp(Players[i].callsign, their->player.callsign)) && (!memcmp(Players[i].net_address, local_address, 6)))
+		if ((!_stricmp(Players[i].callsign, their->player.callsign)) && (!memcmp(Players[i].net_address, local_address, 4)))
 		{
 			player_num = i;
 			break;
@@ -794,6 +796,8 @@ int network_create_monitor_vector(void)
 
 void network_stop_resync(sequence_packet* their)
 {
+	NetGetLastPacketOrigin(their->player.node);
+
 	if ((!memcmp(Network_player_rejoining.player.node, their->player.node, 6)) &&
 		(!memcmp(Network_player_rejoining.player.server, their->player.server, 4)) &&
 		(!_stricmp(Network_player_rejoining.player.callsign, their->player.callsign)))
@@ -1018,8 +1022,10 @@ void network_add_player(sequence_packet* p)
 	//Port (currently saved in server...) should be trustable. 
 	NetGetLastPacketOrigin(p->player.node);
 
-	for (i = 0; i < N_players; i++) {
-		if (!memcmp(Netgame.players[i].node, p->player.node, 6) && !memcmp(Netgame.players[i].server, p->player.server, 4))
+	for (i = 0; i < N_players; i++)
+	{
+		//[ISB] Can't compare "server" (actually port, refactoring incoming...) anymore, as a client's port can change.
+		if (!memcmp(Netgame.players[i].node, p->player.node, 6))
 			return;		// already got them
 	}
 
@@ -1047,9 +1053,13 @@ void network_remove_player(sequence_packet* p)
 {
 	int i, pn;
 
+	NetGetLastPacketOrigin(p->player.node);
+
 	pn = -1;
-	for (i = 0; i < N_players; i++) {
-		if (!memcmp(Netgame.players[i].node, p->player.node, 6) && !memcmp(Netgame.players[i].server, p->player.server, 4)) {
+	for (i = 0; i < N_players; i++) 
+	{
+		if (!memcmp(Netgame.players[i].node, p->player.node, 6)) 
+		{
 			pn = i;
 			break;
 		}
@@ -1057,7 +1067,8 @@ void network_remove_player(sequence_packet* p)
 
 	if (pn < 0) return;
 
-	for (i = pn; i < N_players - 1; i++) {
+	for (i = pn; i < N_players - 1; i++) 
+	{
 		memcpy(Netgame.players[i].callsign, Netgame.players[i + 1].callsign, CALLSIGN_LEN + 1);
 		memcpy(Netgame.players[i].node, Netgame.players[i + 1].node, 6);
 		memcpy(Netgame.players[i].server, Netgame.players[i + 1].server, 4);
@@ -1289,7 +1300,7 @@ void network_process_request(sequence_packet* their)
 	NetGetLastPacketOrigin(their->player.node); //ensure correct node
 
 	for (i = 0; i < N_players; i++)
-		if (!memcmp(their->player.server, Netgame.players[i].server, 4) && !memcmp(their->player.node, Netgame.players[i].node, 6) && (!_stricmp(their->player.callsign, Netgame.players[i].callsign))) 
+		if (!memcmp(their->player.node, Netgame.players[i].node, 6) && (!_stricmp(their->player.callsign, Netgame.players[i].callsign))) 
 		{
 			Players[i].connected = 1;
 			break;
@@ -2298,7 +2309,6 @@ network_start_game(void)
 		return;
 	}
 
-	NetChangeRole(1);
 	network_init();
 	change_playernum_to(0);
 
@@ -2338,8 +2348,6 @@ network_start_game(void)
 	}
 	else
 		Game_mode = GM_GAME_OVER;
-
-	//NetChangeRole(0);
 }
 
 void restart_net_searching(newmenu_item* m)
@@ -2633,7 +2641,6 @@ void network_join_game()
 		return;
 	}
 
-	NetChangeRole(0);
 	network_init();
 
 	N_players = 0;
