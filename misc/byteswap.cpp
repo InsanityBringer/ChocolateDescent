@@ -35,3 +35,8 @@ int BS_MakeInt(uint8_t* bytes)
 {
 	return bytes[0] + (bytes[1] << 8) + (bytes[2] << 16) + (bytes[3] << 24);
 }
+
+short BS_MakeShort(uint8_t* bytes)
+{
+	return bytes[0] + (bytes[1] << 8);
+}

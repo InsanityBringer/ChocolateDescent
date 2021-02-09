@@ -55,7 +55,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "player.h"
 #include "text.h"
 #ifdef NETWORK
-#include "platform/net/nullipx.h"
+#include "platform/i_net.h"
 #endif
 #include "newdemo.h"
 #include "network.h"
@@ -508,7 +508,7 @@ int D_DescentMain(int argc, const char** argv)
 	//div0_init(DM_ERROR); //[ISB] uh i should figure out what to do with this...
 
 	//------------ Init sound ---------------
-	if (!FindArg("-nosound")) //[ISB] no sound yet
+	if (!FindArg("-nosound"))
 	{
 		if (digi_init()) 
 		{
@@ -521,19 +521,23 @@ int D_DescentMain(int argc, const char** argv)
 	}
 
 #ifdef NETWORK
-	if (!FindArg("-nonetwork")) {
+	if (!FindArg("-nonetwork")) 
+	{
 		int socket = 0, showaddress = 0;
 		int ipx_error;
 		if (Inferno_verbose) printf("\n%s ", TXT_INITIALIZING_NETWORK);
 		if ((t = FindArg("-socket")))
 			socket = atoi(Args[t + 1]);
 		if (FindArg("-showaddress")) showaddress = 1;
-		if ((ipx_error = ipx_init(IPX_DEFAULT_SOCKET + socket, showaddress)) == 0) {
+		if ((ipx_error = NetInit(IPX_DEFAULT_SOCKET + socket, showaddress)) == 0) 
+		{
 			if (Inferno_verbose) printf("%s %d.\n", TXT_IPX_CHANNEL, socket);
 			Network_active = 1;
 		}
-		else {
-			switch (ipx_error) {
+		else
+		{
+			switch (ipx_error)
+			{
 			case 3: 	if (Inferno_verbose) printf("%s\n", TXT_NO_NETWORK); break;
 			case -2: if (Inferno_verbose) printf("%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET + socket); break;
 			case -4: if (Inferno_verbose) printf("%s\n", TXT_MEMORY_IPX); break;
@@ -550,7 +554,8 @@ int D_DescentMain(int argc, const char** argv)
 		else
 			Network_allow_socket_changes = 0;
 	}
-	else {
+	else 
+	{
 		if (Inferno_verbose) printf("%s\n", TXT_NETWORK_DISABLED);
 		Network_active = 0;		// Assume no network
 	}

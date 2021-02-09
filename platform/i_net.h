@@ -13,12 +13,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-// The default socket to use.
-#ifndef BUILD_DESCENT2
-//[ISB] this was removed in Descent 2 for reasons, need to figure out why. 
-#define IPX_DEFAULT_SOCKET 0x5100		// 0x869d
-#endif
-
 //---------------------------------------------------------------
 // Initializes all IPX internals. 
 // If socket_number==0, then opens next available socket.
@@ -28,31 +22,35 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //				-3 if IPX not installed.
 //				-4 if couldn't allocate low dos memory
 //				-5 if error with getting internetwork address
-extern int ipx_init(int socket_number, int show_address);
+extern int NetInit(int socket_number, int show_address);
 
-extern int ipx_change_default_socket(uint16_t socket_number);
+extern int NetChangeDefaultSocket(uint16_t socket_number);
+
+//Changes role. Something broadcasting must be host, while something
+//trying to recieve must not be a host. This is a mess, but it should work.
+extern int NetChangeRole(dbool host);
 
 // Returns a pointer to 6-byte address
-extern uint8_t* ipx_get_my_local_address();
+extern uint8_t* NetGetLocalAddress();
 // Returns a pointer to 4-byte server
-extern uint8_t* ipx_get_my_server_address();
+extern uint8_t* NetGetServerAddress();
 
 // Determines the local address equivalent of an internetwork address.
-void ipx_get_local_target(uint8_t* server, uint8_t* node, uint8_t* local_target);
+void NetGetLocalTarget(uint8_t* server, uint8_t* node, uint8_t* local_target);
 
 // If any packets waiting to be read in, this fills data in with the packet data and returns
 // the number of bytes read.  Else returns 0 if no packets waiting.
-extern int ipx_get_packet_data(uint8_t* data);
+extern int NetGetPacketData(uint8_t* data);
 
 // Sends a broadcast packet to everyone on this socket.
-extern void ipx_send_broadcast_packet_data(uint8_t* data, int datasize);
+extern void NetSendBroadcastPacket(uint8_t* data, int datasize);
 
 // Sends a packet to a certain address
-extern void ipx_send_packet_data(uint8_t* data, int datasize, uint8_t* network, uint8_t* address, uint8_t* immediate_address);
-extern void ipx_send_internetwork_packet_data(uint8_t* data, int datasize, uint8_t* server, uint8_t* address);
+extern void NetSendPacket(uint8_t* data, int datasize, uint8_t* network, uint8_t* address, uint8_t* immediate_address);
+extern void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* server, uint8_t* address);
 
 //[ISB] changed to fit aligned size of network information structure. God, this is going to be an adenture...
-#define IPX_MAX_DATA_SIZE (546)		//(546-4)
+#define IPX_MAX_DATA_SIZE (546)
 
 extern void ipx_read_user_file(char* filename);
 extern void ipx_read_network_file(char* filename);

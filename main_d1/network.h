@@ -18,6 +18,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "multi.h"
 
+// The default socket to use.
+#define IPX_DEFAULT_SOCKET 0x5100		// 0x869d
+
 #define NETSTAT_MENU					0
 #define NETSTAT_PLAYING				1
 #define NETSTAT_BROWSING			2

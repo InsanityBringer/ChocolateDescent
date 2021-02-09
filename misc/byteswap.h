@@ -19,3 +19,4 @@ extern uint16_t swapshort(uint16_t s);
 extern uint32_t swapint(uint32_t i);
 
 int BS_MakeInt(uint8_t* bytes);
+short BS_MakeShort(uint8_t* bytes);

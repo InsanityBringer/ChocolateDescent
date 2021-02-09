@@ -52,7 +52,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "titles.h"
 #include "player.h"
 #include "text.h"
-#include "platform/net/nullipx.h"
+#include "platform/i_net.h"
 #include "newdemo.h"
 #include "network.h"
 #include "gamefont.h"
@@ -449,7 +449,7 @@ void do_network_init()
 		if ((t = FindArg("-socket")))
 			socket = atoi(Args[t + 1]);
 		//@@if ( FindArg("-showaddress") ) showaddress=1;
-		if ((ipx_error = ipx_init(IPX_DEFAULT_SOCKET + socket, showaddress)) == 0) {
+		if ((ipx_error = NetInit(IPX_DEFAULT_SOCKET + socket, showaddress)) == 0) {
 			verbose("%s %d.\n", TXT_IPX_CHANNEL, socket);
 			Network_active = 1;
 		}

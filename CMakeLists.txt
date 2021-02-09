@@ -541,8 +541,7 @@ set(LINUX_SOURCES
 )
 
 set (NETWORK_SOURCES
-	platform/net/nullipx.cpp
-	platform/net/nullipx.h
+	platform/i_net.h
 )
 
 set(SHARED_LIBS
@@ -609,7 +608,12 @@ endif()
 if (NETWORK)
 	add_definitions(-DNETWORK)
 	set(SHARED_SOURCES ${SHARED_SOURCES} ${NETWORK_SOURCES})
+	
+	#Poke in platform network sources.
+	set(WIN32_SOURCES ${WIN32_SOURCES} 
+	platform/win32/win32net.cpp)
 endif()
+
 
 if (WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
