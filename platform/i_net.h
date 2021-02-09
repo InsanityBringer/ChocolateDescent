@@ -42,12 +42,17 @@ void NetGetLocalTarget(uint8_t* server, uint8_t* node, uint8_t* local_target);
 // the number of bytes read.  Else returns 0 if no packets waiting.
 extern int NetGetPacketData(uint8_t* data);
 
+//After reading a packet from NetGetPacketData, this can be used to get the origin address from it.
+//Call this instead of letting the protocol specify return addresses, because that system won't
+//get you on the internet. 
+extern void NetGetLastPacketOrigin(uint8_t* addrBuf);
+
 // Sends a broadcast packet to everyone on this socket.
 extern void NetSendBroadcastPacket(uint8_t* data, int datasize);
 
 // Sends a packet to a certain address
-extern void NetSendPacket(uint8_t* data, int datasize, uint8_t* network, uint8_t* address, uint8_t* immediate_address);
-extern void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* server, uint8_t* address);
+extern void NetSendPacket(uint8_t* data, int datasize, uint8_t* port, uint8_t* address, uint8_t* immediate_address);
+extern void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* port, uint8_t* address);
 
 //[ISB] changed to fit aligned size of network information structure. God, this is going to be an adenture...
 #define IPX_MAX_DATA_SIZE (546)

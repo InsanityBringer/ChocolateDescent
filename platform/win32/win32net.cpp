@@ -175,18 +175,20 @@ uint8_t* NetGetServerAddress()
 void NetGetLocalTarget(uint8_t* server, uint8_t* node, uint8_t* local_target)
 {
 	//no concept of a local target, so eh.
+	//TODO: This needs to be refactored into an interface that makes more sense for UDP.
 	memcpy(local_target, node, 4);
 }
 
 uint8_t packetBuffer[IPX_MAX_DATA_SIZE];
+sockaddr_in lastAddr;
+int addrSize = sizeof(lastAddr);
+
 int NetGetPacketData(uint8_t* data)
 {
 	int err;
 	int size;
-	sockaddr_in addr = {};
-	int addrSize = sizeof(addr);
 
-	size = recvfrom(netSocket, (char*)packetBuffer, IPX_MAX_DATA_SIZE, 0, (sockaddr*)&addr, &addrSize);
+	size = recvfrom(netSocket, (char*)packetBuffer, IPX_MAX_DATA_SIZE, 0, (sockaddr*)&lastAddr, &addrSize);
 	if (size == -1)
 	{
 		err = WSAGetLastError();
@@ -200,6 +202,11 @@ int NetGetPacketData(uint8_t* data)
 	memcpy(data, packetBuffer, size);
 
 	return size;
+}
+
+void NetGetLastPacketOrigin(uint8_t* addrBuf)
+{
+	*((long*)addrBuf) = lastAddr.sin_addr.s_addr;
 }
 
 void NetSendBroadcastPacket(uint8_t* data, int datasize)
@@ -219,7 +226,7 @@ void NetSendBroadcastPacket(uint8_t* data, int datasize)
 //TODO: Refactor Net API, I'll probably have to for internet connections. 
 void NetSendPacket(uint8_t* data, int datasize, uint8_t* network, uint8_t* address, uint8_t* immediate_address)
 {
-	NetSendInternetworkPacket(data, datasize, network, address);
+	NetSendInternetworkPacket(data, datasize, network, immediate_address);
 }
 
 void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* server, uint8_t* address)

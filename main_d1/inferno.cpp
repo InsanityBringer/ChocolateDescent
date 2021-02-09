@@ -465,7 +465,8 @@ int D_DescentMain(int argc, const char** argv)
 	if (init_graphics()) return 1;
 
 #ifdef EDITOR
-	if (!Inferno_is_800x600_available) {
+	if (!Inferno_is_800x600_available) 
+	{
 		printf("The editor will not be available...\n");
 		Function_mode = FMODE_MENU;
 	}
@@ -488,7 +489,7 @@ int D_DescentMain(int argc, const char** argv)
 	key_init();
 	if (!FindArg("-nomouse")) {
 		if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_4);
-		mouse_init(0); //[ISB] cut cyberman
+		mouse_init(0);
 	}
 	else 
 	{
@@ -498,14 +499,12 @@ int D_DescentMain(int argc, const char** argv)
 	{
 		if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_6);
 		joy_init();
-		//[ISB] cut j
 	}
 	else 
 	{
 		if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_10);
 	}
 	if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_11);
-	//div0_init(DM_ERROR); //[ISB] uh i should figure out what to do with this...
 
 	//------------ Init sound ---------------
 	if (!FindArg("-nosound"))

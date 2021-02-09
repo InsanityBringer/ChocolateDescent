@@ -463,6 +463,8 @@ network_new_player(sequence_packet* their)
 	Assert(pnum >= 0);
 	Assert(pnum < MaxNumNetPlayers);
 
+	NetGetLastPacketOrigin(their->player.node);
+
 	objnum = Players[pnum].objnum;
 
 #ifndef SHAREWARE
@@ -489,6 +491,8 @@ network_new_player(sequence_packet* their)
 
 	memcpy(Netgame.players[pnum].node, their->player.node, 6);
 	memcpy(Netgame.players[pnum].server, their->player.server, 4);
+
+	NetGetLastPacketOrigin(Netgame.players[pnum].node);
 
 	Players[pnum].n_packets_got = 0;
 	Players[pnum].connected = 1;
@@ -1009,6 +1013,10 @@ void network_add_player(sequence_packet* p)
 	int i;
 
 	mprintf((0, "Got add player request!\n"));
+	//[ISB] The protocol isn't always reliable at specifying an address, and this won't work over the internet either.
+	//Always replace what address this player said they have with the address they actually sent from.
+	//Port (currently saved in server...) should be trustable. 
+	NetGetLastPacketOrigin(p->player.node);
 
 	for (i = 0; i < N_players; i++) {
 		if (!memcmp(Netgame.players[i].node, p->player.node, 6) && !memcmp(Netgame.players[i].server, p->player.server, 4))
@@ -1021,6 +1029,7 @@ void network_add_player(sequence_packet* p)
 	memcpy(Netgame.players[N_players].callsign, p->player.callsign, CALLSIGN_LEN + 1);
 	memcpy(Netgame.players[N_players].node, p->player.node, 6);
 	memcpy(Netgame.players[N_players].server, p->player.server, 4);
+
 	Netgame.players[N_players].connected = 1;
 	Players[N_players].connected = 1;
 	LastPacketTime[N_players] = timer_get_approx_seconds();
@@ -1164,7 +1173,7 @@ void
 network_send_game_info(sequence_packet* their)
 {
 	// Send game info to someone who requested it
-
+	int i;
 	char old_type, old_status;
 
 	mprintf((0, "Sending game info.\n"));
@@ -1179,9 +1188,21 @@ network_send_game_info(sequence_packet* their)
 		Netgame.game_status = NETSTAT_ENDLEVEL;
 
 	if (!their)
-		NetSendBroadcastPacket((uint8_t*)& Netgame, sizeof(netgame_info));
+	{
+		//NetSendBroadcastPacket((uint8_t*)& Netgame, sizeof(netgame_info));
+
+		//Can't just broadcast this since all our clients are hypothetically on different ports.
+		//A mess, but it'll hopefully work. 
+		for (i = 0; i < N_players; i++)
+		{
+			NetSendInternetworkPacket((uint8_t*)&Netgame, sizeof(netgame_info), Netgame.players[i].server, Netgame.players[i].node);
+		}
+	}
 	else
-		NetSendInternetworkPacket((uint8_t*)& Netgame, sizeof(netgame_info), their->player.server, their->player.node);
+	{
+		NetGetLastPacketOrigin(their->player.node); //Ensure we're sending to the correct place.
+		NetSendInternetworkPacket((uint8_t*)&Netgame, sizeof(netgame_info), their->player.server, their->player.node);
+	}
 
 	Netgame.type = old_type;
 	Netgame.game_status = old_status;
@@ -1222,6 +1243,9 @@ void network_process_gameinfo(uint8_t* data)
 	Network_games_changed = 1;
 
 	mprintf((0, "Got game data for game %s.\n", newgame->game_name));
+	mprintf((0, "[ISB] Incoming game reports address as %d.%d.%d.%d.\n", newgame->players[0].node[0], newgame->players[0].node[0], newgame->players[1].node[2], newgame->players[0].node[3]));
+	NetGetLastPacketOrigin(&newgame->players[0].node[0]);
+	mprintf((0, "[ISB] Swapped to origin address %d.%d.%d.%d.\n", newgame->players[0].node[0], newgame->players[0].node[0], newgame->players[1].node[2], newgame->players[0].node[3]));
 
 	for (i = 0; i < num_active_games; i++)
 		if (!_stricmp(Active_games[i].game_name, newgame->game_name) && !memcmp(Active_games[i].players[0].node, newgame->players[0].node, 6)
@@ -1262,9 +1286,11 @@ void network_process_request(sequence_packet* their)
 	int i;
 
 	mprintf((0, "Player %s ready for sync.\n", their->player.callsign));
+	NetGetLastPacketOrigin(their->player.node); //ensure correct node
 
 	for (i = 0; i < N_players; i++)
-		if (!memcmp(their->player.server, Netgame.players[i].server, 4) && !memcmp(their->player.node, Netgame.players[i].node, 6) && (!_stricmp(their->player.callsign, Netgame.players[i].callsign))) {
+		if (!memcmp(their->player.server, Netgame.players[i].server, 4) && !memcmp(their->player.node, Netgame.players[i].node, 6) && (!_stricmp(their->player.callsign, Netgame.players[i].callsign))) 
+		{
 			Players[i].connected = 1;
 			break;
 		}
@@ -1280,7 +1306,8 @@ void network_process_packet(uint8_t* data, int length)
 
 	length = length;
 
-	switch (their->type) {
+	switch (their->type) 
+	{
 
 	case PID_GAME_INFO:
 		mprintf((0, "GOT a PID_GAME_INFO!\n"));
@@ -1329,12 +1356,14 @@ void network_process_packet(uint8_t* data, int length)
 			network_stop_resync(their);
 		break;
 	case PID_SYNC:
-		if (Network_status == NETSTAT_WAITING) {
+		if (Network_status == NETSTAT_WAITING)
+		{
 			network_read_sync_packet((netgame_info*)data);
 		}
 		break;
 	case PID_PDATA:
-		if ((Game_mode & GM_NETWORK) && ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_ENDLEVEL))) {
+		if ((Game_mode & GM_NETWORK) && ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_ENDLEVEL))) 
+		{
 			network_read_pdata_packet((frame_info*)data);
 		}
 		break;
@@ -1898,6 +1927,14 @@ void network_read_sync_packet(netgame_info* sp)
 
 	// mprintf( (0, "%s %d\n", TXT_STARTING_NETGAME, sp->levelnum ));
 
+	if (!network_i_am_master()) //Restricted because the master in charge of sync reads their own packet. 
+	{
+		//Well, origin player still doesn't know their own IP address, so be sure it's a valid transmit address.
+		//TODO: Need to clean this up. 
+		NetGetLastPacketOrigin(sp->players[0].node);
+		mprintf((0, "bashing player 0 again\n"));
+	}
+
 	if (sp != &Netgame)
 		memcpy(&Netgame, sp, sizeof(netgame_info));
 
@@ -1926,7 +1963,8 @@ void network_read_sync_packet(netgame_info* sp)
 
 	Player_num = -1;
 
-	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++) {
+	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++) 
+	{
 		Players[i].net_kills_total = 0;
 		//		Players[i].net_killed_total = 0;
 	}
@@ -1961,7 +1999,15 @@ void network_read_sync_packet(netgame_info* sp)
 		}
 	}
 
-	if (Player_num < 0) {
+	if (!network_i_am_master())
+	{
+		NetGetLastPacketOrigin(Players[0].net_address);
+		NetGetLastPacketOrigin(Netgame.players[0].node); //The upper line isn't enough, the netgame still ends up with the wrong address on occasion. 
+		mprintf((0, "bashing player 0 yet again\n"));
+	}
+
+	if (Player_num < 0) 
+	{
 		Network_status = NETSTAT_MENU;
 		return;
 	}
@@ -1971,7 +2017,8 @@ void network_read_sync_packet(netgame_info* sp)
 			Players[i].net_killed_total = sp->killed[i];
 
 #ifndef SHAREWARE
-	if (Network_rejoined) {
+	if (Network_rejoined)
+	{
 		network_process_monitor_vector(sp->monitor_vector);
 		Players[Player_num].time_level = sp->level_time;
 	}
@@ -1984,7 +2031,8 @@ void network_read_sync_packet(netgame_info* sp)
 	Netgame.players[Player_num].connected = 1;
 
 	if (!Network_rejoined)
-		for (i = 0; i < MaxNumNetPlayers; i++) {
+		for (i = 0; i < MaxNumNetPlayers; i++) 
+		{
 			Objects[Players[i].objnum].pos = Player_init[Netgame.locations[i]].pos;
 			Objects[Players[i].objnum].orient = Player_init[Netgame.locations[i]].orient;
 			obj_relink(Players[i].objnum, Player_init[Netgame.locations[i]].segnum);
