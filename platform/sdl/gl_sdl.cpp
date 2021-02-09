@@ -12,7 +12,7 @@ Instead, it is released under the terms of the MIT License.
 
 #include "gl_sdl.h"
 #include "2d/gr.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 #include "misc/error.h"
 
 SDL_GLContext context;

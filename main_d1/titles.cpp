@@ -48,7 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "titles.h"
 #include "vfx.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 uint8_t New_pal[768];
 int	New_pal_254_bash;

@@ -18,7 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mem/mem.h"
 #include "2d/gr.h"
 #include "2d/grdef.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 #include "cfile/cfile.h"
 #include "misc/error.h"
 #include "platform/mono.h"

@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "platform/mono.h"
 #include "2d/palette.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 unsigned char* gr_video_memory = (unsigned char*)NULL;
 

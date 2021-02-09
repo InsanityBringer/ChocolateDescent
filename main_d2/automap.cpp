@@ -21,7 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <algorithm>
 
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "misc/error.h"
 #include "3d/3d.h"

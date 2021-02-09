@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "misc/error.h"
 #include "misc/types.h"

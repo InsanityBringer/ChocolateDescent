@@ -50,7 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "effects.h"
 #include "physics.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 #ifdef SHAREWARE
 #define PID_REQUEST 					11

@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "3d/3d.h"
 #include "2d/palette.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 #include "object.h"
 #include "misc/error.h"

@@ -17,7 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 #include "platform/s_midi.h"
 #include "platform/mouse.h"
 

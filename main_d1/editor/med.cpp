@@ -77,7 +77,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d1/gameseq.h"
 #include "main_d1/newmenu.h"
 
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 #include "platform/timer.h"
 
 //#define _MARK_ON 1

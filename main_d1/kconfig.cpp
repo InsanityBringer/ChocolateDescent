@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "menu.h"
 #include "args.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 //#define TABLE_CREATION 1
 

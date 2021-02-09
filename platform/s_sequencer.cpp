@@ -11,8 +11,6 @@ as described in copying.txt.
 #include "s_midi.h"
 #include "s_sequencer.h"
 
-#include "i_midi.h"
-
 MidiSequencer::MidiSequencer(MidiSynth* newSynth, int newSampleRate)
 {
 	synth = newSynth;

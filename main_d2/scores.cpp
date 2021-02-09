@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/joy.h"
 #include "platform/timer.h"
 #include "text.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"DESCENT.HI"

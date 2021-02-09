@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "powerup.h"
 #include "fuelcen.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 void paging_touch_vclip(vclip* vc)
 {

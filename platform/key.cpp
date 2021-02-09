@@ -16,7 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/timer.h"
 
 //[ISB] goddamnit we need a dependency on 2d just for I_DoEvents aaa
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 #define KEY_BUFFER_SIZE 16
 

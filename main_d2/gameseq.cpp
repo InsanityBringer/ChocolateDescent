@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/rand.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 #include "inferno.h"
 #include "game.h"
 #include "player.h"

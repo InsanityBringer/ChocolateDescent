@@ -22,7 +22,7 @@ Instead, it is released under the terms of the MIT License.
 #include "SDL_render.h"
 
 #include "2d/gr.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 #include "misc/error.h"
 #include "misc/types.h"
 

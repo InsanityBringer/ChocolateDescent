@@ -7,11 +7,7 @@ as described in copying.txt.
 
 #pragma once
 
-#include "s_midi.h"
-
-//[ISB] TODO: Move
-#ifdef USE_FLUIDSYNTH
-
+#include "platform/s_midi.h"
 #include "fluidsynth.h"
 
 class MidiFluidSynth : MidiSynth
@@ -33,5 +29,3 @@ public:
 	void Shutdown() override;
 	void SetDefaults() override;
 };
-
-#endif

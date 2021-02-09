@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <Events.h>
 #endif
 
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "misc/types.h"

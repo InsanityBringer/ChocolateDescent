@@ -18,7 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "2d/gr.h"
 #include "2d/grdef.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 grs_canvas* grd_curcanv;    //active canvas
 grs_screen* grd_curscreen;  //active screen

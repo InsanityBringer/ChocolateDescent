@@ -11,7 +11,7 @@ as described in copying.txt.
 
 #include "fluidsynth.h"
 
-#include "platform/i_midi.h"
+#include "fluid_midi.h"
 #include "platform/s_midi.h"
 
 #ifdef USE_FLUIDSYNTH

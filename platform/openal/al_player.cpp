@@ -14,7 +14,6 @@ as described in copying.txt.
 #include <mutex>
 
 #include "platform/i_sound.h"
-#include "platform/i_midi.h"
 #include "platform/s_midi.h"
 #include "platform/s_sequencer.h"
 #include "misc/byteswap.h"

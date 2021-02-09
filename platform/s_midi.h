@@ -176,7 +176,6 @@ class MidiSequencer;
 //Class which represents a midi synthesizer. Wraps a Sequencer.
 class MidiSynth
 {
-	MidiSequencer* sequencer;
 public:
 	//Synth classification. Returns MIDISYNTH_SOFT if using a softsynth, MIDISYNTH_LIVE if using a hardware synth
 	virtual int ClassifySynth() = 0;

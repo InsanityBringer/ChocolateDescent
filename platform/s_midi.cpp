@@ -11,12 +11,15 @@ as described in copying.txt.
 #include <mutex>
 
 #include "platform/i_sound.h"
-#include "platform/i_midi.h"
 #include "s_midi.h"
 #include "s_sequencer.h"
 #include "misc/byteswap.h"
 #include "misc/error.h"
 #include "platform/timer.h"
+
+#ifdef USE_FLUIDSYNTH
+#include "platform/fluidsynth/fluid_midi.h"
+#endif
 
 //[ISB] Uncomment to enable MIDI file diagonstics. Extremely slow on windows. And probably linux tbh.
 //Will probably overflow your console buffer, so make it really long if you must

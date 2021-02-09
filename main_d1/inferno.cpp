@@ -85,7 +85,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #endif
 
 #include "vers_id.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 extern int Game_simuleyes_flag;
 

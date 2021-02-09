@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "cfile/cfile.h"
 #include "newmenu.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 int piggy_is_substitutable_bitmap(char* name, char* subst_name);
 

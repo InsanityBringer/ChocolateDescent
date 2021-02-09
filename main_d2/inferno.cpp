@@ -22,7 +22,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <ctype.h>
 
 #include "platform/posixstub.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 //#include "pa_enabl.h"       //$$POLY_ACC
 #include "2d/gr.h"
 #include "platform/mono.h"

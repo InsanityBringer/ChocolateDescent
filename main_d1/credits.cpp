@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include "vfx.h"
 #include "songs.h"
 
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 #define ROW_SPACING 11
 #define NUM_LINES 20			//19

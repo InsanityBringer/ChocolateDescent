@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "inferno.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 #include "SDL.h" //[ISB] required for main replacement macro
 

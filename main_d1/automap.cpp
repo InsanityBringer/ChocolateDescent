@@ -17,7 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <algorithm>
 #include "2d/gr.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 #include "automap.h"
 #include "misc/error.h"
 #include "3d/3d.h"

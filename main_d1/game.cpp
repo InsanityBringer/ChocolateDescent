@@ -85,7 +85,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multibot.h"
 #include "ai.h"
 #include "2d/gr.h"
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 
 //#define TEST_TIMER	1		//if this is set, do checking on timer
 

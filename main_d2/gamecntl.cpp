@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <algorithm>
 
-#include "2d/i_gr.h"
+#include "platform/platform.h"
 #include "inferno.h"
 #include "game.h"
 #include "player.h"

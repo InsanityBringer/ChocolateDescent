@@ -22,7 +22,6 @@ set(SHARED_SOURCES
 	2d/gr.cpp
 	2d/gr.h
 	2d/grdef.h
-	2d/i_gr.h
 	2d/ibitblt.cpp
 	2d/ibitblt.h
 	2d/lbitblt.cpp
@@ -38,7 +37,6 @@ set(SHARED_SOURCES
 	2d/rle.h
 	2d/roller.cpp
 	2d/scanline2d.cpp
-	2d/sdl_conf.cpp
 	3d/3d.h
 	3d/clipper.cpp
 	3d/clipper.h
@@ -74,7 +72,6 @@ set(SHARED_SOURCES
 	platform/disk.h
 	platform/findfile.h
 	platform/i_sound.h
-	platform/i_midi.h
 	platform/joy.cpp
 	platform/joy.h
 	platform/key.cpp
@@ -84,6 +81,8 @@ set(SHARED_SOURCES
 	platform/mouse.cpp
 	platform/mouse.h
 	platform/posixstub.h
+	platform/platform.h
+	platform/platform_config.cpp
 	platform/s_midi.cpp
 	platform/s_midi.h
 	platform/s_sequencer.cpp
@@ -151,7 +150,6 @@ set(DESCENT1_SOURCES
 	main_d1/hostage.cpp
 	main_d1/hostage.h
 	main_d1/hud.cpp
-	main_d1/i_main.cpp
 	main_d1/inferno.cpp
 	main_d1/inferno.h
 	main_d1/joydefs.cpp
@@ -392,7 +390,6 @@ set(DESCENT2_SOURCES
 	main_d2/hostage.cpp
 	main_d2/hostage.h
 	main_d2/hud.cpp
-	main_d2/i_main.cpp
 	main_d2/inferno.cpp
 	main_d2/inferno.h
 	main_d2/joydefs.cpp
@@ -519,6 +516,7 @@ set(OPENAL_SOURCES
 
 set(FLUIDSYNTH_SOURCES
 	platform/fluidsynth/fluid_midi.cpp
+	platform/fluidsynth/fluid_midi.h
 )
 
 set(WIN32_SOURCES
@@ -529,6 +527,7 @@ set(WIN32_SOURCES
 	platform/win32/win32audio.cpp
 	platform/win32/win32joystick.cpp
 	platform/win32/win32joystick.h
+	platform/win32/win32main.cpp
 	platform/win32/win32window.cpp
 	ChocolateDescent.manifest
 )
@@ -538,6 +537,7 @@ set(LINUX_SOURCES
 	platform/linux/fileutil.cpp
 	platform/linux/findfile.cpp
 	platform/linux/strutil.cpp
+	platform/linux/linuxmain.cpp
 )
 
 set (NETWORK_SOURCES
