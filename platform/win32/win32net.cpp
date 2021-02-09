@@ -155,6 +155,8 @@ int NetChangeRole(dbool host)
 
 int NetChangeDefaultSocket(uint16_t socket_number)
 {
+	port = socket_number;
+	NetChangeRole(0);
 	return 0;
 }
 
@@ -229,7 +231,7 @@ void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* server, uin
 {
 	sockaddr_in addr = {};
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(BS_MakeShort(server));
+	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = *((long*)address);
 	if (sendto(netSocket, (const char*)data, datasize, 0, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR)
 	{

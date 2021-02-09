@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "misc/types.h"
 #include "2d/gr.h"
+#include "2d/i_gr.h"
 #include "platform/mono.h"
 #include "platform/key.h"
 #include "2d/palette.h"
@@ -192,7 +193,7 @@ void kmatrix_view(int network)
 {
 	int i, k, done;
 	fix entry_time = timer_get_approx_seconds();
-	int key;
+	int key = 0;
 
 	set_screen_mode(SCREEN_MENU);
 
@@ -205,7 +206,9 @@ void kmatrix_view(int network)
 
 	while (!done) 
 	{
-
+		I_MarkStart();
+		I_DrawCurrentCanvas(0);
+		I_DoEvents();
 		for (i = 0; i < 4; i++)
 			if (joy_get_button_down_cnt(i) > 0) done = 1;
 		for (i = 0; i < 3; i++)
@@ -242,6 +245,7 @@ void kmatrix_view(int network)
 			if (key < -1)
 				done = 1;
 		}
+		I_MarkEnd(US_70FPS);
 	}
 
 	// Restore background and exit
