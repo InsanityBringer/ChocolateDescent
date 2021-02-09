@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/args.h"
 #include "platform/timer.h"
 #include "platform/mono.h"
-#include "platform/net/nullipx.h"
+#include "platform/i_net.h"
 #include "newmenu.h"
 #include "platform/key.h"
 #include "gauges.h"
@@ -338,8 +338,8 @@ network_init(void)
 
 	if (Network_game_type == IPX_GAME) 
 	{
-		memcpy(My_Seq.player.network.ipx.node, ipx_get_my_local_address(), 6);
-		memcpy(My_Seq.player.network.ipx.server, ipx_get_my_server_address(), 4);
+		memcpy(My_Seq.player.network.ipx.node, NetGetLocalAddress(), 6);
+		memcpy(My_Seq.player.network.ipx.server, NetGetServerAddress(), 4);
 	}
 	My_Seq.player.computer_type = DOS;
 
@@ -667,7 +667,7 @@ network_new_player(sequence_packet* their)
 	{
 
 		if ((*(unsigned int*)their->player.network.ipx.server) != 0)
-			ipx_get_local_target(their->player.network.ipx.server, their->player.network.ipx.node, Players[pnum].net_address);
+			NetGetLocalTarget(their->player.network.ipx.server, their->player.network.ipx.node, Players[pnum].net_address);
 		else
 			memcpy(Players[pnum].net_address, their->player.network.ipx.node, 6);
 
@@ -781,7 +781,7 @@ void network_welcome_player(sequence_packet* their)
 	if (Network_game_type == IPX_GAME)
 	{
 		if ((*(unsigned int*)their->player.network.ipx.server) != 0)
-			ipx_get_local_target(their->player.network.ipx.server, their->player.network.ipx.node, local_address);
+			NetGetLocalTarget(their->player.network.ipx.server, their->player.network.ipx.node, local_address);
 		else
 			memcpy(local_address, their->player.network.ipx.node, 6);
 	}
@@ -1252,7 +1252,7 @@ void network_send_rejoin_sync(int player_num)
 			if ((i != player_num) && (i != Player_num) && (Players[i].connected))
 				if (Network_game_type == IPX_GAME)
 				{
-					ipx_send_packet_data((uint8_t*)&Network_player_rejoining, sizeof(sequence_packet), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
+					NetSendPacket((uint8_t*)&Network_player_rejoining, sizeof(sequence_packet), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
 				}
 		}
 	}
@@ -1486,10 +1486,10 @@ network_send_game_list_request()
 
 	if (Network_game_type == IPX_GAME)
 	{
-		memcpy(me.player.network.ipx.node, ipx_get_my_local_address(), 6);
-		memcpy(me.player.network.ipx.server, ipx_get_my_server_address(), 4);
+		memcpy(me.player.network.ipx.node, NetGetLocalAddress(), 6);
+		memcpy(me.player.network.ipx.server, NetGetServerAddress(), 4);
     
-		ipx_send_broadcast_packet_data((uint8_t*)&me, sizeof(sequence_packet));
+		NetSendBroadcastPacket((uint8_t*)&me, sizeof(sequence_packet));
 	}
 }
 
@@ -1507,10 +1507,10 @@ void network_send_all_info_request(char type, int which_security)
 
 	if (Network_game_type == IPX_GAME) 
 	{
-		memcpy(me.player.network.ipx.node, ipx_get_my_local_address(), 6);
-		memcpy(me.player.network.ipx.server, ipx_get_my_server_address(), 4);
+		memcpy(me.player.network.ipx.node, NetGetLocalAddress(), 6);
+		memcpy(me.player.network.ipx.server, NetGetServerAddress(), 4);
   
-		ipx_send_broadcast_packet_data((uint8_t*)&me, sizeof(sequence_packet));
+		NetSendBroadcastPacket((uint8_t*)&me, sizeof(sequence_packet));
 	}
 }
 
@@ -1585,7 +1585,7 @@ void network_send_endlevel_short_sub(int from_player_num, int to_player)
 	{
 		mprintf((0, "Sending short endlevel packet to %s.\n", Players[to_player].callsign));
 		if (Network_game_type == IPX_GAME)
-			ipx_send_packet_data((uint8_t*)&end, sizeof(endlevel_info_short), NetPlayers.players[to_player].network.ipx.server, NetPlayers.players[to_player].network.ipx.node, Players[to_player].net_address);
+			NetSendPacket((uint8_t*)&end, sizeof(endlevel_info_short), NetPlayers.players[to_player].network.ipx.server, NetPlayers.players[to_player].network.ipx.node, Players[to_player].net_address);
 	}
 }
 
@@ -1620,7 +1620,7 @@ network_send_endlevel_sub(int player_num)
 			else
 			{
 				if (Network_game_type == IPX_GAME)
-					ipx_send_packet_data((uint8_t*)&end, sizeof(endlevel_info), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
+					NetSendPacket((uint8_t*)&end, sizeof(endlevel_info), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
 			}
 		}
 	}
@@ -1673,8 +1673,8 @@ network_send_game_info(sequence_packet* their)
 	{
 		if (Network_game_type == IPX_GAME) 
 		{
-			ipx_send_broadcast_packet_data((uint8_t*)&Netgame, sizeof(netgame_info));
-			ipx_send_broadcast_packet_data((uint8_t*)&NetPlayers, sizeof(AllNetPlayers_info));
+			NetSendBroadcastPacket((uint8_t*)&Netgame, sizeof(netgame_info));
+			NetSendBroadcastPacket((uint8_t*)&NetPlayers, sizeof(AllNetPlayers_info));
 		} // nothing to do for appletalk games I think....
 	}
 	else 
@@ -1727,7 +1727,7 @@ void network_send_lite_info(sequence_packet* their)
 	{
 		if (Network_game_type == IPX_GAME) 
 		{
-			ipx_send_broadcast_packet_data((uint8_t*)&Netgame, sizeof(lite_info));
+			NetSendBroadcastPacket((uint8_t*)&Netgame, sizeof(lite_info));
 		}               // nothing to do for appletalk I think....
 	}
 	else 
@@ -1781,7 +1781,7 @@ void network_send_netgame_update()
 		{
 			if (Network_game_type == IPX_GAME) 
 			{
-				ipx_send_packet_data((uint8_t*)&Netgame, sizeof(lite_info), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
+				NetSendPacket((uint8_t*)&Netgame, sizeof(lite_info), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
 			}
 		}
 	}
@@ -3035,7 +3035,7 @@ void network_read_sync_packet(netgame_info* sp, int rsinit)
 		if (Network_game_type == IPX_GAME)
 		{
 			if ((*(unsigned int*)TempPlayersInfo->players[i].network.ipx.server) != 0)
-				ipx_get_local_target(TempPlayersInfo->players[i].network.ipx.server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
+				NetGetLocalTarget(TempPlayersInfo->players[i].network.ipx.server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
 			else
 				memcpy(Players[i].net_address, TempPlayersInfo->players[i].network.ipx.node, 6);
 		}
@@ -3504,7 +3504,7 @@ void network_join_poll(int nitems, newmenu_item* menus, int* key, int citem)
 			mprintf((0, "Changing to socket %d\n", Network_socket));
 			network_listen();
 			mprintf((0, "netgood 1!\n"));
-			ipx_change_default_socket(IPX_DEFAULT_SOCKET + Network_socket);
+			NetChangeDefaultSocket(IPX_DEFAULT_SOCKET + Network_socket);
 			mprintf((0, "netgood 2!\n"));
 			restart_net_searching(menus);
 			mprintf((0, "netgood 3!\n"));
@@ -3680,8 +3680,8 @@ menu:
 		memcpy(me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN + 1);
 		if (Network_game_type == IPX_GAME) 
 		{
-			memcpy(me.player.network.ipx.node, ipx_get_my_local_address(), 6);
-			memcpy(me.player.network.ipx.server, ipx_get_my_server_address(), 4);
+			memcpy(me.player.network.ipx.node, NetGetLocalAddress(), 6);
+			memcpy(me.player.network.ipx.server, NetGetServerAddress(), 4);
 			NetSendInternetworkPacket((uint8_t*)&me, sizeof(sequence_packet), NetPlayers.players[0].network.ipx.server, NetPlayers.players[0].network.ipx.node);
 		}
 		N_players = 0;
@@ -4077,7 +4077,7 @@ void network_do_big_wait(int choice)
 	uint8_t packet[IPX_MAX_DATA_SIZE], * data;
 	AllNetPlayers_info* temp_info;
 
-	size = ipx_get_packet_data(packet);
+	size = NetGetPacketData(packet);
 
 	if (size > 0)
 	{
@@ -4200,7 +4200,7 @@ void network_flush()
 	if (Network_game_type == IPX_GAME)
 		if (!Network_active) return;
 
-	while (ipx_get_packet_data(packet) > 0);
+	while (NetGetPacketData(packet) > 0);
 }
 
 void network_listen()
@@ -4227,13 +4227,13 @@ void network_listen()
 	i = 1;
 	if (Network_game_type == IPX_GAME)
 	{
-		size = ipx_get_packet_data(packet);
+		size = NetGetPacketData(packet);
 		while (size > 0) 
 		{
 			network_process_packet(packet, size);
 			if (++i > loopmax)
 				break;
-			size = ipx_get_packet_data(packet);
+			size = NetGetPacketData(packet);
 		}
 	}
 }
@@ -4267,7 +4267,7 @@ int network_wait_for_playerinfo()
 	{
 		if (Network_game_type == IPX_GAME) 
 		{
-			size = ipx_get_packet_data(packet);
+			size = NetGetPacketData(packet);
 			id = packet[0];
 		}
 
@@ -4401,7 +4401,7 @@ void network_do_frame(int force, int listen)
 		Assert(NakedPacketDestPlayer > -1);
 		//         mprintf ((0,"Sending a naked packet to %s (%d bytes)!\n",Players[NakedPacketDestPlayer].callsign,NakedPacketLen));
 		if (Network_game_type == IPX_GAME)
-			ipx_send_packet_data((uint8_t*)NakedBuf, NakedPacketLen, NetPlayers.players[NakedPacketDestPlayer].network.ipx.server, NetPlayers.players[NakedPacketDestPlayer].network.ipx.node, Players[NakedPacketDestPlayer].net_address);
+			NetSendPacket((uint8_t*)NakedBuf, NakedPacketLen, NetPlayers.players[NakedPacketDestPlayer].network.ipx.server, NetPlayers.players[NakedPacketDestPlayer].network.ipx.node, Players[NakedPacketDestPlayer].net_address);
 #ifdef MACINTOSH
 		else
 			appletalk_send_packet_data((uint8_t*)NakedBuf, NakedPacketLen, NetPlayers.players[NakedPacketDestPlayer].network.appletalk.node, NetPlayers.players[NakedPacketDestPlayer].network.appletalk.net, NetPlayers.players[NakedPacketDestPlayer].network.appletalk.socket);
@@ -4449,7 +4449,7 @@ void network_do_frame(int force, int listen)
 						ShortSyncPack.numpackets = MySyncPack.numpackets;
 						if (Network_game_type == IPX_GAME) 
 						{
-							ipx_send_packet_data((uint8_t*)&ShortSyncPack, sizeof(short_frame_info) - MaxXDataSize + MySyncPack.data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
+							NetSendPacket((uint8_t*)&ShortSyncPack, sizeof(short_frame_info) - MaxXDataSize + MySyncPack.data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
 						}
 					}
 				}
@@ -4479,7 +4479,7 @@ void network_do_frame(int force, int listen)
 
 						Players[i].n_packets_sent++;
 						if (Network_game_type == IPX_GAME)
-							ipx_send_packet_data((uint8_t*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
+							NetSendPacket((uint8_t*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
 					}
 				}
 			}
@@ -5027,7 +5027,7 @@ menu:
 		if ((atoi(socket_string)) != Network_socket)
 		{
 			Network_socket = atoi(socket_string);
-			ipx_change_default_socket(IPX_DEFAULT_SOCKET + Network_socket);
+			NetChangeDefaultSocket(IPX_DEFAULT_SOCKET + Network_socket);
 		}
 	}
 
@@ -5155,7 +5155,7 @@ void network_ping(uint8_t flag, int pnum)
 	mybuf[1] = Player_num;
 
 	if (Network_game_type == IPX_GAME)
-		ipx_send_packet_data((uint8_t*)mybuf, 2, NetPlayers.players[pnum].network.ipx.server, NetPlayers.players[pnum].network.ipx.node, Players[pnum].net_address);
+		NetSendPacket((uint8_t*)mybuf, 2, NetPlayers.players[pnum].network.ipx.server, NetPlayers.players[pnum].network.ipx.node, Players[pnum].net_address);
 }
 
 extern fix PingLaunchTime, PingReturnTime;
@@ -5359,7 +5359,7 @@ void network_send_naked_packet(char* buf, short len, int who)
 	{
 		//         mprintf ((0,"Sending a naked packet of %d bytes.\n",NakedPacketLen));
 		if (Network_game_type == IPX_GAME)
-			ipx_send_packet_data((uint8_t*)NakedBuf, NakedPacketLen, NetPlayers.players[who].network.ipx.server, NetPlayers.players[who].network.ipx.node, Players[who].net_address);
+			NetSendPacket((uint8_t*)NakedBuf, NakedPacketLen, NetPlayers.players[who].network.ipx.server, NetPlayers.players[who].network.ipx.node, Players[who].net_address);
 
 		NakedPacketLen = 2;
 		memcpy(&NakedBuf[NakedPacketLen], buf, len);

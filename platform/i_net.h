@@ -30,7 +30,7 @@ extern int NetChangeDefaultSocket(uint16_t socket_number);
 //trying to recieve must not be a host. This is a mess, but it should work.
 extern int NetChangeRole(dbool host);
 
-// Returns a pointer to 6-byte address
+// Returns a pointer to 6-byte address [ISB] Note that this information is not reliable and shouldn't actually be used.
 extern uint8_t* NetGetLocalAddress();
 // Returns a pointer to 4-byte server
 extern uint8_t* NetGetServerAddress();

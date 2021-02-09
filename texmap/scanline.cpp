@@ -297,7 +297,7 @@ void c_tmap_scanline_per_dither()
 		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
 		{
 			*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]];
-			dest++
+			dest++;
 			l += dldx;
 			fx_dl_dx1 = fx_dl_dx2;
 			fx_dl_dx2 = dldx;
