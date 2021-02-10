@@ -60,7 +60,7 @@ void MidiSequencer::Tick()
 	HMPTrack* track;
 	BranchEntry *branchData;
 	midievent_t* ev;
-	bool doloop = false;
+	int loopNum = -1;
 	bool eventsRemaining = false;
 
 	if (song == nullptr)
@@ -83,7 +83,7 @@ void MidiSequencer::Tick()
 				switch (ev->param1)
 				{
 				case HMI_CONTROLLER_GLOBAL_LOOP_END:
-					doloop = true;
+					loopNum = ev->param2 & 127;
 					ev = nullptr;
 					break;
 				case HMI_CONTROLLER_GLOBAL_BRANCH:
@@ -94,10 +94,12 @@ void MidiSequencer::Tick()
 					branchnum = ev->param2 - 128;
 					if (branchnum >= 0)
 					{
-						//printf("lbranch %d %d\n", i, branchnum);
-						/*branchData = track->GetLocalBranchData(branchnum);
-						track->SetPlayhead(song->GetBranchTick(i, branchnum));
-						synth->PerformBranchResets(branchData, ev->channel);*/
+						branchData = track->GetLocalBranchData(branchnum);
+						//track->SetPlayhead(song->GetBranchTick(i, branchnum));
+						track->BranchToByteOffset(branchData->offset);
+						//printf("lbranch %d %d %d\n", i, branchnum, branchData->offset);
+
+						synth->PerformBranchResets(branchData, ev->channel);
 
 						ev = nullptr;
 					}
@@ -124,13 +126,19 @@ void MidiSequencer::Tick()
 		{
 			RewindSong(false);
 		}
-		else if (doloop) //Explicit loop.
+		else if (loopNum != -1) //Explicit loop.
 		{
-			//TODO: Implement different loop levels, as per HMI spec.
+			//printf("new loop code running, loop %d\n", loopNum);
 			for (i = 0; i < song->NumTracks(); i++)
 			{
 				track = song->GetTrack(i);
-				track->SetPlayhead(song->GetLoopStart(0));
+				//track->SetPlayhead(song->GetLoopStart(0));
+				if (loopNum+1 <= track->GetNumBranches())
+				{
+					branchData = track->GetLocalBranchData(loopNum);
+					track->BranchToByteOffset(branchData->offset);
+					synth->PerformBranchResets(branchData, track->GetChannel());
+				}
 			}
 		}
 	}

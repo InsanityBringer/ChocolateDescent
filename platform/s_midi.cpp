@@ -268,7 +268,7 @@ void HMPTrack::SetPlayhead(uint32_t ticks)
 			}
 		}
 
-		if (nextEvent != -1)
+		/*if (nextEvent != -1)
 		{
 			if (cumlTime > ticks)
 			{
@@ -279,10 +279,31 @@ void HMPTrack::SetPlayhead(uint32_t ticks)
 				//printf("Adjusting delta by %d\n", diff);
 				nextEventTime -= diff;
 			}
-		}
+		}*/
 	}
 	else
 		nextEvent = -1;
+}
+
+void HMPTrack::BranchToByteOffset(uint32_t offset)
+{
+	//assumption: called in a track that actually has events
+	playhead = 0;
+	nextEvent = 0;
+	nextEventTime = playhead = events[0].delta;
+	midievent_t* ev = &events[0];
+
+	while (ev->startPtr < offset)
+	{
+		nextEvent++;
+		if (nextEvent >= events.size())
+			return;
+
+		ev = &events[nextEvent];
+		playhead += ev->delta;
+		nextEventTime = playhead;
+	}
+	nextEventTime += ev->delta;
 }
 
 void HMPTrack::AdvancePlayhead(uint32_t ticks)
@@ -398,6 +419,8 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 
 	tick = 0; //Temp hack for loop point
 
+	int startOfData = ptr;
+
 #ifdef DEBUG_MIDI_READING
 	fprintf(stderr, "Chunk %d:\n Length: %d\n Track: %d\n Events:\n", chunkNum, chunkLen, chunkTrack);
 #endif
@@ -405,6 +428,7 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 	while (ptr < destPointer) 
 	{
 		midievent_t ev;
+		ev.startPtr = ptr - startOfData;
 		delta = S_ReadDelta(&ptr, data);
 		b = data[ptr]; ptr++;
 		tick += delta;
@@ -439,8 +463,10 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 					{
 						loopStart = tick;
 					}
+					branchTickTable[chunkNum][numBranches] = tick; //TODO: TEMP HACK
+					numBranches++;
 #ifdef DEBUG_SPECIAL_CONTROLLERS
-					printf("Loop start on track %d channel %d, event %d with delta %d. Loop start at %d, loop count %d\n", chunkNum, ev.channel, i, delta, loopStart, ev.param2);
+					printf("Loop start (110) on track %d channel %d, event %d with delta %d. Loop start at %d, loop count %d, around byte %d\n", chunkNum, ev.channel, i, delta, loopStart, ev.param2, ev.startPtr);
 #endif
 				}
 				break;
@@ -449,7 +475,7 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 				{
 					branchTickTable[chunkNum][numBranches] = tick;
 #ifdef DEBUG_SPECIAL_CONTROLLERS
-					printf("Local branch pos on track %d channel %d, event %d with delta %d. Branch point %d, at tick %d, around byte %d\n", chunkNum, ev.channel, i, delta, numBranches, tick, ptr - basePointer);
+					printf("Local branch pos (108) on track %d channel %d, event %d with delta %d. Branch point %d, at tick %d, around byte %d\n", chunkNum, ev.channel, i, delta, numBranches, tick, ev.startPtr);
 #endif
 					numBranches++;
 				}
@@ -457,34 +483,34 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 
 #ifdef DEBUG_SPECIAL_CONTROLLERS
 				case HMI_CONTROLLER_GLOBAL_LOOP_END:
-					printf("Loop end restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Loop end (111) on track %d channel %d, event %d with delta %d. Specified param %d, around byte %d\n", chunkNum, ev.channel, i, delta, ev.param2, ev.startPtr);
 					break;
 				case HMI_CONTROLLER_ENABLE_CONTROLLER_RESTORE:
-					printf("Controller restore enable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Controller restore enable (103) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_DISABLE_CONTROLLER_RESTORE:
-					printf("Controller restore disable on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Controller restore disable on (104) track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_LOCAL_BRANCH:
-					printf("Local branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Local branch (109) on track %d channel %d, event %d with delta %d. Specified param %d, around byte %d\n", chunkNum, ev.channel, i, delta, ev.param2, ev.startPtr);
 					break;
 				case HMI_CONTROLLER_GLOBAL_BRANCH_POS:
-					printf("Global branch pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Global branch pos (113) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_GLOBAL_BRANCH:
-					printf("Global branch on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Global branch (114) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_LOCAL_LOOP_START:
-					printf("Local loop pos on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Local loop pos (116) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_CALL_TRIGGER:
 					printf("Call trigger (but why) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_LOCK_CHAN:
-					printf("Channel lock on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Channel lock (106) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 				case HMI_CONTROLLER_CHAN_PRIORITY:
-					printf("Channel priority on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
+					printf("Channel priority (107) on track %d channel %d, event %d with delta %d. Specified param %d\n", chunkNum, ev.channel, i, delta, ev.param2);
 					break;
 #endif
 				}

@@ -72,6 +72,9 @@ typedef struct
 
 	int dataLength;
 	uint8_t* data;
+
+	//Used for branches. Ugh. 
+	uint32_t startPtr;  
 } midievent_t;
 
 struct BranchControlChange
@@ -126,6 +129,8 @@ public:
 	//Gets the next sequenced MIDI event, if it is behind or at the playhead. Returns nullptr if there are no more available events,
 	//or all events are past the playhead.
 	midievent_t* NextEvent();
+	//Branches to the specified byte offset in the MIDI stream.
+	void BranchToByteOffset(uint32_t offset);
 
 	bool CheckRemainingEvents()
 	{
@@ -145,6 +150,16 @@ public:
 	BranchEntry* GetLocalBranchData(int num)
 	{
 		return &branches[num];
+	}
+
+	int GetNumBranches()
+	{
+		return branches.size();
+	}
+
+	int GetChannel()
+	{
+		return chunkChannel;
 	}
 };
 
