@@ -74,10 +74,26 @@ typedef struct
 	uint8_t* data;
 } midievent_t;
 
+struct BranchControlChange
+{
+	uint8_t controller, state;
+};
+
+struct BranchEntry
+{
+	int offset;
+	uint8_t branchID;
+	uint8_t program;
+	uint8_t loopCount;
+	uint8_t controlChangeCount;
+	int controlChangeOffset;
+	BranchControlChange controlChanges[128];
+};
+
 class HMPTrack
 {
 	int chunkNum;
-	int num;
+	int chunkChannel;
 
 	//Track sequencing data
 	//TODO: Tracks need their own playhead
@@ -87,6 +103,9 @@ class HMPTrack
 
 	//TODO: Convert midievent_t into class
 	std::vector<midievent_t> events;
+	std::vector<BranchEntry> branches;
+
+	int numBranches;
 
 public:
 	HMPTrack(int chunkn, int n);
@@ -112,12 +131,27 @@ public:
 	{
 		return nextEvent != -1;
 	}
+
+	void AddBranch(BranchEntry& branch)
+	{
+		branches.push_back(branch);
+	}
+
+	void SetBranchCount(int branches)
+	{
+		numBranches = branches;
+	}
+
+	BranchEntry* GetLocalBranchData(int num)
+	{
+		return &branches[num];
+	}
 };
 
 class HMPFile
 {
 	char header[32]; //Should be "HMIMIDIP", null padded to 32 bytes.
-	int numChunks; //Amount of chunks. TODO: Should chunks be separated from "tracks"?
+	int numChunks; //Amount of chunks. Actually tracks.
 	int ticksPerQuarter; //Ticks per quarter note. Should always be 60, other values cause problems in Descent, according to Parabolicus. 
 	int tempo; //formerly bpm. Ticks per second.
 	int seconds; //Length of the song in seconds. I don't think this has a technical use, but useful for debugging.
@@ -128,7 +162,7 @@ class HMPFile
 	uint32_t loopStart;
 
 	uint8_t controllerResetTable[128]; //Table of controllers that should be reset on a loop or branch. Nonzero if they should be reset.
-	int branchTickTable[16][128];
+	std::vector<std::vector<int>> branchTickTable;
 
 	//private member for reading events from a chunk. Returns the new pointer.
 	int ReadChunk(int ptr, uint8_t* data);
@@ -159,6 +193,12 @@ public:
 	HMPTrack* GetTrack(int num)
 	{
 		return &tracks[num];
+	}
+
+	//TODO: Move to Track
+	int GetBranchTick(int track, int branchnum)
+	{
+		return branchTickTable[track][branchnum];
 	}
 };
 
@@ -192,6 +232,7 @@ public:
 	virtual void Shutdown() = 0;
 	//Resets the default state for the synth, because HMI SOS has unusual specifications.
 	virtual void SetDefaults() = 0;
+	virtual void PerformBranchResets(BranchEntry* entry, int chan) = 0;
 };
 
 class DummyMidiSynth : public MidiSynth
@@ -204,6 +245,7 @@ public:
 	void StopSound() override { }
 	void Shutdown() override { }
 	void SetDefaults() override { }
+	void PerformBranchResets(BranchEntry* entry, int chan) override { }
 };
 
 //Class which represents the midi thread. Has a Sequencer and a Synthesizer, and invokes the current audio backend to run

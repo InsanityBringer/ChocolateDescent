@@ -28,4 +28,5 @@ public:
 	void StopSound() override;
 	void Shutdown() override;
 	void SetDefaults() override;
+	void PerformBranchResets(BranchEntry* entry, int chan) override;
 };

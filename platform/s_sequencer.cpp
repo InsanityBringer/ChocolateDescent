@@ -56,7 +56,9 @@ void MidiSequencer::StopSong()
 void MidiSequencer::Tick()
 {
 	int i;
+	int branchnum;
 	HMPTrack* track;
+	BranchEntry *branchData;
 	midievent_t* ev;
 	bool doloop = false;
 	bool eventsRemaining = false;
@@ -68,7 +70,6 @@ void MidiSequencer::Tick()
 
 	for (i = 0; i < song->NumTracks(); i++)
 	{
-		if (i != 1) continue;
 		track = song->GetTrack(i);
 		track->AdvancePlayhead(1);
 		eventsRemaining |= track->CheckRemainingEvents();
@@ -83,20 +84,35 @@ void MidiSequencer::Tick()
 				{
 				case HMI_CONTROLLER_GLOBAL_LOOP_END:
 					doloop = true;
+					ev = nullptr;
 					break;
 				case HMI_CONTROLLER_GLOBAL_BRANCH:
 					printf("gbranch\n");
+					ev = nullptr;
 					break;
 				case HMI_CONTROLLER_LOCAL_BRANCH:
-					if (ev->param2 < 128)
+					branchnum = ev->param2 - 128;
+					if (branchnum >= 0)
 					{
-						//I dunno. 
+						//printf("lbranch %d %d\n", i, branchnum);
+						branchData = track->GetLocalBranchData(branchnum);
+						track->SetPlayhead(song->GetBranchTick(i, branchnum));
+						synth->PerformBranchResets(branchData, ev->channel);
+
+						ev = nullptr;
 					}
+					break;
+				default:
+					synth->DoMidiEvent(ev);
+					ev = track->NextEvent();
 					break;
 				}
 			}
-			synth->DoMidiEvent(ev);
-			ev = track->NextEvent();
+			else
+			{
+				synth->DoMidiEvent(ev);
+				ev = track->NextEvent();
+			}
 		}
 	}
 

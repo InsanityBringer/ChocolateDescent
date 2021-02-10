@@ -107,4 +107,13 @@ void MidiFluidSynth::SetDefaults()
 	}
 }
 
+void MidiFluidSynth::PerformBranchResets(BranchEntry* entry, int chan)
+{
+	int i;
+	for (i = 0; i < entry->controlChangeCount; i++)
+	{
+		fluid_synth_cc(FluidSynth, chan, entry->controlChanges[i].controller, entry->controlChanges[i].state);
+	}
+}
+
 #endif

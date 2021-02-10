@@ -26,7 +26,7 @@ as described in copying.txt.
 //#define DEBUG_MIDI_READING
 
 //Uncomment to enable diagonstics of SOS's special MIDI controllers. 
-#define DEBUG_SPECIAL_CONTROLLERS
+//#define DEBUG_SPECIAL_CONTROLLERS
 
 int CurrentDevice = 0;
 
@@ -204,10 +204,10 @@ uint16_t S_StopSong()
 	return 0;
 }
 
-HMPTrack::HMPTrack(int chunknum, int tracknum)
+HMPTrack::HMPTrack(int chunknum, int channum)
 {
 	chunkNum = chunknum;
-	num = tracknum;
+	chunkChannel = channum;
 
 	//Set basic sequencing data
 	nextEvent = 0;
@@ -215,6 +215,9 @@ HMPTrack::HMPTrack(int chunknum, int tracknum)
 
 	//Create empty event list.
 	events = std::vector<midievent_t>();
+
+	//Needed to count local branches.
+	numBranches = 0;
 }
 
 void HMPTrack::StartSequence()
@@ -256,23 +259,26 @@ void HMPTrack::SetPlayhead(uint32_t ticks)
 		while (nextEventTime < ticks)
 		{
 			cumlTime += events[nextEvent].delta;
+			nextEventTime += events[nextEvent].delta;
 			nextEvent++; 
 			if (nextEvent >= events.size())
 			{
 				nextEvent = -1;
 				break;
 			}
-			nextEventTime += events[nextEvent].delta;
 		}
 
 		if (nextEvent != -1)
 		{
-			diff = cumlTime - ticks;
-			if (diff < 0)
-				fprintf(stderr, "HMPTrack::SetPlayhead: negative delta adjusting next delta\n");
+			if (cumlTime > ticks)
+			{
+				diff = cumlTime - ticks;
+				//if (diff < 0)
+				//	fprintf(stderr, "HMPTrack::SetPlayhead: negative delta %d adjusting next delta. nextEventTime is %d, setting to %d\n", diff, nextEventTime, ticks);
 
-			//printf("Adjusting delta by %d\n", diff);
-			nextEventTime -= diff;
+				//printf("Adjusting delta by %d\n", diff);
+				nextEventTime -= diff;
+			}
 		}
 	}
 	else
@@ -304,7 +310,10 @@ midievent_t* HMPTrack::NextEvent()
 
 HMPFile::HMPFile(int len, uint8_t* data)
 {
-	int branchTableOffset, pointer, i;
+	int branchTableOffset, pointer, i, j, k;
+	uint8_t count;
+	std::vector<uint8_t> branchesPerTrack;
+	int subPointer;
 
 	loopStart = 0;
 	memcpy(header, data, 32); //Check for version 1 HMP
@@ -320,11 +329,49 @@ HMPFile::HMPFile(int len, uint8_t* data)
 	//It might become more vital when emulation of other sound cards is implemented.
 
 	tracks = std::vector<HMPTrack>();
+
 	//Jump forward and read all the chunks.
 	pointer = 776; //Pointer is adjusted by the reading function
 	for (i = 0; i < numChunks; i++)
 	{
+		branchTickTable.push_back(std::vector<int>(128));
 		pointer = ReadChunk(pointer, data);
+	}
+
+	pointer = branchTableOffset;
+	for (i = 0; i < numChunks; i++)
+	{
+		count = data[pointer];
+		if (count > 127) return; //check bounds
+		branchesPerTrack.push_back(count);
+		pointer++;
+	}
+
+	for (i = 0; i < numChunks; i++)
+	{
+		for (j = 0; j < branchesPerTrack[i]; j++)
+		{
+			BranchEntry branch;
+			branch.offset = BS_MakeInt(&data[pointer]); pointer += 4;
+			branch.branchID = data[pointer++];
+			branch.program = data[pointer++];
+			branch.loopCount = data[pointer++];
+			branch.controlChangeCount = data[pointer++];
+			branch.controlChangeOffset = BS_MakeInt(&data[pointer]); pointer += 4;
+			pointer += 12;
+
+			if (branch.controlChangeCount < 128)
+			{
+				subPointer = branch.controlChangeOffset;
+				for (k = 0; k < branch.controlChangeCount; k++)
+				{
+					branch.controlChanges[k].controller = data[subPointer++] & 127;
+					branch.controlChanges[k].state = data[subPointer++] & 127;
+				}
+			}
+
+			tracks[i].AddBranch(branch);
+		}
 	}
 }
 
@@ -336,7 +383,8 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 	int destPointer;
 	int chunkNum = BS_MakeInt(&data[ptr]);
 	int chunkLen = BS_MakeInt(&data[ptr + 4]);
-	int chunkTrack = BS_MakeInt(&data[ptr + 8]);
+	int chunkChannel = BS_MakeInt(&data[ptr + 8]);
+	int numBranches = 0;
 #ifdef DEBUG_SPECIAL_CONTROLLERS
 	int i = 0;
 #endif
@@ -346,7 +394,7 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 	//Chunk length contains the header fields.
 	destPointer = basePointer + chunkLen;
 
-	HMPTrack track = HMPTrack(chunkNum, chunkTrack);
+	HMPTrack track = HMPTrack(chunkNum, chunkChannel);
 
 	tick = 0; //Temp hack for loop point
 
@@ -399,13 +447,11 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 
 				case HMI_CONTROLLER_LOCAL_BRANCH_POS:
 				{
-					if (chunkNum < 16 && ev.param2 < 128)
-					{
-						branchTickTable[chunkNum][ev.param2] = tick;
-					}
+					branchTickTable[chunkNum][numBranches] = tick;
 #ifdef DEBUG_SPECIAL_CONTROLLERS
-					printf("Local branch pos on track %d channel %d, event %d with delta %d. Branch point %d, at tick %d\n", chunkNum, ev.channel, i, delta, ev.param2, tick);
+					printf("Local branch pos on track %d channel %d, event %d with delta %d. Branch point %d, at tick %d, around byte %d\n", chunkNum, ev.channel, i, delta, numBranches, tick, ptr - basePointer);
 #endif
+					numBranches++;
 				}
 					break;
 
@@ -475,6 +521,8 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 		i++;
 #endif
 	}
+	track.SetBranchCount(numBranches);
+	numBranches = 0;
 	tracks.push_back(track);
 	return ptr;
 }
