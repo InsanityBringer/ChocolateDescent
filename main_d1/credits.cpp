@@ -211,7 +211,6 @@ void credits_show()
 			while (timer_get_fixed_seconds() < last_time + time_delay);
 			last_time = timer_get_fixed_seconds();
 
-
 			k = key_inkey();
 
 #ifndef NDEBUG
@@ -241,7 +240,7 @@ void credits_show()
 				return;
 			}
 			I_DrawCurrentCanvas(0);
-			I_Delay(US_70FPS);
+			I_DelayUS(US_70FPS);
 		}
 
 		if (buffer[(buffer_line + 1) % NUM_LINES][0] == '!') 

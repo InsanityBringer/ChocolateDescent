@@ -95,9 +95,9 @@ void MidiSequencer::Tick()
 					if (branchnum >= 0)
 					{
 						//printf("lbranch %d %d\n", i, branchnum);
-						branchData = track->GetLocalBranchData(branchnum);
+						/*branchData = track->GetLocalBranchData(branchnum);
 						track->SetPlayhead(song->GetBranchTick(i, branchnum));
-						synth->PerformBranchResets(branchData, ev->channel);
+						synth->PerformBranchResets(branchData, ev->channel);*/
 
 						ev = nullptr;
 					}
