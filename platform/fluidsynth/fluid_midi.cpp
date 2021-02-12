@@ -99,11 +99,28 @@ void MidiFluidSynth::StopSound()
 void MidiFluidSynth::SetDefaults()
 {
 	//fluid_synth_system_reset(FluidSynth);
-	//Default HMP state is to have all channels muted, for reasons?
 	for (int chan = 0; chan < 16; chan++)
 	{
-		fluid_synth_cc(FluidSynth, chan, 121, 0);
-		fluid_synth_cc(FluidSynth, chan, 7, 0);
+		fluid_synth_cc(FluidSynth, chan, 7, 0); //volume. Set to 0 by default in HMI
+		fluid_synth_cc(FluidSynth, chan, 39, 0); //fine volume.
+		fluid_synth_cc(FluidSynth, chan, 1, 0); //modulation wheel
+		fluid_synth_cc(FluidSynth, chan, 11, 127); //expression
+		fluid_synth_cc(FluidSynth, chan, 64, 0); //pedals
+		fluid_synth_cc(FluidSynth, chan, 65, 0);
+		fluid_synth_cc(FluidSynth, chan, 66, 0);
+		fluid_synth_cc(FluidSynth, chan, 67, 0);
+		fluid_synth_cc(FluidSynth, chan, 68, 0);
+		fluid_synth_cc(FluidSynth, chan, 69, 0);
+		fluid_synth_cc(FluidSynth, chan, 42, 64); //pan
+
+		fluid_synth_channel_pressure(FluidSynth, chan, 0);
+		fluid_synth_pitch_bend(FluidSynth, chan, 0x2000);
+		fluid_synth_program_change(FluidSynth, chan, 0);
+
+		for (int key = 0; key < 128; key++) //this isn't going to cause problems with the polyphony limit is it...
+			fluid_synth_key_pressure(FluidSynth, chan, key, 0);
+
+		fluid_synth_cc(FluidSynth, chan, 121, 0); //send all notes off TODO: This can be adjusted in HMI. 
 	}
 }
 
