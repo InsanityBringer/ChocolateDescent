@@ -119,7 +119,7 @@ int Inferno_is_800x600_available = 0;
 //--unused-- int Cyberman_installed=0;			// SWIFT device present
 uint8_t CybermouseActive = 0;
 
-//int __far descent_critical_error_handler( unsigned deverr, unsigned errcode, unsigned __far * devhdr );
+LogicVer CurrentLogicVersion = LogicVer::FULL_1_2;
 
 void check_joystick_calibration(void);
 

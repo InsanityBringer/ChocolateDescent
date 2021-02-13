@@ -115,6 +115,7 @@ void MidiFluidSynth::SetDefaults()
 
 		fluid_synth_channel_pressure(FluidSynth, chan, 0);
 		fluid_synth_pitch_bend(FluidSynth, chan, 0x2000);
+		fluid_synth_bank_select(FluidSynth, chan, 0);
 		fluid_synth_program_change(FluidSynth, chan, 0);
 
 		for (int key = 0; key < 128; key++) //this isn't going to cause problems with the polyphony limit is it...

@@ -163,85 +163,111 @@ void apply_light(fix obj_intensity, int obj_seg, vms_vector* obj_pos, int n_rend
 			int	headlight_shift = 0;
 			fix	max_headlight_dist = F1_0 * 200;
 
-			if (Objects[objnum].type == OBJ_PLAYER)
-				if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON)
-				{
-					headlight_shift = 3;
-					if (Objects[objnum].id != Player_num)
+			if (CurrentLogicVersion >= LogicVer::FULL_1_0)
+			{
+				if (Objects[objnum].type == OBJ_PLAYER)
+					if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON)
 					{
-						vms_vector	tvec;
-						fvi_query	fq;
-						fvi_info		hit_data;
-						int			fate;
+						headlight_shift = 3;
+						if (Objects[objnum].id != Player_num)
+						{
+							vms_vector	tvec;
+							fvi_query	fq;
+							fvi_info		hit_data;
+							int			fate;
 
-						vm_vec_scale_add(&tvec, &Objects[objnum].pos, &Objects[objnum].orient.fvec, F1_0 * 200);
+							vm_vec_scale_add(&tvec, &Objects[objnum].pos, &Objects[objnum].orient.fvec, F1_0 * 200);
 
-						fq.startseg = Objects[objnum].segnum;
-						fq.p0 = &Objects[objnum].pos;
-						fq.p1 = &tvec;
-						fq.rad = 0;
-						fq.thisobjnum = objnum;
-						fq.ignore_obj_list = NULL;
-						fq.flags = FQ_TRANSWALL;
+							fq.startseg = Objects[objnum].segnum;
+							fq.p0 = &Objects[objnum].pos;
+							fq.p1 = &tvec;
+							fq.rad = 0;
+							fq.thisobjnum = objnum;
+							fq.ignore_obj_list = NULL;
+							fq.flags = FQ_TRANSWALL;
 
-						fate = find_vector_intersection(&fq, &hit_data);
-						if (fate != HIT_NONE)
-							max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0 * 4;
+							fate = find_vector_intersection(&fq, &hit_data);
+							if (fate != HIT_NONE)
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0 * 4;
+						}
+					}
+
+
+				// -- for (vv=FrameCount&1; vv<n_render_vertices; vv+=2) {
+				for (vv = 0; vv < n_render_vertices; vv++)
+				{
+					int			vertnum;
+					vms_vector* vertpos;
+					fix			dist;
+					int			apply_light;
+
+					vertnum = render_vertices[vv];
+					if ((vertnum ^ FrameCount) & 1)
+					{
+						vertpos = &Vertices[vertnum];
+						dist = vm_vec_dist_quick(obj_pos, vertpos);
+						apply_light = 0;
+
+						if ((dist >> headlight_shift) < abs(obji_64))
+						{
+							if (dist < MIN_LIGHT_DIST)
+								dist = MIN_LIGHT_DIST;
+
+							//if (Use_fvi_lighting) {
+							//	if (lighting_cache_visible(vertnum, obj_seg, objnum, obj_pos, obj_seg, vertpos)) {
+							//		apply_light = 1;
+							//	}
+							//} else
+							apply_light = 1;
+
+							if (apply_light)
+							{
+								if (headlight_shift)
+								{
+									fix			dot;
+									vms_vector	vec_to_point;
+
+									vm_vec_sub(&vec_to_point, vertpos, obj_pos);
+									vm_vec_normalize_quick(&vec_to_point);		//	MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
+									dot = vm_vec_dot(&vec_to_point, &Objects[objnum].orient.fvec);
+									if (dot < F1_0 / 2)
+										Dynamic_light[vertnum] += fixdiv(obj_intensity, fixmul(HEADLIGHT_SCALE, dist));	//	Do the normal thing, but darken around headlight.
+									else
+									{
+										if (Game_mode & GM_MULTI)
+										{
+											if (dist < max_headlight_dist)
+												Dynamic_light[vertnum] += fixmul(fixmul(dot, dot), obj_intensity) / 8;
+										}
+										else
+											Dynamic_light[vertnum] += fixmul(fixmul(dot, dot), obj_intensity) / 8;
+									}
+								}
+								else
+									Dynamic_light[vertnum] += fixdiv(obj_intensity, dist);
+							}
+						}
 					}
 				}
-			// -- for (vv=FrameCount&1; vv<n_render_vertices; vv+=2) {
-			for (vv = 0; vv < n_render_vertices; vv++)
+			}
+			else
 			{
-				int			vertnum;
-				vms_vector* vertpos;
-				fix			dist;
-				int			apply_light;
-
-				vertnum = render_vertices[vv];
-				if ((vertnum ^ FrameCount) & 1)
+				for (vv = FrameCount & 1; vv < n_render_vertices; vv += 2) 
 				{
+					int			vertnum;
+					vms_vector* vertpos;
+					fix			dist;
+
+					vertnum = render_vertices[vv];
 					vertpos = &Vertices[vertnum];
 					dist = vm_vec_dist_quick(obj_pos, vertpos);
-					apply_light = 0;
 
-					if ((dist >> headlight_shift) < abs(obji_64))
+					if (dist < obji_64) 
 					{
 						if (dist < MIN_LIGHT_DIST)
 							dist = MIN_LIGHT_DIST;
 
-						//if (Use_fvi_lighting) {
-						//	if (lighting_cache_visible(vertnum, obj_seg, objnum, obj_pos, obj_seg, vertpos)) {
-						//		apply_light = 1;
-						//	}
-						//} else
-						apply_light = 1;
-
-						if (apply_light)
-						{
-							if (headlight_shift)
-							{
-								fix			dot;
-								vms_vector	vec_to_point;
-
-								vm_vec_sub(&vec_to_point, vertpos, obj_pos);
-								vm_vec_normalize_quick(&vec_to_point);		//	MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
-								dot = vm_vec_dot(&vec_to_point, &Objects[objnum].orient.fvec);
-								if (dot < F1_0 / 2)
-									Dynamic_light[vertnum] += fixdiv(obj_intensity, fixmul(HEADLIGHT_SCALE, dist));	//	Do the normal thing, but darken around headlight.
-								else
-								{
-									if (Game_mode & GM_MULTI)
-									{
-										if (dist < max_headlight_dist)
-											Dynamic_light[vertnum] += fixmul(fixmul(dot, dot), obj_intensity) / 8;
-									}
-									else
-										Dynamic_light[vertnum] += fixmul(fixmul(dot, dot), obj_intensity) / 8;
-								}
-							}
-							else
-								Dynamic_light[vertnum] += fixdiv(obj_intensity, dist);
-						}
+						Dynamic_light[vertnum] += fixdiv(obj_intensity, dist);
 					}
 				}
 			}
@@ -297,30 +323,53 @@ fix compute_light_intensity(int objnum)
 
 	switch (objtype) {
 	case OBJ_PLAYER:
-		if (Players[obj->id].flags & PLAYER_FLAGS_HEADLIGHT_ON)
+		if (CurrentLogicVersion >= LogicVer::FULL_1_0)
 		{
-			if (Num_headlights < MAX_HEADLIGHTS)
-				Headlights[Num_headlights++] = obj;
-			return HEADLIGHT_SCALE;
+			if (Players[obj->id].flags & PLAYER_FLAGS_HEADLIGHT_ON)
+			{
+				if (Num_headlights < MAX_HEADLIGHTS)
+					Headlights[Num_headlights++] = obj;
+				return HEADLIGHT_SCALE;
+			}
+			else if ((Game_mode & GM_HOARD) && Players[obj->id].secondary_ammo[PROXIMITY_INDEX])
+			{
+
+				// If hoard game and player, add extra light based on how many orbs you have
+				 // Pulse as well.
+
+				hoardlight = i2f(Players[obj->id].secondary_ammo[PROXIMITY_INDEX]) / 2; //i2f(12));
+				hoardlight++;
+				fix_sincos((GameTime / 2) & 0xFFFF, &s, NULL); // probably a bad way to do it
+				s += F1_0;
+				s >>= 1;
+				hoardlight = fixmul(s, hoardlight);
+				//     mprintf ((0,"Hoardlight is %f!\n",f2fl(hoardlight)));
+				return (hoardlight);
+			}
+			else
+				return std::max(vm_vec_mag_quick(&obj->mtype.phys_info.thrust) / 4, (fix)F1_0 * 2) + F1_0 / 2;
 		}
-		else if ((Game_mode & GM_HOARD) && Players[obj->id].secondary_ammo[PROXIMITY_INDEX])
+		else 
 		{
-
-			// If hoard game and player, add extra light based on how many orbs you have
-			 // Pulse as well.
-
-			hoardlight = i2f(Players[obj->id].secondary_ammo[PROXIMITY_INDEX]) / 2; //i2f(12));
-			hoardlight++;
-			fix_sincos((GameTime / 2) & 0xFFFF, &s, NULL); // probably a bad way to do it
-			s += F1_0;
-			s >>= 1;
-			hoardlight = fixmul(s, hoardlight);
-			//     mprintf ((0,"Hoardlight is %f!\n",f2fl(hoardlight)));
-			return (hoardlight);
+			if (obj->id != Player_num)
+			{
+				if (Players[obj->id].flags & PLAYER_FLAGS_HEADLIGHT_ON)
+					return F1_0 * 4;
+				else
+					return F1_0 / 2;
+			}
+			else //replicate incredibly strange bug from the demo, making lighting brighter than expected. 
+			{
+				if (obj->id != 0xff)
+				{
+					if (obj->lifeleft < F1_0 * 4)
+						return fixmul(fixdiv(obj->lifeleft, Vclip[obj->id].play_time), Vclip[obj->id].light_value);
+					else
+						return Vclip[obj->id].light_value;
+				}
+			}
 		}
-		else
-			return std::max(vm_vec_mag_quick(&obj->mtype.phys_info.thrust) / 4, (fix)F1_0 * 2) + F1_0 / 2;
-		break;
+		return 0;
 	case OBJ_FIREBALL:
 		if (obj->id != 0xff)
 		{
@@ -424,15 +473,25 @@ void set_dynamic_light(void)
 		}
 	}
 
-	// -- for (vertnum=FrameCount&1; vertnum<n_render_vertices; vertnum+=2) {
-	for (vv = 0; vv < n_render_vertices; vv++)
+	if (CurrentLogicVersion >= LogicVer::FULL_1_0)
 	{
-		int	vertnum;
+		for (vv = 0; vv < n_render_vertices; vv++)
+		{
+			int	vertnum;
 
-		vertnum = render_vertices[vv];
-		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
-		if ((vertnum ^ FrameCount) & 1)
-			Dynamic_light[vertnum] = 0;
+			vertnum = render_vertices[vv];
+			Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
+			if ((vertnum ^ FrameCount) & 1)
+				Dynamic_light[vertnum] = 0;
+		}
+	}
+	else
+	{
+		for (vv = FrameCount & 1; vv < n_render_vertices; vv += 2) 
+		{
+			Assert(render_vertices[vv] >= 0 && render_vertices[vv] <= Highest_vertex_index);
+			Dynamic_light[render_vertices[vv]] = 0;
+		}
 	}
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices);
@@ -610,7 +669,6 @@ fix compute_object_light(object* obj, vms_vector* rotated_pnt)
 	}
 
 	//First, get static light for this segment
-
 	light = Segment2s[obj->segnum].static_light;
 
 	//return light;
@@ -638,8 +696,10 @@ fix compute_object_light(object* obj, vms_vector* rotated_pnt)
 
 	//Next, add in headlight on this object
 
-	// -- Matt code: light += compute_headlight_light(rotated_pnt,f1_0);
-	light += compute_headlight_light_on_object(obj);
+	if (CurrentLogicVersion >= LogicVer::FULL_1_0)
+		light += compute_headlight_light_on_object(obj);
+	else
+		light += compute_headlight_light(rotated_pnt, f1_0);
 
 	//Finally, add in dynamic light for this segment
 

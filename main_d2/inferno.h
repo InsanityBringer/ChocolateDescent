@@ -60,6 +60,25 @@ extern int Screen_mode;				//editor screen or game screen?
 //The version number of the game
 extern uint8_t Version_major,Version_minor;
 
+//[ISB] Logic version support:
+//Logic version affects anything that happens once you're in a game.
+//Things like what format of the level will be used are for the data version,
+//which is set by the data you loaded. In contrast, for the full game, it
+//should be possible to override logic versions to emulate other versions.
+
+//When using the demo data, this will be forced to SHAREWARE.
+//Otherwise, it will default to FULL_1_2.
+
+enum class LogicVer
+{
+	SHAREWARE = 0, //Emulate shareware logic. The full game
+	FULL_1_0, //Emulate initial release. Unused in practice. Mostly distinguishes shareware.
+	FULL_1_1, //Emulate 1.1 patch. Unused in practice.
+	FULL_1_2 //Emulate 1.2 patch. The default
+};
+
+extern LogicVer CurrentLogicVersion;
+
 #ifdef MACINTOSH
 extern ubyte Version_fix;
 #endif
