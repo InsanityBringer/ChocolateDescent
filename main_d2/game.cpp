@@ -2566,7 +2566,7 @@ void do_ambient_sounds()
 	}
 }
 
-// -- extern void lightning_frame(void);
+extern void lightning_frame(void);
 
 void game_render_frame();
 extern void omega_charge_frame(void);
@@ -2625,7 +2625,8 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		remove_obsolete_stuck_objects();
 		init_ai_frame();
 		do_final_boss_frame();
-		// -- lightning_frame();
+		if (CurrentLogicVersion == LogicVer::SHAREWARE)
+			lightning_frame();
 		// -- recharge_energy_frame();
 
 		if ((Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT) && (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON))

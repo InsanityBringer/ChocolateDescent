@@ -583,7 +583,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 	//	Do the special Omega Cannon stuff.  Then return on account of everything that follows does
 	//	not apply to the Omega Cannon.
-	if (weapon_type == OMEGA_ID)
+	if (weapon_type == OMEGA_ID && CurrentLogicVersion >= LogicVer::FULL_1_0)
 	{
 		// Create orientation matrix for tracking purposes.
 		vm_vector_2_matrix( &obj->orient, direction, &Objects[parent].orient.uvec ,NULL);
@@ -1586,10 +1586,10 @@ void Laser_do_weapon_sequence(object *obj)
 //mprintf((0, "\n"));
 	}
 
+	fix	weapon_speed;
 	//	Make sure weapon is not moving faster than allowed speed.
+	if (CurrentLogicVersion >= LogicVer::FULL_1_0)
 	{
-		fix	weapon_speed;
-
 		weapon_speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
 		if (weapon_speed > Weapon_info[obj->id].speed[Difficulty_level])
 		{
@@ -1601,6 +1601,16 @@ void Laser_do_weapon_sequence(object *obj)
 				scale_factor = fixdiv(Weapon_info[obj->id].speed[Difficulty_level], weapon_speed);
 				vm_vec_scale(&obj->mtype.phys_info.velocity, scale_factor);
 			}
+		}
+	}
+	else if (Weapon_info[obj->id].thrust)
+	{
+		weapon_speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
+		if (weapon_speed > Weapon_info[obj->id].speed[Difficulty_level]) {
+			fix	scale_factor;
+
+			scale_factor = fixdiv(Weapon_info[obj->id].speed[Difficulty_level], weapon_speed);
+			vm_vec_scale(&obj->mtype.phys_info.velocity, scale_factor);
 		}
 	}
 }
@@ -1727,129 +1737,129 @@ if (Zbonkers)
 	return rval;
 }
 
-// -- #define	MAX_LIGHTNING_DISTANCE	(F1_0*300)
-// -- #define	MAX_LIGHTNING_BLOBS		16
-// -- #define	LIGHTNING_BLOB_DISTANCE	(MAX_LIGHTNING_DISTANCE/MAX_LIGHTNING_BLOBS)
-// -- 
-// -- #define	LIGHTNING_BLOB_ID			13
-// -- 
-// -- #define	LIGHTNING_TIME		(F1_0/4)
-// -- #define	LIGHTNING_DELAY	(F1_0/8)
-// -- 
-// -- int	Lightning_gun_num = 1;
-// -- 
-// -- fix	Lightning_start_time = -F1_0*10, Lightning_last_time;
-// -- 
-// -- //	--------------------------------------------------------------------------------------------------
-// -- //	Return -1 if failed to create at least one blob.  Else return index of last blob created.
-// -- int create_lightning_blobs(vms_vector *direction, vms_vector *start_pos, int start_segnum, int parent)
-// -- {
-// -- 	int			i;
-// -- 	fvi_query	fq;
-// -- 	fvi_info		hit_data;
-// -- 	vms_vector	end_pos;
-// -- 	vms_vector	norm_dir;
-// -- 	int			fate;
-// -- 	int			num_blobs;
-// -- 	vms_vector	tvec;
-// -- 	fix			dist_to_hit_point;
-// -- 	vms_vector	point_pos, delta_pos;
-// -- 	int			objnum;
-// -- 	vms_vector	*gun_pos;
-// -- 	vms_matrix	m;
-// -- 	vms_vector	gun_pos2;
-// -- 
-// -- 	if (Players[Player_num].energy > F1_0)
-// -- 		Players[Player_num].energy -= F1_0;
-// -- 
-// -- 	if (Players[Player_num].energy <= F1_0) {
-// -- 		Players[Player_num].energy = 0;	
-// -- 		auto_select_weapon(0);
-// -- 		return -1;
-// -- 	}
-// -- 
-// -- 	norm_dir = *direction;
-// -- 
-// -- 	vm_vec_normalize_quick(&norm_dir);
-// -- 	vm_vec_scale_add(&end_pos, start_pos, &norm_dir, MAX_LIGHTNING_DISTANCE);
-// -- 
-// -- 	fq.p0						= start_pos;
-// -- 	fq.startseg				= start_segnum;
-// -- 	fq.p1						= &end_pos;
-// -- 	fq.rad					= 0;
-// -- 	fq.thisobjnum			= parent;
-// -- 	fq.ignore_obj_list	= NULL;
-// -- 	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;
-// -- 
-// -- 	fate = find_vector_intersection(&fq, &hit_data);
-// -- 	if (hit_data.hit_seg == -1) {
-// -- 		mprintf((1, "Warning: Lightning bolt has hit seg of -1.\n"));
-// -- 		return -1;
-// -- 	}
-// -- 
-// -- 	dist_to_hit_point = vm_vec_mag(vm_vec_sub(&tvec, &hit_data.hit_pnt, start_pos));
-// -- 	num_blobs = dist_to_hit_point/LIGHTNING_BLOB_DISTANCE;
-// -- 
-// -- 	if (num_blobs > MAX_LIGHTNING_BLOBS)
-// -- 		num_blobs = MAX_LIGHTNING_BLOBS;
-// -- 
-// -- 	if (num_blobs < MAX_LIGHTNING_BLOBS/4)
-// -- 		num_blobs = MAX_LIGHTNING_BLOBS/4;
-// -- 
-// -- 	// Find the initial position of the laser
-// -- 	gun_pos = &Player_ship->gun_points[Lightning_gun_num];
-// -- 	vm_copy_transpose_matrix(&m,&Objects[parent].orient);
-// -- 	vm_vec_rotate(&gun_pos2, gun_pos, &m);
-// -- 	vm_vec_add(&point_pos, &Objects[parent].pos, &gun_pos2);
-// -- 
-// -- 	delta_pos = norm_dir;
-// -- 	vm_vec_scale(&delta_pos, dist_to_hit_point/num_blobs);
-// -- 
-// -- 	for (i=0; i<num_blobs; i++) {
-// -- 		int			point_seg;
-// -- 		object		*obj;
-// -- 
-// -- 		vm_vec_add2(&point_pos, &delta_pos);
-// -- 		point_seg = find_point_seg(&point_pos, start_segnum);
-// -- 		if (point_seg == -1)	//	Hey, we thought we were creating points on a line, but we left the mine!
-// -- 			continue;
-// -- 
-// -- 		objnum = Laser_create_new( direction, &point_pos, point_seg, parent, LIGHTNING_BLOB_ID, 0 );
-// -- 
-// -- 		if ( objnum < 0 ) 	{
-// -- 			mprintf((1, "Can't create lightning blob - Out of objects!\n" ));
-// -- 			Int3();
-// -- 			return -1;
-// -- 		}
-// -- 
-// -- 		obj = &Objects[objnum];
-// -- 
-// -- 		digi_play_sample( Weapon_info[obj->id].flash_sound, F1_0 );
-// -- 
-// -- 		// -- vm_vec_scale( &obj->mtype.phys_info.velocity, F1_0/2);
-// -- 
-// -- 		obj->lifeleft = (LIGHTNING_TIME + LIGHTNING_DELAY)/2;
-// -- 
-// -- 	}
-// -- 
-// -- 	return objnum;
-// -- 
-// -- }
-// -- 
-// -- //	--------------------------------------------------------------------------------------------------
-// -- //	Lightning Cannon.
-// -- //	While being fired, creates path of blobs forward from player until it hits something.
-// -- //	Up to MAX_LIGHTNING_BLOBS blobs, spaced LIGHTNING_BLOB_DISTANCE units apart.
-// -- //	When the player releases the firing key, the blobs move forward.
-// -- void lightning_frame(void)
-// -- {
-// -- 	if ((GameTime - Lightning_start_time < LIGHTNING_TIME) && (GameTime - Lightning_start_time > 0)) {
-// -- 		if (GameTime - Lightning_last_time > LIGHTNING_DELAY) {
-// -- 			create_lightning_blobs(&ConsoleObject->orient.fvec, &ConsoleObject->pos, ConsoleObject->segnum, ConsoleObject-Objects);
-// -- 			Lightning_last_time = GameTime;
-// -- 		}
-// -- 	}
-// -- }
+#define	MAX_LIGHTNING_DISTANCE	(F1_0*300)
+#define	MAX_LIGHTNING_BLOBS		16
+#define	LIGHTNING_BLOB_DISTANCE	(MAX_LIGHTNING_DISTANCE/MAX_LIGHTNING_BLOBS)
+
+#define	LIGHTNING_BLOB_ID			13
+
+#define	LIGHTNING_TIME		(F1_0/4)
+#define	LIGHTNING_DELAY	(F1_0/8)
+
+int	Lightning_gun_num = 1;
+
+fix	Lightning_start_time = -F1_0 * 10, Lightning_last_time;
+
+//	--------------------------------------------------------------------------------------------------
+//	Return -1 if failed to create at least one blob.  Else return index of last blob created.
+int create_lightning_blobs(vms_vector* direction, vms_vector* start_pos, int start_segnum, int parent)
+{
+	int			i;
+	fvi_query	fq;
+	fvi_info		hit_data;
+	vms_vector	end_pos;
+	vms_vector	norm_dir;
+	int			fate;
+	int			num_blobs;
+	vms_vector	tvec;
+	fix			dist_to_hit_point;
+	vms_vector	point_pos, delta_pos;
+	int			objnum;
+	vms_vector* gun_pos;
+	vms_matrix	m;
+	vms_vector	gun_pos2;
+
+	if (Players[Player_num].energy > F1_0)
+		Players[Player_num].energy -= F1_0;
+
+	if (Players[Player_num].energy <= F1_0) {
+		Players[Player_num].energy = 0;
+		auto_select_weapon(0);
+		return -1;
+	}
+
+	norm_dir = *direction;
+
+	vm_vec_normalize_quick(&norm_dir);
+	vm_vec_scale_add(&end_pos, start_pos, &norm_dir, MAX_LIGHTNING_DISTANCE);
+
+	fq.p0 = start_pos;
+	fq.startseg = start_segnum;
+	fq.p1 = &end_pos;
+	fq.rad = 0;
+	fq.thisobjnum = parent;
+	fq.ignore_obj_list = NULL;
+	fq.flags = FQ_TRANSWALL | FQ_CHECK_OBJS;
+
+	fate = find_vector_intersection(&fq, &hit_data);
+	if (hit_data.hit_seg == -1) {
+		mprintf((1, "Warning: Lightning bolt has hit seg of -1.\n"));
+		return -1;
+	}
+
+	dist_to_hit_point = vm_vec_mag(vm_vec_sub(&tvec, &hit_data.hit_pnt, start_pos));
+	num_blobs = dist_to_hit_point / LIGHTNING_BLOB_DISTANCE;
+
+	if (num_blobs > MAX_LIGHTNING_BLOBS)
+		num_blobs = MAX_LIGHTNING_BLOBS;
+
+	if (num_blobs < MAX_LIGHTNING_BLOBS / 4)
+		num_blobs = MAX_LIGHTNING_BLOBS / 4;
+
+	// Find the initial position of the laser
+	gun_pos = &Player_ship->gun_points[Lightning_gun_num];
+	vm_copy_transpose_matrix(&m, &Objects[parent].orient);
+	vm_vec_rotate(&gun_pos2, gun_pos, &m);
+	vm_vec_add(&point_pos, &Objects[parent].pos, &gun_pos2);
+
+	delta_pos = norm_dir;
+	vm_vec_scale(&delta_pos, dist_to_hit_point / num_blobs);
+
+	for (i = 0; i < num_blobs; i++) {
+		int			point_seg;
+		object* obj;
+
+		vm_vec_add2(&point_pos, &delta_pos);
+		point_seg = find_point_seg(&point_pos, start_segnum);
+		if (point_seg == -1)	//	Hey, we thought we were creating points on a line, but we left the mine!
+			continue;
+
+		objnum = Laser_create_new(direction, &point_pos, point_seg, parent, LIGHTNING_BLOB_ID, 0);
+
+		if (objnum < 0) {
+			mprintf((1, "Can't create lightning blob - Out of objects!\n"));
+			Int3();
+			return -1;
+		}
+
+		obj = &Objects[objnum];
+
+		digi_play_sample(Weapon_info[obj->id].flash_sound, F1_0);
+
+		vm_vec_scale(&obj->mtype.phys_info.velocity, F1_0 / 2);
+
+		obj->lifeleft = (LIGHTNING_TIME + LIGHTNING_DELAY) / 2;
+
+	}
+
+	return objnum;
+
+}
+
+//	--------------------------------------------------------------------------------------------------
+//	Lightning Cannon.
+//	While being fired, creates path of blobs forward from player until it hits something.
+//	Up to MAX_LIGHTNING_BLOBS blobs, spaced LIGHTNING_BLOB_DISTANCE units apart.
+//	When the player releases the firing key, the blobs move forward.
+void lightning_frame(void)
+{
+	if ((GameTime - Lightning_start_time < LIGHTNING_TIME) && (GameTime - Lightning_start_time > 0)) {
+		if (GameTime - Lightning_last_time > LIGHTNING_DELAY) {
+			create_lightning_blobs(&ConsoleObject->orient.fvec, &ConsoleObject->pos, ConsoleObject->segnum, ConsoleObject - Objects);
+			Lightning_last_time = GameTime;
+		}
+	}
+}
 
 //	--------------------------------------------------------------------------------------------------
 //	Object "objnum" fires weapon "weapon_num" of level "level".  (Right now (9/24/94) level is used only for type 0 laser.
@@ -2023,7 +2033,13 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			break;
 
 		case OMEGA_INDEX:
-			Laser_player_fire( objp, OMEGA_ID, 1, 1, 0);
+			if (CurrentLogicVersion >= LogicVer::FULL_1_0)
+				Laser_player_fire( objp, OMEGA_ID, 1, 1, 0);
+			else
+			{
+				create_lightning_blobs(&objp->orient.fvec, &objp->pos, objp->segnum, objp - Objects);
+				Lightning_start_time = Lightning_last_time = GameTime;
+			}
 			break;
 
 		default:
@@ -2108,7 +2124,7 @@ void create_smart_children(object *objp, int num_smart_children)
 	} else
 		Int3();	//	Hey, what kind of object is this!?
 
-	if (objp->id == EARTHSHAKER_ID)
+	if (CurrentLogicVersion >= LogicVer::FULL_1_0 && objp->id == EARTHSHAKER_ID)
 		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
 
 // -- DEBUG --
@@ -2116,7 +2132,10 @@ void create_smart_children(object *objp, int num_smart_children)
 		Assert(Weapon_info[objp->id].children != -1);
 // -- DEBUG --
 
-	if (((objp->type == OBJ_WEAPON) && (Weapon_info[objp->id].children != -1)) || (objp->type == OBJ_ROBOT)) {
+	if (((objp->type == OBJ_WEAPON) 
+		&& ((CurrentLogicVersion >= LogicVer::FULL_1_0 && Weapon_info[objp->id].children != -1) 
+			|| (CurrentLogicVersion == LogicVer::SHAREWARE && (objp->id == SMART_ID || objp->id == SUPERPROX_ID)))) //ew
+		|| (objp->type == OBJ_ROBOT)) {
 		int	i, objnum;
 
 		if (Game_mode & GM_MULTI)
@@ -2177,15 +2196,33 @@ void create_smart_children(object *objp, int num_smart_children)
 		}
 
 		//	Get type of weapon for child from parent.
-		if (objp->type == OBJ_WEAPON) 
+		if (CurrentLogicVersion >= LogicVer::FULL_1_0)
 		{
-			blob_id = Weapon_info[objp->id].children;
-			Assert(blob_id != -1);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
-		} 
-		else 
+			if (objp->type == OBJ_WEAPON)
+			{
+				blob_id = Weapon_info[objp->id].children;
+				Assert(blob_id != -1);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
+			}
+			else
+			{
+				Assert(objp->type == OBJ_ROBOT);
+				blob_id = ROBOT_SMART_HOMING_ID;
+			}
+		}
+		else
 		{
-			Assert(objp->type == OBJ_ROBOT);
-			blob_id = ROBOT_SMART_HOMING_ID;
+			switch (objp->id)
+			{
+			case SUPERPROX_ID:
+				blob_id = SMART_MINE_HOMING_ID;
+				break;
+			default:
+				if (parent_type == OBJ_PLAYER)
+					blob_id = PLAYER_SMART_HOMING_ID;
+				else
+					blob_id = ROBOT_SMART_HOMING_ID;
+				break;
+			}
 		}
 
 // -- 		//determine what kind of blob to drop

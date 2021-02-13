@@ -1576,8 +1576,15 @@ void hud_show_weapons(void)
 		strcpy(weapon_str, weapon_name);
 		break;
 	case OMEGA_INDEX:
-		sprintf(weapon_str, "%s: %03i", weapon_name, Omega_charge * 100 / MAX_OMEGA_CHARGE);
-		convert_1s(weapon_str);
+		if (CurrentLogicVersion >= LogicVer::FULL_1_0)
+		{
+			sprintf(weapon_str, "%s: %03i", weapon_name, Omega_charge * 100 / MAX_OMEGA_CHARGE);
+			convert_1s(weapon_str);
+		}
+		else
+		{
+			strcpy(weapon_str, weapon_name);
+		}
 		break;
 
 	default:						Int3();	weapon_str[0] = 0;	break;
@@ -1596,7 +1603,7 @@ void hud_show_weapons(void)
 		}
 	}
 
-	if (Primary_weapon == OMEGA_INDEX) 
+	if (CurrentLogicVersion >= LogicVer::FULL_1_0 && Primary_weapon == OMEGA_INDEX) 
 	{
 		if (Omega_charge != Old_Omega_charge[VR_current_page]) 
 		{
@@ -2731,7 +2738,7 @@ void draw_weapon_boxes()
 				}
 			}
 
-			if (Primary_weapon == OMEGA_INDEX) 
+			if (CurrentLogicVersion >= LogicVer::FULL_1_0 && Primary_weapon == OMEGA_INDEX) 
 			{
 				if (Omega_charge != Old_Omega_charge[VR_current_page]) 
 				{
