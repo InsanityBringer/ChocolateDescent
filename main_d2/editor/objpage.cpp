@@ -33,6 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d2/bm.h"
 #include "main_d2/player.h"
 #include "main_d2/piggy.h"
+#include "main_d2/cntrlcen.h"
 
 
 #define OBJS_PER_PAGE 8
@@ -91,20 +92,22 @@ void draw_robot_picture(int id, vms_angvec *orient_angles, int type)
 	if (id >= Num_total_object_types)
 		return;
 
-	if ( type == -1 )	{
+	if ( type == -1 )	
+	{
 		type = ObjType[id];		// Find the object type, given an object id.
 		id = ObjId[id];	// Translate to sub-id.
 	}
 
-	switch (type) {
-
+	switch (type)
+	{
 		case OL_HOSTAGE:
 			PIGGY_PAGE_IN(Vclip[Hostage_vclip_num[id]].frames[0]);
 			gr_bitmap(0,0,&GameBitmaps[Vclip[Hostage_vclip_num[id]].frames[0].index]);
 			break;
 
 		case OL_POWERUP:
-			if ( Powerup_info[id].vclip_num > -1 )	{
+			if ( Powerup_info[id].vclip_num > -1 )	
+			{
 				PIGGY_PAGE_IN(Vclip[Powerup_info[id].vclip_num].frames[0]);
 				gr_bitmap(0,0,&GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0].index]);
 			}
@@ -118,9 +121,14 @@ void draw_robot_picture(int id, vms_angvec *orient_angles, int type)
 			draw_model_picture(Robot_info[id].model_num,orient_angles);	// Draw a poly model below
 			break;
 
-		case OL_CONTROL_CENTER:
 		case OL_CLUTTER:
-			draw_model_picture(id,orient_angles);
+			draw_model_picture(id, orient_angles);
+			break;
+		case OL_WEAPON:
+			draw_model_picture(Weapon_info[id].model_num,orient_angles);
+			break;
+		case OL_CONTROL_CENTER:
+			draw_model_picture(Reactors[id].model_num, orient_angles);
 			break;
 		default:
 			//Int3();	// Invalid type!!!
