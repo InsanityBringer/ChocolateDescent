@@ -2071,7 +2071,7 @@ void render_mine(int start_seg_num, fix eye_offset, int window_num)
 #ifdef EDITOR
 #ifndef NDEUBG
 //draw curedge stuff
-	if (Outline_mode) outline_seg_side(Cursegp, Curside, Curedge, Curvert);
+	if (Outline_mode && Cursegp) outline_seg_side(Cursegp, Curside, Curedge, Curvert);
 #endif
 
 done_rendering:
