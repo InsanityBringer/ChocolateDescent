@@ -26,6 +26,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #ifdef EDITOR
 #include "editor\editor.h"
+
+extern void compress_uv_coordinates_all(void);
+void do_load_save_levels(int save);
 #endif
 #include "misc/error.h"
 #include "object.h"
@@ -538,7 +541,7 @@ static void gs_write_fixang(fixang f, FILE* file)
 static void gs_write_byte(int8_t b, FILE* file)
 {
 	if (fwrite(&b, sizeof(b), 1, file) != 1)
-		Error("Error reading int8_t in gamesave.c");
+		Error("Error reading byte in gamesave.c");
 
 }
 
@@ -950,7 +953,7 @@ typedef struct {
 	short			fuelcen_num;		// Index in fuelcen array.
 } old_matcen_info;
 
-extern int remove_trigger_num(int trigger_num);
+extern void remove_trigger_num(int trigger_num);
 
 // -----------------------------------------------------------------------------
 // Load game 
@@ -1875,7 +1878,7 @@ int load_level(char* filename_passed)
 }
 
 #ifdef EDITOR
-void get_level_name()
+int get_level_name()
 {
 	//NO_UI!!!	UI_WINDOW 				*NameWindow = NULL;
 	//NO_UI!!!	UI_GADGET_INPUTBOX	*NameText;
@@ -1913,6 +1916,7 @@ void get_level_name()
 
 	newmenu_do(NULL, "Enter mine name", 2, m, NULL);
 
+	return 0;
 }
 #endif
 
@@ -2077,7 +2081,7 @@ int save_level_sub(char* filename, int compiled_version)
 	FILE* SaveFile;
 	char temp_filename[128];
 	int sig = 'PLVL', version = LEVEL_FILE_VERSION;
-	int minedata_offset, gamedata_offset;
+	int minedata_offset = 0, gamedata_offset = 0;
 
 	if (!compiled_version) {
 		write_game_text_file(filename);

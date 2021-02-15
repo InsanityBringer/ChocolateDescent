@@ -1032,9 +1032,11 @@ WIN(static int saved_window_h);
 		break;
 	#ifdef EDITOR
 	case SCREEN_EDITOR:
-		if (VGA_current_mode != SM_800x600V)	{
+		if (VGA_current_mode != SM_800x600V)	
+		{
 			int gr_error;
-			if ((gr_error=vga_set_mode(SM_800x600V))!=0) { //force into game scrren
+			if ((gr_error=gr_set_mode(SM_800x600V))!=0) 
+			{ //force into game scrren
 				Warning("Cannot init editor screen (error=%d)",gr_error);
 				return 0;
 			}
@@ -3059,7 +3061,7 @@ void enable_flicker(int segnum,int sidenum)
 #ifdef EDITOR
 
 //returns 1 if ok, 0 if error
-int add_flicker(int segnum,int sidenum,fix delay,ulong mask)
+int add_flicker(int segnum,int sidenum,fix delay, uint32_t mask)
 {
 	int l;
 	flickering_light *f;

@@ -8,26 +8,24 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
-COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#pragma once
+#ifndef _ESWITCH_H
+#define _ESWITCH_H
 
-void LoadGame(void);
-void SaveGame(void);
-int get_level_name(void);
+#include "main_d2/inferno.h"
+#include "main_d2/segment.h"
+#include "main_d2/switch.h"
 
-extern int load_level(char *filename);
-extern int save_level(char *filename);
+extern int bind_wall_to_trigger();
 
-//called in place of load_game() to only load the .min data
-extern int load_mine_only(char * filename);
+extern int trigger_remove();
 
-extern char Gamesave_current_filename[];
+extern int remove_trigger(segment *seg, short side);
 
-extern int Gamesave_num_org_robots;
+extern void close_trigger_window();
 
-//	In dumpmine.c
-extern void write_game_text_file(char *filename);
+extern void do_trigger_window();
 
-extern	int	Errors_in_mine;
+#endif

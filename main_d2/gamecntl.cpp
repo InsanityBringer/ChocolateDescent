@@ -183,7 +183,7 @@ extern void	kconfig_center_headset(void);
 extern void game_render_frame_mono(void);
 extern void newdemo_strip_frames(char*, int);
 extern void toggle_cockpit(void);
-extern int  dump_used_textures_all(void);
+extern void dump_used_textures_all(void);
 extern void DropMarker();
 extern void DropSecondaryWeapon();
 extern void DropCurrentWeapon();

@@ -8,26 +8,28 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
-COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#pragma once
+#ifndef _NOCFILE_H
+#define _NOCFILE_H
 
-void LoadGame(void);
-void SaveGame(void);
-int get_level_name(void);
+#include <stdio.h>
 
-extern int load_level(char *filename);
-extern int save_level(char *filename);
+#define CFILE FILE
 
-//called in place of load_game() to only load the .min data
-extern int load_mine_only(char * filename);
+#define cfopen(file,mode) fopen(file,mode)
+#define cfilelength(f) filelength( fileno( f ))
+#define cfwrite(buf,elsize,nelem,fp) fwrite(buf,elsize,nelem,fp)
+#define cfread(buf,elsize,nelem,fp ) fread(buf,elsize,nelem,fp )
+#define cfclose( cfile ) fclose( cfile )
+#define cfputc(c,fp) fputc(c,fp)
+#define cfgetc(fp) fgetc(fp)
+#define cfseek(fp,offset,where ) fseek(fp,offset,where )
+#define cftell(fp) ftell(fp)
+#define cfgets(buf,n,fp) fgets(buf,n,fp)
 
-extern char Gamesave_current_filename[];
+#define CF_READ_MODE "rb"
+#define CF_WRITE_MODE "wb"
 
-extern int Gamesave_num_org_robots;
-
-//	In dumpmine.c
-extern void write_game_text_file(char *filename);
-
-extern	int	Errors_in_mine;
+#endif

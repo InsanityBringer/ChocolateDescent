@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "main_d2/editor/editor.h"
 #endif
 
 #include "cfile/cfile.h"		
@@ -434,12 +434,14 @@ int load_mine_data(CFILE *LoadFile)
 
 		Highest_segment_index = mine_fileinfo.segment_howmany-1;
 
-		for (i=0; i< mine_fileinfo.segment_howmany; i++ ) {
+		for (i=0; i< mine_fileinfo.segment_howmany; i++ )
+		{
 
 			// Set the default values for this segment (clear to zero )
 			//memset( &Segments[i], 0, sizeof(segment) );
 
-			if (mine_top_fileinfo.fileinfo_version < 20) {
+			if (mine_top_fileinfo.fileinfo_version < 20)
+			{
 				v16_segment v16_seg;
 
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
@@ -468,7 +470,9 @@ int load_mine_data(CFILE *LoadFile)
 				Segment2s[i].static_light = v16_seg.static_light;
 				fuelcen_activate( &Segments[i], Segment2s[i].special );
 
-			} else  {
+			}
+			else  
+			{
 				if (cfread( &Segments[i], mine_fileinfo.segment_sizeof, 1, LoadFile )!=1)
 					Error("Unable to read segment %i\n", i);
 			}
@@ -478,7 +482,8 @@ int load_mine_data(CFILE *LoadFile)
 			Segments[i].group = -1;
 			#endif
 
-			if (mine_top_fileinfo.fileinfo_version < 15) {	//used old uvl ranges
+			if (mine_top_fileinfo.fileinfo_version < 15) 
+			{	//used old uvl ranges
 				int sn,uvln;
 
 				for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++)
@@ -490,7 +495,8 @@ int load_mine_data(CFILE *LoadFile)
 			}
 
 			if (translate == 1)
-				for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
+				for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) 
+				{
 					unsigned short orient;
 					tmap_xlate = Segments[i].sides[j].tmap_num;
 					Segments[i].sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
@@ -584,8 +590,8 @@ int load_mine_data(CFILE *LoadFile)
 	else
 		Markedsegp = NULL;
 
-	num_groups = 0;
-	current_group = -1;
+	Num_groups = 0;
+	Current_group = -1;
 
 	#endif
 

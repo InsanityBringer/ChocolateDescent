@@ -8,26 +8,22 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
-COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#pragma once
+#ifndef _TEXPAGE_H
+#define _TEXPAGE_H
 
-void LoadGame(void);
-void SaveGame(void);
-int get_level_name(void);
+#include "ui/ui.h"
 
-extern int load_level(char *filename);
-extern int save_level(char *filename);
+extern int TextureLights;
+extern int TextureEffects;
+extern int TextureMetals;
 
-//called in place of load_game() to only load the .min data
-extern int load_mine_only(char * filename);
+int texpage_grab_current(int n);
+int texpage_goto_first();
+void texpage_init( UI_WINDOW * win );
+void texpage_close();
+void texpage_do();
 
-extern char Gamesave_current_filename[];
-
-extern int Gamesave_num_org_robots;
-
-//	In dumpmine.c
-extern void write_game_text_file(char *filename);
-
-extern	int	Errors_in_mine;
+#endif
