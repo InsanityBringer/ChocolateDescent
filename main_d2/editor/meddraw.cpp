@@ -213,7 +213,7 @@ int Show_triangulations=0;
 //							BM_RGB(45/3,45/3,45/3),		//BM_RGB(0,0,45),	//
 //							BM_RGB(45/4,45/4,45/4)};	//BM_RGB(0,45,0)};	//
 
-int edge_colors[] = { 54, 59, 64 };
+int edge_colors[] = { 29, 38, 48 };
 							
 
 typedef struct seg_edge {
@@ -549,8 +549,9 @@ void draw_edges(int automap_flag)
 	int i,type;
 	seg_edge *e;
 
-	for (type=ET_NOTUSED;type>=ET_FACING;type--) {
-		gr_setcolor(edge_colors[type]);
+	for (type=ET_NOTUSED;type>=ET_FACING;type--) 
+	{
+		gr_setcolor(gr_find_closest_color(edge_colors[type], edge_colors[type], edge_colors[type]));
 		for (i=0;i<n_used;i++) {
 			e = &edge_list[used_list[i]];
 			if (e->type == type)
