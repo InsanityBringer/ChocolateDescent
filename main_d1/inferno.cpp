@@ -105,29 +105,6 @@ int Inferno_is_800x600_available = 0;
 extern int bm_init_use_tbl();
 #endif
 
-//--unused-- int Cyberman_installed=0;			// SWIFT device present
-
-#ifndef NDEBUG
-void do_heap_check()
-{
-	/*
-	int heap_status;
-
-	heap_status = _heapset(0xFF);
-	switch (heap_status)
-	{
-	case _HEAPBADBEGIN:
-		mprintf((1, "ERROR - heap is damaged\n"));
-		Int3();
-		break;
-	case _HEAPBADNODE:
-		mprintf((1, "ERROR - bad node in heap\n"));
-		Int3();
-		break;
-	}*/
-}
-#endif
-
 int registered_copy = 0;
 char name_copy[sizeof(DESC_ID_STR)];
 
@@ -167,13 +144,6 @@ void check_id_checksum_and_date()
 
 	printf("%s %s\n", TXT_REGISTRATION, name);
 }
-
-int is_3dbios_installed()
-{
-	Error("is_3dbios_installed: STUB\n");
-	return 0;
-}
-
 
 int init_graphics()
 {
@@ -225,28 +195,6 @@ int init_graphics()
 
 extern fix fixed_frametime;
 
-// Returns 1 if ok, 0 if failed...
-int init_gameport()
-{
-	Error("init_gameport: STUB\n");
-	return 0;
-}
-
-void check_dos_version()
-{
-	Error("check_dos_version: STUB\n");
-}
-
-void change_to_dir(char* cmd_line)
-{
-	Error("change_to_dir: STUB\n");
-}
-
-void dos_check_file_handles(int num_required)
-{
-	Error("dos_check_file_handles: STUB\n");
-}
-
 #define NEEDED_DOS_MEMORY   			( 300*1024)		// 300 K
 #define NEEDED_LINEAR_MEMORY 			(7680*1024)		// 7.5 MB
 #define LOW_PHYSICAL_MEMORY_CUTOFF	(5*1024*1024)	// 5.0 MB
@@ -282,44 +230,7 @@ void mem_int_to_string(int number, char* dest)
 	_strrev(dest);
 }
 
-void check_memory()
-{
-	//it's fine don't worry about it
-}
-
-
 int Inferno_verbose = 0;
-
-//NO_STACK_SIZE_CHECK uint32_t * stack, *stack_ptr;
-//NO_STACK_SIZE_CHECK int stack_size, unused_stack_space;
-//NO_STACK_SIZE_CHECK int sil;
-//NO_STACK_SIZE_CHECK 
-//NO_STACK_SIZE_CHECK int main(int argc,char **argv)
-//NO_STACK_SIZE_CHECK {
-//NO_STACK_SIZE_CHECK 	uint32_t ret_value;
-//NO_STACK_SIZE_CHECK 	
-//NO_STACK_SIZE_CHECK 	unused_stack_space = 0;
-//NO_STACK_SIZE_CHECK 	stack = &ret_value;
-//NO_STACK_SIZE_CHECK 	stack_size = stackavail()/4;
-//NO_STACK_SIZE_CHECK 
-//NO_STACK_SIZE_CHECK 	for ( sil=0; sil<stack_size; sil++ )	{
-//NO_STACK_SIZE_CHECK 		stack--;
-//NO_STACK_SIZE_CHECK 		*stack = 0xface0123;
-//NO_STACK_SIZE_CHECK 	}
-//NO_STACK_SIZE_CHECK
-//NO_STACK_SIZE_CHECK 	ret_value = descent_main( argc, argv );		// Rename main to be descent_main
-//NO_STACK_SIZE_CHECK 
-//NO_STACK_SIZE_CHECK 	for ( sil=0; sil<stack_size; sil++ )	{
-//NO_STACK_SIZE_CHECK 		if ( *stack == 0xface0123 )	
-//NO_STACK_SIZE_CHECK 			unused_stack_space++;
-//NO_STACK_SIZE_CHECK 		stack++;
-//NO_STACK_SIZE_CHECK 	}
-//NO_STACK_SIZE_CHECK 
-//NO_STACK_SIZE_CHECK 	mprintf(( 0, "Program used %d/%d stack space\n", (stack_size - unused_stack_space)*4, stack_size*4 ));
-//NO_STACK_SIZE_CHECK 	key_getch();
-//NO_STACK_SIZE_CHECK 
-//NO_STACK_SIZE_CHECK 	return ret_value;
-//NO_STACK_SIZE_CHECK }
 
 extern int digi_timer_rate;
 
@@ -367,15 +278,6 @@ int D_DescentMain(int argc, const char** argv)
 
 	if (FindArg("-verbose"))
 		Inferno_verbose = 1;
-
-	//change_to_dir(argv[0]);
-
-	//[ISB] cut DPMI
-
-	/*if (!cfile_init("DESCENT.HOG")) //[ISB] changed, don't actually init hogfile for obscure vanilla compatibility reasons. 
-	{
-		Error("Could not find required file <%s>", "DESCENT.HOG");
-	}*/
 
 	load_text();
 

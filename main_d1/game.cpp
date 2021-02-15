@@ -102,11 +102,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor\editor.h"
 #endif
 
-//#define _MARK_ON 1
-//#include <wsample.h>            //should come after inferno.h to get mark setting
-//Above file is missing in the release version of the source. -KRB
-
-//[ISB] holy fucking shit was watcom c not case sensitive or something
 int	speedtest_on = 0;
 
 #ifndef NDEBUG

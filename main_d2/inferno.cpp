@@ -126,12 +126,6 @@ void check_joystick_calibration(void);
 
 //--------------------------------------------------------------------------
 
-#ifndef NDEBUG
-void do_heap_check()
-{
-}
-#endif
-
 int registered_copy = 0;
 char name_copy[DESC_ID_LEN];
 
@@ -179,14 +173,14 @@ int init_graphics()
 	//vga_init();
 
 #if defined(POLY_ACC)
-	result = vga_check_mode(SM_640x480x15xPA);
+	result = gr_check_mode(SM_640x480x15xPA);
 #else
-	result = gr_check_mode(SM_320x200C); //vga_check_mode
+	result = gr_check_mode(SM_320x200C);
 #endif
 
 #ifdef EDITOR
 	if (result == 0)
-		result = vga_check_mode(SM_800x600V);
+		result = gr_check_mode(SM_800x600V);
 #endif
 
 	switch (result)
@@ -309,7 +303,8 @@ void print_commandline_help()
 	int screen_lines, line_count;
 
 	ifile = cfopen("help.tex", "rb");
-	if (!ifile) {
+	if (!ifile) 
+	{
 		ifile = cfopen("help.txb", "rb");
 		if (!ifile)
 			Error("Cannot load help text file.");
@@ -325,7 +320,8 @@ void print_commandline_help()
 		if (have_binary)
 		{
 			int i;
-			for (i = 0; i < strlen(line) - 1; i++) {
+			for (i = 0; i < strlen(line) - 1; i++) 
+			{
 				encode_rotate_left(&(line[i]));
 				line[i] = line[i] ^ BITMAP_TBL_XOR;
 				encode_rotate_left(&(line[i]));
@@ -360,34 +356,6 @@ void do_joystick_init()
 	{
 		if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_6);
 		joy_init();
-		/*if (FindArg("-joyslow")) 
-		{
-			if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_7);
-			joy_set_slow_reading(JOY_SLOW_READINGS);
-		}
-		if (FindArg("-joypolled"))
-		{
-			if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_8);
-			joy_set_slow_reading(JOY_POLLED_READINGS);
-		}
-		if (FindArg("-joybios")) 
-		{
-			if (Inferno_verbose) printf("\n%s", TXT_VERBOSE_9);
-			joy_set_slow_reading(JOY_BIOS_READINGS);
-		}
-
-		//	Added from Descent v1.5 by John.  Adapted by Samir.
-		if (FindArg("-gameport")) 
-		{
-			if (init_gameport())
-			{
-				joy_set_slow_reading(JOY_BIOS_READINGS);
-			}
-			else 
-			{
-				Error("\nCouldn't initialize the Notebook Gameport.\nMake sure the NG driver is loaded.\n");
-			}
-		}*/
 	}
 	else 
 	{
@@ -412,7 +380,8 @@ int disable_high_res = 0;
 //initialize stuff for various VR headsets
 void do_headset_init()
 {
-	//stub
+	//[ISB] This is the default for no VR modes. 
+	set_display_mode(0);
 }
 
 void do_register_player(uint8_t* title_pal)
@@ -479,22 +448,6 @@ void do_network_init()
 #endif
 }
 
-
-//	3d BIOS enhancements from Descent v1.5 by John.
-//		Added by Samir.
-
-int is_3dbios_installed()
-{
-	return 0;
-}
-
-
-int init_gameport()
-{
-	Warning("init_gameport(): STUB\n");
-	return 0;
-}
-
 typedef struct 
 {
 	char unit;
@@ -515,21 +468,6 @@ typedef struct _Dev_Hdr
 } dev_header;
 
 char CDROM_dir[30] = "";
-
-//serach available CDs for the Descent 2 CD
-//returns neg number if error, else drive letter (a:==1)
-int find_descent_cd()
-{
-	Warning("find_descent_cd: STUB\n");
-	return 0;
-}
-
-//look for D2 CD-ROM.  returns 1 if found cd, else 0
-int init_cdrom()
-{
-	Warning("init_cdrom: STUB\n");
-	return 0;
-}
 
 #ifdef SHAREARE
 #define PROGNAME "d2demo"
@@ -556,8 +494,6 @@ int open_movie_file(char* filename, int must_have);
 
 //	DESCENT II by Parallax Software
 //		Descent Main for DOS.
-
-//extern uint8_t gr_current_pal[];
 
 #ifdef TACTILE
 extern void SerialHardwareInit();
@@ -614,12 +550,6 @@ int D_DescentMain(int argc, const char** argv)
 	dpmi_lock_region((uint8_t*)StatusBytes, 4096);
 #endif
 
-	verbose("\n%s...", TXT_INITIALIZING_CRIT);
-	//_harderr((void*)descent_critical_error_handler);
-
-	//tell cfile about our counter
-	//cfile_set_critical_error_counter_ptr(&descent_critical_error);
-
 #ifdef SHAREWARE
 	cfile_init("d2demo.hog");			//specify name of hogfile
 #else
@@ -655,21 +585,6 @@ int D_DescentMain(int argc, const char** argv)
 	printf("\n");
 	printf(TXT_HELP, PROGNAME);		//help message has %s for program name
 	printf("\n");
-
-	/*
-	verbose("\n%s...", "Checking for Descent 2 CD-ROM");
-	if (!init_cdrom()) 
-	{		//look for Cd, etc.
-#if defined(RELEASE) && !defined(D2_OEM)
-		Error("Sorry, the Descent 2 CD must be present to run.");
-#endif
-}
-	else {		//check to make sure not running off CD
-		if (toupper(argv[0][0]) == toupper(CDROM_dir[0]))
-			Error("You cannot run Descent II directly from your CD-ROM drive.\n"
-				"       To run Descent II, CD to the directory you installed to, then type D2.\n"
-				"       To install Descent II, type %c:\\INSTALL.", toupper(CDROM_dir[0]));
-	}*/
 
 #ifdef PASSWORD
 	if ((t = FindArg("-pswd")) != 0) {
@@ -733,8 +648,6 @@ int D_DescentMain(int argc, const char** argv)
 
 	verbose("\n%s", TXT_VERBOSE_2);
 	timer_init();
-	//[ISB] ara ara?
-	//timer_set_rate(digi_timer_rate);			// Tell our timer how fast to go (120 Hz)
 
 	verbose("\n%s", TXT_VERBOSE_3);
 	key_init();
@@ -742,17 +655,7 @@ int D_DescentMain(int argc, const char** argv)
 	if (!FindArg("-nomouse")) 
 	{
 		verbose("\n%s", TXT_VERBOSE_4);
-
-		if (FindArg("-cybermouse"))
-		{
-			// CybermouseActive=InitCyberMouse();
-			if (CybermouseActive)
-				goto Here;
-		}
-		if (FindArg("-nocyberman"))
-			mouse_init(0);
-		else
-			mouse_init(1);
+		mouse_init(0);
 
 	}
 	else
@@ -763,7 +666,6 @@ Here:
 	do_joystick_init();
 
 	verbose("\n%s", TXT_VERBOSE_11);
-	//div0_init(DM_ERROR);
 
 	//------------ Init sound ---------------
 	if (!FindArg("-disablesound"))
@@ -840,7 +742,7 @@ Here:
 #ifdef D2_OEM
 #define MOVIE_REQUIRED 0
 #else
-#define MOVIE_REQUIRED 1
+#define MOVIE_REQUIRED 0 //[ISB] Really, there's no reason to force people to have this. 
 #endif
 
 #ifdef D2_OEM   //$$POLY_ACC, jay.
@@ -944,7 +846,7 @@ Here:
 #endif
 
 #if defined(POLY_ACC)
-		vga_set_mode(SM_640x480x15xPA);
+		gr_set_mode(SM_640x480x15xPA);
 #else
 		gr_set_mode(MenuHires ? SM_640x480V : SM_320x200C); //vga_set_mode
 #endif
@@ -1149,7 +1051,6 @@ Here:
 		case FMODE_EDITOR:
 			keyd_editor_mode = 1;
 			editor();
-			_harderr((void*)descent_critical_error_handler);		// Reinstall game error handler
 			if (Function_mode == FMODE_GAME) 
 			{
 				Game_mode = GM_EDITOR;
@@ -1182,7 +1083,7 @@ Here:
 
 void check_joystick_calibration() 
 {
-	int x1, y1, x2, y2, c;
+	/*int x1, y1, x2, y2, c;
 	fix t1;
 
 	if ((Config_control_type != CONTROL_JOYSTICK) &&
@@ -1210,7 +1111,7 @@ void check_joystick_calibration()
 				joydefs_calibrate();
 			}
 		}
-	}
+	}*/
 }
 
 void show_order_form()
