@@ -935,7 +935,7 @@ WIN(static int saved_window_h);
 	#else
 		if (VGA_current_mode != VR_screen_mode)
 		{
-			if (gr_set_mode(VR_screen_mode)) //VGA_set_mode
+			if (gr_set_mode(VR_screen_mode))
 			{
 				Error("Cannot set desired screen mode for game!");
 				//we probably should do something else here, like select a standard mode

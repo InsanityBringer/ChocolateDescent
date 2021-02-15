@@ -2117,7 +2117,7 @@ int find_seg_side_face(short x, short y, int* seg, int* side, int* face, int* po
 	*face = found_face;
 	*poly = found_poly;
 
-	//	mprintf((0,"found seg=%d, side=%d, face=%d, poly=%d\n",found_seg,found_side,found_face,found_poly));
+	mprintf((0,"found seg=%d, side=%d, face=%d, poly=%d\n",found_seg,found_side,found_face,found_poly));
 
 	return (found_seg != -1);
 

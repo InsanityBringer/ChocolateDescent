@@ -685,6 +685,10 @@ int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
 
 int editor_screen_open = 0;
 
+extern void set_display_mode(int mode); //from menu.cpp
+extern int max_window_w;
+extern int max_window_h;
+
 //setup the editors windows, canvases, gadgets, etc.
 //called whenever the editor screen is selected
 void init_editor_screen()
@@ -692,6 +696,12 @@ void init_editor_screen()
 //	grs_bitmap * bmp;
 
 	if (editor_screen_open) return;
+
+	set_display_mode(0); //[ISB] Force 320x200 as any other render size will cause problems, due to reliance on VR_offscreen_buffer. 
+
+	Game_window_w = max_window_w = 320; Game_window_h = max_window_h = 200; //TODO: needs support for big window.
+	//init_cockpit(); //[ISB] force cockpit into fullscreen for select. Screenmode should be set now. 
+	game_init_render_sub_buffers(0, 0, 320, 200); //[ISB] disgusting hack, because setting the cockpit mode causes problems with the 600 call canvas but 320x200 screen buffer... 
 
 	grd_curscreen->sc_canvas.cv_font = editor_font;
 	

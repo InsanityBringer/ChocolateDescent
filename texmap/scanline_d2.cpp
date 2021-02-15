@@ -707,14 +707,14 @@ void c_tmap_scanline_editor()
 {
 	uint8_t* dest;
 	uint32_t c;
-	int x;
+	int x, localz;
 	fix u, v, z, dudx, dvdx, dzdx;
 
 	u = fx_u;
-	v = fx_v * 64;
+	v = fx_v;
 	z = fx_z;
 	dudx = fx_du_dx;
-	dvdx = fx_dv_dx * 64;
+	dvdx = fx_dv_dx;
 	dzdx = fx_dz_dx;
 
 	dest = dest_row_data;
@@ -734,7 +734,9 @@ void c_tmap_scanline_editor()
 	{
 		for (x = loop_count; x >= 0; x--) 
 		{
-			c = (uint32_t)pixptr[((v / z) & (64 * 63)) + ((u / z) & 63)];
+			localz = z >> Z_SHIFTER;
+			if (localz == 0) break;
+			c = (uint32_t)pixptr[(((v / localz) & 63) << 6) + ((u / localz) & 63)];
 			if (c != 255)
 				*dest = zonk;
 			dest++;
