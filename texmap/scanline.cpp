@@ -333,6 +333,7 @@ void c_tmap_scanline_per_dither()
 #define ZSHIFT 4
 uint16_t ut, vt;
 uint16_t ui, vi;
+int uvt, uvi;
 fix U0, V0, Z0, U1, V1;
 
 fix pdiv(int a, int b)
@@ -341,56 +342,48 @@ fix pdiv(int a, int b)
 }
 
 //even and odd
-#define C_TMAP_SCANLINE_PLN_LOOP        *dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+#define C_TMAP_SCANLINE_PLN_LOOP        *dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))]];\
 										dest++; \
-										ut = (ut + ui); \
-										vt = (vt + vi); \
+										uvt += uvi;\
 										l += dldx;\
-										*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+										*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))]];\
 										dest++; \
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+										uvt += uvi;\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLT_LOOP 		c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+#define C_TMAP_SCANLINE_PLT_LOOP 		c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
 										l += dldx;\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+										c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLN_LOOP_F 				*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+#define C_TMAP_SCANLINE_PLN_LOOP_F 				*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))]];\
 												dest++; \
-												ut = (ut + ui);\
-												vt = (vt + vi);\
+												uvt += uvi;\
 												l += dldx;\
 												if (--num_left_over == 0) return;\
-												*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+												*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))]];\
 												dest++; \
-												ut = (ut + ui); \
-												vt = (vt + vi); \
+												uvt += uvi;\
 												l += dldx;\
 												if (--num_left_over == 0) return;
 
-#define C_TMAP_SCANLINE_PLT_LOOP_F 		c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+#define C_TMAP_SCANLINE_PLT_LOOP_F 		c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
 										l += dldx;\
 										if (--num_left_over == 0) return;\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+										c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
@@ -426,8 +419,8 @@ void c_tmap_scanline_pln()
 
 	loop_count = fx_xright - fx_xleft + 1;
 
-	//Painful code to try to replicate the ASM drawer. aaa
-	//Wants to be dword aligned.
+	//This isn't acutally important for this code, since I don't write words at a time, but it has visual artificating in Descent.
+	//TODO: Should I look into doing words/dword writes? Register caching might make it faster (build register of pixels, write that once), but on 32-bit x86 platforms this seems sketchy.
 	while ((uintptr_t)(dest) & 3)
 	{
 		c = (uint32_t)pixptr[(((v / z) & 63) << 6) + ((u / z) & 63)];
@@ -462,11 +455,8 @@ void c_tmap_scanline_pln()
 		V1 = pdiv(v, z);
 		U1 = pdiv(u, z);
 
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
-
-		ui = static_cast<uint16_t>((U1 - U0) >> (NBITS+6));
-		vi = static_cast<uint16_t>((V1 - V0) >> (NBITS+6));
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
+		uvi = (((U1 - U0) >> (NBITS + 6)) & 0xFFFF) | (((V1 - V0) >> (NBITS + 6)) << 16);
 
 		U0 = U1;
 		V0 = V1;
@@ -530,11 +520,8 @@ void c_tmap_scanline_pln()
 			V1 = pdiv(v, z);
 			U1 = pdiv(u, z);
 
-			ut = static_cast<uint16_t>(U0 >> 6);
-			vt = static_cast<uint16_t>(V0 >> 6);
-
-			ui = static_cast<uint16_t>((U1 - U0) >> (NBITS + 6));
-			vi = static_cast<uint16_t>((V1 - V0) >> (NBITS + 6));
+			uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
+			uvi = (((U1 - U0) >> (NBITS + 6)) & 0xFFFF) | (((V1 - V0) >> (NBITS + 6)) << 16);
 
 			U0 = U1;
 			V0 = V1;
@@ -602,56 +589,48 @@ void c_tmap_scanline_pln()
 }
 
 //even and odd
-#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP 		*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP 		*dest = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
 										dest++;\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+										uvt += uvi;\
 										l += dldx;\
-										*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+										*dest = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
 										dest++; \
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+										uvt += uvi;\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP 	c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP 	c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
 										l += dldx;\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui); \
-										vt = (vt + vi); \
+										c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
 										l += dldx;
 
-#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP_F		*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP_F		*dest = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
 												dest++; \
-												ut = (ut + ui);\
-												vt = (vt + vi);\
+												uvt += uvi;\
 												l += dldx;\
 												if (--num_left_over == 0) return;\
-												*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+												*dest = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
 												dest++; \
-												ut = (ut + ui);\
-												vt = (vt + vi);\
+												uvt += uvi;\
 												l += dldx;\
 												if (--num_left_over == 0) return;
 
-#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP_F 		c = pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP_F 		c = pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
 										l += dldx;\
 										if (--num_left_over == 0) return;\
-										c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+										c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
@@ -720,11 +699,8 @@ void c_tmap_scanline_pln_nolight()
 		V1 = pdiv(v, z);
 		U1 = pdiv(u, z);
 
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
-
-		ui = static_cast<uint16_t>((U1 - U0) >> (NBITS + 6));
-		vi = static_cast<uint16_t>((V1 - V0) >> (NBITS + 6));
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
+		uvi = (((U1 - U0) >> (NBITS + 6)) & 0xFFFF) | (((V1 - V0) >> (NBITS + 6)) << 16);
 
 		U0 = U1;
 		V0 = V1;
@@ -788,11 +764,8 @@ void c_tmap_scanline_pln_nolight()
 			V1 = pdiv(v, z);
 			U1 = pdiv(u, z);
 
-			ut = static_cast<uint16_t>(U0 >> 6);
-			vt = static_cast<uint16_t>(V0 >> 6);
-
-			ui = static_cast<uint16_t>((U1 - U0) >> (NBITS + 6));
-			vi = static_cast<uint16_t>((V1 - V0) >> (NBITS + 6));
+			uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
+			uvi = (((U1 - U0) >> (NBITS + 6)) & 0xFFFF) | (((V1 - V0) >> (NBITS + 6)) << 16);
 
 			U0 = U1;
 			V0 = V1;
