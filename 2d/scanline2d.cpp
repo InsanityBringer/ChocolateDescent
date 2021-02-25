@@ -70,7 +70,10 @@ void gr_uscanline(int x1, int x2, int y)
 		else
 			gr_linear_stosd(DATA + ROWSIZE * y + x1, (uint8_t)COLOR, x2 - x1 + 1);
 	}
-	else {
+	else 
+	{
+		if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			return;
 		gr_linear_darken(DATA + ROWSIZE * y + x1, Gr_scanline_darkening_level, x2 - x1 + 1, gr_fade_table);
 	}
 }
@@ -98,6 +101,8 @@ void gr_scanline(int x1, int x2, int y)
 	}
 	else 
 	{
+		if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			return;
 		gr_linear_darken(DATA + ROWSIZE * y + x1, Gr_scanline_darkening_level, x2 - x1 + 1, gr_fade_table);
 	}
 }
