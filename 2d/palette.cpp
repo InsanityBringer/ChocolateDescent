@@ -32,6 +32,8 @@ uint8_t gr_palette[256 * 3];
 uint8_t gr_current_pal[256 * 3];
 uint8_t gr_fade_table[256 * 34];
 
+uint16_t gr_highcolor_clut[256];
+
 uint16_t gr_palette_selector;
 uint16_t gr_fade_table_selector;
 
@@ -42,6 +44,19 @@ uint8_t gr_palette_faded_out = 1;
 int Num_computed_colors = 0;
 
 int grd_fades_disabled = 0;
+
+void gr_palette_create_clut()
+{
+	int i, r, g, b;
+	for (i = 0; i < 256; i++)
+	{
+		r = (gr_palette[i * 3] >> 1) & 31;
+		g = (gr_palette[i * 3 + 1] >> 1) & 31;
+		b = (gr_palette[i * 3 + 2] >> 1) & 31;
+
+		gr_highcolor_clut[i] = (r << 1) | (g << 6) | (b << 11);
+	}
+}
 
 void gr_palette_set_gamma(int gamma)
 {
@@ -258,6 +273,7 @@ void gr_palette_step_up(int r, int g, int b)
 		else if (temp > 63) temp = 63;
 		temp_pal[i * 3 + 2] = temp;
 	}
+	gr_palette_create_clut();
 	I_WritePalette(0, 255, &temp_pal[0]);
 }
 
@@ -277,6 +293,7 @@ void gr_palette_load(uint8_t* pal)
 		if (c > 63) c = 63;
 		gr_current_pal[i] = c;
 	}
+	gr_palette_create_clut();
 	I_WritePalette(0, 255, &gr_current_pal[0]);
 	gr_palette_faded_out = 0;
 
@@ -322,6 +339,7 @@ int gr_palette_fade_out(uint8_t* pal, int nsteps, int allow_keys)
 			if (c > 63) c = 63;
 			fade_palette_raw[i] = c;
 		}
+		gr_palette_create_clut();
 		I_WritePalette(0, 255, &fade_palette_raw[0]);
 #ifndef BUILD_DESCENT2
 		I_BlitCanvas(grd_curcanv);
@@ -371,6 +389,7 @@ int gr_palette_fade_in(uint8_t* pal, int nsteps, int allow_keys)
 			if (c > 63) c = 63;
 			fade_palette_raw[i] = c;
 		}
+		gr_palette_create_clut();
 		I_WritePalette(0, 255, &fade_palette_raw[0]);
 #ifndef BUILD_DESCENT2 //[ISB] why does this cause problems in Descent 2 but not Descent 1?
 		I_BlitCanvas(grd_curcanv);

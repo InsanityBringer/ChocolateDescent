@@ -60,6 +60,21 @@ const char* fragmentSource =
 "}\n"
 "\n";
 
+const char* fragmentSource15BPP =
+"#version 330 core\n"
+"\n"
+"smooth in vec2 uv;\n"
+"\n"
+"out vec4 color;\n"
+"\n"
+"uniform sampler2D srcfb;\n"
+"\n"
+"void main()\n"
+"{\n"
+"	color = vec4(texture(srcfb, uv).bgr, 1.0);\n"
+"}\n"
+"\n";
+
 void GL_ErrorCheck(const char* context)
 {
 #ifndef NDEBUG
@@ -87,6 +102,9 @@ GLuint vaoName;
 GLuint bufName;
 
 GLuint phase1ProgramName;
+GLuint phase1ProgramName15BPP;
+
+bool isHighColor;
 
 GLuint GL_CompileShader(const char* src, GLenum type)
 {
@@ -246,6 +264,30 @@ void I_InitGLContext(SDL_Window *win)
 	GL_ErrorCheck("Linking shaders");
 	sglUseProgram(phase1ProgramName);
 
+	int paletteUniform = sglGetUniformLocation(phase1ProgramName, "palette");
+	sglUniform1i(paletteUniform, 2);
+	int srcFBUniform = sglGetUniformLocation(phase1ProgramName, "srcfb");
+	sglUniform1i(srcFBUniform, 0);
+
+	sglDeleteShader(p1vert);
+	sglDeleteShader(p1frag);
+
+	p1vert = GL_CompileShader(vertexSource, GL_VERTEX_SHADER);
+	p1frag = GL_CompileShader(fragmentSource15BPP, GL_FRAGMENT_SHADER);
+	GL_ErrorCheck("Compiling shaders");
+
+	phase1ProgramName15BPP = GL_LinkProgram(p1vert, p1frag);
+
+	if (!phase1ProgramName15BPP)
+	{
+		Error("I_InitGLContext: Can't link 15bpp shader program.");
+	}
+	GL_ErrorCheck("Linking shaders");
+	sglUseProgram(phase1ProgramName15BPP);
+
+	srcFBUniform = sglGetUniformLocation(phase1ProgramName15BPP, "srcfb");
+	sglUniform1i(srcFBUniform, 0);
+
 	sglDeleteShader(p1vert);
 	sglDeleteShader(p1frag);
 
@@ -261,26 +303,37 @@ void I_InitGLContext(SDL_Window *win)
 	sglVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (const void*)(sizeof(float) * 2));
 	GL_ErrorCheck("Enabling vertex attributes");
 
-	int paletteUniform = sglGetUniformLocation(phase1ProgramName, "palette");
-	sglUniform1i(paletteUniform, 2);
-	int srcFBUniform = sglGetUniformLocation(phase1ProgramName, "srcfb");
-	sglUniform1i(srcFBUniform, 0);
-
 	SDL_GL_SetSwapInterval(SwapInterval);
 }
 
 extern unsigned char* gr_video_memory;
-void GL_SetVideoMode(int w, int h, SDL_Rect *bounds)
+void GL_SetVideoMode(int w, int h, bool highcolor, SDL_Rect *bounds)
 {
 	sglActiveTexture(GL_TEXTURE0);
 	sglBindTexture(GL_TEXTURE_2D, sourceFBName);
+	isHighColor = highcolor;
 	//I'd prefer immutable textures for this, but I'd rather have wider compatibility if possible
 	//I've heard whispers that sampler objects perform better, so being able to use those too would be nice.
 
 	//Create the texture with the current contents of video memory.
 	//TODO: Do a GL version check and conditionally use immutable textures/samplers.
-	sglTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, w, h, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, gr_video_memory);
-	GL_ErrorCheck("Creating source framebuffer texture");
+	
+	for (int i = 0; i < 320 * 200 * 2; i++)
+	{
+		gr_video_memory[i] = rand() & 255;
+	}
+	if (highcolor)
+	{
+		sglUseProgram(phase1ProgramName15BPP);
+		sglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, gr_video_memory);
+		GL_ErrorCheck("Creating source framebuffer texture");
+	}
+	else
+	{
+		sglUseProgram(phase1ProgramName);
+		sglTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, w, h, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, gr_video_memory);
+		GL_ErrorCheck("Creating source framebuffer texture");
+	}
 	sglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	sglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	GL_ErrorCheck("Setting source framebuffer filter mode");
@@ -306,7 +359,14 @@ void GL_DrawPhase1()
 	//to take the minor perf penalty and just make sure we're safely bound each frame. 
 	sglBindTexture(GL_TEXTURE_2D, sourceFBName);
 
-	sglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h, GL_RED_INTEGER, GL_UNSIGNED_BYTE, gr_video_memory);
+	if (isHighColor)
+	{
+		sglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, gr_video_memory);
+	}
+	else
+	{
+		sglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h, GL_RED_INTEGER, GL_UNSIGNED_BYTE, gr_video_memory);
+	}
 
 	sglClear(GL_COLOR_BUFFER_BIT);
 	sglDrawArrays(GL_TRIANGLE_FAN, 0, 3);

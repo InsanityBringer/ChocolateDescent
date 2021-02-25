@@ -150,6 +150,7 @@ typedef struct _grs_screen // This is a video screen
 #define SM_1024x768V    16
 #define SM_640x480V15   17
 #define SM_800x600V15   18
+#define SM_320x200V15   24
 #define SM_1280x1024V   23 //[ISB] h a c k since d1 makes 320x100 mode 19. ugh
 
 #define SM_320x200x8	1
@@ -366,6 +367,8 @@ extern void rotate_bitmap(grs_bitmap* bp, grs_point* vertbuf, int light_value);
 extern uint8_t gr_palette[256 * 3];
 extern uint8_t gr_fade_table[256 * GR_FADE_LEVELS];
 extern uint8_t gr_inverse_table[32 * 32 * 32];
+
+extern uint16_t gr_highcolor_clut[256];
 
 extern uint16_t gr_palette_selector;
 extern uint16_t gr_inverse_table_selector;

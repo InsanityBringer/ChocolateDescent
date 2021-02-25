@@ -20,7 +20,7 @@ Instead, it is released under the terms of the MIT License.
 
 //Local funcs
 void I_InitGLContext(SDL_Window* win);
-void GL_SetVideoMode(int w, int h, SDL_Rect *bounds);
+void GL_SetVideoMode(int w, int h, bool highcolor, SDL_Rect *bounds);
 
 void GL_SetPalette(uint32_t* pal);
 void GL_DrawPhase1();
@@ -187,6 +187,8 @@ extern void(APIENTRY* sglBufferSubData)(GLenum target, GLintptr offset, GLsizeip
 #define GL_RGBA_INTEGER 0x8D99
 #define GL_BGR_INTEGER 0x8D9A
 #define GL_BGRA_INTEGER 0x8D9B
+#define GL_UNSIGNED_SHORT_5_5_5_1 0x8034
+#define GL_UNSIGNED_SHORT_1_5_5_5_REV 0x8366
 
 extern void (APIENTRY* sglBindTexture)(GLenum target, GLuint texture);
 extern void (APIENTRY* sglDeleteTextures)(GLsizei n, const GLuint* textures);

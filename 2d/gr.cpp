@@ -139,6 +139,9 @@ int gr_set_mode(int mode)
 		//w = 320; r = 320/4; h = 400; t=BM_MODEX; data = 0;
 		w = 320; r = 320; h = 400; t = BM_SVGA; data = 0;
 		break;
+	case SM_320x200V15:
+		w = 320; r = 640; h = 200; t = BM_RGB15; data = 0;
+		break;
 	default:
 		Error("gr_set_mode: stub mode selected\n");
 		//if (!isvga()) return 1;

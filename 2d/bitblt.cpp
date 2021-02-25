@@ -82,6 +82,30 @@ void gr_linear_rep_movsdm_faded(void* src, void* dest, unsigned short num_pixels
 	}
 }
 
+void gr_linear_movsd_8to15(void* src, void* dest, unsigned short num_pixels)
+{
+	int i;
+	uint16_t* ldest = (uint16_t*)dest;
+	uint8_t* lsrc = (uint8_t*)src;
+	for (i = 0; i < num_pixels; i++)
+		*ldest++ = gr_highcolor_clut[*lsrc++];
+}
+
+void gr_linear_movsdm_8to15(void* src, void* dest, unsigned short num_pixels)
+{
+	int i;
+	uint16_t* ldest = (uint16_t*)dest;
+	uint8_t* lsrc = (uint8_t*)src;
+	for (i = 0; i < num_pixels; i++)
+	{
+		if (*lsrc != TRANSPARENCY_COLOR)
+			*ldest++ = gr_highcolor_clut[*lsrc++];
+		else
+		{
+			ldest++; lsrc++;
+		}
+	}
+}
 
 void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 {
@@ -91,8 +115,11 @@ void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 	unsigned char* dest;
 	unsigned char* src;
 
+	int bpp = 1;
+	if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15) bpp = 2;
+
 	dest_rowsize = grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
-	dest = &(grd_curcanv->cv_bitmap.bm_data[dest_rowsize * y + x]);
+	dest = &(grd_curcanv->cv_bitmap.bm_data[dest_rowsize * y + (x * bpp)]);
 
 	src = bm->bm_data;
 
@@ -100,7 +127,14 @@ void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 	{
 		for (y1 = 0; y1 < bm->bm_h; y1++)
 		{
-			gr_linear_movsd(src, dest, bm->bm_w);
+			if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			{
+				gr_linear_movsd_8to15(src, dest, bm->bm_w);
+			}
+			else
+			{
+				gr_linear_movsd(src, dest, bm->bm_w);
+			}
 			src += bm->bm_rowsize;
 			dest += (int)(dest_rowsize);
 		}
@@ -125,8 +159,11 @@ void gr_ubitmap00m(int x, int y, grs_bitmap* bm)
 	unsigned char* dest;
 	unsigned char* src;
 
+	int bpp = 1;
+	if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15) bpp = 2;
+
 	dest_rowsize = grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
-	dest = &(grd_curcanv->cv_bitmap.bm_data[dest_rowsize * y + x]);
+	dest = &(grd_curcanv->cv_bitmap.bm_data[dest_rowsize * y + (x * bpp)]);
 
 	src = bm->bm_data;
 
@@ -134,7 +171,14 @@ void gr_ubitmap00m(int x, int y, grs_bitmap* bm)
 	{
 		for (y1 = 0; y1 < bm->bm_h; y1++) 
 		{
-			gr_linear_movsdm(src, dest, bm->bm_w);
+			if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			{
+				gr_linear_movsdm_8to15(src, dest, bm->bm_w);
+			}
+			else
+			{
+				gr_linear_movsdm(src, dest, bm->bm_w);
+			}
 			src += bm->bm_rowsize;
 			dest += (int)(dest_rowsize);
 		}
@@ -189,7 +233,6 @@ void gr_ubitmap(int x, int y, grs_bitmap* bm)
 	source = bm->bm_type;
 	dest = TYPE;
 
-	//[ISB] TODO: VERY SLOW BLITTING AHOY
 	if (bm->bm_flags & BM_FLAG_RLE)
 		gr_bm_ubitblt00_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
 	else
@@ -236,17 +279,20 @@ void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* s
 	int dstep;
 
 	int i;
+	int bpp = 1;
+	if (dest->bm_type == BM_RGB15) bpp = 2;
 
 	sbits = src->bm_data + (src->bm_rowsize * sy) + sx;
-	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
+	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx * bpp;
 
 	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
 
 	// No interlacing, copy the whole buffer.
-	for (i = 0; i < h; i++) {
-		//if (gr_bitblt_double)
-		//	gr_linear_rep_movsd_2x(sbits, dbits, w);
-		//else
+	for (i = 0; i < h; i++)
+	{
+		if (dest->bm_type == BM_RGB15)
+			gr_linear_movsd_8to15(sbits, dbits, w);
+		else
 			gr_linear_movsd(sbits, dbits, w);
 		sbits += src->bm_rowsize;
 		dbits += dstep;
@@ -261,8 +307,11 @@ void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* 
 
 	int i;
 
+	int bpp = 1;
+	if (dest->bm_type == BM_RGB15) bpp = 2;
+
 	sbits = src->bm_data + (src->bm_rowsize * sy) + sx;
-	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
+	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx * bpp;
 
 	// No interlacing, copy the whole buffer.
 
@@ -270,7 +319,10 @@ void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* 
 	{
 		for (i = 0; i < h; i++) 
 		{
-			gr_linear_movsdm(sbits, dbits, w);
+			if (dest->bm_type == BM_RGB15)
+				gr_linear_movsdm_8to15(sbits, dbits, w);
+			else
+				gr_linear_movsdm(sbits, dbits, w);
 			sbits += src->bm_rowsize;
 			dbits += dest->bm_rowsize;
 		}
@@ -328,7 +380,6 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src,
 
 void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
 {
-	//[ISB] TODO: HORRIBLY SLOW BLITTING AHOY
 	if (src->bm_flags & BM_FLAG_RLE)
 	{
 		gr_bm_ubitblt00_rle(w, h, dx, dy, sx, sy, src, dest);

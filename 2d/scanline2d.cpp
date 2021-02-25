@@ -48,12 +48,27 @@ void gr_linear_stosd(uint8_t* dest, uint8_t color, int count)
 	}
 }
 
+void gr_linear_stosd_15bpp(uint16_t* dest, uint8_t color, int count)
+{
+	int i;
+	uint16_t highcolor = gr_highcolor_clut[color];
+
+	for (i = 0; i < count; i++)
+	{
+		*dest++ = highcolor;
+	}
+}
+
 void gr_uscanline(int x1, int x2, int y)
 {
 	//	memset(DATA + ROWSIZE*y + x1, COLOR, x2-x1+0);
 	//
-	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
-		gr_linear_stosd(DATA + ROWSIZE * y + x1, (uint8_t)COLOR, x2 - x1 + 1);
+	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) 
+	{
+		if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			gr_linear_stosd_15bpp((uint16_t*)(DATA + ROWSIZE * y + (x1 * 2)), (uint8_t)COLOR, x2 - x1 + 1);
+		else
+			gr_linear_stosd(DATA + ROWSIZE * y + x1, (uint8_t)COLOR, x2 - x1 + 1);
 	}
 	else {
 		gr_linear_darken(DATA + ROWSIZE * y + x1, Gr_scanline_darkening_level, x2 - x1 + 1, gr_fade_table);
@@ -74,10 +89,15 @@ void gr_scanline(int x1, int x2, int y)
 
 	//	memset(DATA + ROWSIZE*y + x1, COLOR, x2-x1+1);
 	//	
-	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
-		gr_linear_stosd(DATA + ROWSIZE * y + x1, (uint8_t)COLOR, x2 - x1 + 1);
+	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) 
+	{
+		if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			gr_linear_stosd_15bpp((uint16_t*)(DATA + ROWSIZE * y + (x1 * 2)), (uint8_t)COLOR, x2 - x1 + 1);
+		else
+			gr_linear_stosd(DATA + ROWSIZE * y + x1, (uint8_t)COLOR, x2 - x1 + 1);
 	}
-	else {
+	else 
+	{
 		gr_linear_darken(DATA + ROWSIZE * y + x1, Gr_scanline_darkening_level, x2 - x1 + 1, gr_fade_table);
 	}
 }

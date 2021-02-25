@@ -780,9 +780,9 @@ int set_screen_mode(int sm)
 	{
 	case SCREEN_MENU:
 		I_SetRelative(0); //[ISB] doesn't work rip
-		if (grd_curscreen->sc_mode != SM_320x200C) 
+		if (grd_curscreen->sc_mode != SM_320x200V15)
 		{
-			if (gr_set_mode(SM_320x200C)) Error("Cannot set screen mode for game!");
+			if (gr_set_mode(SM_320x200V15)) Error("Cannot set screen mode for game!");
 			gr_palette_load(gr_palette);
 		}
 

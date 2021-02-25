@@ -155,6 +155,7 @@ void I_SetScreenCanvas(grs_canvas* canv)
 int I_SetMode(int mode)
 {
 	int w, h;
+	bool highcolor = false;
 
 	refreshDuration = US_60FPS;
 	switch (mode)
@@ -214,6 +215,9 @@ int I_SetMode(int mode)
 	case SM_1280x1024V:
 		w = 1280; h = 1024;
 		break;
+	case SM_320x200V15:
+		w = 320; h = 200; highcolor = true;
+		break;
 	default:
 		Error("I_SetMode: bad mode %d\n", mode);
 		return 0;
@@ -252,7 +256,7 @@ int I_SetMode(int mode)
 	}
 
 
-	GL_SetVideoMode(w, h, &screenRectangle);
+	GL_SetVideoMode(w, h, highcolor, &screenRectangle);
 
 	return 0;
 }

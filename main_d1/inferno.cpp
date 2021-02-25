@@ -546,7 +546,7 @@ int D_DescentMain(int argc, const char** argv)
 		Error(TXT_CANT_INIT_GFX, t);
 	// Load the palette stuff. Returns non-zero if error.
 	mprintf((0, "Going into graphics mode..."));
-	gr_set_mode(SM_320x200C);
+	gr_set_mode(SM_320x200V15);
 	mprintf((0, "\nInitializing palette system..."));
 	gr_use_palette_table("PALETTE.256");
 	mprintf((0, "\nInitializing font system..."));
