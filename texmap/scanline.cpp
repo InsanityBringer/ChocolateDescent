@@ -44,6 +44,24 @@ void c_tmap_scanline_flat()
 	}
 }
 
+void c_tmap_scanline_flat_16()
+{
+	uint16_t* dest;
+	int x;
+
+	//[ISB] godawful hack from the ASM
+	if (fx_y > window_bottom)
+		return;
+
+	dest = (uint16_t*)(write_buffer + (fx_xleft * 2) + (bytes_per_row * fx_y));
+
+	for (x = fx_xright - fx_xleft + 1; x > 0; --x)
+	{
+		*dest = gr_highcolor_clut[tmap_flat_color];
+		dest++;
+	}
+}
+
 void c_tmap_scanline_shaded()
 {
 	int fade;
@@ -58,6 +76,26 @@ void c_tmap_scanline_shaded()
 
 	fade = tmap_flat_shade_value << 8;
 	for (x = fx_xright - fx_xleft + 1; x > 0; --x) 
+	{
+		*dest = gr_fade_table[fade | (*dest)];
+		dest++;
+	}
+}
+
+void c_tmap_scanline_shaded_16()
+{
+	int fade;
+	uint16_t* dest;
+	int x;
+
+	//[ISB] godawful hack from the ASM
+	if (fx_y > window_bottom)
+		return;
+
+	dest = (uint16_t*)(write_buffer + (fx_xleft * 2) + (bytes_per_row * fx_y));
+
+	fade = tmap_flat_shade_value << 8;
+	for (x = fx_xright - fx_xleft + 1; x > 0; --x)
 	{
 		*dest = gr_fade_table[fade | (*dest)];
 		dest++;
@@ -105,6 +143,7 @@ void c_tmap_scanline_lin_nolight()
 	}
 }
 
+uint16_t* hackBuf;
 
 void c_tmap_scanline_lin()
 {
@@ -146,6 +185,54 @@ void c_tmap_scanline_lin()
 			c = (uint32_t)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)];
 			if (c != 255)
 				* dest = gr_fade_table[(l & (0xff00)) + c];
+			dest++;
+			l += dldx;
+			u += dudx;
+			v += dvdx;
+		}
+	}
+}
+
+void c_tmap_scanline_lin_16()
+{
+	uint16_t* dest;
+	uint32_t c;
+	int x;
+	fix u, v, l, dudx, dvdx, dldx;
+
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
+
+	u = fx_u;
+	v = fx_v;
+	dudx = fx_du_dx;
+	dvdx = fx_dv_dx;
+
+	l = fx_l >> 8;
+	dldx = fx_dl_dx >> 8;
+	if (dldx < 0)
+		dldx++; //round towards 0 for negative deltas
+
+	dest = (uint16_t*)(write_buffer + y_pointers[fx_y] + (fx_xleft*2));
+
+	if (!Transparency_on)
+	{
+		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
+		{
+			*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)]];
+			dest++;
+			l += dldx;
+			u += dudx;
+			v += dvdx;
+		}
+	}
+	else
+	{
+		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
+		{
+			c = (uint32_t)pixptr[((f2i(v) & 63) * 64) + (f2i(u) & 63)];
+			if (c != 255)
+				*dest = gr_fade_table[(l & (0xff00)) + c];
 			dest++;
 			l += dldx;
 			u += dudx;
@@ -243,6 +330,62 @@ void c_tmap_scanline_per()
 			c = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
 			if (c != 255)
 				*dest = gr_fade_table[(l & (0xff00)) + c];
+			dest++;
+			l += dldx;
+			u += dudx;
+			v += dvdx;
+			z += dzdx;
+			if (z == 0) return;
+		}
+	}
+}
+
+void c_tmap_scanline_per_16()
+{
+	uint16_t* dest;
+	uint32_t c;
+	int x;
+	fix u, v, z, l, dudx, dvdx, dzdx, dldx;
+
+	//godawful hack
+	if (fx_xleft < 0) fx_xleft = 0;
+
+	u = fx_u;
+	v = fx_v;
+	z = fx_z;
+	dudx = fx_du_dx;
+	dvdx = fx_dv_dx;
+	dzdx = fx_dz_dx;
+
+	l = fx_l >> 8;
+	dldx = fx_dl_dx >> 8;
+	dest = (uint16_t*)(write_buffer + y_pointers[fx_y] + (fx_xleft * 2));
+	if (dldx < 0)
+		dldx++; //round towards 0 for negative deltas
+
+	if (!Transparency_on)
+	{
+		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
+		{
+			//*dest = gr_highcolor_clut[gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)]]];
+			c = (((l >> 8) & 31) << 1) | (((l >> 8) & 31) << 6) | (((l >> 8) & 31) << 11);
+			//c = (l >> 8);
+			*dest = c;
+			dest++;
+			l += dldx;
+			u += dudx;
+			v += dvdx;
+			z += dzdx;
+			if (z == 0) return;
+		}
+	}
+	else
+	{
+		for (x = fx_xright - fx_xleft + 1; x > 0; --x)
+		{
+			c = (uint32_t)pixptr[(((v / z) & 63) * 64) + ((u / z) & 63)];
+			if (c != 255)
+				*dest = gr_highcolor_clut[gr_fade_table[(l & (0xff00)) + c]];
 			dest++;
 			l += dldx;
 			u += dudx;

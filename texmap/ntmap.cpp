@@ -407,7 +407,7 @@ void ntmap_scanline_lighted(grs_bitmap* srcb, int y, fix xleft, fix xright, fix 
 #ifdef TEXMAP_DITHER
 		c_tmap_scanline_per_dither();
 #else
-		c_tmap_scanline_pln();
+		c_tmap_scanline_per_16();
 #endif
 #endif
 		break;
@@ -684,7 +684,7 @@ void ntmap_scanline_lighted_linear(grs_bitmap* srcb, int y, fix xleft, fix xrigh
 		fx_l = lleft;
 		dl_dx = fixmul(lright - lleft, recip_dx);
 		fx_dl_dx = dl_dx;
-		c_tmap_scanline_lin();
+		c_tmap_scanline_lin_16();
 		break;
 	case 2:
 #ifdef EDITOR_TMAP

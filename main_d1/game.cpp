@@ -726,6 +726,8 @@ void game_init_render_buffers(int screen_mode, int render_w, int render_h, int u
 		{
 			if (render_h < 200)
 				VR_offscreen_buffer = gr_create_canvas(render_w, 200);
+			else if (screen_mode == SM_320x200V15)
+				VR_offscreen_buffer = gr_create_canvas_highcolor(render_w, render_h);
 			else
 				VR_offscreen_buffer = gr_create_canvas(render_w, render_h);
 			gr_init_sub_canvas(&VR_render_buffer[0], VR_offscreen_buffer, 0, 0, render_w, render_h);

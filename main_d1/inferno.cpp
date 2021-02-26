@@ -464,7 +464,7 @@ int D_DescentMain(int argc, const char** argv)
 
 	//[ISB] kill a ridiculous amount of VR stuff. it'd be cool to try to get some sort of crude VR working but...
 	{
-		int screen_mode = SM_320x200C;
+		int screen_mode = SM_320x200V15;
 		int screen_width = 320;
 		int screen_height = 200;
 		int vr_mode = VR_NONE;

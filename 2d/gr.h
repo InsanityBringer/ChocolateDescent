@@ -191,6 +191,7 @@ int gr_check_mode(int mode);
 // including the raw pixel buffer.
 
 grs_canvas* gr_create_canvas(int w, int h);
+grs_canvas* gr_create_canvas_highcolor(int w, int h);
 
 // Creates a canvas that is part of another canvas.  this can be used to make
 // a window on the screen.  the canvas structure is malloc'd; the address of

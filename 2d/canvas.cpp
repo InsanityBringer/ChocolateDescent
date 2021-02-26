@@ -52,9 +52,38 @@ grs_canvas* gr_create_canvas(int w, int h)
 	return newvar;
 }
 
+grs_canvas* gr_create_canvas_highcolor(int w, int h)
+{
+	unsigned char* data;
+	grs_canvas* newvar;
+
+	newvar = (grs_canvas*)malloc(sizeof(grs_canvas));
+	data = (unsigned char*)malloc((w * 2) * h * sizeof(unsigned char));
+
+	newvar->cv_bitmap.bm_x = 0;
+	newvar->cv_bitmap.bm_y = 0;
+	newvar->cv_bitmap.bm_w = w;
+	newvar->cv_bitmap.bm_h = h;
+	newvar->cv_bitmap.bm_flags = 0;
+	newvar->cv_bitmap.bm_type = BM_RGB15;
+	newvar->cv_bitmap.bm_rowsize = w * 2;
+	newvar->cv_bitmap.bm_data = data;
+
+	newvar->cv_color = 0;
+	newvar->cv_drawmode = 0;
+	newvar->cv_font = NULL;
+	newvar->cv_font_fg_color = 0;
+	newvar->cv_font_bg_color = 0;
+	return newvar;
+}
+
 grs_canvas* gr_create_sub_canvas(grs_canvas* canv, int x, int y, int w, int h)
 {
 	grs_canvas* newvar;
+	int bpp = 1;
+
+	if (canv->cv_bitmap.bm_type == BM_RGB15)
+		bpp = 2;
 
 	newvar = (grs_canvas*)malloc(sizeof(grs_canvas));
 
@@ -68,7 +97,7 @@ grs_canvas* gr_create_sub_canvas(grs_canvas* canv, int x, int y, int w, int h)
 
 	newvar->cv_bitmap.bm_data = canv->cv_bitmap.bm_data;
 	newvar->cv_bitmap.bm_data += y * canv->cv_bitmap.bm_rowsize;
-	newvar->cv_bitmap.bm_data += x;
+	newvar->cv_bitmap.bm_data += (x * bpp);
 
 	newvar->cv_color = canv->cv_color;
 	newvar->cv_drawmode = canv->cv_drawmode;
@@ -90,6 +119,8 @@ void gr_init_canvas(grs_canvas* canv, unsigned char* pixdata, int pixtype, int w
 	canv->cv_bitmap.bm_y = 0;
 	if (pixtype == BM_MODEX)
 		canv->cv_bitmap.bm_rowsize = w / 4;
+	else if (pixtype == BM_RGB15)
+		canv->cv_bitmap.bm_rowsize = w * 2;
 	else
 		canv->cv_bitmap.bm_rowsize = w;
 	canv->cv_bitmap.bm_w = w;

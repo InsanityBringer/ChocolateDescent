@@ -111,6 +111,7 @@ void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 {
 	register int y1;
 	int dest_rowsize;
+	int w;
 
 	unsigned char* dest;
 	unsigned char* src;
@@ -123,17 +124,21 @@ void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 
 	src = bm->bm_data;
 
+	w = bm->bm_w;
+	if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15 && bm->bm_type == BM_RGB15)
+		w *= 2;
+
 	if (gr_bitblt_fade_table == NULL)
 	{
 		for (y1 = 0; y1 < bm->bm_h; y1++)
 		{
-			if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15 && bm->bm_type != BM_RGB15)
 			{
 				gr_linear_movsd_8to15(src, dest, bm->bm_w);
 			}
 			else
 			{
-				gr_linear_movsd(src, dest, bm->bm_w);
+				gr_linear_movsd(src, dest, w);
 			}
 			src += bm->bm_rowsize;
 			dest += (int)(dest_rowsize);
@@ -155,6 +160,7 @@ void gr_ubitmap00m(int x, int y, grs_bitmap* bm)
 {
 	register int y1;
 	int dest_rowsize;
+	int w;
 
 	unsigned char* dest;
 	unsigned char* src;
@@ -167,17 +173,21 @@ void gr_ubitmap00m(int x, int y, grs_bitmap* bm)
 
 	src = bm->bm_data;
 
+	w = bm->bm_w;
+	if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15 && bm->bm_type == BM_RGB15)
+		w *= 2;
+
 	if (gr_bitblt_fade_table == NULL) 
 	{
 		for (y1 = 0; y1 < bm->bm_h; y1++) 
 		{
-			if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15 && bm->bm_type != BM_RGB15)
 			{
 				gr_linear_movsdm_8to15(src, dest, bm->bm_w);
 			}
 			else
 			{
-				gr_linear_movsdm(src, dest, bm->bm_w);
+				gr_linear_movsdm(src, dest, w);
 			}
 			src += bm->bm_rowsize;
 			dest += (int)(dest_rowsize);
@@ -287,10 +297,13 @@ void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* s
 
 	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
 
+	if (dest->bm_type == BM_RGB15 && src->bm_type == BM_RGB15)
+		w *= 2;
+
 	// No interlacing, copy the whole buffer.
 	for (i = 0; i < h; i++)
 	{
-		if (dest->bm_type == BM_RGB15)
+		if (dest->bm_type == BM_RGB15 && src->bm_type != BM_RGB15)
 			gr_linear_movsd_8to15(sbits, dbits, w);
 		else
 			gr_linear_movsd(sbits, dbits, w);
@@ -313,13 +326,16 @@ void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* 
 	sbits = src->bm_data + (src->bm_rowsize * sy) + sx;
 	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx * bpp;
 
+	if (dest->bm_type == BM_RGB15 && src->bm_type == BM_RGB15)
+		w *= 2;
+
 	// No interlacing, copy the whole buffer.
 
 	if (gr_bitblt_fade_table == NULL) 
 	{
 		for (i = 0; i < h; i++) 
 		{
-			if (dest->bm_type == BM_RGB15)
+			if (dest->bm_type == BM_RGB15 && src->bm_type != BM_RGB15)
 				gr_linear_movsdm_8to15(sbits, dbits, w);
 			else
 				gr_linear_movsdm(sbits, dbits, w);

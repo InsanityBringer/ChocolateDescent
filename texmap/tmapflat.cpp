@@ -48,11 +48,11 @@ void tmap_scanline_flat(int y, fix xleft, fix xright)
 		fx_xright = Window_clip_right;
 
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
-		c_tmap_scanline_flat();
+		c_tmap_scanline_flat_16();
 	else 
 	{
 		tmap_flat_shade_value = Gr_scanline_darkening_level;
-		c_tmap_scanline_shaded();
+		c_tmap_scanline_shaded_16();
 	}
 }
 
