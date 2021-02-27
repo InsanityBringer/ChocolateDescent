@@ -90,7 +90,6 @@ int checkmuldiv(fix* r, fix a, fix b, fix c)
 //projects a point
 void g3_project_point(g3s_point* p)
 {
-#ifndef __powerc
 	fix tx, ty;
 
 	if (p->p3_flags & PF_PROJECTED || p->p3_codes & CC_BEHIND)
@@ -104,23 +103,6 @@ void g3_project_point(g3s_point* p)
 	}
 	else
 		p->p3_flags |= PF_OVERFLOW;
-#else
-	double fz;
-
-	if ((p->p3_flags & PF_PROJECTED) || (p->p3_codes & CC_BEHIND))
-		return;
-
-	if (p->p3_z <= 0) {
-		p->p3_flags |= PF_OVERFLOW;
-		return;
-	}
-
-	fz = f2fl(p->p3_z);
-	p->p3_sx = fl2f(fCanv_w2 + (f2fl(p->p3_x) * fCanv_w2 / fz));
-	p->p3_sy = fl2f(fCanv_h2 - (f2fl(p->p3_y) * fCanv_h2 / fz));
-
-	p->p3_flags |= PF_PROJECTED;
-#endif
 }
 
 //from a 2d point, compute the vector through that point

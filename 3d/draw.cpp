@@ -324,9 +324,7 @@ free_points:
 
 }
 
-#ifndef __powerc
 int checkmuldiv(fix* r, fix a, fix b, fix c);
-#endif
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
