@@ -11,10 +11,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: hash.c 2.2 1995/08/17 11:32:54 matt Exp $";
-#pragma on (unreferenced)
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
