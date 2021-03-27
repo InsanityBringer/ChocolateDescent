@@ -637,28 +637,44 @@ void I_StopHQSong()
 int I_StartMIDI(MidiSequencer* newSeq)
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
-	sequencer = newSeq;
 	return 0;
 }
 
 void I_ShutdownMIDI()
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
-	sequencer = nullptr;
 }
 
-void I_StartMIDISong(hmpheader_t* song, bool loop)
+void I_StartMIDISong(HMPFile* song, bool loop)
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex); //[ISB] OOPS
-	if (sequencer)
-		sequencer->StartSong(song, loop);
 }
 
 void I_StopMIDISong()
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
-	if (sequencer)
-		sequencer->StopSong();
+}
+
+//[ISB] new MIDI buffering inferface
+bool I_CanQueueMusicBuffer()
+{
+	return false;
+}
+
+void I_DequeueMusicBuffers()
+{
+}
+
+void I_QueueMusicBuffer(int numSamples, uint16_t* data)
+{
+}
+
+void I_StartMIDISource()
+{
+}
+
+void I_StopMIDISource()
+{
 }
 
 void I_SetMusicVolume(int volume)
@@ -670,6 +686,8 @@ uint32_t I_GetPreferredMIDISampleRate()
 {
 	return mixing_frequency;
 }
+
+//Movie buffering interface
 
 void I_InitMovieAudio(int format, int samplerate, int stereo)
 {

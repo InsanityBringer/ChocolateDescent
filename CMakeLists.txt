@@ -512,6 +512,7 @@ set(SDL_SOURCES
 set(OPENAL_SOURCES
 	platform/openal/al_sound.cpp
 	platform/openal/al_player.cpp
+	platform/openal/al_midi.h
 )
 
 set(FLUIDSYNTH_SOURCES
