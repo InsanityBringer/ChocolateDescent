@@ -15,7 +15,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>	// for memset
 #include <ctype.h>
+
+#if defined(__linux__) || defined(WIN32)
 #include <malloc.h>
+#endif
+
 #include <limits.h>
 
 #include "platform/posixstub.h"

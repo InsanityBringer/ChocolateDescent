@@ -23,7 +23,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+
+#if defined(__linux__) || defined(WIN32)
 #include <malloc.h>
+#endif
+
 #include <inttypes.h>
 
 #include "platform/mono.h"

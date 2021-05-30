@@ -14,7 +14,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
 
 #include <stdio.h>
+
+#if defined(__linux__) || defined(WIN32)
 #include <malloc.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>

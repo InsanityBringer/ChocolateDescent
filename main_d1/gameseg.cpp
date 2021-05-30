@@ -13,7 +13,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
+
+#if defined(__linux__) || defined(WIN32)
 #include <malloc.h>
+#endif
+
 #include <string.h>
 #include <algorithm>
 #include "misc/rand.h"

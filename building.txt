@@ -2,12 +2,12 @@ Everything described in this document is in a very early state, and is subject
 to change. I'll confess I barely know what I'm doing with CMake, so there's
 a number of limitations so far. 
 
-The project can be built on Windows (only tested with Visual Studio 2019)
-or Linux (Tested with clang and gcc)
+The project can be built on Windows (only tested with Visual Studio 2019),
+Linux (Tested with clang and gcc), and macOS (tested with clang).
 
 There are three external libraries, but most are optional.
 
-SDL 2.0.10 - Required on Linux, Optional on Windows
+SDL 2.0.10 - Required on Linux and macOS, Optional on Windows
 OpenAL (OpenAL Soft implementation preferred) - Optional
 FluidSynth - Optional
 
@@ -58,6 +58,31 @@ current package manager
   Unlike the Windows code ATM, the library detection code should find
   the three libraries without any issue, at least they do on my machine
   
+-Navigate to the build directory and run make. Assuming everything goes well,
+this should produce ChocolateDescent and ChocolateDescent2. You can use
+
+  make ChocolateDescent
+  or make ChocolateDescent2
+  
+to build just one of the projects.
+
+-------------------------------------------------------------------------------
+Building on macOS
+-------------------------------------------------------------------------------
+Installing the libraries depends on which package manager you want to use. For
+the purposes of these instructions, I'll assume that's Homebrew.
+
+-Install the libraries for ChocolateDescent:
+    brew install sdl2 openal-soft fluidsynth
+
+-Navigate to the source directory and run cmake with a desired build directory.
+  NOTE: Cmake does not successfully find the SDL include directory, OpenAL
+  include directory, or the OpenAL library, so these need to be passed to the
+  cmake call.  For example:
+  cmake . -DOPENAL_INCLUDE_DIRS=/usr/local/Cellar/openal-soft/1.21.1/include/ \
+  -DOPENAL_LIBRARIES=/usr/local/Cellar/openal-soft/1.21.1/lib/libopenal.dylib \
+  -DSDL2_INCLUDE_DIRS=/usr/local/Cellar/sdl2/2.0.14_1/include/SDL2/
+
 -Navigate to the build directory and run make. Assuming everything goes well,
 this should produce ChocolateDescent and ChocolateDescent2. You can use
 
