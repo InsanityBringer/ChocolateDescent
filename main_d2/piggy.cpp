@@ -328,6 +328,8 @@ void piggy_init_pigfile(const char* filename)
 	int header_size, N_bitmaps, data_size, data_start;
 #ifdef MACINTOSH
 	char name[255];		// filename + path for the mac
+#elif defined(__APPLE__) && defined(__MACH__)
+	char name[256];
 #endif
 
 	piggy_close_file();             //close old pig if still open
@@ -337,7 +339,12 @@ void piggy_init_pigfile(const char* filename)
 		filename = DEFAULT_PIGFILE_SHAREWARE;
 #endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), filename);
+	Piggy_fp = cfopen(name, "rb");
+#else
 	Piggy_fp = cfopen(filename, "rb");
+#endif
 
 	if (!Piggy_fp)
 	{
