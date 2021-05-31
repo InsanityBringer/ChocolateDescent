@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "platform/findfile.h"
 #include "misc/error.h"
@@ -1195,11 +1196,20 @@ void newmenu_file_sort(int n, char* list)
 void delete_player_saved_games(char* name)
 {
 	int i;
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[256];
+#else
 	char filename[16];
+#endif
 
 	for (i = 0; i < 10; i++) 
 	{
+#if defined(__APPLE__) && defined(__MACH__)
+		sprintf(filename, "%s/%s.sg%d", get_local_file_path_prefix(), name, i);
+		sprintf(filename, "%s/%s.mg%d", get_local_file_path_prefix(), name, i);
+#else
 		sprintf(filename, "%s.sg%d", name, i);
+#endif
 		_unlink(filename);
 	}
 }

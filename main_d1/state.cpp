@@ -15,6 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "platform/platform_filesys.h"
 #include "platform/mono.h"
 #include "inferno.h"
 #include "segment.h"
@@ -132,7 +133,11 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	FILE* fp;
 	int i, choice, version;
 	newmenu_item m[NUM_SAVES + 1];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[NUM_SAVES][256];
+#else
 	char filename[NUM_SAVES][20];
+#endif
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	char id[5];
 	int valid = 0;
@@ -140,10 +145,17 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	for (i = 0; i < NUM_SAVES; i++) 
 	{
 		sc_bmp[i] = NULL;
+#if defined(__APPLE__) && defined(__MACH__)
+		if (!multi)
+			sprintf(filename[i], "%s/%s.sg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+		else
+			sprintf(filename[i], "%s/%s.mg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+#else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
 		else
 			sprintf(filename[i], "%s.mg%d", Players[Player_num].callsign, i);
+#endif
 		valid = 0;
 		fp = fopen(filename[i], "rb");
 		if (fp) 
@@ -199,7 +211,11 @@ int state_get_restore_file(char* fname, int multi)
 	FILE* fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES + 1];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[NUM_SAVES][256];
+#else
 	char filename[NUM_SAVES][20];
+#endif
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	char id[5];
 	int valid;
@@ -209,10 +225,17 @@ int state_get_restore_file(char* fname, int multi)
 	for (i = 0; i < NUM_SAVES; i++) 
 	{
 		sc_bmp[i] = NULL;
+#if defined(__APPLE__) && defined(__MACH__)
+		if (!multi)
+			sprintf(filename[i], "%s/%s.sg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+		else
+			sprintf(filename[i], "%s/%s.mg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+#else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
 		else
 			sprintf(filename[i], "%s.mg%d", Players[Player_num].callsign, i);
+#endif
 		valid = 0;
 		fp = fopen(filename[i], "rb");
 		if (fp) 
@@ -278,11 +301,19 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	int temp_int;
 	uint8_t temp_byte;
 	char desc[DESC_LENGTH + 1];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[256];
+#else
 	char filename[128];
+#endif
 	grs_canvas* cnv;
 	FILE* fp;
 
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/%s.sg%d", get_local_file_path_prefix(), sg_player->callsign, slotnum);
+#else
 	sprintf(filename, "%s.sg%d", sg_player->callsign, slotnum);
+#endif
 	fp = fopen(filename, "wb");
 	if (!fp) return 0;
 
