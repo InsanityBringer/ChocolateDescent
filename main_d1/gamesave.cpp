@@ -1391,6 +1391,9 @@ int load_level(char* filename_passed)
 	char full_path_filename[256];
 	sprintf(full_path_filename, "%s/%s", get_local_file_path_prefix(), filename);
 	LoadFile = cfopen(full_path_filename, "rb");
+	if (!LoadFile) {
+		LoadFile = cfopen(filename, "rb");
+	}
 #else
 	LoadFile = cfopen(filename, "rb");
 #endif
