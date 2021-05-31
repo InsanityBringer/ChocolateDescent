@@ -227,9 +227,12 @@ int piggy_init()
 	DiskSoundHeader sndh;
 	int header_size, N_bitmaps, N_sounds;
 	int i, size, length, x, y;
-	char filename[256];
+	const char* filename;
 	int read_sounds = 1;
 	int Pigdata_start;
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename_full_path[256];
+#endif
 
 	hashtable_init(&AllBitmapsNames, MAX_BITMAP_FILES);
 	hashtable_init(&AllDigiSndNames, MAX_SOUND_FILES);
@@ -277,8 +280,8 @@ int piggy_init()
 	}
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/Data/descent.pig", get_local_file_path_prefix());
-	FILE* descent_pig_test = fopen(filename, "r");
+	sprintf(filename_full_path, "%s/Data/descent.pig", get_local_file_path_prefix());
+	FILE* descent_pig_test = fopen(filename_full_path, "r");
 	if(!descent_pig_test)
 	{
 		char err_str[256];
@@ -287,7 +290,7 @@ int piggy_init()
 		Error(err_str);
 	}
 #else
-	strncpy(filename, "DESCENT.PIG", 255);
+	filename = "DESCENT.PIG";
 #endif
 
 	if (FindArg("-bigpig"))
@@ -304,10 +307,14 @@ int piggy_init()
 
 	if ((i = FindArg("-piggy"))) 
 	{
-		strncpy(filename, Args[i + 1], 255);
+		filename = Args[i + 1];
 		mprintf((0, "Using alternate pigfile, '%s'\n", filename));
 	}
+#if defined(__APPLE__) && defined(__MACH__)
+	Piggy_fp = cfopen(filename_full_path, "rb");
+#else
 	Piggy_fp = cfopen(filename, "rb");
+#endif
 	if (Piggy_fp == NULL) return 0;
 
 	//cfread(&Pigdata_start, sizeof(int), 1, Piggy_fp);
@@ -647,13 +654,16 @@ void piggy_dump_all()
 	FILE* fp1;
 	FILE* fp2;
 #endif
-	char filename[256];
+	char* filename;
 	int data_offset;
 	int org_offset;
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
 	int header_offset;
 	char subst_name[32];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename_full_path[256];
+#endif
 
 #ifdef NO_DUMP_SOUNDS
 	Num_sound_files = 0;
@@ -714,8 +724,8 @@ void piggy_dump_all()
 
 	mprintf((0, "Creating DESCENT.PIG..."));
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/descent.pig", get_local_file_path_prefix());
-	FILE* descent_pig_test = fopen(filename, "r");
+	sprintf(filename_full_path, "%s/descent.pig", get_local_file_path_prefix());
+	FILE* descent_pig_test = fopen(filename_full_path, "r");
 	if(!descent_pig_test)
 	{
 		char err_str[256];
@@ -724,7 +734,7 @@ void piggy_dump_all()
 		Error(err_str);
 	}
 #else
-	strncpy(filename, "DESCENT.PIG", 255);
+	filename = "DESCENT.PIG";
 #endif
 	if ((i = FindArg("-piggy"))) 
 	{
@@ -733,12 +743,23 @@ void piggy_dump_all()
 	}
 	mprintf((0, "\nDumping bitmaps..."));
 
+#if defined(__APPLE__) && defined(__MACH__)
+	fp = fopen(filename_full_path, "wb");
+#else
 	fp = fopen(filename, "wb");
+#endif
 	Assert(fp != NULL);
 
 #ifndef RELEASE
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename_full_path, "%s/Data/piggy.lst", get_local_file_path_prefix());
+	fp1 = fopen(filename_full_path, "wt");
+	sprintf(filename_full_path, "%s/Data/piggy.all", get_local_file_path_prefix());
+	fp2 = fopen(filename_full_path, "wt");
+#else
 	fp1 = fopen("piggy.lst", "wt");
 	fp2 = fopen("piggy.all", "wt");
+#endif
 #endif
 
 	i = 0;
