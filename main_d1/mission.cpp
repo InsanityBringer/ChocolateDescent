@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "cfile/cfile.h"
 #include "platform/findfile.h" //[ISB] port descent 2 directory iteration code. 
@@ -42,7 +43,7 @@ char* mfgets(char* s, int n, FILE* f)
 	char* r;
 
 	r = fgets(s, n, f);
-	if (r && s[strlen(s) - 1] == '\n')
+	if (r && (s[strlen(s) - 1] == '\n' || s[strlen(s) - 1] == '\r'))
 		s[strlen(s) - 1] = 0;
 
 	return r;
@@ -100,6 +101,39 @@ int ml_sort_func(mle* e0, mle* e1)
 	return strcmp(e0->mission_name, e1->mission_name);
 }
 
+int get_msn_line(FILE* f, char* msn_line)
+{
+	memset(msn_line, 0, 256);
+	int i = 0;
+
+	int tmp_char = fgetc(f);
+
+	while(tmp_char != '\n' && tmp_char != '\r' && tmp_char != EOF)
+	{
+		msn_line[i] = (char)tmp_char;
+		tmp_char = fgetc(f);
+		i++;
+	}
+
+	return tmp_char;
+}
+
+void get_string_before_tab(const char* msn_line, char* trimmed_line)
+{
+	memset(trimmed_line, 0, 256);
+	int i;
+
+	for(i = 0; i < strlen(msn_line); i++)
+	{
+		if(msn_line[i] == '\t')
+		{
+			return;
+		}
+
+		trimmed_line[i] = msn_line[i];
+	}
+}
+
 //returns 1 if file read ok, else 0
 int read_mission_file(char* filename, int count, int location)
 {
@@ -121,7 +155,7 @@ int read_mission_file(char* filename, int count, int location)
 			return 0;	//missing extension
 		*t = 0;			//kill extension
 
-		strncpy(Mission_list[count].filename, temp, 9);
+		strncpy(Mission_list[count].filename, temp, MISSION_FILENAME_LEN);
 		Mission_list[count].anarchy_only_flag = 0;
 		//Mission_list[count].location = location;
 
@@ -167,7 +201,12 @@ int build_mission_list(int anarchy_mode)
 	static int num_missions = -1;
 	int count = 0, special_count = 0;
 	FILEFINDSTRUCT find;
+#if defined(__APPLE__) && defined(__MACH__)
+	char search_name[100] = "*.msn";
+	char file_path_name[256];
+#else
 	char search_name[100] = "*.MSN";
+#endif
 
 	//now search for levels on disk
 
@@ -183,7 +222,12 @@ int build_mission_list(int anarchy_mode)
 	{
 		do 
 		{
-			if (read_mission_file(find.name, count, 0)) 
+#if defined(__APPLE__) && defined(__MACH__)
+			sprintf(file_path_name, "%s/%s", get_local_file_path_prefix(), find.name);
+			if (read_mission_file(file_path_name, count, 0))
+#else
+			if (read_mission_file(find.name, count, 0))
+#endif
 			{
 				if (anarchy_mode || !Mission_list[count].anarchy_only_flag)
 					count++;
@@ -245,13 +289,34 @@ int load_mission(int mission_num)
 	{		 //NOTE LINK TO ABOVE IF!!!!!
 			//read mission from file 
 		FILE* mfile;
-		char buf[80], tmp[80], * v;
+		char buf[80], tmp[80], msn_line[256], trimmed_line[256], * v;
+		int eof_check;
 
+#if defined(__APPLE__) && defined(__MACH__)
+		char msn_filename[256], hog_filename[256];
+		sprintf(msn_filename, "%s.msn", Mission_list[mission_num].filename);
+#else
 		strcpy(buf, Mission_list[mission_num].filename);
 		strcat(buf, ".MSN");
+#endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+		sprintf(hog_filename, "%s.hog", Mission_list[mission_num].filename);
+
+		cfile_use_alternate_hogfile(hog_filename);
+
+		mfile = fopen(msn_filename, "rt");
+
+		if (mfile == NULL)
+		{
+			Current_mission_num = -1;
+			return 0;		//error!
+		}
+
+#else
 		strcpy(tmp, Mission_list[mission_num].filename);
 		strcat(tmp, ".HOG");
+
 		cfile_use_alternate_hogfile(tmp);
 
 		mfile = fopen(buf, "rt");
@@ -261,6 +326,7 @@ int load_mission(int mission_num)
 			Current_mission_num = -1;
 			return 0;		//error!
 		}
+#endif
 
 		//init vars
 		Last_level = 0;
@@ -268,15 +334,23 @@ int load_mission(int mission_num)
 		Briefing_text_filename[0] = 0;
 		Ending_text_filename[0] = 0;
 
-		while (mfgets(buf, 80, mfile))
+		eof_check = get_msn_line(mfile, msn_line);
+
+		while (eof_check != EOF)
 		{
-			if (istok(buf, "name"))
-				continue;						//already have name, go to next line
-			else if (istok(buf, "type"))
-				continue;						//already have name, go to next line				
-			else if (istok(buf, "hog")) 
+			if (istok(msn_line, "name"))
 			{
-				char* bufp = buf;
+				eof_check = get_msn_line(mfile, msn_line);
+				continue;						//already have name, go to next line
+			}
+			else if (istok(msn_line, "type"))
+			{
+				eof_check = get_msn_line(mfile, msn_line);
+				continue;						//already have name, go to next line				
+			}
+			else if (istok(msn_line, "hog")) 
+			{
+				char* bufp = msn_line;
 
 				while (*(bufp++) != '=')
 					;
@@ -284,44 +358,42 @@ int load_mission(int mission_num)
 				if (*bufp == ' ')
 					while (*(++bufp) == ' ')
 						;
-
 				cfile_use_alternate_hogfile(bufp);
 				mprintf((0, "Hog file override = [%s]\n", bufp));
 			}
-			else if (istok(buf, "briefing")) 
+			else if (istok(msn_line, "briefing")) 
 			{
-				if ((v = get_value(buf)) != NULL) 
+				if ((v = get_value(msn_line)) != NULL) 
 				{
 					add_term(v);
 					if (strlen(v) < 13)
 						strcpy(Briefing_text_filename, v);
 				}
 			}
-			else if (istok(buf, "ending")) 
+			else if (istok(msn_line, "ending")) 
 			{
-				if ((v = get_value(buf)) != NULL) 
+				if ((v = get_value(msn_line)) != NULL) 
 				{
 					add_term(v);
 					if (strlen(v) < 13)
 						strcpy(Ending_text_filename, v);
 				}
 			}
-			else if (istok(buf, "num_levels")) 
+			else if (istok(msn_line, "num_levels")) 
 			{
-
-				if ((v = get_value(buf)) != NULL) 
+				if ((v = get_value(msn_line)) != NULL) 
 				{
 					int n_levels, i;
 
 					n_levels = atoi(v);
 
-					for (i = 0; i < n_levels && mfgets(buf, 80, mfile); i++) 
+					for (i = 0; i < n_levels && get_msn_line(mfile, msn_line) != EOF; i++) 
 					{
+						get_string_before_tab(msn_line, trimmed_line);
 
-						add_term(buf);
-						if (strlen(buf) <= 12) 
+						if (strlen(trimmed_line) <= 12) 
 						{
-							strcpy(Level_names[i], buf);
+							strcpy(Level_names[i], trimmed_line);
 							Last_level++;
 						}
 						else
@@ -330,9 +402,9 @@ int load_mission(int mission_num)
 
 				}
 			}
-			else if (istok(buf, "num_secrets")) 
+			else if (istok(msn_line, "num_secrets")) 
 			{
-				if ((v = get_value(buf)) != NULL)
+				if ((v = get_value(msn_line)) != NULL)
 				{
 					int n_secret_levels, i;
 
@@ -343,13 +415,13 @@ int load_mission(int mission_num)
 						char* t;
 
 
-						if ((t = strchr(buf, ',')) != NULL)* t++ = 0;
+						if ((t = strchr(msn_line, ',')) != NULL)* t++ = 0;
 						else
 							break;
 
-						add_term(buf);
-						if (strlen(buf) <= 12) {
-							strcpy(Secret_level_names[i], buf);
+						add_term(msn_line);
+						if (strlen(msn_line) <= 12) {
+							strcpy(Secret_level_names[i], msn_line);
 							Secret_level_table[i] = atoi(t);
 							if (Secret_level_table[i]<1 || Secret_level_table[i]>Last_level)
 								break;
@@ -362,6 +434,7 @@ int load_mission(int mission_num)
 				}
 			}
 
+			eof_check = get_msn_line(mfile, msn_line);
 		}
 
 		fclose(mfile);

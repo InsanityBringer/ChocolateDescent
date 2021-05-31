@@ -19,10 +19,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_LEVELS_PER_MISSION			30
 #define MAX_SECRET_LEVELS_PER_MISSION	5
 #define MISSION_NAME_LEN 					21
-
+#if defined(__APPLE__) && defined(__MACH__)
+#define MISSION_FILENAME_LEN			256
+#else
+#define MISSION_FILENAME_LEN			9
+#endif
  //mission list entry
 typedef struct mle {
-	char	filename[9];							//filename without extension
+	char	filename[MISSION_FILENAME_LEN];			//filename without extension
 	char	mission_name[MISSION_NAME_LEN + 1];
 	uint8_t	anarchy_only_flag;					//if true, mission is anarchy only
 } mle;

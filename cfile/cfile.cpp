@@ -37,7 +37,11 @@ typedef struct hogfile
 
 #define MAX_HOGFILES 250
 
+#if defined(__APPLE__) && defined(__MACH__)
+#define HOG_FILENAME_MAX 256
+#else
 #define HOG_FILENAME_MAX 64
+#endif
 
 hogfile HogFiles[MAX_HOGFILES];
 char Hogfile_initialized = 0;
@@ -112,7 +116,7 @@ int cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 	fp = cfile_get_filehandle(fname, "rb");
 	if (fp == NULL)
 	{
-		Warning("cfile_init_hogfile: Can't open hogfile\n");
+		Warning("cfile_init_hogfile: Can't open hogfile: %s\n", fname);
 		return 1;
 	}
 

@@ -9,10 +9,10 @@ Instead, it is released under the terms of the MIT License.
 static char local_file_path_prefix[512] = {0};
 
 #if defined(BUILD_DESCENT1)
-static const char* descent_version_string = "Descent1";
+static const char* descent_version_string = "Descent 1";
 static unsigned int descent_version = 1;
 #elif defined(BUILD_DESCENT2)
-static const char* descent_version_string = "Descent2";
+static const char* descent_version_string = "Descent 2";
 static unsigned int descent_version = 2;
 #endif
 
