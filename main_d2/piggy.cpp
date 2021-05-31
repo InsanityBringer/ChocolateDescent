@@ -959,16 +959,21 @@ void piggy_read_sounds(void)
 	int i, sbytes;
 #ifdef MACINTOSH
 	char name[255];
+#elif defined(__APPLE__) && defined(__MACH__)
+	char name[256];
 #endif
 
 	ptr = SoundBits;
 	sbytes = 0;
 
-#ifndef MACINTOSH
-	fp = cfopen(DEFAULT_SNDFILE, "rb");
-#else
+#ifdef MACINTOSH
 	sprintf(name, ":Data:%s", DEFAULT_SNDFILE);
 	fp = cfopen(name, "rb");
+#elif defined(__APPLE__) && defined(__MACH__)
+	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_SNDFILE);
+	fp = cfopen(name, "rb");
+#else
+	fp = cfopen(DEFAULT_SNDFILE, "rb");
 #endif
 
 	if (fp == NULL)
