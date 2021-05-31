@@ -18,6 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "platform/findfile.h"
 #include "platform/posixstub.h"
+#include "platform/platform_filesys.h"
 
 char searchStr[13];
 DIR *currentDir;
@@ -30,15 +31,30 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 	//Make sure the current search buffer is clear
 	memset(searchStr, 0, 13);
 	memset(dir, 0, 256);
+
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(dir, "%s/", get_local_file_path_prefix());
+	char full_search_str[256];
+	sprintf(full_search_str, "%s/%s", dir, search_str);
+#else
+	sprintf(full_search_str, "%s", search_str);
+#endif
+
 	//Open the directory for searching
-	_splitpath(search_str, NULL, dir, NULL, NULL);
+	_splitpath(full_search_str, NULL, dir, NULL, NULL);
 	if (strlen(dir) == 0) //godawful hack
+	{
+#if defined(__APPLE__) && defined(__MACH__)
+		sprintf(dir, "%s", get_local_file_path_prefix());
+#else
 		dir[0] = '.';
+#endif
+	}
 	//mprintf((0, "FindFileFirst: Opening %s\n", dir));
 	currentDir = opendir(dir);
 	if (!currentDir) return 1;
 	//It opened, so get search string
-	search = strrchr(search_str, '*');
+	search = strrchr(full_search_str, '*');
 	strncpy(searchStr, search+2, 12);
 	//mprintf((0, "FindFileFirst: Search is %s\n", searchStr));
 
@@ -52,10 +68,12 @@ int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 	char ext[256];
 	struct dirent *entry;
 	struct stat stats;
+	printf("ffstruct name: %s\n", ffstruct->name);
 	if (!currentDir) return 1;
 	entry = readdir(currentDir);
 	while (entry != NULL)
 	{
+		printf("Dirname: %s\n", entry->d_name);
 		//What a mess. ugh
 		memset(fname, 0, 256);
 		memset(ext, 0, 256);
