@@ -457,6 +457,8 @@ void piggy_new_pigfile(const char* pigname)
 	int must_rewrite_pig = 0;
 #ifdef MACINTOSH
 	char name[255];
+#elif defined(__APPLE__) && defined(__MACH__)
+	char name[256];
 #endif
 
 #ifdef SHAREWARE                //rename pigfile for shareware
@@ -479,7 +481,12 @@ void piggy_new_pigfile(const char* pigname)
 
 	strncpy(Current_pigfile, pigname, sizeof(Current_pigfile));
 
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), pigname);
+	Piggy_fp = cfopen(name, "rb");
+#else
 	Piggy_fp = cfopen(pigname, "rb");
+#endif
 
 #ifndef EDITOR
 	//if (!Piggy_fp)
@@ -1185,6 +1192,9 @@ void piggy_write_pigfile(const char* filename)
 	int i;
 	FILE* fp1, * fp2;
 	char tname[FILENAME_LEN];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename_full_path[256];
+#endif
 
 	// -- mprintf( (0, "Paging in all piggy bitmaps..." ));
 	for (i = 0; i < Num_bitmap_files; i++) {
@@ -1198,7 +1208,12 @@ void piggy_write_pigfile(const char* filename)
 
 	// -- mprintf( (0, "Creating %s...",filename ));
 
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename_full_path, "%s/Data/%s", get_local_file_path_prefix(), filename);
+	pig_fp = fopen(filename_full_path, "wb");
+#else
 	pig_fp = fopen(filename, "wb");       //open PIG file
+#endif
 	Assert(pig_fp != NULL);
 
 	write_int(PIGFILE_ID, pig_fp);
@@ -1212,10 +1227,19 @@ void piggy_write_pigfile(const char* filename)
 	bitmap_data_start += (Num_bitmap_files - 1) * sizeof(DiskBitmapHeader);
 	data_offset = bitmap_data_start;
 
+#if defined(__APPLE__) && defined(__MACH__)
+	change_filename_ext(tname, filename, "lst");
+	sprintf(filename_full_path, "%s/Data/%d", get_local_file_path_prefix(), tname);
+	fp1 = fopen(filename_full_path, "wt");
+	change_filename_ext(tname, filename, "all");
+	sprintf(filename_full_path, "%s/Data/%d", get_local_file_path_prefix(), tname);
+	fp2 = fopen(filename_full_path, "wt");
+#else
 	change_filename_ext(tname, filename, "lst");
 	fp1 = fopen(tname, "wt");
 	change_filename_ext(tname, filename, "all");
 	fp2 = fopen(tname, "wt");
+#endif
 
 	for (i = 1; i < Num_bitmap_files; i++) {
 		int* size;
@@ -1329,8 +1353,15 @@ void piggy_dump_all()
 	if ((i = FindArg("-piggy")))
 		Error("-piggy no longer supported");
 
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename_full_path, "%s/Data/ham.lst", get_local_file_path_prefix());
+	fp1 = fopen(filename_full_path, "wt");
+	sprintf(filename_full_path, "%s/Data/ham.all", get_local_file_path_prefix());
+	fp2 = fopen(filename_full_path, "wt");
+#else
 	fp1 = fopen("ham.lst", "wt");
 	fp2 = fopen("ham.all", "wt");
+#endif
 
 	if (Must_write_hamfile || Num_bitmap_files_new) {
 
