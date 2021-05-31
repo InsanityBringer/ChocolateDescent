@@ -70,9 +70,10 @@ char* get_value(char* buf)
 {
 	char* t;
 
-	t = strchr(buf, '=') + 1;
+	t = strchr(buf, '=');
 
 	if (t) {
+		t = t + 1;
 		while (*t && isspace(*t)) t++;
 
 		if (*t)
@@ -135,7 +136,7 @@ void get_string_before_tab(const char* msn_line, char* trimmed_line)
 
 	for(i = 0; i < strlen(msn_line); i++)
 	{
-		if(msn_line[i] == '\t')
+		if(isspace(msn_line[i]))
 		{
 			return;
 		}
@@ -299,7 +300,7 @@ int load_mission(int mission_num)
 	{		 //NOTE LINK TO ABOVE IF!!!!!
 			//read mission from file 
 		FILE* mfile;
-		char buf[80], tmp[80], msn_line[256], trimmed_line[256], * v;
+		char buf[80], tmp[80], msn_line[256], trimmed_line[256], hogfile_full_path[256], * v;
 		int eof_check;
 
 #if defined(__APPLE__) && defined(__MACH__)
@@ -348,6 +349,7 @@ int load_mission(int mission_num)
 
 		while (eof_check != EOF)
 		{
+			printf("msn_line: %s\n", msn_line);
 			if (istok(msn_line, "name"))
 			{
 				eof_check = get_msn_line(mfile, msn_line);
@@ -368,7 +370,13 @@ int load_mission(int mission_num)
 				if (*bufp == ' ')
 					while (*(++bufp) == ' ')
 						;
+#if defined(__APPLE__) && defined(__MACH__)
+				memset(hogfile_full_path, 0, 256);
+				sprintf(hogfile_full_path, "%s/Data/Missions/%s", get_local_file_path_prefix(), bufp);
+				cfile_use_alternate_hogfile(hogfile_full_path);
+#else
 				cfile_use_alternate_hogfile(bufp);
+#endif
 				mprintf((0, "Hog file override = [%s]\n", bufp));
 			}
 			else if (istok(msn_line, "briefing")) 
@@ -394,14 +402,34 @@ int load_mission(int mission_num)
 				if ((v = get_value(msn_line)) != NULL) 
 				{
 					int n_levels, i;
+					char* ext_idx;
 
 					n_levels = atoi(v);
 
-					for (i = 0; i < n_levels && get_msn_line(mfile, msn_line) != EOF; i++) 
+					for (i = 0; i < n_levels && get_msn_line(mfile, msn_line); i++) 
 					{
-						get_string_before_tab(msn_line, trimmed_line);
+						if ((v = get_value(msn_line)) != NULL)
+						{
+							strncpy(trimmed_line, v, strlen(v));
+						}
+						else
+						{
+							get_string_before_tab(msn_line, trimmed_line);
+						}
 
-						if (strlen(trimmed_line) <= 12) 
+						ext_idx = strrchr(trimmed_line, '.');
+
+						if(ext_idx != NULL && ext_idx - trimmed_line > 2 && ext_idx[1] == 'h' && ext_idx[2] == 'o' && ext_idx[3] == 'g')
+						{
+#if defined(__APPLE__) && defined(__MACH__)
+							memset(hogfile_full_path, 0, 256);
+							sprintf(hogfile_full_path, "%s/Data/Missions/%s", get_local_file_path_prefix(), trimmed_line);
+							cfile_use_alternate_hogfile(hogfile_full_path);
+#else
+							cfile_use_alternate_hogfile(trimmed_line);
+#endif
+						}
+						else if (strlen(trimmed_line) <= 12) 
 						{
 							strcpy(Level_names[i], trimmed_line);
 							Last_level++;
@@ -420,14 +448,15 @@ int load_mission(int mission_num)
 
 					n_secret_levels = atoi(v);
 
-					for (i = 0; i < n_secret_levels && mfgets(buf, 80, mfile); i++) 
+					for (i = 0; i < n_secret_levels && get_msn_line(mfile, msn_line); i++) 
 					{
 						char* t;
-
 
 						if ((t = strchr(msn_line, ',')) != NULL)* t++ = 0;
 						else
 							break;
+
+						printf("t is: %s\n", t);
 
 						add_term(msn_line);
 						if (strlen(msn_line) <= 12) {
