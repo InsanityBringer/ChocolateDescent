@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/posixstub.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
+#include "platform/platform_filesys.h"
 #include "platform/platform.h"
 #include "inferno.h"
 #include "text.h"
@@ -1063,7 +1064,13 @@ movielib* init_movie_lib(const char* filename)
 	char id[4];
 	FILE* fp;
 
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename_full_path[256];
+	sprintf(filename_full_path, "%s/Data/%s", get_local_file_path_prefix(), filename);
+	fp = fopen(filename_full_path, "rb");
+#else
 	fp = fopen(filename, "rb");
+#endif
 #ifndef _WINDOWS
 	if (!fp)
 	{
@@ -1085,11 +1092,19 @@ movielib* init_movie_lib(const char* filename)
 
 	fread(id, 4, 1, fp);
 	if (!strncmp(id, "DMVL", 4))
+#if defined(__APPLE__) && defined(__MACH__)
+		return init_new_movie_lib(filename_full_path, fp);
+#else
 		return init_new_movie_lib(filename, fp);
+#endif
 	else if (!strncmp(id, "DHF", 3)) 
 	{
 		fseek(fp, -1, SEEK_CUR);		//old file had 3 char id
+#if defined(__APPLE__) && defined(__MACH__)
+		return init_old_movie_lib(filename_full_path, fp);
+#else
 		return init_old_movie_lib(filename, fp);
+#endif
 	}
 	else 
 	{
