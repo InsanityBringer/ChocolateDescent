@@ -115,6 +115,16 @@ int get_msn_line(FILE* f, char* msn_line)
 		i++;
 	}
 
+	while(tmp_char != EOF && (tmp_char == '\n' || tmp_char == '\r'))
+	{
+		tmp_char = fgetc(f);
+	}
+
+	if(tmp_char != EOF)
+	{
+		fseek(f, -1, SEEK_CUR);
+	}
+
 	return tmp_char;
 }
 
