@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <limits.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 
 #include "misc/rand.h"
@@ -2927,13 +2928,18 @@ int newdemo_count_demos()
 {
 	FILEFINDSTRUCT find;
 	int NumFiles = 0;
-
+#if defined(__APPLE__) && defined(__MACH__)
+	if (!FileFindFirst("Demos/*.dem", &find)) {
+#else
 	if (!FileFindFirst("demos\\*.DEM", &find)) {
+#endif
 		do {
 			NumFiles++;
 		} while (!FileFindNext(&find));
 		FileFindClose();
 	}
+
+	printf("Found %d demos.\n", NumFiles);
 
 	return NumFiles;
 }
@@ -2957,7 +2963,11 @@ void newdemo_start_playback(const char* filename)
 		}
 		RandFileNum = P_Rand() % NumFiles;
 		NumFiles = 0;
-		if (!FileFindFirst("*.DEM", &find)) 
+#if defined(__APPLE__) && defined(__MACH__)
+		if (!FileFindFirst("Demos/*.dem", &find))
+#else
+		if (!FileFindFirst("*.DEM", &find))
+#endif
 		{
 			do 
 			{
@@ -2975,7 +2985,13 @@ void newdemo_start_playback(const char* filename)
 
 	if (!filename)
 		return;
+#if defined(__APPLE__) && defined(__MACH__)
+	char demo_full_path[256];
+	sprintf(demo_full_path, "%s/Demos/%s", get_local_file_path_prefix(), filename);
+	infile = fopen(demo_full_path, "rb");
+#else
 	infile = fopen(filename, "rb");
+#endif
 
 #ifdef USE_CD
 	if (infile == NULL) {

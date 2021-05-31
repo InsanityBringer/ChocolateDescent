@@ -23,6 +23,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include <string.h>
 #include <time.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 
 #include "2d/gr.h"
@@ -632,7 +633,12 @@ int D_DescentMain(int argc, const char** argv)
 	Game_mode = GM_GAME_OVER;
 
 	if (Auto_demo) {
+#if defined(__APPLE__) && defined(__MACH__)
+		char demo_full_path[256];
+		sprintf(demo_full_path, "%s/Demos/descent.dem", get_local_file_path_prefix());
+#else
 		newdemo_start_playback("DESCENT.DEM");
+#endif
 		if (Newdemo_state == ND_STATE_PLAYBACK)
 			Function_mode = FMODE_GAME;
 	}

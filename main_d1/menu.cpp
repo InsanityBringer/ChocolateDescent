@@ -262,7 +262,11 @@ void do_option(int select)
 	case MENU_DEMO_PLAY:
 	{
 		char demo_file[16];
-		if (newmenu_get_filename(TXT_SELECT_DEMO, "*.dem", demo_file, 1)) 
+#if defined(__APPLE__) && defined(__MACH__)
+		if (newmenu_get_filename(TXT_SELECT_DEMO, "Demos/*.dem", demo_file, 1))
+#else		
+		if (newmenu_get_filename(TXT_SELECT_DEMO, "*.dem", demo_file, 1))
+#endif
 		{
 			newdemo_start_playback(demo_file);
 		}

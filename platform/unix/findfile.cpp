@@ -36,7 +36,8 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 #if defined(__APPLE__) && defined(__MACH__)
 	sprintf(dir, "%s/", get_local_file_path_prefix());
 	char full_search_str[256];
-	sprintf(full_search_str, "%s/%s", dir, search_str);
+	memset(full_search_str, 0, 256);
+	sprintf(full_search_str, "%s%s", dir, search_str);
 #else
 	sprintf(full_search_str, "%s", search_str);
 #endif
@@ -46,7 +47,11 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 	if (strlen(dir) == 0) //godawful hack
 	{
 #if defined(__APPLE__) && defined(__MACH__)
-		sprintf(dir, "%s", get_local_file_path_prefix());
+		strncpy(dir, full_search_str, 255);
+		if(strrchr(dir, '/') - dir > 0)
+		{
+			dir[strrchr(dir, '/') - dir + 1] = '\0';
+		}
 #else
 		dir[0] = '.';
 #endif
