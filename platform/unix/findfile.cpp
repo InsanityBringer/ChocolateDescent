@@ -68,12 +68,10 @@ int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 	char ext[256];
 	struct dirent *entry;
 	struct stat stats;
-	printf("ffstruct name: %s\n", ffstruct->name);
 	if (!currentDir) return 1;
 	entry = readdir(currentDir);
 	while (entry != NULL)
 	{
-		printf("Dirname: %s\n", entry->d_name);
 		//What a mess. ugh
 		memset(fname, 0, 256);
 		memset(ext, 0, 256);
