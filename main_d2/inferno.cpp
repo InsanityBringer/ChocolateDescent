@@ -25,6 +25,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <math.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "platform/platform.h"
 //#include "pa_enabl.h"       //$$POLY_ACC
@@ -519,6 +520,9 @@ int D_DescentMain(int argc, const char** argv)
 {
 	int i, t;		//note: don't change these without changing stack lockdown code below
 	uint8_t title_pal[768];
+#if defined(__APPLE__) && defined(__MACH__)
+	char hogfile_full_path[256];
+#endif
 
 	error_init(NULL, NULL);
 
@@ -555,10 +559,20 @@ int D_DescentMain(int argc, const char** argv)
 #endif
 
 #ifdef SHAREWARE
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(hogfile_full_path, "%s/Data/d2demo.hog", get_local_file_path_prefix());
+	cfile_init(hogfile_full_path);
+#else
 	cfile_init("d2demo.hog");			//specify name of hogfile
+#endif
 #else
 #define HOGNAME "descent2.hog"
-	if (!cfile_init(HOGNAME)) 
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(hogfile_full_path, "%s/Data/%s", get_local_file_path_prefix(), HOGNAME);
+	if (!cfile_init(hogfile_full_path))
+#else
+	if (!cfile_init(HOGNAME))
+#endif
 	{
 		Error("Could not find required file <%s>", HOGNAME);
 	}

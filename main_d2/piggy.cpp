@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <errno.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "misc/types.h"
 #include "inferno.h"
@@ -726,13 +727,18 @@ int read_hamfile()
 	int ham_id, ham_version;
 #ifdef MACINTOSH
 	char name[255];
+#elif defined(__APPLE__) && defined(__MACH__)
+	char name[256];
 #endif
 
-#ifndef MACINTOSH
-	ham_fp = cfopen(DEFAULT_HAMFILE, "rb");
-#else
+#ifdef MACINTOSH
 	sprintf(name, ":Data:%s", DEFAULT_HAMFILE);
 	ham_fp = cfopen(name, "rb");
+#elif defined(__APPLE__) && defined(__MACH__)
+	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_HAMFILE);
+	ham_fp = cfopen(name, "rb");
+#else
+	ham_fp = cfopen(DEFAULT_HAMFILE, "rb");
 #endif
 
 	if (ham_fp == NULL) {
@@ -784,13 +790,18 @@ int read_sndfile()
 	int sbytes = 0;
 #ifdef MACINTOSH
 	char name[255];
+#elif defined(__APPLE__) && defined(__MACH__)
+	char name[256];
 #endif
 
-#ifndef MACINTOSH
-	snd_fp = cfopen(DEFAULT_SNDFILE, "rb");
-#else
+#ifdef MACINTOSH
 	sprintf(name, ":Data:%s", DEFAULT_SNDFILE);
 	snd_fp = cfopen(name, "rb");
+#elif defined(__APPLE__) && defined(__MACH__)
+	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_SNDFILE);
+	snd_fp = cfopen(name, "rb");
+#else
+	snd_fp = cfopen(DEFAULT_SNDFILE, "rb");
 #endif
 
 	if (snd_fp == NULL)
