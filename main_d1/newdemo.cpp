@@ -2762,7 +2762,13 @@ void newdemo_start_recording()
 	Newdemo_num_written = 0;
 	Newdemo_no_space = 0;
 	Newdemo_state = ND_STATE_RECORDING;
+#if defined(__APPLE__) && defined(__MACH__)
+	char demo_filename_full_path[256];
+	sprintf(demo_filename_full_path, "%s/%s", getenv("TMPDIR"), DEMO_FILENAME);
+	outfile = fopen(demo_filename_full_path, "wb");
+#else
 	outfile = fopen(DEMO_FILENAME, "wb");
+#endif
 	newdemo_record_start_demo();
 }
 
@@ -2778,10 +2784,11 @@ void newdemo_stop_recording()
 #ifndef SHAREWARE
 	unsigned short byte_count = 0;
 #endif
-#if defined(__APPLE__) && defined(__MACH__)
-	char filename_full_path[256];
-#endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+	char demo_temp_filename_full_path[256], demo_filename_full_path[256];
+	sprintf(demo_temp_filename_full_path, "%s/%s", getenv("TMPDIR"), DEMO_FILENAME);
+#endif
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(frame_bytes_written - 1);
 	if (Game_mode & GM_MULTI) {
@@ -2898,12 +2905,22 @@ try_again:
 		}
 		else
 			sprintf(save_file, "tmp%d.dem", tmpcnt++);
+#if defined(__APPLE__) && defined(__MACH__)
+		sprintf(demo_filename_full_path, "%s/Data/Demos/%s", get_local_file_path_prefix(), save_file);
+		remove(demo_filename_full_path);
+		rename(demo_temp_filename_full_path, demo_filename_full_path);
+#else
 		remove(save_file);
 		rename(DEMO_FILENAME, save_file);
+#endif
 		return;
 	}
 	if (exit == -1) {					// pressed ESC
+#if defined(__APPLE__) && defined(__MACH__)
+		remove(demo_temp_filename_full_path);
+#else
 		remove(DEMO_FILENAME);		// might as well remove the file
+#endif
 		return;							// return without doing anything
 	}
 
@@ -2922,11 +2939,12 @@ try_again:
 	else
 		strcpy(fullname, m[0].text);
 	strcat(fullname, ".dem");
-	remove(fullname);
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename_full_path, "%s/Data/Demos/%s", get_local_file_path_prefix(), fullname);
-	rename(DEMO_FILENAME, filename_full_path);
+	sprintf(demo_filename_full_path, "%s/Data/Demos/%s", get_local_file_path_prefix(), fullname);
+	remove(demo_filename_full_path);
+	rename(demo_temp_filename_full_path, demo_filename_full_path);
 #else
+	remove(fullname);
 	rename(DEMO_FILENAME, fullname);
 #endif
 }
