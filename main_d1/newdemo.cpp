@@ -2778,6 +2778,9 @@ void newdemo_stop_recording()
 #ifndef SHAREWARE
 	unsigned short byte_count = 0;
 #endif
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename_full_path[256];
+#endif
 
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(frame_bytes_written - 1);
@@ -2920,7 +2923,12 @@ try_again:
 		strcpy(fullname, m[0].text);
 	strcat(fullname, ".dem");
 	remove(fullname);
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename_full_path, "%s/Data/Demos/%s", get_local_file_path_prefix(), fullname);
+	rename(DEMO_FILENAME, filename_full_path);
+#else
 	rename(DEMO_FILENAME, fullname);
+#endif
 }
 
 //returns the number of demo files on the disk
