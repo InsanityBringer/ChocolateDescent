@@ -537,12 +537,12 @@ set(WIN32_SOURCES
 	ChocolateDescent.manifest
 )
 
-set(LINUX_SOURCES
-	platform/linux/disk.cpp
-	platform/linux/fileutil.cpp
-	platform/linux/findfile.cpp
-	platform/linux/strutil.cpp
-	platform/linux/linuxmain.cpp
+set(UNIX_SOURCES
+	platform/unix/disk.cpp
+	platform/unix/fileutil.cpp
+	platform/unix/findfile.cpp
+	platform/unix/strutil.cpp
+	platform/unix/unixmain.cpp
 )
 
 set (NETWORK_SOURCES
@@ -623,11 +623,11 @@ endif()
 if (WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
     set(SHARED_SOURCES ${SHARED_SOURCES} ${WIN32_SOURCES})
-	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${LINUX_SOURCES})
+	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${UNIX_SOURCES})
 elseif(UNIX)
 	add_definitions(-DUNIX -D_UNIX)
 	add_link_options(-pthread)
-    set(SHARED_SOURCES ${SHARED_SOURCES} ${LINUX_SOURCES})
+    set(SHARED_SOURCES ${SHARED_SOURCES} ${UNIX_SOURCES})
 	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${WIN32_SOURCES})
 endif()
 
