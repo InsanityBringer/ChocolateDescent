@@ -97,7 +97,7 @@ int I_ReadChocolateConfig()
 				char* p;
 #if defined(__APPLE__) && defined(__MACH__)
 				char SoundFontFilenameWithPath[256];
-				sprintf(SoundFontFilenameWithPath, "%s/%s", get_local_file_path_prefix(), value);
+				sprintf(SoundFontFilenameWithPath, "%s/Data/Soundfont/%s", get_local_file_path_prefix(), value);
 				memset(&SoundFontFilename[0], 0, 256);
 				strncpy(&SoundFontFilename[0], SoundFontFilenameWithPath, 255);
 #else
