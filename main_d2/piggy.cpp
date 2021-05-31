@@ -1314,6 +1314,9 @@ void piggy_dump_all()
 	DiskSoundHeader sndh;
 	int sound_data_start;
 	FILE* fp1, * fp2;
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename_full_path[256];
+#endif
 
 #ifdef NO_DUMP_SOUNDS
 	Num_sound_files = 0;
@@ -1333,7 +1336,12 @@ void piggy_dump_all()
 
 		mprintf((0, "Creating %s...", DEFAULT_HAMFILE));
 
+#if defined(__APPLE__) && defined(__MACH__)
+		sprintf(filename_full_path, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_HAMFILE);
+		ham_fp = fopen(filename_full_path, "wb");
+#else
 		ham_fp = fopen(DEFAULT_HAMFILE, "wb");                       //open HAM file
+#endif
 		Assert(ham_fp != NULL);
 
 		write_int(HAMFILE_ID, ham_fp);
@@ -1363,7 +1371,12 @@ void piggy_dump_all()
 
 		mprintf((0, "Creating %s...", DEFAULT_HAMFILE));
 		// Now dump sound file
+#if defined (__APPLE__) && defined(__MACH__)
+		sprintf(filename_full_path, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_SNDFILE);
+		ham_fp = fopen(filename_full_path, "wb");
+#else
 		ham_fp = fopen(DEFAULT_SNDFILE, "wb");
+#endif
 		Assert(ham_fp != NULL);
 
 		write_int(SNDFILE_ID, ham_fp);
