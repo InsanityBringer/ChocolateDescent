@@ -708,6 +708,7 @@ void LoadLevel(int level_num)
 	if (level_num < 0)		//secret level
 		level_name = Secret_level_names[-level_num - 1];
 	else					//normal level
+		printf("Level name[0]: %s\n", Level_names[0]);
 		level_name = Level_names[level_num - 1];
 #endif
 

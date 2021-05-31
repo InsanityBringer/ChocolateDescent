@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "platform/mono.h"
 #include "platform/key.h"
@@ -1386,17 +1387,23 @@ int load_level(char* filename_passed)
 	}
 #endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+	char full_path_filename[256];
+	sprintf(full_path_filename, "%s/%s", get_local_file_path_prefix(), filename);
+	LoadFile = cfopen(full_path_filename, "rb");
+#else
 	LoadFile = cfopen(filename, "rb");
+#endif
 	//CF_READ_MODE );
 
 #ifdef EDITOR
 	if (!LoadFile) {
-		mprintf((0, "Can't open file <%s>\n", filename));
+		mprintf((0, "load_level: Can't open file <%s>\n", filename));
 		return 1;
 	}
 #else
 	if (!LoadFile)
-		Error("Can't open file <%s>\n", filename);
+		Error("load_level: Can't open file <%s>\n", filename);
 #endif
 
 	strcpy(Gamesave_current_filename, filename);

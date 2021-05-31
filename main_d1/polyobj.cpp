@@ -168,7 +168,7 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 
 	if ((ifile = cfopen(filename, "rb")) == NULL)
 	{
-		Error("Can't open file <%s>", filename);
+		Error("read_model_file: Can't open file <%s>", filename);
 		return NULL;
 	}
 
@@ -380,7 +380,7 @@ int read_model_guns(char* filename, vms_vector* gun_points, vms_vector* gun_dirs
 
 	if ((ifile = cfopen(filename, "rb")) == NULL)
 	{
-		Error("Can't open file <%s>", filename);
+		Error("read_model_guns: Can't open file <%s>", filename);
 		return 0;
 	}
 
