@@ -129,7 +129,7 @@ int get_msn_line(FILE* f, char* msn_line)
 	return tmp_char;
 }
 
-void get_string_before_tab(const char* msn_line, char* trimmed_line)
+void get_string_before_whitespace(const char* msn_line, char* trimmed_line)
 {
 	memset(trimmed_line, 0, 256);
 	int i;
@@ -414,7 +414,7 @@ int load_mission(int mission_num)
 						}
 						else
 						{
-							get_string_before_tab(msn_line, trimmed_line);
+							get_string_before_whitespace(msn_line, trimmed_line);
 						}
 
 						ext_idx = strrchr(trimmed_line, '.');
