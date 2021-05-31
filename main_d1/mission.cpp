@@ -300,11 +300,11 @@ int load_mission(int mission_num)
 	{		 //NOTE LINK TO ABOVE IF!!!!!
 			//read mission from file 
 		FILE* mfile;
-		char buf[80], tmp[80], msn_line[256], trimmed_line[256], hogfile_full_path[256], * v;
+		char buf[80], tmp[80], msn_line[256], trimmed_line[256], * v;
 		int eof_check;
 
 #if defined(__APPLE__) && defined(__MACH__)
-		char msn_filename[256], hog_filename[256];
+		char msn_filename[256], hog_filename[256],  hogfile_full_path[256];
 		sprintf(msn_filename, "%s.msn", Mission_list[mission_num].filename);
 #else
 		strcpy(buf, Mission_list[mission_num].filename);
