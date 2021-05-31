@@ -2929,7 +2929,7 @@ int newdemo_count_demos()
 	FILEFINDSTRUCT find;
 	int NumFiles = 0;
 #if defined(__APPLE__) && defined(__MACH__)
-	if (!FileFindFirst("Demos/*.dem", &find)) {
+	if (!FileFindFirst("Data/Demos/*.dem", &find)) {
 #else
 	if (!FileFindFirst("demos\\*.DEM", &find)) {
 #endif
@@ -2964,7 +2964,7 @@ void newdemo_start_playback(const char* filename)
 		RandFileNum = P_Rand() % NumFiles;
 		NumFiles = 0;
 #if defined(__APPLE__) && defined(__MACH__)
-		if (!FileFindFirst("Demos/*.dem", &find))
+		if (!FileFindFirst("Data/Demos/*.dem", &find))
 #else
 		if (!FileFindFirst("*.DEM", &find))
 #endif
@@ -2987,7 +2987,7 @@ void newdemo_start_playback(const char* filename)
 		return;
 #if defined(__APPLE__) && defined(__MACH__)
 	char demo_full_path[256];
-	sprintf(demo_full_path, "%s/Demos/%s", get_local_file_path_prefix(), filename);
+	sprintf(demo_full_path, "%s/Data/Demos/%s", get_local_file_path_prefix(), filename);
 	infile = fopen(demo_full_path, "rb");
 #else
 	infile = fopen(filename, "rb");

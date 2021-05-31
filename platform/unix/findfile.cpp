@@ -25,7 +25,6 @@ DIR *currentDir;
 
 int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 {
-	printf("Searching for pattern: %s\n", search_str);
 	char dir[256];
 	const char *search;
 

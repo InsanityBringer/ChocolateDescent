@@ -263,7 +263,7 @@ void do_option(int select)
 	{
 		char demo_file[16];
 #if defined(__APPLE__) && defined(__MACH__)
-		if (newmenu_get_filename(TXT_SELECT_DEMO, "Demos/*.dem", demo_file, 1))
+		if (newmenu_get_filename(TXT_SELECT_DEMO, "Data/Demos/*.dem", demo_file, 1))
 #else		
 		if (newmenu_get_filename(TXT_SELECT_DEMO, "*.dem", demo_file, 1))
 #endif

@@ -212,7 +212,7 @@ int build_mission_list(int anarchy_mode)
 	int count = 0, special_count = 0;
 	FILEFINDSTRUCT find;
 #if defined(__APPLE__) && defined(__MACH__)
-	char search_name[100] = "*.msn";
+	char search_name[100] = "Data/Missions/*.msn";
 	char file_path_name[256];
 #else
 	char search_name[100] = "*.MSN";
@@ -233,7 +233,7 @@ int build_mission_list(int anarchy_mode)
 		do 
 		{
 #if defined(__APPLE__) && defined(__MACH__)
-			sprintf(file_path_name, "%s/%s", get_local_file_path_prefix(), find.name);
+			sprintf(file_path_name, "%s/Data/Missions/%s", get_local_file_path_prefix(), find.name);
 			if (read_mission_file(file_path_name, count, 0))
 #else
 			if (read_mission_file(find.name, count, 0))

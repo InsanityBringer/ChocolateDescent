@@ -1389,7 +1389,7 @@ int load_level(char* filename_passed)
 
 #if defined(__APPLE__) && defined(__MACH__)
 	char full_path_filename[256];
-	sprintf(full_path_filename, "%s/%s", get_local_file_path_prefix(), filename);
+	sprintf(full_path_filename, "%s/Data/Missions/%s", get_local_file_path_prefix(), filename);
 	LoadFile = cfopen(full_path_filename, "rb");
 	if (!LoadFile) {
 		LoadFile = cfopen(filename, "rb");
