@@ -73,7 +73,7 @@ Installing the libraries depends on which package manager you want to use. For
 the purposes of these instructions, I'll assume that's Homebrew.
 
 -Install the libraries for ChocolateDescent:
-    brew install sdl2 openal-soft fluidsynth dylibbundler
+    brew install sdl2 openal-soft readline fluid-synth dylibbundler
 
 -Navigate to the source directory and run cmake with a desired build directory.
   NOTE: Cmake does not successfully find the SDL include directory, OpenAL
