@@ -83,6 +83,8 @@ set(SHARED_SOURCES
 	platform/posixstub.h
 	platform/platform.h
 	platform/platform_config.cpp
+	platform/platform_filesys.h
+	platform/platform_filesys.cpp
 	platform/s_midi.cpp
 	platform/s_midi.h
 	platform/s_sequencer.cpp
@@ -654,6 +656,7 @@ set_target_properties(ChocolateDescent ChocolateDescent2 PROPERTIES CXX_STANDARD
 target_link_libraries(ChocolateDescent ${SHARED_LIBS} ${DESCENT1_LIBS})
 target_link_libraries(ChocolateDescent2 ${SHARED_LIBS} ${DESCENT2_LIBS})
 
+target_compile_definitions(ChocolateDescent PUBLIC BUILD_DESCENT1)
 target_compile_definitions(ChocolateDescent2 PUBLIC BUILD_DESCENT2)
 target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")
 target_compile_definitions(ChocolateDescent2 PUBLIC "$<$<CONFIG:RELEASE>:RELEASE>")

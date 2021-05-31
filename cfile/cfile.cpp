@@ -20,6 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #include <string.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "cfile/cfile.h"
 #include "mem/mem.h"
@@ -96,6 +97,7 @@ FILE* cfile_get_filehandle(const char* filename, const char* mode)
 		strncat(temp, AltHogDir, HOG_FILENAME_MAX);
 		fp = fopen(temp, mode);
 	}
+
 	return fp;
 }
 
@@ -191,9 +193,15 @@ FILE* cfile_find_libfile(const char* name, int* length)
 #ifndef BUILD_DESCENT2 //must call cfile_init in Descent 2. Descent 1 can run without a hogfile if you really wanted. 
 	if (!Hogfile_initialized) 
 	{
+#if defined(__APPLE__) && defined(__MACH__)
+		sprintf(HogFilename, "%s/descent.hog", get_local_file_path_prefix());
+		cfile_init_hogfile(HogFilename, HogFiles, &Num_hogfiles);
+		Hogfile_initialized = 1;
+#else
 		cfile_init_hogfile("descent.hog", HogFiles, &Num_hogfiles);
 		strcpy(HogFilename, "descent.hog");
 		Hogfile_initialized = 1;
+#endif
 	}
 #endif
 

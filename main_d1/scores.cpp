@@ -19,6 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "platform/posixstub.h"
 
+#include "platform/platform_filesys.h"
 #include "platform/platform.h"
 #include "misc/error.h"
 #include "misc/types.h"
@@ -41,7 +42,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scores.h"
 
 #define VERSION_NUMBER 		1
+#if defined(__APPLE__) && defined(__MACH__)
+#define SCORES_FILENAME 	"descent.hi"
+#else
 #define SCORES_FILENAME 	"DESCENT.HI"
+#endif
 #define COOL_MESSAGE_LEN 	50
 #define MAX_HIGH_SCORES 	10
 
@@ -69,7 +74,7 @@ static all_scores Scores;
 
 stats_info Last_game;
 
-char scores_filename[128];
+char scores_filename[256];
 
 #define XX  (7)
 #define YY  (-3)
@@ -82,12 +87,20 @@ char* get_scores_filename()
 	p = getenv("MINER");
 	if (p) 
 	{
+#if defined(__APPLE__) && defined(__MACH__)
+		sprintf(scores_filename, "%s/%s/game/%s", get_local_file_path_prefix(), p, SCORES_FILENAME);
+#else
 		sprintf(scores_filename, "%s\\game\\%s", p, SCORES_FILENAME);
-		Assert(strlen(scores_filename) < 128);
+#endif
+		Assert(strlen(scores_filename) < 256);
 		return scores_filename;
 	}
 #endif
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(scores_filename, "%s/%s", get_local_file_path_prefix(), SCORES_FILENAME);
+#else
 	sprintf(scores_filename, "%s", SCORES_FILENAME);
+#endif
 	return scores_filename;
 }
 

@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include <unistd.h>
 
 #include "misc/error.h"
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 //#include "pa_enabl.h"
 #include "game.h"
@@ -233,6 +234,8 @@ int read_player_file()
 {
 #ifdef MACINTOSH
 	char filename[FILENAME_LEN + 15];
+#elif defined(__APPLE__) && defined(__MACH__)
+	char filename[256 + FILENAME_LEN];
 #else
 	char filename[FILENAME_LEN];
 #endif
@@ -243,10 +246,12 @@ int read_player_file()
 
 	Assert(Player_num >= 0 && Player_num < MAX_PLAYERS);
 
-#ifndef MACINTOSH
-	sprintf(filename, "%.8s.plr", Players[Player_num].callsign);
-#else
+#ifdef MACINTOSH
 	sprintf(filename, ":Players:%.8s.plr", Players[Player_num].callsign);
+#elif defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/%s.plr", get_local_file_path_prefix(), Players[Player_num].callsign);
+#else
+	sprintf(filename, "%.8s.plr", Players[Player_num].callsign);
 #endif
 	file = fopen(filename, "rb");
 
@@ -520,6 +525,8 @@ int write_player_file()
 {
 #ifdef MACINTOSH
 	char filename[FILENAME_LEN + 15];
+#elif defined(__APPLE__) && defined(__MACH__)
+	char filename[256 + FILENAME_LEN];
 #else
 	char filename[FILENAME_LEN];		// because of ":Players:" path
 #endif
@@ -532,10 +539,12 @@ int write_player_file()
 
 	errno_ret = WriteConfigFile();
 
-#ifndef MACINTOSH
-	sprintf(filename, "%s.plr", Players[Player_num].callsign);
-#else
+#ifdef MACINTOSH
 	sprintf(filename, ":Players:%.8s.plr", Players[Player_num].callsign);
+#elif defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/%s.plr", get_local_file_path_prefix(), Players[Player_num].callsign);
+#else
+	sprintf(filename, "%s.plr", Players[Player_num].callsign);
 #endif
 	file = fopen(filename, "wb");
 

@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "misc/types.h"
 #include "game.h"
 #include "digi.h"
@@ -65,6 +66,7 @@ void set_custom_detail_vars(void);
 
 int ReadConfigFile()
 {
+	char filename[256];
 	FILE* infile;
 	char line[80], * token, * value, * ptr;
 	uint8_t gamma;
@@ -93,7 +95,12 @@ int ReadConfigFile()
 	Config_control_type = 0;
 	Config_channels_reversed = 0;
 
-	infile = fopen("descent.cfg", "rt");
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/descent.cfg", get_local_file_path_prefix());
+#else
+	strncpy(filename, "descent.cfg", 255);
+#endif
+	infile = fopen(filename, "rt");
 	if (infile == NULL) 
 	{
 		return 1;
@@ -228,6 +235,7 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
+	char filename[256];
 	FILE* infile;
 	char str[256];
 	int joy_axis_min[4];
@@ -237,7 +245,12 @@ int WriteConfigFile()
 
 	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 
-	infile = fopen("descent.cfg", "wt");
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/descent.cfg", get_local_file_path_prefix());
+#else
+	strncpy(filename, "descent.cfg", 255);
+#endif
+	infile = fopen(filename, "wt");
 	if (infile == NULL) 
 	{
 		return 1;

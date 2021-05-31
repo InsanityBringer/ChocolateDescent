@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "misc/types.h"
 #include "inferno.h"
@@ -226,7 +227,7 @@ int piggy_init()
 	DiskSoundHeader sndh;
 	int header_size, N_bitmaps, N_sounds;
 	int i, size, length, x, y;
-	const char* filename;
+	char filename[256];
 	int read_sounds = 1;
 	int Pigdata_start;
 
@@ -275,7 +276,11 @@ int piggy_init()
 		GameBitmapOffset[0] = 0;
 	}
 
-	filename = "DESCENT.PIG";
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/descent.pig", get_local_file_path_prefix());
+#else
+	strncpy(filename, "DESCENT.PIG", 255);
+#endif
 
 	if (FindArg("-bigpig"))
 		BigPig = 1;
@@ -291,7 +296,7 @@ int piggy_init()
 
 	if ((i = FindArg("-piggy"))) 
 	{
-		filename = Args[i + 1];
+		strncpy(filename, Args[i + 1], 255);
 		mprintf((0, "Using alternate pigfile, '%s'\n", filename));
 	}
 	Piggy_fp = cfopen(filename, "rb");
@@ -634,7 +639,7 @@ void piggy_dump_all()
 	FILE* fp1;
 	FILE* fp2;
 #endif
-	char* filename;
+	char filename[256];
 	int data_offset;
 	int org_offset;
 	DiskBitmapHeader bmh;
@@ -700,7 +705,11 @@ void piggy_dump_all()
 	piggy_close_file();
 
 	mprintf((0, "Creating DESCENT.PIG..."));
-	filename = "DESCENT.PIG";
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/descent.pig", get_local_file_path_prefix());
+#else
+	strncpy(filename, "DESCENT.PIG", 255);
+#endif
 	if ((i = FindArg("-piggy"))) 
 	{
 		filename = Args[i + 1];

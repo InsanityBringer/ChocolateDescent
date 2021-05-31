@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/platform.h"
 #include "platform/s_midi.h"
 #include "platform/mouse.h"
@@ -33,18 +34,27 @@ static const char* SwapIntervalStr = "SwapInterval";
 int I_ReadChocolateConfig()
 {
 	FILE* infile;
-	char line[512], * token, * value, * ptr;
+	char line[512], cfgpath[256], * token, * value, * ptr;
 
 	char* next = NULL;
 
 	WindowWidth = 800;
 	WindowHeight = 600;
 
-	infile = fopen("chocolatedescent.cfg", "rt");
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(cfgpath, "%s/chocolatedescent.cfg", get_local_file_path_prefix());
+#else
+	sprintf(cfgpath, "chocolatedescent.cfg");
+#endif
+
+	infile = fopen(cfgpath, "rt");
 	if (infile == NULL) 
 	{
 		//Try creating a default config file
-		infile = fopen("chocolatedescent.cfg", "w");
+#if defined(__APPLE__) && defined(__MACH__)
+		mkdir_recursive(get_local_file_path_prefix());
+#endif
+		infile = fopen(cfgpath, "w");
 		if (infile != NULL)
 		{
 			fprintf(infile, "%s=%d\n", WindowWidthStr, WindowWidth);
@@ -85,8 +95,15 @@ int I_ReadChocolateConfig()
 			else if (!strcmp(token, SoundFontPath))
 			{
 				char* p;
+#if defined(__APPLE__) && defined(__MACH__)
+				char SoundFontFilenameWithPath[256];
+				sprintf(SoundFontFilenameWithPath, "%s/%s", get_local_file_path_prefix(), value);
+				memset(&SoundFontFilename[0], 0, 256);
+				strncpy(&SoundFontFilename[0], SoundFontFilenameWithPath, 255);
+#else
 				memset(&SoundFontFilename[0], 0, 256);
 				strncpy(&SoundFontFilename[0], value, 255);
+#endif
 				//[ISB] godawful hack from Descent's config parser, should fix parsing the soundfont path
 				p = strchr(SoundFontFilename, '\n');
 				if (p)* p = 0;

@@ -15,6 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <errno.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "misc/error.h"
 #include "inferno.h"
@@ -197,7 +198,11 @@ RetrySelection:
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[256 + FILENAME_LEN];
+#else
 	char filename[FILENAME_LEN];
+#endif
 	FILE* file;
 	save_info info;
 	int errno_ret = EZERO;
@@ -205,7 +210,11 @@ int read_player_file()
 	Assert(Player_num >= 0 && Player_num < MAX_PLAYERS);
 
 	//sprintf(filename, "%8s.plr", Players[Player_num].callsign);
+#if defined(__APPLE__) && defined(__MACH__)
+	snprintf(filename, 256 + FILENAME_LEN, "%s/%s.plr", get_local_file_path_prefix(), Players[Player_num].callsign);
+#else
 	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
+#endif
 	file = fopen(filename, "rb");
 
 	//check filename
@@ -410,7 +419,11 @@ int get_highest_level(void)
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[268];
+#else
 	char filename[13];
+#endif
 	FILE* file;
 	save_info info;
 	int errno_ret;
@@ -427,7 +440,11 @@ int write_player_file()
 
 	info.n_highest_levels = n_highest_levels;
 
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/%s.plr", get_local_file_path_prefix(), Players[Player_num].callsign);
+#else
 	sprintf(filename, "%s.plr", Players[Player_num].callsign);
+#endif
 	file = fopen(filename, "wb");
 
 	//check filename

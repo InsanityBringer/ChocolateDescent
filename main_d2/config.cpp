@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "misc/types.h"
 #include "game.h"
 #include "menu.h"
@@ -170,6 +171,7 @@ void CheckMovieAttributes()
 
 int ReadConfigFile()
 {
+	char filename[256];
 	FILE *infile;
 	char line[80], *token, *value, *ptr;
 	uint8_t gamma;
@@ -211,7 +213,12 @@ int ReadConfigFile()
 	SaveMovieHires = MovieHires;
 	save_redbook_enabled = Redbook_enabled;
 
-	infile = fopen("descent.cfg", "rt");
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/descent.cfg", get_local_file_path_prefix());
+#else
+	strncpy(filename, "descent.cfg", 255);
+#endif
+	infile = fopen(filename, "rt");
 	if (infile == NULL) {
 		WIN(CheckMovieAttributes());
 		return 1;
@@ -425,6 +432,7 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
+	char filename[256];
 	FILE *infile;
    int i;
 	char str[256];
@@ -444,7 +452,12 @@ int WriteConfigFile()
    }
 #endif
 
-	infile = fopen("descent.cfg", "wt");
+#if defined(__APPLE__) && defined(__MACH__)
+	sprintf(filename, "%s/descent.cfg", get_local_file_path_prefix());
+#else
+	strncpy(filename, "descent.cfg", 255);
+#endif
+	infile = fopen(filename, "wt");
 	if (infile == NULL) {
 		return 1;
 	}

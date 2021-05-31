@@ -122,8 +122,8 @@ void load_text()
 			if (p[1] == 'n') newchar = '\n';
 			else if (p[1] == 't') newchar = '\t';
 			else if (p[1] == '\\') newchar = '\\';
-			else
-				Error("Unsupported key sequence <\\%c> on line %d of file <%s>", p[1], i + 1, filename);
+//			else
+//				Error("Unsupported key sequence <\\%c> on line %d of file <%s>", p[1], i + 1, filename);
 
 			p[0] = newchar;
 			strcpy(p + 1, p + 2);
