@@ -195,6 +195,15 @@ FILE* cfile_find_libfile(const char* name, int* length)
 	{
 #if defined(__APPLE__) && defined(__MACH__)
 		sprintf(HogFilename, "%s/descent.hog", get_local_file_path_prefix());
+		FILE* descent_hog_test_fp = fopen(HogFilename, "r");
+		if(!descent_hog_test_fp)
+		{
+			fclose(descent_hog_test_fp);
+			char err_str[256];
+			sprintf(err_str, "\nUnable to find file descent.hog\nPlease make sure it exists at:\n%s/descent.hog", get_local_file_path_prefix());
+			Error(err_str);
+		}
+		fclose(descent_hog_test_fp);
 		cfile_init_hogfile(HogFilename, HogFiles, &Num_hogfiles);
 		Hogfile_initialized = 1;
 #else
