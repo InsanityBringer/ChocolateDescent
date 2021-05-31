@@ -278,6 +278,14 @@ int piggy_init()
 
 #if defined(__APPLE__) && defined(__MACH__)
 	sprintf(filename, "%s/descent.pig", get_local_file_path_prefix());
+	FILE* descent_pig_test = fopen(filename, "r");
+	if(!descent_pig_test)
+	{
+		char err_str[256];
+		fclose(descent_pig_test);
+		sprintf(err_str, "\nUnable to find file descent.pig\nPlease make sure it exists at:\n%s/descent.pig", get_local_file_path_prefix());
+		Error(err_str);
+	}
 #else
 	strncpy(filename, "DESCENT.PIG", 255);
 #endif
@@ -707,6 +715,14 @@ void piggy_dump_all()
 	mprintf((0, "Creating DESCENT.PIG..."));
 #if defined(__APPLE__) && defined(__MACH__)
 	sprintf(filename, "%s/descent.pig", get_local_file_path_prefix());
+	FILE* descent_pig_test = fopen(filename, "r");
+	if(!descent_pig_test)
+	{
+		char err_str[256];
+		fclose(descent_pig_test);
+		sprintf(err_str, "\nUnable to find file descent.pig\nPlease make sure it exists at:\n%s/descent.pig", get_local_file_path_prefix());
+		Error(err_str);
+	}
 #else
 	strncpy(filename, "DESCENT.PIG", 255);
 #endif
