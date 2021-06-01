@@ -7,6 +7,11 @@ Instead, it is released under the terms of the MIT License.
 #pragma once
 
 #include <stddef.h>
+#if defined(_WIN32)
+#include <stdlib.h>
+#else
+#include <limits.h>
+#endif
 
 #if defined(_WIN32)
 static const char PLATFORM_PATH_SEPARATOR = '\\';
@@ -14,7 +19,11 @@ static const char PLATFORM_PATH_SEPARATOR = '\\';
 static const char PLATFORM_PATH_SEPARATOR = '/';
 #endif
 
-static char local_file_path_prefix[512] = {0};
+#if defined(_WIN32)
+#define CHOCOLATE_MAX_FILE_PATH_SIZE _MAX_PATH * 4 //Apparently NT can have longer paths than indicated?
+#else
+#define CHOCOLATE_MAX_FILE_PATH_SIZE PATH_MAX
+#endif
 
 #if defined(BUILD_DESCENT1)
 static const char* CHOCOLATE_DESCENT_VERSION_STRING = "Descent 1";
