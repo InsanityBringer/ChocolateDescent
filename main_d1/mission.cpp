@@ -349,7 +349,6 @@ int load_mission(int mission_num)
 
 		while (eof_check != EOF)
 		{
-			printf("msn_line: %s\n", msn_line);
 			if (istok(msn_line, "name"))
 			{
 				eof_check = get_msn_line(mfile, msn_line);
@@ -455,8 +454,6 @@ int load_mission(int mission_num)
 						if ((t = strchr(msn_line, ',')) != NULL)* t++ = 0;
 						else
 							break;
-
-						printf("t is: %s\n", t);
 
 						add_term(msn_line);
 						if (strlen(msn_line) <= 12) {
