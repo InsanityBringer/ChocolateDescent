@@ -15,7 +15,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 
 #include <stdio.h>
 
-#if defined(__linux__) || defined(WIN32)
+#if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 #include <malloc.h>
 #endif
 

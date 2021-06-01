@@ -16,7 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>	// for memset
 #include <ctype.h>
 
-#if defined(__linux__) || defined(WIN32)
+#if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 #include <malloc.h>
 #endif
 
