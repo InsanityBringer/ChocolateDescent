@@ -6,6 +6,8 @@ Instead, it is released under the terms of the MIT License.
 
 #pragma once
 
+#include <stddef.h>
+
 #if defined(_WIN32)
 static const char PLATFORM_PATH_SEPARATOR = '\\';
 #else
@@ -33,7 +35,7 @@ void mkdir_recursive(const char* dir);
 const char* get_local_file_path_prefix();
 
 //Get full path to files using the local file path prefix
-void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path);
+void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path = NULL);
 
 //Get full path to files in an OS-specific temp directory
 void get_temp_file_full_path(char* filename_full_path, const char* filename);
