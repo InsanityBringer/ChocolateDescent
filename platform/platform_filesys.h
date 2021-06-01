@@ -6,6 +6,12 @@ Instead, it is released under the terms of the MIT License.
 
 #pragma once
 
+#if defined(_WIN32)
+static const char PLATFORM_PATH_SEPARATOR = '\\';
+#else
+static const char PLATFORM_PATH_SEPARATOR = '/';
+#endif
+
 static char local_file_path_prefix[512] = {0};
 
 #if defined(BUILD_DESCENT1)

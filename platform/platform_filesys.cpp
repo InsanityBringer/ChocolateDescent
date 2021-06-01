@@ -11,12 +11,6 @@ Instead, it is released under the terms of the MIT License.
 #include <string.h>
 #include <sys/stat.h>
 
-#if defined(_WIN32)
-static const char PLATFORM_PATH_SEPARATOR = '\\';
-#else
-static const char PLATFORM_PATH_SEPARATOR = '/';
-#endif
-
 // This is not completely ready for primetime
 // for Windows.  Drive letters aren't really
 // accounted for.
@@ -81,7 +75,7 @@ void get_full_file_path(char* filename_full_path, const char* filename, const ch
 		}
 		else
 		{
-			sprintf(filename_full_path, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, additional_path, PlatformPathSeparator, filename);
+			sprintf(filename_full_path, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, additional_path, PLATFORM_PATH_SEPARATOR, filename);
 			return;
 		}
 	}
@@ -96,7 +90,7 @@ void get_full_file_path(char* filename_full_path, const char* filename, const ch
 		}
 		else
 		{
-			sprintf(filename_full_path, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, additional_path, PlatformPathSeparator, temp_buf);
+			sprintf(filename_full_path, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, additional_path, PLATFORM_PATH_SEPARATOR, temp_buf);
 			return;
 		}
 	}
