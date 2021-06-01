@@ -57,7 +57,7 @@ const char* get_local_file_path_prefix()
 	if(local_file_path_prefix[0] == 0)
 	{
 		char chocolate_descent_directory[256];
-		sprintf(chocolate_descent_directory, "%s/Library/Preferences/Chocolate Descent/%s", getenv("HOME"), descent_version_string);
+		sprintf(chocolate_descent_directory, "%s/Library/Application Support/Chocolate Descent/%s", getenv("HOME"), descent_version_string);
 		strcpy(local_file_path_prefix, chocolate_descent_directory);
 	}
 

@@ -12,13 +12,13 @@ version) are all uppercase.
 In order to run the game with all the bells and whistles, place your resources
 in the following locations:
 
-~/Library/Preferences/Chocolate Descent/Descent 1
-~/Library/Preferences/Chocolate Descent/Descent 2
+~/Library/Application Support/Chocolate Descent/Descent 1
+~/Library/Application Support/Chocolate Descent/Descent 2
 This is where your player files, saved games, high scores, and config files are
 generated for Descent 1 or Descent 2, respectively.
 
-~/Library/Preferences/Chocolate Descent/Descent 1/Data
-~/Library/Preferences/Chocolate Descent/Descent 2/Data
+~/Library/Application Support/Chocolate Descent/Descent 1/Data
+~/Library/Application Support/Chocolate Descent/Descent 2/Data
 This is where the core game data goes.  For Descent 1, that's:
 descent.hog
 descent.pig
@@ -43,13 +43,13 @@ other-l.mvl
 robots-h.mvl
 water.pig
 
-~/Library/Preferences/Chocolate Descent/Descent 1/Data/Demos
-~/Library/Preferences/Chocolate Descent/Descent 2/Data/Demos
+~/Library/Application Support/Chocolate Descent/Descent 1/Data/Demos
+~/Library/Application Support/Chocolate Descent/Descent 2/Data/Demos
 This is where your recorded demo files should be placed.  These files have a
 ".dem" extension.  Some are included in the retail releases.
 
-~/Library/Preferences/Chocolate Descent/Descent 1/Data/Missions
-~/Library/Preferences/Chocolate Descent/Descent 2/Data/Missions
+~/Library/Application Support/Chocolate Descent/Descent 1/Data/Missions
+~/Library/Application Support/Chocolate Descent/Descent 2/Data/Missions
 This is where mission files should be placed.
 
 For Descent 1, this includes:
@@ -66,8 +66,8 @@ All .rdl files
 All .txt files
 All .hog files which are not descent2.hog
 
-~/Library/Preferences/Chocolate Descent/Descent 1/Data/SoundFonts
-~/Library/Preferences/Chocolate Descent/Descent 2/Data/SoundFonts
+~/Library/Application Support/Chocolate Descent/Descent 1/Data/SoundFonts
+~/Library/Application Support/Chocolate Descent/Descent 2/Data/SoundFonts
 This location is where your .sf2 SoundFont files should be in order to have
 MIDI music in-game.  Once you put a .sf2 file here, you'll need to update
 your Chocolate Descent config file (chocolatedescent.cfg) with the filename.
