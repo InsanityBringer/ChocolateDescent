@@ -18,7 +18,7 @@ static char local_file_path_prefix[CHOCOLATE_MAX_FILE_PATH_SIZE] = {0};
 // accounted for.
 void mkdir_recursive(const char *dir)
 {
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(_WIN64)
 	char tmp[MAX_PATH];
 #else
 	char tmp[PATH_MAX];
