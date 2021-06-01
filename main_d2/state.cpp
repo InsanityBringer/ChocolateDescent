@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "platform/mono.h"
 #include "inferno.h"
@@ -207,7 +208,11 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	FILE* fp;
 	int i, choice, version;
 	newmenu_item m[NUM_SAVES + 2];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[NUM_SAVES + 1][256];
+#else
 	char filename[NUM_SAVES + 1][30];
+#endif
 	char desc[NUM_SAVES + 1][DESC_LENGTH + 16];
 	char id[5];
 	int valid = 0;
@@ -216,16 +221,18 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	{
 		sc_bmp[i] = NULL;
 		if (!multi)
-#ifndef MACINTOSH
-			sprintf(filename[i], "%s.sg%x", Players[Player_num].callsign, i);
-#else
+#ifdef MACINTOSH
 			sprintf(filename[i], ":Players:%s.sg%x", Players[Player_num].callsign, i);
-#endif
 		else
-#ifndef MACINTOSH
-			sprintf(filename[i], "%s.mg%x", Players[Player_num].callsign, i);
-#else
 			sprintf(filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i);
+#elif defined(__APPLE__) && defined(__MACH__)
+			sprintf(filename[i], "%s/%s.sg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+		else
+			sprintf(filename[i], "%s/%s.mg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+#else
+			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
+		else
+			sprintf(filename[i], "%s.mg%d", Players[Player_num].callsign, i);
 #endif
 		valid = 0;
 		fp = fopen(filename[i], "rb");
@@ -284,7 +291,11 @@ int state_get_restore_file(char* fname, int multi)
 	FILE* fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES + 2];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[NUM_SAVES + 1][256];
+#else
 	char filename[NUM_SAVES + 1][30];
+#endif
 	char desc[NUM_SAVES + 1][DESC_LENGTH + 16];
 	char id[5];
 	int valid;
@@ -295,16 +306,20 @@ int state_get_restore_file(char* fname, int multi)
 	{
 		sc_bmp[i] = NULL;
 		if (!multi)
-#ifndef MACINTOSH
-			sprintf(filename[i], "%s.sg%x", Players[Player_num].callsign, i);
-#else
+#ifdef MACINTOSH
 			sprintf(filename[i], ":Players:%s.sg%x", Players[Player_num].callsign, i);
-#endif
 		else
-#ifndef MACINTOSH
-			sprintf(filename[i], "%s.mg%x", Players[Player_num].callsign, i);
-#else
 			sprintf(filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i);
+#elif defined(__APPLE__) && defined(__MACH__)
+		if (!multi)
+			sprintf(filename[i], "%s/%s.sg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+		else
+			sprintf(filename[i], "%s/%s.mg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+#else
+		if (!multi)
+			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
+		else
+			sprintf(filename[i], "%s.mg%d", Players[Player_num].callsign, i);
 #endif
 		valid = 0;
 		fp = fopen(filename[i], "rb");
@@ -464,6 +479,13 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 
 	char	filename[128], desc[DESC_LENGTH + 1];
 
+#if defined(__APPLE__) && defined(__MACH__)
+	char	filename_full_path[256], secretb_full_path[256], 
+			temp_fname_full_path[256], secretc_full_path[256], *separator_pos;
+	sprintf(secretb_full_path, "%s/%s", get_local_file_path_prefix(), SECRETB_FILENAME);
+	sprintf(secretc_full_path, "%s/%s", get_local_file_path_prefix(), SECRETC_FILENAME);
+#endif
+
 	Assert(between_levels == 0);	//between levels save ripped out
 
 #ifdef NETWORK
@@ -490,7 +512,11 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	if (secret_save && (Control_center_destroyed))
 	{
 		mprintf((0, "Deleting secret.sgb so player can't return to base level.\n"));
+#if defined(__APPLE__) && defined(__MACH__)
+		_unlink(secretb_full_path);
+#else
 		_unlink(SECRETB_FILENAME);
+#endif
 		return 0;
 	}
 
@@ -498,16 +524,46 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 
 	if (secret_save == 1)
 	{
+#if defined(__APPLE__) && defined(__MACH__)
+		filename_override = filename_full_path;
+		sprintf(filename_override, secretb_full_path);
+#else
 		filename_override = filename;
 		sprintf(filename_override, SECRETB_FILENAME);
+#endif
 	}
 	else if (secret_save == 2)
 	{
+#if defined(__APPLE__) && defined(__MACH__)
+		filename_override = filename_full_path;
+		sprintf(filename_override, secretb_full_path);
+#else
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
+#endif
 	}
 	else
 	{
+#if defined(__APPLE__) && defined(__MACH__)
+		if (filename_override)
+		{
+			if (strrchr(filename_override, '/') != NULL)
+			{
+				strncpy(filename_full_path, filename_override, 255);
+				sprintf(desc, "[autosave backup]");
+			}
+			else
+			{
+				sprintf(filename_full_path, "%s/%s", get_local_file_path_prefix(), filename_override);
+				sprintf(desc, "[autosave backup]");
+			}
+		}
+		else if (!(filenum = state_get_save_file(filename_full_path, desc, 0)))
+		{
+			start_time();
+			return 0;
+		}
+#else
 		if (filename_override)
 		{
 			strcpy(filename, filename_override);
@@ -518,6 +574,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 			start_time();
 			return 0;
 		}
+#endif
 	}
 
 	//	MK, 1/1/96
@@ -542,6 +599,25 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 			sprintf(temp_fname, ":Players:%csecret.sgc", fc);
 #endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+			sprintf(temp_fname_full_path, "%s%s", getenv("TMPDIR"), temp_fname);
+
+			mprintf((0, "Trying to copy secret.sgc to %s.\n", temp_fname_full_path));
+
+			if (file_exists(temp_fname_full_path))
+			{
+				mprintf((0, "Deleting file: %s\n", temp_fname_full_path));
+				rval = _unlink(temp_fname_full_path);
+				Assert(rval == 0);
+			}
+
+			if (file_exists(secretc_full_path))
+			{
+				mprintf((0, "Copying secret.sgc to %s.\n", temp_fname_full_path));
+				rval = copy_file(secretc_full_path, temp_fname_full_path);
+				Assert(rval == 0);
+			}
+#else
 			mprintf((0, "Trying to copy secret.sgc to %s.\n", temp_fname));
 
 			if (file_exists(temp_fname))
@@ -557,6 +633,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 				rval = copy_file(SECRETC_FILENAME, temp_fname);
 				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
 			}
+#endif
 		}
 	}
 
@@ -565,26 +642,44 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	{
 		FILE* tfp;
 
+#if defined(__APPLE__) && defined(__MACH__)
+		tfp = fopen(filename_full_path, "r+b");
+#else
 		tfp = fopen(filename, "r+b");
+#endif
 
 		if (tfp) {
-			char	newname[128];
-
-#ifndef MACINTOSH
-			sprintf(newname, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
+#if defined(__APPLE__) && defined(__MACH__)
+			char	newname[256];
 #else
+			char	newname[128];
+#endif
+
+#ifdef MACINTOSH
 			sprintf(newname, ":Players:%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
+#elif defined(__APPLE__) && defined(__MACH__)
+			sprintf(newname, "%s/%s.sg%x", get_local_file_path_prefix(), Players[Player_num].callsign, NUM_SAVES);
+#else
+			sprintf(newname, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
 #endif
 
 			fseek(tfp, DESC_OFFSET, SEEK_SET);
 			fwrite("[autosave backup]", sizeof(char) * DESC_LENGTH, 1, tfp);
 			fclose(tfp);
 			_unlink(newname);
+#if defined(__APPLE__) && defined(__MACH__)
+			rename(filename_full_path, newname);
+#else
 			rename(filename, newname);
+#endif
 		}
 	}
 
+#if defined(__APPLE__) && defined(__MACH__)
+	rval = state_save_all_sub(filename_full_path, desc, between_levels);
+#else
 	rval = state_save_all_sub(filename, desc, between_levels);
+#endif
 
 	return rval;
 }
