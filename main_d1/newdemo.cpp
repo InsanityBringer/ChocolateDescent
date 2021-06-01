@@ -788,6 +788,10 @@ void newdemo_record_start_demo()
 {
 #ifndef SHAREWARE
 	int i;
+#if defined(__APPLE__) && defined(__MACH__)
+	char temp_buffer[256];
+	char* separator_pos;
+#endif
 #endif
 
 	stop_time();
@@ -842,8 +846,20 @@ void newdemo_record_start_demo()
 	nd_write_byte((int8_t)Players[Player_num].laser_level);
 
 	//  Support for missions added here
-
+#if defined(__APPLE__) && defined(__MACH__)
+	separator_pos = strrchr(Current_mission_filename, '/');
+	if(separator_pos != NULL)
+	{
+		strncpy(temp_buffer, separator_pos + 1, 256);
+		nd_write_string(temp_buffer);
+	}
+	else
+	{
+		nd_write_string(Current_mission_filename);
+	}
+#else
 	nd_write_string(Current_mission_filename);
+#endif
 
 #endif
 
