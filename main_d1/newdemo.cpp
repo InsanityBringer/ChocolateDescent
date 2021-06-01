@@ -2780,7 +2780,7 @@ void newdemo_start_recording()
 	Newdemo_state = ND_STATE_RECORDING;
 #if defined(__APPLE__) && defined(__MACH__)
 	char demo_filename_full_path[256];
-	sprintf(demo_filename_full_path, "%s/%s", getenv("TMPDIR"), DEMO_FILENAME);
+	sprintf(demo_filename_full_path, "%s%s", getenv("TMPDIR"), DEMO_FILENAME);
 	outfile = fopen(demo_filename_full_path, "wb");
 #else
 	outfile = fopen(DEMO_FILENAME, "wb");
@@ -2803,7 +2803,7 @@ void newdemo_stop_recording()
 
 #if defined(__APPLE__) && defined(__MACH__)
 	char demo_temp_filename_full_path[256], demo_filename_full_path[256];
-	sprintf(demo_temp_filename_full_path, "%s/%s", getenv("TMPDIR"), DEMO_FILENAME);
+	sprintf(demo_temp_filename_full_path, "%s%s", getenv("TMPDIR"), DEMO_FILENAME);
 #endif
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(frame_bytes_written - 1);
