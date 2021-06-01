@@ -85,7 +85,7 @@ void get_full_file_path(char* filename_full_path, const char* filename, const ch
 	}
 	else
 	{
-		strncpy(temp_buf, separator_pos + 1, 255);
+		strncpy(temp_buf, separator_pos + 1, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
 
 		if (additional_path == NULL || strlen(additional_path) == 0)
 		{
