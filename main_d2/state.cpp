@@ -695,6 +695,10 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	grs_canvas cnv2, * save_cnv2;
 #endif
 	uint8_t* pal;
+#if defined(__APPLE__) && defined(__MACH__)
+	char temp_buffer[256];
+	char* separator_pos;
+#endif
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
@@ -830,8 +834,23 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	F_WriteInt(fp, between_levels);
 
 	// Save the mission info...
+#if defined(__APPLE__) && defined(__MACH__)
+	separator_pos = strrchr(Mission_list[Current_mission_num].filename, '/');
+	if(separator_pos != NULL)
+	{
+		strncpy(temp_buffer, separator_pos + 1, 256);
+		mprintf((0, "HEY! Mission name is %s\n", temp_buffer));
+		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
+	}
+	else
+	{
+		mprintf((0, "HEY! Mission name is %s\n", Mission_list[Current_mission_num].filename));
+		fwrite(&Mission_list[Current_mission_num], sizeof(char) * 9, 1, fp);
+	}
+#else
 	mprintf((0, "HEY! Mission name is %s\n", Mission_list[Current_mission_num].filename));
 	fwrite(&Mission_list[Current_mission_num], sizeof(char) * 9, 1, fp);
+#endif
 
 	//Save level info
 	//fwrite(&Current_level_num, sizeof(int), 1, fp);
