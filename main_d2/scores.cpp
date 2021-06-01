@@ -78,7 +78,11 @@ static all_scores Scores;
 
 stats_info Last_game;
 
-char scores_filename[256];
+#if defined(__APPLE__) && defined(__MACH__)
+char scores_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
+char scores_filename[128];
+#endif
 
 #define XX  (7)
 #define YY  (-3)
@@ -98,7 +102,9 @@ char* get_scores_filename()
 	if (p)
 	{
 #if defined(__APPLE__) && defined(__MACH__)
-		sprintf(scores_filename, "%s/%s/game/%s", get_local_file_path_prefix(), p, SCORES_FILENAME);
+		char miner_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		snprintf(miner_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s/game", p);
+		get_full_file_path(scores_filename, SCORES_FILENAME, miner_path);
 #else
 		sprintf(scores_filename, "%s\\game\\%s", p, SCORES_FILENAME);
 #endif
@@ -109,7 +115,7 @@ char* get_scores_filename()
 #ifdef MACINTOSH		// put the high scores into the data folder
 	sprintf(scores_filename, ":Data:%s", SCORES_FILENAME);
 #elif defined(__APPLE__) && defined(__MACH__)
-	sprintf(scores_filename, "%s/%s", get_local_file_path_prefix(), SCORES_FILENAME);
+	get_full_file_path(scores_filename, SCORES_FILENAME);
 #else
 	sprintf(scores_filename, "%s", SCORES_FILENAME);
 #endif

@@ -1392,8 +1392,8 @@ int load_level(char* filename_passed)
 #endif
 
 #if defined(__APPLE__) && defined(__MACH__)
-	char full_path_filename[256];
-	sprintf(full_path_filename, "%s/Data/Missions/%s", get_local_file_path_prefix(), filename);
+	char full_path_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(full_path_filename, filename, "Data/Missions");
 
 	LoadFile = cfopen(full_path_filename, "rb");
 	if (!LoadFile) {

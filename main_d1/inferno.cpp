@@ -634,8 +634,9 @@ int D_DescentMain(int argc, const char** argv)
 
 	if (Auto_demo) {
 #if defined(__APPLE__) && defined(__MACH__)
-		char demo_full_path[256];
-		sprintf(demo_full_path, "%s/Data/Demos/descent.dem", get_local_file_path_prefix());
+		char demo_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		get_full_file_path(demo_full_path, "descent.dem", "Data/Demos");
+		newdemo_start_playback(demo_full_path);
 #else
 		newdemo_start_playback("DESCENT.DEM");
 #endif

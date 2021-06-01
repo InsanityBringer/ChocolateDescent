@@ -43,6 +43,9 @@ void mkdir_recursive(const char* dir);
 //Get path to user files for local system
 const char* get_local_file_path_prefix();
 
+//Assuming a / is used as a path separator in code, localize it for the platform this is running on
+void get_platform_localized_interior_path(char* platform_localized_interior_path, const char* interior_path);
+
 //Get full path to files using the local file path prefix
 void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path = NULL);
 

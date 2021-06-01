@@ -38,7 +38,7 @@ typedef struct hogfile
 #define MAX_HOGFILES 250
 
 #if defined(__APPLE__) && defined(__MACH__)
-#define HOG_FILENAME_MAX 256
+#define HOG_FILENAME_MAX CHOCOLATE_MAX_FILE_PATH_SIZE
 #else
 #define HOG_FILENAME_MAX 64
 #endif
@@ -198,13 +198,13 @@ FILE* cfile_find_libfile(const char* name, int* length)
 	if (!Hogfile_initialized) 
 	{
 #if defined(__APPLE__) && defined(__MACH__)
-		sprintf(HogFilename, "%s/Data/descent.hog", get_local_file_path_prefix());
+		get_full_file_path(HogFilename, "descent.hog", "Data");
 		FILE* descent_hog_test_fp = fopen(HogFilename, "r");
 		if(!descent_hog_test_fp)
 		{
 			fclose(descent_hog_test_fp);
-			char err_str[256];
-			sprintf(err_str, "\nUnable to find file descent.hog\nPlease make sure it exists at:\n%s/Data/descent.hog", get_local_file_path_prefix());
+			char err_str[CHOCOLATE_MAX_FILE_PATH_SIZE + 512];
+			sprintf(err_str, "\nUnable to find file descent.hog\nPlease make sure it exists at:\n%s", HogFilename);
 			Error(err_str);
 		}
 		fclose(descent_hog_test_fp);

@@ -60,9 +60,30 @@ const char* get_local_file_path_prefix()
 #endif
 }
 
+void get_platform_localized_interior_path(char* platform_localized_interior_path, const char* interior_path)
+{
+	if (PLATFORM_PATH_SEPARATOR == '/')
+	{
+		strncpy(platform_localized_interior_path, interior_path, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+		return;
+	}
+
+	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	strncpy(temp_buf, interior_path, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+
+	char* separator_pos = strchr(temp_buf, '/');
+	while (separator_pos)
+	{
+		*separator_pos = PLATFORM_PATH_SEPARATOR;
+		separator_pos = strchr(separator_pos, '/');
+	}
+
+	strncpy(platform_localized_interior_path, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+}
+
 void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path)
 {
-	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE], platform_localized_interior_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	const char* separator_pos;
 	memset(temp_buf, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 	separator_pos = strrchr(filename, PLATFORM_PATH_SEPARATOR);
@@ -75,7 +96,8 @@ void get_full_file_path(char* filename_full_path, const char* filename, const ch
 		}
 		else
 		{
-			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, additional_path, PLATFORM_PATH_SEPARATOR, filename);
+			get_platform_localized_interior_path(platform_localized_interior_path, additional_path);
+			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, platform_localized_interior_path, PLATFORM_PATH_SEPARATOR, filename);
 			return;
 		}
 	}
@@ -90,7 +112,8 @@ void get_full_file_path(char* filename_full_path, const char* filename, const ch
 		}
 		else
 		{
-			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, additional_path, PLATFORM_PATH_SEPARATOR, temp_buf);
+			get_platform_localized_interior_path(platform_localized_interior_path, additional_path);
+			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, platform_localized_interior_path, PLATFORM_PATH_SEPARATOR, temp_buf);
 			return;
 		}
 	}

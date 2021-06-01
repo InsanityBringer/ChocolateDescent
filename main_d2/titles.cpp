@@ -967,7 +967,6 @@ int show_briefing_message(int screen_num, char* message)
 
 			if (!chattering)
 			{
-				printf("Beginning to play SOUND_BRIEFING_PRINTING\n");
 				printing_channel = digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF / 2, 1, -1, -1, -1);
 				chattering = 1;
 			}

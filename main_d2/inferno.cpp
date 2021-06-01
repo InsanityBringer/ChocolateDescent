@@ -521,7 +521,7 @@ int D_DescentMain(int argc, const char** argv)
 	int i, t;		//note: don't change these without changing stack lockdown code below
 	uint8_t title_pal[768];
 #if defined(__APPLE__) && defined(__MACH__)
-	char hogfile_full_path[256];
+	char hogfile_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 	error_init(NULL, NULL);
@@ -560,7 +560,7 @@ int D_DescentMain(int argc, const char** argv)
 
 #ifdef SHAREWARE
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(hogfile_full_path, "%s/Data/d2demo.hog", get_local_file_path_prefix());
+	get_full_file_path(hogfile_full_path, "d2demo.hog", "Data");
 	cfile_init(hogfile_full_path);
 #else
 	cfile_init("d2demo.hog");			//specify name of hogfile
@@ -568,7 +568,7 @@ int D_DescentMain(int argc, const char** argv)
 #else
 #define HOGNAME "descent2.hog"
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(hogfile_full_path, "%s/Data/%s", get_local_file_path_prefix(), HOGNAME);
+	get_full_file_path(hogfile_full_path, HOGNAME, "Data");
 	if (!cfile_init(hogfile_full_path))
 #else
 	if (!cfile_init(HOGNAME))

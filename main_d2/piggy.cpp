@@ -329,7 +329,7 @@ void piggy_init_pigfile(const char* filename)
 #ifdef MACINTOSH
 	char name[255];		// filename + path for the mac
 #elif defined(__APPLE__) && defined(__MACH__)
-	char name[256];
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 	piggy_close_file();             //close old pig if still open
@@ -340,7 +340,7 @@ void piggy_init_pigfile(const char* filename)
 #endif
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), filename);
+	get_full_file_path(name, filename, "Data");
 	Piggy_fp = cfopen(name, "rb");
 #else
 	Piggy_fp = cfopen(filename, "rb");
@@ -458,7 +458,7 @@ void piggy_new_pigfile(const char* pigname)
 #ifdef MACINTOSH
 	char name[255];
 #elif defined(__APPLE__) && defined(__MACH__)
-	char name[256];
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 #ifdef SHAREWARE                //rename pigfile for shareware
@@ -482,7 +482,7 @@ void piggy_new_pigfile(const char* pigname)
 	strncpy(Current_pigfile, pigname, sizeof(Current_pigfile));
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), pigname);
+	get_full_file_path(name, pigname, "Data");
 	Piggy_fp = cfopen(name, "rb");
 #else
 	Piggy_fp = cfopen(pigname, "rb");
@@ -742,14 +742,14 @@ int read_hamfile()
 #ifdef MACINTOSH
 	char name[255];
 #elif defined(__APPLE__) && defined(__MACH__)
-	char name[256];
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 #ifdef MACINTOSH
 	sprintf(name, ":Data:%s", DEFAULT_HAMFILE);
 	ham_fp = cfopen(name, "rb");
 #elif defined(__APPLE__) && defined(__MACH__)
-	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_HAMFILE);
+	get_full_file_path(name, DEFAULT_HAMFILE, "Data");
 	ham_fp = cfopen(name, "rb");
 #else
 	ham_fp = cfopen(DEFAULT_HAMFILE, "rb");
@@ -805,14 +805,14 @@ int read_sndfile()
 #ifdef MACINTOSH
 	char name[255];
 #elif defined(__APPLE__) && defined(__MACH__)
-	char name[256];
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 #ifdef MACINTOSH
 	sprintf(name, ":Data:%s", DEFAULT_SNDFILE);
 	snd_fp = cfopen(name, "rb");
 #elif defined(__APPLE__) && defined(__MACH__)
-	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_SNDFILE);
+	get_full_file_path(name, DEFAULT_SNDFILE, "Data");
 	snd_fp = cfopen(name, "rb");
 #else
 	snd_fp = cfopen(DEFAULT_SNDFILE, "rb");
@@ -974,7 +974,7 @@ void piggy_read_sounds(void)
 #ifdef MACINTOSH
 	char name[255];
 #elif defined(__APPLE__) && defined(__MACH__)
-	char name[256];
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 	ptr = SoundBits;
@@ -984,7 +984,7 @@ void piggy_read_sounds(void)
 	sprintf(name, ":Data:%s", DEFAULT_SNDFILE);
 	fp = cfopen(name, "rb");
 #elif defined(__APPLE__) && defined(__MACH__)
-	sprintf(name, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_SNDFILE);
+	get_full_file_path(name, DEFAULT_SNDFILE, "Data");
 	fp = cfopen(name, "rb");
 #else
 	fp = cfopen(DEFAULT_SNDFILE, "rb");
@@ -1193,7 +1193,7 @@ void piggy_write_pigfile(const char* filename)
 	FILE* fp1, * fp2;
 	char tname[FILENAME_LEN];
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename_full_path[256];
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 	// -- mprintf( (0, "Paging in all piggy bitmaps..." ));
@@ -1209,7 +1209,7 @@ void piggy_write_pigfile(const char* filename)
 	// -- mprintf( (0, "Creating %s...",filename ));
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename_full_path, "%s/Data/%s", get_local_file_path_prefix(), filename);
+	get_full_file_path(filename_full_path, filename, "Data");
 	pig_fp = fopen(filename_full_path, "wb");
 #else
 	pig_fp = fopen(filename, "wb");       //open PIG file
@@ -1229,10 +1229,10 @@ void piggy_write_pigfile(const char* filename)
 
 #if defined(__APPLE__) && defined(__MACH__)
 	change_filename_ext(tname, filename, "lst");
-	sprintf(filename_full_path, "%s/Data/%d", get_local_file_path_prefix(), tname);
+	get_full_file_path(filename_full_path, tname, "Data");
 	fp1 = fopen(filename_full_path, "wt");
 	change_filename_ext(tname, filename, "all");
-	sprintf(filename_full_path, "%s/Data/%d", get_local_file_path_prefix(), tname);
+	get_full_file_path(filename_full_path, tname, "Data");
 	fp2 = fopen(filename_full_path, "wt");
 #else
 	change_filename_ext(tname, filename, "lst");
@@ -1339,7 +1339,7 @@ void piggy_dump_all()
 	int sound_data_start;
 	FILE* fp1, * fp2;
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename_full_path[256];
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 #ifdef NO_DUMP_SOUNDS
@@ -1354,9 +1354,9 @@ void piggy_dump_all()
 		Error("-piggy no longer supported");
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename_full_path, "%s/Data/ham.lst", get_local_file_path_prefix());
+	get_full_file_path(filename_full_path, "ham.lst", "Data");
 	fp1 = fopen(filename_full_path, "wt");
-	sprintf(filename_full_path, "%s/Data/ham.all", get_local_file_path_prefix());
+	get_full_file_path(filename_full_path, "ham.all", "Data");
 	fp2 = fopen(filename_full_path, "wt");
 #else
 	fp1 = fopen("ham.lst", "wt");
@@ -1368,7 +1368,7 @@ void piggy_dump_all()
 		mprintf((0, "Creating %s...", DEFAULT_HAMFILE));
 
 #if defined(__APPLE__) && defined(__MACH__)
-		sprintf(filename_full_path, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_HAMFILE);
+		get_full_file_path(filename_full_path, DEFAULT_HAMFILE, "Data");
 		ham_fp = fopen(filename_full_path, "wb");
 #else
 		ham_fp = fopen(DEFAULT_HAMFILE, "wb");                       //open HAM file
@@ -1403,7 +1403,7 @@ void piggy_dump_all()
 		mprintf((0, "Creating %s...", DEFAULT_HAMFILE));
 		// Now dump sound file
 #if defined (__APPLE__) && defined(__MACH__)
-		sprintf(filename_full_path, "%s/Data/%s", get_local_file_path_prefix(), DEFAULT_SNDFILE);
+		get_full_file_path(filename_full_path, DEFAULT_SNDFILE, "Data");
 		ham_fp = fopen(filename_full_path, "wb");
 #else
 		ham_fp = fopen(DEFAULT_SNDFILE, "wb");

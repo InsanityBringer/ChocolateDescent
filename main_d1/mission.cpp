@@ -214,7 +214,7 @@ int build_mission_list(int anarchy_mode)
 	FILEFINDSTRUCT find;
 #if defined(__APPLE__) && defined(__MACH__)
 	char search_name[100] = "Data/Missions/*.msn";
-	char file_path_name[256];
+	char file_path_name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char search_name[100] = "*.MSN";
 #endif
@@ -234,7 +234,7 @@ int build_mission_list(int anarchy_mode)
 		do 
 		{
 #if defined(__APPLE__) && defined(__MACH__)
-			sprintf(file_path_name, "%s/Data/Missions/%s", get_local_file_path_prefix(), find.name);
+			get_full_file_path(file_path_name, find.name, "Data/Missions");
 			if (read_mission_file(file_path_name, count, 0))
 #else
 			if (read_mission_file(find.name, count, 0))
@@ -304,15 +304,16 @@ int load_mission(int mission_num)
 		int eof_check;
 
 #if defined(__APPLE__) && defined(__MACH__)
-		char msn_filename[256], hog_filename[256],  hogfile_full_path[256];
-		sprintf(msn_filename, "%s.msn", Mission_list[mission_num].filename);
+		char msn_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], hog_filename[CHOCOLATE_MAX_FILE_PATH_SIZE],
+		     hogfile_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		snprintf(msn_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.msn", Mission_list[mission_num].filename);
 #else
 		strcpy(buf, Mission_list[mission_num].filename);
 		strcat(buf, ".MSN");
 #endif
 
 #if defined(__APPLE__) && defined(__MACH__)
-		sprintf(hog_filename, "%s.hog", Mission_list[mission_num].filename);
+		snprintf(hog_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.hog", Mission_list[mission_num].filename);
 
 		cfile_use_alternate_hogfile(hog_filename);
 
@@ -370,8 +371,8 @@ int load_mission(int mission_num)
 					while (*(++bufp) == ' ')
 						;
 #if defined(__APPLE__) && defined(__MACH__)
-				memset(hogfile_full_path, 0, 256);
-				sprintf(hogfile_full_path, "%s/Data/Missions/%s", get_local_file_path_prefix(), bufp);
+				memset(hogfile_full_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+				get_full_file_path(hogfile_full_path, bufp, "Data/Missions");
 				cfile_use_alternate_hogfile(hogfile_full_path);
 #else
 				cfile_use_alternate_hogfile(bufp);
@@ -421,8 +422,8 @@ int load_mission(int mission_num)
 						if(ext_idx != NULL && ext_idx - trimmed_line > 2 && ext_idx[1] == 'h' && ext_idx[2] == 'o' && ext_idx[3] == 'g')
 						{
 #if defined(__APPLE__) && defined(__MACH__)
-							memset(hogfile_full_path, 0, 256);
-							sprintf(hogfile_full_path, "%s/Data/Missions/%s", get_local_file_path_prefix(), trimmed_line);
+							memset(hogfile_full_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+							get_full_file_path(hogfile_full_path, trimmed_line, "Data/Missions");
 							cfile_use_alternate_hogfile(hogfile_full_path);
 #else
 							cfile_use_alternate_hogfile(trimmed_line);
@@ -494,8 +495,8 @@ int load_mission_by_name(char* mission_name)
 {
 	int n, i;
 #if defined(__APPLE__) && defined(__MACH__)
-	char mission_name_full_path[256];
-	sprintf(mission_name_full_path, "%s/Data/Missions/%s", get_local_file_path_prefix(), mission_name);
+	char mission_name_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(mission_name_full_path, mission_name, "Data/Missions");
 #endif
 
 	n = build_mission_list(1);

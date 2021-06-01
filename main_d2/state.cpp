@@ -209,7 +209,7 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	int i, choice, version;
 	newmenu_item m[NUM_SAVES + 2];
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[NUM_SAVES + 1][256];
+	char filename[NUM_SAVES + 1][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[NUM_SAVES + 1][30];
 #endif
@@ -226,9 +226,10 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 		else
 			sprintf(filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i);
 #elif defined(__APPLE__) && defined(__MACH__)
-			sprintf(filename[i], "%s/%s.sg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
 		else
-			sprintf(filename[i], "%s/%s.mg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
+		get_full_file_path(filename[i], temp_filename);
 #else
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
 		else
@@ -292,7 +293,7 @@ int state_get_restore_file(char* fname, int multi)
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES + 2];
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[NUM_SAVES + 1][256];
+	char filename[NUM_SAVES + 1][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[NUM_SAVES + 1][30];
 #endif
@@ -312,9 +313,10 @@ int state_get_restore_file(char* fname, int multi)
 			sprintf(filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i);
 #elif defined(__APPLE__) && defined(__MACH__)
 		if (!multi)
-			sprintf(filename[i], "%s/%s.sg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
 		else
-			sprintf(filename[i], "%s/%s.mg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
+		get_full_file_path(filename[i], temp_filename);
 #else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
@@ -480,10 +482,11 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	char	filename[128], desc[DESC_LENGTH + 1];
 
 #if defined(__APPLE__) && defined(__MACH__)
-	char	filename_full_path[256], secretb_full_path[256], 
-			temp_fname_full_path[256], secretc_full_path[256], *separator_pos;
-	sprintf(secretb_full_path, "%s/%s", get_local_file_path_prefix(), SECRETB_FILENAME);
-	sprintf(secretc_full_path, "%s/%s", get_local_file_path_prefix(), SECRETC_FILENAME);
+	char	filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], secretb_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], 
+			temp_fname_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], secretc_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE],
+			*separator_pos;
+	get_full_file_path(secretb_full_path, SECRETB_FILENAME);
+	get_full_file_path(secretc_full_path, SECRETC_FILENAME);
 #endif
 
 	Assert(between_levels == 0);	//between levels save ripped out
@@ -526,7 +529,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	{
 #if defined(__APPLE__) && defined(__MACH__)
 		filename_override = filename_full_path;
-		sprintf(filename_override, secretb_full_path);
+		snprintf(filename_override, CHOCOLATE_MAX_FILE_PATH_SIZE, secretb_full_path);
 #else
 		filename_override = filename;
 		sprintf(filename_override, SECRETB_FILENAME);
@@ -536,7 +539,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	{
 #if defined(__APPLE__) && defined(__MACH__)
 		filename_override = filename_full_path;
-		sprintf(filename_override, secretb_full_path);
+		snprintf(filename_override, CHOCOLATE_MAX_FILE_PATH_SIZE, secretb_full_path);
 #else
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
@@ -547,16 +550,8 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 #if defined(__APPLE__) && defined(__MACH__)
 		if (filename_override)
 		{
-			if (strrchr(filename_override, PLATFORM_PATH_SEPARATOR) != NULL)
-			{
-				strncpy(filename_full_path, filename_override, 255);
-				sprintf(desc, "[autosave backup]");
-			}
-			else
-			{
-				sprintf(filename_full_path, "%s/%s", get_local_file_path_prefix(), filename_override);
-				sprintf(desc, "[autosave backup]");
-			}
+			get_full_file_path(filename_full_path, filename_override);
+			snprintf(desc, DESC_LENGTH + 1, "[autosave backup]");
 		}
 		else if (!(filenum = state_get_save_file(filename_full_path, desc, 0)))
 		{
@@ -600,7 +595,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 #endif
 
 #if defined(__APPLE__) && defined(__MACH__)
-			sprintf(temp_fname_full_path, "%s%s", getenv("TMPDIR"), temp_fname);
+			get_temp_file_full_path(temp_fname_full_path, temp_fname);
 
 			mprintf((0, "Trying to copy secret.sgc to %s.\n", temp_fname_full_path));
 
@@ -650,7 +645,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 
 		if (tfp) {
 #if defined(__APPLE__) && defined(__MACH__)
-			char	newname[256];
+			char	newname[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_newname[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 			char	newname[128];
 #endif
@@ -658,7 +653,8 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 #ifdef MACINTOSH
 			sprintf(newname, ":Players:%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
 #elif defined(__APPLE__) && defined(__MACH__)
-			sprintf(newname, "%s/%s.sg%x", get_local_file_path_prefix(), Players[Player_num].callsign, NUM_SAVES);
+			snprintf(temp_newname, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
+			get_full_file_path(newname, temp_newname);
 #else
 			sprintf(newname, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
 #endif
@@ -696,7 +692,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 #endif
 	uint8_t* pal;
 #if defined(__APPLE__) && defined(__MACH__)
-	char temp_buffer[256];
+	char temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char* separator_pos;
 #endif
 
@@ -838,7 +834,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	separator_pos = strrchr(Mission_list[Current_mission_num].filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
-		strncpy(temp_buffer, separator_pos + 1, 255);
+		strncpy(temp_buffer, separator_pos + 1, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
 		mprintf((0, "HEY! Mission name is %s\n", temp_buffer));
 		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
 	}
@@ -1135,10 +1131,11 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 	int	filenum = -1;
 
 #if defined(__APPLE__) && defined(__MACH__)
-	char	filename_full_path[256], secretb_full_path[256], 
-			temp_fname_full_path[256], secretc_full_path[256], *separator_pos;
-	sprintf(secretb_full_path, "%s/%s", get_local_file_path_prefix(), SECRETB_FILENAME);
-	sprintf(secretc_full_path, "%s/%s", get_local_file_path_prefix(), SECRETC_FILENAME);
+	char	filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], secretb_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], 
+			temp_fname_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], secretc_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE],
+			*separator_pos;
+	get_full_file_path(secretb_full_path, SECRETB_FILENAME);
+	get_full_file_path(secretc_full_path, SECRETC_FILENAME);
 #endif
 
 	if (Game_mode & GM_MULTI)
@@ -1166,15 +1163,7 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 	if (filename_override)
 	{
 #if defined(__APPLE__) && defined(__MACH__)
-		separator_pos = strrchr(filename_override, '/');
-		if (separator_pos != NULL)
-		{
-			strncpy(filename_full_path, filename_override, 255);
-		}
-		else
-		{
-			sprintf(filename_full_path, "%s/%s", get_local_file_path_prefix(), filename_override);
-		}
+		get_full_file_path(filename_full_path, filename_override);
 #else
 		strcpy(filename, filename_override);
 #endif
@@ -1208,7 +1197,8 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 #ifdef MACINTOSH
 			sprintf(temp_fname, ":Players:%csecret.sgc", fc);
 #elif defined(__APPLE__) && defined(__MACH__)
-			sprintf(temp_fname_full_path, "%s%csecret.sgc", getenv("TMPDIR"), fc);
+			snprintf(temp_fname, 32, "%csecret.sgc", fc);
+			get_temp_file_full_path(temp_fname_full_path, temp_fname);
 #else
 			sprintf(temp_fname, "%csecret.sgc", fc);
 #endif
@@ -1243,9 +1233,10 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 	if ((filenum != (NUM_SAVES + 1)) && in_game)
 	{
 #if defined(__APPLE__) && defined(__MACH__)
-		char	temp_filename[256];
+		char	temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_local_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 		mprintf((0, "Doing autosave, filenum = %i, != %i!\n", filenum, NUM_SAVES + 1));
-		sprintf(temp_filename, "%s/%s.sg%x", get_local_file_path_prefix(), Players[Player_num].callsign, NUM_SAVES);
+		snprintf(temp_local_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
+		get_full_file_path(temp_filename, temp_local_filename);
 		state_save_all(!in_game, secret_restore, temp_filename);
 #else
 		char	temp_filename[128];

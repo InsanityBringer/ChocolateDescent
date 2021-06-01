@@ -1065,8 +1065,8 @@ movielib* init_movie_lib(const char* filename)
 	FILE* fp;
 
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename_full_path[256];
-	sprintf(filename_full_path, "%s/Data/%s", get_local_file_path_prefix(), filename);
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(filename_full_path, filename, "Data");
 	fp = fopen(filename_full_path, "rb");
 #else
 	fp = fopen(filename, "rb");

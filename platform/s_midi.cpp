@@ -10,6 +10,7 @@ as described in copying.txt.
 #include <thread>
 #include <mutex>
 
+#include "platform/platform_filesys.h"
 #include "platform/i_sound.h"
 #include "s_midi.h"
 #include "s_sequencer.h"
@@ -30,7 +31,11 @@ as described in copying.txt.
 
 int CurrentDevice = 0;
 
+#if defined(__APPLE__) && defined(__MACH__)
+char SoundFontFilename[CHOCOLATE_MAX_FILE_PATH_SIZE] = "TestSoundfont.sf2";
+#else
 char SoundFontFilename[256] = "TestSoundfont.sf2";
+#endif
 MidiSynth* synth = nullptr;
 MidiSequencer* sequencer = nullptr;
 MidiPlayer* player = nullptr;

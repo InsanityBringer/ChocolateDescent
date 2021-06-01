@@ -66,7 +66,9 @@ void set_custom_detail_vars(void);
 
 int ReadConfigFile()
 {
-	char filename[256];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 	FILE* infile;
 	char line[80], * token, * value, * ptr;
 	uint8_t gamma;
@@ -96,11 +98,11 @@ int ReadConfigFile()
 	Config_channels_reversed = 0;
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/descent.cfg", get_local_file_path_prefix());
-#else
-	strncpy(filename, "descent.cfg", 255);
-#endif
+	get_full_file_path(filename, "descent.cfg");
 	infile = fopen(filename, "rt");
+#else
+	infile = fopen("descent.cfg", "rt");
+#endif
 	if (infile == NULL) 
 	{
 		return 1;
@@ -235,7 +237,9 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
-	char filename[256];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 	FILE* infile;
 	char str[256];
 	int joy_axis_min[4];
@@ -246,11 +250,11 @@ int WriteConfigFile()
 	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/descent.cfg", get_local_file_path_prefix());
-#else
-	strncpy(filename, "descent.cfg", 255);
-#endif
+	get_full_file_path(filename, "descent.cfg");
 	infile = fopen(filename, "wt");
+#else
+	infile = fopen("descent.cfg", "wt");
+#endif
 	if (infile == NULL) 
 	{
 		return 1;

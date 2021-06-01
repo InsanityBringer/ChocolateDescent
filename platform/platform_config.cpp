@@ -34,7 +34,10 @@ static const char* SwapIntervalStr = "SwapInterval";
 int I_ReadChocolateConfig()
 {
 	FILE* infile;
-	char line[512], cfgpath[256], * token, * value, * ptr;
+	char line[512], * token, * value, * ptr;
+#if defined(__APPLE__) && defined(__MACH__)
+	char cfgpath[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 
 	char* next = NULL;
 
@@ -42,7 +45,7 @@ int I_ReadChocolateConfig()
 	WindowHeight = 600;
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(cfgpath, "%s/chocolatedescent.cfg", get_local_file_path_prefix());
+	get_full_file_path(cfgpath, "chocolatedescent.cfg");
 #else
 	sprintf(cfgpath, "chocolatedescent.cfg");
 #endif
@@ -96,10 +99,8 @@ int I_ReadChocolateConfig()
 			{
 				char* p;
 #if defined(__APPLE__) && defined(__MACH__)
-				char SoundFontFilenameWithPath[256];
-				sprintf(SoundFontFilenameWithPath, "%s/Data/SoundFonts/%s", get_local_file_path_prefix(), value);
-				memset(&SoundFontFilename[0], 0, 256);
-				strncpy(&SoundFontFilename[0], SoundFontFilenameWithPath, 255);
+				memset(&SoundFontFilename[0], 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+				get_full_file_path(&SoundFontFilename[0], value, "Data/SoundFonts");
 #else
 				memset(&SoundFontFilename[0], 0, 256);
 				strncpy(&SoundFontFilename[0], value, 255);

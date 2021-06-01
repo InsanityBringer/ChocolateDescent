@@ -14,13 +14,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "misc/types.h"
+#include "platform/platform_filesys.h"
 
 #define MAX_MISSIONS 						100
 #define MAX_LEVELS_PER_MISSION			30
 #define MAX_SECRET_LEVELS_PER_MISSION	5
 #define MISSION_NAME_LEN 					21
 #if defined(__APPLE__) && defined(__MACH__)
-#define MISSION_FILENAME_LEN			256
+#define MISSION_FILENAME_LEN			CHOCOLATE_MAX_FILE_PATH_SIZE
 #else
 #define MISSION_FILENAME_LEN			9
 #endif

@@ -235,10 +235,9 @@ int read_player_file()
 #ifdef MACINTOSH
 	char filename[FILENAME_LEN + 15];
 #elif defined(__APPLE__) && defined(__MACH__)
-	char filename[256 + FILENAME_LEN];
-#else
-	char filename[FILENAME_LEN];
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
+	char filename[FILENAME_LEN];
 	FILE* file;
 	int errno_ret = EZERO;
 	int id, player_file_version, i;
@@ -249,11 +248,13 @@ int read_player_file()
 #ifdef MACINTOSH
 	sprintf(filename, ":Players:%.8s.plr", Players[Player_num].callsign);
 #elif defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/%s.plr", get_local_file_path_prefix(), Players[Player_num].callsign);
+	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
+	get_full_file_path(filename_full_path, filename);
+	file = fopen(filename_full_path, "rb");
 #else
 	sprintf(filename, "%.8s.plr", Players[Player_num].callsign);
-#endif
 	file = fopen(filename, "rb");
+#endif
 
 #ifndef MACINTOSH
 	//check filename
@@ -526,10 +527,9 @@ int write_player_file()
 #ifdef MACINTOSH
 	char filename[FILENAME_LEN + 15];
 #elif defined(__APPLE__) && defined(__MACH__)
-	char filename[256 + FILENAME_LEN];
-#else
-	char filename[FILENAME_LEN];		// because of ":Players:" path
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
+	char filename[FILENAME_LEN];		// because of ":Players:" path
 	FILE* file;
 	int errno_ret, i;
 
@@ -542,11 +542,13 @@ int write_player_file()
 #ifdef MACINTOSH
 	sprintf(filename, ":Players:%.8s.plr", Players[Player_num].callsign);
 #elif defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/%s.plr", get_local_file_path_prefix(), Players[Player_num].callsign);
+	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
+	get_full_file_path(filename_full_path, filename);
+	file = fopen(filename_full_path, "wb");
 #else
 	sprintf(filename, "%s.plr", Players[Player_num].callsign);
-#endif
 	file = fopen(filename, "wb");
+#endif
 
 #ifndef MACINTOSH
 	//check filename

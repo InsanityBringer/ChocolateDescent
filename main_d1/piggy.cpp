@@ -231,7 +231,7 @@ int piggy_init()
 	int read_sounds = 1;
 	int Pigdata_start;
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename_full_path[256];
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 	hashtable_init(&AllBitmapsNames, MAX_BITMAP_FILES);
@@ -280,13 +280,13 @@ int piggy_init()
 	}
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename_full_path, "%s/Data/descent.pig", get_local_file_path_prefix());
+	get_full_file_path(filename_full_path, "descent.pig", "Data");
 	FILE* descent_pig_test = fopen(filename_full_path, "r");
 	if(!descent_pig_test)
 	{
 		char err_str[256];
 		fclose(descent_pig_test);
-		sprintf(err_str, "\nUnable to find file descent.pig\nPlease make sure it exists at:\n%s/Data/descent.pig", get_local_file_path_prefix());
+		sprintf(err_str, "\nUnable to find file descent.pig\nPlease make sure it exists at:\n%s", filename_full_path);
 		Error(err_str);
 	}
 #else
@@ -662,7 +662,7 @@ void piggy_dump_all()
 	int header_offset;
 	char subst_name[32];
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename_full_path[256];
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 #ifdef NO_DUMP_SOUNDS
@@ -724,13 +724,13 @@ void piggy_dump_all()
 
 	mprintf((0, "Creating DESCENT.PIG..."));
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename_full_path, "%s/descent.pig", get_local_file_path_prefix());
+	get_full_file_path(filename_full_path, "descent.pig", "Data");
 	FILE* descent_pig_test = fopen(filename_full_path, "r");
 	if(!descent_pig_test)
 	{
 		char err_str[256];
 		fclose(descent_pig_test);
-		sprintf(err_str, "\nUnable to find file descent.pig\nPlease make sure it exists at:\n%s/descent.pig", get_local_file_path_prefix());
+		sprintf(err_str, "\nUnable to find file descent.pig\nPlease make sure it exists at:\n%s", filename_full_path);
 		Error(err_str);
 	}
 #else
@@ -752,9 +752,9 @@ void piggy_dump_all()
 
 #ifndef RELEASE
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename_full_path, "%s/Data/piggy.lst", get_local_file_path_prefix());
+	get_full_file_path(filename_full_path, "piggy.lst", "Data");
 	fp1 = fopen(filename_full_path, "wt");
-	sprintf(filename_full_path, "%s/Data/piggy.all", get_local_file_path_prefix());
+	get_full_file_path(filename_full_path, "piggy.all", "Data");
 	fp2 = fopen(filename_full_path, "wt");
 #else
 	fp1 = fopen("piggy.lst", "wt");

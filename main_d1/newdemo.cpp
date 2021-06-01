@@ -789,7 +789,7 @@ void newdemo_record_start_demo()
 #ifndef SHAREWARE
 	int i;
 #if defined(__APPLE__) && defined(__MACH__)
-	char temp_buffer[256];
+	char temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char* separator_pos;
 #endif
 #endif
@@ -847,10 +847,10 @@ void newdemo_record_start_demo()
 
 	//  Support for missions added here
 #if defined(__APPLE__) && defined(__MACH__)
-	separator_pos = strrchr(Current_mission_filename, '/');
+	separator_pos = strrchr(Current_mission_filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
-		strncpy(temp_buffer, separator_pos + 1, 256);
+		strncpy(temp_buffer, separator_pos + 1, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
 		nd_write_string(temp_buffer);
 	}
 	else
@@ -2779,8 +2779,8 @@ void newdemo_start_recording()
 	Newdemo_no_space = 0;
 	Newdemo_state = ND_STATE_RECORDING;
 #if defined(__APPLE__) && defined(__MACH__)
-	char demo_filename_full_path[256];
-	sprintf(demo_filename_full_path, "%s%s", getenv("TMPDIR"), DEMO_FILENAME);
+	char demo_filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_temp_file_full_path(demo_filename_full_path, DEMO_FILENAME);
 	outfile = fopen(demo_filename_full_path, "wb");
 #else
 	outfile = fopen(DEMO_FILENAME, "wb");
@@ -2802,8 +2802,9 @@ void newdemo_stop_recording()
 #endif
 
 #if defined(__APPLE__) && defined(__MACH__)
-	char demo_temp_filename_full_path[256], demo_filename_full_path[256];
-	sprintf(demo_temp_filename_full_path, "%s%s", getenv("TMPDIR"), DEMO_FILENAME);
+	char demo_temp_filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE],
+	     demo_filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_temp_file_full_path(demo_temp_filename_full_path, DEMO_FILENAME);
 #endif
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(frame_bytes_written - 1);
@@ -2922,7 +2923,7 @@ try_again:
 		else
 			sprintf(save_file, "tmp%d.dem", tmpcnt++);
 #if defined(__APPLE__) && defined(__MACH__)
-		sprintf(demo_filename_full_path, "%s/Data/Demos/%s", get_local_file_path_prefix(), save_file);
+		get_full_file_path(demo_filename_full_path, save_file, "Data/Demos");
 		remove(demo_filename_full_path);
 		rename(demo_temp_filename_full_path, demo_filename_full_path);
 #else
@@ -2956,7 +2957,7 @@ try_again:
 		strcpy(fullname, m[0].text);
 	strcat(fullname, ".dem");
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(demo_filename_full_path, "%s/Data/Demos/%s", get_local_file_path_prefix(), fullname);
+	get_full_file_path(demo_filename_full_path, fullname, "Data/Demos");
 	remove(demo_filename_full_path);
 	rename(demo_temp_filename_full_path, demo_filename_full_path);
 #else
@@ -3028,8 +3029,8 @@ void newdemo_start_playback(const char* filename)
 	if (!filename)
 		return;
 #if defined(__APPLE__) && defined(__MACH__)
-	char demo_full_path[256];
-	sprintf(demo_full_path, "%s/Data/Demos/%s", get_local_file_path_prefix(), filename);
+	char demo_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(demo_full_path, filename, "Data/Demos");
 	infile = fopen(demo_full_path, "rb");
 #else
 	infile = fopen(filename, "rb");

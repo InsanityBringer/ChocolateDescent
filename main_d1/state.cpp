@@ -134,7 +134,7 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	int i, choice, version;
 	newmenu_item m[NUM_SAVES + 1];
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[NUM_SAVES][256];
+	char filename[NUM_SAVES][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[NUM_SAVES][20];
 #endif
@@ -147,9 +147,10 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 		sc_bmp[i] = NULL;
 #if defined(__APPLE__) && defined(__MACH__)
 		if (!multi)
-			sprintf(filename[i], "%s/%s.sg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
 		else
-			sprintf(filename[i], "%s/%s.mg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
+		get_full_file_path(filename[i], temp_filename);
 #else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
@@ -212,7 +213,7 @@ int state_get_restore_file(char* fname, int multi)
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES + 1];
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[NUM_SAVES][256];
+	char filename[NUM_SAVES][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[NUM_SAVES][20];
 #endif
@@ -227,9 +228,10 @@ int state_get_restore_file(char* fname, int multi)
 		sc_bmp[i] = NULL;
 #if defined(__APPLE__) && defined(__MACH__)
 		if (!multi)
-			sprintf(filename[i], "%s/%s.sg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
 		else
-			sprintf(filename[i], "%s/%s.mg%d", get_local_file_path_prefix(), Players[Player_num].callsign, i);
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
+		get_full_file_path(filename[i], temp_filename);
 #else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
@@ -302,7 +304,7 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	uint8_t temp_byte;
 	char desc[DESC_LENGTH + 1];
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[256], temp_buffer[256];
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char* separator_pos;
 #else
 	char filename[128];
@@ -311,7 +313,8 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	FILE* fp;
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/%s.sg%d", get_local_file_path_prefix(), sg_player->callsign, slotnum);
+	snprintf(temp_buffer, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", sg_player->callsign, slotnum);
+	get_full_file_path(filename, temp_buffer);
 #else
 	sprintf(filename, "%s.sg%d", sg_player->callsign, slotnum);
 #endif
@@ -372,10 +375,10 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 
 	// Save the mission info...
 #if defined(__APPLE__) && defined(__MACH__)
-	separator_pos = strrchr(Mission_list[0].filename, '/');
+	separator_pos = strrchr(Mission_list[0].filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
-		strncpy(temp_buffer, separator_pos + 1, 256);
+		strncpy(temp_buffer, separator_pos + 1, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
 		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
 	}
 	else
@@ -463,7 +466,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	FILE* fp;
 	grs_canvas* cnv;
 #if defined(__APPLE__) && defined(__MACH__)
-	char temp_buffer[256];
+	char temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char* separator_pos;
 #endif
 
@@ -545,7 +548,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	separator_pos = strrchr(Mission_list[Current_mission_num].filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
-		strncpy(temp_buffer, separator_pos + 1, 255);
+		strncpy(temp_buffer, separator_pos + 1, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
 		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
 	}
 	else

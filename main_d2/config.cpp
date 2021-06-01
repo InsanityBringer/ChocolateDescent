@@ -171,7 +171,9 @@ void CheckMovieAttributes()
 
 int ReadConfigFile()
 {
-	char filename[256];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 	FILE *infile;
 	char line[80], *token, *value, *ptr;
 	uint8_t gamma;
@@ -214,11 +216,11 @@ int ReadConfigFile()
 	save_redbook_enabled = Redbook_enabled;
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/descent.cfg", get_local_file_path_prefix());
-#else
-	strncpy(filename, "descent.cfg", 255);
-#endif
+	get_full_file_path(filename, "descent.cfg");
 	infile = fopen(filename, "rt");
+#else
+	infile = fopen("descent.cfg", "rt");
+#endif
 	if (infile == NULL) {
 		WIN(CheckMovieAttributes());
 		return 1;
@@ -432,7 +434,9 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
-	char filename[256];
+#if defined(__APPLE__) && defined(__MACH__)
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 	FILE *infile;
    int i;
 	char str[256];
@@ -453,11 +457,11 @@ int WriteConfigFile()
 #endif
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/descent.cfg", get_local_file_path_prefix());
-#else
-	strncpy(filename, "descent.cfg", 255);
-#endif
+	get_full_file_path(filename, "descent.cfg");
 	infile = fopen(filename, "wt");
+#else
+	infile = fopen("descent.cfg", "wt");
+#endif
 	if (infile == NULL) {
 		return 1;
 	}

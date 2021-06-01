@@ -1197,7 +1197,7 @@ void delete_player_saved_games(char* name)
 {
 	int i;
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[256];
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE], short_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[16];
 #endif
@@ -1205,8 +1205,8 @@ void delete_player_saved_games(char* name)
 	for (i = 0; i < 10; i++) 
 	{
 #if defined(__APPLE__) && defined(__MACH__)
-		sprintf(filename, "%s/%s.sg%d", get_local_file_path_prefix(), name, i);
-		sprintf(filename, "%s/%s.mg%d", get_local_file_path_prefix(), name, i);
+		snprintf(short_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", name, i);
+		get_full_file_path(filename, short_filename);
 #else
 		sprintf(filename, "%s.sg%d", name, i);
 #endif

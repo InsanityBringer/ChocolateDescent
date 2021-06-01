@@ -2707,7 +2707,7 @@ void multi_initiate_save_game()
 	uint32_t game_id;
 	int i, slot;
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[256];
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[128];
 #endif
@@ -2746,7 +2746,7 @@ void multi_initiate_restore_game()
 {
 	int slot;
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[256];
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[128];
 #endif
@@ -2770,7 +2770,7 @@ void multi_initiate_restore_game()
 void multi_save_game(uint8_t slot, uint32_t id, char* desc)
 {
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[256];
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[128];
 #endif
@@ -2789,7 +2789,7 @@ void multi_save_game(uint8_t slot, uint32_t id, char* desc)
 void multi_restore_game(uint8_t slot, uint32_t id)
 {
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[256];
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[128];
 #endif

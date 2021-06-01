@@ -199,10 +199,9 @@ RetrySelection:
 int read_player_file()
 {
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[256 + FILENAME_LEN];
-#else
-	char filename[FILENAME_LEN];
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
+	char filename[FILENAME_LEN];
 	FILE* file;
 	save_info info;
 	int errno_ret = EZERO;
@@ -211,11 +210,13 @@ int read_player_file()
 
 	//sprintf(filename, "%8s.plr", Players[Player_num].callsign);
 #if defined(__APPLE__) && defined(__MACH__)
-	snprintf(filename, 256 + FILENAME_LEN, "%s/%s.plr", get_local_file_path_prefix(), Players[Player_num].callsign);
+	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
+	get_full_file_path(filename_full_path, filename);
+	file = fopen(filename_full_path, "rb");
 #else
 	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
-#endif
 	file = fopen(filename, "rb");
+#endif
 
 	//check filename
 	/*if (file && isatty(fileno(file)))  //[ISB] TODO: fixme
@@ -420,10 +421,9 @@ int get_highest_level(void)
 int write_player_file()
 {
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[268];
-#else
-	char filename[13];
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
+	char filename[13];
 	FILE* file;
 	save_info info;
 	int errno_ret;
@@ -441,11 +441,13 @@ int write_player_file()
 	info.n_highest_levels = n_highest_levels;
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(filename, "%s/%s.plr", get_local_file_path_prefix(), Players[Player_num].callsign);
+	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
+	get_full_file_path(filename_full_path, filename);
+	file = fopen(filename_full_path, "wb");
 #else
 	sprintf(filename, "%s.plr", Players[Player_num].callsign);
-#endif
 	file = fopen(filename, "wb");
+#endif
 
 	//check filename
 	/*if (file && isatty(fileno(file))) //[ISB] need to fix tty issue. ugh 
