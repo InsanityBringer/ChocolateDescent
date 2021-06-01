@@ -496,11 +496,24 @@ int load_mission(int mission_num)
 int load_mission_by_name(char* mission_name)
 {
 	int n, i;
+#if defined(__APPLE__) && defined(__MACH__)
+	char mission_name_full_path[256];
+	sprintf(mission_name_full_path, "%s/Data/Missions/%s", get_local_file_path_prefix(), mission_name);
+#endif
 
 	n = build_mission_list(1);
 
+#if defined(__APPLE__) && defined(__MACH__)
+	if (strlen(mission_name) == 0)
+		return load_mission(0);
+#endif
+
 	for (i = 0; i < n; i++)
+#if defined(__APPLE__) && defined(__MACH__)
+		if (!_strfcmp(mission_name_full_path, Mission_list[i].filename))
+#else
 		if (!_strfcmp(mission_name, Mission_list[i].filename))
+#endif
 			return load_mission(i);
 
 	return 0;		//couldn't find mission

@@ -302,7 +302,8 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	uint8_t temp_byte;
 	char desc[DESC_LENGTH + 1];
 #if defined(__APPLE__) && defined(__MACH__)
-	char filename[256];
+	char filename[256], temp_buffer[256];
+	char* separator_pos;
 #else
 	char filename[128];
 #endif
@@ -370,7 +371,20 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	fwrite(&temp_int, sizeof(int), 1, fp);
 
 	// Save the mission info...
+#if defined(__APPLE__) && defined(__MACH__)
+	separator_pos = strrchr(Mission_list[0].filename, '/');
+	if(separator_pos != NULL)
+	{
+		strncpy(temp_buffer, separator_pos + 1, 256);
+		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
+	}
+	else
+	{
+		fwrite(&Mission_list[0], sizeof(char) * 9, 1, fp);
+	}
+#else
 	fwrite(&Mission_list[0], sizeof(char) * 9, 1, fp);
+#endif
 
 	//Save level info
 	temp_int = sg_player->level;
@@ -448,6 +462,10 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	int i, j;
 	FILE* fp;
 	grs_canvas* cnv;
+#if defined(__APPLE__) && defined(__MACH__)
+	char temp_buffer[256];
+	char* separator_pos;
+#endif
 
 	if (Game_mode & GM_MULTI) 
 	{
@@ -523,7 +541,20 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	F_WriteInt(fp, between_levels);
 
 	// Save the mission info...
+#if defined(__APPLE__) && defined(__MACH__)
+	separator_pos = strrchr(Mission_list[Current_mission_num].filename, '/');
+	if(separator_pos != NULL)
+	{
+		strncpy(temp_buffer, separator_pos + 1, 256);
+		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
+	}
+	else
+	{
+		fwrite(&Mission_list[Current_mission_num], sizeof(char) * 9, 1, fp);
+	}
+#else
 	fwrite(&Mission_list[Current_mission_num], sizeof(char) * 9, 1, fp);
+#endif
 
 	//Save level info
 	//fwrite(&Current_level_num, sizeof(int), 1, fp);
