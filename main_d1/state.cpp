@@ -542,10 +542,10 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 
 	// Save the mission info...
 #if defined(__APPLE__) && defined(__MACH__)
-	separator_pos = strrchr(Mission_list[Current_mission_num].filename, '/');
+	separator_pos = strrchr(Mission_list[Current_mission_num].filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
-		strncpy(temp_buffer, separator_pos + 1, 256);
+		strncpy(temp_buffer, separator_pos + 1, 255);
 		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
 	}
 	else

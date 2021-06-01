@@ -547,7 +547,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 #if defined(__APPLE__) && defined(__MACH__)
 		if (filename_override)
 		{
-			if (strrchr(filename_override, '/') != NULL)
+			if (strrchr(filename_override, PLATFORM_PATH_SEPARATOR) != NULL)
 			{
 				strncpy(filename_full_path, filename_override, 255);
 				sprintf(desc, "[autosave backup]");
@@ -835,10 +835,10 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 
 	// Save the mission info...
 #if defined(__APPLE__) && defined(__MACH__)
-	separator_pos = strrchr(Mission_list[Current_mission_num].filename, '/');
+	separator_pos = strrchr(Mission_list[Current_mission_num].filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
-		strncpy(temp_buffer, separator_pos + 1, 256);
+		strncpy(temp_buffer, separator_pos + 1, 255);
 		mprintf((0, "HEY! Mission name is %s\n", temp_buffer));
 		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
 	}
@@ -1134,6 +1134,13 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 	char filename[128];
 	int	filenum = -1;
 
+#if defined(__APPLE__) && defined(__MACH__)
+	char	filename_full_path[256], secretb_full_path[256], 
+			temp_fname_full_path[256], secretc_full_path[256], *separator_pos;
+	sprintf(secretb_full_path, "%s/%s", get_local_file_path_prefix(), SECRETB_FILENAME);
+	sprintf(secretc_full_path, "%s/%s", get_local_file_path_prefix(), SECRETC_FILENAME);
+#endif
+
 	if (Game_mode & GM_MULTI)
 	{
 #ifdef MULTI_SAVE
@@ -1158,10 +1165,26 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 
 	if (filename_override)
 	{
+#if defined(__APPLE__) && defined(__MACH__)
+		separator_pos = strrchr(filename_override, '/');
+		if (separator_pos != NULL)
+		{
+			strncpy(filename_full_path, filename_override, 255);
+		}
+		else
+		{
+			sprintf(filename_full_path, "%s/%s", get_local_file_path_prefix(), filename_override);
+		}
+#else
 		strcpy(filename, filename_override);
+#endif
 		filenum = NUM_SAVES + 1;		//	So we don't trigger autosave
 	}
+#if defined(__APPLE__) && defined(__MACH__)
+	else if (!(filenum = state_get_restore_file(filename_full_path, 0)))
+#else
 	else if (!(filenum = state_get_restore_file(filename, 0)))
+#endif
 	{
 		start_time();
 		return 0;
@@ -1182,12 +1205,26 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 			else
 				fc = '0' + filenum;
 
-#ifndef MACINTOSH
-			sprintf(temp_fname, "%csecret.sgc", fc);
-#else
+#ifdef MACINTOSH
 			sprintf(temp_fname, ":Players:%csecret.sgc", fc);
+#elif defined(__APPLE__) && defined(__MACH__)
+			sprintf(temp_fname_full_path, "%s%csecret.sgc", getenv("TMPDIR"), fc);
+#else
+			sprintf(temp_fname, "%csecret.sgc", fc);
 #endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+			mprintf((0, "Trying to copy %s to secret.sgc.\n", temp_fname_full_path));
+
+			if (file_exists(temp_fname_full_path))
+			{
+				mprintf((0, "Copying %s to secret.sgc\n", temp_fname_full_path));
+				rval = copy_file(temp_fname_full_path, secretc_full_path);
+				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
+			}
+			else
+				_unlink(secretc_full_path);
+#else
 			mprintf((0, "Trying to copy %s to secret.sgc.\n", temp_fname));
 
 			if (file_exists(temp_fname))
@@ -1198,16 +1235,24 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 			}
 			else
 				_unlink(SECRETC_FILENAME);
+#endif
 		}
 	}
 
 	//	Changed, 11/15/95, MK, don't to autosave if restoring from main menu.
 	if ((filenum != (NUM_SAVES + 1)) && in_game)
 	{
+#if defined(__APPLE__) && defined(__MACH__)
+		char	temp_filename[256];
+		mprintf((0, "Doing autosave, filenum = %i, != %i!\n", filenum, NUM_SAVES + 1));
+		sprintf(temp_filename, "%s/%s.sg%x", get_local_file_path_prefix(), Players[Player_num].callsign, NUM_SAVES);
+		state_save_all(!in_game, secret_restore, temp_filename);
+#else
 		char	temp_filename[128];
 		mprintf((0, "Doing autosave, filenum = %i, != %i!\n", filenum, NUM_SAVES + 1));
 		sprintf(temp_filename, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
 		state_save_all(!in_game, secret_restore, temp_filename);
+#endif
 	}
 
 	if (!secret_restore && in_game)
@@ -1223,7 +1268,11 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 
 	start_time();
 
+#if defined(__APPLE__) && defined(__MACH__)
+	return state_restore_all_sub(filename_full_path, 0, secret_restore);
+#else
 	return state_restore_all_sub(filename, 0, secret_restore);
+#endif
 }
 
 extern void reset_player_object(void);

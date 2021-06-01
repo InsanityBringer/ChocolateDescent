@@ -25,3 +25,9 @@ void mkdir_recursive(const char* dir);
 
 //Get path to user files for local system
 const char* get_local_file_path_prefix();
+
+//Get full path to files using the local file path prefix
+void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path);
+
+//Get full path to files in an OS-specific temp directory
+void get_temp_file_full_path(char* filename_full_path, const char* filename);

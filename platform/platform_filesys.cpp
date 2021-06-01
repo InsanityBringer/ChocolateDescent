@@ -11,10 +11,10 @@ Instead, it is released under the terms of the MIT License.
 #include <string.h>
 #include <sys/stat.h>
 
-#if defined(WIN32)
-static const char PlatformPathSeparator = '\\';
+#if defined(_WIN32)
+static const char PLATFORM_PATH_SEPARATOR = '\\';
 #else
-static const char PlatformPathSeparator = '/';
+static const char PLATFORM_PATH_SEPARATOR = '/';
 #endif
 
 // This is not completely ready for primetime
@@ -22,7 +22,7 @@ static const char PlatformPathSeparator = '/';
 // accounted for.
 void mkdir_recursive(const char *dir)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
 	char tmp[MAX_PATH];
 #else
 	char tmp[FILENAME_MAX];
@@ -33,18 +33,18 @@ void mkdir_recursive(const char *dir)
 	snprintf(tmp, sizeof(tmp), "%s", dir);
 	len = strlen(tmp);
 
-	if(tmp[len - 1] == PlatformPathSeparator)
+	if(tmp[len - 1] == PLATFORM_PATH_SEPARATOR)
 	{
 		tmp[len - 1] = 0;
 	}
 
 	for(p = tmp + 1; *p; p++)
 	{
-		if(*p == PlatformPathSeparator)
+		if(*p == PLATFORM_PATH_SEPARATOR)
 		{
 			*p = 0;
 			mkdir(tmp, S_IRWXU);
-			*p = PlatformPathSeparator;
+			*p = PLATFORM_PATH_SEPARATOR;
 		}
 	}
 
@@ -63,6 +63,67 @@ const char* get_local_file_path_prefix()
 
 	return local_file_path_prefix;
 #else
-	return "";
+	return ".";
 #endif
+}
+
+void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path)
+{
+	char temp_buf[256];
+	const char* separator_pos;
+	separator_pos = strrchr(filename, PLATFORM_PATH_SEPARATOR);
+	if (separator_pos == NULL)
+	{
+		if (additional_path == NULL || strlen(additional_path) == 0)
+		{
+			sprintf(filename_full_path, "%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, filename);
+			return;
+		}
+		else
+		{
+			sprintf(filename_full_path, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, additional_path, PlatformPathSeparator, filename);
+			return;
+		}
+	}
+	else
+	{
+		strncpy(temp_buf, separator_pos + 1, 255);
+
+		if (additional_path == NULL || strlen(additional_path) == 0)
+		{
+			sprintf(filename_full_path, "%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, temp_buf);
+			return;
+		}
+		else
+		{
+			sprintf(filename_full_path, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, additional_path, PlatformPathSeparator, temp_buf);
+			return;
+		}
+	}
+
+	sprintf(filename_full_path, ".%c%s", PLATFORM_PATH_SEPARATOR, filename);
+	return;
+}
+
+void get_temp_file_full_path(char* filename_full_path, const char* filename)
+{
+#if defined(__APPLE__) && defined(__MACH__)
+	char temp_buf[256];
+	const char* separator_pos;
+	separator_pos = strrchr(filename, PLATFORM_PATH_SEPARATOR);
+	if (separator_pos == NULL)
+	{
+		sprintf(filename_full_path, "%s%s", getenv("TMPDIR"), filename);
+		return;
+	}
+	else
+	{
+		strncpy(temp_buf, separator_pos + 1, 255);
+		sprintf(filename_full_path, "%s%s", getenv("TMPDIR"), temp_buf);
+		return;
+	}
+#endif
+
+	sprintf(filename_full_path, ".%c%s", PLATFORM_PATH_SEPARATOR, filename);
+	return;
 }
