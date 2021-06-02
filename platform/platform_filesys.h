@@ -67,6 +67,9 @@ void mkdir_recursive(const char* dir);
 //Ensure that all of the platform-localized directories exist
 void init_all_platform_localized_paths();
 
+//Validate that all required game files are in expected locations and report an error if one isn't
+void validate_required_files();
+
 //Get path to user files for local system
 const char* get_platform_localized_file_path_prefix();
 

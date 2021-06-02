@@ -523,6 +523,7 @@ int D_DescentMain(int argc, const char** argv)
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char hogfile_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	init_all_platform_localized_paths();
+	validate_required_files();
 #endif
 
 	error_init(NULL, NULL);

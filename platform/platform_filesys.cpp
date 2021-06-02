@@ -5,6 +5,7 @@ Instead, it is released under the terms of the MIT License.
 */
 
 #include "platform_filesys.h"
+#include "misc/error.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +13,8 @@ Instead, it is released under the terms of the MIT License.
 #include <sys/stat.h>
 
 static char local_file_path_prefix[CHOCOLATE_MAX_FILE_PATH_SIZE] = {0};
+
+void get_missing_file_locations(char* missing_file_string, const char* missing_file_list);
 
 // This is not completely ready for primetime
 // for Windows.  Drive letters aren't really
@@ -88,6 +91,322 @@ void init_all_platform_localized_paths()
 	{
 		get_platform_localized_path(temp_buf, CHOCOLATE_SOUNDFONTS_DIR);
 		mkdir_recursive(temp_buf);
+	}
+}
+
+void validate_required_files()
+{
+	char missing_file_list[2048];
+	char missing_file_location_list[(15 * CHOCOLATE_MAX_FILE_PATH_SIZE) + 15];
+	char missing_file_string[65536]; //There's no way anything should get this huge anywhere
+	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_buf2[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	FILE *fp;
+
+	memset(missing_file_list, 0, 2048);
+	memset(missing_file_location_list, 0, (15 * CHOCOLATE_MAX_FILE_PATH_SIZE) + 15);
+
+#if defined(BUILD_DESCENT1)
+	get_full_file_path(temp_buf, "descent.hog", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "descent.hog\n", 12);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "descent.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "descent.pig\n", 12);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+#elif defined(BUILD_DESCENT2)
+	get_full_file_path(temp_buf, "alien1.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "alien1.pig\n", 11);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "alien2.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "alien2.pig\n", 11);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "d2x-h.mvl", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		get_full_file_path(temp_buf2, "d2x-l.mvl", CHOCOLATE_SYSTEM_FILE_DIR);
+
+		fp = fopen(temp_buf2, "rb");
+
+		if (!fp)
+		{
+			strncat(missing_file_list, "d2x-h.mvl and/or d2x-l.mvl\n", 27);
+			strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+			strncat(missing_file_location_list, "and/or\n", 7);
+			strncat(missing_file_location_list, temp_buf2, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+		}
+		else
+		{
+			fclose(fp);
+		}
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "descent2.ham", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "descent2.ham\n", 13);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "descent2.hog", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "descent2.hog\n", 13);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "descent2.s22", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		get_full_file_path(temp_buf2, "descent2.s11", CHOCOLATE_SYSTEM_FILE_DIR);
+
+		fp = fopen(temp_buf2, "rb");
+
+		if (!fp)
+		{
+			strncat(missing_file_list, "descent2.s22 and/or descent2.s11\n", 33);
+			strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+			strncat(missing_file_location_list, "and/or\n", 7);
+			strncat(missing_file_location_list, temp_buf2, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+		}
+		else
+		{
+			fclose(fp);
+		}
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "fire.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "fire.pig\n", 9);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "groupa.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "groupa.pig\n", 11);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "hoard.ham", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "hoard.ham\n", 10);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "ice.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "ice.pig\n", 8);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "intro-h.mvl", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		get_full_file_path(temp_buf2, "intro-l.mvl", CHOCOLATE_SYSTEM_FILE_DIR);
+
+		fp = fopen(temp_buf2, "rb");
+
+		if (!fp)
+		{
+			strncat(missing_file_list, "intro-h.mvl and/or intro-l.mvl\n", 31);
+			strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+			strncat(missing_file_location_list, "and/or\n", 7);
+			strncat(missing_file_location_list, temp_buf2, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+		}
+		else
+		{
+			fclose(fp);
+		}
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "other-h.mvl", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		get_full_file_path(temp_buf2, "other-l.mvl", CHOCOLATE_SYSTEM_FILE_DIR);
+
+		fp = fopen(temp_buf2, "rb");
+
+		if (!fp)
+		{
+			strncat(missing_file_list, "other-h.mvl and/or other-l.mvl\n", 31);
+			strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+			strncat(missing_file_location_list, "and/or\n", 7);
+			strncat(missing_file_location_list, temp_buf2, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+		}
+		else
+		{
+			fclose(fp);
+		}
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "robots-h.mvl", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		get_full_file_path(temp_buf2, "robots-l.mvl", CHOCOLATE_SYSTEM_FILE_DIR);
+
+		fp = fopen(temp_buf2, "rb");
+
+		if (!fp)
+		{
+			strncat(missing_file_list, "robots-h.mvl and/or robots-l.mvl\n", 33);
+			strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+			strncat(missing_file_location_list, "and/or\n", 7);
+			strncat(missing_file_location_list, temp_buf2, CHOCOLATE_MAX_FILE_PATH_SIZE);
+			strncat(missing_file_location_list, "\n", 1);
+		}
+		else
+		{
+			fclose(fp);
+		}
+	}
+	else
+	{
+		fclose(fp);
+	}
+
+	get_full_file_path(temp_buf, "water.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "water.pig\n", 10);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+#endif
+
+	if(strlen(missing_file_list) > 0)
+	{
+		memset(missing_file_string, 0, 65536);
+		snprintf(missing_file_string, 65536, "You are missing the following required files:\n%s\nPlease place the missing files at the following locations:\n%s", missing_file_list, missing_file_location_list);
+		printf("missing_file_string: %s\n", missing_file_string);
+		Error(missing_file_string);
 	}
 }
 
