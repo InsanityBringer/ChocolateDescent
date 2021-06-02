@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "misc/error.h"
 #include "platform/mono.h"
