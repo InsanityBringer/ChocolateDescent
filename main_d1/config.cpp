@@ -66,7 +66,7 @@ void set_custom_detail_vars(void);
 
 int ReadConfigFile()
 {
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 	FILE* infile;
@@ -97,8 +97,8 @@ int ReadConfigFile()
 	Config_control_type = 0;
 	Config_channels_reversed = 0;
 
-#if defined(__APPLE__) && defined(__MACH__)
-	get_full_file_path(filename, "descent.cfg");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename, "descent.cfg", CHOCOLATE_CONFIG_DIR);
 	infile = fopen(filename, "rt");
 #else
 	infile = fopen("descent.cfg", "rt");
@@ -237,7 +237,7 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 	FILE* infile;
@@ -249,8 +249,8 @@ int WriteConfigFile()
 
 	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 
-#if defined(__APPLE__) && defined(__MACH__)
-	get_full_file_path(filename, "descent.cfg");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename, "descent.cfg", CHOCOLATE_CONFIG_DIR);
 	infile = fopen(filename, "wt");
 #else
 	infile = fopen("descent.cfg", "wt");

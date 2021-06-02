@@ -35,7 +35,7 @@ int I_ReadChocolateConfig()
 {
 	FILE* infile;
 	char line[512], * token, * value, * ptr;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char cfgpath[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
@@ -44,8 +44,8 @@ int I_ReadChocolateConfig()
 	WindowWidth = 800;
 	WindowHeight = 600;
 
-#if defined(__APPLE__) && defined(__MACH__)
-	get_full_file_path(cfgpath, "chocolatedescent.cfg");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(cfgpath, "chocolatedescent.cfg", CHOCOLATE_CONFIG_DIR);
 #else
 	sprintf(cfgpath, "chocolatedescent.cfg");
 #endif
@@ -54,9 +54,6 @@ int I_ReadChocolateConfig()
 	if (infile == NULL) 
 	{
 		//Try creating a default config file
-#if defined(__APPLE__) && defined(__MACH__)
-		mkdir_recursive(get_platform_localized_file_path_prefix());
-#endif
 		infile = fopen(cfgpath, "w");
 		if (infile != NULL)
 		{
@@ -98,9 +95,9 @@ int I_ReadChocolateConfig()
 			else if (!strcmp(token, SoundFontPath))
 			{
 				char* p;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 				memset(&SoundFontFilename[0], 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
-				get_full_file_path(&SoundFontFilename[0], value, "Data/SoundFonts");
+				get_full_file_path(&SoundFontFilename[0], value, CHOCOLATE_SOUNDFONTS_DIR);
 #else
 				memset(&SoundFontFilename[0], 0, 256);
 				strncpy(&SoundFontFilename[0], value, 255);

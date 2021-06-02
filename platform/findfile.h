@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdint.h>
 #include "platform/platform_filesys.h"
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 #define FF_PATHSIZE CHOCOLATE_MAX_FILE_PATH_SIZE
 #else
 #define FF_PATHSIZE 256

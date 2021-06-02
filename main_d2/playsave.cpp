@@ -234,7 +234,7 @@ int read_player_file()
 {
 #ifdef MACINTOSH
 	char filename[FILENAME_LEN + 15];
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 	char filename[FILENAME_LEN];
@@ -247,9 +247,9 @@ int read_player_file()
 
 #ifdef MACINTOSH
 	sprintf(filename, ":Players:%.8s.plr", Players[Player_num].callsign);
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
-	get_full_file_path(filename_full_path, filename);
+	get_full_file_path(filename_full_path, filename, CHOCOLATE_PILOT_DIR);
 	file = fopen(filename_full_path, "rb");
 #else
 	sprintf(filename, "%.8s.plr", Players[Player_num].callsign);
@@ -526,7 +526,7 @@ int write_player_file()
 {
 #ifdef MACINTOSH
 	char filename[FILENAME_LEN + 15];
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 	char filename[FILENAME_LEN];		// because of ":Players:" path
@@ -541,9 +541,9 @@ int write_player_file()
 
 #ifdef MACINTOSH
 	sprintf(filename, ":Players:%.8s.plr", Players[Player_num].callsign);
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
-	get_full_file_path(filename_full_path, filename);
+	get_full_file_path(filename_full_path, filename, CHOCOLATE_PILOT_DIR);
 	file = fopen(filename_full_path, "wb");
 #else
 	sprintf(filename, "%s.plr", Players[Player_num].callsign);

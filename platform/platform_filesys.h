@@ -6,6 +6,10 @@ Instead, it is released under the terms of the MIT License.
 
 #pragma once
 
+#if defined(__APPLE__) && defined(__MACH__)
+#define CHOCOLATE_USE_LOCALIZED_PATHS
+#endif
+
 #include <stddef.h>
 #if defined(_WIN32) || defined(_WIN64)
 #include <stdlib.h>
@@ -60,6 +64,9 @@ static const unsigned int CHOCOLATE_DESCENT_VERSION = 2;
 //Create directories recursively
 void mkdir_recursive(const char* dir);
 
+//Ensure that all of the platform-localized directories exist
+void init_all_platform_localized_paths();
+
 //Get path to user files for local system
 const char* get_platform_localized_file_path_prefix();
 
@@ -70,7 +77,7 @@ void get_platform_localized_interior_path(char* platform_localized_interior_path
 void get_platform_localized_path(char* platform_localized_path, const char* subpath);
 
 //Localize file query strings
-void get_platform_localized_query_path(char* platform_localized_query_path, const char* subpath, const char* query);
+void get_platform_localized_query_string(char* platform_localized_query_string, const char* subpath, const char* query);
 
 //Get full path to files using the local file path prefix
 void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path = NULL);

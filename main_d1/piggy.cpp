@@ -230,7 +230,7 @@ int piggy_init()
 	const char* filename;
 	int read_sounds = 1;
 	int Pigdata_start;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
@@ -279,8 +279,8 @@ int piggy_init()
 		GameBitmapOffset[0] = 0;
 	}
 
-#if defined(__APPLE__) && defined(__MACH__)
-	get_full_file_path(filename_full_path, "descent.pig", "Data");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename_full_path, "descent.pig", CHOCOLATE_SYSTEM_FILE_DIR);
 	FILE* descent_pig_test = fopen(filename_full_path, "r");
 	if(!descent_pig_test)
 	{
@@ -310,7 +310,7 @@ int piggy_init()
 		filename = Args[i + 1];
 		mprintf((0, "Using alternate pigfile, '%s'\n", filename));
 	}
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	Piggy_fp = cfopen(filename_full_path, "rb");
 #else
 	Piggy_fp = cfopen(filename, "rb");
@@ -661,7 +661,7 @@ void piggy_dump_all()
 	DiskSoundHeader sndh;
 	int header_offset;
 	char subst_name[32];
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
@@ -723,8 +723,8 @@ void piggy_dump_all()
 	piggy_close_file();
 
 	mprintf((0, "Creating DESCENT.PIG..."));
-#if defined(__APPLE__) && defined(__MACH__)
-	get_full_file_path(filename_full_path, "descent.pig", "Data");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename_full_path, "descent.pig", CHOCOLATE_SYSTEM_FILE_DIR);
 	FILE* descent_pig_test = fopen(filename_full_path, "r");
 	if(!descent_pig_test)
 	{
@@ -743,7 +743,7 @@ void piggy_dump_all()
 	}
 	mprintf((0, "\nDumping bitmaps..."));
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	fp = fopen(filename_full_path, "wb");
 #else
 	fp = fopen(filename, "wb");
@@ -751,10 +751,10 @@ void piggy_dump_all()
 	Assert(fp != NULL);
 
 #ifndef RELEASE
-#if defined(__APPLE__) && defined(__MACH__)
-	get_full_file_path(filename_full_path, "piggy.lst", "Data");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename_full_path, "piggy.lst", CHOCOLATE_SYSTEM_FILE_DIR);
 	fp1 = fopen(filename_full_path, "wt");
-	get_full_file_path(filename_full_path, "piggy.all", "Data");
+	get_full_file_path(filename_full_path, "piggy.all", CHOCOLATE_SYSTEM_FILE_DIR);
 	fp2 = fopen(filename_full_path, "wt");
 #else
 	fp1 = fopen("piggy.lst", "wt");

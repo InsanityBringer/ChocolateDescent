@@ -31,7 +31,7 @@ as described in copying.txt.
 
 int CurrentDevice = 0;
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 char SoundFontFilename[CHOCOLATE_MAX_FILE_PATH_SIZE] = "TestSoundfont.sf2";
 #else
 char SoundFontFilename[256] = "TestSoundfont.sf2";

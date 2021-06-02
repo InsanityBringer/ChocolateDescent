@@ -1387,9 +1387,9 @@ int load_level(char* filename_passed)
 	}
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char full_path_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
-	get_full_file_path(full_path_filename, filename, "Data/Missions");
+	get_full_file_path(full_path_filename, filename, CHOCOLATE_MISSIONS_DIR);
 
 	LoadFile = cfopen(full_path_filename, "rb");
 	if (!LoadFile) {

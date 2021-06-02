@@ -788,7 +788,7 @@ void newdemo_record_start_demo()
 {
 #ifndef SHAREWARE
 	int i;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char* separator_pos;
 #endif
@@ -846,7 +846,7 @@ void newdemo_record_start_demo()
 	nd_write_byte((int8_t)Players[Player_num].laser_level);
 
 	//  Support for missions added here
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	separator_pos = strrchr(Current_mission_filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
@@ -2778,7 +2778,7 @@ void newdemo_start_recording()
 	Newdemo_num_written = 0;
 	Newdemo_no_space = 0;
 	Newdemo_state = ND_STATE_RECORDING;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char demo_filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	get_temp_file_full_path(demo_filename_full_path, DEMO_FILENAME);
 	outfile = fopen(demo_filename_full_path, "wb");
@@ -2801,7 +2801,7 @@ void newdemo_stop_recording()
 	unsigned short byte_count = 0;
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char demo_temp_filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE],
 	     demo_filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	get_temp_file_full_path(demo_temp_filename_full_path, DEMO_FILENAME);
@@ -2922,8 +2922,8 @@ try_again:
 		}
 		else
 			sprintf(save_file, "tmp%d.dem", tmpcnt++);
-#if defined(__APPLE__) && defined(__MACH__)
-		get_full_file_path(demo_filename_full_path, save_file, "Data/Demos");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		get_full_file_path(demo_filename_full_path, save_file, CHOCOLATE_DEMOS_DIR);
 		remove(demo_filename_full_path);
 		rename(demo_temp_filename_full_path, demo_filename_full_path);
 #else
@@ -2933,7 +2933,7 @@ try_again:
 		return;
 	}
 	if (exit == -1) {					// pressed ESC
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		remove(demo_temp_filename_full_path);
 #else
 		remove(DEMO_FILENAME);		// might as well remove the file
@@ -2956,8 +2956,8 @@ try_again:
 	else
 		strcpy(fullname, m[0].text);
 	strcat(fullname, ".dem");
-#if defined(__APPLE__) && defined(__MACH__)
-	get_full_file_path(demo_filename_full_path, fullname, "Data/Demos");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(demo_filename_full_path, fullname, CHOCOLATE_DEMOS_DIR);
 	remove(demo_filename_full_path);
 	rename(demo_temp_filename_full_path, demo_filename_full_path);
 #else
@@ -2971,8 +2971,10 @@ int newdemo_count_demos()
 {
 	FILEFINDSTRUCT find;
 	int NumFiles = 0;
-#if defined(__APPLE__) && defined(__MACH__)
-	if (!FileFindFirst("Data/Demos/*.dem", &find)) {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char localized_demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_platform_localized_query_string(localized_demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
+	if (!FileFindFirst(localized_demo_query, &find)) {
 #else
 	if (!FileFindFirst("demos\\*.DEM", &find)) {
 #endif
@@ -2981,8 +2983,6 @@ int newdemo_count_demos()
 		} while (!FileFindNext(&find));
 		FileFindClose();
 	}
-
-	printf("Found %d demos.\n", NumFiles);
 
 	return NumFiles;
 }
@@ -3006,8 +3006,10 @@ void newdemo_start_playback(const char* filename)
 		}
 		RandFileNum = P_Rand() % NumFiles;
 		NumFiles = 0;
-#if defined(__APPLE__) && defined(__MACH__)
-		if (!FileFindFirst("Data/Demos/*.dem", &find))
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char localized_demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_platform_localized_query_string(localized_demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
+		if (!FileFindFirst(localized_demo_query, &find))
 #else
 		if (!FileFindFirst("*.DEM", &find))
 #endif
@@ -3028,9 +3030,9 @@ void newdemo_start_playback(const char* filename)
 
 	if (!filename)
 		return;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char demo_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
-	get_full_file_path(demo_full_path, filename, "Data/Demos");
+	get_full_file_path(demo_full_path, filename, CHOCOLATE_DEMOS_DIR);
 	infile = fopen(demo_full_path, "rb");
 #else
 	infile = fopen(filename, "rb");

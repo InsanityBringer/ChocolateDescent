@@ -25,7 +25,7 @@ DIR *currentDir;
 
 int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 {
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char dir[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char temp_search_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char full_search_str[CHOCOLATE_MAX_FILE_PATH_SIZE];
@@ -39,7 +39,7 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 	memset(searchStr, 0, 13);
 	memset(dir, 0, 256);
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	get_full_file_path(dir, "");
 	get_platform_localized_interior_path(temp_search_path, search_str);
 	memset(full_search_str, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
@@ -52,7 +52,7 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 	_splitpath(full_search_str, NULL, dir, NULL, NULL);
 	if (strlen(dir) == 0) //godawful hack
 	{
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		strncpy(dir, full_search_str, CHOCOLATE_MAX_FILE_PATH_SIZE);
 		separator_pos = strrchr(dir, PLATFORM_PATH_SEPARATOR);
 		if (separator_pos != NULL && separator_pos - dir > 0)
@@ -77,7 +77,7 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 {
 	char name[13];
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char fname[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char ext[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
@@ -91,7 +91,7 @@ int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 	while (entry != NULL)
 	{
 		//What a mess. ugh
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		memset(fname, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 		memset(ext, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 #else

@@ -208,7 +208,7 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	FILE* fp;
 	int i, choice, version;
 	newmenu_item m[NUM_SAVES + 2];
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename[NUM_SAVES + 1][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[NUM_SAVES + 1][30];
@@ -225,11 +225,11 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 			sprintf(filename[i], ":Players:%s.sg%x", Players[Player_num].callsign, i);
 		else
 			sprintf(filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i);
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
 		else
 			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
-		get_full_file_path(filename[i], temp_filename);
+		get_full_file_path(filename[i], temp_filename, CHOCOLATE_SAVE_DIR);
 #else
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
 		else
@@ -292,7 +292,7 @@ int state_get_restore_file(char* fname, int multi)
 	FILE* fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES + 2];
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename[NUM_SAVES + 1][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[NUM_SAVES + 1][30];
@@ -311,12 +311,12 @@ int state_get_restore_file(char* fname, int multi)
 			sprintf(filename[i], ":Players:%s.sg%x", Players[Player_num].callsign, i);
 		else
 			sprintf(filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i);
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		if (!multi)
 			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
 		else
 			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
-		get_full_file_path(filename[i], temp_filename);
+		get_full_file_path(filename[i], temp_filename, CHOCOLATE_SAVE_DIR);
 #else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
@@ -481,12 +481,12 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 
 	char	filename[128], desc[DESC_LENGTH + 1];
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char	filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], secretb_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], 
 			temp_fname_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], secretc_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE],
 			*separator_pos;
-	get_full_file_path(secretb_full_path, SECRETB_FILENAME);
-	get_full_file_path(secretc_full_path, SECRETC_FILENAME);
+	get_full_file_path(secretb_full_path, SECRETB_FILENAME, CHOCOLATE_SAVE_DIR);
+	get_full_file_path(secretc_full_path, SECRETC_FILENAME, CHOCOLATE_SAVE_DIR);
 #endif
 
 	Assert(between_levels == 0);	//between levels save ripped out
@@ -515,7 +515,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	if (secret_save && (Control_center_destroyed))
 	{
 		mprintf((0, "Deleting secret.sgb so player can't return to base level.\n"));
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		_unlink(secretb_full_path);
 #else
 		_unlink(SECRETB_FILENAME);
@@ -527,7 +527,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 
 	if (secret_save == 1)
 	{
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		filename_override = filename_full_path;
 		snprintf(filename_override, CHOCOLATE_MAX_FILE_PATH_SIZE, secretb_full_path);
 #else
@@ -537,9 +537,9 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	}
 	else if (secret_save == 2)
 	{
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		filename_override = filename_full_path;
-		snprintf(filename_override, CHOCOLATE_MAX_FILE_PATH_SIZE, secretb_full_path);
+		snprintf(filename_override, CHOCOLATE_MAX_FILE_PATH_SIZE, secretc_full_path);
 #else
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
@@ -547,10 +547,10 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	}
 	else
 	{
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		if (filename_override)
 		{
-			get_full_file_path(filename_full_path, filename_override);
+			get_full_file_path(filename_full_path, filename_override, CHOCOLATE_SAVE_DIR);
 			snprintf(desc, DESC_LENGTH + 1, "[autosave backup]");
 		}
 		else if (!(filenum = state_get_save_file(filename_full_path, desc, 0)))
@@ -594,7 +594,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 			sprintf(temp_fname, ":Players:%csecret.sgc", fc);
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 			get_temp_file_full_path(temp_fname_full_path, temp_fname);
 
 			mprintf((0, "Trying to copy secret.sgc to %s.\n", temp_fname_full_path));
@@ -637,14 +637,14 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 	{
 		FILE* tfp;
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		tfp = fopen(filename_full_path, "r+b");
 #else
 		tfp = fopen(filename, "r+b");
 #endif
 
 		if (tfp) {
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 			char	newname[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_newname[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 			char	newname[128];
@@ -652,9 +652,9 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 
 #ifdef MACINTOSH
 			sprintf(newname, ":Players:%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 			snprintf(temp_newname, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
-			get_full_file_path(newname, temp_newname);
+			get_full_file_path(newname, temp_newname, CHOCOLATE_SAVE_DIR);
 #else
 			sprintf(newname, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
 #endif
@@ -663,7 +663,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 			fwrite("[autosave backup]", sizeof(char) * DESC_LENGTH, 1, tfp);
 			fclose(tfp);
 			_unlink(newname);
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 			rename(filename_full_path, newname);
 #else
 			rename(filename, newname);
@@ -671,7 +671,7 @@ int state_save_all(int between_levels, int secret_save, char* filename_override)
 		}
 	}
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	rval = state_save_all_sub(filename_full_path, desc, between_levels);
 #else
 	rval = state_save_all_sub(filename, desc, between_levels);
@@ -691,7 +691,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	grs_canvas cnv2, * save_cnv2;
 #endif
 	uint8_t* pal;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char* separator_pos;
 #endif
@@ -830,7 +830,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	F_WriteInt(fp, between_levels);
 
 	// Save the mission info...
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	separator_pos = strrchr(Mission_list[Current_mission_num].filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
@@ -1130,12 +1130,12 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 	char filename[128];
 	int	filenum = -1;
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char	filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], secretb_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], 
 			temp_fname_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], secretc_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE],
 			*separator_pos;
-	get_full_file_path(secretb_full_path, SECRETB_FILENAME);
-	get_full_file_path(secretc_full_path, SECRETC_FILENAME);
+	get_full_file_path(secretb_full_path, SECRETB_FILENAME, CHOCOLATE_SAVE_DIR);
+	get_full_file_path(secretc_full_path, SECRETC_FILENAME, CHOCOLATE_SAVE_DIR);
 #endif
 
 	if (Game_mode & GM_MULTI)
@@ -1162,14 +1162,14 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 
 	if (filename_override)
 	{
-#if defined(__APPLE__) && defined(__MACH__)
-		get_full_file_path(filename_full_path, filename_override);
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		get_full_file_path(filename_full_path, filename_override, CHOCOLATE_SAVE_DIR);
 #else
 		strcpy(filename, filename_override);
 #endif
 		filenum = NUM_SAVES + 1;		//	So we don't trigger autosave
 	}
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	else if (!(filenum = state_get_restore_file(filename_full_path, 0)))
 #else
 	else if (!(filenum = state_get_restore_file(filename, 0)))
@@ -1196,14 +1196,14 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 
 #ifdef MACINTOSH
 			sprintf(temp_fname, ":Players:%csecret.sgc", fc);
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 			snprintf(temp_fname, 32, "%csecret.sgc", fc);
 			get_temp_file_full_path(temp_fname_full_path, temp_fname);
 #else
 			sprintf(temp_fname, "%csecret.sgc", fc);
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 			mprintf((0, "Trying to copy %s to secret.sgc.\n", temp_fname_full_path));
 
 			if (file_exists(temp_fname_full_path))
@@ -1232,11 +1232,11 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 	//	Changed, 11/15/95, MK, don't to autosave if restoring from main menu.
 	if ((filenum != (NUM_SAVES + 1)) && in_game)
 	{
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		char	temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_local_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 		mprintf((0, "Doing autosave, filenum = %i, != %i!\n", filenum, NUM_SAVES + 1));
 		snprintf(temp_local_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
-		get_full_file_path(temp_filename, temp_local_filename);
+		get_full_file_path(temp_filename, temp_local_filename, CHOCOLATE_SAVE_DIR);
 		state_save_all(!in_game, secret_restore, temp_filename);
 #else
 		char	temp_filename[128];
@@ -1259,7 +1259,7 @@ int state_restore_all(int in_game, int secret_restore, char* filename_override)
 
 	start_time();
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	return state_restore_all_sub(filename_full_path, 0, secret_restore);
 #else
 	return state_restore_all_sub(filename, 0, secret_restore);

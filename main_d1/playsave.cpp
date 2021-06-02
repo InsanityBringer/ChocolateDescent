@@ -198,7 +198,7 @@ RetrySelection:
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 	char filename[FILENAME_LEN];
@@ -209,9 +209,9 @@ int read_player_file()
 	Assert(Player_num >= 0 && Player_num < MAX_PLAYERS);
 
 	//sprintf(filename, "%8s.plr", Players[Player_num].callsign);
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
-	get_full_file_path(filename_full_path, filename);
+	get_full_file_path(filename_full_path, filename, CHOCOLATE_PILOT_DIR);
 	file = fopen(filename_full_path, "rb");
 #else
 	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
@@ -420,7 +420,7 @@ int get_highest_level(void)
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 	char filename[13];
@@ -440,9 +440,9 @@ int write_player_file()
 
 	info.n_highest_levels = n_highest_levels;
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
-	get_full_file_path(filename_full_path, filename);
+	get_full_file_path(filename_full_path, filename, CHOCOLATE_PILOT_DIR);
 	file = fopen(filename_full_path, "wb");
 #else
 	sprintf(filename, "%s.plr", Players[Player_num].callsign);

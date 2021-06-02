@@ -1196,7 +1196,7 @@ void newmenu_file_sort(int n, char* list)
 void delete_player_saved_games(char* name)
 {
 	int i;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE], short_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[16];
@@ -1204,7 +1204,7 @@ void delete_player_saved_games(char* name)
 
 	for (i = 0; i < 10; i++) 
 	{
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		snprintf(short_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", name, i);
 		get_full_file_path(filename, short_filename);
 #else

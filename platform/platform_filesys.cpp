@@ -43,6 +43,54 @@ void mkdir_recursive(const char *dir)
 	mkdir(tmp, S_IRWXU);
 }
 
+void init_all_platform_localized_paths()
+{
+	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
+
+	mkdir_recursive(get_platform_localized_file_path_prefix());
+
+	if(strlen(CHOCOLATE_CONFIG_DIR) > 0)
+	{
+		get_platform_localized_path(temp_buf, CHOCOLATE_CONFIG_DIR);
+		mkdir_recursive(temp_buf);
+	}
+	if(strlen(CHOCOLATE_SYSTEM_FILE_DIR) > 0)
+	{
+		get_platform_localized_path(temp_buf, CHOCOLATE_SYSTEM_FILE_DIR);
+		mkdir_recursive(temp_buf);
+	}
+	if(strlen(CHOCOLATE_PILOT_DIR) > 0)
+	{
+		get_platform_localized_path(temp_buf, CHOCOLATE_PILOT_DIR);
+		mkdir_recursive(temp_buf);
+	}
+	if(strlen(CHOCOLATE_SAVE_DIR) > 0)
+	{
+		get_platform_localized_path(temp_buf, CHOCOLATE_SAVE_DIR);
+		mkdir_recursive(temp_buf);
+	}
+	if(strlen(CHOCOLATE_HISCORE_DIR) > 0)
+	{
+		get_platform_localized_path(temp_buf, CHOCOLATE_HISCORE_DIR);
+		mkdir_recursive(temp_buf);
+	}
+	if(strlen(CHOCOLATE_MISSIONS_DIR) > 0)
+	{
+		get_platform_localized_path(temp_buf, CHOCOLATE_MISSIONS_DIR);
+		mkdir_recursive(temp_buf);
+	}
+	if(strlen(CHOCOLATE_DEMOS_DIR) > 0)
+	{
+		get_platform_localized_path(temp_buf, CHOCOLATE_DEMOS_DIR);
+		mkdir_recursive(temp_buf);
+	}
+	if(strlen(CHOCOLATE_SOUNDFONTS_DIR) > 0)
+	{
+		get_platform_localized_path(temp_buf, CHOCOLATE_SOUNDFONTS_DIR);
+		mkdir_recursive(temp_buf);
+	}
+}
+
 const char* get_platform_localized_file_path_prefix()
 {
 #if defined(__APPLE__) && defined(__MACH__)
@@ -62,6 +110,7 @@ const char* get_platform_localized_file_path_prefix()
 
 void get_platform_localized_interior_path(char* platform_localized_interior_path, const char* interior_path)
 {
+	memset(platform_localized_interior_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 	if (strlen(interior_path) == 0)
 	{
 		return;
@@ -92,25 +141,26 @@ void get_platform_localized_path(char* platform_localized_path, const char* subp
 	get_full_file_path(platform_localized_path, "", subpath);
 }
 
-void get_platform_localized_query_path(char* platform_localized_query_path, const char* subpath, const char* query)
+void get_platform_localized_query_string(char* platform_localized_query_string, const char* subpath, const char* query)
 {
 	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
-	memset(platform_localized_query_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+	memset(platform_localized_query_string, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 	memset(temp_buf, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 
 	if (strlen(subpath) == 0)
 	{
-		strncpy(platform_localized_query_path, query, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+		strncpy(platform_localized_query_string, query, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
 	}
 
 	get_platform_localized_interior_path(temp_buf, subpath);
-	snprintf(platform_localized_query_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", temp_buf, PLATFORM_PATH_SEPARATOR, query);
+	snprintf(platform_localized_query_string, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", temp_buf, PLATFORM_PATH_SEPARATOR, query);
 }
 
 void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path)
 {
 	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE], platform_localized_interior_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	const char* separator_pos;
+	memset(filename_full_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 	memset(temp_buf, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 	separator_pos = strrchr(filename, PLATFORM_PATH_SEPARATOR);
 	if (separator_pos == NULL)
@@ -150,6 +200,7 @@ void get_full_file_path(char* filename_full_path, const char* filename, const ch
 
 void get_temp_file_full_path(char* filename_full_path, const char* filename)
 {
+	memset(filename_full_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 #if defined(__APPLE__) && defined(__MACH__)
 	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	const char* separator_pos;

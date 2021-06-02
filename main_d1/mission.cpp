@@ -148,7 +148,11 @@ void get_string_before_whitespace(const char* msn_line, char* trimmed_line)
 //returns 1 if file read ok, else 0
 int read_mission_file(char* filename, int count, int location)
 {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename2[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
 	char filename2[512]; //[ISB] path can be up to 255+nul, filename can be up to 255+nul, so hopefully this will be large enough
+#endif
 	CFILE* mfile;
 
 	strcpy(filename2, ""); //[ISB] always assume current dir for Descent 1
@@ -212,9 +216,10 @@ int build_mission_list(int anarchy_mode)
 	static int num_missions = -1;
 	int count = 0, special_count = 0;
 	FILEFINDSTRUCT find;
-#if defined(__APPLE__) && defined(__MACH__)
-	char search_name[100] = "Data/Missions/*.msn";
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char search_name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char file_path_name[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_platform_localized_query_string(search_name, CHOCOLATE_MISSIONS_DIR, "*.msn");
 #else
 	char search_name[100] = "*.MSN";
 #endif
@@ -233,8 +238,8 @@ int build_mission_list(int anarchy_mode)
 	{
 		do 
 		{
-#if defined(__APPLE__) && defined(__MACH__)
-			get_full_file_path(file_path_name, find.name, "Data/Missions");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+			get_full_file_path(file_path_name, find.name, CHOCOLATE_MISSIONS_DIR);
 			if (read_mission_file(file_path_name, count, 0))
 #else
 			if (read_mission_file(find.name, count, 0))
@@ -303,7 +308,7 @@ int load_mission(int mission_num)
 		char buf[80], tmp[80], msn_line[256], trimmed_line[256], * v;
 		int eof_check;
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		char msn_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], hog_filename[CHOCOLATE_MAX_FILE_PATH_SIZE],
 		     hogfile_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 		snprintf(msn_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.msn", Mission_list[mission_num].filename);
@@ -312,7 +317,7 @@ int load_mission(int mission_num)
 		strcat(buf, ".MSN");
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		snprintf(hog_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.hog", Mission_list[mission_num].filename);
 
 		cfile_use_alternate_hogfile(hog_filename);
@@ -370,9 +375,9 @@ int load_mission(int mission_num)
 				if (*bufp == ' ')
 					while (*(++bufp) == ' ')
 						;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 				memset(hogfile_full_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
-				get_full_file_path(hogfile_full_path, bufp, "Data/Missions");
+				get_full_file_path(hogfile_full_path, bufp, CHOCOLATE_MISSIONS_DIR);
 				cfile_use_alternate_hogfile(hogfile_full_path);
 #else
 				cfile_use_alternate_hogfile(bufp);
@@ -421,9 +426,9 @@ int load_mission(int mission_num)
 
 						if(ext_idx != NULL && ext_idx - trimmed_line > 2 && ext_idx[1] == 'h' && ext_idx[2] == 'o' && ext_idx[3] == 'g')
 						{
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 							memset(hogfile_full_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
-							get_full_file_path(hogfile_full_path, trimmed_line, "Data/Missions");
+							get_full_file_path(hogfile_full_path, trimmed_line, CHOCOLATE_MISSIONS_DIR);
 							cfile_use_alternate_hogfile(hogfile_full_path);
 #else
 							cfile_use_alternate_hogfile(trimmed_line);
@@ -494,20 +499,20 @@ int load_mission(int mission_num)
 int load_mission_by_name(char* mission_name)
 {
 	int n, i;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char mission_name_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
-	get_full_file_path(mission_name_full_path, mission_name, "Data/Missions");
+	get_full_file_path(mission_name_full_path, mission_name, CHOCOLATE_MISSIONS_DIR);
 #endif
 
 	n = build_mission_list(1);
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	if (strlen(mission_name) == 0)
 		return load_mission(0);
 #endif
 
 	for (i = 0; i < n; i++)
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		if (!_strfcmp(mission_name_full_path, Mission_list[i].filename))
 #else
 		if (!_strfcmp(mission_name, Mission_list[i].filename))

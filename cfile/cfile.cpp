@@ -37,7 +37,7 @@ typedef struct hogfile
 
 #define MAX_HOGFILES 250
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 #define HOG_FILENAME_MAX CHOCOLATE_MAX_FILE_PATH_SIZE
 #else
 #define HOG_FILENAME_MAX 64
@@ -197,9 +197,9 @@ FILE* cfile_find_libfile(const char* name, int* length)
 #ifndef BUILD_DESCENT2 //must call cfile_init in Descent 2. Descent 1 can run without a hogfile if you really wanted. 
 	if (!Hogfile_initialized) 
 	{
-#if defined(__APPLE__) && defined(__MACH__)
-		get_full_file_path(HogFilename, "descent.hog", "Data");
-		FILE* descent_hog_test_fp = fopen(HogFilename, "r");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		get_full_file_path(HogFilename, "descent.hog", CHOCOLATE_SYSTEM_FILE_DIR);
+		FILE* descent_hog_test_fp = fopen(HogFilename, "rb");
 		if(!descent_hog_test_fp)
 		{
 			fclose(descent_hog_test_fp);

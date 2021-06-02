@@ -133,7 +133,7 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	FILE* fp;
 	int i, choice, version;
 	newmenu_item m[NUM_SAVES + 1];
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename[NUM_SAVES][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[NUM_SAVES][20];
@@ -145,12 +145,12 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	for (i = 0; i < NUM_SAVES; i++) 
 	{
 		sc_bmp[i] = NULL;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		if (!multi)
 			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
 		else
 			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
-		get_full_file_path(filename[i], temp_filename);
+		get_full_file_path(filename[i], temp_filename, CHOCOLATE_SAVE_DIR);
 #else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
@@ -212,7 +212,7 @@ int state_get_restore_file(char* fname, int multi)
 	FILE* fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES + 1];
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename[NUM_SAVES][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 	char filename[NUM_SAVES][20];
@@ -226,12 +226,12 @@ int state_get_restore_file(char* fname, int multi)
 	for (i = 0; i < NUM_SAVES; i++) 
 	{
 		sc_bmp[i] = NULL;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		if (!multi)
 			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
 		else
 			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
-		get_full_file_path(filename[i], temp_filename);
+		get_full_file_path(filename[i], temp_filename, CHOCOLATE_SAVE_DIR);
 #else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
@@ -303,7 +303,7 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	int temp_int;
 	uint8_t temp_byte;
 	char desc[DESC_LENGTH + 1];
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char* separator_pos;
 #else
@@ -312,9 +312,9 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	grs_canvas* cnv;
 	FILE* fp;
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	snprintf(temp_buffer, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", sg_player->callsign, slotnum);
-	get_full_file_path(filename, temp_buffer);
+	get_full_file_path(filename, temp_buffer, CHOCOLATE_SAVE_DIR);
 #else
 	sprintf(filename, "%s.sg%d", sg_player->callsign, slotnum);
 #endif
@@ -374,7 +374,7 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	fwrite(&temp_int, sizeof(int), 1, fp);
 
 	// Save the mission info...
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	separator_pos = strrchr(Mission_list[0].filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{
@@ -465,7 +465,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	int i, j;
 	FILE* fp;
 	grs_canvas* cnv;
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char* separator_pos;
 #endif
@@ -544,7 +544,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	F_WriteInt(fp, between_levels);
 
 	// Save the mission info...
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	separator_pos = strrchr(Mission_list[Current_mission_num].filename, PLATFORM_PATH_SEPARATOR);
 	if(separator_pos != NULL)
 	{

@@ -268,6 +268,10 @@ int D_DescentMain(int argc, const char** argv)
 	int t;
 	uint8_t title_pal[768];
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	init_all_platform_localized_paths();
+#endif
+
 	error_init(NULL);
 
 	setbuf(stdout, NULL);	// unbuffered output via printf
@@ -633,9 +637,9 @@ int D_DescentMain(int argc, const char** argv)
 	Game_mode = GM_GAME_OVER;
 
 	if (Auto_demo) {
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		char demo_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
-		get_full_file_path(demo_full_path, "descent.dem", "Data/Demos");
+		get_full_file_path(demo_full_path, "descent.dem", CHOCOLATE_DEMOS_DIR);
 		newdemo_start_playback(demo_full_path);
 #else
 		newdemo_start_playback("DESCENT.DEM");

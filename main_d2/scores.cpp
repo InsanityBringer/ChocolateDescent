@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/platform.h"
 
 #define VERSION_NUMBER 		1
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 #define SCORES_FILENAME 	"descent.hi"
 #else
 #define SCORES_FILENAME 	"DESCENT.HI"
@@ -78,7 +78,7 @@ static all_scores Scores;
 
 stats_info Last_game;
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 char scores_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #else
 char scores_filename[128];
@@ -101,9 +101,16 @@ char* get_scores_filename()
 	p = getenv("MINER");
 	if (p)
 	{
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		char miner_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
-		snprintf(miner_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s/game", p);
+		if (strlen(CHOCOLATE_HISCORE_DIR) > 0)
+		{
+			snprintf(miner_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%cgame", CHOCOLATE_HISCORE_DIR, PLATFORM_PATH_SEPARATOR, p, PLATFORM_PATH_SEPARATOR);
+		}
+		else
+		{
+			snprintf(miner_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%cgame", p, PLATFORM_PATH_SEPARATOR);
+		}	
 		get_full_file_path(scores_filename, SCORES_FILENAME, miner_path);
 #else
 		sprintf(scores_filename, "%s\\game\\%s", p, SCORES_FILENAME);
@@ -114,8 +121,8 @@ char* get_scores_filename()
 #endif
 #ifdef MACINTOSH		// put the high scores into the data folder
 	sprintf(scores_filename, ":Data:%s", SCORES_FILENAME);
-#elif defined(__APPLE__) && defined(__MACH__)
-	get_full_file_path(scores_filename, SCORES_FILENAME);
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(scores_filename, SCORES_FILENAME, CHOCOLATE_HISCORE_DIR);
 #else
 	sprintf(scores_filename, "%s", SCORES_FILENAME);
 #endif
