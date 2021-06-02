@@ -67,7 +67,7 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 	currentDir = opendir(dir);
 	if (!currentDir) return 1;
 	//It opened, so get search string
-	search = strrchr(full_search_str, '*');
+	search = strrchr(search_str, '*');
 	strncpy(searchStr, search+2, 12);
 	//mprintf((0, "FindFileFirst: Search is %s\n", searchStr));
 
@@ -77,8 +77,13 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 {
 	char name[13];
+#if defined(__APPLE__) && defined(__MACH__)
+	char fname[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char ext[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
 	char fname[256];
 	char ext[256];
+#endif
 	struct dirent *entry;
 	struct stat stats;
 	if (!currentDir) return 1;
@@ -86,8 +91,13 @@ int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 	while (entry != NULL)
 	{
 		//What a mess. ugh
+#if defined(__APPLE__) && defined(__MACH__)
+		memset(fname, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		memset(ext, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+#else
 		memset(fname, 0, 256);
 		memset(ext, 0, 256);
+#endif
 		_splitpath(entry->d_name, NULL, NULL, fname, ext);
 		if (strlen(fname) + strlen(ext) + 1 < 13) //Only care about entries that are short enough. This is to prevent problems with Descent's limitation of 8.3 character filenames.
 		{

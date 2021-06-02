@@ -13,9 +13,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#define FF_PATHSIZE 256
-
 #include <stdint.h>
+
+#if defined(__APPLE__) && defined(__MACH__)
+#define FF_PATHSIZE CHOCOLATE_MAX_FILE_PATH_SIZE
+#else
+#define FF_PATHSIZE 256
+#endif
 
 #define FF_TYPE_FILE 1
 #define FF_TYPE_DIR 2
