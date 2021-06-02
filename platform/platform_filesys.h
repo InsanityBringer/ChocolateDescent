@@ -33,6 +33,26 @@ static const char* CHOCOLATE_DESCENT_VERSION_STRING = "Descent 2";
 static const unsigned int CHOCOLATE_DESCENT_VERSION = 2;
 #endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+#define CHOCOLATE_CONFIG_DIR ""
+#define CHOCOLATE_SYSTEM_FILE_DIR "Data"
+#define CHOCOLATE_PILOT_DIR ""
+#define CHOCOLATE_SAVE_DIR ""
+#define CHOCOLATE_HISCORE_DIR ""
+#define CHOCOLATE_MISSIONS_DIR "Data/Missions"
+#define CHOCOLATE_DEMOS_DIR "Data/Demos"
+#define CHOCOLATE_SOUNDFONTS_DIR "Data/SoundFonts"
+#else
+#define CHOCOLATE_CONFIG_DIR ""
+#define CHOCOLATE_SYSTEM_FILE_DIR ""
+#define CHOCOLATE_PILOT_DIR ""
+#define CHOCOLATE_SAVE_DIR ""
+#define CHOCOLATE_HISCORE_DIR ""
+#define CHOCOLATE_MISSIONS_DIR ""
+#define CHOCOLATE_DEMOS_DIR ""
+#define CHOCOLATE_SOUNDFONTS_DIR ""
+#endif
+
 //-----------------------------------------------------------------------------
 //	File system utilities
 //-----------------------------------------------------------------------------
@@ -41,10 +61,16 @@ static const unsigned int CHOCOLATE_DESCENT_VERSION = 2;
 void mkdir_recursive(const char* dir);
 
 //Get path to user files for local system
-const char* get_local_file_path_prefix();
+const char* get_platform_localized_file_path_prefix();
 
 //Assuming a / is used as a path separator in code, localize it for the platform this is running on
 void get_platform_localized_interior_path(char* platform_localized_interior_path, const char* interior_path);
+
+//Localize subpaths within the base directory
+void get_platform_localized_path(char* platform_localized_path, const char* subpath);
+
+//Localize file query strings
+void get_platform_localized_query_path(char* platform_localized_query_path, const char* subpath, const char* query);
 
 //Get full path to files using the local file path prefix
 void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path = NULL);

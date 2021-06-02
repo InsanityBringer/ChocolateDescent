@@ -43,7 +43,7 @@ void mkdir_recursive(const char *dir)
 	mkdir(tmp, S_IRWXU);
 }
 
-const char* get_local_file_path_prefix()
+const char* get_platform_localized_file_path_prefix()
 {
 #if defined(__APPLE__) && defined(__MACH__)
 	if(local_file_path_prefix[0] == 0)
@@ -62,6 +62,11 @@ const char* get_local_file_path_prefix()
 
 void get_platform_localized_interior_path(char* platform_localized_interior_path, const char* interior_path)
 {
+	if (strlen(interior_path) == 0)
+	{
+		return;
+	}
+
 	if (PLATFORM_PATH_SEPARATOR == '/')
 	{
 		strncpy(platform_localized_interior_path, interior_path, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
@@ -81,6 +86,27 @@ void get_platform_localized_interior_path(char* platform_localized_interior_path
 	strncpy(platform_localized_interior_path, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
 }
 
+void get_platform_localized_path(char* platform_localized_path, const char* subpath)
+{
+	memset(platform_localized_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+	get_full_file_path(platform_localized_path, "", subpath);
+}
+
+void get_platform_localized_query_path(char* platform_localized_query_path, const char* subpath, const char* query)
+{
+	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	memset(platform_localized_query_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+	memset(temp_buf, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+
+	if (strlen(subpath) == 0)
+	{
+		strncpy(platform_localized_query_path, query, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+	}
+
+	get_platform_localized_interior_path(temp_buf, subpath);
+	snprintf(platform_localized_query_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", temp_buf, PLATFORM_PATH_SEPARATOR, query);
+}
+
 void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path)
 {
 	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE], platform_localized_interior_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
@@ -91,13 +117,13 @@ void get_full_file_path(char* filename_full_path, const char* filename, const ch
 	{
 		if (additional_path == NULL || strlen(additional_path) == 0)
 		{
-			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, filename);
+			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", get_platform_localized_file_path_prefix(), PLATFORM_PATH_SEPARATOR, filename);
 			return;
 		}
 		else
 		{
 			get_platform_localized_interior_path(platform_localized_interior_path, additional_path);
-			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, platform_localized_interior_path, PLATFORM_PATH_SEPARATOR, filename);
+			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%c%s", get_platform_localized_file_path_prefix(), PLATFORM_PATH_SEPARATOR, platform_localized_interior_path, PLATFORM_PATH_SEPARATOR, filename);
 			return;
 		}
 	}
@@ -107,13 +133,13 @@ void get_full_file_path(char* filename_full_path, const char* filename, const ch
 
 		if (additional_path == NULL || strlen(additional_path) == 0)
 		{
-			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, temp_buf);
+			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", get_platform_localized_file_path_prefix(), PLATFORM_PATH_SEPARATOR, temp_buf);
 			return;
 		}
 		else
 		{
 			get_platform_localized_interior_path(platform_localized_interior_path, additional_path);
-			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%c%s", get_local_file_path_prefix(), PLATFORM_PATH_SEPARATOR, platform_localized_interior_path, PLATFORM_PATH_SEPARATOR, temp_buf);
+			snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s%c%s", get_platform_localized_file_path_prefix(), PLATFORM_PATH_SEPARATOR, platform_localized_interior_path, PLATFORM_PATH_SEPARATOR, temp_buf);
 			return;
 		}
 	}

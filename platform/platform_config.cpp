@@ -55,7 +55,7 @@ int I_ReadChocolateConfig()
 	{
 		//Try creating a default config file
 #if defined(__APPLE__) && defined(__MACH__)
-		mkdir_recursive(get_local_file_path_prefix());
+		mkdir_recursive(get_platform_localized_file_path_prefix());
 #endif
 		infile = fopen(cfgpath, "w");
 		if (infile != NULL)
