@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/types.h"
 #include "misc/args.h"
+#include "platform/platform_filesys.h"
 #include "platform/timer.h"
 #include "platform/mono.h"
 #include "platform/i_net.h"
@@ -5673,7 +5674,13 @@ int HoardEquipped()
 
 	if (checked == -1)
 	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		char hoard_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		get_full_file_path(hoard_full_path, "hoard.ham", CHOCOLATE_SYSTEM_FILE_DIR);
+		if (file_exists(hoard_full_path))
+#else
 		if (file_exists("hoard.ham"))
+#endif
 			checked = 1;
 		else
 			checked = 0;

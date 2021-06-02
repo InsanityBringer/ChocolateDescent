@@ -408,7 +408,12 @@ int build_mission_list(int anarchy_mode)
 		int i;
 
 		for (i=special_count;i<count;i++)
+		{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+			if (!_strfcmp(Mission_list[i].filename, "d2x"))
+#else
 			if (!_strfcmp(Mission_list[i].filename,"D2X")) //swap!
+#endif
 			{
 				mle temp;
 
@@ -420,6 +425,7 @@ int build_mission_list(int anarchy_mode)
 
 				break;
 			}
+		}
 	}
 
 

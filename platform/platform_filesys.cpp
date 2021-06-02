@@ -97,13 +97,13 @@ void init_all_platform_localized_paths()
 void validate_required_files()
 {
 	char missing_file_list[2048];
-	char missing_file_location_list[(15 * CHOCOLATE_MAX_FILE_PATH_SIZE) + 15];
+	char missing_file_location_list[(20 * CHOCOLATE_MAX_FILE_PATH_SIZE) + 20];
 	char missing_file_string[65536]; //There's no way anything should get this huge anywhere
 	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_buf2[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	FILE *fp;
 
 	memset(missing_file_list, 0, 2048);
-	memset(missing_file_location_list, 0, (15 * CHOCOLATE_MAX_FILE_PATH_SIZE) + 15);
+	memset(missing_file_location_list, 0, (20 * CHOCOLATE_MAX_FILE_PATH_SIZE) + 20);
 
 #if defined(BUILD_DESCENT1)
 	get_full_file_path(temp_buf, "descent.hog", CHOCOLATE_SYSTEM_FILE_DIR);
@@ -266,20 +266,6 @@ void validate_required_files()
 	if (!fp)
 	{
 		strncat(missing_file_list, "groupa.pig\n", 11);
-		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
-		strncat(missing_file_location_list, "\n", 1);
-	}
-	else
-	{
-		fclose(fp);
-	}
-
-	get_full_file_path(temp_buf, "hoard.ham", CHOCOLATE_SYSTEM_FILE_DIR);
-
-	fp = fopen(temp_buf, "rb");
-	if (!fp)
-	{
-		strncat(missing_file_list, "hoard.ham\n", 10);
 		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
 		strncat(missing_file_location_list, "\n", 1);
 	}
