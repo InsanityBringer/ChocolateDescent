@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#include "platform/platform_filesys.h"
+
 #ifdef NETWORK
 
 #define PATCH12
@@ -21,7 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/types.h"
 #include "misc/args.h"
-#include "platform/platform_filesys.h"
 #include "platform/timer.h"
 #include "platform/mono.h"
 #include "platform/i_net.h"
