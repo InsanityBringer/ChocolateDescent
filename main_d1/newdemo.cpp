@@ -3110,7 +3110,15 @@ void newdemo_strip_frames(char* outname, int bytes_to_strip)
 
 	bytes_done = 0;
 	total_size = _filelength(_fileno(infile));
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char outname_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(outname_full_path, outname, CHOCOLATE_DEMOS_DIR);
+
+	outfile = fopen(outname_full_path, "wb");
+#else
 	outfile = fopen(outname, "wb");
+#endif
 	if (outfile == NULL) {
 		newmenu_item m[1];
 

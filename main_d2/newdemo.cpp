@@ -161,12 +161,15 @@ int8_t RenderingWasRecorded[32];
 #define DEMO_VERSION				15		//last D1 version was 13
 #define DEMO_GAME_TYPE 			3		//1 was shareware, 2 registered
 
-#ifndef MACINTOSH
-#define DEMO_FILENAME			"demos\\tmpdemo.dem"
-#define DEMO_DIR				"demos\\"
-#else
+#ifdef MACINTOSH
 #define DEMO_FILENAME			":Demos:tmpdemo.dem"
 #define DEMO_DIR				":Demos:"
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+#define DEMO_FILENAME			"tempdemo.dem"
+#define DEMO_DIR				""
+#else
+#define DEMO_FILENAME			"demos\\tmpdemo.dem"
+#define DEMO_DIR				"demos\\"
 #endif
 
 #define DEMO_MAX_LEVELS			29
@@ -3012,6 +3015,11 @@ void newdemo_playback_one_frame()
 
 void newdemo_start_recording()
 {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char demo_file_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+
+	get_temp_file_full_path(demo_file_full_path, DEMO_FILENAME);
+#endif
 	Newdemo_size = GetFreeDiskSpace();
 
 	Newdemo_size -= 100000;
@@ -3032,6 +3040,9 @@ void newdemo_start_recording()
 	Newdemo_num_written = 0;
 	Newdemo_no_space = 0;
 	Newdemo_state = ND_STATE_RECORDING;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	outfile = fopen(demo_file_full_path, "wb");
+#else
 	outfile = fopen(DEMO_FILENAME, "wb");
 
 	if (outfile == NULL && errno == ENOENT) //dir doesn't exist?
@@ -3039,6 +3050,7 @@ void newdemo_start_recording()
 		_mkdir(DEMO_DIR);								//try making directory
 		outfile = fopen(DEMO_FILENAME, "wb");
 	}
+#endif
 
 	if (outfile == NULL)
 	{
@@ -3060,6 +3072,12 @@ void newdemo_stop_recording()
 	uint8_t cloaked = 0;
 	char fullname[15 + FILENAME_LEN] = DEMO_DIR;
 	unsigned short byte_count = 0;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char dest_file_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_file_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE],
+	     temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
+
+	get_temp_file_full_path(temp_file_full_path, DEMO_FILENAME);
+#endif
 
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(frame_bytes_written - 1);
@@ -3182,6 +3200,22 @@ try_again:
 
 	if (exit == -2) // got bumped out from network menu
 	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		if (filename[0] != '\0')
+		{
+			snprintf(temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.dem", filename);
+			get_full_file_path(dest_file_full_path, temp_buf, CHOCOLATE_DEMOS_DIR);
+		}
+		else
+		{
+			snprintf(temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE, "tmp%d.dem", tmpcnt);
+			tmpcnt = tmpcnt + 1;
+			get_full_file_path(dest_file_full_path, temp_buf, CHOCOLATE_DEMOS_DIR);
+		}
+
+		remove(dest_file_full_path);
+		rename(temp_file_full_path, dest_file_full_path);
+#else
 		char save_file[7 + FILENAME_LEN];
 
 		if (filename[0] != '\0')
@@ -3194,11 +3228,16 @@ try_again:
 			sprintf(save_file, "%stmp%d.dem", DEMO_DIR, tmpcnt++);
 		remove(save_file);
 		rename(DEMO_FILENAME, save_file);
+#endif
 		return;
 	}
 	if (exit == -1) // pressed ESC
 	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		remove(temp_file_full_path);
+#else
 		remove(DEMO_FILENAME);		// might as well remove the file
+#endif
 		return;							// return without doing anything
 	}
 
@@ -3213,6 +3252,19 @@ try_again:
 			goto try_again;
 		}
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	if (Newdemo_no_space)
+	{
+		snprintf(temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.dem", m[1].text);
+	}
+	else
+	{
+		snprintf(temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.dem", m[0].text);
+	}
+	get_full_file_path(dest_file_full_path, temp_buf, CHOCOLATE_DEMOS_DIR);
+	remove(dest_file_full_path);
+	rename(temp_file_full_path, dest_file_full_path);
+#else
 	if (Newdemo_no_space)
 		strcat(fullname, m[1].text);
 	else
@@ -3220,6 +3272,7 @@ try_again:
 	strcat(fullname, ".dem");
 	remove(fullname);
 	rename(DEMO_FILENAME, fullname);
+#endif
 }
 
 //returns the number of demo files on the disk
@@ -3228,7 +3281,14 @@ int newdemo_count_demos()
 	FILEFINDSTRUCT find;
 	int NumFiles = 0;
 
-	if (!FileFindFirst("demos\\*.DEM", &find)) 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_platform_localized_query_string(demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
+
+	if (!FileFindFirst(demo_query, &find))
+#else
+	if (!FileFindFirst("demos\\*.DEM", &find))
+#endif
 	{
 		do 
 		{
@@ -3244,7 +3304,11 @@ void newdemo_start_playback(const char* filename)
 {
 	FILEFINDSTRUCT find;
 	int rnd_demo = 0;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char demo_file_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
 	char filename2[7 + FILENAME_LEN] = DEMO_DIR;
+#endif
 
 #ifdef NETWORK
 	change_playernum_to(0);
@@ -3266,7 +3330,14 @@ void newdemo_start_playback(const char* filename)
 		}
 		RandFileNum = P_Rand() % NumFiles;
 		NumFiles = 0;
-		if (!FileFindFirst("demos\\*.DEM", &find)) 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		char demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		get_platform_localized_query_string(demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
+
+		if (!FileFindFirst(demo_query, &find))
+#else
+		if (!FileFindFirst("demos\\*.DEM", &find))
+#endif
 		{
 			do 
 			{
@@ -3285,9 +3356,15 @@ void newdemo_start_playback(const char* filename)
 	if (!filename)
 		return;
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(demo_file_full_path, filename, CHOCOLATE_DEMOS_DIR);
+
+	infile = fopen(demo_file_full_path, "rb");
+#else
 	strcat(filename2, filename);
 
 	infile = fopen(filename2, "rb");
+#endif
 	if (infile == NULL) {
 		mprintf((0, "Error reading '%s'\n", filename));
 		return;
@@ -3351,7 +3428,15 @@ void newdemo_strip_frames(char* outname, int bytes_to_strip)
 
 	bytes_done = 0;
 	total_size = _filelength(_fileno(infile));
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char outname_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(outname_full_path, outname, CHOCOLATE_DEMOS_DIR);
+
+	outfile = fopen(outname_full_path, "wb");
+#else
 	outfile = fopen(outname, "wb");
+#endif
 	if (outfile == NULL) 
 	{
 		newmenu_item m[1];
