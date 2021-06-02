@@ -281,14 +281,6 @@ int piggy_init()
 
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	get_full_file_path(filename_full_path, "descent.pig", CHOCOLATE_SYSTEM_FILE_DIR);
-	FILE* descent_pig_test = fopen(filename_full_path, "r");
-	if(!descent_pig_test)
-	{
-		char err_str[256];
-		fclose(descent_pig_test);
-		sprintf(err_str, "\nUnable to find file descent.pig\nPlease make sure it exists at:\n%s", filename_full_path);
-		Error(err_str);
-	}
 #else
 	filename = "DESCENT.PIG";
 #endif
@@ -725,14 +717,6 @@ void piggy_dump_all()
 	mprintf((0, "Creating DESCENT.PIG..."));
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	get_full_file_path(filename_full_path, "descent.pig", CHOCOLATE_SYSTEM_FILE_DIR);
-	FILE* descent_pig_test = fopen(filename_full_path, "r");
-	if(!descent_pig_test)
-	{
-		char err_str[256];
-		fclose(descent_pig_test);
-		sprintf(err_str, "\nUnable to find file descent.pig\nPlease make sure it exists at:\n%s", filename_full_path);
-		Error(err_str);
-	}
 #else
 	filename = "DESCENT.PIG";
 #endif

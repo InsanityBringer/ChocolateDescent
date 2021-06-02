@@ -199,15 +199,6 @@ FILE* cfile_find_libfile(const char* name, int* length)
 	{
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		get_full_file_path(HogFilename, "descent.hog", CHOCOLATE_SYSTEM_FILE_DIR);
-		FILE* descent_hog_test_fp = fopen(HogFilename, "rb");
-		if(!descent_hog_test_fp)
-		{
-			fclose(descent_hog_test_fp);
-			char err_str[CHOCOLATE_MAX_FILE_PATH_SIZE + 512];
-			sprintf(err_str, "\nUnable to find file descent.hog\nPlease make sure it exists at:\n%s", HogFilename);
-			Error(err_str);
-		}
-		fclose(descent_hog_test_fp);
 		cfile_init_hogfile(HogFilename, HogFiles, &Num_hogfiles);
 		Hogfile_initialized = 1;
 #else
