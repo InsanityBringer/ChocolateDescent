@@ -218,28 +218,28 @@ void validate_required_files()
 		fclose(fp);
 	}
 
+	get_full_file_path(temp_buf, "descent2.s11", CHOCOLATE_SYSTEM_FILE_DIR);
+
+	fp = fopen(temp_buf, "rb");
+	if (!fp)
+	{
+		strncat(missing_file_list, "descent2.s11\n", 13);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
+	}
+	else
+	{
+		fclose(fp);
+	}
+
 	get_full_file_path(temp_buf, "descent2.s22", CHOCOLATE_SYSTEM_FILE_DIR);
 
 	fp = fopen(temp_buf, "rb");
 	if (!fp)
 	{
-		get_full_file_path(temp_buf2, "descent2.s11", CHOCOLATE_SYSTEM_FILE_DIR);
-
-		fp = fopen(temp_buf2, "rb");
-
-		if (!fp)
-		{
-			strncat(missing_file_list, "descent2.s22 and/or descent2.s11\n", 33);
-			strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
-			strncat(missing_file_location_list, "\n", 1);
-			strncat(missing_file_location_list, "and/or\n", 7);
-			strncat(missing_file_location_list, temp_buf2, CHOCOLATE_MAX_FILE_PATH_SIZE);
-			strncat(missing_file_location_list, "\n", 1);
-		}
-		else
-		{
-			fclose(fp);
-		}
+		strncat(missing_file_list, "descent2.s22\n", 13);
+		strncat(missing_file_location_list, temp_buf, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		strncat(missing_file_location_list, "\n", 1);
 	}
 	else
 	{
