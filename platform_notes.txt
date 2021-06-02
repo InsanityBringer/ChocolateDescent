@@ -9,6 +9,9 @@ NOTE: All files are expected to have entirely lowercase filenames.  This may
 require some renaming if your original game files (such as from the DOS
 version) are all uppercase.
 
+Currently, multiplayer is untested, as there are build issues with it, which
+also prevents the use of the Vertigo expansion.
+
 In order to run the game with all the bells and whistles, place your resources
 in the following locations:
 
@@ -34,7 +37,7 @@ descent2.s11
 descent2.s22
 fire.pig
 groupa.pig
-hoard.ham
+hoard.ham (only if the Vertigo expansion is used)
 ice.pig
 intro-h.mvl
 intro-l.mvl
