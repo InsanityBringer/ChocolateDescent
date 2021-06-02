@@ -388,7 +388,6 @@ int build_mission_list(int anarchy_mode)
 
 	if( !FileFindFirst( search_name, &find ) )
 	{
-		printf("Found mission: %s\n", find.name);
 		do	
 		{
 			if (_strfcmp(find.name,BUILTIN_MISSION)==0)
@@ -396,7 +395,6 @@ int build_mission_list(int anarchy_mode)
 
 			if (read_mission_file(find.name,count,ML_MISSIONDIR)) 
 			{
-				printf("Read mission file.\n");
 				if (anarchy_mode || !Mission_list[count].anarchy_only_flag)
 					count++;
 			}
@@ -445,7 +443,11 @@ void init_extra_robot_movie(char *filename);
 int load_mission(int mission_num)
 {
 	CFILE *mfile;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char buf[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_short_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], *v;
+#else
 	char buf[80], *v;
+#endif
 	int found_hogfile;
 	int enhanced_mission = 0;
 
@@ -455,6 +457,28 @@ int load_mission(int mission_num)
 
 	//read mission from file 
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	snprintf(temp_short_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mn2", Mission_list[mission_num].filename);
+
+	switch (Mission_list[mission_num].location)
+	{
+		case ML_MISSIONDIR:
+			get_full_file_path(buf, temp_short_filename, CHOCOLATE_MISSIONS_DIR);
+			break;
+
+		case ML_CDROM:
+			//This isn't really implemented at this point
+			Int3();
+			break;
+
+		default:
+			Int3();
+
+		case ML_CURDIR:
+			strncpy(buf, temp_short_filename, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+			break;
+	}
+#else
 	switch (Mission_list[mission_num].location) {
 		case ML_MISSIONDIR:	strcpy(buf,MISSION_DIR);	break;
 		case ML_CDROM:			strcpy(buf,CDROM_dir);		break;
@@ -463,6 +487,7 @@ int load_mission(int mission_num)
 	}
 	strcat(buf,Mission_list[mission_num].filename);
 	strcat(buf,".MN2");
+#endif
 
 	mfile = cfopen(buf,"rb");
 	if (mfile == NULL) 
@@ -472,8 +497,12 @@ int load_mission(int mission_num)
 	}
 
 	if (mission_num != 0) //for non-builtin missions, load HOG
-	{		
+	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		strcpy(buf + strlen(buf) - 4, ".hog");
+#else
 		strcpy(buf+strlen(buf)-4,".HOG");		//change extension
+#endif
 
 		found_hogfile = cfile_use_alternate_hogfile(buf);
 
