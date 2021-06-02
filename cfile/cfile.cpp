@@ -275,7 +275,11 @@ CFILE* cfopen(const char* filename, const char* mode)
 	int length;
 	FILE* fp;
 	CFILE* cfile;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char new_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], * p;
+#else
 	char new_filename[256], * p;
+#endif
 
 	if (_stricmp(mode, "rb")) 
 	{
@@ -283,8 +287,13 @@ CFILE* cfopen(const char* filename, const char* mode)
 		exit(1);
 	}
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	memset(new_filename, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+	strncpy(new_filename, filename, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+#else
 	memset(new_filename, 0, 256);
 	strncpy(new_filename, filename, 255);
+#endif
 	while ((p = strchr(new_filename, 13)))
 		* p = '\0';
 
