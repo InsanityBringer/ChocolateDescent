@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 #include "cfile/cfile.h"
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "inferno.h"
 #include "mission.h"
@@ -235,6 +236,31 @@ extern int HoardEquipped();
 //returns 1 if file read ok, else 0
 int read_mission_file(char *filename,int count,int location)
 {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename2[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	CFILE *mfile;
+
+	memset(filename2, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+
+	switch (location) {
+		case ML_MISSIONDIR:
+			get_full_file_path(filename2, filename, CHOCOLATE_MISSIONS_DIR);
+			break;
+
+		case ML_CDROM:
+			//This isn't really implemented at this point
+			songs_stop_redbook();
+			Int3();
+			break;
+
+		default:
+			Int3();
+
+		case ML_CURDIR:
+			strncpy(filename2, filename, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+			break;
+	}
+#else
 	char filename2[512];
 	CFILE *mfile;
 
@@ -256,6 +282,7 @@ int read_mission_file(char *filename,int count,int location)
 			break;
 	}
 	strcat(filename2,filename);
+#endif
 
 	mfile = cfopen(filename2,"rb");
 
@@ -333,7 +360,12 @@ int build_mission_list(int anarchy_mode)
 	static int num_missions=-1;
 	int count=0,special_count=0;
 	FILEFINDSTRUCT find;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char search_name[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_platform_localized_query_string(search_name, CHOCOLATE_MISSIONS_DIR, "*.mn2");
+#else
 	char search_name[256] = MISSION_DIR "*.MN2";
+#endif
 
 	//now search for levels on disk
 
@@ -352,10 +384,11 @@ int build_mission_list(int anarchy_mode)
 	if (!read_mission_file(const_cast<char*>(BUILTIN_MISSION),0,ML_CURDIR))		//read built-in first
 		Error("Could not find required mission file <%s>",BUILTIN_MISSION);
 
-	special_count = count=1; 
+	special_count = count=1;
 
 	if( !FileFindFirst( search_name, &find ) )
 	{
+		printf("Found mission: %s\n", find.name);
 		do	
 		{
 			if (_strfcmp(find.name,BUILTIN_MISSION)==0)
@@ -363,6 +396,7 @@ int build_mission_list(int anarchy_mode)
 
 			if (read_mission_file(find.name,count,ML_MISSIONDIR)) 
 			{
+				printf("Read mission file.\n");
 				if (anarchy_mode || !Mission_list[count].anarchy_only_flag)
 					count++;
 			}
