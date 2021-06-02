@@ -1197,20 +1197,20 @@ void delete_player_saved_games(char* name)
 {
 	int i;
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
-	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE], short_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
-#else
-	char filename[16];
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
+	char filename[16];
 
 	for (i = 0; i < 10; i++) 
 	{
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
-		snprintf(short_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", name, i);
-		get_full_file_path(filename, short_filename);
+		snprintf(filename, 16, "%s.sg%d", name, i);
+		get_full_file_path(filename_full_path, filename, CHOCOLATE_SAVE_DIR);
+		_unlink(filename_full_path);
 #else
 		sprintf(filename, "%s.sg%d", name, i);
-#endif
 		_unlink(filename);
+#endif
 	}
 }
 
