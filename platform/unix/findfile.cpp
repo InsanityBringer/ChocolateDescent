@@ -25,7 +25,14 @@ DIR *currentDir;
 
 int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 {
+#if defined(__APPLE__) && defined(__MACH__)
+	char dir[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char temp_search_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char full_search_str[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char *separator_pos;
+#else
 	char dir[256];
+#endif
 	const char *search;
 
 	//Make sure the current search buffer is clear
@@ -33,10 +40,10 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 	memset(dir, 0, 256);
 
 #if defined(__APPLE__) && defined(__MACH__)
-	sprintf(dir, "%s/", get_local_file_path_prefix());
-	char full_search_str[256];
-	memset(full_search_str, 0, 256);
-	sprintf(full_search_str, "%s%s", dir, search_str);
+	get_full_file_path(dir, "");
+	get_platform_localized_interior_path(temp_search_path, search_str);
+	memset(full_search_str, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+	snprintf(full_search_str, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%s", dir, temp_search_path);
 #else
 	sprintf(full_search_str, "%s", search_str);
 #endif
@@ -46,10 +53,11 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 	if (strlen(dir) == 0) //godawful hack
 	{
 #if defined(__APPLE__) && defined(__MACH__)
-		strncpy(dir, full_search_str, 255);
-		if(strrchr(dir, '/') - dir > 0)
+		strncpy(dir, full_search_str, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		separator_pos = strrchr(dir, PLATFORM_PATH_SEPARATOR);
+		if (separator_pos != NULL && separator_pos - dir > 0)
 		{
-			dir[strrchr(dir, '/') - dir + 1] = '\0';
+			dir[separator_pos - dir + 1] = '\0';
 		}
 #else
 		dir[0] = '.';

@@ -1300,13 +1300,9 @@ int load_game_data(CFILE* LoadFile)
 		for (sidenum = 0; sidenum < 6; sidenum++) {
 			int	wallnum = Segments[Highest_segment_index].sides[sidenum].wall_num;
 			if (wallnum != -1)
-			{
 				if ((Walls[wallnum].segnum != Highest_segment_index) || (Walls[wallnum].sidenum != sidenum))
-				{
 					Int3();	//	Error.  Bogus walls in this segment.
 								// Consult Yuan or Mike.
-				}
-			}
 		}
 	}
 #endif
