@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "misc/error.h"
 #include "platform/mono.h"
@@ -249,7 +250,13 @@ void do_controlcen_destroyed_stuff(object *objp)
 	//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
 	if (Current_level_num < 0) {
 		int	rval;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		char secretc_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		get_full_file_path(secretc_full_path, "secret.sgc", CHOCOLATE_SAVE_DIR);
+		rval = _unlink(secretc_full_path);
+#else
 		rval = _unlink("secret.sgc");
+#endif
 		mprintf((0, "Deleting secret.sgc, return value = %i\n", rval));
 	}
 

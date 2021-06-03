@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/platform.h"
 #include "platform/s_midi.h"
 #include "platform/mouse.h"
@@ -34,17 +35,26 @@ int I_ReadChocolateConfig()
 {
 	FILE* infile;
 	char line[512], * token, * value, * ptr;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char cfgpath[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 
 	char* next = NULL;
 
 	WindowWidth = 800;
 	WindowHeight = 600;
 
-	infile = fopen("chocolatedescent.cfg", "rt");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(cfgpath, "chocolatedescent.cfg", CHOCOLATE_CONFIG_DIR);
+#else
+	sprintf(cfgpath, "chocolatedescent.cfg");
+#endif
+
+	infile = fopen(cfgpath, "rt");
 	if (infile == NULL) 
 	{
 		//Try creating a default config file
-		infile = fopen("chocolatedescent.cfg", "w");
+		infile = fopen(cfgpath, "w");
 		if (infile != NULL)
 		{
 			fprintf(infile, "%s=%d\n", WindowWidthStr, WindowWidth);
@@ -85,8 +95,13 @@ int I_ReadChocolateConfig()
 			else if (!strcmp(token, SoundFontPath))
 			{
 				char* p;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+				memset(&SoundFontFilename[0], 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+				get_full_file_path(&SoundFontFilename[0], value, CHOCOLATE_SOUNDFONTS_DIR);
+#else
 				memset(&SoundFontFilename[0], 0, 256);
 				strncpy(&SoundFontFilename[0], value, 255);
+#endif
 				//[ISB] godawful hack from Descent's config parser, should fix parsing the soundfont path
 				p = strchr(SoundFontFilename, '\n');
 				if (p)* p = 0;

@@ -330,8 +330,15 @@ void do_option(int select)
 		break;
 	case MENU_DEMO_PLAY:
 	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		char demo_file[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		char demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		get_platform_localized_query_string(demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
+		if (newmenu_get_filename(TXT_SELECT_DEMO, demo_query, demo_file, 1))
+#else
 		char demo_file[16];
 		if (newmenu_get_filename(TXT_SELECT_DEMO, ".\\demos\\*.dem", demo_file, 1))
+#endif
 		{
 			newdemo_start_playback(demo_file);
 		}

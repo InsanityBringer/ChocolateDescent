@@ -2033,12 +2033,21 @@ void newmenu_file_sort(int n, char* list)
 void delete_player_saved_games(char* name)
 {
 	int i;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 	char filename[16];
 
 	for (i = 0; i < 10; i++)
 	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		snprintf(filename, 16, "%s.sg%d", name, i);
+		get_full_file_path(filename_full_path, filename, CHOCOLATE_SAVE_DIR);
+		_unlink(filename_full_path);
+#else
 		sprintf(filename, "%s.sg%d", name, i);
 		_unlink(filename);
+#endif
 	}
 }
 
@@ -2072,6 +2081,30 @@ int newmenu_get_filename(const char* title, const char* filespec, char* filename
 #endif
 	WIN(int win_redraw = 0);
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char localized_pilot_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char localized_demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char localized_filespec[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	const char *wildcard_pos;
+	get_platform_localized_query_string(localized_demo_query, CHOCOLATE_PILOT_DIR, "*.plr");
+	get_platform_localized_query_string(localized_demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
+
+	wildcard_pos = strrchr(filespec, '*');
+	if (wildcard_pos != NULL)
+	{
+		if (!_strfcmp(wildcard_pos, "*.plr"))
+		{
+			player_mode = 1;
+			get_platform_localized_query_string(localized_filespec, CHOCOLATE_PILOT_DIR, wildcard_pos);
+		}
+		else if(!_strfcmp(wildcard_pos, "*.dem"))
+		{
+			demo_mode = 1;
+			get_platform_localized_query_string(localized_filespec, CHOCOLATE_DEMOS_DIR, wildcard_pos);
+		}
+	}
+#endif
+
 	filenames = (char*)malloc(MAX_FILES * 14);
 	if (filenames == NULL) return 0;
 
@@ -2080,10 +2113,12 @@ int newmenu_get_filename(const char* title, const char* filespec, char* filename
 
 	WIN(mouse_set_mode(0));				//disable centering mode
 
+#if !defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	if (strstr(filespec, "*.plr"))
 		player_mode = 1;
 	else if (strstr(filespec, "*.dem"))
 		demo_mode = 1;
+#endif
 
 ReadFileNames:
 	done = 0;
@@ -2097,7 +2132,11 @@ ReadFileNames:
 	}
 #endif
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	if (!FileFindFirst(localized_filespec, &find))
+#else
 	if (!FileFindFirst(filespec, &find))
+#endif
 	{
 		do
 		{
@@ -2391,9 +2430,21 @@ ReadFileNames:
 						while ((p = strchr(name, '\\')))
 							* p = ':';
 				}
-#endif
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+					char file_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 
+					if (player_mode)
+					{
+						get_full_file_path(file_full_path, &filenames[citem * 14], CHOCOLATE_PILOT_DIR);
+					}
+					else if (demo_mode)
+					{
+						get_full_file_path(file_full_path, &filenames[citem * 14], CHOCOLATE_DEMOS_DIR);
+					}
+					ret = _unlink(file_full_path);
+#else
 					ret = _unlink(name);
+#endif
 					if (player_mode)
 						* p = 0;
 

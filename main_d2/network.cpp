@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#include "platform/platform_filesys.h"
+
 #ifdef NETWORK
 
 #define PATCH12
@@ -5673,7 +5675,13 @@ int HoardEquipped()
 
 	if (checked == -1)
 	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		char hoard_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		get_full_file_path(hoard_full_path, "hoard.ham", CHOCOLATE_SYSTEM_FILE_DIR);
+		if (file_exists(hoard_full_path))
+#else
 		if (file_exists("hoard.ham"))
+#endif
 			checked = 1;
 		else
 			checked = 0;

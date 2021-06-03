@@ -122,6 +122,13 @@ void load_text()
 			if (p[1] == 'n') newchar = '\n';
 			else if (p[1] == 't') newchar = '\t';
 			else if (p[1] == '\\') newchar = '\\';
+#if defined(__APPLE__) && defined(__MACH__)
+			else if (p[1] == 'y') // WHY???????
+			{
+				p[0] = '\n';
+				continue;
+			}
+#endif
 			else
 				Error("Unsupported key sequence <\\%c> on line %d of file <%s>", p[1], i + 1, filename);
 

@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "misc/types.h"
 #include "game.h"
 #include "menu.h"
@@ -170,6 +171,9 @@ void CheckMovieAttributes()
 
 int ReadConfigFile()
 {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 	FILE *infile;
 	char line[80], *token, *value, *ptr;
 	uint8_t gamma;
@@ -211,7 +215,12 @@ int ReadConfigFile()
 	SaveMovieHires = MovieHires;
 	save_redbook_enabled = Redbook_enabled;
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename, "descent.cfg", CHOCOLATE_CONFIG_DIR);
+	infile = fopen(filename, "rt");
+#else
 	infile = fopen("descent.cfg", "rt");
+#endif
 	if (infile == NULL) {
 		WIN(CheckMovieAttributes());
 		return 1;
@@ -425,6 +434,9 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 	FILE *infile;
    int i;
 	char str[256];
@@ -444,7 +456,12 @@ int WriteConfigFile()
    }
 #endif
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename, "descent.cfg", CHOCOLATE_CONFIG_DIR);
+	infile = fopen(filename, "wt");
+#else
 	infile = fopen("descent.cfg", "wt");
+#endif
 	if (infile == NULL) {
 		return 1;
 	}
