@@ -1237,22 +1237,22 @@ int newmenu_get_filename(const char* title, const char* filespec, char* filename
 	char localized_pilot_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char localized_demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char localized_filespec[CHOCOLATE_MAX_FILE_PATH_SIZE];
-	const char *separator_pos;
+	const char *wildcard_pos;
 	get_platform_localized_query_string(localized_demo_query, CHOCOLATE_PILOT_DIR, "*.plr");
 	get_platform_localized_query_string(localized_demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
 
-	separator_pos = strrchr(filespec, '*');
-	if (separator_pos != NULL)
+	wildcard_pos = strrchr(filespec, '*');
+	if (wildcard_pos != NULL)
 	{
-		if (!_strfcmp(separator_pos, "*.plr"))
+		if (!_strfcmp(wildcard_pos, "*.plr"))
 		{
 			player_mode = 1;
-			get_platform_localized_query_string(localized_filespec, CHOCOLATE_PILOT_DIR, separator_pos);
+			get_platform_localized_query_string(localized_filespec, CHOCOLATE_PILOT_DIR, wildcard_pos);
 		}
-		else if(!_strfcmp(separator_pos, "*.dem"))
+		else if(!_strfcmp(wildcard_pos, "*.dem"))
 		{
 			demo_mode = 1;
-			get_platform_localized_query_string(localized_filespec, CHOCOLATE_DEMOS_DIR, separator_pos);
+			get_platform_localized_query_string(localized_filespec, CHOCOLATE_DEMOS_DIR, wildcard_pos);
 		}
 	}
 #endif
