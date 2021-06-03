@@ -128,10 +128,9 @@ void load_text()
 				p[0] = '\n';
 				continue;
 			}
-#else
+#endif
 			else
 				Error("Unsupported key sequence <\\%c> on line %d of file <%s>", p[1], i + 1, filename);
-#endif
 
 			p[0] = newchar;
 			strcpy(p + 1, p + 2);
