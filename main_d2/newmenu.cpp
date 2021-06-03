@@ -2081,6 +2081,30 @@ int newmenu_get_filename(const char* title, const char* filespec, char* filename
 #endif
 	WIN(int win_redraw = 0);
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char localized_pilot_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char localized_demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char localized_filespec[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	const char *separator_pos;
+	get_platform_localized_query_string(localized_demo_query, CHOCOLATE_PILOT_DIR, "*.plr");
+	get_platform_localized_query_string(localized_demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
+
+	separator_pos = strrchr(filespec, '*');
+	if (separator_pos != NULL)
+	{
+		if (!_strfcmp(separator_pos, "*.plr"))
+		{
+			player_mode = 1;
+			get_platform_localized_query_string(localized_filespec, CHOCOLATE_PILOT_DIR, separator_pos);
+		}
+		else if(!_strfcmp(separator_pos, "*.dem"))
+		{
+			demo_mode = 1;
+			get_platform_localized_query_string(localized_filespec, CHOCOLATE_DEMOS_DIR, separator_pos);
+		}
+	}
+#endif
+
 	filenames = (char*)malloc(MAX_FILES * 14);
 	if (filenames == NULL) return 0;
 
@@ -2089,10 +2113,12 @@ int newmenu_get_filename(const char* title, const char* filespec, char* filename
 
 	WIN(mouse_set_mode(0));				//disable centering mode
 
+#if !defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	if (strstr(filespec, "*.plr"))
 		player_mode = 1;
 	else if (strstr(filespec, "*.dem"))
 		demo_mode = 1;
+#endif
 
 ReadFileNames:
 	done = 0;
@@ -2106,7 +2132,11 @@ ReadFileNames:
 	}
 #endif
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	if (!FileFindFirst(localized_filespec, &find))
+#else
 	if (!FileFindFirst(filespec, &find))
+#endif
 	{
 		do
 		{
@@ -2400,9 +2430,21 @@ ReadFileNames:
 						while ((p = strchr(name, '\\')))
 							* p = ':';
 				}
-#endif
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+					char file_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 
+					if (player_mode)
+					{
+						get_full_file_path(file_full_path, &filenames[citem * 14], CHOCOLATE_PILOT_DIR);
+					}
+					else if (demo_mode)
+					{
+						get_full_file_path(file_full_path, &filenames[citem * 14], CHOCOLATE_DEMOS_DIR);
+					}
+					ret = _unlink(file_full_path);
+#else
 					ret = _unlink(name);
+#endif
 					if (player_mode)
 						* p = 0;
 

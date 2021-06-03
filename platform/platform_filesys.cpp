@@ -451,14 +451,26 @@ void get_platform_localized_query_string(char* platform_localized_query_string, 
 	char temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	memset(platform_localized_query_string, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 	memset(temp_buf, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+	const char* separator_pos;
+
+	separator_pos = strrchr(query, PLATFORM_PATH_SEPARATOR);
+	if (separator_pos != NULL)
+	{
+		separator_pos++;
+	}
+	else
+	{
+		separator_pos = &query[0];
+	}
 
 	if (strlen(subpath) == 0)
 	{
-		strncpy(platform_localized_query_string, query, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+		strncpy(platform_localized_query_string, separator_pos, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+		return;
 	}
 
 	get_platform_localized_interior_path(temp_buf, subpath);
-	snprintf(platform_localized_query_string, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", temp_buf, PLATFORM_PATH_SEPARATOR, query);
+	snprintf(platform_localized_query_string, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%c%s", temp_buf, PLATFORM_PATH_SEPARATOR, separator_pos);
 }
 
 void get_full_file_path(char* filename_full_path, const char* filename, const char* additional_path)
