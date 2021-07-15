@@ -35,9 +35,7 @@ int I_ReadChocolateConfig()
 {
 	FILE* infile;
 	char line[512], * token, * value, * ptr;
-#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char cfgpath[CHOCOLATE_MAX_FILE_PATH_SIZE];
-#endif
 
 	char* next = NULL;
 

@@ -12,6 +12,10 @@ Instead, it is released under the terms of the MIT License.
 #include <string.h>
 #include <sys/stat.h>
 
+#ifdef _WIN32 //hack since windows mkdir is different
+#include "platform/posixstub.h"
+#endif
+
 static char local_file_path_prefix[CHOCOLATE_MAX_FILE_PATH_SIZE] = {0};
 
 void get_missing_file_locations(char* missing_file_string, const char* missing_file_list);
@@ -38,12 +42,12 @@ void mkdir_recursive(const char *dir)
 		if(*p == PLATFORM_PATH_SEPARATOR)
 		{
 			*p = 0;
-			mkdir(tmp, S_IRWXU);
+			cmkdir(tmp, S_IRWXU);
 			*p = PLATFORM_PATH_SEPARATOR;
 		}
 	}
 
-	mkdir(tmp, S_IRWXU);
+	cmkdir(tmp, S_IRWXU);
 }
 
 void init_all_platform_localized_paths()

@@ -20,6 +20,9 @@ as described in copying.txt
 #define _strfcmp(a, b) _stricmp(a, b)
 #define _strnfcmp(a, b, c) _strnicmp(a, b, c)
 
+#define cmkdir(a, b) mkdir(a)
+#define S_IRWXU 0
+
 #else
 #include <string.h>
 #include <fcntl.h>
