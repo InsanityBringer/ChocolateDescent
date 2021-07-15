@@ -12,9 +12,7 @@ Instead, it is released under the terms of the MIT License.
 #include <string.h>
 #include <sys/stat.h>
 
-#ifdef _WIN32 //hack since windows mkdir is different
 #include "platform/posixstub.h"
-#endif
 
 static char local_file_path_prefix[CHOCOLATE_MAX_FILE_PATH_SIZE] = {0};
 

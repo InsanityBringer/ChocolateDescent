@@ -63,4 +63,6 @@ char* _strlwr(char* in);
 char* _strupr(char* in);
 void _splitpath(const char *name, char *drive, char *path, char *base, char *ext);
 
+#define cmkdir(a, b) mkdir(a, b)
+
 #endif
