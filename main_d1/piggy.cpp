@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "misc/types.h"
 #include "inferno.h"
@@ -229,6 +230,9 @@ int piggy_init()
 	const char* filename;
 	int read_sounds = 1;
 	int Pigdata_start;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 
 	hashtable_init(&AllBitmapsNames, MAX_BITMAP_FILES);
 	hashtable_init(&AllDigiSndNames, MAX_SOUND_FILES);
@@ -275,7 +279,11 @@ int piggy_init()
 		GameBitmapOffset[0] = 0;
 	}
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename_full_path, "descent.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+#else
 	filename = "DESCENT.PIG";
+#endif
 
 	if (FindArg("-bigpig"))
 		BigPig = 1;
@@ -294,7 +302,11 @@ int piggy_init()
 		filename = Args[i + 1];
 		mprintf((0, "Using alternate pigfile, '%s'\n", filename));
 	}
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	Piggy_fp = cfopen(filename_full_path, "rb");
+#else
 	Piggy_fp = cfopen(filename, "rb");
+#endif
 	if (Piggy_fp == NULL) return 0;
 
 	//cfread(&Pigdata_start, sizeof(int), 1, Piggy_fp);
@@ -641,6 +653,9 @@ void piggy_dump_all()
 	DiskSoundHeader sndh;
 	int header_offset;
 	char subst_name[32];
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 
 #ifdef NO_DUMP_SOUNDS
 	Num_sound_files = 0;
@@ -700,7 +715,11 @@ void piggy_dump_all()
 	piggy_close_file();
 
 	mprintf((0, "Creating DESCENT.PIG..."));
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename_full_path, "descent.pig", CHOCOLATE_SYSTEM_FILE_DIR);
+#else
 	filename = "DESCENT.PIG";
+#endif
 	if ((i = FindArg("-piggy"))) 
 	{
 		filename = Args[i + 1];
@@ -708,12 +727,23 @@ void piggy_dump_all()
 	}
 	mprintf((0, "\nDumping bitmaps..."));
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	fp = fopen(filename_full_path, "wb");
+#else
 	fp = fopen(filename, "wb");
+#endif
 	Assert(fp != NULL);
 
 #ifndef RELEASE
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename_full_path, "piggy.lst", CHOCOLATE_SYSTEM_FILE_DIR);
+	fp1 = fopen(filename_full_path, "wt");
+	get_full_file_path(filename_full_path, "piggy.all", CHOCOLATE_SYSTEM_FILE_DIR);
+	fp2 = fopen(filename_full_path, "wt");
+#else
 	fp1 = fopen("piggy.lst", "wt");
 	fp2 = fopen("piggy.all", "wt");
+#endif
 #endif
 
 	i = 0;

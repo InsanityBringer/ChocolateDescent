@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include <unistd.h>
 
 #include "misc/error.h"
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 //#include "pa_enabl.h"
 #include "game.h"
@@ -233,9 +234,10 @@ int read_player_file()
 {
 #ifdef MACINTOSH
 	char filename[FILENAME_LEN + 15];
-#else
-	char filename[FILENAME_LEN];
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
+	char filename[FILENAME_LEN];
 	FILE* file;
 	int errno_ret = EZERO;
 	int id, player_file_version, i;
@@ -243,12 +245,16 @@ int read_player_file()
 
 	Assert(Player_num >= 0 && Player_num < MAX_PLAYERS);
 
-#ifndef MACINTOSH
-	sprintf(filename, "%.8s.plr", Players[Player_num].callsign);
-#else
+#ifdef MACINTOSH
 	sprintf(filename, ":Players:%.8s.plr", Players[Player_num].callsign);
-#endif
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
+	get_full_file_path(filename_full_path, filename, CHOCOLATE_PILOT_DIR);
+	file = fopen(filename_full_path, "rb");
+#else
+	sprintf(filename, "%.8s.plr", Players[Player_num].callsign);
 	file = fopen(filename, "rb");
+#endif
 
 #ifndef MACINTOSH
 	//check filename
@@ -520,9 +526,10 @@ int write_player_file()
 {
 #ifdef MACINTOSH
 	char filename[FILENAME_LEN + 15];
-#else
-	char filename[FILENAME_LEN];		// because of ":Players:" path
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
+	char filename[FILENAME_LEN];		// because of ":Players:" path
 	FILE* file;
 	int errno_ret, i;
 
@@ -532,12 +539,16 @@ int write_player_file()
 
 	errno_ret = WriteConfigFile();
 
-#ifndef MACINTOSH
-	sprintf(filename, "%s.plr", Players[Player_num].callsign);
-#else
+#ifdef MACINTOSH
 	sprintf(filename, ":Players:%.8s.plr", Players[Player_num].callsign);
-#endif
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	snprintf(filename, FILENAME_LEN, "%s.plr", Players[Player_num].callsign);
+	get_full_file_path(filename_full_path, filename, CHOCOLATE_PILOT_DIR);
+	file = fopen(filename_full_path, "wb");
+#else
+	sprintf(filename, "%s.plr", Players[Player_num].callsign);
 	file = fopen(filename, "wb");
+#endif
 
 #ifndef MACINTOSH
 	//check filename

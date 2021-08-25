@@ -60,16 +60,19 @@ g3s_point* clip_edge(int plane_flag, g3s_point* on_pnt, g3s_point* off_pnt)
 	//compute clipping value k = (xs-zs) / (xs-xe-zs+ze)
 	//use x or y as appropriate, and negate x/y value as appropriate
 
-	if (plane_flag & (CC_OFF_RIGHT | CC_OFF_LEFT)) {
+	if (plane_flag & (CC_OFF_RIGHT | CC_OFF_LEFT)) 
+	{
 		a = on_pnt->p3_x;
 		b = off_pnt->p3_x;
 	}
-	else {
+	else 
+	{
 		a = on_pnt->p3_y;
 		b = off_pnt->p3_y;
 	}
 
-	if (plane_flag & (CC_OFF_LEFT | CC_OFF_BOT)) {
+	if (plane_flag & (CC_OFF_LEFT | CC_OFF_BOT))
+	{
 		a = -a;
 		b = -b;
 	}
@@ -97,7 +100,8 @@ g3s_point* clip_edge(int plane_flag, g3s_point* on_pnt, g3s_point* off_pnt)
 	if (plane_flag & (CC_OFF_LEFT | CC_OFF_BOT))
 		tmp->p3_z = -tmp->p3_z;
 
-	if (on_pnt->p3_flags & PF_UVS) {
+	if (on_pnt->p3_flags & PF_UVS) 
+	{
 		// PSX_HACK!!!!
 		//		tmp->p3_u = on_pnt->p3_u + fixmuldiv(off_pnt->p3_u-on_pnt->p3_u,kn,kd);
 		//		tmp->p3_v = on_pnt->p3_v + fixmuldiv(off_pnt->p3_v-on_pnt->p3_v,kn,kd);
@@ -107,7 +111,8 @@ g3s_point* clip_edge(int plane_flag, g3s_point* on_pnt, g3s_point* off_pnt)
 		tmp->p3_flags |= PF_UVS;
 	}
 
-	if (on_pnt->p3_flags & PF_LS) {
+	if (on_pnt->p3_flags & PF_LS) 
+	{
 		// PSX_HACK
 		//		tmp->p3_r = on_pnt->p3_r + fixmuldiv(off_pnt->p3_r-on_pnt->p3_r,kn,kd);
 		//		tmp->p3_g = on_pnt->p3_g + fixmuldiv(off_pnt->p3_g-on_pnt->p3_g,kn,kd);
@@ -134,7 +139,8 @@ void clip_line(g3s_point** p0, g3s_point** p1, uint8_t codes_or)
 	(*p1)->p3_flags &= ~(PF_UVS | PF_LS);
 
 	for (plane_flag = 1; plane_flag < 16; plane_flag <<= 1)
-		if (codes_or & plane_flag) {
+		if (codes_or & plane_flag) 
+		{
 
 			if ((*p0)->p3_codes & plane_flag)
 			{
@@ -163,9 +169,11 @@ int clip_plane(int plane_flag, g3s_point** src, g3s_point** dest, int* nv, g3s_c
 
 	cc->high = 0xff; cc->low = 0;
 
-	for (i = 1; i <= *nv; i++) {
+	for (i = 1; i <= *nv; i++) 
+	{
 
-		if (src[i]->p3_codes & plane_flag) {				//cur point off?
+		if (src[i]->p3_codes & plane_flag) 
+		{				//cur point off?
 
 			if (!(src[i - 1]->p3_codes & plane_flag)) {	//prev not off?
 
@@ -175,7 +183,8 @@ int clip_plane(int plane_flag, g3s_point** src, g3s_point** dest, int* nv, g3s_c
 				dest++;
 			}
 
-			if (!(src[i + 1]->p3_codes & plane_flag)) {
+			if (!(src[i + 1]->p3_codes & plane_flag))
+			{
 
 				*dest = clip_edge(plane_flag, src[i + 1], src[i]);
 				cc->low |= (*dest)->p3_codes;
@@ -188,7 +197,8 @@ int clip_plane(int plane_flag, g3s_point** src, g3s_point** dest, int* nv, g3s_c
 			if (src[i]->p3_flags & PF_TEMP_POINT)
 				free_temp_point(src[i]);
 		}
-		else {			//cur not off, copy to dest buffer
+		else 
+		{			//cur not off, copy to dest buffer
 
 			*dest++ = src[i];
 
@@ -208,7 +218,8 @@ g3s_point** clip_polygon(g3s_point** src, g3s_point** dest, int* nv, g3s_codes* 
 
 	for (plane_flag = 1; plane_flag < 16; plane_flag <<= 1)
 
-		if (cc->low &plane_flag) {
+		if (cc->low &plane_flag) 
+		{
 
 			*nv = clip_plane(plane_flag, src, dest, nv, cc);
 

@@ -83,13 +83,10 @@ uint32_t ufixdivquadlong(uint32_t nl, uint32_t nh, uint32_t d)
 
 fix fixdiv(fix a, fix b)
 {
-	//return fixdivquadlong(a << 16, a >> 16, b);
-	//	return (fix)FixDiv((Fixed)a,(Fixed)b);
-	//[ISB] horrible hack that probably won't work
+	//[ISB] TODO: Why did I put this here? if it's div0ing something's wrong. The original game doesn't allow it. 
 	if (b == 0) return 1;
-	uint32_t ia = (uint32_t)a >> 16; if (a < 0) ia |= 0xFFFF0000;
-	uint32_t ib = a << 16;
-	int64_t ic = ((int64_t)ia << 32) + (int64_t)ib;
+
+	int64_t ic = ((int64_t)a << 16);
 
 	return (fix)(ic / b);
 }

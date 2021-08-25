@@ -258,23 +258,23 @@ bool playing = false;
 
 int I_StartMIDI(MidiSequencer* sequencer)
 {
-	midiPlayer = new MidiPlayer(sequencer, sequencer->GetSynth());
+	/*midiPlayer = new MidiPlayer(sequencer, sequencer->GetSynth());
 	if (midiPlayer == nullptr || midiPlayer->IsError())
 	{
 		Error("S_InitMusic: Cannot allocate MIDI player");
 		return 1;
 	}
-	midiPlayer->Start();
+	midiPlayer->Start();*/
 
 	return 0;
 }
 
 void I_ShutdownMIDI()
 {
-	if (midiPlayer != nullptr)
+	/*if (midiPlayer != nullptr)
 	{
 		midiPlayer->Shutdown();
-	}
+	}*/
 }
 
 void I_SetMusicVolume(int volume)
@@ -351,7 +351,7 @@ void I_DestroyMusicSource()
 	MusicSource = 0;
 }
 
-void AL_CheckMIDIPlayStatus()
+void I_CheckMIDISourceStatus()
 {
 	ALenum playstatus;
 	if (!playing)
@@ -374,7 +374,7 @@ void AL_CheckMIDIPlayStatus()
 	}
 }
 
-bool AL_CanQueueMusicBuffer()
+bool I_CanQueueMusicBuffer()
 {
 	if (!AL_initialized) return false;
 	//[ISB] this used to check if the source was a source and break if it wasn't.
@@ -385,7 +385,7 @@ bool AL_CanQueueMusicBuffer()
 	return CurrentBuffers < MAX_BUFFERS_QUEUED;
 }
 
-void AL_DequeueMusicBuffers()
+void I_DequeueMusicBuffers()
 {
 	if (!AL_initialized) return;
 	int BuffersProcessed;
@@ -403,7 +403,7 @@ void AL_DequeueMusicBuffers()
 	AL_ErrorCheck("Unqueueing music buffers");
 }
 
-void AL_QueueMusicBuffer(int numTicks, uint16_t *data)
+void I_QueueMusicBuffer(int numTicks, uint16_t *data)
 {
 	if (!AL_initialized) return;
 	//printf("Queuing %d ticks\n", numTicks);
@@ -419,13 +419,13 @@ void AL_QueueMusicBuffer(int numTicks, uint16_t *data)
 
 void I_StartMIDISong(HMPFile* song, bool loop)
 {
-	midiPlayer->SetSong(song, loop);
+	//midiPlayer->SetSong(song, loop);
 	playing = false;
 }
 
 void I_StopMIDISong()
 {
-	midiPlayer->StopSong();
+	//midiPlayer->StopSong();
 }
 
 uint32_t I_GetPreferredMIDISampleRate()
@@ -433,7 +433,7 @@ uint32_t I_GetPreferredMIDISampleRate()
 	return MIDI_SAMPLERATE;
 }
 
-void AL_StartMIDISong()
+void I_StartMIDISource()
 {
 	StopMIDI = false;
 	playing = false;
@@ -442,12 +442,12 @@ void AL_StartMIDISong()
 	AL_ErrorCheck("Creating source");
 }
 
-void AL_StopMIDISong()
+void I_StopMIDISource()
 {
 	StopMIDI = true;
 	if (!AL_initialized) return;
 	alSourceStop(MusicSource);
-	AL_DequeueMusicBuffers();
+	I_DequeueMusicBuffers();
 	I_DestroyMusicSource();
 	AL_ErrorCheck("Destroying source");
 }

@@ -1660,7 +1660,7 @@ void object_move_one(object* obj)
 		if (keyd_pressed[KEY_PAD5]) slew_stop(/*obj*/);
 		if (keyd_pressed[KEY_NUMLOCK]) {
 			slew_reset_orient(/*obj*/);
-			*(uint8_t*)0x417 &= ~0x20;		//kill numlock
+			//*(uint8_t*)0x417 &= ~0x20;		//kill numlock
 		}
 		slew_frame(0);		// Does velocity addition for us.
 		break;

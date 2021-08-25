@@ -26,7 +26,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <signal.h>
 #endif
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+#define MAX_MSG_LEN 65536
+#else
 #define MAX_MSG_LEN 256
+#endif
 
 int initialized = 0;
 

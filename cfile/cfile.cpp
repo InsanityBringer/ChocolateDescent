@@ -20,6 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #include <string.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "cfile/cfile.h"
 #include "mem/mem.h"
@@ -36,7 +37,11 @@ typedef struct hogfile
 
 #define MAX_HOGFILES 250
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+#define HOG_FILENAME_MAX CHOCOLATE_MAX_FILE_PATH_SIZE
+#else
 #define HOG_FILENAME_MAX 64
+#endif
 
 hogfile HogFiles[MAX_HOGFILES];
 char Hogfile_initialized = 0;
@@ -96,6 +101,7 @@ FILE* cfile_get_filehandle(const char* filename, const char* mode)
 		strncat(temp, AltHogDir, HOG_FILENAME_MAX);
 		fp = fopen(temp, mode);
 	}
+
 	return fp;
 }
 
@@ -110,7 +116,7 @@ int cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 	fp = cfile_get_filehandle(fname, "rb");
 	if (fp == NULL)
 	{
-		Warning("cfile_init_hogfile: Can't open hogfile\n");
+		Warning("cfile_init_hogfile: Can't open hogfile: %s\n", fname);
 		return 1;
 	}
 
@@ -191,9 +197,15 @@ FILE* cfile_find_libfile(const char* name, int* length)
 #ifndef BUILD_DESCENT2 //must call cfile_init in Descent 2. Descent 1 can run without a hogfile if you really wanted. 
 	if (!Hogfile_initialized) 
 	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		get_full_file_path(HogFilename, "descent.hog", CHOCOLATE_SYSTEM_FILE_DIR);
+		cfile_init_hogfile(HogFilename, HogFiles, &Num_hogfiles);
+		Hogfile_initialized = 1;
+#else
 		cfile_init_hogfile("descent.hog", HogFiles, &Num_hogfiles);
 		strcpy(HogFilename, "descent.hog");
 		Hogfile_initialized = 1;
+#endif
 	}
 #endif
 
@@ -263,7 +275,11 @@ CFILE* cfopen(const char* filename, const char* mode)
 	int length;
 	FILE* fp;
 	CFILE* cfile;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char new_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], * p;
+#else
 	char new_filename[256], * p;
+#endif
 
 	if (_stricmp(mode, "rb")) 
 	{
@@ -271,8 +287,13 @@ CFILE* cfopen(const char* filename, const char* mode)
 		exit(1);
 	}
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	memset(new_filename, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+	strncpy(new_filename, filename, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+#else
 	memset(new_filename, 0, 256);
 	strncpy(new_filename, filename, 255);
+#endif
 	while ((p = strchr(new_filename, 13)))
 		* p = '\0';
 

@@ -4,7 +4,8 @@ A barebones software-rendered focused port of the Descent game.
 
 Building:
 See building.txt for details. The project has been successfully built 
-on Windows using Visual Studio 2019 and Linux with gnu make and gcc
+on Windows using Visual Studio 2019, Linux with gnu make and gcc, and
+macOS with GNU make and clang
 
 Running:
 Chocolate Descent needs game data to run. At the moment, Chocolate Descent

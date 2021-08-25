@@ -15,7 +15,12 @@ Instead, it is released under the terms of the MIT License.
 #include <windows.h>
 #endif
 
+#if defined(__APPLE__) && defined(__MACH__)
+#include <OpenGL/GL.h>
+#else
 #include <gl/GL.h>
+#endif
+
 #include <SDL.h>
 
 //Local funcs
