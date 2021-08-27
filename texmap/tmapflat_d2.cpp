@@ -45,8 +45,6 @@ typedef struct pnt2d
 	fix x,y;
 } pnt2d;
 
-#pragma off (unreferenced)		//bp not referenced
-
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
 void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 {

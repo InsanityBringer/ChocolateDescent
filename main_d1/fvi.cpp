@@ -14,7 +14,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NEW_FVI_STUFF 1
 
 #include <stdlib.h>
+
+#if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 #include <malloc.h>
+#endif
+
 #include <string.h>
 #include <algorithm>
 

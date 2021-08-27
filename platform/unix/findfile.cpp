@@ -18,22 +18,51 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "platform/findfile.h"
 #include "platform/posixstub.h"
+#include "platform/platform_filesys.h"
 
 char searchStr[13];
 DIR *currentDir;
 
 int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char dir[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char temp_search_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char full_search_str[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char *separator_pos;
+#else
 	char dir[256];
+#endif
 	const char *search;
 
 	//Make sure the current search buffer is clear
 	memset(searchStr, 0, 13);
 	memset(dir, 0, 256);
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(dir, "");
+	get_platform_localized_interior_path(temp_search_path, search_str);
+	memset(full_search_str, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+	snprintf(full_search_str, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s%s", dir, temp_search_path);
+#else
+	sprintf(full_search_str, "%s", search_str);
+#endif
+
 	//Open the directory for searching
-	_splitpath(search_str, NULL, dir, NULL, NULL);
+	_splitpath(full_search_str, NULL, dir, NULL, NULL);
 	if (strlen(dir) == 0) //godawful hack
+	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		strncpy(dir, full_search_str, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		separator_pos = strrchr(dir, PLATFORM_PATH_SEPARATOR);
+		if (separator_pos != NULL && separator_pos - dir > 0)
+		{
+			dir[separator_pos - dir + 1] = '\0';
+		}
+#else
 		dir[0] = '.';
+#endif
+	}
 	//mprintf((0, "FindFileFirst: Opening %s\n", dir));
 	currentDir = opendir(dir);
 	if (!currentDir) return 1;
@@ -48,8 +77,13 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 {
 	char name[13];
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char fname[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char ext[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
 	char fname[256];
 	char ext[256];
+#endif
 	struct dirent *entry;
 	struct stat stats;
 	if (!currentDir) return 1;
@@ -57,8 +91,13 @@ int	FileFindNext(FILEFINDSTRUCT* ffstruct)
 	while (entry != NULL)
 	{
 		//What a mess. ugh
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		memset(fname, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+		memset(ext, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+#else
 		memset(fname, 0, 256);
 		memset(ext, 0, 256);
+#endif
 		_splitpath(entry->d_name, NULL, NULL, fname, ext);
 		if (strlen(fname) + strlen(ext) + 1 < 13) //Only care about entries that are short enough. This is to prevent problems with Descent's limitation of 8.3 character filenames.
 		{

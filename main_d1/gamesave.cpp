@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "platform/mono.h"
 #include "platform/key.h"
@@ -1386,17 +1387,27 @@ int load_level(char* filename_passed)
 	}
 #endif
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char full_path_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(full_path_filename, filename, CHOCOLATE_MISSIONS_DIR);
+
+	LoadFile = cfopen(full_path_filename, "rb");
+	if (!LoadFile) {
+		LoadFile = cfopen(filename, "rb");
+	}
+#else
 	LoadFile = cfopen(filename, "rb");
+#endif
 	//CF_READ_MODE );
 
 #ifdef EDITOR
 	if (!LoadFile) {
-		mprintf((0, "Can't open file <%s>\n", filename));
+		mprintf((0, "load_level: Can't open file <%s>\n", filename));
 		return 1;
 	}
 #else
 	if (!LoadFile)
-		Error("Can't open file <%s>\n", filename);
+		Error("load_level: Can't open file <%s>\n", filename);
 #endif
 
 	strcpy(Gamesave_current_filename, filename);

@@ -72,21 +72,23 @@ void I_StopMIDISong();
 
 //[ISB] sigh. Hindsight's 20/20.
 //[FUTURE ISB] no I really should have known better.
-#ifdef USE_OPENAL
+//[FUTURE FUTURE ISB] agh, no, we're restoring this interface, since it's needed for
+//hardsynths.
+
 //Returns true if there are available buffer slots in the music source's buffer queue.
-bool AL_CanQueueMusicBuffer();
+bool I_CanQueueMusicBuffer();
 //Clears all finished buffers from the queue.
-void AL_DequeueMusicBuffers();
+void I_DequeueMusicBuffers();
 //Queues a new buffer into the music source, at MIDI_SAMPLERATE sample rate.
-void AL_QueueMusicBuffer(int numSamples, uint16_t* data);
+void I_QueueMusicBuffer(int numSamples, uint16_t* data);
 
 //Readies the source for playing MIDI music.
-void AL_StartMIDISong();
+void I_StartMIDISource();
 //Stops the MIDI music source.
-void AL_StopMIDISong();
+void I_StopMIDISource();
 //Starts the MIDI source if it hasn't started already, and starts it again if it starved.
-void AL_CheckMIDIPlayStatus();
-#endif
+void I_CheckMIDISourceStatus();
+
 
 //-----------------------------------------------------------------------------
 // Emitting recordings of pleasing rythmic sequences at player

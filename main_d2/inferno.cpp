@@ -14,13 +14,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
 
 #include <stdio.h>
+
+#if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 #include <malloc.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "platform/platform.h"
 //#include "pa_enabl.h"       //$$POLY_ACC
@@ -515,6 +520,11 @@ int D_DescentMain(int argc, const char** argv)
 {
 	int i, t;		//note: don't change these without changing stack lockdown code below
 	uint8_t title_pal[768];
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char hogfile_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	init_all_platform_localized_paths();
+	validate_required_files();
+#endif
 
 	error_init(NULL, NULL);
 
@@ -551,10 +561,20 @@ int D_DescentMain(int argc, const char** argv)
 #endif
 
 #ifdef SHAREWARE
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(hogfile_full_path, "d2demo.hog", CHOCOLATE_SYSTEM_FILE_DIR);
+	cfile_init(hogfile_full_path);
+#else
 	cfile_init("d2demo.hog");			//specify name of hogfile
+#endif
 #else
 #define HOGNAME "descent2.hog"
-	if (!cfile_init(HOGNAME)) 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(hogfile_full_path, HOGNAME, CHOCOLATE_SYSTEM_FILE_DIR);
+	if (!cfile_init(hogfile_full_path))
+#else
+	if (!cfile_init(HOGNAME))
+#endif
 	{
 		Error("Could not find required file <%s>", HOGNAME);
 	}

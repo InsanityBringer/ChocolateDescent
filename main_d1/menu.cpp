@@ -262,7 +262,13 @@ void do_option(int select)
 	case MENU_DEMO_PLAY:
 	{
 		char demo_file[16];
-		if (newmenu_get_filename(TXT_SELECT_DEMO, "*.dem", demo_file, 1)) 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		char localized_demo_query[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		get_platform_localized_query_string(localized_demo_query, CHOCOLATE_DEMOS_DIR, "*.dem");
+		if (newmenu_get_filename(TXT_SELECT_DEMO, localized_demo_query, demo_file, 1))
+#else		
+		if (newmenu_get_filename(TXT_SELECT_DEMO, "*.dem", demo_file, 1))
+#endif
 		{
 			newdemo_start_playback(demo_file);
 		}

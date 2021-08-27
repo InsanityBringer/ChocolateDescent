@@ -15,6 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "platform/platform_filesys.h"
 #include "platform/mono.h"
 #include "inferno.h"
 #include "segment.h"
@@ -132,7 +133,11 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	FILE* fp;
 	int i, choice, version;
 	newmenu_item m[NUM_SAVES + 1];
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename[NUM_SAVES][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
 	char filename[NUM_SAVES][20];
+#endif
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	char id[5];
 	int valid = 0;
@@ -140,10 +145,18 @@ int state_get_save_file(char* fname, char* dsc, int multi)
 	for (i = 0; i < NUM_SAVES; i++) 
 	{
 		sc_bmp[i] = NULL;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		if (!multi)
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
+		else
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
+		get_full_file_path(filename[i], temp_filename, CHOCOLATE_SAVE_DIR);
+#else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
 		else
 			sprintf(filename[i], "%s.mg%d", Players[Player_num].callsign, i);
+#endif
 		valid = 0;
 		fp = fopen(filename[i], "rb");
 		if (fp) 
@@ -199,7 +212,11 @@ int state_get_restore_file(char* fname, int multi)
 	FILE* fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES + 1];
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename[NUM_SAVES][CHOCOLATE_MAX_FILE_PATH_SIZE], temp_filename[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
 	char filename[NUM_SAVES][20];
+#endif
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	char id[5];
 	int valid;
@@ -209,10 +226,18 @@ int state_get_restore_file(char* fname, int multi)
 	for (i = 0; i < NUM_SAVES; i++) 
 	{
 		sc_bmp[i] = NULL;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		if (!multi)
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", Players[Player_num].callsign, i);
+		else
+			snprintf(temp_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mg%d", Players[Player_num].callsign, i);
+		get_full_file_path(filename[i], temp_filename, CHOCOLATE_SAVE_DIR);
+#else
 		if (!multi)
 			sprintf(filename[i], "%s.sg%d", Players[Player_num].callsign, i);
 		else
 			sprintf(filename[i], "%s.mg%d", Players[Player_num].callsign, i);
+#endif
 		valid = 0;
 		fp = fopen(filename[i], "rb");
 		if (fp) 
@@ -278,11 +303,21 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	int temp_int;
 	uint8_t temp_byte;
 	char desc[DESC_LENGTH + 1];
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char* separator_pos;
+#else
 	char filename[128];
+#endif
 	grs_canvas* cnv;
 	FILE* fp;
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	snprintf(temp_buffer, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.sg%d", sg_player->callsign, slotnum);
+	get_full_file_path(filename, temp_buffer, CHOCOLATE_SAVE_DIR);
+#else
 	sprintf(filename, "%s.sg%d", sg_player->callsign, slotnum);
+#endif
 	fp = fopen(filename, "wb");
 	if (!fp) return 0;
 
@@ -339,7 +374,20 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 	fwrite(&temp_int, sizeof(int), 1, fp);
 
 	// Save the mission info...
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	separator_pos = strrchr(Mission_list[0].filename, PLATFORM_PATH_SEPARATOR);
+	if(separator_pos != NULL)
+	{
+		strncpy(temp_buffer, separator_pos + 1, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
+	}
+	else
+	{
+		fwrite(&Mission_list[0], sizeof(char) * 9, 1, fp);
+	}
+#else
 	fwrite(&Mission_list[0], sizeof(char) * 9, 1, fp);
+#endif
 
 	//Save level info
 	temp_int = sg_player->level;
@@ -417,6 +465,10 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	int i, j;
 	FILE* fp;
 	grs_canvas* cnv;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char temp_buffer[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char* separator_pos;
+#endif
 
 	if (Game_mode & GM_MULTI) 
 	{
@@ -492,7 +544,20 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 	F_WriteInt(fp, between_levels);
 
 	// Save the mission info...
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	separator_pos = strrchr(Mission_list[Current_mission_num].filename, PLATFORM_PATH_SEPARATOR);
+	if(separator_pos != NULL)
+	{
+		strncpy(temp_buffer, separator_pos + 1, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+		fwrite(temp_buffer, sizeof(char) * 9, 1, fp);
+	}
+	else
+	{
+		fwrite(&Mission_list[Current_mission_num], sizeof(char) * 9, 1, fp);
+	}
+#else
 	fwrite(&Mission_list[Current_mission_num], sizeof(char) * 9, 1, fp);
+#endif
 
 	//Save level info
 	//fwrite(&Current_level_num, sizeof(int), 1, fp);

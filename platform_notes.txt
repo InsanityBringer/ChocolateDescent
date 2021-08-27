@@ -1,0 +1,78 @@
+-------------------------------------------------------------------------------
+macOS platform notes
+-------------------------------------------------------------------------------
+
+The macOS port of Chocolate Descent includes a granular directory structure
+based on the user's home directory.
+
+NOTE: All files are expected to have entirely lowercase filenames.  This may
+require some renaming if your original game files (such as from the DOS
+version) are all uppercase.
+
+Currently, multiplayer is untested, as there are build issues with it.
+
+In order to run the game with all the bells and whistles, place your resources
+in the following locations:
+
+~/Library/Application Support/Chocolate Descent/Descent 1
+~/Library/Application Support/Chocolate Descent/Descent 2
+This is where your player files, saved games, high scores, and config files are
+generated for Descent 1 or Descent 2, respectively.
+
+~/Library/Application Support/Chocolate Descent/Descent 1/Data
+~/Library/Application Support/Chocolate Descent/Descent 2/Data
+This is where the core game data goes.  For Descent 1, that's:
+descent.hog
+descent.pig
+
+For Descent 2, that's:
+alien1.pig
+alien2.pig
+d2x-h.mvl
+d2x-l.mvl
+descent2.ham
+descent2.hog
+descent2.s11
+descent2.s22
+fire.pig
+groupa.pig
+hoard.ham (only if the Vertigo expansion is used)
+ice.pig
+intro-h.mvl
+intro-l.mvl
+other-h.mvl
+other-l.mvl
+robots-h.mvl
+water.pig
+
+~/Library/Application Support/Chocolate Descent/Descent 1/Data/Demos
+~/Library/Application Support/Chocolate Descent/Descent 2/Data/Demos
+This is where your recorded demo files should be placed.  These files have a
+".dem" extension.  Some are included in the retail releases.
+
+~/Library/Application Support/Chocolate Descent/Descent 1/Data/Missions
+~/Library/Application Support/Chocolate Descent/Descent 2/Data/Missions
+This is where mission files should be placed.
+
+For Descent 1, this includes:
+All .msn files
+All .lvl files
+All .rdl files
+All .txt files
+All .hog files which are not descent.hog
+
+For Descent 2, this includes:
+All .mn2 files
+All .lvl files
+All .rdl files
+All .txt files
+All .hog files which are not descent2.hog
+
+~/Library/Application Support/Chocolate Descent/Descent 1/Data/SoundFonts
+~/Library/Application Support/Chocolate Descent/Descent 2/Data/SoundFonts
+This location is where your .sf2 SoundFont files should be in order to have
+MIDI music in-game.  Once you put a .sf2 file here, you'll need to update
+your Chocolate Descent config file (chocolatedescent.cfg) with the filename.
+Note that you should not put the path information in the configuration file,
+as Chocolate Descent will look in this directory for the filename specified
+in chocolatedescent.cfg.

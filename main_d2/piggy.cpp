@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <errno.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "misc/types.h"
 #include "inferno.h"
@@ -324,6 +325,8 @@ void piggy_init_pigfile(const char* filename)
 	int header_size, N_bitmaps, data_size, data_start;
 #ifdef MACINTOSH
 	char name[255];		// filename + path for the mac
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 	piggy_close_file();             //close old pig if still open
@@ -333,7 +336,12 @@ void piggy_init_pigfile(const char* filename)
 		filename = DEFAULT_PIGFILE_SHAREWARE;
 #endif
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(name, filename, CHOCOLATE_SYSTEM_FILE_DIR);
+	Piggy_fp = cfopen(name, "rb");
+#else
 	Piggy_fp = cfopen(filename, "rb");
+#endif
 
 	if (!Piggy_fp)
 	{
@@ -446,6 +454,8 @@ void piggy_new_pigfile(const char* pigname)
 	int must_rewrite_pig = 0;
 #ifdef MACINTOSH
 	char name[255];
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 #ifdef SHAREWARE                //rename pigfile for shareware
@@ -468,7 +478,12 @@ void piggy_new_pigfile(const char* pigname)
 
 	strncpy(Current_pigfile, pigname, sizeof(Current_pigfile));
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(name, pigname, CHOCOLATE_SYSTEM_FILE_DIR);
+	Piggy_fp = cfopen(name, "rb");
+#else
 	Piggy_fp = cfopen(pigname, "rb");
+#endif
 
 #ifndef EDITOR
 	//if (!Piggy_fp)
@@ -724,13 +739,18 @@ int read_hamfile()
 	int ham_id, ham_version;
 #ifdef MACINTOSH
 	char name[255];
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
-#ifndef MACINTOSH
-	ham_fp = cfopen(DEFAULT_HAMFILE, "rb");
-#else
+#ifdef MACINTOSH
 	sprintf(name, ":Data:%s", DEFAULT_HAMFILE);
 	ham_fp = cfopen(name, "rb");
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(name, DEFAULT_HAMFILE, CHOCOLATE_SYSTEM_FILE_DIR);
+	ham_fp = cfopen(name, "rb");
+#else
+	ham_fp = cfopen(DEFAULT_HAMFILE, "rb");
 #endif
 
 	if (ham_fp == NULL) {
@@ -782,13 +802,18 @@ int read_sndfile()
 	int sbytes = 0;
 #ifdef MACINTOSH
 	char name[255];
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
-#ifndef MACINTOSH
-	snd_fp = cfopen(DEFAULT_SNDFILE, "rb");
-#else
+#ifdef MACINTOSH
 	sprintf(name, ":Data:%s", DEFAULT_SNDFILE);
 	snd_fp = cfopen(name, "rb");
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(name, DEFAULT_SNDFILE, CHOCOLATE_SYSTEM_FILE_DIR);
+	snd_fp = cfopen(name, "rb");
+#else
+	snd_fp = cfopen(DEFAULT_SNDFILE, "rb");
 #endif
 
 	if (snd_fp == NULL)
@@ -946,16 +971,21 @@ void piggy_read_sounds(void)
 	int i, sbytes;
 #ifdef MACINTOSH
 	char name[255];
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 	ptr = SoundBits;
 	sbytes = 0;
 
-#ifndef MACINTOSH
-	fp = cfopen(DEFAULT_SNDFILE, "rb");
-#else
+#ifdef MACINTOSH
 	sprintf(name, ":Data:%s", DEFAULT_SNDFILE);
 	fp = cfopen(name, "rb");
+#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(name, DEFAULT_SNDFILE, CHOCOLATE_SYSTEM_FILE_DIR);
+	fp = cfopen(name, "rb");
+#else
+	fp = cfopen(DEFAULT_SNDFILE, "rb");
 #endif
 
 	if (fp == NULL)
@@ -1160,6 +1190,9 @@ void piggy_write_pigfile(const char* filename)
 	int i;
 	FILE* fp1, * fp2;
 	char tname[FILENAME_LEN];
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 
 	// -- mprintf( (0, "Paging in all piggy bitmaps..." ));
 	for (i = 0; i < Num_bitmap_files; i++) {
@@ -1173,7 +1206,12 @@ void piggy_write_pigfile(const char* filename)
 
 	// -- mprintf( (0, "Creating %s...",filename ));
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename_full_path, filename, CHOCOLATE_SYSTEM_FILE_DIR);
+	pig_fp = fopen(filename_full_path, "wb");
+#else
 	pig_fp = fopen(filename, "wb");       //open PIG file
+#endif
 	Assert(pig_fp != NULL);
 
 	write_int(PIGFILE_ID, pig_fp);
@@ -1187,10 +1225,19 @@ void piggy_write_pigfile(const char* filename)
 	bitmap_data_start += (Num_bitmap_files - 1) * sizeof(DiskBitmapHeader);
 	data_offset = bitmap_data_start;
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	change_filename_ext(tname, filename, "lst");
+	get_full_file_path(filename_full_path, tname, CHOCOLATE_SYSTEM_FILE_DIR);
+	fp1 = fopen(filename_full_path, "wt");
+	change_filename_ext(tname, filename, "all");
+	get_full_file_path(filename_full_path, tname, CHOCOLATE_SYSTEM_FILE_DIR);
+	fp2 = fopen(filename_full_path, "wt");
+#else
 	change_filename_ext(tname, filename, "lst");
 	fp1 = fopen(tname, "wt");
 	change_filename_ext(tname, filename, "all");
 	fp2 = fopen(tname, "wt");
+#endif
 
 	for (i = 1; i < Num_bitmap_files; i++) {
 		int* size;
@@ -1289,6 +1336,9 @@ void piggy_dump_all()
 	DiskSoundHeader sndh;
 	int sound_data_start;
 	FILE* fp1, * fp2;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#endif
 
 #ifdef NO_DUMP_SOUNDS
 	Num_sound_files = 0;
@@ -1301,14 +1351,26 @@ void piggy_dump_all()
 	if ((i = FindArg("-piggy")))
 		Error("-piggy no longer supported");
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(filename_full_path, "ham.lst", CHOCOLATE_SYSTEM_FILE_DIR);
+	fp1 = fopen(filename_full_path, "wt");
+	get_full_file_path(filename_full_path, "ham.all", CHOCOLATE_SYSTEM_FILE_DIR);
+	fp2 = fopen(filename_full_path, "wt");
+#else
 	fp1 = fopen("ham.lst", "wt");
 	fp2 = fopen("ham.all", "wt");
+#endif
 
 	if (Must_write_hamfile || Num_bitmap_files_new) {
 
 		mprintf((0, "Creating %s...", DEFAULT_HAMFILE));
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		get_full_file_path(filename_full_path, DEFAULT_HAMFILE, CHOCOLATE_SYSTEM_FILE_DIR);
+		ham_fp = fopen(filename_full_path, "wb");
+#else
 		ham_fp = fopen(DEFAULT_HAMFILE, "wb");                       //open HAM file
+#endif
 		Assert(ham_fp != NULL);
 
 		write_int(HAMFILE_ID, ham_fp);
@@ -1338,7 +1400,12 @@ void piggy_dump_all()
 
 		mprintf((0, "Creating %s...", DEFAULT_HAMFILE));
 		// Now dump sound file
+#if defined (CHOCOLATE_USE_LOCALIZED_PATHS)
+		get_full_file_path(filename_full_path, DEFAULT_SNDFILE, CHOCOLATE_SYSTEM_FILE_DIR);
+		ham_fp = fopen(filename_full_path, "wb");
+#else
 		ham_fp = fopen(DEFAULT_SNDFILE, "wb");
+#endif
 		Assert(ham_fp != NULL);
 
 		write_int(SNDFILE_ID, ham_fp);

@@ -14,11 +14,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
 
 #include <stdio.h>
+
+#if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 #include <malloc.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 
 #include "2d/gr.h"
@@ -262,6 +267,11 @@ int D_DescentMain(int argc, const char** argv)
 {
 	int t;
 	uint8_t title_pal[768];
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	init_all_platform_localized_paths();
+	validate_required_files();
+#endif
 
 	error_init(NULL);
 
@@ -628,7 +638,13 @@ int D_DescentMain(int argc, const char** argv)
 	Game_mode = GM_GAME_OVER;
 
 	if (Auto_demo) {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		char demo_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		get_full_file_path(demo_full_path, "descent.dem", CHOCOLATE_DEMOS_DIR);
+		newdemo_start_playback(demo_full_path);
+#else
 		newdemo_start_playback("DESCENT.DEM");
+#endif
 		if (Newdemo_state == ND_STATE_PLAYBACK)
 			Function_mode = FMODE_GAME;
 	}

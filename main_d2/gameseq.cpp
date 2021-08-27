@@ -16,7 +16,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include <stdio.h>
+
+#if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 #include <malloc.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>

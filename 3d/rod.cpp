@@ -115,9 +115,7 @@ dbool g3_draw_rod_tmap(grs_bitmap* bitmap, g3s_point* bot_point, fix bot_width, 
 	return g3_draw_tmap(4, rod_point_list, uvl_list, bitmap);
 }
 
-#ifndef __powerc
 int checkmuldiv(fix* r, fix a, fix b, fix c);
-#endif
 
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
@@ -127,7 +125,6 @@ dbool g3_draw_bitmap(vms_vector* pos, fix width, fix height, grs_bitmap* bm, int
 dbool g3_draw_bitmap(vms_vector* pos, fix width, fix height, grs_bitmap* bm)
 #endif
 {
-#ifndef __powerc
 	g3s_point pnt;
 	fix t, w, h;
 
@@ -161,33 +158,4 @@ dbool g3_draw_bitmap(vms_vector* pos, fix width, fix height, grs_bitmap* bm)
 #endif
 
 	return 0;
-#else
-	g3s_point pnt;
-	fix w, h;
-	double fz;
-
-	if (g3_rotate_point(&pnt, pos) & CC_BEHIND)
-		return 1;
-
-	g3_project_point(&pnt);
-
-	if (pnt.p3_flags & PF_OVERFLOW)
-		return 1;
-
-	if (pnt.p3_z == 0)
-		return 1;
-
-	fz = f2fl(pnt.p3_z);
-	w = fixmul(fl2f(((f2fl(width) * fCanv_w2) / fz)), Matrix_scale.x);
-	h = fixmul(fl2f(((f2fl(height) * fCanv_h2) / fz)), Matrix_scale.y);
-
-	blob_vertices[0].x = pnt.p3_sx - w;
-	blob_vertices[0].y = blob_vertices[1].y = pnt.p3_sy - h;
-	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
-	blob_vertices[2].y = pnt.p3_sy + h;
-
-	scale_bitmap(bm, blob_vertices);
-
-	return 0;
-#endif
 }

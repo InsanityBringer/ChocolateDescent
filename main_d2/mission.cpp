@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 #include "cfile/cfile.h"
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "inferno.h"
 #include "mission.h"
@@ -235,6 +236,31 @@ extern int HoardEquipped();
 //returns 1 if file read ok, else 0
 int read_mission_file(char *filename,int count,int location)
 {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename2[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	CFILE *mfile;
+
+	memset(filename2, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+
+	switch (location) {
+		case ML_MISSIONDIR:
+			get_full_file_path(filename2, filename, CHOCOLATE_MISSIONS_DIR);
+			break;
+
+		case ML_CDROM:
+			//This isn't really implemented at this point
+			songs_stop_redbook();
+			Int3();
+			break;
+
+		default:
+			Int3();
+
+		case ML_CURDIR:
+			strncpy(filename2, filename, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+			break;
+	}
+#else
 	char filename2[512];
 	CFILE *mfile;
 
@@ -256,6 +282,7 @@ int read_mission_file(char *filename,int count,int location)
 			break;
 	}
 	strcat(filename2,filename);
+#endif
 
 	mfile = cfopen(filename2,"rb");
 
@@ -333,7 +360,12 @@ int build_mission_list(int anarchy_mode)
 	static int num_missions=-1;
 	int count=0,special_count=0;
 	FILEFINDSTRUCT find;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char search_name[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_buf[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_platform_localized_query_string(search_name, CHOCOLATE_MISSIONS_DIR, "*.mn2");
+#else
 	char search_name[256] = MISSION_DIR "*.MN2";
+#endif
 
 	//now search for levels on disk
 
@@ -352,7 +384,7 @@ int build_mission_list(int anarchy_mode)
 	if (!read_mission_file(const_cast<char*>(BUILTIN_MISSION),0,ML_CURDIR))		//read built-in first
 		Error("Could not find required mission file <%s>",BUILTIN_MISSION);
 
-	special_count = count=1; 
+	special_count = count=1;
 
 	if( !FileFindFirst( search_name, &find ) )
 	{
@@ -376,7 +408,12 @@ int build_mission_list(int anarchy_mode)
 		int i;
 
 		for (i=special_count;i<count;i++)
+		{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+			if (!_strfcmp(Mission_list[i].filename, "d2x"))
+#else
 			if (!_strfcmp(Mission_list[i].filename,"D2X")) //swap!
+#endif
 			{
 				mle temp;
 
@@ -388,6 +425,7 @@ int build_mission_list(int anarchy_mode)
 
 				break;
 			}
+		}
 	}
 
 
@@ -411,7 +449,11 @@ void init_extra_robot_movie(char *filename);
 int load_mission(int mission_num)
 {
 	CFILE *mfile;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char buf[CHOCOLATE_MAX_FILE_PATH_SIZE], temp_short_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], *v;
+#else
 	char buf[80], *v;
+#endif
 	int found_hogfile;
 	int enhanced_mission = 0;
 
@@ -421,6 +463,28 @@ int load_mission(int mission_num)
 
 	//read mission from file 
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	snprintf(temp_short_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.mn2", Mission_list[mission_num].filename);
+
+	switch (Mission_list[mission_num].location)
+	{
+		case ML_MISSIONDIR:
+			get_full_file_path(buf, temp_short_filename, CHOCOLATE_MISSIONS_DIR);
+			break;
+
+		case ML_CDROM:
+			//This isn't really implemented at this point
+			Int3();
+			break;
+
+		default:
+			Int3();
+
+		case ML_CURDIR:
+			strncpy(buf, temp_short_filename, CHOCOLATE_MAX_FILE_PATH_SIZE - 1);
+			break;
+	}
+#else
 	switch (Mission_list[mission_num].location) {
 		case ML_MISSIONDIR:	strcpy(buf,MISSION_DIR);	break;
 		case ML_CDROM:			strcpy(buf,CDROM_dir);		break;
@@ -429,6 +493,7 @@ int load_mission(int mission_num)
 	}
 	strcat(buf,Mission_list[mission_num].filename);
 	strcat(buf,".MN2");
+#endif
 
 	mfile = cfopen(buf,"rb");
 	if (mfile == NULL) 
@@ -438,8 +503,12 @@ int load_mission(int mission_num)
 	}
 
 	if (mission_num != 0) //for non-builtin missions, load HOG
-	{		
+	{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		strcpy(buf + strlen(buf) - 4, ".hog");
+#else
 		strcpy(buf+strlen(buf)-4,".HOG");		//change extension
+#endif
 
 		found_hogfile = cfile_use_alternate_hogfile(buf);
 

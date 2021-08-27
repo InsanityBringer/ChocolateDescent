@@ -13,13 +13,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
+
+#if defined(__linux__) || defined(_WIN32) || defined(_WIN64)
 #include <malloc.h>
+#endif
+
 #include <string.h>
 #include <ctype.h>
 
 #include "platform/posixstub.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
+#include "platform/platform_filesys.h"
 #include "platform/platform.h"
 #include "inferno.h"
 #include "text.h"
@@ -1059,7 +1064,13 @@ movielib* init_movie_lib(const char* filename)
 	char id[4];
 	FILE* fp;
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(filename_full_path, filename, CHOCOLATE_SYSTEM_FILE_DIR);
+	fp = fopen(filename_full_path, "rb");
+#else
 	fp = fopen(filename, "rb");
+#endif
 #ifndef _WINDOWS
 	if (!fp)
 	{
@@ -1081,11 +1092,19 @@ movielib* init_movie_lib(const char* filename)
 
 	fread(id, 4, 1, fp);
 	if (!strncmp(id, "DMVL", 4))
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		return init_new_movie_lib(filename_full_path, fp);
+#else
 		return init_new_movie_lib(filename, fp);
+#endif
 	else if (!strncmp(id, "DHF", 3)) 
 	{
 		fseek(fp, -1, SEEK_CUR);		//old file had 3 char id
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		return init_old_movie_lib(filename_full_path, fp);
+#else
 		return init_old_movie_lib(filename, fp);
+#endif
 	}
 	else 
 	{

@@ -20,6 +20,9 @@ as described in copying.txt
 #define _strfcmp(a, b) _stricmp(a, b)
 #define _strnfcmp(a, b, c) _strnicmp(a, b, c)
 
+#define cmkdir(a, b) mkdir(a)
+#define S_IRWXU 0
+
 #else
 #include <string.h>
 #include <fcntl.h>
@@ -59,5 +62,7 @@ char* _strrev(char* in);
 char* _strlwr(char* in);
 char* _strupr(char* in);
 void _splitpath(const char *name, char *drive, char *path, char *base, char *ext);
+
+#define cmkdir(a, b) mkdir(a, b)
 
 #endif

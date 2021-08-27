@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include "platform/platform_filesys.h"
 #include "platform/posixstub.h"
 #include "cfile/cfile.h"
 #include "platform/findfile.h" //[ISB] port descent 2 directory iteration code. 
@@ -42,7 +43,7 @@ char* mfgets(char* s, int n, FILE* f)
 	char* r;
 
 	r = fgets(s, n, f);
-	if (r && s[strlen(s) - 1] == '\n')
+	if (r && (s[strlen(s) - 1] == '\n' || s[strlen(s) - 1] == '\r'))
 		s[strlen(s) - 1] = 0;
 
 	return r;
@@ -69,9 +70,10 @@ char* get_value(char* buf)
 {
 	char* t;
 
-	t = strchr(buf, '=') + 1;
+	t = strchr(buf, '=');
 
 	if (t) {
+		t = t + 1;
 		while (*t && isspace(*t)) t++;
 
 		if (*t)
@@ -100,10 +102,57 @@ int ml_sort_func(mle* e0, mle* e1)
 	return strcmp(e0->mission_name, e1->mission_name);
 }
 
+int get_msn_line(FILE* f, char* msn_line)
+{
+	memset(msn_line, 0, 256);
+	int i = 0;
+
+	int tmp_char = fgetc(f);
+
+	while(tmp_char != '\n' && tmp_char != '\r' && tmp_char != EOF)
+	{
+		msn_line[i] = (char)tmp_char;
+		tmp_char = fgetc(f);
+		i++;
+	}
+
+	while(tmp_char != EOF && (tmp_char == '\n' || tmp_char == '\r'))
+	{
+		tmp_char = fgetc(f);
+	}
+
+	if(tmp_char != EOF)
+	{
+		fseek(f, -1, SEEK_CUR);
+	}
+
+	return tmp_char;
+}
+
+void get_string_before_whitespace(const char* msn_line, char* trimmed_line)
+{
+	memset(trimmed_line, 0, 256);
+	int i;
+
+	for(i = 0; i < strlen(msn_line); i++)
+	{
+		if(isspace(msn_line[i]))
+		{
+			return;
+		}
+
+		trimmed_line[i] = msn_line[i];
+	}
+}
+
 //returns 1 if file read ok, else 0
 int read_mission_file(char* filename, int count, int location)
 {
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char filename2[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
 	char filename2[512]; //[ISB] path can be up to 255+nul, filename can be up to 255+nul, so hopefully this will be large enough
+#endif
 	CFILE* mfile;
 
 	strcpy(filename2, ""); //[ISB] always assume current dir for Descent 1
@@ -121,7 +170,7 @@ int read_mission_file(char* filename, int count, int location)
 			return 0;	//missing extension
 		*t = 0;			//kill extension
 
-		strncpy(Mission_list[count].filename, temp, 9);
+		strncpy(Mission_list[count].filename, temp, MISSION_FILENAME_LEN);
 		Mission_list[count].anarchy_only_flag = 0;
 		//Mission_list[count].location = location;
 
@@ -167,7 +216,13 @@ int build_mission_list(int anarchy_mode)
 	static int num_missions = -1;
 	int count = 0, special_count = 0;
 	FILEFINDSTRUCT find;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char search_name[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char file_path_name[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_platform_localized_query_string(search_name, CHOCOLATE_MISSIONS_DIR, "*.msn");
+#else
 	char search_name[100] = "*.MSN";
+#endif
 
 	//now search for levels on disk
 
@@ -183,7 +238,12 @@ int build_mission_list(int anarchy_mode)
 	{
 		do 
 		{
-			if (read_mission_file(find.name, count, 0)) 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+			get_full_file_path(file_path_name, find.name, CHOCOLATE_MISSIONS_DIR);
+			if (read_mission_file(file_path_name, count, 0))
+#else
+			if (read_mission_file(find.name, count, 0))
+#endif
 			{
 				if (anarchy_mode || !Mission_list[count].anarchy_only_flag)
 					count++;
@@ -245,13 +305,35 @@ int load_mission(int mission_num)
 	{		 //NOTE LINK TO ABOVE IF!!!!!
 			//read mission from file 
 		FILE* mfile;
-		char buf[80], tmp[80], * v;
+		char buf[80], tmp[80], msn_line[256], trimmed_line[256], * v;
+		int eof_check;
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		char msn_filename[CHOCOLATE_MAX_FILE_PATH_SIZE], hog_filename[CHOCOLATE_MAX_FILE_PATH_SIZE],
+		     hogfile_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+		snprintf(msn_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.msn", Mission_list[mission_num].filename);
+#else
 		strcpy(buf, Mission_list[mission_num].filename);
 		strcat(buf, ".MSN");
+#endif
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		snprintf(hog_filename, CHOCOLATE_MAX_FILE_PATH_SIZE, "%s.hog", Mission_list[mission_num].filename);
+
+		cfile_use_alternate_hogfile(hog_filename);
+
+		mfile = fopen(msn_filename, "rt");
+
+		if (mfile == NULL)
+		{
+			Current_mission_num = -1;
+			return 0;		//error!
+		}
+
+#else
 		strcpy(tmp, Mission_list[mission_num].filename);
 		strcat(tmp, ".HOG");
+
 		cfile_use_alternate_hogfile(tmp);
 
 		mfile = fopen(buf, "rt");
@@ -261,6 +343,7 @@ int load_mission(int mission_num)
 			Current_mission_num = -1;
 			return 0;		//error!
 		}
+#endif
 
 		//init vars
 		Last_level = 0;
@@ -268,15 +351,23 @@ int load_mission(int mission_num)
 		Briefing_text_filename[0] = 0;
 		Ending_text_filename[0] = 0;
 
-		while (mfgets(buf, 80, mfile))
+		eof_check = get_msn_line(mfile, msn_line);
+
+		while (eof_check != EOF)
 		{
-			if (istok(buf, "name"))
-				continue;						//already have name, go to next line
-			else if (istok(buf, "type"))
-				continue;						//already have name, go to next line				
-			else if (istok(buf, "hog")) 
+			if (istok(msn_line, "name"))
 			{
-				char* bufp = buf;
+				eof_check = get_msn_line(mfile, msn_line);
+				continue;						//already have name, go to next line
+			}
+			else if (istok(msn_line, "type"))
+			{
+				eof_check = get_msn_line(mfile, msn_line);
+				continue;						//already have name, go to next line				
+			}
+			else if (istok(msn_line, "hog")) 
+			{
+				char* bufp = msn_line;
 
 				while (*(bufp++) != '=')
 					;
@@ -284,44 +375,68 @@ int load_mission(int mission_num)
 				if (*bufp == ' ')
 					while (*(++bufp) == ' ')
 						;
-
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+				memset(hogfile_full_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+				get_full_file_path(hogfile_full_path, bufp, CHOCOLATE_MISSIONS_DIR);
+				cfile_use_alternate_hogfile(hogfile_full_path);
+#else
 				cfile_use_alternate_hogfile(bufp);
+#endif
 				mprintf((0, "Hog file override = [%s]\n", bufp));
 			}
-			else if (istok(buf, "briefing")) 
+			else if (istok(msn_line, "briefing")) 
 			{
-				if ((v = get_value(buf)) != NULL) 
+				if ((v = get_value(msn_line)) != NULL) 
 				{
 					add_term(v);
 					if (strlen(v) < 13)
 						strcpy(Briefing_text_filename, v);
 				}
 			}
-			else if (istok(buf, "ending")) 
+			else if (istok(msn_line, "ending")) 
 			{
-				if ((v = get_value(buf)) != NULL) 
+				if ((v = get_value(msn_line)) != NULL) 
 				{
 					add_term(v);
 					if (strlen(v) < 13)
 						strcpy(Ending_text_filename, v);
 				}
 			}
-			else if (istok(buf, "num_levels")) 
+			else if (istok(msn_line, "num_levels")) 
 			{
-
-				if ((v = get_value(buf)) != NULL) 
+				if ((v = get_value(msn_line)) != NULL) 
 				{
 					int n_levels, i;
+					char* ext_idx;
 
 					n_levels = atoi(v);
 
-					for (i = 0; i < n_levels && mfgets(buf, 80, mfile); i++) 
+					for (i = 0; i < n_levels && get_msn_line(mfile, msn_line); i++) 
 					{
-
-						add_term(buf);
-						if (strlen(buf) <= 12) 
+						if ((v = get_value(msn_line)) != NULL)
 						{
-							strcpy(Level_names[i], buf);
+							strncpy(trimmed_line, v, strlen(v));
+						}
+						else
+						{
+							get_string_before_whitespace(msn_line, trimmed_line);
+						}
+
+						ext_idx = strrchr(trimmed_line, '.');
+
+						if(ext_idx != NULL && ext_idx - trimmed_line > 2 && ext_idx[1] == 'h' && ext_idx[2] == 'o' && ext_idx[3] == 'g')
+						{
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+							memset(hogfile_full_path, 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
+							get_full_file_path(hogfile_full_path, trimmed_line, CHOCOLATE_MISSIONS_DIR);
+							cfile_use_alternate_hogfile(hogfile_full_path);
+#else
+							cfile_use_alternate_hogfile(trimmed_line);
+#endif
+						}
+						else if (strlen(trimmed_line) <= 12) 
+						{
+							strcpy(Level_names[i], trimmed_line);
 							Last_level++;
 						}
 						else
@@ -330,26 +445,25 @@ int load_mission(int mission_num)
 
 				}
 			}
-			else if (istok(buf, "num_secrets")) 
+			else if (istok(msn_line, "num_secrets")) 
 			{
-				if ((v = get_value(buf)) != NULL)
+				if ((v = get_value(msn_line)) != NULL)
 				{
 					int n_secret_levels, i;
 
 					n_secret_levels = atoi(v);
 
-					for (i = 0; i < n_secret_levels && mfgets(buf, 80, mfile); i++) 
+					for (i = 0; i < n_secret_levels && get_msn_line(mfile, msn_line); i++) 
 					{
 						char* t;
 
-
-						if ((t = strchr(buf, ',')) != NULL)* t++ = 0;
+						if ((t = strchr(msn_line, ',')) != NULL)* t++ = 0;
 						else
 							break;
 
-						add_term(buf);
-						if (strlen(buf) <= 12) {
-							strcpy(Secret_level_names[i], buf);
+						add_term(msn_line);
+						if (strlen(msn_line) <= 12) {
+							strcpy(Secret_level_names[i], msn_line);
 							Secret_level_table[i] = atoi(t);
 							if (Secret_level_table[i]<1 || Secret_level_table[i]>Last_level)
 								break;
@@ -362,6 +476,7 @@ int load_mission(int mission_num)
 				}
 			}
 
+			eof_check = get_msn_line(mfile, msn_line);
 		}
 
 		fclose(mfile);
@@ -384,11 +499,24 @@ int load_mission(int mission_num)
 int load_mission_by_name(char* mission_name)
 {
 	int n, i;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	char mission_name_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	get_full_file_path(mission_name_full_path, mission_name, CHOCOLATE_MISSIONS_DIR);
+#endif
 
 	n = build_mission_list(1);
 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	if (strlen(mission_name) == 0)
+		return load_mission(0);
+#endif
+
 	for (i = 0; i < n; i++)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		if (!_strfcmp(mission_name_full_path, Mission_list[i].filename))
+#else
 		if (!_strfcmp(mission_name, Mission_list[i].filename))
+#endif
 			return load_mission(i);
 
 	return 0;		//couldn't find mission

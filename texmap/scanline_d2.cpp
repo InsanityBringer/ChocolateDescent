@@ -304,12 +304,13 @@ uint16_t ut, vt;
 uint16_t ui, vi;
 #define NBITS 4
 
+int uvt, uvi;
+
 extern int fx_u_right, fx_v_right, fx_z_right;
 
-#define C_TMAP_SCANLINE_PLN_LOOP 		*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];\
+#define C_TMAP_SCANLINE_PLN_LOOP 		*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))]];\
 										dest++; \
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+										uvt += uvi;\
 										l += dldx;
 
 void c_tmap_scanline_pln()
@@ -353,11 +354,8 @@ void c_tmap_scanline_pln()
 		U1 = fixmul(u, localz);
 		V1 = fixmul(v, localz);
 
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
-
-		ui = static_cast<uint16_t>((U1 - U0) >> (NBITS + 6));
-		vi = static_cast<uint16_t>((V1 - V0) >> (NBITS + 6));
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
+		uvi = (((U1 - U0) >> (NBITS + 6)) & 0xFFFF) | (((V1 - V0) >> (NBITS + 6)) << 16);
 
 		U0 = U1;
 		V0 = V1;
@@ -386,25 +384,20 @@ void c_tmap_scanline_pln()
 		U1 = fixmul(fx_u_right, z);
 		V1 = fixmul(fx_v_right, z);
 
-		ui = static_cast<uint16_t>(((U1 - U0) / num_left_over) >> 6);
-		vi = static_cast<uint16_t>(((V1 - V0) / num_left_over) >> 6);
-
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
+		uvi = ((((U1 - U0) / num_left_over) >> 6) & 0xFFFF) | ((((V1 - V0) / num_left_over) >> 6) << 16);
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
 	}
 	for (x = num_left_over; x >= 0; x--)
 	{
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
+		uvt += uvi;
+		*dest = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))]];
 		dest++;
 		l += dldx;
 	}
 }
 
-#define C_TMAP_SCANLINE_PLT_LOOP 		c =  (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+#define C_TMAP_SCANLINE_PLT_LOOP 		c =  (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = gr_fade_table[(l & (0xff00)) + c];\
 										dest++;\
@@ -451,11 +444,8 @@ void c_tmap_scanline_plt()
 		U1 = fixmul(u, localz);
 		V1 = fixmul(v, localz);
 
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
-
-		ui = static_cast<uint16_t>((U1 - U0) >> (NBITS + 6));
-		vi = static_cast<uint16_t>((V1 - V0) >> (NBITS + 6));
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
+		uvi = (((U1 - U0) >> (NBITS + 6)) & 0xFFFF) | (((V1 - V0) >> (NBITS + 6)) << 16);
 
 		U0 = U1;
 		V0 = V1;
@@ -485,17 +475,13 @@ void c_tmap_scanline_plt()
 		U1 = fixmul(fx_u_right, z);
 		V1 = fixmul(fx_v_right, z);
 
-		ui = static_cast<uint16_t>(((U1 - U0) / num_left_over) >> 6);
-		vi = static_cast<uint16_t>(((V1 - V0) / num_left_over) >> 6);
-
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
+		uvi = ((((U1 - U0) / num_left_over) >> 6) & 0xFFFF) | ((((V1 - V0) / num_left_over) >> 6) << 16);
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
 	}
 	for (x = num_left_over; x >= 0; x--)
 	{
-		ut = (ut + ui);
-		vt = (vt + vi);
-		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))]];
+		uvt += uvi;
+		c = gr_fade_table[(l & (0xff00)) + (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))]];
 		if (c != 255)
 			*dest = c;
 		dest++;
@@ -503,10 +489,9 @@ void c_tmap_scanline_plt()
 	}
 }
 
-#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP *dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
+#define C_TMAP_SCANLINE_PLN_NOLIGHT_LOOP *dest = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
 										dest++; \
-										ut = (ut + ui); \
-										vt = (vt + vi); \
+										uvt += uvi;\
 										l += dldx;
 
 
@@ -551,11 +536,8 @@ void c_tmap_scanline_pln_nolight()
 		U1 = fixmul(u, localz);
 		V1 = fixmul(v, localz);
 
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
-
-		ui = static_cast<uint16_t>((U1 - U0) >> (NBITS + 6));
-		vi = static_cast<uint16_t>((V1 - V0) >> (NBITS + 6));
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
+		uvi = (((U1 - U0) >> (NBITS + 6)) & 0xFFFF) | (((V1 - V0) >> (NBITS + 6)) << 16);
 
 		U0 = U1;
 		V0 = V1;
@@ -584,25 +566,20 @@ void c_tmap_scanline_pln_nolight()
 		U1 = fixmul(fx_u_right, z);
 		V1 = fixmul(fx_v_right, z);
 
-		ui = static_cast<uint16_t>(((U1 - U0) / num_left_over) >> 6);
-		vi = static_cast<uint16_t>(((V1 - V0) / num_left_over) >> 6);
-
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
+		uvi = ((((U1 - U0) / num_left_over) >> 6) & 0xFFFF) | ((((V1 - V0) / num_left_over) >> 6) << 16);
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
 	}
 	for (x = num_left_over; x >= 0; x--)
 	{
-		ut = (ut + ui);
-		vt = (vt + vi);
-		*dest = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];
+		uvt += uvi;
+		*dest = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];
 		dest++;
 		l += dldx;
 	}
 }
 
-#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP c =  (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];\
-										ut = (ut + ui);\
-										vt = (vt + vi);\
+#define C_TMAP_SCANLINE_PLT_NOLIGHT_LOOP c =  (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];\
+										uvt += uvi;\
 										if (c != 255)\
 										*dest = c;\
 										dest++;\
@@ -649,11 +626,8 @@ void c_tmap_scanline_plt_nolight()
 		U1 = fixmul(u, localz);
 		V1 = fixmul(v, localz);
 
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
-
-		ui = static_cast<uint16_t>((U1 - U0) >> (NBITS + 6));
-		vi = static_cast<uint16_t>((V1 - V0) >> (NBITS + 6));
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
+		uvi = (((U1 - U0) >> (NBITS + 6)) & 0xFFFF) | (((V1 - V0) >> (NBITS + 6)) << 16);
 
 		U0 = U1;
 		V0 = V1;
@@ -683,17 +657,14 @@ void c_tmap_scanline_plt_nolight()
 		U1 = fixmul(fx_u_right, z);
 		V1 = fixmul(fx_v_right, z);
 
-		ui = static_cast<uint16_t>(((U1 - U0) / num_left_over) >> 6);
-		vi = static_cast<uint16_t>(((V1 - V0) / num_left_over) >> 6);
-
-		ut = static_cast<uint16_t>(U0 >> 6);
-		vt = static_cast<uint16_t>(V0 >> 6);
+		uvi = ((((U1 - U0) / num_left_over) >> 6) & 0xFFFF) | ((((V1 - V0) / num_left_over) >> 6) << 16);
+		uvt = ((U0 >> 6) & 0xFFFF) | ((V0 >> 6) << 16);
 	}
 	for (x = num_left_over; x >= 0; x--)
 	{
 		ut = (ut + ui);
 		vt = (vt + vi);
-		c = (uint32_t)pixptr[((ut >> 10) | ((vt >> 10) << 6))];
+		c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];
 		if (c != 255)
 			*dest = c;
 		dest++;
