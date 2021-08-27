@@ -300,8 +300,6 @@ fix invert_z(fix in)
 
 int num_left_over;
 fix U0, V0, Z0, U1, V1;
-uint16_t ut, vt;
-uint16_t ui, vi;
 #define NBITS 4
 
 int uvt, uvi;

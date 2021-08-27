@@ -30,9 +30,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d2/game.h"
 #include "main_d2/gameseq.h"
 
-#include "dcflib.h"
-#include "nocfile.h"
-
 #include "main_d2/object.h"
 
 #define MINESAVE_CRIPPLED	0
@@ -236,10 +233,10 @@ int med_load_situation(char * filename)
 //	-----------------------------------------------------------------------------
 int med_save_situation(char * filename)
 {
-	CFILE * SaveFile;
+	FILE * SaveFile;
 	char	mine_name[MAX_NAME_LENGTH];
 
-	SaveFile = cfopen( filename, "wt" );
+	SaveFile = fopen( filename, "wt" );
 	if (!SaveFile)	{
 		char  ErrorMessage[200];
 
@@ -271,7 +268,7 @@ _splitpath(filename,NULL,NULL,mine_name,NULL);
 	mprintf((0, "%8x %8x %8x\n", ConsoleObject->orient.fvec.x, ConsoleObject->orient.fvec.y, ConsoleObject->orient.fvec.z));
 	mprintf((0, "\n"));
 
-	cfclose( SaveFile);
+	fclose( SaveFile);
 
 	return 1;
 }
@@ -298,8 +295,10 @@ int SaveSituation(void)
 //	Load a situation file which consists of x,y,z, orientation matrix, mine name.
 int LoadSituation(void)
 {
-	if (SafetyCheck())  {
-		if (ui_get_filename( sit_filename, 128, "*.sit", "Load Situation" ))	{
+	if (SafetyCheck()) 
+	{
+		if (ui_get_filename( sit_filename, 128, "*.sit", "Load Situation" ))	
+		{
          checkforext(sit_filename, "SIT");
          if (med_load_situation(sit_filename))
  				return 0;

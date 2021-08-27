@@ -1377,7 +1377,7 @@ int load_game_data(CFILE* LoadFile)
 					old_matcen_info m;
 					Assert(game_fileinfo.matcen_sizeof == 16);
 					RobotCenters[i].robot_flags[0] = read_int(LoadFile);
-					RobotCenters[i].robot_flags[1] = read_int(LoadFile);
+					RobotCenters[i].robot_flags[1] = 0;
 					RobotCenters[i].hit_points = read_fix(LoadFile);
 					RobotCenters[i].interval = read_fix(LoadFile);
 					RobotCenters[i].segnum = read_short(LoadFile);

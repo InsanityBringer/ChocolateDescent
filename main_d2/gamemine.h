@@ -23,6 +23,7 @@ struct mtfi
 	int     fileinfo_sizeof;
 };    // Should be same as first two fields below...
 
+#define MFI_SIZEOF 224
 struct mfi 
 {
 	uint16_t	fileinfo_signature;
@@ -81,11 +82,13 @@ struct mfi
 
 };
 
+#define MH_SIZEOF 8
 struct mh {
 	int     num_vertices;
 	int     num_segments;
 };
 
+#define ME_SIZEOF 112
 struct me {
 	int     current_seg;
 	int     newsegment_offset;

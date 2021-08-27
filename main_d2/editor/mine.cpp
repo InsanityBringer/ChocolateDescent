@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
+#include "cfile/cfile.h"
 #include "platform/mono.h"
 #include "platform/key.h"
 #include "2d/gr.h"
@@ -40,19 +41,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "main_d2/switch.h"
 
-#include "dcflib.h"
-#include "nocfile.h"
 #include "main_d2/fuelcen.h"
+
+
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
 int CreateDefaultNewSegment();
 int save_mine_data_compiled_new(FILE* SaveFile);
-int save_mine_data(CFILE* SaveFile);
+int save_mine_data(FILE* SaveFile);
 
 static char	 current_tmap_list[MAX_TEXTURES][13];
 
-//[ISB] Can't include cfile for these... 
 void M_WriteByte(FILE* fp, uint8_t b)
 {
 	fwrite(&b, sizeof(uint8_t), 1, fp);
@@ -76,6 +76,20 @@ void M_WriteInt(FILE* fp, int i)
 	fwrite(&b2, sizeof(uint8_t), 1, fp);
 	fwrite(&b3, sizeof(uint8_t), 1, fp);
 	fwrite(&b4, sizeof(uint8_t), 1, fp);
+}
+
+static void m_write_vector(vms_vector* v, FILE* file)
+{
+	F_WriteInt(file, v->x);
+	F_WriteInt(file, v->y);
+	F_WriteInt(file, v->z);
+}
+
+static void m_write_matrix(vms_matrix* m, FILE* file)
+{
+	m_write_vector(&m->rvec, file);
+	m_write_vector(&m->uvec, file);
+	m_write_vector(&m->fvec, file);
 }
 
 //[ISB] segment structure is unaligned so this is needed
@@ -138,7 +152,7 @@ int med_save_mine(char * filename)
 	FILE * SaveFile;
 	char ErrorMessage[256];
 
-	SaveFile = cfopen( filename, CF_WRITE_MODE );
+	SaveFile = fopen( filename, "wb" );
 	if (!SaveFile)
 	{
 		char fname[256];
@@ -155,7 +169,7 @@ int med_save_mine(char * filename)
 	save_mine_data(SaveFile);
 	
 	//==================== CLOSE THE FILE =============================
-	cfclose(SaveFile);
+	fclose(SaveFile);
 
 	return 0;
 
@@ -163,9 +177,68 @@ int med_save_mine(char * filename)
 
 #define SEGMENT_SIZEOF sizeof(segment)
 
+//I don't actually need to do this, since it's aligned, but I'm a masochist I guess :D
+void write_mine_fileinfo(FILE* fp)
+{
+	F_WriteShort(fp, mine_fileinfo.fileinfo_signature);
+	F_WriteShort(fp, mine_fileinfo.fileinfo_version);
+	F_WriteInt(fp, mine_fileinfo.fileinfo_sizeof);
+	F_WriteInt(fp, mine_fileinfo.header_offset);          // Stuff common to game & editor
+	F_WriteInt(fp, mine_fileinfo.header_size);
+	F_WriteInt(fp, mine_fileinfo.editor_offset);   // Editor specific stuff
+	F_WriteInt(fp, mine_fileinfo.editor_size);
+	F_WriteInt(fp, mine_fileinfo.segment_offset);
+	F_WriteInt(fp, mine_fileinfo.segment_howmany);
+	F_WriteInt(fp, mine_fileinfo.segment_sizeof);
+	F_WriteInt(fp, mine_fileinfo.newseg_verts_offset);
+	F_WriteInt(fp, mine_fileinfo.newseg_verts_howmany);
+	F_WriteInt(fp, mine_fileinfo.newseg_verts_sizeof);
+	F_WriteInt(fp, mine_fileinfo.group_offset);
+	F_WriteInt(fp, mine_fileinfo.group_howmany);
+	F_WriteInt(fp, mine_fileinfo.group_sizeof);
+	F_WriteInt(fp, mine_fileinfo.vertex_offset);
+	F_WriteInt(fp, mine_fileinfo.vertex_howmany);
+	F_WriteInt(fp, mine_fileinfo.vertex_sizeof);
+	F_WriteInt(fp, mine_fileinfo.texture_offset);
+	F_WriteInt(fp, mine_fileinfo.texture_howmany);
+	F_WriteInt(fp, mine_fileinfo.texture_sizeof);
+	F_WriteInt(fp, mine_fileinfo.walls_offset);
+	F_WriteInt(fp, mine_fileinfo.walls_howmany);
+	F_WriteInt(fp, mine_fileinfo.walls_sizeof);
+	F_WriteInt(fp, mine_fileinfo.triggers_offset);
+	F_WriteInt(fp, mine_fileinfo.triggers_howmany);
+	F_WriteInt(fp, mine_fileinfo.triggers_sizeof);
+	F_WriteInt(fp, mine_fileinfo.links_offset);
+	F_WriteInt(fp, mine_fileinfo.links_howmany);
+	F_WriteInt(fp, mine_fileinfo.links_sizeof);
+	F_WriteInt(fp, mine_fileinfo.object_offset);				// Object info
+	F_WriteInt(fp, mine_fileinfo.object_howmany);
+	F_WriteInt(fp, mine_fileinfo.object_sizeof);
+	F_WriteInt(fp, mine_fileinfo.unused_offset);			//was: doors_offset
+	F_WriteInt(fp, mine_fileinfo.unused_howmamy);		//was: doors_howmany
+	F_WriteInt(fp, mine_fileinfo.unused_sizeof);			//was: doors_sizeof
+	F_WriteShort(fp, mine_fileinfo.level_shake_frequency);
+	F_WriteShort(fp, mine_fileinfo.level_shake_duration);
+
+	F_WriteInt(fp, Secret_return_segment);
+	m_write_matrix(&mine_fileinfo.secret_return_orient, fp);
+
+	F_WriteInt(fp, mine_fileinfo.dl_indices_offset);
+	F_WriteInt(fp, mine_fileinfo.dl_indices_howmany);
+	F_WriteInt(fp, mine_fileinfo.dl_indices_sizeof);
+
+	F_WriteInt(fp, mine_fileinfo.delta_light_offset);
+	F_WriteInt(fp, mine_fileinfo.delta_light_howmany);
+	F_WriteInt(fp, mine_fileinfo.delta_light_sizeof);
+
+	F_WriteInt(fp, mine_fileinfo.segment2_offset);
+	F_WriteInt(fp, mine_fileinfo.segment2_howmany);
+	F_WriteInt(fp, mine_fileinfo.segment2_sizeof);
+}
+
 // -----------------------------------------------------------------------------
 // saves to an already-open file
-int save_mine_data(CFILE * SaveFile)
+int save_mine_data(FILE * SaveFile)
 {
 	int  header_offset, editor_offset, vertex_offset, segment_offset, doors_offset, texture_offset, walls_offset, triggers_offset, dl_offset, dlindex_offset, segment2s_offset; //, links_offset;
 	int  newseg_verts_offset;
@@ -180,9 +253,9 @@ int save_mine_data(CFILE * SaveFile)
 
 	//=================== Calculate offsets into file ==================
 
-	header_offset = cftell(SaveFile) + sizeof(mine_fileinfo);
-	editor_offset = header_offset + sizeof(mine_header);
-	texture_offset = editor_offset + sizeof(mine_editor);
+	header_offset = ftell(SaveFile) + MFI_SIZEOF;
+	editor_offset = header_offset + MH_SIZEOF;
+	texture_offset = editor_offset + ME_SIZEOF;
 	vertex_offset  = texture_offset + (13*NumTextures);
 	segment_offset = vertex_offset + (sizeof(vms_vector)*Num_vertices);
 	segment2s_offset = segment_offset + (SEGMENT_SIZEOF * Num_segments);
@@ -234,7 +307,7 @@ int save_mine_data(CFILE * SaveFile)
 	mine_fileinfo.segment2_howmany = Num_segments;
 
 	// Write the fileinfo
-	cfwrite( &mine_fileinfo, sizeof(mine_fileinfo), 1, SaveFile );
+	write_mine_fileinfo(SaveFile);
 
 	//===================== SAVE HEADER INFO ========================
 
@@ -242,10 +315,11 @@ int save_mine_data(CFILE * SaveFile)
 	mine_header.num_segments        =   Num_segments;
 
 	// Write the editor info
-	if (header_offset != cftell(SaveFile))
+	if (header_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 
-	cfwrite( &mine_header, sizeof(mine_header), 1, SaveFile );
+	F_WriteInt(SaveFile, mine_header.num_vertices);
+	F_WriteInt(SaveFile, mine_header.num_segments);
 
 	//===================== SAVE EDITOR INFO ==========================
 	mine_editor.current_seg         =   Cursegp - Segments;
@@ -264,19 +338,19 @@ int save_mine_data(CFILE * SaveFile)
 	for (i=0;i<10;i++)
 		mine_editor.Groupside[i]     =	Groupside[i];
 
-	if (editor_offset != cftell(SaveFile))
+	if (editor_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	cfwrite( &mine_editor, sizeof(mine_editor), 1, SaveFile );
+	fwrite( &mine_editor, sizeof(mine_editor), 1, SaveFile );
 
 	//===================== SAVE TEXTURE INFO ==========================
 
-	if (texture_offset != cftell(SaveFile))
+	if (texture_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	cfwrite( current_tmap_list, 13, NumTextures, SaveFile );
+	fwrite( current_tmap_list, 13, NumTextures, SaveFile );
 	
 	//===================== SAVE VERTEX INFO ==========================
 
-	if (vertex_offset != cftell(SaveFile))
+	if (vertex_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	for (i = 0; i < Num_vertices; i++)
 	{
@@ -288,28 +362,28 @@ int save_mine_data(CFILE * SaveFile)
 
 	//===================== SAVE SEGMENT INFO =========================
 
-	if (segment_offset != cftell(SaveFile))
+	if (segment_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	//for (i = 0; i < Num_segments; i++)
 	//	save_v16_segment(&Segments[i], SaveFile);
 
 	//V20 saves raw segments
-	cfwrite( Segments, sizeof(segment), Num_segments, SaveFile );
+	fwrite( Segments, sizeof(segment), Num_segments, SaveFile );
 
 	//===================== SAVE SEGMENT2 INFO =========================
-	if (segment2s_offset != cftell(SaveFile))
+	if (segment2s_offset != ftell(SaveFile))
 		Error("OFFSETS WRONG IN MINE.C!");
 
-	cfwrite(Segment2s, sizeof(segment2), Num_segments, SaveFile);
+	fwrite(Segment2s, sizeof(segment2), Num_segments, SaveFile);
 
 	//===================== SAVE NEWSEGMENT INFO ======================
 
-	if (newsegment_offset != cftell(SaveFile))
+	if (newsegment_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	//save_v16_segment(&New_segment, SaveFile);
-	cfwrite( &New_segment, sizeof(segment), 1, SaveFile );
+	fwrite( &New_segment, sizeof(segment), 1, SaveFile );
 
-	if (newseg_verts_offset != cftell(SaveFile))
+	if (newseg_verts_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	for (i = 0; i < 8; i++)
 	{
@@ -329,7 +403,7 @@ int save_mine_data(CFILE * SaveFile)
 
 #define COMPILED_MINE_VERSION 0
 
-void dump_fix_as_short( fix value, int nbits, CFILE * SaveFile )
+void dump_fix_as_short( fix value, int nbits, FILE * SaveFile )
 {
 	int int_value = (int)(value>>nbits);
 	short short_value;
@@ -346,11 +420,11 @@ void dump_fix_as_short( fix value, int nbits, CFILE * SaveFile )
 	else
 		short_value = (short)int_value;
 
-	cfwrite( &short_value, sizeof(short_value), 1, SaveFile );
+	F_WriteShort(SaveFile, short_value);
 }
 
 //version of dump for unsigned values
-void dump_fix_as_ushort( fix value, int nbits, CFILE * SaveFile )
+void dump_fix_as_ushort( fix value, int nbits, FILE * SaveFile )
 {
 	uint32_t int_value;
 	uint16_t short_value;
@@ -372,7 +446,7 @@ void dump_fix_as_ushort( fix value, int nbits, CFILE * SaveFile )
 	else
 		short_value = int_value;
 
-	cfwrite( &short_value, sizeof(short_value), 1, SaveFile );
+	F_WriteShort(SaveFile, short_value);
 }
 
 int	New_file_format_save = 1;
@@ -407,23 +481,23 @@ int save_mine_data_compiled(FILE * SaveFile)
 	}
 
 	//=============================== Writing part ==============================
-	cfwrite( &version, sizeof(uint8_t), 1, SaveFile );						// 1 byte = compiled version
-	cfwrite( &Num_vertices, sizeof(int), 1, SaveFile );					// 4 bytes = Num_vertices
-	cfwrite( &Num_segments, sizeof(int), 1, SaveFile );						// 4 bytes = Num_segments
-	cfwrite( Vertices, sizeof(vms_vector), Num_vertices, SaveFile );
+	fwrite( &version, sizeof(uint8_t), 1, SaveFile );						// 1 byte = compiled version
+	fwrite( &Num_vertices, sizeof(int), 1, SaveFile );					// 4 bytes = Num_vertices
+	fwrite( &Num_segments, sizeof(int), 1, SaveFile );						// 4 bytes = Num_segments
+	fwrite( Vertices, sizeof(vms_vector), Num_vertices, SaveFile );
 
 	for (segnum=0; segnum<Num_segments; segnum++ )	
 	{
 		// Write short Segments[segnum].children[MAX_SIDES_PER_SEGMENT]
- 		cfwrite( &Segments[segnum].children, sizeof(short), MAX_SIDES_PER_SEGMENT, SaveFile );
+ 		fwrite( &Segments[segnum].children, sizeof(short), MAX_SIDES_PER_SEGMENT, SaveFile );
 		// Write short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
-		cfwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
+		fwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
 		// Write ubyte	Segments[segnum].special
-		cfwrite( &Segment2s[segnum].special, sizeof(uint8_t), 1, SaveFile );
+		fwrite( &Segment2s[segnum].special, sizeof(uint8_t), 1, SaveFile );
 		// Write byte	Segments[segnum].matcen_num
-		cfwrite( &Segment2s[segnum].matcen_num, sizeof(uint8_t), 1, SaveFile );
+		fwrite( &Segment2s[segnum].matcen_num, sizeof(uint8_t), 1, SaveFile );
 		// Write short	Segments[segnum].value
-		cfwrite( &Segment2s[segnum].value, sizeof(short), 1, SaveFile );
+		fwrite( &Segment2s[segnum].value, sizeof(short), 1, SaveFile );
 		// Write fix	Segments[segnum].static_light (shift down 5 bits, write as short)
 		dump_fix_as_ushort( Segment2s[segnum].static_light, 4, SaveFile );
 		//cfwrite( &Segments[segnum].static_light , sizeof(fix), 1, SaveFile );
@@ -435,12 +509,13 @@ int save_mine_data_compiled(FILE * SaveFile)
 			uint8_t byte_wallnum;
 			if (Segments[segnum].sides[sidenum].wall_num<0)
 				wallnum = 255;		// Use 255 to mark no walls
-			else {
+			else 
+			{
 				wallnum = Segments[segnum].sides[sidenum].wall_num;
 				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
 			}
 			byte_wallnum = (uint8_t)wallnum;
-			cfwrite( &byte_wallnum, sizeof(uint8_t), 1, SaveFile );
+			fwrite( &byte_wallnum, sizeof(uint8_t), 1, SaveFile );
 		}
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
@@ -448,9 +523,9 @@ int save_mine_data_compiled(FILE * SaveFile)
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	
 			{
 				// Write short Segments[segnum].sides[sidenum].tmap_num;
-				cfwrite( &Segments[segnum].sides[sidenum].tmap_num, sizeof(short), 1, SaveFile );
+				fwrite( &Segments[segnum].sides[sidenum].tmap_num, sizeof(short), 1, SaveFile );
 				// Write short Segments[segnum].sides[sidenum].tmap_num2;
-				cfwrite( &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1, SaveFile );
+				fwrite( &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1, SaveFile );
 				// Write uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	
 				{
@@ -493,12 +568,18 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 	}
 
 	//=============================== Writing part ==============================
-	cfwrite( &version, sizeof(uint8_t), 1, SaveFile );						// 1 byte = compiled version
+	F_WriteByte(SaveFile, version);						// 1 byte = compiled version
 	temp_short = Num_vertices;
-	cfwrite( &temp_short, sizeof(short), 1, SaveFile );					// 2 bytes = Num_vertices
+	F_WriteShort(SaveFile, temp_short);					// 2 bytes = Num_vertices
 	temp_short = Num_segments;
-	cfwrite( &temp_short, sizeof(short), 1, SaveFile );					// 2 bytes = Num_segments
-	cfwrite( Vertices, sizeof(vms_vector), Num_vertices, SaveFile );
+	F_WriteShort(SaveFile, temp_short);					// 2 bytes = Num_segments
+
+	for (i = 0; i < Num_vertices; i++)
+	{
+		F_WriteInt(SaveFile, Vertices[i].x);
+		F_WriteInt(SaveFile, Vertices[i].y);
+		F_WriteInt(SaveFile, Vertices[i].z);
+	}
 
 	for (segnum=0; segnum<Num_segments; segnum++ )	
 	{
@@ -511,24 +592,18 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 		if ((Segment2s[segnum].special != 0) || (Segment2s[segnum].matcen_num != 0) || (Segment2s[segnum].value != 0))
 			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
 
- 		cfwrite( &bit_mask, sizeof(uint8_t), 1, SaveFile );
+		F_WriteByte(SaveFile, bit_mask);
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
- 			if (bit_mask & (1 << sidenum))
-		 		cfwrite( &Segments[segnum].children[sidenum], sizeof(short), 1, SaveFile );
+			if (bit_mask & (1 << sidenum))
+				F_WriteShort(SaveFile, Segments[segnum].children[sidenum]);
 		}
 
-		cfwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
-
-		if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
+		for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
 		{
-			cfwrite( &Segment2s[segnum].special, sizeof(uint8_t), 1, SaveFile );
-			cfwrite( &Segment2s[segnum].matcen_num, sizeof(uint8_t), 1, SaveFile );
-			cfwrite( &Segment2s[segnum].value, sizeof(short), 1, SaveFile );
+			F_WriteShort(SaveFile, Segments[segnum].verts[i]);
 		}
-
-		dump_fix_as_ushort( Segment2s[segnum].static_light, 4, SaveFile );
 	
 		// Write the walls as a 6 byte array
 		bit_mask = 0;
@@ -542,12 +617,12 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
 			}
 		}
-		cfwrite( &bit_mask, sizeof(uint8_t), 1, SaveFile );
+		F_WriteByte(SaveFile, bit_mask);
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
 		{
 			if (bit_mask & (1 << sidenum))
-				cfwrite( &Segments[segnum].sides[sidenum].wall_num, sizeof(uint8_t), 1, SaveFile );
+				F_WriteByte(SaveFile, Segments[segnum].sides[sidenum].wall_num);
 		}
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
@@ -561,9 +636,9 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 				if (tmap_num2 != 0)
 					tmap_num |= 0x8000;
 
-				cfwrite( &tmap_num, sizeof(uint16_t), 1, SaveFile );
+				F_WriteShort(SaveFile, tmap_num);
 				if (tmap_num2 != 0)
-					cfwrite( &tmap_num2, sizeof(uint16_t), 1, SaveFile );
+					F_WriteShort(SaveFile, tmap_num2);
 
 				for (i=0; i<4; i++ )	
 				{
@@ -574,6 +649,16 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 			}
 		}
 
+	}
+
+	//Write segments2
+	for (i = 0; i < Num_segments; i++)
+	{
+		F_WriteByte(SaveFile, Segment2s[i].special);
+		F_WriteByte(SaveFile, Segment2s[i].matcen_num);
+		F_WriteByte(SaveFile, Segment2s[i].value);
+		F_WriteByte(SaveFile, Segment2s[i].s2_flags);
+		F_WriteInt(SaveFile, Segment2s[i].static_light);
 	}
 
 	return 0;
