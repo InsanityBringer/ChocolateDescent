@@ -1728,7 +1728,7 @@ void med_create_new_segment(vms_vector *scale)
 //		sp->sides[s].render_flag = 0;
 		sp->sides[s].wall_num = -1;
 		create_walls_on_side(sp,s);
-		sp->sides[s].tmap_num = s;					// assign some stupid old tmap to this side.
+		sp->sides[s].tmap_num = s==3?1:0;					// assign some stupid old tmap to this side.
 		sp->sides[s].tmap_num2 = 0;
 	}
 
