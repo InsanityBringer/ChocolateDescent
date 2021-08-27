@@ -662,8 +662,7 @@ void c_tmap_scanline_plt_nolight()
 	}
 	for (x = num_left_over; x >= 0; x--)
 	{
-		ut = (ut + ui);
-		vt = (vt + vi);
+		uvt += uvi;
 		c = (uint32_t)pixptr[(((uvt >> 10) & 63) | ((uvt >> 20) & 4032))];
 		if (c != 255)
 			*dest = c;
