@@ -97,7 +97,7 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 #ifdef EDITOR
 #include "editor\editor.h"
 #include "editor\kdefs.h"
-#include "ui.h"
+#include "ui\ui.h"
 #endif
 
 #include "vers_id.h"
@@ -936,14 +936,15 @@ Here:
 			fwrite(icon.bm_data, 1, icon.bm_w * icon.bm_h, ofile);
 		}
 
-		for (i = 0; i < sizeof(sounds) / sizeof(*sounds); i++) {
+		for (i = 0; i < sizeof(sounds) / sizeof(*sounds); i++) 
+		{
 			FILE* ifile;
 			int size;
 			uint8_t* buf;
 			ifile = fopen(sounds[i], "rb");
 			Assert(ifile != NULL);
-			size = filelength(ifile->_handle);
-			buf = malloc(size);
+			size = filelength(fileno(ifile));
+			buf = (uint8_t*)malloc(size);
 			fread(buf, 1, size, ifile);
 			fwrite(&size, sizeof(size), 1, ofile);
 			fwrite(buf, 1, size, ofile);
@@ -1039,7 +1040,7 @@ Here:
 #ifdef EDITOR
 				if (Auto_exit) 
 				{
-					strcpy(&Level_names[0], Auto_file);
+					strcpy(Level_names[0], Auto_file);
 					LoadLevel(1, 1);
 					Function_mode = FMODE_EXIT;
 					break;
@@ -1066,6 +1067,13 @@ Here:
 			game();
 			if (Function_mode == FMODE_MENU)
 				songs_play_song(SONG_TITLE, 1);
+#ifdef EDITOR
+			else if (Function_mode == FMODE_EDITOR) //[ISB] If you do menu->game->editor cursegp won't be valid. Fix this. 
+			{
+				if (!Cursegp)
+					init_editor_data_for_mine();
+			}
+#endif
 			break;
 #ifdef EDITOR
 		case FMODE_EDITOR:

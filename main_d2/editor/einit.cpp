@@ -8,26 +8,17 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
-COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#pragma once
+#ifdef EDITOR
 
-void LoadGame(void);
-void SaveGame(void);
-int get_level_name(void);
+#include	<stdio.h>
 
-extern int load_level(char *filename);
-extern int save_level(char *filename);
+#include "main_d2/inferno.h"
+#include "platform/mono.h"
+#include "fix/fix.h"
+#include "main_d2/segment.h"
+#include	"editor.h"
 
-//called in place of load_game() to only load the .min data
-extern int load_mine_only(char * filename);
-
-extern char Gamesave_current_filename[];
-
-extern int Gamesave_num_org_robots;
-
-//	In dumpmine.c
-extern void write_game_text_file(char *filename);
-
-extern	int	Errors_in_mine;
+#endif

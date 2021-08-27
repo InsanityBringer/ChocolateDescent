@@ -156,12 +156,9 @@ typedef struct DiskSoundHeader
 
 uint8_t BigPig = 0;
 
-#ifdef MACINTOSH
-extern short 	cd_VRefNum;
-extern void		ConcatPStr(StringPtr dst, StringPtr src);
-extern int		ConvertPToCStr(StringPtr inPStr, char* outCStrBuf);
-extern int		ConvertCToPStr(char* inCStr, StringPtr outPStrBuf);
-#endif
+void piggy_write_pigfile(const char* filename); 
+static void write_int(int i, FILE* file);
+int piggy_is_substitutable_bitmap(char* name, char* subst_name);
 
 #ifdef EDITOR
 void swap_0_255(grs_bitmap* bmp)
@@ -650,19 +647,20 @@ void piggy_new_pigfile(const char* pigname)
 			}
 			else {          //this is a BBM
 
-				grs_bitmap* new;
+				grs_bitmap* newbm;
 				uint8_t newpal[256 * 3];
 				int iff_error;
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
-				MALLOC(new, grs_bitmap, 1);
+				MALLOC(newbm, grs_bitmap, 1);
 
 				sprintf(bbmname, "%s.bbm", AllBitmaps[i].name);
-				iff_error = iff_read_bitmap(bbmname, new, BM_LINEAR, newpal);
+				iff_error = iff_read_bitmap(bbmname, newbm, BM_LINEAR, newpal);
 
-				new->bm_handle = 0;
-				if (iff_error != IFF_NO_ERROR) {
+				//newbm->bm_handle = 0;
+				if (iff_error != IFF_NO_ERROR) 
+				{
 					mprintf((1, "File %s - IFF error: %s", bbmname, iff_errormsg(iff_error)));
 					Error("File %s - IFF error: %s", bbmname, iff_errormsg(iff_error));
 				}
@@ -671,31 +669,31 @@ void piggy_new_pigfile(const char* pigname)
 				//above makes assumption that supertransparent color is 254
 
 				if (iff_has_transparency)
-					gr_remap_bitmap_good(new, newpal, iff_transparent_color, SuperX);
+					gr_remap_bitmap_good(newbm, newpal, iff_transparent_color, SuperX);
 				else
-					gr_remap_bitmap_good(new, newpal, -1, SuperX);
+					gr_remap_bitmap_good(newbm, newpal, -1, SuperX);
 
-				new->avg_color = compute_average_pixel(new);
+				newbm->avg_color = compute_average_pixel(newbm);
 
 #ifdef EDITOR
 				if (FindArg("-macdata"))
-					swap_0_255(new);
+					swap_0_255(newbm);
 #endif
-				if (!BigPig)  gr_bitmap_rle_compress(new);
+				if (!BigPig)  gr_bitmap_rle_compress(newbm);
 
-				if (new->bm_flags & BM_FLAG_RLE)
-					size = *((int*) new->bm_data);
+				if (newbm->bm_flags & BM_FLAG_RLE)
+					size = *((int*)newbm->bm_data);
 				else
-					size = new->bm_w * new->bm_h;
+					size = newbm->bm_w * newbm->bm_h;
 
-				memcpy(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], new->bm_data, size);
-				free(new->bm_data);
-				new->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
+				memcpy(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], newbm->bm_data, size);
+				free(newbm->bm_data);
+				newbm->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 				Piggy_bitmap_cache_next += size;
 
-				GameBitmaps[i] = *new;
+				GameBitmaps[i] = *newbm;
 
-				free(new);
+				free(newbm);
 
 				// -- mprintf( (0, "U" ));
 			}

@@ -8,26 +8,25 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
-COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#pragma once
+#ifndef _MEDMISC_H
+#define _MEDMISC_H
 
-void LoadGame(void);
-void SaveGame(void);
-int get_level_name(void);
+void GetMouseRotation( int idx, int idy, vms_matrix * RotMat );
+extern int Gameview_lockstep;				//In medmisc.c
+int ToggleLockstep();
+int medlisp_delete_segment(void);
+int medlisp_scale_segment(void);
+int medlisp_rotate_segment(void);
+int ToggleLockViewToCursegp(void);
+int ToggleDrawAllSegments();
+int IncreaseDrawDepth(void);
+int DecreaseDrawDepth(void);
+int ToggleCoordAxes();
+extern int	Big_depth;
+void set_chase_matrix(segment *sp);
+void set_view_target_from_segment(segment *sp);
 
-extern int load_level(char *filename);
-extern int save_level(char *filename);
-
-//called in place of load_game() to only load the .min data
-extern int load_mine_only(char * filename);
-
-extern char Gamesave_current_filename[];
-
-extern int Gamesave_num_org_robots;
-
-//	In dumpmine.c
-extern void write_game_text_file(char *filename);
-
-extern	int	Errors_in_mine;
+#endif

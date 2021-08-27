@@ -39,7 +39,7 @@ void piggy_dump_all();
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file );
 int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
 bitmap_index piggy_find_bitmap( char * name );
-int piggy_find_sound( char * name );
+int piggy_find_sound(const char * name );
 
 extern int Pigfile_initialized;
 

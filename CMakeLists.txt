@@ -4,7 +4,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(CHOCOLATE_DESCENT_VERSION "0.1")
 
-set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 1 only. Won't link outside of Windows ATM.")
+set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 2 is highly broken atm. Won't link outside of Windows ATM.")
 set(NETWORK OFF CACHE BOOL "Build with NETWORK. At the moment, there are no networking capabilities. RIP.")
 #These features are intended for testing.
 set(DESCENT1_TEXMAP_IN_DESCENT2 OFF CACHE BOOL "Swaps Descent 1's texture mapper into Descent 2.")
@@ -250,7 +250,7 @@ set(DESCENT1_TEXMAP_SOURCES
     texmap/tmapflat.cpp
 )
 
-set(EDITOR_SOURCES
+set(D1_EDITOR_SOURCES
 	ui/barbox.cpp
 	ui/button.cpp
 	ui/checkbox.cpp
@@ -495,6 +495,86 @@ set(DESCENT2_SOURCES
 	2d/scale_d2.cpp
 )
 
+set(D2_EDITOR_SOURCES
+	ui/barbox.cpp
+	ui/button.cpp
+	ui/checkbox.cpp
+	ui/file.cpp
+	ui/func.cpp
+	ui/func.h
+	ui/gadget.cpp
+	ui/icon.cpp
+	ui/inputbox.cpp
+	ui/keypad.cpp
+	ui/keypress.cpp
+	ui/keytrap.cpp
+	ui/listbox.cpp
+	ui/menubar.cpp
+	ui/message.cpp
+	ui/popup.cpp
+	ui/radio.cpp
+	ui/scroll.cpp
+	ui/ui.cpp
+	ui/ui.h
+	ui/uidraw.cpp
+	ui/uimenu.cpp
+	ui/uimouse.cpp
+	ui/userbox.cpp
+	ui/window.cpp
+	main_d2/editor/med.cpp
+	main_d2/editor/einit.cpp
+	main_d2/editor/eglobal.cpp
+	main_d2/editor/mine.cpp
+	main_d2/editor/curves.cpp
+	main_d2/editor/kcurve.cpp
+	main_d2/editor/khelp.cpp
+	main_d2/editor/ksegsel.cpp
+	main_d2/editor/kbuild.cpp
+	main_d2/editor/kview.cpp
+	main_d2/editor/kmine.cpp
+	main_d2/editor/seguvs.cpp
+	main_d2/editor/ksegsize.cpp
+	main_d2/editor/ksegmove.cpp
+	main_d2/editor/ktmap.cpp
+	main_d2/editor/kfuncs.cpp
+	main_d2/editor/autosave.cpp
+	main_d2/editor/group.cpp
+	main_d2/editor/texture.cpp
+	main_d2/editor/fixseg.cpp
+	main_d2/editor/eobject.cpp
+	main_d2/editor/elight.cpp
+	main_d2/editor/texpage.cpp
+	main_d2/editor/objpage.cpp
+	main_d2/editor/medmisc.cpp
+	main_d2/editor/medsel.cpp
+	main_d2/editor/kgame.cpp
+	main_d2/editor/info.cpp
+	main_d2/editor/medwall.cpp
+	main_d2/editor/eswitch.cpp
+	main_d2/editor/medrobot.cpp
+	main_d2/editor/meddraw.cpp
+	main_d2/editor/segment.cpp
+	main_d2/editor/centers.cpp
+	main_d2/editor/ehostage.cpp
+	main_d2/editor/centers.h
+	main_d2/editor/editor.h
+	main_d2/editor/ehostage.h
+	main_d2/editor/eobject.h
+	main_d2/editor/eswitch.h
+	main_d2/editor/info.h
+	main_d2/editor/kdefs.h
+	main_d2/editor/meddraw.h
+	main_d2/editor/medmisc.h
+	main_d2/editor/medrobot.h
+	main_d2/editor/medsel.h
+	main_d2/editor/medwall.h
+	main_d2/editor/objpage.h
+	main_d2/editor/seguvs.h
+	main_d2/editor/texpage.h
+	main_d2/editor/func.h
+	main_d2/editor/nocfile.h
+)
+
 set(DESCENT2_TEXMAP_SOURCES
     texmap/ntmap_d2.cpp
     texmap/scanline_d2.cpp
@@ -593,9 +673,10 @@ else()
 endif()
 
 if (BUILD_EDITOR)
-	set(DESCENT1_SOURCES ${DESCENT1_SOURCES} ${EDITOR_SOURCES})
+	set(DESCENT1_SOURCES ${DESCENT1_SOURCES} ${D1_EDITOR_SOURCES})
+	set(DESCENT2_SOURCES ${DESCENT2_SOURCES} ${D2_EDITOR_SOURCES})
 else()
-	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${EDITOR_SOURCES})
+	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${D1_EDITOR_SOURCES} ${D2_EDITOR_SOURCES})
 endif()
 
 if (DESCENT2_TEXMAP_IN_DESCENT1)
@@ -683,6 +764,7 @@ set_target_properties(ChocolateDescent ChocolateDescent2 PROPERTIES CXX_STANDARD
 
 if (BUILD_EDITOR)
 	target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:DEBUG>:EDITOR>")
+	target_compile_definitions(ChocolateDescent2 PUBLIC "$<$<CONFIG:DEBUG>:EDITOR>")
 endif()
 
 target_link_libraries(ChocolateDescent ${SHARED_LIBS} ${DESCENT1_LIBS})
@@ -708,6 +790,7 @@ source_group("iff" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/iff/.+")
 source_group("main_d1" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d1/.+")
 source_group("main_d1\\editor" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d1/editor/.+")
 source_group("main_d2" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d2/.+")
+source_group("main_d2\\editor" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d2/editor/.+")
 source_group("mem" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/mem/.+")
 source_group("misc" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/misc/.+")
 source_group("mve" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/mve/.+")
