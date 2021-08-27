@@ -1396,8 +1396,8 @@ void piggy_dump_all()
 		mprintf((0, "\n"));
 	}
 
-	if (Num_sound_files_new) {
-
+	if (Num_sound_files_new) 
+	{
 		mprintf((0, "Creating %s...", DEFAULT_HAMFILE));
 		// Now dump sound file
 #if defined (CHOCOLATE_USE_LOCALIZED_PATHS)
@@ -1442,11 +1442,12 @@ void piggy_dump_all()
 
 		fclose(ham_fp);
 		mprintf((0, "\n"));
-	}
 
-	fprintf(fp1, "Total sound size: %d bytes\n", data_offset - sound_data_start);
-	mprintf((0, " Dumped %d assorted sounds.\n", Num_sound_files));
-	fprintf(fp1, " Dumped %d assorted sounds.\n", Num_sound_files);
+		//[ISB] needs to be here, otherwise it crashes in debug since these variables aren't initalized
+		fprintf(fp1, "Total sound size: %d bytes\n", data_offset - sound_data_start);
+		mprintf((0, " Dumped %d assorted sounds.\n", Num_sound_files));
+		fprintf(fp1, " Dumped %d assorted sounds.\n", Num_sound_files);
+	}
 
 	fclose(fp1);
 	fclose(fp2);
