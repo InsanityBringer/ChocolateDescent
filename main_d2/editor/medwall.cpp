@@ -99,6 +99,41 @@ int add_wall(segment *seg, short side)
 	return 0;
 }
 
+//Like add_wall, but only a single overlay
+int add_overlay(segment* seg, short side)
+{
+	if (Num_walls < MAX_WALLS - 1)
+	{
+		if (!IS_CHILD(seg->children[side]))
+		{
+			if (seg->sides[side].wall_num == -1)
+			{
+				seg->sides[side].wall_num = Num_walls;
+
+				Walls[Num_walls].segnum = seg - Segments;
+
+				Walls[Num_walls].sidenum = side;
+
+				Walls[Num_walls].flags = 0;
+
+				Walls[Num_walls].type = WALL_OVERLAY;
+
+				Walls[Num_walls].trigger = -1;
+
+				Walls[Num_walls].clip_num = -1;
+
+				Walls[Num_walls].keys = KEY_NONE;
+
+				Num_walls++;
+			}
+
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 int wall_assign_door(int door_type)
 {
 	int Connectside;

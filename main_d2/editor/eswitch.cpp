@@ -52,6 +52,8 @@ static UI_GADGET_RADIO	*TriggerFlag[NUM_TRIGGER_FLAGS];
 
 static int old_trigger_num;
 
+extern int add_overlay(segment* seg, short side);
+
 //-----------------------------------------------------------------
 // Adds a trigger to wall, and returns the trigger number. 
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
@@ -67,6 +69,8 @@ int add_trigger(segment *seg, short side)
 	{
 		if (IS_CHILD(seg->children[side]))
 			wall_add_to_markedside(WALL_OPEN);
+		else
+			add_overlay(Markedsegp, Markedside);
 
 		wall_num = seg->sides[side].wall_num;
 		Walls[wall_num].trigger = trigger_num;
