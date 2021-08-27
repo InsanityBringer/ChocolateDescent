@@ -70,26 +70,31 @@ int add_wall(segment *seg, short side)
 	int Connectside;
 	segment *csegp;
 
-	if (Num_walls < MAX_WALLS-2)
-  	if (IS_CHILD(seg->children[side])) {
-		if (seg->sides[side].wall_num == -1) {
- 			seg->sides[side].wall_num = Num_walls;
-			Num_walls++;
+	if (Num_walls < MAX_WALLS - 2)
+	{
+		if (IS_CHILD(seg->children[side]))
+		{
+			if (seg->sides[side].wall_num == -1) 
+			{
+				seg->sides[side].wall_num = Num_walls;
+				Num_walls++;
 			}
-				 
-		csegp = &Segments[seg->children[side]];
-		Connectside = find_connect_side(seg, csegp);
 
-		if (csegp->sides[Connectside].wall_num == -1) {
-			csegp->sides[Connectside].wall_num = Num_walls;
-			Num_walls++;
+			csegp = &Segments[seg->children[side]];
+			Connectside = find_connect_side(seg, csegp);
+
+			if (csegp->sides[Connectside].wall_num == -1) 
+			{
+				csegp->sides[Connectside].wall_num = Num_walls;
+				Num_walls++;
 			}
-		
-		create_removable_wall( seg, side, CurrentTexture );
-		create_removable_wall( csegp, Connectside, CurrentTexture );
 
-		return 1;
+			create_removable_wall(seg, side, CurrentTexture);
+			create_removable_wall(csegp, Connectside, CurrentTexture);
+
+			return 1;
 		}
+	}
 
 	return 0;
 }

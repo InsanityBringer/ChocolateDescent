@@ -48,7 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static UI_WINDOW 				*MainWindow = NULL;
 static UI_GADGET_USERBOX	*WallViewBox;
 static UI_GADGET_BUTTON 	*QuitButton;
-static UI_GADGET_CHECKBOX	*TriggerFlag[NUM_TRIGGER_FLAGS];
+static UI_GADGET_RADIO	*TriggerFlag[NUM_TRIGGER_FLAGS];
 
 static int old_trigger_num;
 
@@ -57,15 +57,17 @@ static int old_trigger_num;
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
 int add_trigger(segment *seg, short side)
 {
-	/*
 	int trigger_num = Num_triggers;
 	int wall_num = seg->sides[side].wall_num;
 
 	Assert(trigger_num < MAX_TRIGGERS);
 	if (trigger_num>=MAX_TRIGGERS) return -1;
 
-	if (wall_num == -1) {
-		wall_add_to_markedside(WALL_OPEN);
+	if (wall_num == -1)
+	{
+		if (IS_CHILD(seg->children[side]))
+			wall_add_to_markedside(WALL_OPEN);
+
 		wall_num = seg->sides[side].wall_num;
 		Walls[wall_num].trigger = trigger_num;
 		
@@ -73,11 +75,12 @@ int add_trigger(segment *seg, short side)
 		Triggers[trigger_num].flags = 0;
 		Triggers[trigger_num].value = F1_0*5;
 		Triggers[trigger_num].num_links = 0;
-		Triggers[trigger_num].flags &= TRIGGER_ON;		
 
 		Num_triggers++;
 		return trigger_num;
-	} else {
+	}
+	else 
+	{
 		if (Walls[wall_num].trigger != -1)
 			return Walls[wall_num].trigger;
 
@@ -88,11 +91,10 @@ int add_trigger(segment *seg, short side)
 		Triggers[trigger_num].flags = 0;
 		Triggers[trigger_num].value = F1_0*5;
 		Triggers[trigger_num].num_links = 0;
-		Triggers[trigger_num].flags &= TRIGGER_ON;
 
 		Num_triggers++;
 		return trigger_num;
-	}*/
+	}
 	return 0;
 }		
 
@@ -101,36 +103,41 @@ int add_trigger(segment *seg, short side)
 // Automatically adds flag to Connectside if possible unless it is a control trigger.
 // Returns 1 if trigger flag added.
 // Returns 0 if trigger flag cannot be added.
-int trigger_add_to_Markedside(short flag) 
+int trigger_add_to_Markedside(short type) 
 {
 	int trigger_num; //, ctrigger_num;
 
-	if (!Markedsegp) {
+	if (!Markedsegp) 
+	{
 		editor_status("No Markedside.");
 		return 0;
 	}
 
 	// If no child on Markedside return
-	if (!IS_CHILD(Markedsegp->children[Markedside])) return 0;
+	//[ISB] can put triggers on solid walls in Descent 2
+	//if (!IS_CHILD(Markedsegp->children[Markedside])) return 0;
 
 	trigger_num = add_trigger(Markedsegp, Markedside);
 
-	if (trigger_num == -1) {
+	if (trigger_num == -1)
+	{
 		editor_status("Cannot add trigger at Markedside.");
 		return 0;
 	}
 
- 	Triggers[trigger_num].flags |= flag;
+ 	Triggers[trigger_num].type = type;
 
 	return 1;
 }
 
 int trigger_remove_flag_from_Markedside(short flag)
 {
+	/*
 	int trigger_num; //, ctrigger_num;
 	int wall_num;
 	
-	if (!Markedsegp) {
+	if (!Markedsegp) 
+	{
 		editor_status("No Markedside.");
 		return 0;
 	}
@@ -153,7 +160,7 @@ int trigger_remove_flag_from_Markedside(short flag)
 	if (!Triggers[trigger_num].flags & flag)
 		return 1;
 
- 	Triggers[trigger_num].flags &= ~flag;
+ 	Triggers[trigger_num].flags &= ~flag;*/
 
 	return 1;
 }
@@ -210,18 +217,20 @@ int bind_matcen_to_trigger() {
 }
 
 
-int bind_wall_to_trigger() {
-
+int bind_wall_to_trigger() 
+{
 	int wall_num, trigger_num, link_num;
 	int i;
 
-	if (!Markedsegp) {
+	if (!Markedsegp)
+	{
 		editor_status("No marked segment.");
 		return 0;
 	}
 
 	wall_num = Markedsegp->sides[Markedside].wall_num;
-	if (wall_num == -1) {
+	if (wall_num == -1) 
+	{
 		editor_status("No wall at Markedside.");
 		return 0;
 	}
@@ -233,12 +242,14 @@ int bind_wall_to_trigger() {
 		return 0;
 	}
 
-	if (Cursegp->sides[Curside].wall_num == -1) {
+	if (Cursegp->sides[Curside].wall_num == -1) 
+	{
 		editor_status("No wall at Curside.");
 		return 0;
 	}
 
-	if ((Cursegp==Markedsegp) && (Curside==Markedside)) {
+	if ((Cursegp==Markedsegp) && (Curside==Markedside)) 
+	{
 		editor_status("Cannot bind wall to itself.");
 		return 0;
 	}
@@ -304,7 +315,7 @@ int remove_trigger(segment *seg, short side)
 
 int add_trigger_control()
 {
-	//trigger_add_to_Markedside(TRIGGER_CONTROL_DOORS);
+	trigger_add_to_Markedside(TT_OPEN_DOOR);
 	Update_flags = UF_WORLD_CHANGED;
 	return 1;
 }
@@ -351,16 +362,16 @@ int do_trigger_dialog()
 
 	// These are the checkboxes for each door flag.
 	i = 44;
-	TriggerFlag[0] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Door Control" );  	i+=22;
-	TriggerFlag[1] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Shield damage" ); 	i+=22;
-	TriggerFlag[2] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Energy drain" );		i+=22;
-	TriggerFlag[3] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Exit" );					i+=22;
-	TriggerFlag[4] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "One-shot" );			i+=22;
-	TriggerFlag[5] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Illusion ON" );		i+=22;
-	TriggerFlag[6] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Illusion OFF" );		i+=22;
-	TriggerFlag[7] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Trigger ON" );			i+=22;
-	TriggerFlag[8] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Matcen Trigger" ); 	i+=22;
-	TriggerFlag[9] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Secret Exit" ); 		i+=22;
+	TriggerFlag[0] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Door Control" );  	i+=22;
+	TriggerFlag[1] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Shield damage" ); 	i+=22;
+	TriggerFlag[2] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Energy drain" );		i+=22;
+	TriggerFlag[3] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Exit" );					i+=22;
+	TriggerFlag[4] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "One-shot" );			i+=22;
+	TriggerFlag[5] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Illusion ON" );		i+=22;
+	TriggerFlag[6] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Illusion OFF" );		i+=22;
+	TriggerFlag[7] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Trigger ON" );			i+=22;
+	TriggerFlag[8] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Matcen Trigger" ); 	i+=22;
+	TriggerFlag[9] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Secret Exit" ); 		i+=22;
 
 	QuitButton = ui_add_gadget_button( MainWindow, 20, i, 48, 40, "Done", NULL );
 																				 
@@ -390,7 +401,6 @@ void close_trigger_window()
 
 void do_trigger_window()
 {
-#if 0
 	int i;
 	short Markedwall, trigger_num;
 
@@ -417,42 +427,26 @@ void do_trigger_window()
 
 	if (old_trigger_num != trigger_num )
 	{
-		/*
+		
 		for (	i=0; i < NUM_TRIGGER_FLAGS; i++ )	
 		{
 			TriggerFlag[i]->flag = 0;				// Tells ui that this button isn't checked
 			TriggerFlag[i]->status = 1;				// Tells ui to redraw button
 		}
 
-		if (trigger_num != -1) {
-  			if (Triggers[trigger_num].flags & TRIGGER_CONTROL_DOORS)
-				TriggerFlag[0]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_SHIELD_DAMAGE)
-				TriggerFlag[1]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ENERGY_DRAIN)
-				TriggerFlag[2]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_EXIT)
-				TriggerFlag[3]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT)
-				TriggerFlag[4]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_ON)
-				TriggerFlag[5]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_OFF)
-				TriggerFlag[6]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ON)
-				TriggerFlag[7]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_MATCEN)
-				TriggerFlag[8]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_SECRET_EXIT)
-				TriggerFlag[9]->flag = 1;
-		}*/
+		if (trigger_num != -1) 
+		{
+			for (i = 0; i < NUM_TRIGGER_FLAGS; i++)
+  				if (Triggers[trigger_num].type == i)
+					TriggerFlag[i]->flag = 1;
+		}
 	}
 	
 	//------------------------------------------------------------
 	// If any of the checkboxes that control the wallflags are set, then
 	// update the cooresponding wall flag.
 	//------------------------------------------------------------
-	if (IS_CHILD(Markedsegp->children[Markedside])) 
+	//if (IS_CHILD(Markedsegp->children[Markedside])) 
 	{
 		/*
 		if (TriggerFlag[0]->flag == 1) 
@@ -496,11 +490,19 @@ void do_trigger_window()
 		if (TriggerFlag[9]->flag == 1) 
 			trigger_add_to_Markedside(TRIGGER_SECRET_EXIT);
 		else
-			trigger_remove_flag_from_Markedside(TRIGGER_SECRET_EXIT);
+			trigger_remove_flag_from_Markedside(TRIGGER_SECRET_EXIT);*/
 
-	} else
-		for (	i=0; i < NUM_TRIGGER_FLAGS; i++ )
-			if (TriggerFlag[i]->flag == 1) { 
+		for (i = 0; i < NUM_TRIGGER_FLAGS; i++)
+		{
+			if (TriggerFlag[i]->flag == 1)
+				trigger_add_to_Markedside(i);
+		}
+
+	} 
+	/*else
+		for (i=0; i < NUM_TRIGGER_FLAGS; i++)
+			if (TriggerFlag[i]->flag == 1) 
+			{ 
 				TriggerFlag[i]->flag = 0;					// Tells ui that this button isn't checked
 				TriggerFlag[i]->status = 1;				// Tells ui to redraw button
 			}*/
@@ -512,11 +514,15 @@ void do_trigger_window()
 
 	if ((Markedsegp->sides[Markedside].wall_num == -1) || (Walls[Markedsegp->sides[Markedside].wall_num].trigger) == -1)
 		gr_clear_canvas( CBLACK );
-	else {
-		if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {
+	else
+	{
+		if (Markedsegp->sides[Markedside].tmap_num2 > 0) 
+		{
 			gr_ubitmap(0,0, texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
-		} else {
-			if (Markedsegp->sides[Markedside].tmap_num > 0)	{
+		} else 
+		{
+			if (Markedsegp->sides[Markedside].tmap_num > 0)	
+			{
 				PIGGY_PAGE_IN(Textures[Markedsegp->sides[Markedside].tmap_num]);
 				gr_ubitmap(0,0, &GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
 			} else
@@ -528,8 +534,10 @@ void do_trigger_window()
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this robot.
 	//------------------------------------------------------------
-	if (ui_button_any_drawn || (old_trigger_num != trigger_num) ) {
-		if ( Markedsegp->sides[Markedside].wall_num > -1 )	{
+	if (ui_button_any_drawn || (old_trigger_num != trigger_num) ) 
+	{
+		if ( Markedsegp->sides[Markedside].wall_num > -1 )	
+		{
 			ui_wprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
 		}	else {
 			ui_wprintf_at( MainWindow, 12, 6, "Trigger: none ");
@@ -544,7 +552,6 @@ void do_trigger_window()
 	}		
 
 	old_trigger_num = trigger_num;
-#endif
 }
 
 #endif
