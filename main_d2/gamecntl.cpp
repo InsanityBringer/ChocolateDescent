@@ -1780,7 +1780,9 @@ void HandleTestKey(int key)
 #ifdef EDITOR		//editor-specific functions
 
 	case KEY_E + KEY_DEBUGGED:
+#ifdef NETWORK
 		network_leave_game();
+#endif
 		Function_mode = FMODE_EDITOR;
 		break;
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:

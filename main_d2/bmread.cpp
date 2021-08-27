@@ -1782,6 +1782,10 @@ void bm_read_player_ship()
 	if (First_multi_bitmap_num==-1)
 		first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
+#ifndef NETWORK
+#define MAX_NUM_NET_PLAYERS 8
+#endif
+
 	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_NUM_NET_PLAYERS-1)*2);
 
 	for (i=0;i<n_models;i++) {
