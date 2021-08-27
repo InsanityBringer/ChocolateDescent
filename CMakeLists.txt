@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.11)
 project(ChocolateDescent)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+set(CHOCOLATE_DESCENT_VERSION "0.1")
+
 set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Won't link outside of Windows ATM.")
-set(NETWORK OFF CACHE BOOL "Build with NETWORK. At the moment, there are no networking capabilities. RIP.")
+set(NETWORK OFF CACHE BOOL "Build with NETWORK. Only really works with Descent 1 ATM.")
 #These features are intended for testing.
 set(DESCENT1_TEXMAP_IN_DESCENT2 OFF CACHE BOOL "Swaps Descent 1's texture mapper into Descent 2.")
 set(DESCENT2_TEXMAP_IN_DESCENT1 OFF CACHE BOOL "Swaps Descent 2's texture mapper into Descent 1. ")
