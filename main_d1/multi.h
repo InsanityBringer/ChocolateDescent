@@ -213,12 +213,14 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 
 #define NETGAME_NAME_LEN				15
 
-typedef struct netplayer_info {
+typedef struct netplayer_info 
+{
 	char		callsign[CALLSIGN_LEN + 1];
 	uint8_t		server[4];
 	uint8_t		node[6];
 	uint16_t	socket;
 	int8_t 		connected;
+	uint32_t	identifier; //TODO: This is a hack. Each node gets a random identifier, since on the internet using IP addresses to check uniqueness gets weird on the client. Can collide!
 } netplayer_info;
 
 typedef struct netgame_info {

@@ -125,4 +125,7 @@ void network_do_frame(int force, int listen);
 // packet that we're transmitting.
 void network_send_data(uint8_t* ptr, int len, int urgent);
 
+//Connects to a game at a specific address with the current port.  
+void network_join_game_at(uint8_t* address);
+
 #endif

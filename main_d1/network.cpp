@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "misc/types.h"
 #include "args.h"
@@ -150,6 +151,7 @@ void network_read_sync_packet(netgame_info* sp);
 void network_read_pdata_packet(frame_info* pd);
 void network_read_object_packet(uint8_t* data);
 void network_read_endlevel_packet(uint8_t* data);
+void network_send_game_info_request_to(uint8_t* address);
 
 void network_init(void)
 {
@@ -164,6 +166,7 @@ void network_init(void)
 	memcpy(My_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN + 1);
 	memcpy(My_Seq.player.node, NetGetLocalAddress(), 6);
 	memcpy(My_Seq.player.server, NetGetServerAddress(), 4);
+	memcpy(&My_Seq.player.identifier, My_Seq.player.node, sizeof(My_Seq.player.identifier));
 
 	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
 		init_player_stats_game();
@@ -417,7 +420,8 @@ can_join_netgame(netgame_info* game)
 
 	for (i = 0; i < num_players; i++)
 		if ((!_stricmp(Players[Player_num].callsign, game->players[i].callsign)) &&
-			(!memcmp(My_Seq.player.node, game->players[i].node, 6)) &&
+			//(!memcmp(My_Seq.player.node, game->players[i].node, 6)) &&
+			(!memcmp(&My_Seq.player.identifier, &game->players[i].identifier, sizeof(game->players[i].identifier))) &&
 			(!memcmp(My_Seq.player.server, game->players[i].server, 4)))
 			break;
 
@@ -491,6 +495,7 @@ network_new_player(sequence_packet* their)
 
 	memcpy(Netgame.players[pnum].node, their->player.node, 6);
 	memcpy(Netgame.players[pnum].server, their->player.server, 4);
+	memcpy(&Netgame.players[pnum].identifier, &their->player.identifier, sizeof(their->player.identifier));
 
 	NetGetLastPacketOrigin(Netgame.players[pnum].node);
 
@@ -798,7 +803,7 @@ void network_stop_resync(sequence_packet* their)
 {
 	NetGetLastPacketOrigin(their->player.node);
 
-	if ((!memcmp(Network_player_rejoining.player.node, their->player.node, 6)) &&
+	if ((!memcmp(&Network_player_rejoining.player.identifier, &their->player.identifier, sizeof(their->player.identifier))) &&
 		(!memcmp(Network_player_rejoining.player.server, their->player.server, 4)) &&
 		(!_stricmp(Network_player_rejoining.player.callsign, their->player.callsign)))
 	{
@@ -1025,7 +1030,7 @@ void network_add_player(sequence_packet* p)
 	for (i = 0; i < N_players; i++)
 	{
 		//[ISB] Can't compare "server" (actually port, refactoring incoming...) anymore, as a client's port can change.
-		if (!memcmp(Netgame.players[i].node, p->player.node, 6))
+		if (!memcmp(&Netgame.players[i].identifier, &p->player.identifier, sizeof(p->player.identifier)))
 			return;		// already got them
 	}
 
@@ -1035,6 +1040,7 @@ void network_add_player(sequence_packet* p)
 	memcpy(Netgame.players[N_players].callsign, p->player.callsign, CALLSIGN_LEN + 1);
 	memcpy(Netgame.players[N_players].node, p->player.node, 6);
 	memcpy(Netgame.players[N_players].server, p->player.server, 4);
+	memcpy(&Netgame.players[N_players].identifier, &p->player.identifier, sizeof(p->player.identifier));
 
 	Netgame.players[N_players].connected = 1;
 	Players[N_players].connected = 1;
@@ -1058,7 +1064,7 @@ void network_remove_player(sequence_packet* p)
 	pn = -1;
 	for (i = 0; i < N_players; i++) 
 	{
-		if (!memcmp(Netgame.players[i].node, p->player.node, 6)) 
+		if (!memcmp(&Netgame.players[i].identifier, &p->player.identifier, sizeof(p->player.identifier))) 
 		{
 			pn = i;
 			break;
@@ -1072,6 +1078,7 @@ void network_remove_player(sequence_packet* p)
 		memcpy(Netgame.players[i].callsign, Netgame.players[i + 1].callsign, CALLSIGN_LEN + 1);
 		memcpy(Netgame.players[i].node, Netgame.players[i + 1].node, 6);
 		memcpy(Netgame.players[i].server, Netgame.players[i + 1].server, 4);
+		memcpy(&Netgame.players[i].identifier, &Netgame.players[i].identifier, sizeof(Netgame.players[i].identifier));
 	}
 
 	N_players--;
@@ -1107,9 +1114,26 @@ network_send_game_list_request(void)
 	memcpy(me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN + 1);
 	memcpy(me.player.node, NetGetLocalAddress(), 6);
 	memcpy(me.player.server, NetGetServerAddress(), 4);
+	memcpy(&me.player.identifier, &My_Seq.player.identifier, sizeof(My_Seq.player.identifier));
 	me.type = PID_GAME_LIST;
 
 	NetSendBroadcastPacket((uint8_t*)& me, sizeof(sequence_packet));
+}
+
+void network_send_game_info_request_to(uint8_t* address)
+{
+	// Send a broadcast request for game info
+
+	sequence_packet me;
+
+	mprintf((0, "Sending game_list request.\n"));
+	memcpy(me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN + 1);
+	memcpy(me.player.node, NetGetLocalAddress(), 6);
+	memcpy(me.player.server, NetGetServerAddress(), 4);
+	memcpy(&me.player.identifier, &My_Seq.player.identifier, sizeof(My_Seq.player.identifier));
+	me.type = PID_GAME_LIST;
+
+	NetSendInternetworkPacket((uint8_t*)&me, sizeof(sequence_packet), NetGetServerAddress(), address);
 }
 
 void
@@ -1254,12 +1278,12 @@ void network_process_gameinfo(uint8_t* data)
 	Network_games_changed = 1;
 
 	mprintf((0, "Got game data for game %s.\n", newgame->game_name));
-	mprintf((0, "[ISB] Incoming game reports address as %d.%d.%d.%d.\n", newgame->players[0].node[0], newgame->players[0].node[0], newgame->players[1].node[2], newgame->players[0].node[3]));
+	mprintf((0, "[ISB] Incoming game reports address as %d.%d.%d.%d.\n", newgame->players[0].node[0], newgame->players[0].node[1], newgame->players[0].node[2], newgame->players[0].node[3]));
 	NetGetLastPacketOrigin(&newgame->players[0].node[0]);
-	mprintf((0, "[ISB] Swapped to origin address %d.%d.%d.%d.\n", newgame->players[0].node[0], newgame->players[0].node[0], newgame->players[1].node[2], newgame->players[0].node[3]));
+	mprintf((0, "[ISB] Swapped to origin address %d.%d.%d.%d.\n", newgame->players[0].node[0], newgame->players[0].node[1], newgame->players[0].node[2], newgame->players[0].node[3]));
 
 	for (i = 0; i < num_active_games; i++)
-		if (!_stricmp(Active_games[i].game_name, newgame->game_name) && !memcmp(Active_games[i].players[0].node, newgame->players[0].node, 6)
+		if (!_stricmp(Active_games[i].game_name, newgame->game_name) && !memcmp(&Active_games[i].players[0].identifier, &newgame->players[0].identifier, sizeof(newgame->players[0].identifier))
 			&& !memcmp(Active_games[i].players[0].server, newgame->players[0].server, 4))
 			break;
 
@@ -1981,7 +2005,7 @@ void network_read_sync_packet(netgame_info* sp)
 	}
 
 	for (i = 0; i < N_players; i++) {
-		if ((!memcmp(sp->players[i].node, My_Seq.player.node, 6)) &&
+		if ((!memcmp(&sp->players[i].identifier, &My_Seq.player.identifier, sizeof(My_Seq.player.identifier))) &&
 			(!_stricmp(sp->players[i].callsign, temp_callsign)))
 		{
 			Assert(Player_num == -1); // Make sure we don't find ourselves twice!  Looking for interplay reported bug
@@ -2020,6 +2044,7 @@ void network_read_sync_packet(netgame_info* sp)
 	if (Player_num < 0) 
 	{
 		Network_status = NETSTAT_MENU;
+		mprintf((0, "invalid player number %d?\n", Player_num));
 		return;
 	}
 
@@ -2261,7 +2286,8 @@ GetPlayersAgain:
 
 	// Remove players that aren't marked.
 	N_players = 0;
-	for (i = 0; i < save_nplayers; i++) {
+	for (i = 0; i < save_nplayers; i++) 
+	{
 		if (m[i].value)
 		{
 			if (i > N_players)
@@ -2269,6 +2295,7 @@ GetPlayersAgain:
 				memcpy(Netgame.players[N_players].callsign, Netgame.players[i].callsign, CALLSIGN_LEN + 1);
 				memcpy(Netgame.players[N_players].node, Netgame.players[i].node, 6);
 				memcpy(Netgame.players[N_players].server, Netgame.players[i].server, 4);
+				memcpy(&Netgame.players[N_players].identifier, &Netgame.players[i].identifier, sizeof(Netgame.players[i].identifier));
 			}
 			Players[N_players].connected = 1;
 			N_players++;
@@ -2279,10 +2306,12 @@ GetPlayersAgain:
 		}
 	}
 
-	for (i = N_players; i < MAX_NUM_NET_PLAYERS; i++) {
+	for (i = N_players; i < MAX_NUM_NET_PLAYERS; i++) 
+	{
 		memset(Netgame.players[i].callsign, 0, CALLSIGN_LEN + 1);
 		memset(Netgame.players[i].node, 0, 6);
 		memset(Netgame.players[i].server, 0, 4);
+		memset(&Netgame.players[i].identifier, 0, sizeof(Netgame.players[i].identifier));
 	}
 
 	if (Netgame.gamemode == NETGAME_TEAM_ANARCHY)
@@ -2504,6 +2533,7 @@ menu:
 		memcpy(me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN + 1);
 		memcpy(me.player.node, NetGetLocalAddress(), 6);
 		memcpy(me.player.server, NetGetServerAddress(), 4);
+		memcpy(&me.player.identifier, &My_Seq.player.identifier, sizeof(My_Seq.player.identifier));
 		NetSendInternetworkPacket((uint8_t*)& me, sizeof(sequence_packet), Netgame.players[0].server, Netgame.players[0].node);
 		N_players = 0;
 		Function_mode = FMODE_MENU;
@@ -2730,6 +2760,113 @@ remenu:
 	// Choice is valid, prepare to join in
 
 	memcpy(&Netgame, &Active_games[choice], sizeof(netgame_info));
+	Difficulty_level = Netgame.difficulty;
+	MaxNumNetPlayers = Netgame.max_numplayers;
+	change_playernum_to(1);
+
+	network_set_game_mode(Netgame.gamemode);
+
+	StartNewLevel(Netgame.levelnum);
+
+	return;		// look ma, we're in a game!!!
+}
+
+void network_join_game_at(uint8_t* address)
+{
+	int i, jmp;
+	char menu_text[(MAX_ACTIVE_NETGAMES * 2) + 1][70];
+	fix start_time;
+
+	newmenu_item m[((MAX_ACTIVE_NETGAMES) * 2) + 1];
+
+	if (!Network_active)
+	{
+		nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND);
+		return;
+	}
+
+	network_init();
+
+	N_players = 0;
+
+	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+
+	network_listen();  // Throw out old info
+
+	num_active_games = 0;
+
+	memset(m, 0, sizeof(newmenu_item) * (MAX_ACTIVE_NETGAMES * 2));
+	memset(Active_games, 0, sizeof(netgame_info) * MAX_ACTIVE_NETGAMES);
+
+	network_send_game_info_request_to(address);
+	start_time = timer_get_fixed_seconds();
+
+	show_boxed_message(TXT_WAIT);
+	I_DrawCurrentCanvas(0);
+
+	jmp = setjmp(LeaveGame);
+	if (jmp) //aborting game
+		return;
+
+	Network_games_changed = 1;
+
+	for(;;)
+	{
+		I_DoEvents();
+		//listen for requests
+		network_listen();
+
+		//Look if a game has been made available yet
+		if (num_active_games > 0)
+			break;
+
+		if (timer_get_fixed_seconds() > start_time + F1_0 * 5)
+		{
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, "No game found within 5 seconds.");
+			return;
+		}
+	}
+
+	// Choice has been made and looks legit
+	if (Active_games[0].game_status == NETSTAT_ENDLEVEL)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+		return;
+		//goto remenu;
+	}
+
+	if (Active_games[0].protocol_version != MULTI_PROTO_VERSION)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
+		return;
+		//goto remenu;
+	}
+
+#ifndef SHAREWARE
+	{
+		// Check for valid mission name
+		mprintf((0, "Loading mission:%s.\n", Active_games[0].mission_name));
+		if (!load_mission_by_name(Active_games[0].mission_name))
+		{
+			nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+			return;
+			//goto remenu;
+		}
+	}
+#endif
+
+	if (!can_join_netgame(&Active_games[0]))
+	{
+		if (Active_games[0].numplayers == Active_games[0].max_numplayers)
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
+		else
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+		return;
+	}
+
+	// Choice is valid, prepare to join in
+
+	memcpy(&Netgame, &Active_games[0], sizeof(netgame_info));
 	Difficulty_level = Netgame.difficulty;
 	MaxNumNetPlayers = Netgame.max_numplayers;
 	change_playernum_to(1);

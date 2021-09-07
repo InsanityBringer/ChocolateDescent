@@ -248,6 +248,7 @@ int DoMenu()
 }
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
+void do_ip_address_menu();
 
 //returns flag, true means quit menu
 void do_option(int select)
@@ -368,7 +369,8 @@ void do_option(int select)
 		break;
 	case MENU_START_SERIAL:
 #ifdef NETWORK
-		nm_messagebox("Chocolate Note:", 1, TXT_OK, "Emulation of modem support is\nunlikely. Start a normal\nnetwork game.");
+		load_mission(0);
+		do_ip_address_menu();
 #endif
 		break;
 	case MENU_MULTIPLAYER:
@@ -831,6 +833,8 @@ void do_options_menu()
 	write_player_file();
 }
 
+char direct_join_str[40] = "CONNECT TO IP ADDRESS...";
+
 void do_multi_player_menu()
 {
 	int menu_choice[3];
@@ -845,7 +849,7 @@ void do_multi_player_menu()
 
 		ADD_ITEM(TXT_START_NET_GAME, MENU_START_NETGAME, -1);
 		ADD_ITEM(TXT_JOIN_NET_GAME, MENU_JOIN_NETGAME, -1);
-		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
+		ADD_ITEM(direct_join_str, MENU_START_SERIAL, -1);
 
 		choice = newmenu_do1(NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice);
 
@@ -856,4 +860,47 @@ void do_multi_player_menu()
 			break;		// leave menu
 
 	} while (choice > -1);
+}
+
+void do_ip_address_menu()
+{
+	newmenu_item m;
+	char text[256] = "";
+	uint8_t address[4];
+	char* ptr, *oldptr;
+	int i;
+	int value;
+
+	m.type = NM_TYPE_INPUT; m.text_len = 255; m.text = text;
+
+	newmenu_do(NULL, "Enter IP address", 1, &m, NULL);
+
+	//new_level_num = atoi(m.text);
+	ptr = oldptr = text;
+	for (i = 0; i < 4; i++)
+	{
+		if (i != 3)
+		{
+			ptr = strchr(ptr, '.');
+			if (!ptr)
+			{
+				nm_messagebox(NULL, 1, TXT_OK, "Address is formatted incorrectly");
+				return;
+			}
+			*ptr = '\0';
+		}
+		value = atoi(oldptr);
+		if (value > 255)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "Invalid number in address");
+			return;
+		}
+		address[i] = value;
+		ptr++;
+		oldptr = ptr;
+	}
+
+	network_join_game_at(address);
+
+	return;
 }
