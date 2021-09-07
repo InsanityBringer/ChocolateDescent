@@ -865,7 +865,7 @@ void do_multi_player_menu()
 void do_ip_address_menu()
 {
 	newmenu_item m;
-	char text[256] = "";
+	static char text[256] = "";
 	uint8_t address[4];
 	char* ptr, *oldptr;
 	int i;
@@ -896,7 +896,11 @@ void do_ip_address_menu()
 			return;
 		}
 		address[i] = value;
-		ptr++;
+		if (i != 3)
+		{
+			*ptr = '.';
+			ptr++;
+		}
 		oldptr = ptr;
 	}
 
