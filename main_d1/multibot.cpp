@@ -42,6 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "effects.h"
 #include "physics.h" 
+#include "misc/rand.h"
 
 //prototypes because the original dev doesn't believe in function prototypes
 int multi_add_controlled_robot(int objnum, int agitation);
@@ -1031,7 +1032,7 @@ multi_do_create_robot_powerups(char* buf)
 	Assert((pnum >= 0) && (pnum < N_players));
 
 	Net_create_loc = 0;
-	srand(1245L);
+	P_SRand(1245L);
 
 	egg_objnum = object_create_egg(&del_obj);
 
@@ -1089,7 +1090,7 @@ multi_drop_robot_powerups(int objnum)
 					del_obj->contains_count = 0;
 			}
 		}
-		srand(1245L);
+		P_SRand(1245L);
 		if (del_obj->contains_count > 0)
 			egg_objnum = object_create_egg(del_obj);
 	}
@@ -1098,14 +1099,14 @@ multi_drop_robot_powerups(int objnum)
 		return;
 
 	else if (robptr->contains_count) {
-		srand(timer_get_approx_seconds());
-		if (((rand() * 16) >> 15) < robptr->contains_prob) {
-			del_obj->contains_count = ((rand() * robptr->contains_count) >> 15) + 1;
+		P_SRand(timer_get_approx_seconds());
+		if (((P_Rand() * 16) >> 15) < robptr->contains_prob) {
+			del_obj->contains_count = ((P_Rand() * robptr->contains_count) >> 15) + 1;
 			del_obj->contains_type = robptr->contains_type;
 			del_obj->contains_id = robptr->contains_id;
 			if (del_obj->contains_type == OBJ_POWERUP)
 				maybe_replace_powerup_with_energy(del_obj);
-			srand(1245L);
+			P_SRand(1245L);
 			if (del_obj->contains_count > 0)
 				egg_objnum = object_create_egg(del_obj);
 		}
@@ -1148,7 +1149,7 @@ void multi_robot_request_change(object* robot, int player_num)
 	mprintf((0, "request_change(): my pri %d, player %d's pri %d.\n", MULTI_ROBOT_PRIORITY(remote_objnum, Player_num),
 		player_num, MULTI_ROBOT_PRIORITY(remote_objnum, player_num)));
 
-	if ((robot_agitation[slot] < 70) || (MULTI_ROBOT_PRIORITY(remote_objnum, player_num) > MULTI_ROBOT_PRIORITY(remote_objnum, Player_num)) || (rand() > 0x4400))
+	if ((robot_agitation[slot] < 70) || (MULTI_ROBOT_PRIORITY(remote_objnum, player_num) > MULTI_ROBOT_PRIORITY(remote_objnum, Player_num)) || (P_Rand() > 0x4400))
 	{
 		mprintf((0, "Robot %d (%d) released because it got hit by Player %d.\n", robot - Objects, remote_objnum, player_num));
 		if (robot_send_pending[slot])

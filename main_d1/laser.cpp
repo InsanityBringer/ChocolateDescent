@@ -1277,7 +1277,7 @@ void create_smart_children(object* objp)
 	objdist	objlist[MAX_OBJDISTS];
 
 	if (Game_mode & GM_MULTI)
-		srand(8321L);
+		P_SRand(8321L);
 
 	parent_type = objp->ctype.laser_info.parent_type;
 

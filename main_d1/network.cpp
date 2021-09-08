@@ -52,6 +52,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "physics.h"
 #include "platform/platform.h"
+#include "misc/rand.h"
 
 #ifdef SHAREWARE
 #define PID_REQUEST 					11
@@ -2088,7 +2089,7 @@ void network_send_sync(void)
 
 	// Randomize their starting locations...
 
-	srand(I_GetTicks());
+	P_SRand(I_GetTicks());
 	for (i = 0; i < MaxNumNetPlayers; i++)
 	{
 		if (Players[i].connected)
@@ -2098,7 +2099,7 @@ void network_send_sync(void)
 		else {
 			do
 			{
-				np = rand() % MaxNumNetPlayers;
+				np = P_Rand() % MaxNumNetPlayers;
 				for (j = 0; j < i; j++)
 				{
 					if (Netgame.locations[j] == np)
