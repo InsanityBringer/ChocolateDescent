@@ -2773,7 +2773,7 @@ remenu:
 
 void network_join_game_at(uint8_t* address)
 {
-	int i, jmp;
+	int i;
 	char menu_text[(MAX_ACTIVE_NETGAMES * 2) + 1][70];
 	fix start_time;
 
@@ -2804,8 +2804,7 @@ void network_join_game_at(uint8_t* address)
 	show_boxed_message(TXT_WAIT);
 	I_DrawCurrentCanvas(0);
 
-	jmp = setjmp(LeaveGame);
-	if (jmp) //aborting game
+	if (setjmp(LeaveGame)) //aborting game
 		return;
 
 	Network_games_changed = 1;
