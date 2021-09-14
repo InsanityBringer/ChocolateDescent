@@ -36,7 +36,6 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "inferno.h"
 #include "misc/error.h"
 #include "cfile/cfile.h"
-//#include "div0.h" //[ISB] one worry
 #include "game.h"
 #include "segment.h"		//for Side_to_verts
 #include "mem/mem.h"
@@ -79,9 +78,6 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "multi.h"
 #include "songs.h"
 #include "cfile/cfile.h"
-#ifdef USE_CDROM
-#include "cdrom.h"
-#endif
 #include "gameseq.h"
 
 #ifdef EDITOR
@@ -253,13 +249,10 @@ extern int Game_vio_flag;
 extern int Game_3dmax_flag;
 extern int VR_low_res;
 
-#ifdef USE_CD
-char destsat_cdpath[128] = "";
-int find_descent_cd();
-#endif
-
 extern int Config_vr_type;
 extern int Config_vr_tracking;
+
+#include "netmisc.h"
 
 //[ISB] Okay, the trouble is that SDL redefines main. I don't want to include SDL here. Solution is to rip off doom
 //and add a separate main function
@@ -272,7 +265,7 @@ int D_DescentMain(int argc, const char** argv)
 	init_all_platform_localized_paths();
 	validate_required_files();
 #endif
-
+	
 	error_init(NULL);
 
 	setbuf(stdout, NULL);	// unbuffered output via printf
@@ -730,36 +723,6 @@ int D_DescentMain(int argc, const char** argv)
 
 void check_joystick_calibration()
 {
-	/*
-	int x1, y1, x2, y2, c;
-	fix t1;
-
-	if ((Config_control_type != CONTROL_JOYSTICK) &&
-		(Config_control_type != CONTROL_FLIGHTSTICK_PRO) &&
-		(Config_control_type != CONTROL_THRUSTMASTER_FCS) &&
-		(Config_control_type != CONTROL_GRAVIS_GAMEPAD)
-		) return;
-
-	joy_get_pos(&x1, &y1);
-
-	t1 = timer_get_fixed_seconds();
-	while (timer_get_fixed_seconds() < t1 + F1_0 / 100)
-		;
-
-	joy_get_pos(&x2, &y2);
-
-	// If joystick hasn't moved...
-	
-	if ((abs(x2 - x1) < 30) && (abs(y2 - y1) < 30)) 
-	{
-		if ((abs(x1) > 30) || (abs(x2) > 30) || (abs(y1) > 30) || (abs(y2) > 30)) {
-			c = nm_messagebox(NULL, 2, TXT_CALIBRATE, TXT_SKIP, TXT_JOYSTICK_NOT_CEN);
-			if (c == 0) {
-				joydefs_calibrate();
-			}
-		}
-	}
-	*/
 }
 
 void show_order_form()

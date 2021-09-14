@@ -52,6 +52,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "config.h"
 #include "state.h"
+#include "netmisc.h"
 
 
 //*******************************************
@@ -1213,6 +1214,8 @@ multi_do_position(char* buf)
 {
 	// This routine does only player positions, mode game only
 	//	mprintf((0, "Got position packet.\n"));
+	shortpos pos;
+	int loc = 1;
 
 	int pnum = (Player_num + 1) % 2;
 
@@ -1220,7 +1223,8 @@ multi_do_position(char* buf)
 
 	Assert(!(Game_mode & GM_NETWORK));
 
-	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos*)(buf + 1));
+	netmisc_decode_shortpos((uint8_t*)buf, &loc, &pos);
+	extract_shortpos(&Objects[Players[pnum].objnum], &pos);
 
 	if (Objects[Players[pnum].objnum].movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(&Objects[Players[pnum].objnum]);
@@ -2180,18 +2184,20 @@ multi_send_reappear()
 	multi_send_data(multibuf, 3, 3);
 }
 
-void
-multi_send_position(int objnum)
+void multi_send_position(int objnum)
 {
 	int count = 0;
+	shortpos pos;
 
-	if (Game_mode & GM_NETWORK) {
+	if (Game_mode & GM_NETWORK)
+	{
 		return;
 	}
 
 	multibuf[count++] = (char)MULTI_POSITION;
-	create_shortpos((shortpos*)(multibuf + count), Objects + objnum);
-	count += sizeof(shortpos);
+	create_shortpos(&pos, Objects + objnum);
+	netmisc_encode_shortpos((uint8_t*)multibuf, &count, &pos);
+	//count += sizeof(shortpos);
 
 	multi_send_data(multibuf, count, 0);
 }

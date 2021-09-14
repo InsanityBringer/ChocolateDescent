@@ -15,6 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/types.h"
 #include "platform/mono.h"
+#include "object.h"
 
 // Calculates the checksum of a block of memory.
 uint16_t netmisc_calc_checksum(void* vptr, int len)
@@ -34,118 +35,98 @@ uint16_t netmisc_calc_checksum(void* vptr, int len)
 	return ((sum1 << 8) + sum2);
 }
 
-//--unused-- //Finds the difference between block1 and block2.  Fills in diff_buffer and 
-//--unused-- //returns the size of diff_buffer.
-//--unused-- int netmisc_find_diff( void *block1, void *block2, int block_size, void *diff_buffer )
-//--unused-- {
-//--unused-- 	int mode;
-//--unused-- 	uint16_t *c1, *c2, *diff_start, *c3;
-//--unused-- 	int i, j, size, diff, n , same;
-//--unused-- 
-//--unused-- 	size=(block_size+1)/sizeof(uint16_t);
-//--unused-- 	c1 = (uint16_t *)block1;
-//--unused-- 	c2 = (uint16_t *)block2;
-//--unused-- 	c3 = (uint16_t *)diff_buffer;
-//--unused-- 
-//--unused-- 	mode = same = diff = n = 0;
-//--unused-- 
-//--unused-- 	//mprintf( 0, "=================================\n" );
-//--unused-- 
-//--unused-- 	for (i=0; i<size; i++, c1++, c2++ )	{
-//--unused-- 		if (*c1 != *c2 ) {
-//--unused-- 			if (mode==0)	{
-//--unused-- 				mode = 1;
-//--unused-- 				//mprintf( 0, "%ds ", same );
-//--unused-- 				c3[n++] = same;
-//--unused-- 				same=0; diff=0;
-//--unused-- 				diff_start = c2;
-//--unused-- 			}
-//--unused-- 			*c1 = *c2;
-//--unused-- 			diff++;
-//--unused-- 			if (diff==65535) {
-//--unused-- 				mode = 0;
-//--unused-- 				// send how many diff ones.
-//--unused-- 				//mprintf( 0, "%dd ", diff );
-//--unused-- 				c3[n++]=diff;
-//--unused-- 				// send all the diff ones.
-//--unused-- 				for (j=0; j<diff; j++ )
-//--unused-- 					c3[n++] = diff_start[j];
-//--unused-- 				same=0; diff=0;
-//--unused-- 				diff_start = c2;
-//--unused-- 			}
-//--unused-- 		} else {
-//--unused-- 			if (mode==1)	{
-//--unused-- 				mode=0;
-//--unused-- 				// send how many diff ones.
-//--unused-- 				//mprintf( 0, "%dd ", diff );
-//--unused-- 				c3[n++]=diff;
-//--unused-- 				// send all the diff ones.
-//--unused-- 				for (j=0; j<diff; j++ )
-//--unused-- 					c3[n++] = diff_start[j];
-//--unused-- 				same=0; diff=0;
-//--unused-- 				diff_start = c2;
-//--unused-- 			}
-//--unused-- 			same++;
-//--unused-- 			if (same==65535)	{
-//--unused-- 				mode=1;
-//--unused-- 				// send how many the same
-//--unused-- 				//mprintf( 0, "%ds ", same );
-//--unused-- 				c3[n++] = same;
-//--unused-- 				same=0; diff=0;
-//--unused-- 				diff_start = c2;
-//--unused-- 			}
-//--unused-- 		}
-//--unused-- 	
-//--unused-- 	}
-//--unused-- 	if (mode==0)	{
-//--unused-- 		// send how many the same
-//--unused-- 		//mprintf( 0, "%ds ", same );
-//--unused-- 		c3[n++] = same;
-//--unused-- 	} else {
-//--unused-- 		// send how many diff ones.
-//--unused-- 		//mprintf( 0, "%dd ", diff );
-//--unused-- 		c3[n++]=diff;
-//--unused-- 		// send all the diff ones.
-//--unused-- 		for (j=0; j<diff; j++ )
-//--unused-- 			c3[n++] = diff_start[j];
-//--unused-- 	}
-//--unused-- 
-//--unused-- 	//mprintf( 0, "=================================\n" );
-//--unused-- 	
-//--unused-- 	return n*2;
-//--unused-- }
+void netmisc_encode_int8(uint8_t* ptr, int *offset, uint8_t v)
+{
+	ptr[*offset] = v;
+	*offset += 1;
+}
 
-//--unused-- //Applies diff_buffer to block1 to create a new block1.  Returns the final
-//--unused-- //size of block1.
-//--unused-- int netmisc_apply_diff(void *block1, void *diff_buffer, int diff_size )	
-//--unused-- {
-//--unused-- 	unsigned int i, j, n, size;
-//--unused-- 	uint16_t *c1, *c2;
-//--unused-- 
-//--unused-- 	//mprintf( 0, "=================================\n" );
-//--unused-- 	c1 = (uint16_t *)diff_buffer;
-//--unused-- 	c2 = (uint16_t *)block1;
-//--unused-- 
-//--unused-- 	size = diff_size/2;
-//--unused-- 
-//--unused-- 	i=j=0;
-//--unused-- 	while (1)	{
-//--unused-- 		j += c1[i];			// Same
-//--unused-- 		//mprintf( 0, "%ds ", c1[i] );
-//--unused-- 		i++;
-//--unused-- 		if ( i>=size) break;
-//--unused-- 		n = c1[i];			// ndiff
-//--unused-- 		//mprintf( 0, "%dd ", c1[i] );
-//--unused-- 		i++;
-//--unused-- 		if (n>0)	{
-//--unused-- 			//Assert( n* < 256 );
-//--unused-- 			memcpy( &c2[j], &c1[i], n*2 );
-//--unused-- 			i += n;
-//--unused-- 			j += n;
-//--unused-- 		}
-//--unused-- 		if ( i>=size) break;
-//--unused-- 	}
-//--unused-- 	//mprintf( 0, "=================================\n" );
-//--unused-- 
-//--unused-- 	return j*2;
-//--unused-- }
+void netmisc_encode_int16(uint8_t* ptr, int *offset, short v)
+{
+	ptr[*offset + 0] = (uint8_t)v & 255;
+	ptr[*offset + 1] = (uint8_t)(v >> 8) & 255;
+	*offset += 2;
+}
+
+void netmisc_encode_int32(uint8_t* ptr, int *offset, int v)
+{
+	ptr[*offset + 0] = (uint8_t)v & 255;
+	ptr[*offset + 1] = (uint8_t)(v >> 8) & 255;
+	ptr[*offset + 2] = (uint8_t)(v >> 16) & 255;
+	ptr[*offset + 3] = (uint8_t)(v >> 24) & 255;
+	*offset += 4;
+}
+
+void netmisc_encode_shortpos(uint8_t* ptr, int *offset, shortpos *v)
+{
+	ptr[*offset + 0] = v->bytemat[0];
+	ptr[*offset + 1] = v->bytemat[1];
+	ptr[*offset + 2] = v->bytemat[2];
+	ptr[*offset + 3] = v->bytemat[3];
+	ptr[*offset + 4] = v->bytemat[4];
+	ptr[*offset + 5] = v->bytemat[5];
+	ptr[*offset + 6] = v->bytemat[6];
+	ptr[*offset + 7] = v->bytemat[7];
+	ptr[*offset + 8] = v->bytemat[8];
+	*offset += 9;
+	netmisc_encode_int16(ptr, offset, v->xo);
+	netmisc_encode_int16(ptr, offset, v->yo);
+	netmisc_encode_int16(ptr, offset, v->zo);
+	netmisc_encode_int16(ptr, offset, v->segment);
+	netmisc_encode_int16(ptr, offset, v->velx);
+	netmisc_encode_int16(ptr, offset, v->vely);
+	netmisc_encode_int16(ptr, offset, v->velz);
+}
+
+void netmisc_encode_vector(uint8_t* ptr, int* offset, vms_vector* vec)
+{
+	netmisc_encode_int32(ptr, offset, vec->x);
+	netmisc_encode_int32(ptr, offset, vec->y);
+	netmisc_encode_int32(ptr, offset, vec->z);
+}
+
+void netmisc_decode_int8(uint8_t* ptr, int* offset, uint8_t* v)
+{
+	*v = ptr[*offset];
+	*offset += 1;
+}
+
+void netmisc_decode_int16(uint8_t* ptr, int* offset, short* v)
+{
+	*v = (short)(ptr[*offset] | (ptr[*offset + 1] << 8));
+	*offset += 2;
+}
+
+void netmisc_decode_int32(uint8_t* ptr, int* offset, int* v)
+{
+	*v = (int)(ptr[*offset] | (ptr[*offset + 1] << 8) | (ptr[*offset + 2] << 16) | (ptr[*offset + 3] << 24));
+	*offset += 4;
+}
+
+void netmisc_decode_shortpos(uint8_t* ptr, int* offset, shortpos* v)
+{
+	v->bytemat[0] = ptr[*offset];
+	v->bytemat[1] = ptr[*offset+1];
+	v->bytemat[2] = ptr[*offset+2];
+	v->bytemat[3] = ptr[*offset+3];
+	v->bytemat[4] = ptr[*offset+4];
+	v->bytemat[5] = ptr[*offset+5];
+	v->bytemat[6] = ptr[*offset+6];
+	v->bytemat[7] = ptr[*offset+7];
+	v->bytemat[8] = ptr[*offset+8];
+	*offset += 9;
+	netmisc_decode_int16(ptr, offset, &v->xo);
+	netmisc_decode_int16(ptr, offset, &v->yo);
+	netmisc_decode_int16(ptr, offset, &v->zo);
+	netmisc_decode_int16(ptr, offset, &v->segment);
+	netmisc_decode_int16(ptr, offset, &v->velx);
+	netmisc_decode_int16(ptr, offset, &v->vely);
+	netmisc_decode_int16(ptr, offset, &v->velz);
+}
+
+void netmisc_decode_vector(uint8_t* ptr, int* offset, vms_vector* vec)
+{
+	netmisc_decode_int32(ptr, offset, &vec->x);
+	netmisc_decode_int32(ptr, offset, &vec->y);
+	netmisc_decode_int32(ptr, offset, &vec->z);
+}
