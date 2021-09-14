@@ -1273,15 +1273,29 @@ void network_process_gameinfo(uint8_t* data)
 {
 	int i, j;
 	netgame_info* newgame;
+	uint8_t origin_address[4];
+	int connected_to = -1;
 
 	newgame = (netgame_info*)data;
 
 	Network_games_changed = 1;
 
 	mprintf((0, "Got game data for game %s.\n", newgame->game_name));
-	mprintf((0, "[ISB] Incoming game reports address as %d.%d.%d.%d.\n", newgame->players[0].node[0], newgame->players[0].node[1], newgame->players[0].node[2], newgame->players[0].node[3]));
-	NetGetLastPacketOrigin(&newgame->players[0].node[0]);
-	mprintf((0, "[ISB] Swapped to origin address %d.%d.%d.%d.\n", newgame->players[0].node[0], newgame->players[0].node[1], newgame->players[0].node[2], newgame->players[0].node[3]));
+	NetGetLastPacketOrigin(origin_address);
+	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
+	{
+		if (!memcmp(origin_address, newgame->players[i].node, 4))
+		{
+			connected_to = i;
+			break;
+		}
+	}
+
+	if (connected_to == -1)
+	{
+		memcpy(newgame->players[0].node, origin_address, 4);
+		mprintf((0, "bashing player 0 in gameinfo\n"));
+	}
 
 	for (i = 0; i < num_active_games; i++)
 		if (!_stricmp(Active_games[i].game_name, newgame->game_name) && !memcmp(&Active_games[i].players[0].identifier, &newgame->players[0].identifier, sizeof(newgame->players[0].identifier))
@@ -1956,6 +1970,8 @@ network_find_game(void)
 void network_read_sync_packet(netgame_info* sp)
 {
 	int i, j;
+	int connected_to = -1;
+	uint8_t origin_address[4];
 
 	char temp_callsign[CALLSIGN_LEN + 1];
 
@@ -1967,8 +1983,21 @@ void network_read_sync_packet(netgame_info* sp)
 	{
 		//Well, origin player still doesn't know their own IP address, so be sure it's a valid transmit address.
 		//TODO: Need to clean this up. 
-		NetGetLastPacketOrigin(sp->players[0].node);
-		mprintf((0, "bashing player 0 again\n"));
+		NetGetLastPacketOrigin(origin_address);
+		for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
+		{
+			if (!memcmp(origin_address, sp->players[i].node, 4))
+			{
+				connected_to = i;
+				break;
+			}
+		}
+
+		if (connected_to == -1)
+		{
+			memcpy(sp->players[0].node, origin_address, 4);
+			mprintf((0, "bashing player 0 again\n"));
+		}
 	}
 
 	if (sp != &Netgame)
@@ -2037,9 +2066,22 @@ void network_read_sync_packet(netgame_info* sp)
 
 	if (!network_i_am_master())
 	{
-		NetGetLastPacketOrigin(Players[0].net_address);
-		NetGetLastPacketOrigin(Netgame.players[0].node); //The upper line isn't enough, the netgame still ends up with the wrong address on occasion. 
-		mprintf((0, "bashing player 0 yet again\n"));
+		NetGetLastPacketOrigin(origin_address);
+		for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
+		{
+			if (!memcmp(origin_address, Netgame.players[i].node, 4))
+			{
+				connected_to = i;
+				break;
+			}
+		}
+
+		if (connected_to == -1)
+		{
+			memcpy(Netgame.players[0].node, origin_address, 4);
+			memcpy(Players[0].net_address, origin_address, 4);
+			mprintf((0, "bashing player 0 yet again\n"));
+		}
 	}
 
 	if (Player_num < 0) 
