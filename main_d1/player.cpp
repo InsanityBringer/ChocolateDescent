@@ -14,7 +14,8 @@ void P_ReadPlayer(player* plr, FILE* fp)
 {
 	int i;
 	fread(&plr->callsign[0], 1, CALLSIGN_LEN + 1, fp);
-	fread(&plr->net_address[0], 1, 6, fp);
+	fread(&plr->net_address[0], 1, 4, fp);
+	plr->net_port = F_ReadShort(fp);
 	plr->connected = F_ReadByte(fp);
 	plr->objnum = F_ReadInt(fp);
 	plr->n_packets_got = F_ReadInt(fp);
@@ -62,7 +63,8 @@ void P_WritePlayer(player* plr, FILE* fp)
 {
 	int i;
 	fwrite(&plr->callsign[0], 1, CALLSIGN_LEN + 1, fp);
-	fwrite(&plr->net_address[0], 1, 6, fp);
+	fwrite(&plr->net_address[0], 1, 4, fp);
+	F_WriteShort(fp, plr->net_port);
 	F_WriteByte(fp, plr->connected);
 	F_WriteInt(fp, plr->objnum);
 	F_WriteInt(fp, plr->n_packets_got);

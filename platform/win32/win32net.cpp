@@ -171,6 +171,11 @@ uint8_t* NetGetServerAddress()
 	return &serverAddress[0];
 }
 
+uint16_t NetGetCurrentPort()
+{
+	return port;
+}
+
 void NetGetLocalTarget(uint8_t* server, uint8_t* node, uint8_t* local_target)
 {
 	//no concept of a local target, so eh.
@@ -222,12 +227,12 @@ void NetSendBroadcastPacket(uint8_t* data, int datasize)
 
 //The server, address, and immediate address system isn't a great fit for this UDP nonsense, but what can I do...
 //TODO: Refactor Net API, I'll probably have to for internet connections. 
-void NetSendPacket(uint8_t* data, int datasize, uint8_t* network, uint8_t* address, uint8_t* immediate_address)
+void NetSendPacket(uint8_t* data, int datasize, uint8_t* address, uint8_t* immediate_address)
 {
-	NetSendInternetworkPacket(data, datasize, network, immediate_address);
+	NetSendInternetworkPacket(data, datasize, immediate_address);
 }
 
-void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* server, uint8_t* address)
+void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* address)
 {
 	sockaddr_in addr = {};
 	addr.sin_family = AF_INET;

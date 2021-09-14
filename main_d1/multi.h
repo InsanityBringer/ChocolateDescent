@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef SHAREWARE
 #define MULTI_PROTO_VERSION 	1
 #else
-#define MULTI_PROTO_VERSION	2
+#define MULTI_PROTO_VERSION	3
 #endif
 
 // How many simultaneous network players do we support?
@@ -216,8 +216,8 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 typedef struct netplayer_info 
 {
 	char		callsign[CALLSIGN_LEN + 1];
-	uint8_t		server[4];
-	uint8_t		node[6];
+	//uint8_t		server[4]; //[ISB] rip
+	uint8_t		node[4];
 	uint16_t	socket;
 	int8_t 		connected;
 	uint32_t	identifier; //TODO: This is a hack. Each node gets a random identifier, since on the internet using IP addresses to check uniqueness gets weird on the client. Can collide!
