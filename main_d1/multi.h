@@ -223,8 +223,10 @@ typedef struct netplayer_info
 	uint32_t	identifier; //TODO: This is a hack. Each node gets a random identifier, since on the internet using IP addresses to check uniqueness gets weird on the client. Can collide!
 } netplayer_info;
 
-typedef struct netgame_info {
+typedef struct netgame_info 
+{
 	uint8_t					type;
+	uint8_t					protocol_version;
 	char					game_name[NETGAME_NAME_LEN + 1];
 	char					team_name[2][CALLSIGN_LEN + 1];
 	uint8_t					gamemode;
@@ -237,7 +239,6 @@ typedef struct netgame_info {
 	int					locations[MAX_PLAYERS];
 	short					kills[MAX_PLAYERS][MAX_PLAYERS];
 	int					levelnum;
-	uint8_t					protocol_version;
 	uint8_t					team_vector;
 	uint16_t				segments_checksum;
 	short					team_kills[2];
