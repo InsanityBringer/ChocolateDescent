@@ -89,6 +89,13 @@ void netmisc_encode_vector(uint8_t* ptr, int* offset, vms_vector* vec)
 	netmisc_encode_int32(ptr, offset, vec->z);
 }
 
+void netmisc_encode_matrix(uint8_t* ptr, int* offset, vms_matrix* mat)
+{
+	netmisc_encode_vector(ptr, offset, &mat->fvec);
+	netmisc_encode_vector(ptr, offset, &mat->rvec);
+	netmisc_encode_vector(ptr, offset, &mat->uvec);
+}
+
 void netmisc_decode_int8(uint8_t* ptr, int* offset, uint8_t* v)
 {
 	*v = ptr[*offset];
@@ -133,6 +140,13 @@ void netmisc_decode_vector(uint8_t* ptr, int* offset, vms_vector* vec)
 	netmisc_decode_int32(ptr, offset, &vec->x);
 	netmisc_decode_int32(ptr, offset, &vec->y);
 	netmisc_decode_int32(ptr, offset, &vec->z);
+}
+
+void netmisc_decode_matrix(uint8_t* ptr, int* offset, vms_matrix* mat)
+{
+	netmisc_decode_vector(ptr, offset, &mat->fvec);
+	netmisc_decode_vector(ptr, offset, &mat->rvec);
+	netmisc_decode_vector(ptr, offset, &mat->uvec);
 }
 
 void netmisc_encode_netplayer_info(uint8_t* ptr, int* offset, netplayer_info* info)
@@ -192,6 +206,23 @@ void netmisc_encode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* 
 	netmisc_encode_netplayer_info(ptr, offset, &info->player);
 }
 
+void netmisc_encode_frame_info(uint8_t* ptr, int* offset, frame_info* info)
+{
+	netmisc_encode_int8(ptr, offset, info->type);
+	netmisc_encode_buffer(ptr, offset, info->pad, 3);
+	netmisc_encode_int32(ptr, offset, info->numpackets);
+	netmisc_encode_vector(ptr, offset, &info->obj_pos);
+	netmisc_encode_matrix(ptr, offset, &info->obj_orient);
+	netmisc_encode_vector(ptr, offset, &info->phys_velocity);
+	netmisc_encode_vector(ptr, offset, &info->phys_rotvel);
+	netmisc_encode_int16(ptr, offset, info->obj_segnum);
+	netmisc_encode_int16(ptr, offset, info->data_size);
+	netmisc_encode_int8(ptr, offset, info->playernum);
+	netmisc_encode_int8(ptr, offset, info->obj_render_type);
+	netmisc_encode_int8(ptr, offset, info->level_num);
+	netmisc_encode_buffer(ptr, offset, info->data, NET_XDATA_SIZE);
+}
+
 void netmisc_decode_netplayer_info(uint8_t* ptr, int* offset, netplayer_info* info)
 {
 	netmisc_decode_buffer(ptr, offset, info->callsign, CALLSIGN_LEN + 1);
@@ -247,4 +278,21 @@ void netmisc_decode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* 
 {
 	netmisc_decode_int8(ptr, offset, &info->type);
 	netmisc_decode_netplayer_info(ptr, offset, &info->player);
+}
+
+void netmisc_decode_frame_info(uint8_t* ptr, int* offset, frame_info* info)
+{
+	netmisc_decode_int8(ptr, offset, &info->type);
+	netmisc_decode_buffer(ptr, offset, &info->pad, 3);
+	netmisc_decode_int32(ptr, offset, &info->numpackets);
+	netmisc_decode_vector(ptr, offset, &info->obj_pos);
+	netmisc_decode_matrix(ptr, offset, &info->obj_orient);
+	netmisc_decode_vector(ptr, offset, &info->phys_velocity);
+	netmisc_decode_vector(ptr, offset, &info->phys_rotvel);
+	netmisc_decode_int16(ptr, offset, &info->obj_segnum);
+	netmisc_decode_int16(ptr, offset, (short*)&info->data_size);
+	netmisc_decode_int8(ptr, offset, &info->playernum);
+	netmisc_decode_int8(ptr, offset, &info->obj_render_type);
+	netmisc_decode_int8(ptr, offset, &info->level_num);
+	netmisc_decode_buffer(ptr, offset, &info->data, NET_XDATA_SIZE);
 }

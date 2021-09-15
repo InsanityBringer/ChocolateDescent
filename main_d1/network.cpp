@@ -1417,7 +1417,10 @@ void network_process_packet(uint8_t* data, int length)
 	case PID_PDATA:
 		if ((Game_mode & GM_NETWORK) && ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_ENDLEVEL))) 
 		{
-			network_read_pdata_packet((frame_info*)data);
+			int len = 0;
+			frame_info frameinfo;
+			netmisc_decode_frame_info(data, &len, &frameinfo);
+			network_read_pdata_packet(&frameinfo);
 		}
 		break;
 	case PID_OBJECT_DATA:
@@ -3032,6 +3035,8 @@ fix last_timeout_check = 0;
 void network_do_frame(int force, int listen)
 {
 	int i;
+	uint8_t buf[1024];
+	int len = 0;
 
 	if (!(Game_mode & GM_NETWORK)) return;
 
@@ -3073,11 +3078,16 @@ void network_do_frame(int force, int listen)
 			MySyncPack.obj_render_type = Objects[objnum].render_type;
 			MySyncPack.level_num = Current_level_num;
 
-			for (i = 0; i < N_players; i++) {
-				if ((Players[i].connected) && (i != Player_num)) {
+			for (i = 0; i < N_players; i++)
+			{
+				if ((Players[i].connected) && (i != Player_num))
+				{
 					MySyncPack.numpackets = Players[i].n_packets_sent++;
+					len = 0;
+					netmisc_encode_frame_info(buf, &len, &MySyncPack);
 					//					mprintf((0, "sync pack is %d bytes long.\n", sizeof(frame_info)));
-					NetSendPacket((uint8_t*)& MySyncPack, sizeof(frame_info) - NET_XDATA_SIZE + MySyncPack.data_size, Netgame.players[i].node, Players[i].net_address);
+					NetSendPacket(buf, len - NET_XDATA_SIZE + MySyncPack.data_size, Netgame.players[i].node, Players[i].net_address);
+					//NetSendPacket((uint8_t*)& MySyncPack, sizeof(frame_info) - NET_XDATA_SIZE + MySyncPack.data_size, Netgame.players[i].node, Players[i].net_address);
 				}
 			}
 			MySyncPack.data_size = 0;		// Start data over at 0 length.
