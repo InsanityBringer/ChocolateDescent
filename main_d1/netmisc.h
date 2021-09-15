@@ -42,8 +42,10 @@ void netmisc_decode_matrix(uint8_t* ptr, int* offset, vms_matrix* mat);
 void netmisc_encode_netgameinfo(uint8_t* ptr, int* offset, netgame_info* info);
 void netmisc_encode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* info);
 void netmisc_encode_frame_info(uint8_t* ptr, int* offset, frame_info* info);
+void netmisc_encode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info);
 
 //Game-specific functions for decoding packet structures.
 void netmisc_decode_netgameinfo(uint8_t * ptr, int* offset, netgame_info * info);
 void netmisc_decode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* info);
 void netmisc_decode_frame_info(uint8_t* ptr, int* offset, frame_info* info);
+void netmisc_decode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info);

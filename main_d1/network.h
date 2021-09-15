@@ -80,7 +80,15 @@ typedef struct frame_info {
 } frame_info;
 #endif
 
-
+typedef struct endlevel_info {
+	uint8_t					type;
+	uint8_t					player_num;
+	int8_t					connected;
+	short					kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+	short					kills;
+	short					killed;
+	uint8_t					seconds_left;
+} endlevel_info;
 
 void network_start_game();
 void network_join_game();

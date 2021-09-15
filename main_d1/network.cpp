@@ -83,16 +83,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NETGAME_ROBOT_ANARCHY		2
 #define NETGAME_COOPERATIVE		3
 
-typedef struct endlevel_info {
-	uint8_t					type;
-	uint8_t					player_num;
-	int8_t					connected;
-	short					kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
-	short					kills;
-	short					killed;
-	uint8_t					seconds_left;
-} endlevel_info;
-
 #define MAX_ACTIVE_NETGAMES 	4
 netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 int num_active_games = 0;
@@ -1164,7 +1154,8 @@ void
 network_send_endlevel_sub(int player_num)
 {
 	endlevel_info end;
-	int i;
+	int i, len = 0;
+	uint8_t buf[1024];
 
 	// Send an endlevel packet for a player
 	end.type = PID_ENDLEVEL;
@@ -1182,10 +1173,12 @@ network_send_endlevel_sub(int player_num)
 
 	//	mprintf((0, "Sending endlevel packet.\n"));
 
+	netmisc_encode_endlevel_info(buf, &len, &end);
+
 	for (i = 0; i < N_players; i++)
 	{
 		if ((i != Player_num) && (i != player_num) && (Players[i].connected))
-			NetSendPacket((uint8_t*)& end, sizeof(endlevel_info), Netgame.players[i].node, Players[i].net_address);
+			NetSendPacket(buf, len, Netgame.players[i].node, Players[i].net_address);
 	}
 }
 
@@ -1457,25 +1450,25 @@ network_read_endlevel_packet(uint8_t* data)
 	// Special packet for end of level syncing
 
 	int playernum;
-	endlevel_info* end;
+	int len = 0;
+	endlevel_info end;
+	netmisc_decode_endlevel_info(data, &len, &end);
 
-	end = (endlevel_info*)data;
-
-	playernum = end->player_num;
+	playernum = end.player_num;
 
 	Assert(playernum != Player_num);
 	Assert(playernum < N_players);
 
-	if ((Network_status == NETSTAT_PLAYING) && (end->connected != 0))
+	if ((Network_status == NETSTAT_PLAYING) && (end.connected != 0))
 		return; // Only accept disconnect packets if we're not out of the level yet
 
-	Players[playernum].connected = end->connected;
-	memcpy(&kill_matrix[playernum][0], end->kill_matrix, MAX_PLAYERS * sizeof(short));
-	Players[playernum].net_kills_total = end->kills;
-	Players[playernum].net_killed_total = end->killed;
+	Players[playernum].connected = end.connected;
+	memcpy(&kill_matrix[playernum][0], end.kill_matrix, MAX_PLAYERS * sizeof(short));
+	Players[playernum].net_kills_total = end.kills;
+	Players[playernum].net_killed_total = end.killed;
 
-	if ((Players[playernum].connected == 1) && (end->seconds_left < Fuelcen_seconds_left))
-		Fuelcen_seconds_left = end->seconds_left;
+	if ((Players[playernum].connected == 1) && (end.seconds_left < Fuelcen_seconds_left))
+		Fuelcen_seconds_left = end.seconds_left;
 
 	LastPacketTime[playernum] = timer_get_approx_seconds();
 

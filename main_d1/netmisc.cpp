@@ -223,6 +223,21 @@ void netmisc_encode_frame_info(uint8_t* ptr, int* offset, frame_info* info)
 	netmisc_encode_buffer(ptr, offset, info->data, NET_XDATA_SIZE);
 }
 
+void netmisc_encode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info)
+{
+	int i, j;
+	netmisc_encode_int8(ptr, offset, info->type);
+	netmisc_encode_int8(ptr, offset, info->player_num);
+	netmisc_encode_int8(ptr, offset, info->connected);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		for (j = 0; j < MAX_PLAYERS; j++)
+			netmisc_encode_int16(ptr, offset, info->kill_matrix[i][j]);
+
+	netmisc_encode_int16(ptr, offset, info->kills);
+	netmisc_encode_int16(ptr, offset, info->killed);
+	netmisc_encode_int8(ptr, offset, info->seconds_left);
+}
+
 void netmisc_decode_netplayer_info(uint8_t* ptr, int* offset, netplayer_info* info)
 {
 	netmisc_decode_buffer(ptr, offset, info->callsign, CALLSIGN_LEN + 1);
@@ -295,4 +310,19 @@ void netmisc_decode_frame_info(uint8_t* ptr, int* offset, frame_info* info)
 	netmisc_decode_int8(ptr, offset, &info->obj_render_type);
 	netmisc_decode_int8(ptr, offset, &info->level_num);
 	netmisc_decode_buffer(ptr, offset, &info->data, NET_XDATA_SIZE);
+}
+
+void netmisc_decode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info)
+{
+	int i, j;
+	netmisc_decode_int8(ptr, offset, &info->type);
+	netmisc_decode_int8(ptr, offset, &info->player_num);
+	netmisc_decode_int8(ptr, offset, (uint8_t*)&info->connected);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		for (j = 0; j < MAX_PLAYERS; j++)
+			netmisc_decode_int16(ptr, offset, &info->kill_matrix[i][j]);
+
+	netmisc_decode_int16(ptr, offset, &info->kills);
+	netmisc_decode_int16(ptr, offset, &info->killed);
+	netmisc_decode_int8(ptr, offset, &info->seconds_left);
 }
