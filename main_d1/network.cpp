@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "object.h"
 #include "misc/error.h"
+#include "multi.h"
 #include "netmisc.h"
 #include "laser.h"
 #include "gamesave.h"
@@ -37,7 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "network.h"
 #include "game.h"
-#include "multi.h"
 #include "endlevel.h"
 #include "2d/palette.h"
 #include "fuelcen.h"
@@ -386,8 +386,7 @@ menu:
 	return(0);
 }
 
-int
-can_join_netgame(netgame_info* game)
+int can_join_netgame(netgame_info* game)
 {
 	// Can this player rejoin a netgame in progress?
 
@@ -929,6 +928,8 @@ void network_send_objects(void)
 void network_send_rejoin_sync(int player_num)
 {
 	int i, j;
+	int len = 0;
+	uint8_t buf[1024];
 
 	Players[player_num].connected = 1; // connect the new guy
 	LastPacketTime[player_num] = timer_get_approx_seconds();
@@ -979,9 +980,11 @@ void network_send_rejoin_sync(int player_num)
 
 	mprintf((0, "Sending rejoin sync packet!!!\n"));
 
-	NetSendInternetworkPacket((uint8_t*)& Netgame, sizeof(netgame_info), Network_player_rejoining.player.node);
-	NetSendInternetworkPacket((uint8_t*)& Netgame, sizeof(netgame_info), Network_player_rejoining.player.node); // repeat for safety
-	NetSendInternetworkPacket((uint8_t*)& Netgame, sizeof(netgame_info), Network_player_rejoining.player.node); // repeat for safety
+	netmisc_encode_netgameinfo(buf, &len, &Netgame);
+
+	NetSendInternetworkPacket(buf, len, Network_player_rejoining.player.node);
+	NetSendInternetworkPacket(buf, len, Network_player_rejoining.player.node); // repeat for safety
+	NetSendInternetworkPacket(buf, len, Network_player_rejoining.player.node); // repeat for safety
 
 #ifndef SHAREWARE
 	network_send_door_updates();
@@ -1184,12 +1187,12 @@ network_send_endlevel_packet(void)
 	network_send_endlevel_sub(Player_num);
 }
 
-void
-network_send_game_info(sequence_packet* their)
+void network_send_game_info(sequence_packet* their)
 {
 	// Send game info to someone who requested it
-	int i;
+	int i, len = 0;
 	char old_type, old_status;
+	uint8_t buf[1024];
 
 	mprintf((0, "Sending game info.\n"));
 
@@ -1202,6 +1205,8 @@ network_send_game_info(sequence_packet* their)
 	if (Endlevel_sequence || Fuelcen_control_center_destroyed)
 		Netgame.game_status = NETSTAT_ENDLEVEL;
 
+	netmisc_encode_netgameinfo(buf, &len, &Netgame);
+
 	if (!their)
 	{
 		//NetSendBroadcastPacket((uint8_t*)& Netgame, sizeof(netgame_info));
@@ -1210,13 +1215,13 @@ network_send_game_info(sequence_packet* their)
 		//A mess, but it'll hopefully work. 
 		for (i = 0; i < N_players; i++)
 		{
-			NetSendInternetworkPacket((uint8_t*)&Netgame, sizeof(netgame_info), Netgame.players[i].node);
+			NetSendInternetworkPacket(buf, len, Netgame.players[i].node);
 		}
 	}
 	else
 	{
 		NetGetLastPacketOrigin(their->player.node); //Ensure we're sending to the correct place.
-		NetSendInternetworkPacket((uint8_t*)&Netgame, sizeof(netgame_info), their->player.node);
+		NetSendInternetworkPacket(buf, len, their->player.node);
 	}
 
 	Netgame.type = old_type;
@@ -1251,19 +1256,21 @@ int network_send_request(void)
 void network_process_gameinfo(uint8_t* data)
 {
 	int i, j;
-	netgame_info* newgame;
+	netgame_info newgame;
+	int len = 0;
 	uint8_t origin_address[4];
 	int connected_to = -1;
 
-	newgame = (netgame_info*)data;
+	//newgame = (netgame_info*)data;
+	netmisc_decode_netgameinfo(data, &len, &newgame);
 
 	Network_games_changed = 1;
 
-	mprintf((0, "Got game data for game %s.\n", newgame->game_name));
+	mprintf((0, "Got game data for game %s.\n", newgame.game_name));
 	NetGetLastPacketOrigin(origin_address);
 	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
 	{
-		if (!memcmp(origin_address, newgame->players[i].node, 4))
+		if (!memcmp(origin_address, newgame.players[i].node, 4))
 		{
 			connected_to = i;
 			break;
@@ -1272,12 +1279,12 @@ void network_process_gameinfo(uint8_t* data)
 
 	if (connected_to == -1)
 	{
-		memcpy(newgame->players[0].node, origin_address, 4);
+		memcpy(newgame.players[0].node, origin_address, 4);
 		mprintf((0, "bashing player 0 in gameinfo\n"));
 	}
 
 	for (i = 0; i < num_active_games; i++)
-		if (!_stricmp(Active_games[i].game_name, newgame->game_name) && !memcmp(&Active_games[i].players[0].identifier, &newgame->players[0].identifier, sizeof(newgame->players[0].identifier)))
+		if (!_stricmp(Active_games[i].game_name, newgame.game_name) && !memcmp(&Active_games[i].players[0].identifier, &newgame.players[0].identifier, sizeof(newgame.players[0].identifier)))
 			break;
 
 	if (i == MAX_ACTIVE_NETGAMES)
@@ -1285,7 +1292,7 @@ void network_process_gameinfo(uint8_t* data)
 		mprintf((0, "Too many netgames.\n"));
 		return;
 	}
-	memcpy(&Active_games[i], data, sizeof(netgame_info));
+	memcpy(&Active_games[i], &newgame, sizeof(netgame_info));
 	if (i == num_active_games)
 		num_active_games++;
 
@@ -1386,7 +1393,10 @@ void network_process_packet(uint8_t* data, int length)
 	case PID_SYNC:
 		if (Network_status == NETSTAT_WAITING)
 		{
-			network_read_sync_packet((netgame_info*)data);
+			int len = 0;
+			netgame_info syncinfo;
+			netmisc_decode_netgameinfo(data, &len, &syncinfo);
+			network_read_sync_packet(&syncinfo);
 		}
 		break;
 	case PID_PDATA:
@@ -2100,6 +2110,8 @@ void network_read_sync_packet(netgame_info* sp)
 void network_send_sync(void)
 {
 	int i, j, np;
+	uint8_t buf[1024];
+	int len = 0;
 
 	// Randomize their starting locations...
 
@@ -2136,15 +2148,17 @@ void network_send_sync(void)
 	Netgame.type = PID_SYNC;
 	Netgame.segments_checksum = my_segments_checksum;
 
+	netmisc_encode_netgameinfo(buf, &len, &Netgame);
+
 	for (i = 0; i < N_players; i++) 
 	{
 		if ((!Players[i].connected) || (i == Player_num))
 			continue;
 
 		// Send several times, extras will be ignored
-		NetSendInternetworkPacket((uint8_t*)& Netgame, sizeof(netgame_info), Netgame.players[i].node);
-		NetSendInternetworkPacket((uint8_t*)& Netgame, sizeof(netgame_info), Netgame.players[i].node);
-		NetSendInternetworkPacket((uint8_t*)& Netgame, sizeof(netgame_info), Netgame.players[i].node);
+		NetSendInternetworkPacket(buf, len, Netgame.players[i].node);
+		NetSendInternetworkPacket(buf, len, Netgame.players[i].node);
+		NetSendInternetworkPacket(buf, len, Netgame.players[i].node);
 	}
 	network_read_sync_packet(&Netgame); // Read it myself, as if I had sent it
 }

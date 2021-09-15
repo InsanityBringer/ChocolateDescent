@@ -18,6 +18,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  //Returns a checksum of a block of memory.
 extern uint16_t netmisc_calc_checksum(void* vptr, int len);
 
+#define netmisc_encode_buffer(ptr, offset, buf, length) do { memcpy(&ptr[*offset], buf, length); *offset+=length; } while(0)
+#define netmisc_decode_buffer(ptr, offset, buf, length) do { memcpy(buf, &ptr[*offset], length); *offset+=length; } while(0)
+
 //Functions for encoding values into a block of memory.
 //All values are written little-endian indepenedent of alignment. 
 void netmisc_encode_int8(uint8_t* ptr, int* offset, uint8_t v);
@@ -32,3 +35,9 @@ void netmisc_decode_int16(uint8_t* ptr, int* offset, short* v);
 void netmisc_decode_int32(uint8_t* ptr, int* offset, int* v);
 void netmisc_decode_shortpos(uint8_t* ptr, int* offset, shortpos* v);
 void netmisc_decode_vector(uint8_t* ptr, int* offset, vms_vector* vec);
+
+//Game-specific functions for encoding packet structures.
+void netmisc_encode_netgameinfo(uint8_t* ptr, int* offset, netgame_info* info);
+
+//Game-specific functions for decoding packet structures.
+void netmisc_decode_netgameinfo(uint8_t * ptr, int* offset, netgame_info * info);

@@ -12,10 +12,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include <string.h>
+#include <stdlib.h>
 
+#include "multi.h"
 #include "misc/types.h"
 #include "platform/mono.h"
 #include "object.h"
+#include "netmisc.h"
 
 // Calculates the checksum of a block of memory.
 uint16_t netmisc_calc_checksum(void* vptr, int len)
@@ -129,4 +132,106 @@ void netmisc_decode_vector(uint8_t* ptr, int* offset, vms_vector* vec)
 	netmisc_decode_int32(ptr, offset, &vec->x);
 	netmisc_decode_int32(ptr, offset, &vec->y);
 	netmisc_decode_int32(ptr, offset, &vec->z);
+}
+
+void netmisc_encode_netplayer_info(uint8_t* ptr, int* offset, netplayer_info* info)
+{
+	netmisc_encode_buffer(ptr, offset, info->callsign, CALLSIGN_LEN + 1);
+		netmisc_encode_buffer(ptr, offset, info->node, 4);
+	netmisc_encode_int16(ptr, offset, info->socket);
+	netmisc_encode_int8(ptr, offset, info->connected);
+	netmisc_encode_int32(ptr, offset, info->identifier);
+}
+
+void netmisc_encode_netgameinfo(uint8_t* ptr, int* offset, netgame_info* info)
+{
+	int i, j;
+	netmisc_encode_int8(ptr, offset, info->type);
+	netmisc_encode_int8(ptr, offset, info->protocol_version);
+	netmisc_encode_buffer(ptr, offset, info->game_name, NETGAME_NAME_LEN + 1);
+	netmisc_encode_buffer(ptr, offset, info->team_name[0], CALLSIGN_LEN + 1);
+	netmisc_encode_buffer(ptr, offset, info->team_name[1], CALLSIGN_LEN + 1);
+	netmisc_encode_int8(ptr, offset, info->gamemode);
+	netmisc_encode_int8(ptr, offset, info->difficulty);
+	netmisc_encode_int8(ptr, offset, info->game_status);
+	netmisc_encode_int8(ptr, offset, info->numplayers);
+	netmisc_encode_int8(ptr, offset, info->max_numplayers);
+	netmisc_encode_int8(ptr, offset, info->game_flags);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_encode_netplayer_info(ptr, offset, &info->players[i]);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_encode_int32(ptr, offset, info->locations[i]);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		for (j = 0; j < MAX_PLAYERS; j++)
+			netmisc_encode_int16(ptr, offset, info->kills[i][j]);
+
+	netmisc_encode_int32(ptr, offset, info->levelnum);
+	netmisc_encode_int8(ptr, offset, info->team_vector);
+	netmisc_encode_int16(ptr, offset, info->segments_checksum);
+	netmisc_encode_int16(ptr, offset, info->team_kills[0]);
+	netmisc_encode_int16(ptr, offset, info->team_kills[1]);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_encode_int16(ptr, offset, info->killed[i]);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_encode_int16(ptr, offset, info->player_kills[i]);
+
+	netmisc_encode_int32(ptr, offset, info->level_time);
+	netmisc_encode_int32(ptr, offset, info->control_invul_time);
+	netmisc_encode_int32(ptr, offset, info->monitor_vector);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_encode_int32(ptr, offset, info->player_score[i]);
+	netmisc_encode_buffer(ptr, offset, info->player_flags, MAX_PLAYERS);
+	netmisc_encode_buffer(ptr, offset, info->mission_name, 9);
+	netmisc_encode_buffer(ptr, offset, info->mission_title, MISSION_NAME_LEN+1);
+}
+
+void netmisc_decode_netplayer_info(uint8_t* ptr, int* offset, netplayer_info* info)
+{
+	netmisc_decode_buffer(ptr, offset, info->callsign, CALLSIGN_LEN + 1);
+	netmisc_decode_buffer(ptr, offset, info->node, 4);
+	netmisc_decode_int16(ptr, offset, (short*)&info->socket);
+	netmisc_decode_int8(ptr, offset, (uint8_t*)&info->connected);
+	netmisc_decode_int32(ptr, offset, (int*)&info->identifier);
+}
+
+void netmisc_decode_netgameinfo(uint8_t* ptr, int* offset, netgame_info* info)
+{
+	int i, j;
+	netmisc_decode_int8(ptr, offset, &info->type);
+	netmisc_decode_int8(ptr, offset, &info->protocol_version);
+	netmisc_decode_buffer(ptr, offset, info->game_name, NETGAME_NAME_LEN + 1);
+	netmisc_decode_buffer(ptr, offset, info->team_name[0], CALLSIGN_LEN + 1);
+	netmisc_decode_buffer(ptr, offset, info->team_name[1], CALLSIGN_LEN + 1);
+	netmisc_decode_int8(ptr, offset, &info->gamemode);
+	netmisc_decode_int8(ptr, offset, &info->difficulty);
+	netmisc_decode_int8(ptr, offset, &info->game_status);
+	netmisc_decode_int8(ptr, offset, &info->numplayers);
+	netmisc_decode_int8(ptr, offset, &info->max_numplayers);
+	netmisc_decode_int8(ptr, offset, &info->game_flags);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_decode_netplayer_info(ptr, offset, &info->players[i]);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_decode_int32(ptr, offset, &info->locations[i]);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		for (j = 0; j < MAX_PLAYERS; j++)
+			netmisc_decode_int16(ptr, offset, &info->kills[i][j]);
+
+	netmisc_decode_int32(ptr, offset, &info->levelnum);
+	netmisc_decode_int8(ptr, offset, &info->team_vector);
+	netmisc_decode_int16(ptr, offset, (short*)&info->segments_checksum);
+	netmisc_decode_int16(ptr, offset, &info->team_kills[0]);
+	netmisc_decode_int16(ptr, offset, &info->team_kills[1]);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_decode_int16(ptr, offset, &info->killed[i]);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_decode_int16(ptr, offset, &info->player_kills[i]);
+
+	netmisc_decode_int32(ptr, offset, &info->level_time);
+	netmisc_decode_int32(ptr, offset, &info->control_invul_time);
+	netmisc_decode_int32(ptr, offset, &info->monitor_vector);
+	for (i = 0; i < MAX_PLAYERS; i++)
+		netmisc_decode_int32(ptr, offset, &info->player_score[i]);
+	netmisc_decode_buffer(ptr, offset, info->player_flags, MAX_PLAYERS);
+	netmisc_decode_buffer(ptr, offset, info->mission_name, 9);
+	netmisc_decode_buffer(ptr, offset, info->mission_title, MISSION_NAME_LEN + 1);
 }
