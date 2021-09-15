@@ -15,6 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 
 #include "multi.h"
+#include "network.h"
 #include "misc/types.h"
 #include "platform/mono.h"
 #include "object.h"
@@ -185,6 +186,12 @@ void netmisc_encode_netgameinfo(uint8_t* ptr, int* offset, netgame_info* info)
 	netmisc_encode_buffer(ptr, offset, info->mission_title, MISSION_NAME_LEN+1);
 }
 
+void netmisc_encode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* info)
+{
+	netmisc_encode_int8(ptr, offset, info->type);
+	netmisc_encode_netplayer_info(ptr, offset, &info->player);
+}
+
 void netmisc_decode_netplayer_info(uint8_t* ptr, int* offset, netplayer_info* info)
 {
 	netmisc_decode_buffer(ptr, offset, info->callsign, CALLSIGN_LEN + 1);
@@ -234,4 +241,10 @@ void netmisc_decode_netgameinfo(uint8_t* ptr, int* offset, netgame_info* info)
 	netmisc_decode_buffer(ptr, offset, info->player_flags, MAX_PLAYERS);
 	netmisc_decode_buffer(ptr, offset, info->mission_name, 9);
 	netmisc_decode_buffer(ptr, offset, info->mission_title, MISSION_NAME_LEN + 1);
+}
+
+void netmisc_decode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* info)
+{
+	netmisc_decode_int8(ptr, offset, &info->type);
+	netmisc_decode_netplayer_info(ptr, offset, &info->player);
 }

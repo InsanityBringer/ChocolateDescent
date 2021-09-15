@@ -38,6 +38,8 @@ void netmisc_decode_vector(uint8_t* ptr, int* offset, vms_vector* vec);
 
 //Game-specific functions for encoding packet structures.
 void netmisc_encode_netgameinfo(uint8_t* ptr, int* offset, netgame_info* info);
+void netmisc_encode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* info);
 
 //Game-specific functions for decoding packet structures.
 void netmisc_decode_netgameinfo(uint8_t * ptr, int* offset, netgame_info * info);
+void netmisc_decode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* info);
