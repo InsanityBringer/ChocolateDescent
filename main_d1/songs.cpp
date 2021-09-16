@@ -44,10 +44,12 @@ void songs_init()
 		if (p)* p = '\0';
 		if (strlen(inputline)) 
 		{
-			Assert(i < MAX_SONGS);
-			sscanf(inputline, "%s %s %s", Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file);
-			//printf( "%d. '%s' '%s' '%s'\n",i,  Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file );
-			i++;
+			if (i < MAX_SONGS)
+			{
+				sscanf(inputline, "%s %s %s", Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file);
+				//printf( "%d. '%s' '%s' '%s'\n",i,  Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file );
+				i++;
+			}
 		}
 	}
 	Songs_initialized = 1;
