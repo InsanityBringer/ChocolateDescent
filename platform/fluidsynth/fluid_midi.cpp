@@ -25,8 +25,8 @@ MidiFluidSynth::MidiFluidSynth()
 
 	if (FluidSynthSettings)
 	{
-		fluid_settings_setint(FluidSynthSettings, "synth.chorus.active", 0);
-		fluid_settings_setint(FluidSynthSettings, "synth.reverb.active", 0);
+		fluid_settings_setint(FluidSynthSettings, "synth.chorus.active", 1);
+		fluid_settings_setint(FluidSynthSettings, "synth.reverb.active", 1);
 		fluid_settings_setnum(FluidSynthSettings, "synth.gain", 0.5);
 	}
 
@@ -98,12 +98,12 @@ void MidiFluidSynth::StopSound()
 
 void MidiFluidSynth::SetDefaults()
 {
-	//fluid_synth_system_reset(FluidSynth);
+	fluid_synth_system_reset(FluidSynth);
 	for (int chan = 0; chan < 16; chan++)
 	{
 		fluid_synth_cc(FluidSynth, chan, 7, 0); //volume. Set to 0 by default in HMI
 		fluid_synth_cc(FluidSynth, chan, 39, 0); //fine volume.
-		fluid_synth_cc(FluidSynth, chan, 1, 0); //modulation wheel
+		/*fluid_synth_cc(FluidSynth, chan, 1, 0); //modulation wheel
 		fluid_synth_cc(FluidSynth, chan, 11, 127); //expression
 		fluid_synth_cc(FluidSynth, chan, 64, 0); //pedals
 		fluid_synth_cc(FluidSynth, chan, 65, 0);
@@ -121,7 +121,7 @@ void MidiFluidSynth::SetDefaults()
 		for (int key = 0; key < 128; key++) //this isn't going to cause problems with the polyphony limit is it...
 			fluid_synth_key_pressure(FluidSynth, chan, key, 0);
 
-		fluid_synth_cc(FluidSynth, chan, 121, 0); //send all notes off TODO: This can be adjusted in HMI. 
+		fluid_synth_cc(FluidSynth, chan, 121, 0); //send all notes off TODO: This can be adjusted in HMI. */
 	}
 }
 
