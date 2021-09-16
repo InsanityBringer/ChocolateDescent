@@ -831,9 +831,11 @@ void network_send_objects(void)
 			obj_count = 0;
 			Network_send_object_mode = 0;
 			//			mprintf((0, "Sending object array to player %d.\n", player_num));
-			*(short*)(object_buffer + loc) = -1;	loc += 2;
+			//*(short*)(object_buffer + loc) = -1;	loc += 2;
+			netmisc_encode_int16(object_buffer, &loc, -1);
 			object_buffer[loc] = player_num; 		loc += 1;
-			loc += 2; // Placeholder for remote_objnum, not used here
+			netmisc_encode_int16(object_buffer, &loc, 0);
+			//loc += 2; // Placeholder for remote_objnum, not used here
 			Network_send_objnum = 0;
 			obj_count_frame = 1;
 			frame_num = 0;
@@ -859,10 +861,13 @@ void network_send_objects(void)
 			remote_objnum = objnum_local_to_remote((short)i, &owner);
 			Assert(owner == object_owner[i]);
 
-			*(short*)(object_buffer + loc) = i;								loc += 2;
+			//*(short*)(object_buffer + loc) = i;								loc += 2;
+			netmisc_encode_int16(object_buffer, &loc, i);
 			object_buffer[loc] = owner;											loc += 1;
-			*(short*)(object_buffer + loc) = remote_objnum; 				loc += 2;
-			memcpy(object_buffer + loc, &Objects[i], sizeof(object));	loc += sizeof(object);
+			//*(short*)(object_buffer + loc) = remote_objnum; 				loc += 2;
+			netmisc_encode_int16(object_buffer, &loc, remote_objnum);
+			//memcpy(object_buffer + loc, &Objects[i], sizeof(object));	loc += sizeof(object);
+			netmisc_encode_object(object_buffer, &loc, &Objects[i]);
 			//			mprintf((0, "..packing object %d, remote %d\n", i, remote_objnum));
 		}
 
@@ -898,8 +903,11 @@ void network_send_objects(void)
 				object_buffer[0] = PID_OBJECT_DATA;
 				object_buffer[1] = 1;
 				object_buffer[2] = frame_num;
-				*(short*)(object_buffer + 3) = -2;
-				*(short*)(object_buffer + 6) = obj_count;
+				loc = 3;
+				netmisc_encode_int16(object_buffer, &loc, -2); loc++;
+				netmisc_encode_int16(object_buffer, &loc, obj_count);
+				//*(short*)(object_buffer + 3) = -2;
+				//*(short*)(object_buffer + 6) = obj_count;
 				NetSendInternetworkPacket(object_buffer, 8, Network_player_rejoining.player.node);
 
 				// Send sync packet which tells the player who he is and to start!
@@ -1511,8 +1519,7 @@ network_verify_objects(int remote, int local)
 	return(1);
 }
 
-void
-network_read_object_packet(uint8_t* data)
+void network_read_object_packet(uint8_t* data)
 {
 	// Object from another net player we need to sync with
 
@@ -1535,9 +1542,11 @@ network_read_object_packet(uint8_t* data)
 
 	for (i = 0; i < nobj; i++)
 	{
-		objnum = *(short*)(data + loc);			loc += 2;
+		//objnum = *(short*)(data + loc);			loc += 2;
+		netmisc_decode_int16(data, &loc, &objnum);
 		obj_owner = data[loc];						loc += 1;
-		remote_objnum = *(short*)(data + loc);	loc += 2;
+		//remote_objnum = *(short*)(data + loc);	loc += 2;
+		netmisc_decode_int16(data, &loc, &remote_objnum);
 
 		if (objnum == -1)
 		{
@@ -1591,7 +1600,8 @@ network_read_object_packet(uint8_t* data)
 				//	num_objects = Highest_object_index+1;
 				//}
 			}
-			else {
+			else
+			{
 				if (mode == 1)
 				{
 					network_pack_objects();
@@ -1599,13 +1609,15 @@ network_read_object_packet(uint8_t* data)
 				}
 				objnum = obj_allocate();
 			}
-			if (objnum != -1) {
+			if (objnum != -1) 
+			{
 				obj = &Objects[objnum];
 				if (obj->segnum != -1)
 					obj_unlink(objnum);
 				Assert(obj->segnum == -1);
 				Assert(objnum < MAX_OBJECTS);
-				memcpy(obj, data + loc, sizeof(object));		loc += sizeof(object);
+				//memcpy(obj, data + loc, sizeof(object));		loc += sizeof(object);
+				netmisc_decode_object(data, &loc, obj);
 				segnum = obj->segnum;
 				obj->next = obj->prev = obj->segnum = -1;
 				obj->attached_obj = -1;

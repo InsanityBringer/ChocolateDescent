@@ -96,6 +96,13 @@ void netmisc_encode_matrix(uint8_t* ptr, int* offset, vms_matrix* mat)
 	netmisc_encode_vector(ptr, offset, &mat->uvec);
 }
 
+void netmisc_encode_angvec(uint8_t* ptr, int* offset, vms_angvec* vec)
+{
+	netmisc_encode_int16(ptr, offset, vec->p);
+	netmisc_encode_int16(ptr, offset, vec->b);
+	netmisc_encode_int16(ptr, offset, vec->h);
+}
+
 void netmisc_decode_int8(uint8_t* ptr, int* offset, uint8_t* v)
 {
 	*v = ptr[*offset];
@@ -147,6 +154,13 @@ void netmisc_decode_matrix(uint8_t* ptr, int* offset, vms_matrix* mat)
 	netmisc_decode_vector(ptr, offset, &mat->fvec);
 	netmisc_decode_vector(ptr, offset, &mat->rvec);
 	netmisc_decode_vector(ptr, offset, &mat->uvec);
+}
+
+void netmisc_decode_angvec(uint8_t* ptr, int* offset, vms_angvec* vec)
+{
+	netmisc_decode_int16(ptr, offset, &vec->p);
+	netmisc_decode_int16(ptr, offset, &vec->b);
+	netmisc_decode_int16(ptr, offset, &vec->h);
 }
 
 void netmisc_encode_netplayer_info(uint8_t* ptr, int* offset, netplayer_info* info)
@@ -238,6 +252,132 @@ void netmisc_encode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info
 	netmisc_encode_int8(ptr, offset, info->seconds_left);
 }
 
+void netmisc_encode_object(uint8_t* ptr, int* offset, object* objp)
+{
+	int i;
+	int extra = 64;
+	netmisc_encode_int32(ptr, offset, objp->signature);
+	netmisc_encode_int8(ptr, offset, objp->type);
+	netmisc_encode_int8(ptr, offset, objp->id);
+	netmisc_encode_int16(ptr, offset, objp->next);
+	netmisc_encode_int16(ptr, offset, objp->prev);
+	netmisc_encode_int8(ptr, offset, objp->control_type);
+	netmisc_encode_int8(ptr, offset, objp->movement_type);
+	netmisc_encode_int8(ptr, offset, objp->render_type);
+	netmisc_encode_int8(ptr, offset, objp->flags);
+
+	netmisc_encode_int16(ptr, offset, objp->segnum);
+	netmisc_encode_int16(ptr, offset, objp->attached_obj);
+
+	netmisc_encode_vector(ptr, offset, &objp->pos);
+	netmisc_encode_matrix(ptr, offset, &objp->orient);
+
+	netmisc_encode_int32(ptr, offset, objp->size);
+	netmisc_encode_int32(ptr, offset, objp->shields);
+
+	netmisc_encode_vector(ptr, offset, &objp->last_pos);
+
+	netmisc_encode_int8(ptr, offset, objp->contains_type);
+	netmisc_encode_int8(ptr, offset, objp->contains_id);
+	netmisc_encode_int8(ptr, offset, objp->contains_count);
+	netmisc_encode_int8(ptr, offset, objp->matcen_creator);
+
+	netmisc_encode_int32(ptr, offset, objp->lifeleft);
+
+	switch (objp->movement_type)
+	{
+	case MT_PHYSICS:
+		netmisc_encode_vector(ptr, offset, &objp->mtype.phys_info.velocity);
+		netmisc_encode_vector(ptr, offset, &objp->mtype.phys_info.thrust);
+		netmisc_encode_int32(ptr, offset, objp->mtype.phys_info.mass);
+		netmisc_encode_int32(ptr, offset, objp->mtype.phys_info.drag);
+		netmisc_encode_int32(ptr, offset, objp->mtype.phys_info.brakes);
+		netmisc_encode_vector(ptr, offset, &objp->mtype.phys_info.rotvel);
+		netmisc_encode_vector(ptr, offset, &objp->mtype.phys_info.rotthrust);
+		netmisc_encode_int16(ptr, offset, objp->mtype.phys_info.turnroll);
+		netmisc_encode_int16(ptr, offset, objp->mtype.phys_info.flags);
+		extra = 0;
+		break;
+	case MT_SPINNING:
+		netmisc_encode_vector(ptr, offset, &objp->mtype.spin_rate);
+		extra -= 12;
+		break;
+	}
+	*offset += extra;
+	extra = 30;
+	switch (objp->control_type)
+	{
+	case CT_AI:
+		netmisc_encode_int8(ptr, offset, objp->ctype.ai_info.behavior);
+		for (i = 0; i < MAX_AI_FLAGS; i++)
+			netmisc_encode_int8(ptr, offset, objp->ctype.ai_info.flags[i]);
+		
+		netmisc_encode_int16(ptr, offset, objp->ctype.ai_info.hide_segment);
+		netmisc_encode_int16(ptr, offset, objp->ctype.ai_info.hide_index);
+		netmisc_encode_int16(ptr, offset, objp->ctype.ai_info.path_length);
+		netmisc_encode_int16(ptr, offset, objp->ctype.ai_info.cur_path_index);
+		netmisc_encode_int16(ptr, offset, objp->ctype.ai_info.follow_path_start_seg);
+		netmisc_encode_int16(ptr, offset, objp->ctype.ai_info.follow_path_end_seg);
+		netmisc_encode_int32(ptr, offset, objp->ctype.ai_info.danger_laser_signature);
+		netmisc_encode_int16(ptr, offset, objp->ctype.ai_info.danger_laser_num);
+		extra = 0;
+		break;
+	case CT_EXPLOSION:
+	case CT_DEBRIS:
+		netmisc_encode_int32(ptr, offset, objp->ctype.expl_info.spawn_time);
+		netmisc_encode_int32(ptr, offset, objp->ctype.expl_info.delete_time);
+		netmisc_encode_int16(ptr, offset, objp->ctype.expl_info.delete_objnum);
+		netmisc_encode_int16(ptr, offset, objp->ctype.expl_info.attach_parent);
+		netmisc_encode_int16(ptr, offset, objp->ctype.expl_info.next_attach);
+		netmisc_encode_int16(ptr, offset, objp->ctype.expl_info.prev_attach);
+		extra -= 16;
+		break;
+	case CT_WEAPON:
+		netmisc_encode_int16(ptr, offset, objp->ctype.laser_info.parent_type);
+		netmisc_encode_int16(ptr, offset, objp->ctype.laser_info.parent_num);
+		netmisc_encode_int32(ptr, offset, objp->ctype.laser_info.parent_signature);
+		netmisc_encode_int32(ptr, offset, objp->ctype.laser_info.creation_time);
+		netmisc_encode_int16(ptr, offset, objp->ctype.laser_info.last_hitobj);
+		netmisc_encode_int16(ptr, offset, objp->ctype.laser_info.track_goal);
+		netmisc_encode_int32(ptr, offset, objp->ctype.laser_info.multiplier);
+		extra -= 20;
+		break;
+	case CT_LIGHT:
+		netmisc_encode_int32(ptr, offset, objp->ctype.light_info.intensity);
+		extra -= 4;
+		break;
+	case CT_POWERUP:
+		netmisc_encode_int32(ptr, offset, objp->ctype.powerup_info.count);
+		extra -= 4;
+		break;
+	}
+	*offset += extra;
+	extra = 76;
+	switch (objp->render_type)
+	{
+	case RT_MORPH:
+	case RT_POLYOBJ:
+		netmisc_encode_int32(ptr, offset, objp->rtype.pobj_info.model_num);
+		for (i = 0; i < MAX_SUBMODELS; i++)
+			netmisc_encode_angvec(ptr, offset, &objp->rtype.pobj_info.anim_angles[i]);
+		netmisc_encode_int32(ptr, offset, objp->rtype.pobj_info.subobj_flags);
+		netmisc_encode_int32(ptr, offset, objp->rtype.pobj_info.tmap_override);
+		netmisc_encode_int32(ptr, offset, objp->rtype.pobj_info.alt_textures);
+		extra = 0;
+		break;
+	case RT_WEAPON_VCLIP:
+	case RT_HOSTAGE:
+	case RT_POWERUP:
+	case RT_FIREBALL:
+		netmisc_encode_int32(ptr, offset, objp->rtype.vclip_info.vclip_num);
+		netmisc_encode_int32(ptr, offset, objp->rtype.vclip_info.frametime);
+		netmisc_encode_int8(ptr, offset, objp->rtype.vclip_info.framenum);
+		extra -= 9;
+		break;
+	}
+	*offset += extra;
+}
+
 void netmisc_decode_netplayer_info(uint8_t* ptr, int* offset, netplayer_info* info)
 {
 	netmisc_decode_buffer(ptr, offset, info->callsign, CALLSIGN_LEN + 1);
@@ -325,4 +465,130 @@ void netmisc_decode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info
 	netmisc_decode_int16(ptr, offset, &info->kills);
 	netmisc_decode_int16(ptr, offset, &info->killed);
 	netmisc_decode_int8(ptr, offset, &info->seconds_left);
+}
+
+void netmisc_decode_object(uint8_t* ptr, int* offset, object* objp)
+{
+	int i;
+	int extra = 64;
+	netmisc_decode_int32(ptr, offset, &objp->signature);
+	netmisc_decode_int8(ptr, offset, &objp->type);
+	netmisc_decode_int8(ptr, offset, &objp->id);
+	netmisc_decode_int16(ptr, offset, &objp->next);
+	netmisc_decode_int16(ptr, offset, &objp->prev);
+	netmisc_decode_int8(ptr, offset, &objp->control_type);
+	netmisc_decode_int8(ptr, offset, &objp->movement_type);
+	netmisc_decode_int8(ptr, offset, &objp->render_type);
+	netmisc_decode_int8(ptr, offset, &objp->flags);
+
+	netmisc_decode_int16(ptr, offset, &objp->segnum);
+	netmisc_decode_int16(ptr, offset, &objp->attached_obj);
+
+	netmisc_decode_vector(ptr, offset, &objp->pos);
+	netmisc_decode_matrix(ptr, offset, &objp->orient);
+
+	netmisc_decode_int32(ptr, offset, &objp->size);
+	netmisc_decode_int32(ptr, offset, &objp->shields);
+
+	netmisc_decode_vector(ptr, offset, &objp->last_pos);
+
+	netmisc_decode_int8(ptr, offset, (uint8_t*)&objp->contains_type);
+	netmisc_decode_int8(ptr, offset, (uint8_t*)&objp->contains_id);
+	netmisc_decode_int8(ptr, offset, (uint8_t*)&objp->contains_count);
+	netmisc_decode_int8(ptr, offset, (uint8_t*)&objp->matcen_creator);
+
+	netmisc_decode_int32(ptr, offset, &objp->lifeleft);
+
+	switch (objp->movement_type)
+	{
+	case MT_PHYSICS:
+		netmisc_decode_vector(ptr, offset, &objp->mtype.phys_info.velocity);
+		netmisc_decode_vector(ptr, offset, &objp->mtype.phys_info.thrust);
+		netmisc_decode_int32(ptr, offset, &objp->mtype.phys_info.mass);
+		netmisc_decode_int32(ptr, offset, &objp->mtype.phys_info.drag);
+		netmisc_decode_int32(ptr, offset, &objp->mtype.phys_info.brakes);
+		netmisc_decode_vector(ptr, offset, &objp->mtype.phys_info.rotvel);
+		netmisc_decode_vector(ptr, offset, &objp->mtype.phys_info.rotthrust);
+		netmisc_decode_int16(ptr, offset, &objp->mtype.phys_info.turnroll);
+		netmisc_decode_int16(ptr, offset, (short*)&objp->mtype.phys_info.flags);
+		extra = 0;
+		break;
+	case MT_SPINNING:
+		netmisc_decode_vector(ptr, offset, &objp->mtype.spin_rate);
+		extra -= 12;
+		break;
+	}
+	*offset += extra;
+	extra = 30;
+	switch (objp->control_type)
+	{
+	case CT_AI:
+		netmisc_decode_int8(ptr, offset, &objp->ctype.ai_info.behavior);
+		for (i = 0; i < MAX_AI_FLAGS; i++)
+			netmisc_decode_int8(ptr, offset, (uint8_t*)&objp->ctype.ai_info.flags[i]);
+
+		netmisc_decode_int16(ptr, offset, &objp->ctype.ai_info.hide_segment);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.ai_info.hide_index);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.ai_info.path_length);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.ai_info.cur_path_index);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.ai_info.follow_path_start_seg);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.ai_info.follow_path_end_seg);
+		netmisc_decode_int32(ptr, offset, &objp->ctype.ai_info.danger_laser_signature);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.ai_info.danger_laser_num);
+		extra = 0;
+		break;
+	case CT_EXPLOSION:
+	case CT_DEBRIS:
+		netmisc_decode_int32(ptr, offset, &objp->ctype.expl_info.spawn_time);
+		netmisc_decode_int32(ptr, offset, &objp->ctype.expl_info.delete_time);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.expl_info.delete_objnum);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.expl_info.attach_parent);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.expl_info.next_attach);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.expl_info.prev_attach);
+		extra -= 16;
+		break;
+	case CT_WEAPON:
+		netmisc_decode_int16(ptr, offset, &objp->ctype.laser_info.parent_type);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.laser_info.parent_num);
+		netmisc_decode_int32(ptr, offset, &objp->ctype.laser_info.parent_signature);
+		netmisc_decode_int32(ptr, offset, &objp->ctype.laser_info.creation_time);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.laser_info.last_hitobj);
+		netmisc_decode_int16(ptr, offset, &objp->ctype.laser_info.track_goal);
+		netmisc_decode_int32(ptr, offset, &objp->ctype.laser_info.multiplier);
+		extra -= 20;
+		break;
+	case CT_LIGHT:
+		netmisc_decode_int32(ptr, offset, &objp->ctype.light_info.intensity);
+		extra -= 4;
+		break;
+	case CT_POWERUP:
+		netmisc_decode_int32(ptr, offset, &objp->ctype.powerup_info.count);
+		extra -= 4;
+		break;
+	}
+	*offset += extra;
+	extra = 76;
+	switch (objp->render_type)
+	{
+	case RT_MORPH:
+	case RT_POLYOBJ:
+		netmisc_decode_int32(ptr, offset, &objp->rtype.pobj_info.model_num);
+		for (i = 0; i < MAX_SUBMODELS; i++)
+			netmisc_decode_angvec(ptr, offset, &objp->rtype.pobj_info.anim_angles[i]);
+		netmisc_decode_int32(ptr, offset, &objp->rtype.pobj_info.subobj_flags);
+		netmisc_decode_int32(ptr, offset, &objp->rtype.pobj_info.tmap_override);
+		netmisc_decode_int32(ptr, offset, &objp->rtype.pobj_info.alt_textures);
+		extra = 0;
+		break;
+	case RT_WEAPON_VCLIP:
+	case RT_HOSTAGE:
+	case RT_POWERUP:
+	case RT_FIREBALL:
+		netmisc_decode_int32(ptr, offset, &objp->rtype.vclip_info.vclip_num);
+		netmisc_decode_int32(ptr, offset, &objp->rtype.vclip_info.frametime);
+		netmisc_decode_int8(ptr, offset, (uint8_t*)&objp->rtype.vclip_info.framenum);
+		extra -= 9;
+		break;
+	}
+	*offset += extra;
 }
