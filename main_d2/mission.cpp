@@ -568,7 +568,7 @@ int load_mission(int mission_num)
 				{
 
 					add_term(buf);
-					if (strlen(buf) <= 12) 
+					if (strlen(buf) <= 12 && i < MAX_LEVELS_PER_MISSION) 
 					{
 						strcpy(Level_names[i],buf);
 						Last_level++;
@@ -597,7 +597,7 @@ int load_mission(int mission_num)
 						break;
 
 					add_term(buf);
-					if (strlen(buf) <= 12)
+					if (strlen(buf) <= 12 && i < MAX_SECRET_LEVELS_PER_MISSION)
 					{
 						strcpy(Secret_level_names[i],buf);
 						Secret_level_table[i] = atoi(t);

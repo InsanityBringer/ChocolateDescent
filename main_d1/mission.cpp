@@ -111,7 +111,11 @@ int get_msn_line(FILE* f, char* msn_line)
 
 	while(tmp_char != '\n' && tmp_char != '\r' && tmp_char != EOF)
 	{
-		msn_line[i] = (char)tmp_char;
+		if (i == 255)
+			msn_line[i] = '\0';
+		else if (i < 255)
+			msn_line[i] = (char)tmp_char;
+
 		tmp_char = fgetc(f);
 		i++;
 	}
@@ -434,7 +438,7 @@ int load_mission(int mission_num)
 							cfile_use_alternate_hogfile(trimmed_line);
 #endif
 						}
-						else if (strlen(trimmed_line) <= 12) 
+						else if (strlen(trimmed_line) <= 12 && i < MAX_LEVELS_PER_MISSION) 
 						{
 							strcpy(Level_names[i], trimmed_line);
 							Last_level++;
@@ -462,7 +466,8 @@ int load_mission(int mission_num)
 							break;
 
 						add_term(msn_line);
-						if (strlen(msn_line) <= 12) {
+						if (strlen(msn_line) <= 12 && i < MAX_SECRET_LEVELS_PER_MISSION) 
+						{
 							strcpy(Secret_level_names[i], msn_line);
 							Secret_level_table[i] = atoi(t);
 							if (Secret_level_table[i]<1 || Secret_level_table[i]>Last_level)
