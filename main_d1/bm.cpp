@@ -540,7 +540,11 @@ void read_polygon_models(CFILE* fp)
 {
 	int i, j;
 
-	Assert(N_polygon_models < MAX_POLYGON_MODELS); //avoid trashing memory I guess
+	if (N_polygon_models > MAX_POLYGON_MODELS)
+	{
+		Error("Too many polymodels in piggy file!");
+		return;
+	}
 
 	//[ISB] however it's supposed to only fill out so many...
 	for (i = 0; i < N_polygon_models; i++) 
