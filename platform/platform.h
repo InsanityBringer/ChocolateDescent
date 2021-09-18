@@ -73,9 +73,6 @@ void I_DrawCurrentCanvas(int sync);
 //Composition nightmare: Blit given canvas to window buffer, don't trigger redraw. This is needed for paged graphics modes in Descent 1. 
 void I_BlitCanvas(grs_canvas *canv);
 
-//More nightmare: Set the "screen canvas"
-void I_SetScreenCanvas(grs_canvas* canv);
-
 //-----------------------------------------------------------------------------
 //	Control operations
 //-----------------------------------------------------------------------------

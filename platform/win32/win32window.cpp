@@ -31,7 +31,6 @@
 namespace
 {
 	HWND Window;
-	grs_canvas* screenBuffer;
 	uint32_t palette[256];
 
 	std::vector<std::unique_ptr<Win32HidDevice>> joysticks;
@@ -481,11 +480,6 @@ int I_CheckMode(int mode)
 	return 11;
 }
 
-void I_SetScreenCanvas(grs_canvas* canv)
-{
-	screenBuffer = canv;
-}
-
 int I_SetMode(int mode)
 {
 	int w = 0, h = 0;
@@ -624,8 +618,8 @@ static LetterboxRect FindLetterbox()
 		clientWidth = 320;
 		clientHeight = 200;
 	}
-	int screenWidth = screenBuffer->cv_bitmap.bm_w;
-	int screenHeight = screenBuffer->cv_bitmap.bm_h;
+	int screenWidth = grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	int screenHeight = grd_curscreen->sc_canvas.cv_bitmap.bm_h;
 
 	if (screenHeight == 400) // Minimap support
 		screenHeight = 200;
@@ -652,13 +646,10 @@ static LetterboxRect FindLetterbox()
 
 void I_DrawCurrentCanvas(int sync)
 {
-	if (!screenBuffer)
-		return;
-
 	vid_vsync = sync;
 
-	int width = screenBuffer->cv_bitmap.bm_w;
-	int height = screenBuffer->cv_bitmap.bm_h;
+	int width = grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	int height = grd_curscreen->sc_canvas.cv_bitmap.bm_h;
 	int pitch = 0;
 
 	uint8_t* pixels = PresentLock(width, height, pitch);
@@ -667,7 +658,7 @@ void I_DrawCurrentCanvas(int sync)
 		for (int y = 0; y < height; y++)
 		{
 			uint32_t* dest = (uint32_t*)(pixels + pitch * (ptrdiff_t)y);
-			const uint8_t* src = screenBuffer->cv_bitmap.bm_data + width * (ptrdiff_t)y;
+			const uint8_t* src = grd_curscreen->sc_canvas.cv_bitmap.bm_data + width * (ptrdiff_t)y;
 			for (int x = 0; x < width; x++)
 			{
 				dest[x] = palette[src[x]];

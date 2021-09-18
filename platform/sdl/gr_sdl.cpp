@@ -151,11 +151,6 @@ int I_CheckMode(int mode)
 	return 11;
 }
 
-void I_SetScreenCanvas(grs_canvas* canv)
-{
-	screenBuffer = canv;
-}
-
 void I_SetScreenRect(int w, int h)
 {
 	//Create the destination rectangle for the game screen
@@ -410,11 +405,12 @@ void I_DrawCurrentCanvas(int sync)
 	SDL_GL_SwapWindow(gameWindow);
 }
 
+extern unsigned char* gr_video_memory;
 void I_BlitCanvas(grs_canvas *canv)
 {
 	//[ISB] Under the assumption that the screen buffer is always static and valid, memcpy the contents of the canvas into it
 	if (canv->cv_bitmap.bm_type == BM_SVGA)
-		memcpy(screenBuffer->cv_bitmap.bm_data, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
+		memcpy(gr_video_memory, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
 }
 
 void I_Shutdown()

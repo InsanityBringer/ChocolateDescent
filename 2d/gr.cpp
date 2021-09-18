@@ -171,8 +171,6 @@ int gr_set_mode(int mode)
 	//[ISB] Point the bitmap data at the big video memory buffer. This formerly reallocated on mode change, but this caused too many problems. 
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = gr_video_memory;
 	memset(grd_curscreen->sc_canvas.cv_bitmap.bm_data, 0, r * h * NUMSCREENS * sizeof(unsigned char));
-	//[ISB] Set the screen buffer
-	I_SetScreenCanvas(&grd_curscreen->sc_canvas);
 
 #ifndef BUILD_DESCENT2
 	gr_set_current_canvas(NULL);
