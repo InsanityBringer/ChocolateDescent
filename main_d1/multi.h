@@ -134,8 +134,8 @@ void multi_prep_level(void);
 int multi_endlevel(int* secret);
 int multi_menu_poll(void);
 void multi_leave_game(void);
-void multi_process_data(char* dat, int len);
-void multi_process_bigdata(char* buf, int len);
+void multi_process_data(uint8_t* dat, int len);
+void multi_process_bigdata(uint8_t* buf, int len);
 void multi_do_death(int objnum);
 void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);
@@ -149,7 +149,7 @@ void multi_sort_kill_list(void);
 int multi_choose_mission(int* anarchy_only);
 void multi_reset_stuff(void);
 
-void multi_send_data(char* buf, int len, int repeat);
+void multi_send_data(uint8_t* buf, int len, int repeat);
 
 int get_team(int pnum);
 
@@ -162,7 +162,7 @@ extern int Network_laser_level;
 extern int Network_laser_flags;
 
 extern int message_length[MULTI_MAX_TYPE + 1];
-extern char multibuf[MAX_MULTI_MESSAGE_LEN + 4];
+extern uint8_t multibuf[MAX_MULTI_MESSAGE_LEN + 4];
 extern short Network_laser_track;
 
 extern int who_killed_controlcen;

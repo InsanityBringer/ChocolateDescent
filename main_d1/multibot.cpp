@@ -332,10 +332,10 @@ void multi_send_claim_robot(int objnum)
 	// The AI tells us we should take control of this robot. 
 
 	remote_objnum = (short)objnum_local_to_remote(objnum, (int8_t*)&owner);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, MULTI_ROBOT_CLAIM);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, Player_num);
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, remote_objnum);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, owner);
+	netmisc_encode_int8(multibuf, &loc, MULTI_ROBOT_CLAIM);
+	netmisc_encode_int8(multibuf, &loc, Player_num);
+	netmisc_encode_int16(multibuf, &loc, remote_objnum);
+	netmisc_encode_int8(multibuf, &loc, owner);
 
 	/*multibuf[0] = (char)MULTI_ROBOT_CLAIM;
 	multibuf[1] = Player_num;
@@ -364,10 +364,10 @@ void multi_send_release_robot(int objnum)
 	multi_delete_controlled_robot(objnum);
 
 	remote_objnum = (short)objnum_local_to_remote(objnum, (int8_t*)&owner);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, MULTI_ROBOT_RELEASE);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, Player_num);
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, remote_objnum);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, owner);
+	netmisc_encode_int8(multibuf, &loc, MULTI_ROBOT_RELEASE);
+	netmisc_encode_int8(multibuf, &loc, Player_num);
+	netmisc_encode_int16(multibuf, &loc, remote_objnum);
+	netmisc_encode_int8(multibuf, &loc, owner);
 
 	/*multibuf[0] = (char)MULTI_ROBOT_RELEASE;
 	multibuf[1] = Player_num;
@@ -399,7 +399,7 @@ int multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data((char*)robot_fire_buf[sending], 18, 0);
+				multi_send_data((uint8_t*)robot_fire_buf[sending], 18, 0);
 			}
 
 			if (!(Game_mode & GM_NETWORK))
@@ -423,11 +423,11 @@ void multi_send_robot_position_sub(int objnum)
 	create_shortpos(&pos, Objects + objnum);
 	remote_objnum = (short)objnum_local_to_remote(objnum, (int8_t*)&owner);
 
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, MULTI_ROBOT_POSITION);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, Player_num);
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, remote_objnum);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, owner);
-	netmisc_encode_shortpos((uint8_t*)multibuf, &loc, &pos);
+	netmisc_encode_int8(multibuf, &loc, MULTI_ROBOT_POSITION);
+	netmisc_encode_int8(multibuf, &loc, Player_num);
+	netmisc_encode_int16(multibuf, &loc, remote_objnum);
+	netmisc_encode_int8(multibuf, &loc, owner);
+	netmisc_encode_shortpos(multibuf, &loc, &pos);
 
 	//	mprintf((0, "SENDPOS object %d, Gametime %d.\n", objnum, GameTime));
 
@@ -483,12 +483,12 @@ void multi_send_robot_fire(int objnum, int gun_num, vms_vector* fire)
 	uint8_t owner;
 	remote_objnum = (short)objnum_local_to_remote(objnum, (int8_t*)&owner);
 
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, MULTI_ROBOT_FIRE);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, Player_num);
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, remote_objnum);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, owner);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, gun_num);
-	netmisc_encode_vector((uint8_t*)multibuf, & loc, fire);
+	netmisc_encode_int8(multibuf, &loc, MULTI_ROBOT_FIRE);
+	netmisc_encode_int8(multibuf, &loc, Player_num);
+	netmisc_encode_int16(multibuf, &loc, remote_objnum);
+	netmisc_encode_int8(multibuf, &loc, owner);
+	netmisc_encode_int8(multibuf, &loc, gun_num);
+	netmisc_encode_vector(multibuf, & loc, fire);
 	/*multibuf[loc] = MULTI_ROBOT_FIRE;						loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	*(short*)(multibuf + loc) = (short)objnum_local_to_remote(objnum, (int8_t*)& multibuf[loc + 2]);
@@ -521,14 +521,14 @@ void multi_send_robot_explode(int objnum, int killer)
 	uint8_t owner;
 	remote_objnum = (short)objnum_local_to_remote(killer, (int8_t*)&owner);
 
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, MULTI_ROBOT_EXPLODE);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, Player_num);
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, remote_objnum);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, owner);
+	netmisc_encode_int8(multibuf, &loc, MULTI_ROBOT_EXPLODE);
+	netmisc_encode_int8(multibuf, &loc, Player_num);
+	netmisc_encode_int16(multibuf, &loc, remote_objnum);
+	netmisc_encode_int8(multibuf, &loc, owner);
 
 	remote_objnum = (short)objnum_local_to_remote(objnum, (int8_t*)&owner);
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, remote_objnum);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, owner);
+	netmisc_encode_int16(multibuf, &loc, remote_objnum);
+	netmisc_encode_int8(multibuf, &loc, owner);
 
 	/*multibuf[loc] = MULTI_ROBOT_EXPLODE;					loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
@@ -547,11 +547,11 @@ void multi_send_create_robot(int station, int objnum, int type)
 
 	int loc = 0;
 
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, MULTI_CREATE_ROBOT);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, Player_num);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, station);
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, (short)objnum);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, type);
+	netmisc_encode_int8(multibuf, &loc, MULTI_CREATE_ROBOT);
+	netmisc_encode_int8(multibuf, &loc, Player_num);
+	netmisc_encode_int8(multibuf, &loc, station);
+	netmisc_encode_int16(multibuf, &loc, (short)objnum);
+	netmisc_encode_int8(multibuf, &loc, type);
 	/*multibuf[loc] = MULTI_CREATE_ROBOT;						loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	multibuf[loc] = (int8_t)station;							loc += 1;
@@ -569,14 +569,14 @@ void multi_send_boss_actions(int bossobjnum, int action, int secondary, int objn
 
 	int loc = 0;
 
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, MULTI_BOSS_ACTIONS);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, Player_num); // Which player is controlling the boss
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, bossobjnum); // We won't network map this objnum since its the boss
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, action); // What is the boss doing?
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, secondary); // More info for what he is doing
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, objnum); // Objnum of object created by gate-in action
+	netmisc_encode_int8(multibuf, &loc, MULTI_BOSS_ACTIONS);
+	netmisc_encode_int8(multibuf, &loc, Player_num); // Which player is controlling the boss
+	netmisc_encode_int16(multibuf, &loc, bossobjnum); // We won't network map this objnum since its the boss
+	netmisc_encode_int8(multibuf, &loc, action); // What is the boss doing?
+	netmisc_encode_int8(multibuf, &loc, secondary); // More info for what he is doing
+	netmisc_encode_int16(multibuf, &loc, objnum); // Objnum of object created by gate-in action
 	if (action == 3)
-		netmisc_encode_int16((uint8_t*)multibuf, &loc, Objects[objnum].segnum); // Segment number object created in (for gate only)
+		netmisc_encode_int16(multibuf, &loc, Objects[objnum].segnum); // Segment number object created in (for gate only)
 	else
 		loc += 2; // Dummy
 
@@ -618,13 +618,13 @@ void multi_send_create_robot_powerups(object * del_obj)
 	int loc = 0;
 	int i;
 
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, MULTI_CREATE_ROBOT_POWERUPS);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, Player_num);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, del_obj->contains_count);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, del_obj->contains_type);
-	netmisc_encode_int8((uint8_t*)multibuf, &loc, del_obj->contains_id);
-	netmisc_encode_int16((uint8_t*)multibuf, &loc, del_obj->segnum);
-	netmisc_encode_vector((uint8_t*)multibuf, &loc, &del_obj->pos);
+	netmisc_encode_int8(multibuf, &loc, MULTI_CREATE_ROBOT_POWERUPS);
+	netmisc_encode_int8(multibuf, &loc, Player_num);
+	netmisc_encode_int8(multibuf, &loc, del_obj->contains_count);
+	netmisc_encode_int8(multibuf, &loc, del_obj->contains_type);
+	netmisc_encode_int8(multibuf, &loc, del_obj->contains_id);
+	netmisc_encode_int16(multibuf, &loc, del_obj->segnum);
+	netmisc_encode_vector(multibuf, &loc, &del_obj->pos);
 
 	/*multibuf[loc] = MULTI_CREATE_ROBOT_POWERUPS;			loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
@@ -642,7 +642,7 @@ void multi_send_create_robot_powerups(object * del_obj)
 	}
 	for (i = 0; i < Net_create_loc; i++)
 	{
-		netmisc_encode_int16((uint8_t*)multibuf, &loc, Net_create_objnums[i]);
+		netmisc_encode_int16(multibuf, &loc, Net_create_objnums[i]);
 		//*(short*)(multibuf + loc) = Net_create_objnums[i];
 		//loc += 2;
 		map_objnum_local_to_local(Net_create_objnums[i]);
@@ -653,7 +653,7 @@ void multi_send_create_robot_powerups(object * del_obj)
 	multi_send_data(multibuf, 27, 1);
 }
 
-void multi_do_claim_robot(char* buf)
+void multi_do_claim_robot(uint8_t* buf)
 {
 	int loc;
 	short botnum;
@@ -663,7 +663,7 @@ void multi_do_claim_robot(char* buf)
 	pnum = buf[1];
 
 	loc = 2;
-	netmisc_decode_int16((uint8_t*)buf, &loc, &remote_botnum);
+	netmisc_decode_int16(buf, &loc, &remote_botnum);
 	//remote_botnum = *(short*)(buf + 2);
 	botnum = objnum_remote_to_local(remote_botnum, (int8_t)buf[4]);
 
@@ -700,7 +700,7 @@ void multi_do_claim_robot(char* buf)
 	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_release_robot(char* buf)
+void multi_do_release_robot(uint8_t* buf)
 {
 	int loc;
 	short botnum;
@@ -709,7 +709,7 @@ void multi_do_release_robot(char* buf)
 
 	pnum = buf[1];
 	loc = 2;
-	netmisc_decode_int16((uint8_t*)buf, &loc, &remote_botnum);
+	netmisc_decode_int16(buf, &loc, &remote_botnum);
 	botnum = (objnum_remote_to_local(remote_botnum, (int8_t)buf[4]));
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) 
@@ -739,7 +739,7 @@ void multi_do_release_robot(char* buf)
 	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_robot_position(char* buf)
+void multi_do_robot_position(uint8_t* buf)
 {
 	// Process robot movement sent by another player
 
@@ -751,9 +751,9 @@ void multi_do_robot_position(char* buf)
 	shortpos pos;
 
 	//pnum = buf[loc];										loc += 1;
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&pnum);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &remote_botnum);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&owner);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&pnum);
+	netmisc_decode_int16(buf, &loc, &remote_botnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&owner);
 
 	botnum = objnum_remote_to_local(remote_botnum, (int8_t)owner);
 	//loc += 3;
@@ -795,11 +795,11 @@ void multi_do_robot_position(char* buf)
 	set_thrust_from_velocity(&Objects[botnum]); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
 
-	netmisc_decode_shortpos((uint8_t*)buf, &loc, &pos);
+	netmisc_decode_shortpos(buf, &loc, &pos);
 	extract_shortpos(&Objects[botnum], &pos);
 }
 
-void multi_do_robot_fire(char* buf)
+void multi_do_robot_fire(uint8_t* buf)
 {
 	// Send robot fire event
 	int loc = 1;
@@ -811,11 +811,11 @@ void multi_do_robot_fire(char* buf)
 	short remote_botnum;
 	int8_t owner;
 
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&pnum);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &remote_botnum);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&owner);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&gun_num);
-	netmisc_decode_vector((uint8_t*)buf, &loc, &fire);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&pnum);
+	netmisc_decode_int16(buf, &loc, &remote_botnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&owner);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&gun_num);
+	netmisc_decode_vector(buf, &loc, &fire);
 	botnum = objnum_remote_to_local(remote_botnum, owner);
 
 	//pnum = buf[loc];												loc += 1;
@@ -909,7 +909,7 @@ int multi_explode_robot_sub(int botnum, int killer)
 	return 1;
 }
 
-void multi_do_robot_explode(char* buf)
+void multi_do_robot_explode(uint8_t* buf)
 {
 	// Explode robot controlled by other player
 
@@ -920,12 +920,12 @@ void multi_do_robot_explode(char* buf)
 	int rval;
 	int8_t owner;
 
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&pnum);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &remote_botnum);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&owner);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&pnum);
+	netmisc_decode_int16(buf, &loc, &remote_botnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&owner);
 	killer = objnum_remote_to_local(remote_botnum, owner);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &remote_botnum);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&owner);
+	netmisc_decode_int16(buf, &loc, &remote_botnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&owner);
 	botnum = objnum_remote_to_local(remote_botnum, owner);
 	/*pnum = buf[loc]; 					loc += 1;
 	killer = objnum_remote_to_local(*(short*)(buf + loc), (int8_t)buf[loc + 2]);
@@ -951,7 +951,7 @@ void multi_do_robot_explode(char* buf)
 extern fix EnergyToCreateOneRobot; // From fuelcen.c 
 extern object* create_morph_robot(segment* segp, vms_vector* object_pos, int object_id); // from fuelcen.c
 
-void multi_do_create_robot(char* buf)
+void multi_do_create_robot(uint8_t* buf)
 {
 	int loc = 1;
 	int8_t fuelcen_num;// = buf[2];
@@ -959,10 +959,10 @@ void multi_do_create_robot(char* buf)
 	short objnum;// = *(short*)(buf + 3);
 	int8_t type;// = buf[5];
 
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&pnum);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&fuelcen_num);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &objnum);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&type);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&pnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&fuelcen_num);
+	netmisc_decode_int16(buf, &loc, &objnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&type);
 
 	FuelCenter* robotcen;
 	vms_vector cur_object_loc, direction;
@@ -1009,7 +1009,7 @@ void multi_do_create_robot(char* buf)
 	Assert(obj->ctype.ai_info.REMOTE_OWNER == -1);
 }
 
-void multi_do_boss_actions(char* buf)
+void multi_do_boss_actions(uint8_t* buf)
 {
 	// Code to handle remote-controlled boss actions
 
@@ -1020,12 +1020,12 @@ void multi_do_boss_actions(char* buf)
 	int loc = 1;
 	short remote_objnum, segnum;
 
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&pnum);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &boss_objnum);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&action);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&secondary);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &remote_objnum);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &segnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&pnum);
+	netmisc_decode_int16(buf, &loc, &boss_objnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&action);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&secondary);
+	netmisc_decode_int16(buf, &loc, &remote_objnum);
+	netmisc_decode_int16(buf, &loc, &segnum);
 	/*pnum = buf[loc]; 							loc += 1;
 	boss_objnum = *(short*)(buf + loc);	loc += 2;
 	action = buf[loc];						loc += 1;
@@ -1123,7 +1123,7 @@ void multi_do_boss_actions(char* buf)
 	}
 }
 
-void multi_do_create_robot_powerups(char* buf)
+void multi_do_create_robot_powerups(uint8_t* buf)
 {
 	// Code to drop remote-controlled robot powerups
 
@@ -1133,13 +1133,13 @@ void multi_do_create_robot_powerups(char* buf)
 	int egg_objnum, i;
 	short create_loc;
 
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&pnum);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&del_obj.contains_count);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&del_obj.contains_type);
-	netmisc_decode_int8((uint8_t*)buf, &loc, (uint8_t*)&del_obj.contains_id);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &del_obj.segnum);
-	netmisc_decode_vector((uint8_t*)buf, &loc, &del_obj.pos);
-	netmisc_decode_int16((uint8_t*)buf, &loc, &create_loc);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&pnum);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&del_obj.contains_count);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&del_obj.contains_type);
+	netmisc_decode_int8(buf, &loc, (uint8_t*)&del_obj.contains_id);
+	netmisc_decode_int16(buf, &loc, &del_obj.segnum);
+	netmisc_decode_vector(buf, &loc, &del_obj.pos);
+	netmisc_decode_int16(buf, &loc, &create_loc);
 	
 	vm_vec_zero(&del_obj.mtype.phys_info.velocity);
 

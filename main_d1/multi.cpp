@@ -54,14 +54,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "netmisc.h"
 
-
-//*******************************************
-typedef struct {
-	char buffer[256];
-	unsigned char write_index;
-	unsigned char read_index;
-} BUFFER;
-
 //*******************************************
 //
 // Local macros and prototypes
@@ -92,7 +84,7 @@ int multi_sending_message = 0;
 int multi_defining_message = 0;
 int multi_message_index = 0;
 
-char multibuf[MAX_MULTI_MESSAGE_LEN + 4];                // This is where multiplayer message are built
+uint8_t multibuf[MAX_MULTI_MESSAGE_LEN + 4];                // This is where multiplayer message are built
 
 short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
 short local_to_remote[MAX_OBJECTS];
@@ -768,8 +760,7 @@ multi_do_frame(void)
 	}
 }
 
-void
-multi_send_data(char* buf, int len, int repeat)
+void multi_send_data(uint8_t* buf, int len, int repeat)
 {
 	Assert(len == message_length[buf[0]]);
 	Assert(buf[0] <= MULTI_MAX_TYPE);
@@ -1143,7 +1134,7 @@ multi_do_death(int objnum)
 }
 
 void
-multi_do_fire(char* buf)
+multi_do_fire(uint8_t* buf)
 {
 	uint8_t weapon;
 	char pnum;
@@ -1183,7 +1174,7 @@ multi_do_fire(char* buf)
 }
 
 void
-multi_do_message(char* buf)
+multi_do_message(uint8_t* buf)
 {
 	char* colon;
 
@@ -1193,15 +1184,15 @@ multi_do_message(char* buf)
 	int loc = 2;
 #endif
 
-	if (((colon = strrchr(buf + loc, ':')) == NULL) || (colon - (buf + loc) < 1) || (colon - (buf + loc) > CALLSIGN_LEN))
+	if (((colon = strrchr((char*)buf + loc, ':')) == NULL) || (colon - (char*)(buf + loc) < 1) || (colon - (char*)(buf + loc) > CALLSIGN_LEN))
 	{
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		HUD_init_message("%s %s '%s'", Players[buf[1]].callsign, TXT_SAYS, buf + loc);
 	}
 	else
 	{
-		if ((!_strnicmp(Players[Player_num].callsign, buf + loc, colon - (buf + loc))) ||
-			((Game_mode & GM_TEAM) && ((get_team(Player_num) == atoi(buf + loc) - 1) || !_strnicmp(Netgame.team_name[get_team(Player_num)], buf + loc, colon - (buf + loc)))))
+		if ((!_strnicmp(Players[Player_num].callsign, (char*)buf + loc, colon - (char*)(buf + loc))) ||
+			((Game_mode & GM_TEAM) && ((get_team(Player_num) == atoi((char*)buf + loc) - 1) || !_strnicmp(Netgame.team_name[get_team(Player_num)], (char*)buf + loc, colon - (char*)(buf + loc)))))
 		{
 			digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 			HUD_init_message("%s %s '%s'", Players[buf[1]].callsign, TXT_TELLS_YOU, (colon + 1));
@@ -1210,7 +1201,7 @@ multi_do_message(char* buf)
 }
 
 void
-multi_do_position(char* buf)
+multi_do_position(uint8_t* buf)
 {
 	// This routine does only player positions, mode game only
 	//	mprintf((0, "Got position packet.\n"));
@@ -1231,7 +1222,7 @@ multi_do_position(char* buf)
 }
 
 void
-multi_do_reappear(char* buf)
+multi_do_reappear(uint8_t* buf)
 {
 	short objnum;
 
@@ -1248,7 +1239,7 @@ multi_do_reappear(char* buf)
 }
 
 void
-multi_do_player_explode(char* buf)
+multi_do_player_explode(uint8_t* buf)
 {
 	// Only call this for players, not robots.  pnum is player number, not
 	// Object number.
@@ -1348,7 +1339,7 @@ multi_do_player_explode(char* buf)
 }
 
 void
-multi_do_kill(char* buf)
+multi_do_kill(uint8_t* buf)
 {
 	int killer, killed;
 	int count = 1;
@@ -1387,7 +1378,7 @@ multi_do_kill(char* buf)
 
 //	Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
-void multi_do_controlcen_destroy(char* buf)
+void multi_do_controlcen_destroy(uint8_t* buf)
 {
 	int8_t who;
 	short objnum;
@@ -1413,7 +1404,7 @@ void multi_do_controlcen_destroy(char* buf)
 }
 
 void
-multi_do_escape(char* buf)
+multi_do_escape(uint8_t* buf)
 {
 	int objnum;
 
@@ -1447,13 +1438,15 @@ multi_do_escape(char* buf)
 
 
 void
-multi_do_remobj(char* buf)
+multi_do_remobj(uint8_t* buf)
 {
 	short objnum; // which object to remove
 	short local_objnum;
+	int loc = 1;
 	int8_t obj_owner; // which remote list is it entered in
 
-	objnum = *(short*)(buf + 1);
+	//objnum = *(short*)(buf + 1);
+	netmisc_decode_int16(buf, &loc, &objnum);
 	obj_owner = buf[3];
 
 	Assert(objnum >= 0);
@@ -1488,7 +1481,7 @@ multi_do_remobj(char* buf)
 }
 
 void
-multi_do_quit(char* buf)
+multi_do_quit(uint8_t* buf)
 {
 
 	if (Game_mode & GM_NETWORK)
@@ -1516,7 +1509,7 @@ multi_do_quit(char* buf)
 }
 
 void
-multi_do_cloak(char* buf)
+multi_do_cloak(uint8_t* buf)
 {
 	int pnum;
 
@@ -1540,7 +1533,7 @@ multi_do_cloak(char* buf)
 }
 
 void
-multi_do_decloak(char* buf)
+multi_do_decloak(uint8_t* buf)
 {
 	int pnum;
 
@@ -1552,7 +1545,7 @@ multi_do_decloak(char* buf)
 }
 
 void
-multi_do_door_open(char* buf)
+multi_do_door_open(uint8_t* buf)
 {
 	int segnum;
 	short side;
@@ -1603,7 +1596,7 @@ multi_do_door_open(char* buf)
 }
 
 void
-multi_do_create_explosion(char* buf)
+multi_do_create_explosion(uint8_t* buf)
 {
 	int pnum;
 	int count = 1;
@@ -1615,7 +1608,7 @@ multi_do_create_explosion(char* buf)
 }
 
 void
-multi_do_controlcen_fire(char* buf)
+multi_do_controlcen_fire(uint8_t* buf)
 {
 	vms_vector to_target;
 	char gun_num;
@@ -1630,7 +1623,7 @@ multi_do_controlcen_fire(char* buf)
 }
 
 void
-multi_do_create_powerup(char* buf)
+multi_do_create_powerup(uint8_t* buf)
 {
 	short segnum;
 	short objnum;
@@ -1686,7 +1679,7 @@ multi_do_create_powerup(char* buf)
 }
 
 void
-multi_do_play_sound(char* buf)
+multi_do_play_sound(uint8_t* buf)
 {
 	int pnum = buf[1];
 #ifdef SHAREWARE
@@ -1708,7 +1701,7 @@ multi_do_play_sound(char* buf)
 
 #ifndef SHAREWARE
 void
-multi_do_score(char* buf)
+multi_do_score(uint8_t* buf)
 {
 	int pnum = buf[1];
 
@@ -1727,7 +1720,7 @@ multi_do_score(char* buf)
 }
 
 void
-multi_do_trigger(char* buf)
+multi_do_trigger(uint8_t* buf)
 {
 	int pnum = buf[1];
 	int trigger = buf[2];
@@ -1745,7 +1738,7 @@ multi_do_trigger(char* buf)
 	check_trigger_sub(trigger, pnum);
 }
 
-void multi_do_hostage_door_status(char* buf)
+void multi_do_hostage_door_status(uint8_t* buf)
 {
 	// Update hit point status of a door
 
@@ -1769,7 +1762,7 @@ void multi_do_hostage_door_status(char* buf)
 }
 #endif
 
-void multi_do_save_game(char* buf)
+void multi_do_save_game(uint8_t* buf)
 {
 	int count = 1;
 	uint8_t slot;
@@ -1783,7 +1776,7 @@ void multi_do_save_game(char* buf)
 	multi_save_game(slot, id, desc);
 }
 
-void multi_do_restore_game(char* buf)
+void multi_do_restore_game(uint8_t* buf)
 {
 	int count = 1;
 	uint8_t slot;
@@ -1796,21 +1789,22 @@ void multi_do_restore_game(char* buf)
 }
 
 // 
-void multi_do_req_player(char* buf)
+void multi_do_req_player(uint8_t* buf)
 {
 	netplayer_stats ps;
 	uint8_t player_n;
 	// Send my netplayer_stats to everyone!
 	player_n = *(uint8_t*)(buf + 1);
-	if ((player_n == Player_num) || (player_n == 255)) {
+	if ((player_n == Player_num) || (player_n == 255)) 
+	{
 		extract_netplayer_stats(&ps, &Players[Player_num]);
 		ps.Player_num = Player_num;
 		ps.message_type = MULTI_SEND_PLAYER;		// SET
-		multi_send_data((char*)&ps, sizeof(netplayer_stats), 1);
+		multi_send_data((uint8_t*)&ps, sizeof(netplayer_stats), 1);
 	}
 }
 
-void multi_do_send_player(char* buf)
+void multi_do_send_player(uint8_t* buf)
 {
 	// Got a player packet from someone!!!
 	netplayer_stats* p;
@@ -1902,7 +1896,7 @@ multi_reset_player_object(object* objp)
 }
 
 void
-multi_process_data(char* buf, int len)
+multi_process_data(uint8_t* buf, int len)
 {
 	// Take an entire message (that has already been checked for validity,
 	// if necessary) and act on it.  
@@ -2000,7 +1994,7 @@ multi_process_data(char* buf, int len)
 }
 
 void
-multi_process_bigdata(char* buf, int len)
+multi_process_bigdata(uint8_t* buf, int len)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data. 
@@ -2168,7 +2162,8 @@ multi_send_message(void)
 #ifdef SHAREWARE
 		loc += 1; // Dummy space for receiver (Which isn't used)
 #endif
-		strncpy(multibuf + loc, Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
+		strncpy((char*)(multibuf + loc), Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
+
 		multibuf[loc - 1] = '\0';
 		multi_send_data(multibuf, loc, 1);
 		Network_message_reciever = -1;
@@ -2245,12 +2240,14 @@ multi_send_remobj(int objnum)
 
 	int8_t obj_owner;
 	short remote_objnum;
+	int loc = 1;
 
 	multibuf[0] = (char)MULTI_REMOVE_OBJECT;
 
 	remote_objnum = objnum_local_to_remote((short)objnum, &obj_owner);
 
-	*(short*)(multibuf + 1) = remote_objnum; // Map to network objnums
+	//*(short*)(multibuf + 1) = remote_objnum; // Map to network objnums
+	netmisc_encode_int16(multibuf, &loc, remote_objnum);
 
 	multibuf[3] = obj_owner;
 

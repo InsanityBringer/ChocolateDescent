@@ -3182,7 +3182,7 @@ void network_read_pdata_packet(frame_info* pd)
 		Endlevel_sequence = 1;
 		if (pd->data_size > 0) {
 			// pass pd->data to some parser function....
-			multi_process_bigdata((char*)pd->data, pd->data_size);
+			multi_process_bigdata(pd->data, pd->data_size);
 		}
 		Endlevel_sequence = old_Endlevel_sequence;
 		return;
@@ -3257,7 +3257,7 @@ void network_read_pdata_packet(frame_info* pd)
 	if (pd->data_size > 0) 
 	{
 		// pass pd->data to some parser function....
-		multi_process_bigdata((char*)pd->data, pd->data_size);
+		multi_process_bigdata(pd->data, pd->data_size);
 	}
 	//	mprintf( (0, "Got packet with %d bytes on it!\n", pd->data_size ));
 
