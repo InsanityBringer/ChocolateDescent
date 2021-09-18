@@ -85,12 +85,16 @@ namespace
 		else if (message == WM_KEYDOWN)
 		{
 			int scancode = (lparam >> 16) & 0xff;
+			if (lparam & 0x1000000) //handle extended flag
+				scancode |= 0x80;
 			KeyPressed(scancode);
 			return 0;
 		}
 		else if (message == WM_KEYUP)
 		{
 			int scancode = (lparam >> 16) & 0xff;
+			if (lparam & 0x1000000) //handle extended flag
+				scancode |= 0x80;
 			KeyReleased(scancode);
 			return 0;
 		}
@@ -108,8 +112,64 @@ namespace
 					RAWINPUT* rawinput = (RAWINPUT*)buf.data();
 					if (rawinput->header.dwType == RIM_TYPEMOUSE)
 					{
+						uint32_t buttons;
 						mousedx += rawinput->data.mouse.lLastX;
 						mousedy += rawinput->data.mouse.lLastY;
+
+						//[ISB] Making buttons use rawinput
+						buttons = rawinput->data.mouse.ulButtons;
+
+						if (buttons & RI_MOUSE_LEFT_BUTTON_DOWN && !mouse_button_state(MBUTTON_LEFT))
+						{
+							MousePressed(MBUTTON_LEFT);
+							mousebuttons |= 1;
+						}
+						else if (buttons & RI_MOUSE_LEFT_BUTTON_UP && mouse_button_state(MBUTTON_LEFT))
+						{
+							MouseReleased(MBUTTON_LEFT);
+							mousebuttons &= ~1;
+						}
+						if (buttons & RI_MOUSE_RIGHT_BUTTON_DOWN && !mouse_button_state(MBUTTON_RIGHT))
+						{
+							MousePressed(MBUTTON_RIGHT);
+							mousebuttons |= 2;
+						}
+						else if (buttons & RI_MOUSE_RIGHT_BUTTON_UP && mouse_button_state(MBUTTON_RIGHT))
+						{
+							MouseReleased(MBUTTON_RIGHT);
+							mousebuttons &= ~2;
+						}
+						if (buttons & RI_MOUSE_MIDDLE_BUTTON_DOWN && !mouse_button_state(MBUTTON_MIDDLE))
+						{
+							MousePressed(MBUTTON_MIDDLE);
+							mousebuttons |= 4;
+						}
+						else if (buttons & RI_MOUSE_MIDDLE_BUTTON_UP && mouse_button_state(MBUTTON_MIDDLE))
+						{
+							MouseReleased(MBUTTON_MIDDLE);
+							mousebuttons &= ~4;
+						}
+						if (buttons & RI_MOUSE_BUTTON_4_DOWN && !mouse_button_state(MBUTTON_4))
+						{
+							MousePressed(MBUTTON_4);
+							mousebuttons |= 8;
+						}
+						else if (buttons & RI_MOUSE_BUTTON_4_UP && mouse_button_state(MBUTTON_4))
+						{
+							MouseReleased(MBUTTON_4);
+							mousebuttons &= ~8;
+						}
+						if (buttons & RI_MOUSE_BUTTON_5_DOWN && !mouse_button_state(MBUTTON_5))
+						{
+							MousePressed(MBUTTON_5);
+							mousebuttons |= 16;
+						}
+						else if (buttons & RI_MOUSE_BUTTON_5_UP && mouse_button_state(MBUTTON_5))
+						{
+							MouseReleased(MBUTTON_5);
+							mousebuttons &= ~16;
+						}
+
 					}
 					else if (rawinput->header.dwType == RIM_TYPEHID)
 					{
@@ -177,66 +237,6 @@ namespace
 					}
 				}
 			}
-			return 0;
-		}
-		else if (message == WM_LBUTTONDOWN)
-		{
-			mousebuttons |= 1;
-			MousePressed(MBUTTON_LEFT);
-			return 0;
-		}
-		else if (message == WM_LBUTTONUP)
-		{
-			mousebuttons &= ~1;
-			MouseReleased(MBUTTON_LEFT);
-			return 0;
-		}
-		else if (message == WM_RBUTTONDOWN)
-		{
-			mousebuttons |= 2;
-			MousePressed(MBUTTON_RIGHT);
-			return 0;
-		}
-		else if (message == WM_RBUTTONUP)
-		{
-			mousebuttons &= ~2;
-			MouseReleased(MBUTTON_RIGHT);
-			return 0;
-		}
-		else if (message == WM_MBUTTONDOWN)
-		{
-			mousebuttons |= 4;
-			MousePressed(MBUTTON_MIDDLE);
-			return 0;
-		}
-		else if (message == WM_MBUTTONUP)
-		{
-			mousebuttons &= ~4;
-			MouseReleased(MBUTTON_MIDDLE);
-			return 0;
-		}
-		else if (message == WM_XBUTTONDOWN && lparam == MK_XBUTTON1)
-		{
-			mousebuttons |= 8;
-			MousePressed(MBUTTON_4);
-			return 0;
-		}
-		else if (message == WM_XBUTTONUP && lparam == MK_XBUTTON1)
-		{
-			mousebuttons &= ~8;
-			MouseReleased(MBUTTON_4);
-			return 0;
-		}
-		else if (message == WM_XBUTTONDOWN && lparam == MK_XBUTTON2)
-		{
-			mousebuttons |= 16;
-			MousePressed(MBUTTON_5);
-			return 0;
-		}
-		else if (message == WM_XBUTTONUP && lparam == MK_XBUTTON2)
-		{
-			mousebuttons &= ~16;
-			MouseReleased(MBUTTON_5);
 			return 0;
 		}
 		return DefWindowProc(handle, message, wparam, lparam);
@@ -603,6 +603,8 @@ void I_ReadPalette(uint8_t* dest)
 
 void I_WaitVBL()
 {
+	I_MarkEnd(US_60FPS);
+	I_MarkStart();
 }
 
 struct LetterboxRect { int left, top, width, height; };
@@ -677,12 +679,11 @@ void I_DrawCurrentCanvas(int sync)
 	}
 }
 
-void I_BlitCurrentCanvas()
-{
-}
-
+extern unsigned char* gr_video_memory;
 void I_BlitCanvas(grs_canvas* canv)
 {
+	if (canv->cv_bitmap.bm_type == BM_SVGA)
+		memcpy(gr_video_memory, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
 }
 
 void I_Shutdown()
