@@ -1317,22 +1317,6 @@ extern int gr_bitblt_dest_step_shift;
 extern int gr_wait_for_retrace;
 extern int gr_bitblt_double;
 
-//render a frame for the game in stereo
-void game_render_frame_stereo_vfx()
-{
-	Error("game_render_frame_stereo_vfx: STUB\n");
-}
-
-
-
-//render a frame for the game in stereo
-void game_render_frame_stereo_interlaced()
-{
-	Error("game_render_frame_stereo_interlaced: STUB\n");
-}
-
-
-
 //render a frame for the game
 void game_render_frame_mono(void)
 {
@@ -1562,7 +1546,6 @@ int toggle_afterburner_status(void)
 		if ((pp->afterburner_time > AFTERBURNER_MAX_TIME/4) && (pp->energy > 0)) 
 		{
 			pp->flags |= PLAYER_FLAGS_AFTERBURNER;
-			say_afterburner_status();
 		} 
 		else 
 		{
@@ -1573,7 +1556,6 @@ int toggle_afterburner_status(void)
 	} else 
 	{
 		pp->flags ^= PLAYER_FLAGS_AFTERBURNER;
-		say_afterburner_status();
 		return 1;
 	}
 }
@@ -2180,8 +2162,6 @@ void game()
 
 	//keyd_repeat = 0;                // Don't allow repeat in game
 	keyd_repeat = 1;                // Do allow repeat in game
-
-	//_MARK_("start of game");Commented out -KRB
 
 #ifdef EDITOR
 	if (Segments[ConsoleObject->segnum].segnum == -1)      //segment no longer exists
@@ -2998,7 +2978,7 @@ void ReadControls()
 			}
 #endif
 #ifdef RESTORE_AFTERBURNER
-		//Players[Player_num].flags &= ~PLAYER_FLAGS_AFTERBURNER;	//	Turn off, keypress might turn it on.
+		Players[Player_num].flags &= ~PLAYER_FLAGS_AFTERBURNER;	//	Turn off, keypress might turn it on.
 #endif
 
 		switch (key) 

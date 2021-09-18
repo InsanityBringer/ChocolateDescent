@@ -43,6 +43,7 @@ const char* titleMsg = "Chocolate Descent (" __DATE__ ")";
 #endif
 
 int WindowWidth = 1600, WindowHeight = 900;
+int CurWindowWidth, CurWindowHeight;
 SDL_Window* gameWindow = NULL;
 grs_canvas* screenBuffer;
 
@@ -86,6 +87,9 @@ int I_InitWindow()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+
+	CurWindowWidth = WindowWidth;
+	CurWindowHeight = WindowHeight;
 	int flags = SDL_WINDOW_OPENGL;
 	if (Fullscreen)
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
@@ -93,7 +97,7 @@ int I_InitWindow()
 	gameWindow = SDL_CreateWindow(titleMsg, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, flags);
 	//int result = SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, flags, &gameWindow, &renderer);
 	if (Fullscreen)
-		SDL_GetWindowSize(gameWindow, &WindowWidth, &WindowHeight);
+		SDL_GetWindowSize(gameWindow, &CurWindowWidth, &CurWindowHeight);
 
 	if (!gameWindow)
 	{
@@ -150,6 +154,41 @@ int I_CheckMode(int mode)
 void I_SetScreenCanvas(grs_canvas* canv)
 {
 	screenBuffer = canv;
+}
+
+void I_SetScreenRect(int w, int h)
+{
+	//Create the destination rectangle for the game screen
+	int bestWidth = CurWindowHeight * 4 / 3;
+	if (CurWindowWidth < bestWidth) bestWidth = CurWindowWidth;
+
+	if (BestFit == FITMODE_FILTERED && h <= 400)
+	{
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+		w *= 2; h *= 2;
+	}
+	else
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+
+	if (BestFit == FITMODE_BEST)
+	{
+		int numWidths = bestWidth / w;
+		screenRectangle.w = numWidths * w;
+		screenRectangle.h = (screenRectangle.w * 3 / 4);
+		screenRectangle.x = (CurWindowWidth - screenRectangle.w) / 2;
+		screenRectangle.y = (CurWindowHeight - screenRectangle.h) / 2;
+	}
+	else
+	{
+		screenRectangle.w = bestWidth;
+		screenRectangle.h = (screenRectangle.w * 3 / 4);
+		screenRectangle.x = screenRectangle.y = 0;
+		screenRectangle.x = (CurWindowWidth - screenRectangle.w) / 2;
+		screenRectangle.y = (CurWindowHeight - screenRectangle.h) / 2;
+	}
+
+
+	GL_SetVideoMode(w, h, &screenRectangle);
 }
 
 int I_SetMode(int mode)
@@ -219,40 +258,9 @@ int I_SetMode(int mode)
 		return 0;
 	}
 
-	if (BestFit == FITMODE_FILTERED && h <= 400)
-	{
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-		w *= 2; h *= 2;
-	}
-	else
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-
 	//[ISB] this should hopefully fix all instances of the screen flashing white when changing modes
 	I_WritePalette(0, 255, gr_palette);
-
-	//Create the destination rectangle for the game screen
-	int bestWidth = WindowHeight * 4 / 3;
-	if (WindowWidth < bestWidth) bestWidth = WindowWidth;
-
-	if (BestFit == FITMODE_BEST)
-	{
-		int numWidths = bestWidth / w;
-		screenRectangle.w = numWidths * w;
-		screenRectangle.h = (screenRectangle.w * 3 / 4);
-		screenRectangle.x = (WindowWidth - screenRectangle.w) / 2;
-		screenRectangle.y = (WindowHeight - screenRectangle.h) / 2;
-	}
-	else
-	{	
-		screenRectangle.w = bestWidth;
-		screenRectangle.h = (screenRectangle.w * 3 / 4);
-		screenRectangle.x = screenRectangle.y = 0;
-		screenRectangle.x = (WindowWidth - screenRectangle.w) / 2;
-		screenRectangle.y = (WindowHeight - screenRectangle.h) / 2;
-	}
-
-
-	GL_SetVideoMode(w, h, &screenRectangle);
+	I_SetScreenRect(w, h);
 
 	return 0;
 }
@@ -260,8 +268,8 @@ int I_SetMode(int mode)
 void I_ScaleMouseToWindow(int* x, int* y)
 {
 	//printf("in: (%d, %d) ", *x, *y);
-	*x = (*x * screenRectangle.w / WindowWidth);
-	*y = (*y * screenRectangle.h / WindowHeight);
+	*x = (*x * screenRectangle.w / CurWindowWidth);
+	*y = (*y * screenRectangle.h / CurWindowHeight);
 	if (*x < 0) *x = 0; if (*x >= screenRectangle.w) *x = screenRectangle.w - 1;
 	if (*y < 0) *y = 0; if (*y >= screenRectangle.h) *y = screenRectangle.h - 1;
 	//printf("out: (%d, %d)\n", *x, *y);
@@ -291,7 +299,27 @@ void I_DoEvents()
 			break;
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
-			I_KeyHandler(ev.key.keysym.scancode, ev.key.state);
+			if (ev.key.keysym.scancode == SDL_SCANCODE_RETURN && ev.key.state == SDL_PRESSED && ev.key.keysym.mod & KMOD_ALT)
+			{
+				if (!Fullscreen)
+				{
+					SDL_SetWindowFullscreen(gameWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+					SDL_GetWindowSize(gameWindow, &CurWindowWidth, &CurWindowHeight);
+					Fullscreen = 1;
+				}
+				else
+				{
+					SDL_SetWindowFullscreen(gameWindow, 0);
+					SDL_SetWindowSize(gameWindow, WindowWidth, WindowHeight);
+					CurWindowWidth = WindowWidth; CurWindowHeight = WindowHeight;
+					SDL_SetWindowPosition(gameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+					Fullscreen = 0;
+				}
+
+				I_SetScreenRect(grd_curscreen->sc_w, grd_curscreen->sc_h);
+			}
+			else
+				I_KeyHandler(ev.key.keysym.scancode, ev.key.state);
 			break;
 			//[ISB] kill this. Descent's joystick code expects buttons to report that they're constantly being held down, and these button events only fire when the state changes
 /*
@@ -324,7 +352,7 @@ void I_SetRelative(int state)
 	}
 	else if (!state && formerState)
 	{
-		SDL_WarpMouseInWindow(gameWindow, WindowWidth / 2, WindowHeight / 2);
+		SDL_WarpMouseInWindow(gameWindow, CurWindowWidth / 2, CurWindowHeight / 2);
 	}
 }
 
