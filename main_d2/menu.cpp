@@ -904,7 +904,7 @@ void do_new_game_menu()
 	{
 		newmenu_item m[4];
 		char info_text[80];
-		char num_text[10];
+		char num_text[11];
 		int choice;
 		int n_items;
 
