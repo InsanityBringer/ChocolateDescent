@@ -472,7 +472,6 @@ int D_DescentMain(int argc, const char** argv)
 		int screen_height = 200;
 		int vr_mode = VR_NONE;
 		int screen_compatible = 1;
-		int use_double_buffer = 0;
 
 		if (FindArg("-320x240")) 
 		{
@@ -481,7 +480,6 @@ int D_DescentMain(int argc, const char** argv)
 			screen_width = 320;
 			screen_height = 240;
 			screen_compatible = 0;
-			use_double_buffer = 1;
 		}
 
 		if (FindArg("-320x400")) 
@@ -491,7 +489,6 @@ int D_DescentMain(int argc, const char** argv)
 			screen_width = 320;
 			screen_height = 400;
 			screen_compatible = 0;
-			use_double_buffer = 1;
 		}
 
 		if (!Game_simuleyes_flag && FindArg("-640x400"))
@@ -501,7 +498,6 @@ int D_DescentMain(int argc, const char** argv)
 			screen_width = 640;
 			screen_height = 400;
 			screen_compatible = 0;
-			use_double_buffer = 1;
 		}
 
 		if (!Game_simuleyes_flag && FindArg("-640x480")) 
@@ -511,7 +507,6 @@ int D_DescentMain(int argc, const char** argv)
 			screen_width = 640;
 			screen_height = 480;
 			screen_compatible = 0;
-			use_double_buffer = 1;
 		}
 		if (FindArg("-320x100")) 
 		{
@@ -522,13 +517,7 @@ int D_DescentMain(int argc, const char** argv)
 			screen_compatible = 0;
 		}
 
-		if (FindArg("-nodoublebuffer")) 
-		{
-			if (Inferno_verbose) printf("Double-buffering disabled...\n");
-			use_double_buffer = 0;
-		}
-
-		game_init_render_buffers(screen_mode, screen_width, screen_height, use_double_buffer, vr_mode, screen_compatible);
+		game_init_render_buffers(screen_mode, screen_width, screen_height, vr_mode, screen_compatible);
 	}
 
 	VR_switch_eyes = 0;

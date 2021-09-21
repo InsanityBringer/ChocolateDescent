@@ -117,7 +117,7 @@ int MaxNumNetPlayers = -1;
 int NumNetPlayerPositions = -1;
 
 // Extern from game.c to fix a bug in the cockpit!
-extern int last_drawn_cockpit[2];
+extern int last_drawn_cockpit;
 extern int Last_level_path_created;
 
 void HUD_clear_messages(); // From hud.c
@@ -941,7 +941,7 @@ void PlayerFinishedLevel(int secret_flag)
 		else
 			Players[Player_num].connected = 2; // Finished but did not die
 
-	last_drawn_cockpit[0] = -1;
+	last_drawn_cockpit = -1;
 
 	if (Current_level_num == Last_level) 
 	{
@@ -1138,7 +1138,7 @@ void DoPlayerDead()
 				DoEndLevelScoreGlitz(0);
 			}
 			init_player_stats_new_ship();
-			last_drawn_cockpit[0] = -1;
+			last_drawn_cockpit = -1;
 		}
 		else {
 #ifdef NETWORK
@@ -1150,7 +1150,7 @@ void DoPlayerDead()
 
 			rval = AdvanceLevel(0);			//if finished, go on to next level
 			init_player_stats_new_ship();
-			last_drawn_cockpit[0] = -1;
+			last_drawn_cockpit = -1;
 		}
 
 		if (rval)
@@ -1175,7 +1175,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 {
 	if (!(Game_mode & GM_MULTI)) 
 	{
-		last_drawn_cockpit[0] = -1;
+		last_drawn_cockpit = -1;
 	}
 
 	if (Newdemo_state == ND_STATE_PAUSED)
