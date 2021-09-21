@@ -1218,7 +1218,7 @@ void draw_player_ship(int cloak_state, int old_cloak_state, int x, int y)
 		}
 	}
 
-	gr_set_current_canvas(&VR_render_buffer[0]);
+	gr_set_current_canvas(&VR_render_buffer);
 	gr_ubitmap(x, y, bm);
 
 	Gr_scanline_darkening_level = cloak_fade_value;
@@ -1226,7 +1226,7 @@ void draw_player_ship(int cloak_state, int old_cloak_state, int x, int y)
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 
 	gr_set_current_canvas(get_current_game_screen());
-	gr_bm_ubitbltm(bm->bm_w, bm->bm_h, x, y, x, y, &VR_render_buffer[0].cv_bitmap, &grd_curcanv->cv_bitmap);
+	gr_bm_ubitbltm(bm->bm_w, bm->bm_h, x, y, x, y, &VR_render_buffer.cv_bitmap, &grd_curcanv->cv_bitmap);
 }
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
@@ -1409,7 +1409,7 @@ int draw_weapon_box(int weapon_type, int weapon_num)
 {
 	int drew_flag = 0;
 
-	gr_set_current_canvas(&VR_render_buffer[0]);
+	gr_set_current_canvas(&VR_render_buffer);
 	gr_set_curfont(GAME_FONT);
 
 	if (weapon_num != old_weapon[weapon_type] && weapon_box_states[weapon_type] == WS_SET)
@@ -1478,7 +1478,7 @@ void draw_weapon_boxes()
 	int drew;
 
 	drew = draw_weapon_box(0, Primary_weapon);
-	if (drew) copy_gauge_box(&gauge_boxes[boxofs + 0], &VR_render_buffer[0].cv_bitmap);
+	if (drew) copy_gauge_box(&gauge_boxes[boxofs + 0], &VR_render_buffer.cv_bitmap);
 
 	if (weapon_box_states[0] == WS_SET)
 		if (Players[Player_num].primary_ammo[Primary_weapon] != old_ammo_count[0])
@@ -1497,7 +1497,7 @@ void draw_weapon_boxes()
 	if (!hostage_is_vclip_playing()) 
 	{
 		drew = draw_weapon_box(1, Secondary_weapon);
-		if (drew) copy_gauge_box(&gauge_boxes[boxofs + 1], &VR_render_buffer[0].cv_bitmap);
+		if (drew) copy_gauge_box(&gauge_boxes[boxofs + 1], &VR_render_buffer.cv_bitmap);
 
 		if (weapon_box_states[1] == WS_SET)
 			if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1]) 

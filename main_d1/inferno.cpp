@@ -88,8 +88,6 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "vers_id.h"
 #include "platform/platform.h"
 
-extern int Game_simuleyes_flag;
-
 static const char desc_id_checksum_str[] = DESC_ID_CHKSUM;
 char desc_id_exit_num = 0;
 
@@ -240,17 +238,6 @@ unsigned descent_critical_deverror = 0;
 unsigned descent_critical_errcode = 0;
 
 extern int Network_allow_socket_changes;
-
-extern void vfx_set_palette_sub(uint8_t*);
-
-extern int Game_vfx_flag;
-extern int Game_victor_flag;
-extern int Game_vio_flag;
-extern int Game_3dmax_flag;
-extern int VR_low_res;
-
-extern int Config_vr_type;
-extern int Config_vr_tracking;
 
 #include "netmisc.h"
 
@@ -470,7 +457,6 @@ int D_DescentMain(int argc, const char** argv)
 		int screen_mode = SM_320x200C;
 		int screen_width = 320;
 		int screen_height = 200;
-		int vr_mode = VR_NONE;
 		int screen_compatible = 1;
 
 		if (FindArg("-320x240")) 
@@ -491,7 +477,7 @@ int D_DescentMain(int argc, const char** argv)
 			screen_compatible = 0;
 		}
 
-		if (!Game_simuleyes_flag && FindArg("-640x400"))
+		if (FindArg("-640x400"))
 		{
 			if (Inferno_verbose) printf("Using 640x400 VESA...\n");
 			screen_mode = SM_640x400V;
@@ -500,7 +486,7 @@ int D_DescentMain(int argc, const char** argv)
 			screen_compatible = 0;
 		}
 
-		if (!Game_simuleyes_flag && FindArg("-640x480")) 
+		if (FindArg("-640x480")) 
 		{
 			if (Inferno_verbose) printf("Using 640x480 VESA...\n");
 			screen_mode = SM_640x480V;
@@ -517,10 +503,8 @@ int D_DescentMain(int argc, const char** argv)
 			screen_compatible = 0;
 		}
 
-		game_init_render_buffers(screen_mode, screen_width, screen_height, vr_mode, screen_compatible);
+		game_init_render_buffers(screen_mode, screen_width, screen_height, screen_compatible);
 	}
-
-	VR_switch_eyes = 0;
 
 #ifdef NETWORK
 	//	i = FindArg( "-rinvul" );
@@ -561,7 +545,6 @@ int D_DescentMain(int argc, const char** argv)
 		strcpy(filename, "descent.pcx");
 
 		if ((pcx_error = pcx_read_bitmap(filename, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, title_pal)) == PCX_ERROR_NONE) {
-			vfx_set_palette_sub(title_pal);
 			gr_palette_clear();
 			//gr_bitmap( 0, 0, &title_bm );
 			gr_palette_fade_in(title_pal, 32, 0);
@@ -736,7 +719,6 @@ void show_order_form()
 #endif
 	if ((pcx_error = pcx_read_bitmap(exit_screen, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, title_pal)) == PCX_ERROR_NONE) 
 	{
-		vfx_set_palette_sub(title_pal);
 		gr_palette_fade_in(title_pal, 32, 0);
 		{
 			int done = 0;

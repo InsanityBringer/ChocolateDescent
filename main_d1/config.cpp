@@ -47,8 +47,6 @@ static const char* joystick_max_str = "JoystickMax";
 static const char* joystick_cen_str = "JoystickCen";
 static const char* last_player_str = "LastPlayer";
 static const char* last_mission_str = "LastMission";
-static const char* config_vr_type_str = "VR_type";
-static const char* config_vr_tracking_str = "VR_tracking";
 
 
 char config_last_player[CALLSIGN_LEN + 1] = "";
@@ -56,9 +54,6 @@ char config_last_mission[MISSION_NAME_LEN + 1] = "";
 
 int Config_digi_type = 0;
 int Config_midi_type = 0;
-
-int Config_vr_type = 0;
-int Config_vr_tracking = 0;
 
 extern int8_t	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
 
@@ -190,14 +185,6 @@ int ReadConfigFile()
 				p = strchr(config_last_mission, '\n');
 				if (p)* p = 0;
 			}
-			else if (!strcmp(token, config_vr_type_str))
-			{
-				Config_vr_type = strtol(value, NULL, 10);
-			}
-			else if (!strcmp(token, config_vr_tracking_str))
-			{
-				Config_vr_tracking = strtol(value, NULL, 10);
-			}
 		}
 	}
 
@@ -294,10 +281,6 @@ int WriteConfigFile()
 	sprintf(str, "%s=%s\n", last_player_str, Players[Player_num].callsign);
 	fputs(str, infile);
 	sprintf(str, "%s=%s\n", last_mission_str, config_last_mission);
-	fputs(str, infile);
-	sprintf(str, "%s=%d\n", config_vr_type_str, Config_vr_type);
-	fputs(str, infile);
-	sprintf(str, "%s=%d\n", config_vr_tracking_str, Config_vr_tracking);
 	fputs(str, infile);
 	fclose(infile);
 	return 0;

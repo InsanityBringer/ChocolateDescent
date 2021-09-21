@@ -1135,13 +1135,10 @@ fix Last_angles_b = 0;
 fix Last_angles_h = 0;
 uint8_t Last_angles_read = 0;
 
-extern int			VR_sensitivity;
-
 int VR_sense_range[3] = { 25, 50, 75 };
 
 void read_head_tracker()
 {
-	//Warning("read_head_tracker: STUB\n");
 }
 
 #define	PH_SCALE	8

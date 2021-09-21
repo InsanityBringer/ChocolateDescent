@@ -106,7 +106,6 @@ int show_title_screen(const char* filename, int allow_keys)
 		return 0;
 	}
 
-	vfx_set_palette_sub(New_pal);
 	gr_palette_clear();
 	gr_set_current_canvas(NULL);
 	gr_bitmap(0, 0, &title_bm);
@@ -297,7 +296,6 @@ void show_bitmap_frame(void)
 			New_pal[254 * 3 + 1] = 0;
 			New_pal[254 * 3 + 2] = 0;
 			gr_palette_load(New_pal);
-			vfx_set_palette_sub(New_pal);
 		}
 
 		switch (Animating_bitmap_type) 
@@ -994,7 +992,6 @@ int show_briefing_screen(int screen_num, int allow_keys)
 		return 0;
 	}
 
-	vfx_set_palette_sub(New_pal);
 	gr_palette_clear();
 	gr_bitmap(0, 0, &briefing_bm);
 

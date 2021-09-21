@@ -1396,7 +1396,6 @@ void copy_defaults_to_robot_all(void)
 int	Do_appearance_effect = 0;
 
 extern int Rear_view;
-extern void vr_reset_display();
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
@@ -1442,7 +1441,4 @@ void StartLevel(int random)
 	Fusion_charge = 0;
 
 	Robot_firing_enabled = 1;
-
-	if (VR_screen_mode == SCREEN_MENU)
-		vr_reset_display();
 }
