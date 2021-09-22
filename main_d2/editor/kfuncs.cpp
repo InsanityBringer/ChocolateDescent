@@ -45,6 +45,8 @@ extern void set_all_modes_to_hover(void);
 extern void check_for_overlapping_segments(void);
 extern void init_replacements();
 
+extern int set_level_palette();
+
 int Test1() 
 {
 //	{ int i;
@@ -374,6 +376,7 @@ FUNCTION med_functions[] = {
 {	 "med-keypad-goto-prev",				 0,        med_keypad_goto_prev },
 {	 "med-keypad-goto-next",				 0,        med_keypad_goto_next },
 {	 "med-keypad-goto",				 1,        med_keypad_goto },
+	{	"med-set-palette",			1,			set_level_palette },
 
 // John's temporary function page stuff
 // {   "med-set-function-page",            1,        medtmp_set_page },

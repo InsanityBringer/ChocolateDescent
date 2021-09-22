@@ -40,6 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texpage.h"		// For texpage_goto_first
 #include "meddraw.h"		// For draw_World
 #include "main_d2/game.h"
+#include "main_d2/gamepal.h"
 
 //return 2d distance, i.e, sqrt(x*x + y*y)
 int dist_2d(int x, int y)
@@ -556,6 +557,41 @@ void set_view_target_from_segment(segment *sp)
 	}
 	Update_flags |= UF_VIEWPOINT_MOVED;
 
+}
+
+int set_level_palette()
+{
+	UI_WINDOW* NameWindow = NULL;
+	UI_GADGET_INPUTBOX* NameText;
+	UI_GADGET_BUTTON* QuitButton;
+
+	// Open a window with a quit button
+	NameWindow = ui_open_window(20, 20, 300, 110, WIN_DIALOG);
+	QuitButton = ui_add_gadget_button(NameWindow, 150 - 24, 60, 48, 40, "Done", NULL);
+
+	ui_wprintf_at(NameWindow, 10, 12, "Enter palette name:");
+	NameText = ui_add_gadget_inputbox(NameWindow, 10, 30, FILENAME_LEN, FILENAME_LEN, Current_level_palette);
+
+	NameWindow->keyboard_focus_gadget = (UI_GADGET*)NameText;
+	QuitButton->hotkey = KEY_ENTER;
+
+	ui_gadget_calc_keys(NameWindow);
+
+	while (!QuitButton->pressed && last_keypress != KEY_ENTER) {
+		ui_mega_process();
+		ui_window_do_gadgets(NameWindow);
+	}
+
+	strcpy(Current_level_palette, NameText->text);
+
+	if (NameWindow != NULL) {
+		ui_close_window(NameWindow);
+		NameWindow = NULL;
+	}
+
+	load_palette(Current_level_palette, 1, 0);
+
+	return 0;
 }
 
 #endif
