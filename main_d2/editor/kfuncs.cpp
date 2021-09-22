@@ -383,6 +383,8 @@ FUNCTION med_functions[] = {
 
 // In fuelcen.c
 {	"med-fuelcen-create",					0, 	fuelcen_create_from_curseg },
+{	"med-red-goal-create",					0, 	goal_red_create_from_curseg },
+{	"med-blue-goal-create",					0, 	goal_blue_create_from_curseg },
 {	"med-repaircen-create",					0, 	repaircen_create_from_curseg },
 {	"med-controlcen-create",					0,  controlcen_create_from_curseg },
 {	"med-robotmaker-create",					0,  robotmaker_create_from_curseg },

@@ -427,6 +427,20 @@ int fuelcen_create_from_curseg()
 	return 1;
 }
 
+int goal_red_create_from_curseg()
+{
+	Segment2s[Cursegp->segnum].special = SEGMENT_IS_GOAL_RED;
+	fuelcen_activate(Cursegp, Segment2s[Cursegp->segnum].special);
+	return 1;
+}
+
+int goal_blue_create_from_curseg()
+{
+	Segment2s[Cursegp->segnum].special = SEGMENT_IS_GOAL_BLUE;
+	fuelcen_activate(Cursegp, Segment2s[Cursegp->segnum].special);
+	return 1;
+}
+
 int repaircen_create_from_curseg()
 {
 #ifndef RESTORE_REPAIRCENTER

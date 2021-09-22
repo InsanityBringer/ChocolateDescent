@@ -695,6 +695,16 @@ void draw_special_segments(void)
 				gr_setcolor(color);
 				draw_segment(&Segments[seg]);
 				break;
+			case SEGMENT_IS_GOAL_BLUE:
+				color = BM_XRGB( 0, 0, 31 );
+				gr_setcolor(color);
+				draw_segment(&Segments[seg]);
+				break;
+			case SEGMENT_IS_GOAL_RED:
+				color = BM_XRGB( 31, 0, 0 );
+				gr_setcolor(color);
+				draw_segment(&Segments[seg]);
+				break;
 			}
 }
 		

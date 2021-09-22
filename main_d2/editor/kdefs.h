@@ -318,6 +318,8 @@ extern int robotmaker_create_from_curseg();
 extern int fuelcen_reset_all();
 extern int RestoreGameState();
 extern int fuelcen_delete_from_curseg();
+extern int goal_blue_create_from_curseg();
+extern int goal_red_create_from_curseg();
 
 // In editor\robot.c
 extern int do_robot_dialog();

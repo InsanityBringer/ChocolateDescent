@@ -590,6 +590,7 @@ int set_level_palette()
 	}
 
 	load_palette(Current_level_palette, 1, 0);
+	Update_flags = UF_ALL;
 
 	return 0;
 }
