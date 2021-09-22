@@ -204,6 +204,9 @@ void render_terrain(vms_vector* org_point, int org_2dx, int org_2dy)
 
 	//mprintf((0,"viewer_i,j = %d,%d\n",viewer_i,viewer_j));
 
+	if (viewer_i >= high_i) viewer_i = high_i-1;
+	if (viewer_j >= high_j) viewer_j = high_j-1;
+
 	g3_rotate_point(&last_p, &start_point);
 	save_p_low = last_p;
 
