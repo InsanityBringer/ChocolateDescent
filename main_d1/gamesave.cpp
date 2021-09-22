@@ -1336,9 +1336,6 @@ int load_mine_data_compiled(CFILE* LoadFile);
 char* Level_being_loaded = NULL;
 #endif
 
-#ifdef COMPACT_SEGS
-extern void ncache_flush();
-#endif
 
 //loads a level (.LVL) file from disk
 int load_level(char* filename_passed)
@@ -1350,10 +1347,6 @@ int load_level(char* filename_passed)
 	char filename[128];
 	int sig, version, minedata_offset, gamedata_offset, hostagetext_offset;
 	int mine_err, game_err;
-
-#ifdef COMPACT_SEGS
-	ncache_flush();
-#endif
 
 #ifndef RELEASE
 	Level_being_loaded = filename_passed;
