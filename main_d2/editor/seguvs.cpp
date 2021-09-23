@@ -1211,7 +1211,7 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 
 		last_delta_light++;
 		delta_light_count++;
-		start_delta_light = delta_light_count;
+		start_delta_light = last_delta_light;
 	}
 
 //mprintf((0, "From [%i %i %7.3f]:  ", segp-Segments, light_side, f2fl(light_intensity)));
@@ -1261,32 +1261,6 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 						side			*rsidep = &rsegp->sides[sidenum];
 						vms_vector	*side_normalp = &rsidep->normals[0];	//	kinda stupid? always use vector 0.
 						int delta_light_number = -1, dl_num;
-
-						//TODO: This always adds a DL index, even if all vertices fail the visibility check
-						if (!quick_light)
-						{
-							//Since there's 4 vertices casting light, need to account for each. 
-							//Slow search to find the delta light for this particular light source for the current segnum and sidenum
-							for (dl_num = start_delta_light; dl_num < last_delta_light; dl_num++)
-							{
-								if (Delta_lights[dl_num].segnum == segnum && Delta_lights[dl_num].sidenum == sidenum)
-								{
-									delta_light_number = dl_num;
-									break;
-								}
-							}
-
-							//If none found, create a new one. 
-							if (delta_light_number == -1)
-							{
-								Delta_lights[last_delta_light].segnum = segnum;
-								Delta_lights[last_delta_light].sidenum = sidenum;
-								memset(Delta_lights[last_delta_light].vert_light, 0, sizeof(Delta_lights[last_delta_light].vert_light));
-								delta_light_number = last_delta_light;
-								last_delta_light++;
-								delta_light_count++;
-							}
-						}
 
 //mprintf((0, "[%i %i], ", rsegp-Segments, sidenum));
 						for (vertnum=0; vertnum<4; vertnum++) 
@@ -1387,6 +1361,31 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 
 											if (!quick_light)
 											{
+												//Since there's 4 vertices casting light, need to account for each. 
+												//Slow search to find the delta light for this particular light source for the current segnum and sidenum
+												if (delta_light_number == -1)
+												{
+													for (dl_num = start_delta_light; dl_num < last_delta_light; dl_num++)
+													{
+														if (Delta_lights[dl_num].segnum == segnum && Delta_lights[dl_num].sidenum == sidenum)
+														{
+															delta_light_number = dl_num;
+															break;
+														}
+													}
+
+													//If none found, create a new one. 
+													if (delta_light_number == -1)
+													{
+														Delta_lights[last_delta_light].segnum = segnum;
+														Delta_lights[last_delta_light].sidenum = sidenum;
+														memset(Delta_lights[last_delta_light].vert_light, 0, sizeof(Delta_lights[last_delta_light].vert_light));
+														delta_light_number = last_delta_light;
+														last_delta_light++;
+														delta_light_count++;
+													}
+												}
+
 												varg = std::min((Delta_lights[delta_light_number].vert_light[vertnum] + light_at_point / DL_SCALE), 255);
 												Delta_lights[delta_light_number].vert_light[vertnum] = varg;
 											}
@@ -1570,6 +1569,7 @@ void calim_process_all_lights(int quick_light)
 						index->segnum = segnum;
 						index->sidenum = sidenum;
 						index->index = last_delta_light;
+						delta_light_count = 0;
 					}
 					light_intensity /= 4;			// casting light from four spots, so divide by 4.
 					cast_light_from_side(segp, sidenum, light_intensity, quick_light);
@@ -1585,7 +1585,7 @@ void calim_process_all_lights(int quick_light)
 
 	if (!quick_light)
 	{
-		mprintf((0, "Num light sources: %d, Num deltas: %d\n", Num_static_lights, delta_light_count));
+		mprintf((0, "Num light sources: %d, Num deltas: %d\n", Num_static_lights, last_delta_light));
 	}
 }
 
