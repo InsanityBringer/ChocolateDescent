@@ -248,7 +248,8 @@ void do_controlcen_destroyed_stuff(object *objp)
 	Control_center_destroyed = 1;
 
 	//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
-	if (Current_level_num < 0) {
+	if (Current_level_num < 0) 
+	{
 		int	rval;
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		char secretc_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
@@ -260,10 +261,17 @@ void do_controlcen_destroyed_stuff(object *objp)
 		mprintf((0, "Deleting secret.sgc, return value = %i\n", rval));
 	}
 
-	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
-		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL - Difficulty_level - 1) / 4 - 1;
+	}
 	else
-		Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
+	{
+		if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
+			Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL - Difficulty_level - 1) / 2;
+		else
+			Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
+	}
 
 	Countdown_timer = i2f(Total_countdown_time);
 
