@@ -41,10 +41,13 @@ bool LoopMusic;
 std::mutex MIDIMutex;
 std::thread MIDIThread;
 
+int MIDINumFreeBuffers = 0;
+int MIDINumUsedBuffers = 0;
+int MIDIAvailableBuffers[MAX_BUFFERS_QUEUED];
+int MIDIUsedBuffers[MAX_BUFFERS_QUEUED];
+ALuint MIDISourceBuffers[MAX_BUFFERS_QUEUED];
 ALuint BufferQueue[MAX_BUFFERS_QUEUED];
 ALuint MusicSource;
-int CurrentBuffers = 0;
-ALushort* MusicBufferData;
 
 //HQ audio fields
 ALuint HQMusicSource;
@@ -324,11 +327,17 @@ void I_StopHQSong()
 
 void I_CreateMusicSource()
 {
+	int i;
 	alGenSources(1, &MusicSource);
 	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
 	alSource3f(MusicSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
 	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
+	alGenBuffers(MAX_BUFFERS_QUEUED, MIDISourceBuffers);
+	for (i = 0; i < MAX_BUFFERS_QUEUED; i++)
+		MIDIAvailableBuffers[i] = i;
+	MIDINumFreeBuffers = MAX_BUFFERS_QUEUED;
+	MIDINumUsedBuffers = 0;
 	AL_ErrorCheck("Creating music source");
 }
 
@@ -344,9 +353,8 @@ void I_DestroyMusicSource()
 	I_ErrorCheck("Destroying lingering music buffers");*/
 	alDeleteSources(1, &MusicSource);
 	AL_ErrorCheck("Destroying music source");
-	alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
+	alDeleteBuffers(MAX_BUFFERS_QUEUED, MIDISourceBuffers);
 	AL_ErrorCheck("Destroying lingering buffers");
-	free(MusicBufferData);
 	MusicSource = 0;
 }
 
@@ -376,26 +384,34 @@ void I_CheckMIDISourceStatus()
 bool I_CanQueueMusicBuffer()
 {
 	if (!AL_initialized) return false;
-	//[ISB] this used to check if the source was a source and break if it wasn't.
-	//This hasn't happened in eons so I think the bug was fixed. 
-
-	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
+	/*alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
 	AL_ErrorCheck("Checking can queue buffers");
-	return CurrentBuffers < MAX_BUFFERS_QUEUED;
+	return CurrentBuffers < MAX_BUFFERS_QUEUED;*/
+	return MIDINumFreeBuffers > 0;
 }
 
 void I_DequeueMusicBuffers()
 {
+	int i;
 	if (!AL_initialized) return;
 	int BuffersProcessed;
 	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
 	if (BuffersProcessed > 0)
 	{
 		alSourceUnqueueBuffers(MusicSource, BuffersProcessed, &BufferQueue[0]);
-		alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
-		for (int i = 0; i < MAX_BUFFERS_QUEUED - BuffersProcessed; i++)
+		for (i = 0; i < BuffersProcessed; i++)
+		{
+			MIDIAvailableBuffers[MIDINumFreeBuffers] = MIDIUsedBuffers[i];
+
+			//printf("dq %d\n", MIDIUsedBuffers[i]);
+
+			MIDINumFreeBuffers++;
+			MIDINumUsedBuffers--;
+		}
+		for (i = 0; i < MAX_BUFFERS_QUEUED - BuffersProcessed; i++)
 		{
 			BufferQueue[i] = BufferQueue[i + BuffersProcessed];
+			MIDIUsedBuffers[i] = MIDIUsedBuffers[i + BuffersProcessed];
 		}
 		//printf("Killing %d buffers\n", BuffersProcessed);
 	}
@@ -406,13 +422,20 @@ void I_QueueMusicBuffer(int numTicks, uint16_t *data)
 {
 	if (!AL_initialized) return;
 	//printf("Queuing %d ticks\n", numTicks);
-	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
-	if (CurrentBuffers < MAX_BUFFERS_QUEUED)
+	if (MIDINumFreeBuffers > 0)
 	{
-		alGenBuffers(1, &BufferQueue[CurrentBuffers]);
-		alBufferData(BufferQueue[CurrentBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
-		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[CurrentBuffers]);
+		int freeBufferNum = MIDIAvailableBuffers[MIDINumFreeBuffers - 1];
+		MIDIUsedBuffers[MIDINumUsedBuffers] = freeBufferNum;
+		
+		BufferQueue[MIDINumUsedBuffers] = MIDISourceBuffers[freeBufferNum];
+		alBufferData(BufferQueue[MIDINumUsedBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
+		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[MIDINumUsedBuffers]);
 		AL_ErrorCheck("Queueing music buffers");
+
+		//printf("q %d\n", freeBufferNum);
+
+		MIDINumUsedBuffers++;
+		MIDINumFreeBuffers--;
 	}
 }
 
