@@ -592,6 +592,10 @@ void HMPFile::Rescale(int newTempo)
 // interface as soft synth songs. 
 //-----------------------------------------------------------------------------
 
+//Amount of ticks to render before attempting to queue again. 
+//Was running into problems with OpenAL backend occasionally starving
+#define NUMSOFTTICKS 4
+
 MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 {
 	sequencer = newSequencer;
@@ -610,8 +614,8 @@ MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 	hasChangedSong = false;
 	midiThread = nullptr;
 
-	songBuffer = new uint16_t[(MIDI_SAMPLERATE / 120) * 4];
-	memset(songBuffer, 0, sizeof(uint16_t) * (MIDI_SAMPLERATE / 120) * 4);
+	songBuffer = new uint16_t[(MIDI_SAMPLERATE / 120) * 4 * NUMSOFTTICKS];
+	memset(songBuffer, 0, sizeof(uint16_t) * (MIDI_SAMPLERATE / 120) * 4 * NUMSOFTTICKS);
 }
 
 bool MidiPlayer::IsError()
@@ -678,6 +682,7 @@ void MidiPlayer::Run()
 	initialized = true;
 	nextTimerTick = I_GetUS();
 	I_StartMIDISource();
+	int i;
 
 	for (;;)
 	{
@@ -724,14 +729,17 @@ void MidiPlayer::Run()
 			I_DequeueMusicBuffers();
 			while (I_CanQueueMusicBuffer())
 			{
-				currentTickFrac += TickFracDelta;
-				while (currentTickFrac >= 65536)
+				for (i = 0; i < NUMSOFTTICKS; i++)
 				{
-					sequencer->Tick();
-					currentTickFrac -= 65536;
+					currentTickFrac += TickFracDelta;
+					while (currentTickFrac >= 65536)
+					{
+						sequencer->Tick();
+						currentTickFrac -= 65536;
+					}
+					sequencer->Render(MIDI_SAMPLERATE / 120, songBuffer + (MIDI_SAMPLERATE / 120 * 2) * i);
 				}
-				sequencer->Render(MIDI_SAMPLERATE / 120, songBuffer);
-				I_QueueMusicBuffer(MIDI_SAMPLERATE / 120, songBuffer);
+				I_QueueMusicBuffer(MIDI_SAMPLERATE / 120 * NUMSOFTTICKS, songBuffer);
 			}
 
 			I_CheckMIDISourceStatus();

@@ -31,10 +31,9 @@ ALuint bufferNames[_MAX_VOICES];
 ALuint sourceNames[_MAX_VOICES];
 
 //MIDI audio fields
-//MAX_BUFFERS_QUEUED is currently in terms of individual MIDI ticks at 120hz
-//At the moment, 5 seems to be the bare minimum needed to make the game be able
-//to reliably play back MIDI without ever starving the buffer. 
-#define MAX_BUFFERS_QUEUED 5
+//MAX_BUFFERS_QUEUED is currently in terms of buffers of 4 ticks
+//The higher this and the amount of ticks in the system, the higher the latency is.
+#define MAX_BUFFERS_QUEUED 4
 
 bool StopMIDI = true;
 bool LoopMusic;
@@ -368,7 +367,7 @@ void I_CheckMIDISourceStatus()
 			//If this happens, the buffer starved, kick it back up
 			//This should happen as rarely as humanly possible, otherwise there's a pop because of the brief stall in the stream.
 			//I need to find ways to reduce the amount of overhead in the setup. 
-			//printf("yep it starved again\n");
+			printf("midi buffer starved\n");
 			alSourcePlay(MusicSource);
 		}
 	}
