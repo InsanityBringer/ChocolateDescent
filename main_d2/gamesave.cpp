@@ -1840,7 +1840,8 @@ int load_level(char* filename_passed)
 
 	cfclose(LoadFile);
 
-	set_ambient_sound_flags();
+	if (CurrentDataVersion != DataVer::DEMO)
+		set_ambient_sound_flags();
 
 #ifdef EDITOR
 	write_game_text_file(filename);

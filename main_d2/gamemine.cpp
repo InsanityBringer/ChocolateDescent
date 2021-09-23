@@ -726,24 +726,26 @@ void read_verts(int segnum,CFILE *LoadFile)
 		Segments[segnum].verts[i] = read_short(LoadFile);
 }
 
-// -- void read_special(int segnum,uint8_t bit_mask,CFILE *LoadFile)
-// -- {
-// -- 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-// -- 		// Read uint8_t	Segments[segnum].special
-// -- //		cfread( &Segments[segnum].special, sizeof(uint8_t), 1, LoadFile );
-// -- 		Segment2s[segnum].special = read_byte(LoadFile);
-// -- 		// Read int8_t	Segments[segnum].matcen_num
-// -- //		cfread( &Segments[segnum].matcen_num, sizeof(uint8_t), 1, LoadFile );
-// -- 		Segment2s[segnum].matcen_num = read_byte(LoadFile);
-// -- 		// Read short	Segments[segnum].value
-// -- //		cfread( &Segments[segnum].value, sizeof(short), 1, LoadFile );
-// -- 		Segment2s[segnum].value = read_short(LoadFile);
-// -- 	} else {
-// -- 		Segment2s[segnum].special = 0;
-// -- 		Segment2s[segnum].matcen_num = -1;
-// -- 		Segment2s[segnum].value = 0;
-// -- 	}
-// -- }
+//for shareware only
+void read_special(int segnum, uint8_t bit_mask, CFILE* LoadFile)
+{
+	Segment2s[segnum].s2_flags = 0;
+	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
+	{
+		// Read uint8_t	Segments[segnum].special
+		Segment2s[segnum].special = read_byte(LoadFile);
+		// Read int8_t	Segments[segnum].matcen_num
+		Segment2s[segnum].matcen_num = read_byte(LoadFile);
+		// Read short	Segments[segnum].value
+		Segment2s[segnum].value = read_short(LoadFile);
+	}
+	else 
+	{
+		Segment2s[segnum].special = 0;
+		Segment2s[segnum].matcen_num = -1;
+		Segment2s[segnum].value = 0;
+	}
+}
 
 int load_mine_data_compiled(CFILE *LoadFile)
 {
@@ -776,32 +778,33 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	for (i = 0; i < Num_vertices; i++)
 		read_vector( &(Vertices[i]), LoadFile);
 
-	for (segnum=0; segnum<Num_segments; segnum++ )	
+	for (segnum = 0; segnum < Num_segments; segnum++)
 	{
-		#ifdef EDITOR
+#ifdef EDITOR
 		Segments[segnum].segnum = segnum;
 		Segments[segnum].group = 0;
-		#endif
+#endif
 
- 		cfread( &bit_mask, sizeof(uint8_t), 1, LoadFile );
+		cfread(&bit_mask, sizeof(uint8_t), 1, LoadFile);
 
-		#if defined(SHAREWARE) && !defined(MACINTOSH)
-			// -- read_special(segnum,bit_mask,LoadFile);
-			read_verts(segnum,LoadFile);
-			read_children(segnum,bit_mask,LoadFile);
-		#else
-			read_children(segnum,bit_mask,LoadFile);
-			read_verts(segnum,LoadFile);
+		if (CurrentDataVersion == DataVer::DEMO)
+		{
+			read_special(segnum,bit_mask,LoadFile);
+			read_verts(segnum, LoadFile);
+			read_children(segnum, bit_mask, LoadFile);
+		}
+		else
+		{
+			read_children(segnum, bit_mask, LoadFile);
+			read_verts(segnum, LoadFile);
 			// --read_special(segnum,bit_mask,LoadFile);
-		#endif
+		}
 
 		Segments[segnum].objects = -1;
 
 		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-//		cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
-//		temp_ushort = read_short(LoadFile);
-//		Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
-		//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
+		temp_ushort = read_short(LoadFile);
+		Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
 	
 		// Read the walls as a 6 int8_t array
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
@@ -903,14 +906,24 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 // MIKE!!!!! You should know better than this when the mac is involved!!!!!!
 
-	for (i=0; i<Num_segments; i++) {
-// NO NO!!!!		cfread( &Segment2s[i], sizeof(segment2), 1, LoadFile );
-		Segment2s[i].special = read_byte(LoadFile);
-		Segment2s[i].matcen_num = read_byte(LoadFile);
-		Segment2s[i].value = read_byte(LoadFile);
-		Segment2s[i].s2_flags = read_byte(LoadFile);
-		Segment2s[i].static_light = read_fix(LoadFile);
-		fuelcen_activate( &Segments[i], Segment2s[i].special );
+	if (CurrentDataVersion != DataVer::DEMO)
+	{
+		for (i = 0; i < Num_segments; i++)
+		{
+			Segment2s[i].special = read_byte(LoadFile);
+			Segment2s[i].matcen_num = read_byte(LoadFile);
+			Segment2s[i].value = read_byte(LoadFile);
+			Segment2s[i].s2_flags = read_byte(LoadFile);
+			Segment2s[i].static_light = read_fix(LoadFile);
+			fuelcen_activate(&Segments[i], Segment2s[i].special);
+		}
+	}
+	else
+	{
+		for (i = 0; i < Num_segments; i++)
+		{
+			fuelcen_activate(&Segments[i], Segment2s[i].special);
+		}
 	}
 
 	reset_objects(1);		//one object, the player

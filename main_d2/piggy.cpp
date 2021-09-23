@@ -452,10 +452,11 @@ void piggy_new_pigfile(const char* pigname)
 	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
-#ifdef SHAREWARE                //rename pigfile for shareware
-	if (strfcmp(pigname, DEFAULT_PIGFILE_REGISTERED) == 0)
-		pigname = DEFAULT_PIGFILE_SHAREWARE;
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)             //rename pigfile for shareware
+	{
+		if (_strfcmp(pigname, DEFAULT_PIGFILE_REGISTERED) == 0)
+			pigname = DEFAULT_PIGFILE_SHAREWARE;
+	}
 
 	if (_strnfcmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0)
 		return;         //already have correct pig
