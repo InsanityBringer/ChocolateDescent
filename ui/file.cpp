@@ -110,6 +110,7 @@ int file_chdir(char* dir)
 	char* Drive;
 	memset(cwd, 0, 512);
 	strncpy(cwd, CurDir, 255);
+	cwd[255] = '\0';
 
 	Drive = strchr(dir, ':');
 	mprintf((0, "starting at %s\n", CurDir));
@@ -117,6 +118,7 @@ int file_chdir(char* dir)
 	if (Drive) //path is rooted
 	{
 		strncpy(CurDir, dir, 255);
+		CurDir[255] = '\0';
 		mprintf((0, "got rooted path"));
 	}
 	else if (strncmp(dir, "..", 2) == 0) //path is up one level
@@ -136,6 +138,7 @@ int file_chdir(char* dir)
 		{
 			mprintf((0, "trying to go up\n"));
 			strncpy(CurDir, cwd, 511);
+			CurDir[511] = '\0';
 		}
 	}
 	else
@@ -174,6 +177,7 @@ int file_getdirlist(int MaxNum, char list[][13])
 	char cwd[512];
 	memset(cwd, 0, 512);
 	strncpy(cwd, CurDir, 256);
+	cwd[256] = '\0';
 	strncat(cwd, "/", 1);
 	strncat(cwd, "*.", 4);
 
@@ -236,6 +240,7 @@ int file_getfilelist(int MaxNum, char list[][13], const char* filespec)
 	char cwd[512];
 	memset(cwd, 0, 512);
 	strncpy(cwd, CurDir, 256);
+	cwd[256] = '\0';
 	strncat(cwd, "//", 1);
 	strncat(cwd, filespec, 8);
 
@@ -319,7 +324,7 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 
 	_splitpath(filename, drive, dir, fname, ext);
 
-	sprintf_s(InputText, 100, "%s%s", fname, ext);
+	snprintf(InputText, 100, "%s%s", fname, ext);
 
 	ui_wprintf_at(wnd, 20, 32, "N&ame");
 	UserFile = ui_add_gadget_inputbox(wnd, 60, 30, 40, 40, InputText);
@@ -369,7 +374,7 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 		{
 			if (ListBox1->current_item >= 0)
 			{
-				strcpy_s(UserFile->text, UserFile->textLen, filename_list[ListBox1->current_item]);
+				strncpy(UserFile->text, filename_list[ListBox1->current_item], UserFile->textLen-1);
 				UserFile->position = (short)strlen(UserFile->text);
 				UserFile->oldposition = UserFile->position;
 				UserFile->status = 1;
@@ -382,9 +387,9 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 			if (ListBox2->current_item >= 0)
 			{
 				if (strrchr(directory_list[ListBox2->current_item], ':'))
-					sprintf_s(UserFile->text, UserFile->textLen, "%s%s", directory_list[ListBox2->current_item], Filespec);
+					snprintf(UserFile->text, UserFile->textLen, "%s%s", directory_list[ListBox2->current_item], Filespec);
 				else
-					sprintf_s(UserFile->text, UserFile->textLen, "%s\\%s", directory_list[ListBox2->current_item], Filespec);
+					snprintf(UserFile->text, UserFile->textLen, "%s\\%s", directory_list[ListBox2->current_item], Filespec);
 				UserFile->position = (short)strlen(UserFile->text);
 				UserFile->oldposition = UserFile->position;
 				UserFile->status = 1;
@@ -399,9 +404,9 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 
 			if (ListBox2->selected_item > -1) {
 				if (strrchr(directory_list[ListBox2->selected_item], ':'))
-					sprintf_s(UserFile->text, UserFile->textLen, "%s%s", directory_list[ListBox2->selected_item], Filespec);
+					snprintf(UserFile->text, UserFile->textLen, "%s%s", directory_list[ListBox2->selected_item], Filespec);
 				else
-					sprintf_s(UserFile->text, UserFile->textLen, "%s\\%s", directory_list[ListBox2->selected_item], Filespec);
+					snprintf(UserFile->text, UserFile->textLen, "%s\\%s", directory_list[ListBox2->selected_item], Filespec);
 			}
 
 			error_mode = 1; // Critical error handler automatically fails.
@@ -424,8 +429,8 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 				break;
 			}
 
-			_splitpath_s(UserFile->text, drive, 3, dir, 256, fname, 256, ext, 256);
-			sprintf_s(fullfname, 512, "%s%s", fname, ext);
+			_splitpath(UserFile->text, drive, dir, fname, ext);
+			snprintf(fullfname, 512, "%s%s", fname, ext);
 
 			//mprintf( 0, "----------------------------\n" );
 			//mprintf( 0, "Full text: '%s'\n", UserFile->text );
@@ -438,12 +443,12 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 
 			if (strrchr(fullfname, '?') || strrchr(fullfname, '*'))
 			{
-				sprintf_s(fulldir, 259, "%s%s.", drive, dir);
+				snprintf(fulldir, 259, "%s%s.", drive, dir);
 			}
 			else 
 			{
-				sprintf_s(fullfname, 512, "%s", Filespec);
-				sprintf_s(fulldir, 259, "%s", UserFile->text);
+				snprintf(fullfname, 512, "%s", Filespec);
+				snprintf(fulldir, 259, "%s", UserFile->text);
 			}
 
 			//mprintf( 0, "----------------------------\n" );
@@ -454,7 +459,8 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 			{
 				NumFiles = file_getfilelist(300, filename_list, fullfname);
 
-				strcpy_s(UserFile->text, UserFile->textLen, fullfname);
+				strncpy(UserFile->text, fullfname, UserFile->textLen-1);
+				UserFile->text[UserFile->textLen - 1] = '\0';
 				UserFile->position = (short)strlen(UserFile->text);
 				UserFile->oldposition = UserFile->position;
 				UserFile->status = 1;
@@ -478,7 +484,7 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 			}
 			else 
 			{
-				sprintf_s(ErrorMessage, 100, "Error changing to directory '%s'", fulldir);
+				snprintf(ErrorMessage, 100, "Error changing to directory '%s'", fulldir);
 				MessageBox(-2, -2, 1, ErrorMessage, "Ok");
 				UserFile->first_time = 1;
 			}
@@ -492,9 +498,9 @@ int ui_get_filename(char* filename, int bufsize, const char* Filespec, const cha
 
 	//key_flush();
 
-	_splitpath_s(UserFile->text, drive, 3, dir, 256, fname, 256, ext, 256); //[ISB] make portable
-	sprintf_s(fulldir, 259, "%s%s.", drive, dir);
-	sprintf_s(fullfname, 512, "%s%s", fname, ext);
+	_splitpath(UserFile->text, drive, dir, fname, ext); //[ISB] make portable
+	snprintf(fulldir, 259, "%s%s.", drive, dir);
+	snprintf(fullfname, 512, "%s%s", fname, ext);
 
 	if (strlen(fulldir) > 1)
 		file_chdir(fulldir);
@@ -529,15 +535,15 @@ int ui_get_file(char* filename, int filenamelen, char* Filespec)
 	for (i = 0; i < NumFiles; i++)
 	{
 		//[ISB] TODO: Long file names?
-		MALLOC( text[i], char, 15 );//Another compile hack -KRB undone by [ISB]
-		//text[i] = (char*)malloc(15 * sizeof(char));
-		strcpy_s(text[i], 15, filename_list[i]);
+		MALLOC( text[i], char, 15 );
+		strncpy(text[i], filename_list[i], 14);
+		text[14] = '\0';
 	}
 
 	x = MenuX(-1, -1, NumFiles, text);
 
 	if (x > 0)
-		strcpy_s(filename, filenamelen, filename_list[x - 1]);
+		strncpy(filename, filename_list[x - 1], filenamelen);
 
 	for (i = 0; i < NumFiles; i++)
 	{

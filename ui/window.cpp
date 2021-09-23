@@ -63,11 +63,6 @@ static int PlaybackSpeed = 1;
 
 extern void ui_draw_frame(short x1, short y1, short x2, short y2);
 
-//[ISB] hey, we happen to have a file full of convenient timer functions? Should we use it?
-//[ISB] nah, we'll just use the BIOS timer as-is
-//[ISB] (okay in all fairness this might predate the timer code...)
-//#define TICKER (*(volatile int *)0x46C)
-
 // 1=1x faster, 2=2x faster, etc
 void ui_set_playback_speed(int speed)
 {

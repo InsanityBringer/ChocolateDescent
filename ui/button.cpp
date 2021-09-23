@@ -104,8 +104,9 @@ UI_GADGET_BUTTON* ui_add_gadget_button(UI_WINDOW* wnd, short x, short y, short w
 	if (text)
 	{
 		button->textLen = strlen(text) + 1;
-		MALLOC( button->text, char, button->textLen);//Yet another hack -KRB //[ISB] yet another krb hack removed
-		strcpy_s(button->text, button->textLen, text);
+		MALLOC( button->text, char, button->textLen);
+		strncpy(button->text, text, button->textLen-1);
+		button->text[button->textLen - 1] = '\0';
 	}
 	else 
 	{

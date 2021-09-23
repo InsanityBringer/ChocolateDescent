@@ -49,21 +49,23 @@ void GetKeyDescription(char* text, size_t len, int keypress)
 	char Shift[10];
 
 	if (keypress & KEY_CTRLED)
-		strcpy_s(Ctrl, 10, "{Ctrl}");
+		strncpy(Ctrl, "{Ctrl}", 9);
 	else
-		strcpy_s(Ctrl, 10, "");
+		strncpy(Ctrl, "", 9);
 
 	if (keypress & KEY_ALTED)
-		strcpy_s(Alt, 10, "{Alt}");
+		strncpy(Alt, "{Alt}", 9);
 	else
-		strcpy_s(Alt, 10, "");
+		strncpy(Alt, "", 9);
 
 	if (keypress & KEY_SHIFTED)
-		strcpy_s(Shift, 10, "{Shift}");
+		strncpy(Shift, "{Shift}", 9);
 	else
-		strcpy_s(Shift, 10, "");
+		strncpy(Shift, "", 9);
 
-	sprintf_s(text, len, "%s%s%s%s", Ctrl, Alt, Shift, KeyDesc[keypress & 255]);
+	Ctrl[9] = Alt[9] = Shift[9] = '\0';
+
+	snprintf(text, len, "%s%s%s%s", Ctrl, Alt, Shift, KeyDesc[keypress & 255]);
 }
 
 
