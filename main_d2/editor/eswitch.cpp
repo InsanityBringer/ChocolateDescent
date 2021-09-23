@@ -43,12 +43,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
-#define NUM_TRIGGER_FLAGS 10
+#define NUM_TRIGGER_FLAGS 14
 
 static UI_WINDOW 				*MainWindow = NULL;
 static UI_GADGET_USERBOX	*WallViewBox;
 static UI_GADGET_BUTTON 	*QuitButton;
-static UI_GADGET_RADIO	*TriggerFlag[NUM_TRIGGER_FLAGS];
+static UI_GADGET_RADIO	*TriggerMode[NUM_TRIGGER_FLAGS];
+static UI_GADGET_CHECKBOX* TriggerFlag[2];
 
 static int old_trigger_num;
 
@@ -365,19 +366,21 @@ int do_trigger_dialog()
 	MainWindow = ui_open_window( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, WIN_DIALOG );
 
 	// These are the checkboxes for each door flag.
-	i = 44;
-	TriggerFlag[0] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Door Control" );  	i+=22;
-	TriggerFlag[1] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Shield damage" ); 	i+=22;
-	TriggerFlag[2] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Energy drain" );		i+=22;
-	TriggerFlag[3] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Exit" );					i+=22;
-	TriggerFlag[4] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "One-shot" );			i+=22;
-	TriggerFlag[5] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Illusion ON" );		i+=22;
-	TriggerFlag[6] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Illusion OFF" );		i+=22;
-	TriggerFlag[7] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Trigger ON" );			i+=22;
-	TriggerFlag[8] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Matcen Trigger" ); 	i+=22;
-	TriggerFlag[9] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Secret Exit" ); 		i+=22;
-
-	QuitButton = ui_add_gadget_button( MainWindow, 20, i, 48, 40, "Done", NULL );
+	i = 24;
+	TriggerMode[0] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Open door" );  	i+=20;
+	TriggerMode[1] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Close door" ); 	i+=20;
+	TriggerMode[2] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Matcen Trigger" );		i+=20;
+	TriggerMode[3] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Exit" );					i+=20;
+	TriggerMode[4] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Secret Exit" );			i+=20;
+	TriggerMode[5] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Illusion OFF" );		i+=20;
+	TriggerMode[6] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Illusion ON" );		i+=20;
+	TriggerMode[7] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Unlock Door" );			i+=20;
+	TriggerMode[8] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Lock Door" ); 	i+=20;
+	TriggerMode[9] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Open Wall" ); 		i+=20;
+	TriggerMode[10] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Close Wall" ); 		i+=20;
+	TriggerMode[11] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Make Illusion" ); 		i+=20;
+	TriggerMode[12] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Light Off" ); 		i+=20;
+	TriggerMode[13] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Light On" ); 		i+=20;
 																				 
 	// The little box the wall will appear in.
 	WallViewBox = ui_add_gadget_userbox( MainWindow, 155, 5, 64, 64 );
@@ -389,6 +392,10 @@ int do_trigger_dialog()
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Bind Wall", bind_wall_to_trigger ); i += 29;
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Bind Matcen", bind_matcen_to_trigger ); i += 29;
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "All Triggers ON", trigger_turn_all_ON ); i += 29;
+	TriggerFlag[0] = ui_add_gadget_checkbox(MainWindow, 155, i, 16, 16, 0, "No message");  	i += 22;
+	TriggerFlag[1] = ui_add_gadget_checkbox(MainWindow, 155, i, 16, 16, 0, "One shot");  	i += 22;
+
+	QuitButton = ui_add_gadget_button(MainWindow, 155, i, 45, 40, "Done", NULL);
 
 	old_trigger_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 
@@ -434,15 +441,18 @@ void do_trigger_window()
 		
 		for (	i=0; i < NUM_TRIGGER_FLAGS; i++ )	
 		{
-			TriggerFlag[i]->flag = 0;				// Tells ui that this button isn't checked
-			TriggerFlag[i]->status = 1;				// Tells ui to redraw button
+			TriggerMode[i]->flag = 0;				// Tells ui that this button isn't checked
+			TriggerMode[i]->status = 1;				// Tells ui to redraw button
 		}
 
 		if (trigger_num != -1) 
 		{
 			for (i = 0; i < NUM_TRIGGER_FLAGS; i++)
   				if (Triggers[trigger_num].type == i)
-					TriggerFlag[i]->flag = 1;
+					TriggerMode[i]->flag = 1;
+
+			TriggerFlag[0]->flag = Triggers[trigger_num].flags & TF_NO_MESSAGE ? 1 : 0;
+			TriggerFlag[1]->flag = Triggers[trigger_num].flags & TF_ONE_SHOT ? 1 : 0;
 		}
 	}
 	
@@ -453,63 +463,80 @@ void do_trigger_window()
 	//if (IS_CHILD(Markedsegp->children[Markedside])) 
 	{
 		/*
-		if (TriggerFlag[0]->flag == 1) 
+		if (TriggerMode[0]->flag == 1) 
 			trigger_add_to_Markedside(TRIGGER_CONTROL_DOORS); 
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_CONTROL_DOORS);
-		if (TriggerFlag[1]->flag == 1)
+		if (TriggerMode[1]->flag == 1)
 			trigger_add_to_Markedside(TRIGGER_SHIELD_DAMAGE); 
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_SHIELD_DAMAGE);
-		if (TriggerFlag[2]->flag == 1)
+		if (TriggerMode[2]->flag == 1)
 			trigger_add_to_Markedside(TRIGGER_ENERGY_DRAIN); 
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_ENERGY_DRAIN);
-		if (TriggerFlag[3]->flag == 1)
+		if (TriggerMode[3]->flag == 1)
 			trigger_add_to_Markedside(TRIGGER_EXIT); 
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_EXIT);
-		if (TriggerFlag[4]->flag == 1)
+		if (TriggerMode[4]->flag == 1)
 			trigger_add_to_Markedside(TRIGGER_ONE_SHOT); 
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_ONE_SHOT);
-		if (TriggerFlag[5]->flag == 1)
+		if (TriggerMode[5]->flag == 1)
 			trigger_add_to_Markedside(TRIGGER_ILLUSION_ON); 
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_ILLUSION_ON);
-		if (TriggerFlag[6]->flag == 1)
+		if (TriggerMode[6]->flag == 1)
 			trigger_add_to_Markedside(TRIGGER_ILLUSION_OFF);
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_ILLUSION_OFF);
-		if (TriggerFlag[7]->flag == 1)
+		if (TriggerMode[7]->flag == 1)
 			trigger_add_to_Markedside(TRIGGER_ON);
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_ON);
 
-		if (TriggerFlag[8]->flag == 1) 
+		if (TriggerMode[8]->flag == 1) 
 			trigger_add_to_Markedside(TRIGGER_MATCEN);
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_MATCEN);
 
-		if (TriggerFlag[9]->flag == 1) 
+		if (TriggerMode[9]->flag == 1) 
 			trigger_add_to_Markedside(TRIGGER_SECRET_EXIT);
 		else
 			trigger_remove_flag_from_Markedside(TRIGGER_SECRET_EXIT);*/
 
 		for (i = 0; i < NUM_TRIGGER_FLAGS; i++)
 		{
-			if (TriggerFlag[i]->flag == 1)
+			if (TriggerMode[i]->flag == 1)
 				trigger_add_to_Markedside(i);
 		}
 
 	} 
 	/*else
 		for (i=0; i < NUM_TRIGGER_FLAGS; i++)
-			if (TriggerFlag[i]->flag == 1) 
+			if (TriggerMode[i]->flag == 1) 
 			{ 
-				TriggerFlag[i]->flag = 0;					// Tells ui that this button isn't checked
-				TriggerFlag[i]->status = 1;				// Tells ui to redraw button
+				TriggerMode[i]->flag = 0;					// Tells ui that this button isn't checked
+				TriggerMode[i]->status = 1;				// Tells ui to redraw button
 			}*/
+
+	if (trigger_num != -1)
+	{
+		for (i = 0; i < 2; i++)
+		{
+			if (Triggers[trigger_num].flags & (1 << i) && !TriggerFlag[i]->flag)
+			{
+				Triggers[trigger_num].flags &= ~(1 << i);
+				mprintf((0, "trigger_num %d flags %d\n", trigger_num, Triggers[trigger_num].flags));
+			}
+			else if (!(Triggers[trigger_num].flags & (1 << i)) && TriggerFlag[i]->flag)
+			{
+				Triggers[trigger_num].flags |= (1 << i);
+				mprintf((0, "trigger_num %d flags %d\n", trigger_num, Triggers[trigger_num].flags));
+			}
+		}
+	}
 	
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box

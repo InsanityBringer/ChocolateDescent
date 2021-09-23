@@ -60,7 +60,9 @@ extern	char	center_names[MAX_CENTER_TYPES][CENTER_STRING_LENGTH] = {
 	"FuelCen",
 	"RepairCen",
 	"ControlCen",
-	"RobotMaker"
+	"RobotMaker",
+	"BlueGoal",
+	"RedGoal"
 };
 
 //-------------------------------------------------------------------------
@@ -90,6 +92,8 @@ int do_centers_dialog()
 	CenterFlag[2] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RepairCen" );	i += 24;
 	CenterFlag[3] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "ControlCen" );	i += 24;
 	CenterFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
+	CenterFlag[5] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "BlueGoal" );		i += 24;
+	CenterFlag[6] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RedGoal" );		i += 24;
 
 	// These are the checkboxes for each door flag.
 	for (i=0; i<N_robot_types; i++)
@@ -110,9 +114,10 @@ void close_centers_window()
 
 void do_centers_window()
 {
-	int i;
+	int i, maxrobots;
 //	int robot_flags;
 	int redraw_window;
+	int flagvar = 0, flagdiff = 0;
 
 	if ( MainWindow == NULL ) return;
 
@@ -139,17 +144,28 @@ void do_centers_window()
 
 		mprintf((0, "Cursegp->matcen_num = %i\n", Segment2s[Cursegp->segnum].matcen_num));
 
+		maxrobots = 32;
+		if (N_robot_types < 32)
+			maxrobots = N_robot_types;
+
 		//	Read materialization center robot bit flags
-		for (	i=0; i < N_robot_types; i++ )
+		for (	i=0; i < maxrobots; i++ )
 		{
 			RobotMatFlag[i]->status = 1;		// Tells ui to redraw button
-			//TODO: EXPAND
 			if (RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0] & (1 << i))
 				RobotMatFlag[i]->flag = 1;		// Tells ui that this button is checked
 			else
 				RobotMatFlag[i]->flag = 0;		// Tells ui that this button is not checked
 		}
 
+		for (i = 32; i < N_robot_types; i++)
+		{
+			RobotMatFlag[i]->status = 1;		// Tells ui to redraw button
+			if (RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[1] & (1 << (i-32)))
+				RobotMatFlag[i]->flag = 1;		// Tells ui that this button is checked
+			else
+				RobotMatFlag[i]->flag = 0;		// Tells ui that this button is not checked
+		}
 	}
 
 	//------------------------------------------------------------
@@ -170,16 +186,25 @@ void do_centers_window()
 			}
 	}
 
-	for (	i=0; i < N_robot_types; i++ )	{
-		if ( RobotMatFlag[i]->flag == 1 ) {
-			if (!(RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0] & (1<<i) )) {
-				RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0] |= (1<<i);
-				mprintf((0,"Segment %i, matcen = %i, Robot_flags %d\n", Cursegp-Segments, Segment2s[Cursegp->segnum].matcen_num, RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0]));
-			} 
-		} else if (RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0] & 1<<i)
+	for (	i=0; i < 64; i++ )	
+	{
+		if (i > 32)
 		{
-			RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0] &= ~(1<<i);
-			mprintf((0,"Segment %i, matcen = %i, Robot_flags %d\n", Cursegp-Segments, Segment2s[Cursegp->segnum].matcen_num, RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0]));
+			flagvar = 1;
+			flagdiff = 32;
+		}
+		if ( RobotMatFlag[i]->flag == 1 ) 
+		{
+			if (!(RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[flagvar] & (1<<(i-flagdiff)) ))
+			{
+				RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[flagvar] |= (1<<(i-flagdiff));
+				mprintf((0,"Segment %i, matcen = %i, Robot_flags %d %d\n", Cursegp-Segments, Segment2s[Cursegp->segnum].matcen_num, RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0], RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[1]));
+			} 
+		} 
+		else if (RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[flagvar] & 1<<(i-flagdiff))
+		{
+			RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[flagvar] &= ~(1<<(i-flagdiff));
+			mprintf((0,"Segment %i, matcen = %i, Robot_flags %d %d\n", Cursegp-Segments, Segment2s[Cursegp->segnum].matcen_num, RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[0], RobotCenters[Segment2s[Cursegp->segnum].matcen_num].robot_flags[1]));
 		}
 	}
 	
