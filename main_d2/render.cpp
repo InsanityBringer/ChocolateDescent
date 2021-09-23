@@ -1494,9 +1494,7 @@ void render_frame(fix eye_offset, int window_num)
 
 	if (Endlevel_sequence)
 	{
-#ifdef SHAREWARE
 		render_endlevel_frame(eye_offset);
-#endif
 		FrameCount++;
 		return;
 }

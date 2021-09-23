@@ -169,7 +169,8 @@ void autodemo_menu_check(int nitems, newmenu_item* items, int* last_key, int cit
 
 		WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_printf(0x8000, grd_curcanv->cv_bitmap.bm_h - GAME_FONT->ft_h - 2, TXT_COPYRIGHT);
-		gr_printf(grd_curcanv->cv_bitmap.bm_w - w - 2, grd_curcanv->cv_bitmap.bm_h - GAME_FONT->ft_h - 2, "V%d.%d", Version_major, Version_minor);
+		if (CurrentDataVersion != DataVer::DEMO)
+			gr_printf(grd_curcanv->cv_bitmap.bm_w - w - 2, grd_curcanv->cv_bitmap.bm_h - GAME_FONT->ft_h - 2, "V%d.%d", Version_major, Version_minor);
 
 #ifdef SANTA		//say this is hoard version
 		if (HoardEquipped())

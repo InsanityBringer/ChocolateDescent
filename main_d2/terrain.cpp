@@ -71,11 +71,6 @@ int mine_tiles_drawn;		//flags to tell if all 4 tiles under mine have drawn
 void build_light_table(void);
 void free_light_table(void);
 
-//[ISB] horrible hack
-#ifndef SHAREWARE
-#define exit_segnum 0
-#endif
-
 
 // ------------------------------------------------------------------------
 void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3)

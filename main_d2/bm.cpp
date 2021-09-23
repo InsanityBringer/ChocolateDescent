@@ -562,9 +562,8 @@ int bm_init()
 
 	piggy_read_sounds();
 
-	#ifdef SHAREWARE
-	init_endlevel();		//this is in bm_init_use_tbl(), so I gues it goes here
-	#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+		init_endlevel();		//this is in bm_init_use_tbl(), so I gues it goes here
 
 	return 0;
 }

@@ -938,18 +938,10 @@ void LoadLevel(int level_num, int page_in_textures)
 	else					//normal level
 		level_name = Level_names[level_num - 1];
 
-#ifdef WINDOWS
-	dd_gr_set_current_canvas(NULL);
-	dd_gr_clear_canvas(BM_XRGB(0, 0, 0));
-#else
 	gr_set_current_canvas(NULL);
 	gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious
-#endif
 
 	Last_msg_ycrd = -1;		//so we don't restore backgound under msg
-
-//	WIN(LoadCursorWin(MOUSE_WAIT_CURSOR));
-//	WIN(ShowCursorW());
 
 #if defined(POLY_ACC)
 	gr_palette_load(gr_palette);
@@ -972,9 +964,8 @@ void LoadLevel(int level_num, int page_in_textures)
 
 	load_palette(Current_level_palette, 1, 1);		//don't change screen
 
-#ifdef SHAREWARE
-	load_endlevel_data(level_num);
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+		load_endlevel_data(level_num);
 
 	if (page_in_textures)
 		piggy_load_level_data();
@@ -1611,22 +1602,26 @@ void DoEndGame(void)
 	{
 		int played = MOVIE_NOT_PLAYED;	//default is not played
 
-#ifdef SHAREWARE
-		songs_play_song(SONG_ENDGAME, 0);
-		mprintf((0, "doing briefing\n"));
-		do_briefing_screens("ending2.tex", 1);
-		mprintf((0, "briefing done\n"));
-#else
-		init_subtitles(ENDMOVIE ".tex");	//ingore errors
-		played = PlayMovie(ENDMOVIE, MOVIE_REQUIRED);
-		close_subtitles();
+		if (CurrentDataVersion == DataVer::DEMO)
+		{
+			songs_play_song(SONG_ENDGAME, 0);
+			mprintf((0, "doing briefing\n"));
+			do_briefing_screens("ending2.tex", 1);
+			mprintf((0, "briefing done\n"));
+		}
+		else
+		{
+			init_subtitles(ENDMOVIE ".tex");	//ingore errors
+			played = PlayMovie(ENDMOVIE, MOVIE_REQUIRED);
+			close_subtitles();
+		}
 #ifdef D2_OEM
-		if (!played) {
+		if (!played)
+		{
 			songs_play_song(SONG_TITLE, 0);
 			do_briefing_screens("end2oem.tex", 1);
 		}
 #endif
-#endif	
 	}
 	else if (!(Game_mode & GM_MULTI)) //not multi
 	{
@@ -1641,9 +1636,8 @@ void DoEndGame(void)
 
 	key_flush();
 
-#ifdef SHAREWARE
-	show_order_form();
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+		show_order_form();
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)

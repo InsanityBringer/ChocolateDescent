@@ -254,9 +254,10 @@ int songs_haved2_cd()
 
 void songs_play_song( int songnum, int repeat )
 {
-	#ifndef SHAREWARE
-	Assert(songnum != SONG_ENDLEVEL && songnum != SONG_ENDGAME);	//not in full version
-	#endif
+	if (CurrentDataVersion != DataVer::DEMO)
+	{
+		Assert(songnum != SONG_ENDLEVEL && songnum != SONG_ENDGAME);	//not in full version
+	}
 
 	if ( !Songs_initialized ) 
 		songs_init();
@@ -280,12 +281,7 @@ void songs_play_song( int songnum, int repeat )
 
 	if (!Redbook_playing) //not playing redbook, so play midi
 	{		
-
-		#ifndef MACINTOSH
 			digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
-		#else
-			digi_play_midi_song(songnum, repeat);
-		#endif
 	}
 }
 

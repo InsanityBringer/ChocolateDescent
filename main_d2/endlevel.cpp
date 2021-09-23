@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <algorithm>
 
 #include "misc/rand.h"
 
@@ -100,7 +101,10 @@ object *endlevel_camera;
 
 #define FLY_SPEED i2f(50)
 
-int start_endlevel_flythrough(int n,object *obj,fix speed);
+void start_endlevel_flythrough(int n,object *obj,fix speed);
+int find_exit_side(object* obj);
+void do_endlevel_flythrough(int n);
+void start_rendered_endlevel_sequence();
 
 #ifdef D2_OEM
 char movie_table[] =	{	'a','a','a','a','d','d','d','d' };
@@ -157,8 +161,6 @@ vms_matrix mine_exit_orient;
 
 int outside_mine;
 
-int start_endlevel_flythrough(int n,object *obj,fix speed);
-
 grs_bitmap terrain_bm_instance;
 grs_bitmap satellite_bm_instance;
 
@@ -189,7 +191,7 @@ extern int Kmatrix_nomovie_message;
 #if defined(D2_OEM) || defined(COMPILATION)
 #define MOVIE_REQUIRED 0
 #else
-#define MOVIE_REQUIRED 1
+#define MOVIE_REQUIRED 0 //[ISB] once again, why not? Not 100% chocolate but who cares
 #endif
 
 //returns movie played status.  see movie.h
@@ -222,11 +224,7 @@ int start_endlevel_movie()
 
 	memcpy(save_pal,gr_palette,768);
 
-	#ifndef SHAREWARE
-		r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
-	#else
-		return	0;	// movie not played for shareware
-	#endif
+	r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 	{
@@ -312,7 +310,8 @@ void start_endlevel_sequence()
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 		Newdemo_state = ND_STATE_PAUSED;
 
-	if (Newdemo_state == ND_STATE_PLAYBACK) {		// don't do this if in playback mode
+	if (Newdemo_state == ND_STATE_PLAYBACK) // don't do this if in playback mode
+	{
 		if (Current_mission_num == 0)		//only play movie for built-in mission
 			start_endlevel_movie();
 		strcpy(last_palette_loaded,"");		//force palette load next time
@@ -345,18 +344,19 @@ void start_endlevel_sequence()
 	if (Current_mission_num == 0)//only play movie for built-in mission
 	{		
 		//try playing movie.  If it plays, great. if not, do rendered ending
+		movie_played = MOVIE_NOT_PLAYED;
+		if (CurrentDataVersion != DataVer::DEMO) //TODO: This needs to be fixed since d2demo can play movies here. 
+			if (!(Game_mode & GM_MULTI))
+				movie_played = start_endlevel_movie();
 		
-		if (!(Game_mode & GM_MULTI))
-			movie_played = start_endlevel_movie();
-		
-		#ifdef SHAREWARE //[ISB] all my goddamned salt
-		if (movie_played == MOVIE_NOT_PLAYED) {		//don't have movie.  Do rendered sequence
-		#ifndef WINDOWS
-			start_rendered_endlevel_sequence(); 
-		#endif
-			return;
+		if (CurrentDataVersion == DataVer::DEMO)
+		{
+			if (movie_played == MOVIE_NOT_PLAYED) //don't have movie.  Do rendered sequence
+			{
+				start_rendered_endlevel_sequence();
+				return;
+			}
 		}
-		#endif
 
 	}
 	else
@@ -365,17 +365,9 @@ void start_endlevel_sequence()
 	PlayerFinishedLevel(0);		//done with level
 }
 
-#ifndef SHAREWARE
-
-int do_endlevel_frame() { Int3(); return 0; }
-int stop_endlevel_sequence() { Int3(); return 0; }
-void render_endlevel_frame() {Int3();}
-
-#else
-
 static int cockpit_mode_save;
 
-start_rendered_endlevel_sequence()
+void start_rendered_endlevel_sequence()
 {
 	int last_segnum,exit_side,tunnel_length;
 
@@ -429,10 +421,11 @@ start_rendered_endlevel_sequence()
 	}
 	#endif
 
-	#ifdef SHAREWARE
-	Assert(last_segnum == exit_segnum);
-	// 	songs_play_song( SONG_ENDLEVEL, 0 );	// JTS: Until we get an exit song, just don't worry
-	#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		Assert(last_segnum == exit_segnum);
+		songs_play_song( SONG_ENDLEVEL, 0 );
+	}
 
 	Endlevel_sequence = EL_FLYTHROUGH;
 
@@ -496,7 +489,8 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 
 //printf("Total delta = %x, alt total_delta = %x\n",total_delta,alt_total_delta);
 
-	if (alt_total_delta < total_delta) {
+	if (alt_total_delta < total_delta) 
+	{
 		//mprintf((0,"FLIPPING ANGLES!\n"));
 		//printf("FLIPPING ANGLES!\n");
 		*cur_angles = alt_angles;
@@ -505,7 +499,8 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 
 	frame_turn = fixmul(FrameTime,CHASE_TURN_RATE);
 
-	if (abs(delta_angs.p) < frame_turn) {
+	if (abs(delta_angs.p) < frame_turn) 
+	{
 		cur_angles->p = desired_angles->p;
 		mask |= 1;
 	}
@@ -515,7 +510,8 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 		else
 			cur_angles->p -= frame_turn;
 
-	if (abs(delta_angs.b) < frame_turn) {
+	if (abs(delta_angs.b) < frame_turn)
+	{
 		cur_angles->b = desired_angles->b;
 		mask |= 2;
 	}
@@ -526,7 +522,8 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 			cur_angles->b -= frame_turn;
 //cur_angles->b = 0;
 
-	if (abs(delta_angs.h) < frame_turn) {
+	if (abs(delta_angs.h) < frame_turn) 
+	{
 		cur_angles->h = desired_angles->h;
 		mask |= 4;
 	}
@@ -539,7 +536,7 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 	return mask;
 }
 
-stop_endlevel_sequence()
+void stop_endlevel_sequence()
 {
 	Interpolation_method = 0;
 
@@ -550,7 +547,6 @@ stop_endlevel_sequence()
 	Endlevel_sequence = EL_OFF;
 
 	PlayerFinishedLevel(0);
-
 }
 
 #define VCLIP_BIG_PLAYER_EXPLOSION	58
@@ -558,7 +554,7 @@ stop_endlevel_sequence()
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
 //find the angle between the player's heading & the station
-get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
+void get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
 {
 	vms_vector tv;
 
@@ -567,12 +563,10 @@ get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
 	vm_extract_angles_vector(av,&tv);
 }
 
-do_endlevel_frame()
+void do_endlevel_frame()
 {
-	#ifdef SHAREWARE
 	static fix timer;
 	static fix bank_rate;
-	#endif
 	vms_vector save_last_pos;
 	static fix explosion_wait1=0;
 	static fix explosion_wait2=0;
@@ -582,7 +576,8 @@ do_endlevel_frame()
 	object_move_all();
 	ConsoleObject->last_pos = save_last_pos;
 
-	if (ext_expl_playing) {
+	if (ext_expl_playing)
+	{
 
 		external_explosion.lifeleft -= FrameTime;
 		do_explosion_sequence(&external_explosion);
@@ -594,7 +589,8 @@ do_endlevel_frame()
 			ext_expl_playing = 0;
 	}
 
-	if (cur_fly_speed != desired_fly_speed) {
+	if (cur_fly_speed != desired_fly_speed) 
+	{
 		fix delta = desired_fly_speed - cur_fly_speed;
 		fix frame_accel = fixmul(FrameTime,FLY_ACCEL);
 
@@ -608,21 +604,25 @@ do_endlevel_frame()
 	}
 
 	//do big explosions
-	if (!outside_mine) {
+	if (!outside_mine)
+	{
 
-		if (Endlevel_sequence==EL_OUTSIDE) {
+		if (Endlevel_sequence==EL_OUTSIDE) 
+		{
 			vms_vector tvec;
 
 			vm_vec_sub(&tvec,&ConsoleObject->pos,&mine_side_exit_point);
 
-			if (vm_vec_dot(&tvec,&mine_exit_orient.fvec) > 0) {
+			if (vm_vec_dot(&tvec,&mine_exit_orient.fvec) > 0) 
+			{
 				object *tobj;
 
 				outside_mine = 1;
 
 				tobj = object_create_explosion(exit_segnum,&mine_side_exit_point,i2f(50),VCLIP_BIG_PLAYER_EXPLOSION);
 
-				if (tobj) {
+				if (tobj)
+				{
 					external_explosion = *tobj;
 
 					tobj->flags |= OF_SHOULD_BE_DEAD;
@@ -639,7 +639,8 @@ do_endlevel_frame()
 		}
 
 		//do explosions chasing player
-		if ((explosion_wait1-=FrameTime) < 0) {
+		if ((explosion_wait1-=FrameTime) < 0) 
+		{
 			vms_vector tpnt;
 			int segnum;
 			object *expl;
@@ -666,7 +667,8 @@ do_endlevel_frame()
 
 	//do little explosions on walls
 	if (Endlevel_sequence >= EL_FLYTHROUGH && Endlevel_sequence < EL_OUTSIDE)
-		if ((explosion_wait2-=FrameTime) < 0) {
+		if ((explosion_wait2-=FrameTime) < 0) 
+		{
 			vms_vector tpnt;
 			fvi_query fq;
 			fvi_info hit_data;
@@ -700,20 +702,23 @@ do_endlevel_frame()
 			explosion_wait2 = (0xa00 + P_Rand()/8)/2;
 		}
 
-	switch (Endlevel_sequence) {
+	switch (Endlevel_sequence) 
+	{
 
 		case EL_OFF: return;
 
-		case EL_FLYTHROUGH: {
-
+		case EL_FLYTHROUGH: 
+		{
 			do_endlevel_flythrough(0);
 
-			if (ConsoleObject->segnum == transition_segnum) {
+			if (ConsoleObject->segnum == transition_segnum) 
+			{
 
+				/*
 				#ifndef SHAREWARE
 					start_endlevel_movie();
 					stop_endlevel_sequence();
-				#else
+				#else*/
 
 				int objnum;
 
@@ -744,15 +749,14 @@ do_endlevel_frame()
 
 				timer=0x20000;
 
-				#endif
+				//#endif
 			}
 
 			break;
 		}
 
-
-#ifdef SHAREWARE
-		case EL_LOOKBACK: {
+		case EL_LOOKBACK: 
+		{
 
 			do_endlevel_flythrough(0);
 			do_endlevel_flythrough(1);
@@ -789,7 +793,8 @@ do_endlevel_frame()
 			break;
 		}
 
-		case EL_OUTSIDE: {
+		case EL_OUTSIDE:
+		{
 			#ifndef SLEW_ON
 			vms_angvec cam_angles;
 			#endif
@@ -806,7 +811,8 @@ do_endlevel_frame()
 
 			timer -= FrameTime;
 
-			if (timer < 0) {
+			if (timer < 0) 
+			{
 
 				Endlevel_sequence = EL_STOPPED;
 
@@ -819,7 +825,8 @@ do_endlevel_frame()
 			break;
 		}
 
-		case EL_STOPPED: {
+		case EL_STOPPED: 
+		{
 
 			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
@@ -829,7 +836,8 @@ do_endlevel_frame()
 
 			timer -= FrameTime;
 
-			if (timer < 0) {
+			if (timer < 0) 
+			{
 
 				#ifdef SLEW_ON
 				slew_obj = endlevel_camera;
@@ -864,7 +872,8 @@ do_endlevel_frame()
 		}
 
 		#ifndef SHORT_SEQUENCE
-		case EL_PANNING: {
+		case EL_PANNING: 
+		{
 			#ifndef SLEW_ON
 			int mask;
 			#endif
@@ -901,7 +910,8 @@ do_endlevel_frame()
 			break;
 		}
 
-		case EL_CHASING: {
+		case EL_CHASING:
+		{
 			fix d,speed_scale;
 
 			#ifdef SLEW_ON
@@ -936,7 +946,6 @@ do_endlevel_frame()
 
 		}
 		#endif		//ifdef SHORT_SEQUENCE
-#endif
 
 	}
 }
@@ -945,7 +954,7 @@ do_endlevel_frame()
 #define MIN_D 0x100
 
 //find which side to fly out of
-find_exit_side(object *obj)
+int find_exit_side(object *obj)
 {
 	int i;
 	vms_vector prefvec,segcenter,sidevec;
@@ -980,8 +989,6 @@ find_exit_side(object *obj)
 
 	return best_side;
 }
-
-#endif
 
 extern fix Render_zoom;							//the player's zoom factor
 
@@ -1131,9 +1138,7 @@ void draw_stars()
 
 }
 
-#ifdef SHAREWARE
-
-endlevel_render_mine(fix eye_offset)
+void endlevel_render_mine(fix eye_offset)
 {
 	int start_seg_num;
 
@@ -1182,10 +1187,8 @@ void render_endlevel_frame(fix eye_offset)
 
 	if (Endlevel_sequence < EL_OUTSIDE)
 		endlevel_render_mine(eye_offset);
-	#ifdef SHAREWARE
 	else
 		render_external_scene(eye_offset);
-	#endif
 
 	g3_end_frame();
 
@@ -1213,7 +1216,7 @@ fixang interp_angle(fixang dest,fixang src,fixang step);
 #define MIN_D 0x100
 
 //if speed is zero, use default speed
-start_endlevel_flythrough(int n,object *obj,fix speed)
+void start_endlevel_flythrough(int n,object *obj,fix speed)
 {
 	flydata = &fly_objects[n];
 
@@ -1239,7 +1242,7 @@ static vms_angvec *angvec_add2_scale(vms_angvec *dest,vms_vector *src,fix s)
 
 #define MAX_SLIDE_PER_SEGMENT 0x10000
 
-do_endlevel_flythrough(int n)
+void do_endlevel_flythrough(int n)
 {
 	object *obj;
 	segment *pseg;
@@ -1358,13 +1361,15 @@ do_endlevel_flythrough(int n)
 
 		seg_time = fixdiv(step_size,flydata->speed);	//how long through seg
 
-		if (seg_time) {
-			flydata->angstep.x = max(-MAX_ANGSTEP,min(MAX_ANGSTEP,fixdiv(delta_ang(flydata->angles.p,dest_angles.p),seg_time)));
-			flydata->angstep.z = max(-MAX_ANGSTEP,min(MAX_ANGSTEP,fixdiv(delta_ang(flydata->angles.b,dest_angles.b),seg_time)));
-			flydata->angstep.y = max(-MAX_ANGSTEP,min(MAX_ANGSTEP,fixdiv(delta_ang(flydata->angles.h,dest_angles.h),seg_time)));
+		if (seg_time) 
+		{
+			flydata->angstep.x = std::max(-MAX_ANGSTEP, std::min(MAX_ANGSTEP,fixdiv(delta_ang(flydata->angles.p,dest_angles.p),seg_time)));
+			flydata->angstep.z = std::max(-MAX_ANGSTEP, std::min(MAX_ANGSTEP,fixdiv(delta_ang(flydata->angles.b,dest_angles.b),seg_time)));
+			flydata->angstep.y = std::max(-MAX_ANGSTEP, std::min(MAX_ANGSTEP,fixdiv(delta_ang(flydata->angles.h,dest_angles.h),seg_time)));
 
 		}
-		else {
+		else 
+		{
 			flydata->angles = dest_angles;
 			flydata->angstep.x = flydata->angstep.y = flydata->angstep.z = 0;
 		}
@@ -1379,10 +1384,11 @@ do_endlevel_flythrough(int n)
 
 extern short old_joy_x,old_joy_y;	//position last time around
 
+#ifdef SLEW_ON		//this is a special routine for slewing around external scene
+
 #include "key.h"
 #include "joy.h"
 
-#ifdef SLEW_ON		//this is a special routine for slewing around external scene
 int _do_slew_movement(object *obj, int check_keys, int check_joy )
 {
 	int moved = 0;
@@ -1462,7 +1468,8 @@ int convert_ext( char *dest, char *ext )
 
 	t = strchr(dest,'.');
 
-	if (t && (t-dest <= 8)) {
+	if (t && (t-dest <= 8)) 
+	{
 		t[1] = ext[0];			
 		t[2] = ext[1];			
 		t[3] = ext[2];	
@@ -1473,7 +1480,7 @@ int convert_ext( char *dest, char *ext )
 }
 
 //called for each level to load & setup the exit sequence
-load_endlevel_data(int level_num)
+void load_endlevel_data(int level_num)
 {
 	char filename[13];
 	char line[LINE_LEN],*p;
@@ -1504,7 +1511,8 @@ try_again:
 		ifile = cfopen(filename,"rb");
 
 		if (!ifile)
-			if (level_num==1) {
+			if (level_num==1) 
+			{
 				Error("Cannot load file text of binary version of <%s>",filename);
 			}
 			else {
@@ -1520,10 +1528,12 @@ try_again:
 
 	var = 0;
 
-	while (cfgets(line,LINE_LEN,ifile)) {
+	while (cfgets(line,LINE_LEN,ifile))
+	{
 
 		if (have_binary) {
-			for (i = 0; i < strlen(line) - 1; i++) {
+			for (i = 0; i < strlen(line) - 1; i++) 
+			{
 				encode_rotate_left(&(line[i]));
 				line[i] = line[i] ^ BITMAP_TBL_XOR;
 				encode_rotate_left(&(line[i]));
@@ -1540,11 +1550,12 @@ try_again:
 		if (!*p)		//empty line
 			continue;
 
-		switch (var) {
+		switch (var) 
+		{
 
 			case 0: {						//ground terrain
 				int iff_error, i;
-				ubyte pal[768];
+				uint8_t pal[768];
 
 				if (terrain_bm_instance.bm_data)
 					free(terrain_bm_instance.bm_data);
@@ -1582,13 +1593,14 @@ try_again:
 
 			case 4: {						//planet bitmap
 				int iff_error;
-				ubyte pal[768];
+				uint8_t pal[768];
 
 				if (satellite_bm_instance.bm_data)
 					free(satellite_bm_instance.bm_data);
 
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
-				if (iff_error != IFF_NO_ERROR) {
+				if (iff_error != IFF_NO_ERROR) 
+				{
 					mprintf((1, "File %s - IFF error: %s",p,iff_errormsg(iff_error)));
 					Error("File %s - IFF error: %s",p,iff_errormsg(iff_error));
 				}
@@ -1682,6 +1694,3 @@ vm_vec_copy_scale(&satellite_upvec,&tm.uvec,SATELLITE_HEIGHT);
 	endlevel_data_loaded = 1;
 
 }
-
-#endif
-

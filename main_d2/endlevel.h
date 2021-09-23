@@ -16,8 +16,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 extern int Endlevel_sequence;
-int do_endlevel_frame();
-int stop_endlevel_sequence();
+void do_endlevel_frame();
+void stop_endlevel_sequence();
 void start_endlevel_sequence();
 void render_endlevel_frame(fix eye_offset);
 
@@ -26,9 +26,6 @@ void draw_exit_model();
 void init_endlevel();
 
 extern grs_bitmap* terrain_bitmap;	//*satellite_bitmap,*station_bitmap,
-
-#ifdef SHAREWARE
-
 extern int exit_segnum;
 
 //@@extern vms_vector mine_exit_point;
@@ -36,8 +33,7 @@ extern int exit_segnum;
 //@@extern int ext_expl_playing;
 
 //called for each level to load & setup the exit sequence
-load_endlevel_data(int level_num);
-#endif
+void load_endlevel_data(int level_num);
 
 extern int exit_modelnum, destroyed_exit_modelnum;
 
