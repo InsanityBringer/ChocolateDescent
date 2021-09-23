@@ -1076,7 +1076,7 @@ void editor(void)
 
 		// Only update if there is no key waiting and we're not in
 		// fast play mode.
-		if (!key_peekkey()) //-- && (MacroStatus != UI_STATUS_FASTPLAY))
+		//if (!key_peekkey()) //-- && (MacroStatus != UI_STATUS_FASTPLAY))
 			medlisp_update_screen();
 
 		//do editor stuff
