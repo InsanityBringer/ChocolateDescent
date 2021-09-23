@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
+#include <algorithm>
 
 #include "main_d2/inferno.h"
 #include "main_d2/segment.h"
@@ -1173,6 +1174,7 @@ typedef struct {
 //			Also, the vector should not be 12 bytes, you should only care about some smaller portion of it.
 hash_info	fvi_cache[FVI_HASH_SIZE];
 int	Hash_hits=0, Hash_retries=0, Hash_calcs=0;
+int last_delta_light = 0, delta_light_count = 0;
 
 //	-----------------------------------------------------------------------------------------
 //	Set light from a light source.
@@ -1193,9 +1195,24 @@ int	Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 void cast_light_from_side(segment *segp, int light_side, fix light_intensity, int quick_light)
 {
 	vms_vector	segment_center;
-	int			segnum,sidenum,vertnum, lightnum;
+	int			segnum,sidenum,vertnum, lightnum, start_delta_light;
+	uint8_t varg;
 
 	compute_segment_center(&segment_center, segp);
+
+	//[ISB] add this surface first
+	if (!quick_light)
+	{
+		Delta_lights[last_delta_light].segnum = segp - Segments;
+		Delta_lights[last_delta_light].sidenum = light_side;
+		varg = std::min(light_intensity * 4 / DL_SCALE, 255);
+		for (lightnum = 0; lightnum < 4; lightnum++)
+			Delta_lights[last_delta_light].vert_light[lightnum] = varg;
+
+		last_delta_light++;
+		delta_light_count++;
+		start_delta_light = delta_light_count;
+	}
 
 //mprintf((0, "From [%i %i %7.3f]:  ", segp-Segments, light_side, f2fl(light_intensity)));
 
@@ -1243,6 +1260,33 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 					{
 						side			*rsidep = &rsegp->sides[sidenum];
 						vms_vector	*side_normalp = &rsidep->normals[0];	//	kinda stupid? always use vector 0.
+						int delta_light_number = -1, dl_num;
+
+						//TODO: This always adds a DL index, even if all vertices fail the visibility check
+						if (!quick_light)
+						{
+							//Since there's 4 vertices casting light, need to account for each. 
+							//Slow search to find the delta light for this particular light source for the current segnum and sidenum
+							for (dl_num = start_delta_light; dl_num < last_delta_light; dl_num++)
+							{
+								if (Delta_lights[dl_num].segnum == segnum && Delta_lights[dl_num].sidenum == sidenum)
+								{
+									delta_light_number = dl_num;
+									break;
+								}
+							}
+
+							//If none found, create a new one. 
+							if (delta_light_number == -1)
+							{
+								Delta_lights[last_delta_light].segnum = segnum;
+								Delta_lights[last_delta_light].sidenum = sidenum;
+								memset(Delta_lights[last_delta_light].vert_light, 0, sizeof(Delta_lights[last_delta_light].vert_light));
+								delta_light_number = last_delta_light;
+								last_delta_light++;
+								delta_light_count++;
+							}
+						}
 
 //mprintf((0, "[%i %i], ", rsegp-Segments, sidenum));
 						for (vertnum=0; vertnum<4; vertnum++) 
@@ -1340,6 +1384,12 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 //mprintf((0, "(%5.2f) ", f2fl(light_at_point)));
 											if (rsidep->uvls[vertnum].l > F1_0)
 												rsidep->uvls[vertnum].l = F1_0;
+
+											if (!quick_light)
+											{
+												varg = std::min((Delta_lights[delta_light_number].vert_light[vertnum] + light_at_point / DL_SCALE), 255);
+												Delta_lights[delta_light_number].vert_light[vertnum] = varg;
+											}
 											break;
 										case HIT_WALL:
 											break;
@@ -1479,17 +1529,28 @@ void cast_light_from_side_to_center(segment *segp, int light_side, fix light_int
 void calim_process_all_lights(int quick_light)
 {
 	int	segnum, sidenum;
+	int destroyable;
+	dl_index* index;
 
-	for (segnum=0; segnum<=Highest_segment_index; segnum++) {
+	Num_static_lights = 0;
+	delta_light_count = 0;
+	last_delta_light = 0;
+
+	for (segnum=0; segnum<=Highest_segment_index; segnum++) 
+	{
 		segment	*segp = &Segments[segnum];
 		mprintf((0, "."));
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
+		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
 			// if (!IS_CHILD(segp->children[sidenum])) {
-			if (WALL_IS_DOORWAY(segp, sidenum) != 0) {
+			if (WALL_IS_DOORWAY(segp, sidenum) != 0) 
+			{
 				side	*sidep = &segp->sides[sidenum];
 				fix	light_intensity;
 
 				light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[sidep->tmap_num2 & 0x3fff].lighting;
+				//if (TmapInfo[sidep->tmap_num2 & 0x3fff].destroyed != -1 || (TmapInfo[sidep->tmap_num2 & 0x3fff].eclip_num != -1 && Effects[TmapInfo[sidep->tmap_num2 & 0x3fff].eclip_num].dest_bm_num != -1))
+				//	destroyable = 1; //[ISB] but then dynlights wouldn't be usable
 
 //				if (segp->sides[sidenum].wall_num != -1) {
 //					int	wall_num, bitmap_num, effect_num;
@@ -1500,13 +1561,31 @@ void calim_process_all_lights(int quick_light)
 //					light_intensity += TmapInfo[bitmap_num].lighting;
 //				}
 
-				if (light_intensity) {
+				if (light_intensity)
+				{
+					if (!quick_light)
+					{
+						index = &Dl_indices[Num_static_lights++];
+						index->count = 0;
+						index->segnum = segnum;
+						index->sidenum = sidenum;
+						index->index = last_delta_light;
+					}
 					light_intensity /= 4;			// casting light from four spots, so divide by 4.
 					cast_light_from_side(segp, sidenum, light_intensity, quick_light);
 					cast_light_from_side_to_center(segp, sidenum, light_intensity, quick_light);
+					if (!quick_light)
+					{
+						index->count = delta_light_count;
+					}
 				}
 			}
 		}
+	}
+
+	if (!quick_light)
+	{
+		mprintf((0, "Num light sources: %d, Num deltas: %d\n", Num_static_lights, delta_light_count));
 	}
 }
 
