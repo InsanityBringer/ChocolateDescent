@@ -595,4 +595,63 @@ int set_level_palette()
 	return 0;
 }
 
+int med_create_flickering_light()
+{
+	static char maskbuffer[33] = "0";
+	static char timebuffer[11] = "0.1";
+	int count = 32, i;
+	uint32_t mask = 0;
+	fix time;
+	UI_WINDOW* NameWindow = NULL;
+	UI_GADGET_INPUTBOX* NameText, *TimeText;
+	UI_GADGET_BUTTON* QuitButton;
+
+	// Open a window with a quit button
+	NameWindow = ui_open_window(20, 20, 500, 110, WIN_DIALOG);
+	QuitButton = ui_add_gadget_button(NameWindow, 150 - 24, 60, 48, 40, "Done", NULL);
+
+	ui_wprintf_at(NameWindow, 10, 12, "Light mask:");
+	NameText = ui_add_gadget_inputbox(NameWindow, 10, 30, 32, 32, maskbuffer);
+	ui_wprintf_at(NameWindow, 274, 12, "Time:");
+	TimeText = ui_add_gadget_inputbox(NameWindow, 274, 30, 10, 10, timebuffer);
+
+	NameWindow->keyboard_focus_gadget = (UI_GADGET*)NameText;
+	QuitButton->hotkey = KEY_ENTER;
+
+	ui_gadget_calc_keys(NameWindow);
+
+	while (!QuitButton->pressed && last_keypress != KEY_ENTER) {
+		ui_mega_process();
+		ui_window_do_gadgets(NameWindow);
+	}
+
+	strcpy(maskbuffer, NameText->text);
+	strcpy(timebuffer, TimeText->text);
+
+	if (NameWindow != NULL) {
+		ui_close_window(NameWindow);
+		NameWindow = NULL;
+	}
+
+	count = strlen(maskbuffer);
+
+	for (i = 0; i < count; i++)
+	{
+		if (maskbuffer[i] == '1')
+			mask |= (1 << i);
+	}
+	time = fl2f(atof(timebuffer));
+
+	if (add_flicker(Cursegp - Segments, Curside, time, mask))
+	{
+		editor_status("Flickering light updated");
+	}
+	else
+	{
+		editor_status("Failed to create flickering light");
+	}
+
+	return 0;
+}
+
 #endif

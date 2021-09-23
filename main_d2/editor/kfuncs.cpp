@@ -46,6 +46,7 @@ extern void check_for_overlapping_segments(void);
 extern void init_replacements();
 
 extern int set_level_palette();
+extern int med_create_flickering_light();
 
 int Test1() 
 {
@@ -377,6 +378,7 @@ FUNCTION med_functions[] = {
 {	 "med-keypad-goto-next",				 0,        med_keypad_goto_next },
 {	 "med-keypad-goto",				 1,        med_keypad_goto },
 	{	"med-set-palette",			1,			set_level_palette },
+	{	"med-set-flickering-light",			1,			med_create_flickering_light },
 
 // John's temporary function page stuff
 // {   "med-set-function-page",            1,        medtmp_set_page },
