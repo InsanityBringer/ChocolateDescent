@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdlib.h>
 
+#include "inferno.h"
 #include "misc/types.h"
 #include "misc/args.h"
 #include "platform/timer.h"

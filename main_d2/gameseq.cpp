@@ -1578,11 +1578,7 @@ void PlayerFinishedLevel(int secret_flag)
 	AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 }
 
-#if defined(D2_OEM) || defined(COMPILATION)
-#define MOVIE_REQUIRED 0
-#else
-#define MOVIE_REQUIRED 1
-#endif
+#define MOVIE_REQUIRED 0 //[ISB] Really, why should I require these? Is it too unchocolate to do this?
 
 #ifdef D2_OEM
 #define ENDMOVIE "endo"
@@ -2187,12 +2183,7 @@ void ShowLevelIntro(int level_num)
 		if (Current_mission_num == 0)
 		{
 			int movie = 0;
-#ifdef SHAREWARE
-			if (level_num == 1)
-			{
-				do_briefing_screens("brief2.tex", 1);
-			}
-#else
+
 			for (i = 0; i < NUM_INTRO_MOVIES; i++)
 			{
 				if (intro_movie[i].level_num == level_num)
@@ -2203,32 +2194,33 @@ void ShowLevelIntro(int level_num)
 				}
 			}
 
-#ifdef WINDOWS
-			if (!movie) {					//must go before briefing
-				dd_gr_init_screen();
-				Screen_mode = -1;
-			}
-#endif
-
-			if (robot_movies)
+			if (CurrentDataVersion == DataVer::DEMO && level_num == 1)
 			{
-				int hires_save = MenuHiresAvailable;
-
-				if (robot_movies == 1)		//lowres only
-				{
-					MenuHiresAvailable = 0;		//pretend we can't do highres
-
-					if (hires_save != MenuHiresAvailable)
-						Screen_mode = -1;		//force reset
-
-				}
-				do_briefing_screens("robot.tex", level_num);
-				MenuHiresAvailable = hires_save;
+				do_briefing_screens("brief2.tex", 1);
 			}
 
-#endif
+			if (CurrentDataVersion != DataVer::DEMO)
+			{
+				if (robot_movies)
+				{
+					int hires_save = MenuHiresAvailable;
+
+					if (robot_movies == 1)		//lowres only
+					{
+						MenuHiresAvailable = 0;		//pretend we can't do highres
+
+						if (hires_save != MenuHiresAvailable)
+							Screen_mode = -1;		//force reset
+
+					}
+					do_briefing_screens("robot.tex", level_num);
+					MenuHiresAvailable = hires_save;
 		}
-		else {	//not the built-in mission.  check for add-on briefing
+	}
+
+		}
+		else //not the built-in mission.  check for add-on briefing
+		{
 			char tname[FILENAME_LEN];
 			sprintf(tname, "%s.tex", Current_mission_filename);
 			do_briefing_screens(tname, level_num);

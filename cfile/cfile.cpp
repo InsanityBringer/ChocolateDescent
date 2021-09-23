@@ -117,7 +117,7 @@ int cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 	if (fp == NULL)
 	{
 		Warning("cfile_init_hogfile: Can't open hogfile: %s\n", fname);
-		return 1;
+		return 0;
 	}
 
 	fread(id, 3, 1, fp);

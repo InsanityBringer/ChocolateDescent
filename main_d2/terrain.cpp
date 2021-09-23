@@ -11,8 +11,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef SHAREWARE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,7 +60,7 @@ extern fix g3_get_surface_dotprod(g3s_point **list);
 
 int terrain_outline=0;
 
-void render_mine(int start_seg_num,fix eye_offset);
+void render_mine(int start_seg_num,fix eye_offset, int window_num);
 
 int org_i,org_j;
 
@@ -137,7 +135,7 @@ void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *
 	
 	if (mine_tiles_drawn == 0xf) 
 	{
-		render_mine(exit_segnum,0);
+		render_mine(exit_segnum,0, 0);
 		//draw_exit_model();
 		mine_tiles_drawn=-1;
 		//if (ext_expl_playing)
@@ -488,5 +486,3 @@ void build_light_table()
 
 		}
 }
-
-#endif

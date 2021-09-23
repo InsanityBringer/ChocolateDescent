@@ -28,9 +28,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
 //#include "vga.h"
+#include "inferno.h"
 #include "platform/posixstub.h"
 #include "menu.h"
-#include "inferno.h"
 #include "game.h"
 #include "2d/gr.h"
 #include "platform/key.h"
@@ -255,9 +255,9 @@ void create_main_menu(newmenu_item * m, int* menu_choice, int* callers_num_optio
 	ADD_ITEM(TXT_CHANGE_PILOTS, MENU_NEW_PLAYER, unused);
 	ADD_ITEM(TXT_VIEW_DEMO, MENU_DEMO_PLAY, 0);
 	ADD_ITEM(TXT_VIEW_SCORES, MENU_VIEW_SCORES, KEY_V);
-#ifdef SHAREWARE
-	ADD_ITEM(TXT_ORDERING_INFO, MENU_ORDER_INFO, -1);
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+		ADD_ITEM(TXT_ORDERING_INFO, MENU_ORDER_INFO, -1);
+
 	ADD_ITEM(TXT_CREDITS, MENU_SHOW_CREDITS, -1);
 #endif
 	ADD_ITEM(TXT_QUIT, MENU_QUIT, KEY_Q);
@@ -357,11 +357,9 @@ void do_option(int select)
 		gr_palette_fade_out(gr_palette, 32, 0);
 		scores_view(-1);
 		break;
-#ifdef SHAREWARE
 	case MENU_ORDER_INFO:
 		show_order_form();
 		break;
-#endif
 	case MENU_QUIT:
 #ifdef EDITOR
 		if (!SafetyCheck()) break;

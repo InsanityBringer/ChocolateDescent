@@ -77,7 +77,22 @@ enum class LogicVer
 	FULL_1_2 //Emulate 1.2 patch. The default
 };
 
+//Data version support:
+//Data version affects anything related to the game data itself.
+//It is set based on what game data is present, and will control how that data
+//is loaded, and what features are available.
+//There's only two options here, Demo and Full, as all full releases use the same formats.
+//This may eventually include Destination Quartzon since while that uses mostly full data,
+//the logic is much different. 
+
+enum class DataVer
+{
+	DEMO = 0,
+	FULL
+};
+
 extern LogicVer CurrentLogicVersion;
+extern DataVer CurrentDataVersion;
 
 #ifdef MACINTOSH
 extern ubyte Version_fix;

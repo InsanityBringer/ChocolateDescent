@@ -245,9 +245,7 @@ int start_endlevel_movie()
 
 }
 
-#ifdef SHAREWARE
-void
-free_endlevel_data()
+void free_endlevel_data()
 {
 	if (terrain_bm_instance.bm_data)
 		free(terrain_bm_instance.bm_data);
@@ -256,7 +254,9 @@ free_endlevel_data()
 		free(satellite_bm_instance.bm_data);
 }
 
-init_endlevel()
+void generate_starfield();
+
+void init_endlevel()
 {
 	//##satellite_bitmap = bm_load("earth.bbm");
 	//##terrain_bitmap = bm_load("moon.bbm");
@@ -283,7 +283,6 @@ init_endlevel()
 
 	terrain_bm_instance.bm_data = satellite_bm_instance.bm_data = NULL;
 }
-#endif	//SHAREWARE
 
 object external_explosion;
 int ext_expl_playing,mine_destroyed;
@@ -982,11 +981,13 @@ find_exit_side(object *obj)
 	return best_side;
 }
 
+#endif
+
 extern fix Render_zoom;							//the player's zoom factor
 
 extern vms_vector Viewer_eye;	//valid during render
 
-draw_exit_model()
+void draw_exit_model()
 {
 	vms_vector model_pos;
 	int f=15,u=0;	//21;
@@ -998,6 +999,8 @@ draw_exit_model()
 
 }
 
+void draw_stars();
+
 int exit_point_bmx,exit_point_bmy;
 
 fix satellite_size = i2f(400);
@@ -1006,7 +1009,7 @@ fix satellite_size = i2f(400);
 #define SATELLITE_WIDTH		satellite_size
 #define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
 
-render_external_scene(fix eye_offset)
+void render_external_scene(fix eye_offset)
 {
 
 	Viewer_eye = Viewer->pos;
@@ -1065,20 +1068,20 @@ render_external_scene(fix eye_offset)
 
 vms_vector stars[MAX_STARS];
 
-generate_starfield()
+void generate_starfield()
 {
 	int i;
 
-	for (i=0;i<MAX_STARS;i++) {
+	for (i = 0; i < MAX_STARS; i++) {
 
-		stars[i].x = (P_Rand() - PRAND_MAX/2) << 14;
-		stars[i].z = (P_Rand() - PRAND_MAX/2) << 14;
-		stars[i].y = (P_Rand()/2) << 14;
+		stars[i].x = (P_Rand() - PRAND_MAX / 2) << 14;
+		stars[i].z = (P_Rand() - PRAND_MAX / 2) << 14;
+		stars[i].y = (P_Rand() / 2) << 14;
 
 	}
 }
 
-draw_stars()
+void draw_stars()
 {
 	int i;
 	int intensity=31;
@@ -1127,6 +1130,8 @@ draw_stars()
 //@@	}
 
 }
+
+#ifdef SHAREWARE
 
 endlevel_render_mine(fix eye_offset)
 {

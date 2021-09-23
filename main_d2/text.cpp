@@ -62,13 +62,18 @@ void load_text()
 	CFILE  *tfile;
 	CFILE *ifile;
 	int len,i, have_binary = 0;
+	int N_text_strings = N_TEXT_STRINGS;
 	char *tptr;
 	const char *filename="descent.tex";
+
+	if (CurrentDataVersion == DataVer::DEMO)
+		N_text_strings = 644;
 
 	if ((i=FindArg("-text"))!=0)
 		filename = Args[i+1];
 
-	if ((tfile = cfopen(filename,"rb")) == NULL) {
+	if ((tfile = cfopen(filename,"rb")) == NULL) 
+	{
 		filename="descent.txb";
 		if ((ifile = cfopen(filename, "rb")) == NULL)
 			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
@@ -84,7 +89,8 @@ void load_text()
 
 		cfclose(ifile);
 
-	} else {
+	} else 
+	{
 		int c;
 		char * p;
 
@@ -105,7 +111,8 @@ void load_text()
 		cfclose(tfile);
 	}
 
-	for (i=0,tptr=text;i<N_TEXT_STRINGS;i++) {
+	for (i=0,tptr=text;i<N_text_strings;i++) 
+	{
 		char *p;
 
 		Text_string[i] = tptr;
@@ -117,7 +124,7 @@ void load_text()
 			break;
 		#else
 		if (!tptr)
-			Error("Not enough strings in text file - expecting %d, found %d",N_TEXT_STRINGS,i);
+			Error("Not enough strings in text file - expecting %d, found %d", N_text_strings,i);
 		#endif
 
 		if ( tptr ) *tptr++ = 0;
@@ -126,7 +133,8 @@ void load_text()
 			decode_text_line(Text_string[i]);
 
 		//scan for special chars (like \n)
-		for (p=Text_string[i];p=strchr(p,'\\');) {
+		for (p=Text_string[i];p=strchr(p,'\\');)
+		{
 			char newchar;
 
 			if (p[1] == 'n') newchar = '\n';

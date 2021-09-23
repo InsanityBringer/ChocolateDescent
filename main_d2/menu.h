@@ -38,9 +38,10 @@ extern int MenuHires;
 		#endif
 	#else	//Full version
 		#ifdef RELEASE
-			#define Menu_pcx_name (MenuHires?"\x01menub.pcx":"\x01menu.pcx")	//read only from hog file
+			#define Menu_pcx_name (CurrentDataVersion == DataVer::DEMO ? "menud.pcx" : MenuHires?"\x01menub.pcx":"\x01menu.pcx")		//read only from hog file
+			//#define Menu_pcx_name (MenuHires?"\x01menub.pcx":"\x01menu.pcx")	//read only from hog file
 		#else
-			#define Menu_pcx_name (MenuHires?"menub.pcx":"menu.pcx")		//name of background bitmap
+			#define Menu_pcx_name (CurrentDataVersion == DataVer::DEMO ? "menud.pcx" : MenuHires?"menub.pcx":"menu.pcx")		//name of background bitmap
 		#endif
 	#endif
 #endif

@@ -21,13 +21,14 @@ int stop_endlevel_sequence();
 void start_endlevel_sequence();
 void render_endlevel_frame(fix eye_offset);
 
+void render_external_scene();
+void draw_exit_model();
+void init_endlevel();
+
+extern grs_bitmap* terrain_bitmap;	//*satellite_bitmap,*station_bitmap,
+
 #ifdef SHAREWARE
 
-render_external_scene();
-draw_exit_model();
-init_endlevel();
-
-extern grs_bitmap *terrain_bitmap;	//*satellite_bitmap,*station_bitmap,
 extern int exit_segnum;
 
 //@@extern vms_vector mine_exit_point;
@@ -36,7 +37,7 @@ extern int exit_segnum;
 
 //called for each level to load & setup the exit sequence
 load_endlevel_data(int level_num);
-
-extern int exit_modelnum,destroyed_exit_modelnum;
-
 #endif
+
+extern int exit_modelnum, destroyed_exit_modelnum;
+

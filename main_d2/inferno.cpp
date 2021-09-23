@@ -125,6 +125,7 @@ int Inferno_is_800x600_available = 0;
 uint8_t CybermouseActive = 0;
 
 LogicVer CurrentLogicVersion = LogicVer::FULL_1_2;
+DataVer CurrentDataVersion = DataVer::FULL;
 
 void check_joystick_calibration(void);
 
@@ -266,7 +267,7 @@ void mem_int_to_string(int number, char* dest)
 void check_memory()
 {
 	//[ISB] heh
-	if (!FindArg("-sound11k") && !FindArg("-lowmem"))
+	if (!FindArg("-sound11k") && !FindArg("-lowmem") && CurrentDataVersion != DataVer::DEMO)
 		digi_sample_rate = SAMPLE_RATE_22K;
 	else
 		digi_sample_rate = SAMPLE_RATE_11K;
@@ -523,7 +524,7 @@ int D_DescentMain(int argc, const char** argv)
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char hogfile_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	init_all_platform_localized_paths();
-	validate_required_files();
+	validate_required_files(); //TODO: Validation needs to check if demo files are available. 
 #endif
 
 	error_init(NULL, NULL);
@@ -542,12 +543,6 @@ int D_DescentMain(int argc, const char** argv)
 	if (FindArg("-verbose"))
 		Inferno_verbose = 1;
 
-	// Initialize DPMI before anything else!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// (To check memory size and availbabitliy and allocate some low DOS memory)
-	verbose("%s... ", TXT_INITIALIZING_DPMI);
-	verbose("\n");
-	//[ISB] kill DPMI
-
 #ifdef TACTILE
 	//these adresses and lengths are based on perusing the map file.
 	//they could always change later with a different compiler or
@@ -560,14 +555,6 @@ int D_DescentMain(int argc, const char** argv)
 	dpmi_lock_region((uint8_t*)StatusBytes, 4096);
 #endif
 
-#ifdef SHAREWARE
-#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
-	get_full_file_path(hogfile_full_path, "d2demo.hog", CHOCOLATE_SYSTEM_FILE_DIR);
-	cfile_init(hogfile_full_path);
-#else
-	cfile_init("d2demo.hog");			//specify name of hogfile
-#endif
-#else
 #define HOGNAME "descent2.hog"
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	get_full_file_path(hogfile_full_path, HOGNAME, CHOCOLATE_SYSTEM_FILE_DIR);
@@ -576,9 +563,26 @@ int D_DescentMain(int argc, const char** argv)
 	if (!cfile_init(HOGNAME))
 #endif
 	{
-		Error("Could not find required file <%s>", HOGNAME);
-	}
+		//Failed to get registered Descent 2, try loading demo now. 
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		get_full_file_path(hogfile_full_path, "d2demo.hog", CHOCOLATE_SYSTEM_FILE_DIR);
+		if (!cfile_init(hogfile_full_path))
+#else
+		if (!cfile_init("d2demo.hog"))
 #endif
+		{
+			Error("Could not find required file <%s>", HOGNAME);
+		}
+		else
+		{
+			//In a brave new world of shareware emulation. Buckle up.
+			//Set all assumptions about the shareware version
+			CurrentDataVersion = DataVer::DEMO; //Use demo data versions.
+			CurrentLogicVersion = LogicVer::SHAREWARE; //Use demo game logic.
+			disable_high_res = 1;
+			fprintf(stderr, "Attempting to enter demo emulation mode\n");
+		}
+	}
 
 	load_text();
 
@@ -747,105 +751,107 @@ Here:
 #if defined(POLY_ACC)
 	vga_set_mode(SM_640x480x15xPA);
 #else
-	gr_set_mode(MovieHires ? SM_640x480V : SM_320x200C); //vga_set_mode
+	gr_set_mode(MovieHires ? SM_640x480V : SM_320x200C);
 #endif
-
+	if (CurrentDataVersion == DataVer::FULL)
+	{
 #ifndef RELEASE
-	if (FindArg("-notitles"))
-		songs_play_song(SONG_TITLE, 1);
-	else
+		if (FindArg("-notitles"))
+			songs_play_song(SONG_TITLE, 1);
+		else
 #endif
-	{	//NOTE LINK TO ABOVE!
-		int played = MOVIE_NOT_PLAYED;	//default is not played
-		int song_playing = 0;
+		{	//NOTE LINK TO ABOVE!
+			int played = MOVIE_NOT_PLAYED;	//default is not played
+			int song_playing = 0;
 
-#ifdef D2_OEM
-#define MOVIE_REQUIRED 0
-#else
 #define MOVIE_REQUIRED 0 //[ISB] Really, there's no reason to force people to have this. 
-#endif
 
 #ifdef D2_OEM   //$$POLY_ACC, jay.
-		{	//show bundler screens
-			FILE* tfile;
-			char filename[FILENAME_LEN];
+			{	//show bundler screens
+				FILE* tfile;
+				char filename[FILENAME_LEN];
 
-			played = MOVIE_NOT_PLAYED;	//default is not played
+				played = MOVIE_NOT_PLAYED;	//default is not played
 
-			played = PlayMovie("pre_i.mve", 0);
+				played = PlayMovie("pre_i.mve", 0);
 
-			if (!played) {
-				strcpy(filename, MenuHires ? "pre_i1b.pcx" : "pre_i1.pcx");
+				if (!played) {
+					strcpy(filename, MenuHires ? "pre_i1b.pcx" : "pre_i1.pcx");
 
-				while ((tfile = fopen(filename, "rb")) != NULL) {
-					fclose(tfile);
-					show_title_screen(filename, 1, 0);
-					filename[5]++;
+					while ((tfile = fopen(filename, "rb")) != NULL) {
+						fclose(tfile);
+						show_title_screen(filename, 1, 0);
+						filename[5]++;
+					}
 				}
-	}
-	}
+			}
 #endif
 
-#ifndef SHAREWARE
-		init_subtitles("intro.tex");
-		played = PlayMovie("intro.mve", MOVIE_REQUIRED);
-		close_subtitles();
-#endif
+
+			init_subtitles("intro.tex");
+			played = PlayMovie("intro.mve", MOVIE_REQUIRED);
+			close_subtitles();
 
 #ifdef D2_OEM
-		if (played != MOVIE_NOT_PLAYED)
-			intro_played = 1;
-		else {						//didn't get intro movie, try titles
+			if (played != MOVIE_NOT_PLAYED)
+				intro_played = 1;
+			else {						//didn't get intro movie, try titles
 
-			played = PlayMovie("titles.mve", MOVIE_REQUIRED);
+				played = PlayMovie("titles.mve", MOVIE_REQUIRED);
 
-			if (played == MOVIE_NOT_PLAYED) {
+				if (played == MOVIE_NOT_PLAYED) {
 #if defined(POLY_ACC)
-				vga_set_mode(SM_640x480x15xPA);
+					vga_set_mode(SM_640x480x15xPA);
 #else
-				vga_set_mode(MenuHires ? SM_640x480V : SM_320x200C);
+					vga_set_mode(MenuHires ? SM_640x480V : SM_320x200C);
 #endif
-				mprintf((0, "\nPlaying title song..."));
-				songs_play_song(SONG_TITLE, 1);
-				song_playing = 1;
-				mprintf((0, "\nShowing logo screens..."));
-				show_title_screen(MenuHires ? "iplogo1b.pcx" : "iplogo1.pcx", 1, 1);
-				show_title_screen(MenuHires ? "logob.pcx" : "logo.pcx", 1, 1);
-			}
-		}
-
-		{	//show bundler movie or screens
-
-			FILE* tfile;
-			char filename[FILENAME_LEN];
-			int movie_handle;
-
-			played = MOVIE_NOT_PLAYED;	//default is not played
-
-			//check if OEM movie exists, so we don't stop the music if it doesn't
-			movie_handle = open_movie_file("oem.mve", 0);
-			if (movie_handle != -1) {
-				close(movie_handle);
-				played = PlayMovie("oem.mve", 0);
-				song_playing = 0;		//movie will kill sound
-			}
-
-			if (!played) {
-				strcpy(filename, MenuHires ? "oem1b.pcx" : "oem1.pcx");
-
-				while ((tfile = fopen(filename, "rb")) != NULL) {
-					fclose(tfile);
-					show_title_screen(filename, 1, 0);
-					filename[3]++;
+					mprintf((0, "\nPlaying title song..."));
+					songs_play_song(SONG_TITLE, 1);
+					song_playing = 1;
+					mprintf((0, "\nShowing logo screens..."));
+					show_title_screen(MenuHires ? "iplogo1b.pcx" : "iplogo1.pcx", 1, 1);
+					show_title_screen(MenuHires ? "logob.pcx" : "logo.pcx", 1, 1);
 				}
 			}
+
+			{	//show bundler movie or screens
+
+				FILE* tfile;
+				char filename[FILENAME_LEN];
+				int movie_handle;
+
+				played = MOVIE_NOT_PLAYED;	//default is not played
+
+				//check if OEM movie exists, so we don't stop the music if it doesn't
+				movie_handle = open_movie_file("oem.mve", 0);
+				if (movie_handle != -1) {
+					close(movie_handle);
+					played = PlayMovie("oem.mve", 0);
+					song_playing = 0;		//movie will kill sound
+				}
+
+				if (!played) {
+					strcpy(filename, MenuHires ? "oem1b.pcx" : "oem1.pcx");
+
+					while ((tfile = fopen(filename, "rb")) != NULL) {
+						fclose(tfile);
+						show_title_screen(filename, 1, 0);
+						filename[3]++;
+					}
+				}
+			}
+	#endif
+
+			if (!song_playing)
+				songs_play_song(SONG_TITLE, 1);
+		}
 	}
-#endif
-
-		if (!song_playing)
-			songs_play_song(SONG_TITLE, 1);
-
-}
+	else
+	{
+		songs_play_song(SONG_TITLE, 1);
+		show_title_screen("iplogo1.pcx", 1, 1);
+		show_title_screen("logo.pcx", 1, 1);
+	}
 
 	//PA_DFX(pa_splash());
 
@@ -855,20 +861,15 @@ Here:
 		int pcx_error;
 		char filename[14];
 
-#ifdef SHAREWARE
-		strcpy(filename, "descentd.pcx");
-#else
-#ifdef D2_OEM
-		strcpy(filename, MenuHires ? "descntob.pcx" : "descento.pcx");
-#else
-		strcpy(filename, MenuHires ? "descentb.pcx" : "descent.pcx");
-#endif
-#endif
+		if (CurrentDataVersion == DataVer::DEMO)
+			strcpy(filename, "descentd.pcx");
+		else
+			strcpy(filename, MenuHires ? "descentb.pcx" : "descent.pcx");
 
 #if defined(POLY_ACC)
 		gr_set_mode(SM_640x480x15xPA);
 #else
-		gr_set_mode(MenuHires ? SM_640x480V : SM_320x200C); //vga_set_mode
+		gr_set_mode(MenuHires ? SM_640x480V : SM_320x200C);
 #endif
 
 		FontHires = MenuHires;
@@ -1144,11 +1145,13 @@ void check_joystick_calibration()
 
 void show_order_form()
 {
-#if !defined(EDITOR) && (defined(SHAREWARE) || defined(D2_OEM))
+#if !defined(EDITOR)
 
 	int pcx_error;
-	char title_pal[768];
+	uint8_t title_pal[768];
 	char	exit_screen[16];
+
+	if (CurrentDataVersion == DataVer::FULL) return;
 
 	gr_set_current_canvas(NULL);
 	gr_palette_clear();
@@ -1157,13 +1160,11 @@ void show_order_form()
 
 #ifdef D2_OEM
 	strcpy(exit_screen, MenuHires ? "ordrd2ob.pcx" : "ordrd2o.pcx");
-#else
-#if defined(SHAREWARE)
+#endif
+
 	strcpy(exit_screen, "orderd2.pcx");
-#else
-	strcpy(exit_screen, MenuHires ? "warningb.pcx" : "warning.pcx");
-#endif
-#endif
+
+	//strcpy(exit_screen, MenuHires ? "warningb.pcx" : "warning.pcx");
 
 	if ((pcx_error = pcx_read_bitmap(exit_screen, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, title_pal)) == PCX_ERROR_NONE)
 	{

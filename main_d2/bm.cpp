@@ -305,12 +305,18 @@ void read_weapon_info(CFILE *fp, int inNumWeaponsToRead, int inOffset)
 		Weapon_info[i].flash = cfile_read_byte(fp);
 		Weapon_info[i].afterburner_size = cfile_read_byte(fp);
 		
-		Weapon_info[i].children = cfile_read_byte(fp);
+		if (CurrentDataVersion == DataVer::DEMO)
+			Weapon_info[i].children = -1;
+		else
+			Weapon_info[i].children = cfile_read_byte(fp);
 
 		Weapon_info[i].energy_usage = cfile_read_fix(fp);
 		Weapon_info[i].fire_wait = cfile_read_fix(fp);
 		
-		Weapon_info[i].multi_damage_scale = cfile_read_fix(fp);
+		if (CurrentDataVersion == DataVer::DEMO)
+			Weapon_info[i].multi_damage_scale = F1_0;
+		else
+			Weapon_info[i].multi_damage_scale = cfile_read_fix(fp);
 		
 		Weapon_info[i].bitmap.index = cfile_read_short(fp);	// bitmap_index = short
 
@@ -329,7 +335,10 @@ void read_weapon_info(CFILE *fp, int inNumWeaponsToRead, int inOffset)
 		Weapon_info[i].lifetime = cfile_read_fix(fp);
 		Weapon_info[i].damage_radius = cfile_read_fix(fp);
 		Weapon_info[i].picture.index = cfile_read_short(fp);		// bitmap_index is a short
-		Weapon_info[i].hires_picture.index = cfile_read_short(fp);		// bitmap_index is a short
+		if (CurrentDataVersion == DataVer::DEMO)
+			Weapon_info[i].hires_picture.index = 0;
+		else
+			Weapon_info[i].hires_picture.index = cfile_read_short(fp);		// bitmap_index is a short
 	}
 }
 
@@ -560,18 +569,18 @@ int bm_init()
 	return 0;
 }
 
-void bm_read_all(CFILE * fp)
+void bm_read_all(CFILE* fp)
 {
-	int i,t;
+	int i, t;
 
 	NumTextures = cfile_read_int(fp);
 	for (i = 0; i < NumTextures; i++)
 		Textures[i].index = cfile_read_short(fp);
 	read_tmap_info(fp, NumTextures, 0);
 
-	t = cfile_read_int(fp);	
-	cfread( Sounds, sizeof(uint8_t), t, fp );
-	cfread( AltSounds, sizeof(uint8_t), t, fp );
+	t = cfile_read_int(fp);
+	cfread(Sounds, sizeof(uint8_t), t, fp);
+	cfread(AltSounds, sizeof(uint8_t), t, fp);
 
 	Num_vclips = cfile_read_int(fp);
 	read_vclip_info(fp, Num_vclips, 0);
@@ -593,15 +602,15 @@ void bm_read_all(CFILE * fp)
 
 	N_powerup_types = cfile_read_int(fp);
 	read_powerup_info(fp, N_powerup_types, 0);
-	
+
 	N_polygon_models = cfile_read_int(fp);
 	read_polygon_models(fp, N_polygon_models, 0);
 
-	for (i=0; i<N_polygon_models; i++ )	
+	for (i = 0; i < N_polygon_models; i++)
 	{
 		Polygon_models[i].model_data = (uint8_t*)malloc(Polygon_models[i].model_data_size);
-		Assert( Polygon_models[i].model_data != NULL );
-		cfread( Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp );
+		Assert(Polygon_models[i].model_data != NULL);
+		cfread(Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp);
 #ifdef MACINTOSH
 		swap_polygon_model_data(Polygon_models[i].model_data);
 #endif
@@ -611,14 +620,14 @@ void bm_read_all(CFILE * fp)
 	//cfread( Dying_modelnums, sizeof(int), N_polygon_models, fp );
 	//cfread( Dead_modelnums, sizeof(int), N_polygon_models, fp );
 	for (i = 0; i < N_polygon_models; i++)
-		Dying_modelnums[i]= CF_ReadInt(fp);
+		Dying_modelnums[i] = CF_ReadInt(fp);
 	for (i = 0; i < N_polygon_models; i++)
-		Dead_modelnums[i]= CF_ReadInt(fp);
+		Dead_modelnums[i] = CF_ReadInt(fp);
 
 	t = cfile_read_int(fp);
-	//cfread( Gauges, sizeof(bitmap_index), t, fp );
-	//cfread( Gauges_hires, sizeof(bitmap_index), t, fp );
-	for (i = 0; i < t; i++) 
+	if (t > MAX_GAUGE_BMS)
+		Error("Too many gauges present in hamfile. Got %d, max %d.", t, MAX_GAUGE_BMS);
+	for (i = 0; i < t; i++)
 	{
 		Gauges[i].index = CF_ReadShort(fp);
 	}
@@ -628,8 +637,9 @@ void bm_read_all(CFILE * fp)
 	}
 
 	t = cfile_read_int(fp);
-	//cfread( ObjBitmaps, sizeof(bitmap_index), t, fp );
-	//cfread( ObjBitmapPtrs, sizeof(uint16_t), t, fp );
+
+	if (t > MAX_OBJ_BITMAPS)
+		Error("Too many obj bitmaps present in hamfile. Got %d, max %d.", t, MAX_OBJ_BITMAPS);
 
 #ifdef SHAREWARE
 	N_ObjBitmaps = t;
@@ -646,7 +656,9 @@ void bm_read_all(CFILE * fp)
 	read_player_ship(fp);
 
 	Num_cockpits = cfile_read_int(fp);
-	//cfread( cockpit_bitmap, sizeof(bitmap_index), Num_cockpits, fp );
+	
+	if (Num_cockpits > N_COCKPIT_BITMAPS)
+		Error("Too many cockpits present in hamfile. Got %d, max %d.", Num_cockpits, N_COCKPIT_BITMAPS);
 	for (i = 0; i < Num_cockpits; i++)
 		cockpit_bitmap[i].index = CF_ReadShort(fp);
 
@@ -657,10 +669,11 @@ void bm_read_all(CFILE * fp)
 
 	Marker_model_num = cfile_read_int(fp);
 
-	#ifdef SHAREWARE
-	exit_modelnum = cfile_read_int(fp);
-	destroyed_exit_modelnum = cfile_read_int(fp);
-	#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		exit_modelnum = cfile_read_int(fp);
+		destroyed_exit_modelnum = cfile_read_int(fp);
+	}
 }
 
 //these values are the number of each item in the release of d2
