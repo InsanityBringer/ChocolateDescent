@@ -1052,6 +1052,8 @@ void gr_close_font(grs_font* font)
 
 		open_font[fontnum].ptr = NULL;
 
+		if (font->ft_datablock)
+			free(font->ft_datablock);
 		if (font->ft_chars)
 			free(font->ft_chars);
 		free(font);
@@ -1087,6 +1089,12 @@ void GR_ReadFont(grs_font* font, CFILE* fp, int len)
 	int nchars;
 	int i;
 	uint8_t* ptr;
+
+	if (font->ft_datablock)
+		free(font->ft_datablock);
+
+	if (font->ft_chars)
+		free(font->ft_chars);
 
 	font->ft_datablock = (uint8_t*)malloc(len);
 
@@ -1193,6 +1201,7 @@ grs_font * gr_init_font(const char* fontname)
 		Error("File %s is not a font file", fontname);
 
 	font = (grs_font*)malloc(datasize);
+	memset(font, 0, sizeof(*font));
 
 	//printf("loading font %s\n", fontname);
 	GR_ReadFont(font, fontfile, datasize);

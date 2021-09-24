@@ -260,23 +260,11 @@ bool playing = false;
 
 int I_StartMIDI(MidiSequencer* sequencer)
 {
-	/*midiPlayer = new MidiPlayer(sequencer, sequencer->GetSynth());
-	if (midiPlayer == nullptr || midiPlayer->IsError())
-	{
-		Error("S_InitMusic: Cannot allocate MIDI player");
-		return 1;
-	}
-	midiPlayer->Start();*/
-
 	return 0;
 }
 
 void I_ShutdownMIDI()
 {
-	/*if (midiPlayer != nullptr)
-	{
-		midiPlayer->Shutdown();
-	}*/
 }
 
 void I_SetMusicVolume(int volume)

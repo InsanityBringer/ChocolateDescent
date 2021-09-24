@@ -92,10 +92,8 @@ void songs_init()
 			{
 				if (i < MAX_NUM_SONGS)
 				{
-					sscanf(inputline, "%s %s %s",
-						Songs[i].filename,
-						Songs[i].melodic_bank_file,
-						Songs[i].drum_bank_file);
+					memset(&Songs[i], 0, sizeof(Songs[i]));
+					sscanf(inputline, "%15s %15s %15s", Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file);
 					//printf( "%d. '%s' '%s' '%s'\n",i,Songs[i].filename,Songs[i].melodic_bank_file,Songs[i].drum_bank_file );
 					i++;
 				}
