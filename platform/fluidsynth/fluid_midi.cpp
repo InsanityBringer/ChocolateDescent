@@ -129,12 +129,12 @@ void MidiFluidSynth::PerformBranchResets(BranchEntry* entry, int chan)
 {
 	int i;
 	//Attempting to set a default bank, since occasionally there are undefined ones. If a different bank is needed, it should hopefully be set in the CC messages. 
-	fluid_synth_bank_select(FluidSynth, chan, 0);
+	//fluid_synth_bank_select(FluidSynth, chan, 0);
+	//fluid_synth_program_change(FluidSynth, chan, entry->program);
 	for (i = 0; i < entry->controlChangeCount; i++)
 	{
 		fluid_synth_cc(FluidSynth, chan, entry->controlChanges[i].controller, entry->controlChanges[i].state);
 	}
-	fluid_synth_program_change(FluidSynth, chan, entry->program);
 }
 
 #endif
