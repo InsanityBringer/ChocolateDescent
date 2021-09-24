@@ -1648,7 +1648,7 @@ int do_laser_firing_player(void)
 		energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
 
 	//	MK, 01/26/96, Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
-	if (weapon_index == HELIX_INDEX)
+	if (weapon_index == HELIX_INDEX && CurrentLogicVersion >= LogicVer::FULL_1_0)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
 
