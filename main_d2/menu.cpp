@@ -758,6 +758,9 @@ void set_display_mode(int mode)
 	if ((Current_display_mode == -1) || (VR_render_mode != VR_NONE))	//special VR mode
 		return;								//...don't change
 
+	if (CurrentDataVersion == DataVer::DEMO)
+		mode = 0;
+
 	if (mode >= 5 && !FindArg("-superhires"))
 		mode = 4;
 
@@ -836,23 +839,25 @@ void do_screen_res_menu()
 
 	i--;
 
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		if (i != 0)
+			nm_messagebox(TXT_SORRY, 1, TXT_OK,
+				"High resolution modes are\n"
+				"only available in the\n"
+				"Commercial version of Descent 2.");
+		return;
+	}
+
 	if (((i != 0) && (i != 2) && !MenuHiresAvailable) || gr_check_mode(display_mode_info[i].VGA_mode)) {
 		nm_messagebox(TXT_SORRY, 1, TXT_OK,
 			"Cannot set requested\n"
 			"mode on this video card.");
 		return;
 	}
-#ifdef SHAREWARE
-	if (i != 0)
-		nm_messagebox(TXT_SORRY, 1, TXT_OK,
-			"High resolution modes are\n"
-			"only available in the\n"
-			"Commercial version of Descent 2.");
-	return;
-#else
+
 	if (i != Current_display_mode)
 		set_display_mode(i);
-#endif
 }
 
 void do_new_game_menu()
@@ -954,60 +959,115 @@ void options_menuset(int nitems, newmenu_item * items, int* last_key, int citem)
 		gr_palette_set_gamma(items[5].value);
 	}
 
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		if (Config_digi_volume != items[0].value)
+		{
+			Config_digi_volume = items[0].value;
+
+			digi_set_digi_volume((Config_digi_volume * 32768) / 8);
+			digi_play_sample_once(SOUND_DROP_BOMB, F1_0);
+		}
+
+		if (Config_midi_volume != items[1].value)
+		{
+			Config_midi_volume = items[1].value;
+			digi_set_midi_volume((Config_midi_volume * 128) / 8);
+		}
+	}
+
 	nitems++;		//kill warning
 	last_key++;		//kill warning
 }
 
 void do_options_menu()
 {
-	newmenu_item m[12];
 	int i = 0;
 
-	do {
-		m[0].type = NM_TYPE_MENU;   m[0].text = const_cast<char*>("Sound effects & music...");
-		m[1].type = NM_TYPE_TEXT;   m[1].text = const_cast<char*>("");
-		m[2].type = NM_TYPE_MENU;   m[2].text = TXT_CONTROLS_;
-		m[3].type = NM_TYPE_MENU;   m[3].text = TXT_CAL_JOYSTICK;
-		m[4].type = NM_TYPE_TEXT;   m[4].text = const_cast<char*>("");
+	if (CurrentDataVersion == DataVer::DEMO) //[ISB] uh maybe emulating the freakin options menu is excessive...
+	{
+		newmenu_item m[14];
+		do {
+			m[0].type = NM_TYPE_SLIDER; m[0].text = TXT_FX_VOLUME; m[0].value = Config_digi_volume; m[0].min_value = 0; m[0].max_value = 8;
+			m[1].type = (Redbook_playing ? NM_TYPE_TEXT : NM_TYPE_SLIDER); m[1].text = const_cast<char*>("MIDI music volume"); m[1].value = Config_midi_volume; m[1].min_value = 0; m[1].max_value = 8;
+			m[2].type = NM_TYPE_TEXT;   m[2].text = const_cast<char*>("");
+			m[3].type = NM_TYPE_CHECK;  m[3].text = TXT_REVERSE_STEREO; m[3].value = Config_channels_reversed;
+			m[4].type = NM_TYPE_TEXT;   m[4].text = const_cast<char*>("");
+			m[5].type = NM_TYPE_SLIDER; m[5].text = TXT_BRIGHTNESS; m[5].value = gr_palette_get_gamma(); m[5].min_value = 0; m[5].max_value = 8;
+			m[6].type = NM_TYPE_MENU;   m[6].text = TXT_CONTROLS_;
+			m[7].type = NM_TYPE_MENU;   m[7].text = TXT_DETAIL_LEVELS;
+			m[8].type = NM_TYPE_MENU;   m[8].text = const_cast<char*>("Screen resolution...");
+			m[9].type = NM_TYPE_MENU;   m[9].text = TXT_CAL_JOYSTICK;
+			m[10].type = NM_TYPE_TEXT;   m[10].text = const_cast<char*>("");
+			m[11].type = NM_TYPE_MENU;   m[11].text = const_cast<char*>("Toggles...");
+			m[12].type = NM_TYPE_MENU;   m[12].text = const_cast<char*>("Primary autoselect ordering...");
+			m[13].type = NM_TYPE_MENU;   m[13].text = const_cast<char*>("Secondary autoselect ordering...");
+
+			i = newmenu_do1(NULL, TXT_OPTIONS, sizeof(m) / sizeof(*m), m, options_menuset, i);
+
+			switch (i)
+			{
+			case  6: joydefs_config();			break;
+			case  7: do_detail_level_menu(); 	break;
+			case  8: do_screen_res_menu();		break;
+			case  9: joydefs_calibrate();		break;
+			case 11: do_toggles_menu();			break;
+			case 12: ReorderPrimary();			break;
+			case 13: ReorderSecondary();		break;
+			}
+			Config_channels_reversed = m[3].value;
+
+		} while (i > -1);
+	}
+	else
+	{
+		newmenu_item m[12];
+		do {
+			m[0].type = NM_TYPE_MENU;   m[0].text = const_cast<char*>("Sound effects & music...");
+			m[1].type = NM_TYPE_TEXT;   m[1].text = const_cast<char*>("");
+			m[2].type = NM_TYPE_MENU;   m[2].text = TXT_CONTROLS_;
+			m[3].type = NM_TYPE_MENU;   m[3].text = TXT_CAL_JOYSTICK;
+			m[4].type = NM_TYPE_TEXT;   m[4].text = const_cast<char*>("");
 
 #if defined(POLY_ACC)
-		m[5].type = NM_TYPE_TEXT;   m[5].text = const_cast<char*>("");
+			m[5].type = NM_TYPE_TEXT;   m[5].text = const_cast<char*>("");
 #else
-		m[5].type = NM_TYPE_SLIDER; m[5].text = TXT_BRIGHTNESS; m[5].value = gr_palette_get_gamma(); m[5].min_value = 0; m[5].max_value = 8;
+			m[5].type = NM_TYPE_SLIDER; m[5].text = TXT_BRIGHTNESS; m[5].value = gr_palette_get_gamma(); m[5].min_value = 0; m[5].max_value = 8;
 #endif
 
 
 #ifdef PA_3DFX_VOODOO
-		m[6].type = NM_TYPE_TEXT;   m[6].text = const_cast<char*>("");
+			m[6].type = NM_TYPE_TEXT;   m[6].text = const_cast<char*>("");
 #else
-		m[6].type = NM_TYPE_MENU;   m[6].text = TXT_DETAIL_LEVELS;
+			m[6].type = NM_TYPE_MENU;   m[6].text = TXT_DETAIL_LEVELS;
 #endif
 
 #if defined(POLY_ACC)
-		m[7].type = NM_TYPE_TEXT;   m[7].text = const_cast<char*>("");
+			m[7].type = NM_TYPE_TEXT;   m[7].text = const_cast<char*>("");
 #else
-		m[7].type = NM_TYPE_MENU;   m[7].text = const_cast<char*>("Screen resolution...");
+			m[7].type = NM_TYPE_MENU;   m[7].text = const_cast<char*>("Screen resolution...");
 #endif
-		m[8].type = NM_TYPE_TEXT;   m[8].text = const_cast<char*>("");
-		m[9].type = NM_TYPE_MENU;   m[9].text = const_cast<char*>("Primary autoselect ordering...");
-		m[10].type = NM_TYPE_MENU;   m[10].text = const_cast<char*>("Secondary autoselect ordering...");
-		m[11].type = NM_TYPE_MENU;   m[11].text = const_cast<char*>("Toggles...");
+			m[8].type = NM_TYPE_TEXT;   m[8].text = const_cast<char*>("");
+			m[9].type = NM_TYPE_MENU;   m[9].text = const_cast<char*>("Primary autoselect ordering...");
+			m[10].type = NM_TYPE_MENU;   m[10].text = const_cast<char*>("Secondary autoselect ordering...");
+			m[11].type = NM_TYPE_MENU;   m[11].text = const_cast<char*>("Toggles...");
 
-		i = newmenu_do1(NULL, TXT_OPTIONS, sizeof(m) / sizeof(*m), m, options_menuset, i);
+			i = newmenu_do1(NULL, TXT_OPTIONS, sizeof(m) / sizeof(*m), m, options_menuset, i);
 
-		switch (i)
-		{
-		case  0: do_sound_menu();			break;
-		case  2: joydefs_config();			break;
-		case  3: joydefs_calibrate();		break;
-		case  6: do_detail_level_menu(); 	break;
-		case  7: do_screen_res_menu();		break;
-		case  9: ReorderPrimary();			break;
-		case 10: ReorderSecondary();		break;
-		case 11: do_toggles_menu();			break;
-		}
+			switch (i)
+			{
+			case  0: do_sound_menu();			break;
+			case  2: joydefs_config();			break;
+			case  3: joydefs_calibrate();		break;
+			case  6: do_detail_level_menu(); 	break;
+			case  7: do_screen_res_menu();		break;
+			case  9: ReorderPrimary();			break;
+			case 10: ReorderSecondary();		break;
+			case 11: do_toggles_menu();			break;
+			}
 
-	} while (i > -1);
+		} while (i > -1);
+	}
 
 	write_player_file();
 }
@@ -1138,6 +1198,8 @@ void do_toggles_menu()
 #define N_TOGGLE_ITEMS 7
 #endif
 
+	int N_toggle_items = N_TOGGLE_ITEMS-1;
+
 	newmenu_item m[N_TOGGLE_ITEMS];
 	int i = 0;
 
@@ -1151,9 +1213,11 @@ void do_toggles_menu()
 		ADD_CHECK(5, const_cast<char*>("Escort robot hot keys"), EscortHotKeys);
 #if !defined(POLY_ACC)
 		ADD_CHECK(6, const_cast<char*>("Always show HighRes Automap"), std::min(MenuHiresAvailable, Automap_always_hires));
+		if (CurrentDataVersion != DataVer::DEMO)
+			N_toggle_items++;
 #endif
 		//when adding more options, change N_TOGGLE_ITEMS above
-		i = newmenu_do1(NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i);
+		i = newmenu_do1(NULL, "Toggles", N_toggle_items, m, NULL, i);
 
 		Auto_leveling_on = m[0].value;
 		Reticle_on = m[1].value;

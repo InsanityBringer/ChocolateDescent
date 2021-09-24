@@ -133,6 +133,8 @@ void joydefs_config()
 	int i1 = 11;
 	char xtext[128];
 
+	char* remap;
+
 	do 
 	{
 		nitems = 10;
@@ -144,11 +146,19 @@ void joydefs_config()
 		m[3].type = NM_TYPE_RADIO; m[3].text = const_cast<char*>(control_text[3]); m[3].value = 0; m[3].group = 0;
 		m[4].type = NM_TYPE_RADIO; m[4].text = const_cast<char*>(control_text[5]); m[4].value = 0; m[4].group = 0;
 
-		m[5].type = NM_TYPE_MENU;		m[5].text = TXT_CUST_ABOVE;
+		if (CurrentDataVersion == DataVer::DEMO)
+			remap = Text_string[169];
+		else
+			remap = TXT_CUST_ABOVE;
+		m[5].type = NM_TYPE_MENU;		m[5].text = remap;
 		m[6].type = NM_TYPE_TEXT;		m[6].text = const_cast<char*>("");
 		m[7].type = NM_TYPE_SLIDER;		m[7].text = TXT_JOYS_SENSITIVITY; m[7].value = Config_joystick_sensitivity; m[7].min_value = 0; m[7].max_value = 8;
 		m[8].type = NM_TYPE_TEXT;		m[8].text = const_cast<char*>("");
-		m[9].type = NM_TYPE_MENU;		m[9].text = TXT_CUST_KEYBOARD;
+		if (CurrentDataVersion == DataVer::DEMO)
+			remap = Text_string[170];
+		else
+			remap = TXT_CUST_KEYBOARD;
+		m[9].type = NM_TYPE_MENU;		m[9].text = remap;
 
 		m[choco_id_to_menu_remap[Config_control_type]].value = 1;
 
