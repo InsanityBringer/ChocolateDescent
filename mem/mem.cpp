@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "misc/error.h"
 
-#define FULL_MEM_CHECKING
+//#define FULL_MEM_CHECKING
 
 #ifdef FULL_MEM_CHECKING 
 

@@ -609,6 +609,7 @@ MidiPlayer::MidiPlayer(MidiSequencer* newSequencer, MidiSynth* newSynth)
 	shouldEnd = false;
 	shouldStop = false;
 	initialized = false;
+	songLoaded = false;
 
 	hasEnded = false;
 	hasChangedSong = false;
@@ -717,33 +718,43 @@ void MidiPlayer::Run()
 			curSong = nextSong;
 			nextSong = nullptr;
 			hasChangedSong = true;
+			songLoaded = true;
 		}
 		lock.unlock();
 
-		//Soft synth operation
-		if (synth->ClassifySynth() == MIDISYNTH_SOFT)
+		//There's an occasional bug where FluidSynth crashes if it's called right after creation, so only start doing anything
+		//when a song gets loaded and some events exist. 
+		if (!songLoaded)
 		{
-			//Ugh. This is hideous.
-			//Queue buffers as fast as possible. When done, sleep for a while. This comes close enough to avoiding starvation.
-			//Anything less than 5 120hz ticks of latency will result in OpenAL occasionally starving. It's the most I can do...
-			I_DequeueMusicBuffers();
-			while (I_CanQueueMusicBuffer())
-			{
-				for (i = 0; i < NUMSOFTTICKS; i++)
-				{
-					currentTickFrac += TickFracDelta;
-					while (currentTickFrac >= 65536)
-					{
-						sequencer->Tick();
-						currentTickFrac -= 65536;
-					}
-					sequencer->Render(MIDI_SAMPLERATE / 120, songBuffer + (MIDI_SAMPLERATE / 120 * 2) * i);
-				}
-				I_QueueMusicBuffer(MIDI_SAMPLERATE / 120 * NUMSOFTTICKS, songBuffer);
-			}
-
-			I_CheckMIDISourceStatus();
 			I_DelayUS(4000);
+		}
+		else
+		{
+			//Soft synth operation
+			if (synth->ClassifySynth() == MIDISYNTH_SOFT)
+			{
+				//Ugh. This is hideous.
+				//Queue buffers as fast as possible. When done, sleep for a while. This comes close enough to avoiding starvation.
+				//Anything less than 5 120hz ticks of latency will result in OpenAL occasionally starving. It's the most I can do...
+				I_DequeueMusicBuffers();
+				while (I_CanQueueMusicBuffer())
+				{
+					for (i = 0; i < NUMSOFTTICKS; i++)
+					{
+						currentTickFrac += TickFracDelta;
+						while (currentTickFrac >= 65536)
+						{
+							sequencer->Tick();
+							currentTickFrac -= 65536;
+						}
+						sequencer->Render(MIDI_SAMPLERATE / 120, songBuffer + (MIDI_SAMPLERATE / 120 * 2) * i);
+					}
+					I_QueueMusicBuffer(MIDI_SAMPLERATE / 120 * NUMSOFTTICKS, songBuffer);
+				}
+
+				I_CheckMIDISourceStatus();
+				I_DelayUS(4000);
+			}
 		}
 	}
 	I_StopMIDISource();

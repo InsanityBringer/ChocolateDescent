@@ -1083,7 +1083,7 @@ extern void decode_data_asm(uint8_t* data, int num_pixels, uint8_t* colormap, in
 
 //[ISB] saner font handling
 //implying that there's anything sane about this font format, sadly...
-void GR_ReadFont(grs_font* font, CFILE* fp, int len)
+void gr_read_font(grs_font* font, CFILE* fp, int len)
 {
 	int dataPtr, charPtr, widthPtr, kernPtr;
 	int nchars;
@@ -1204,7 +1204,7 @@ grs_font * gr_init_font(const char* fontname)
 	memset(font, 0, sizeof(*font));
 
 	//printf("loading font %s\n", fontname);
-	GR_ReadFont(font, fontfile, datasize);
+	gr_read_font(font, fontfile, datasize);
 
 	open_font[fontnum].ptr = font;
 
@@ -1247,7 +1247,7 @@ void gr_remap_font(grs_font* font, char* fontname)
 
 	//printf("loading font %s\n", fontname);
 	//[ISB] This isn't as efficient, but it makes it easier.
-	GR_ReadFont(font, fontfile, datasize);
+	gr_read_font(font, fontfile, datasize);
 
 	cfclose(fontfile);
 }

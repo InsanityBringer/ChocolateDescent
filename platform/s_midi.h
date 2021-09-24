@@ -268,6 +268,7 @@ class MidiPlayer
 {
 	//The digi code can call shutdown before an init, so uh...
 	bool initialized; 
+	bool songLoaded;
 	MidiSequencer* sequencer;
 	MidiSynth* synth;
 
