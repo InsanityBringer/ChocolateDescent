@@ -792,6 +792,10 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			read_special(segnum,bit_mask,LoadFile);
 			read_verts(segnum, LoadFile);
 			read_children(segnum, bit_mask, LoadFile);
+
+			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
+			temp_ushort = read_short(LoadFile);
+			Segment2s[segnum].static_light = ((fix)temp_ushort) << 4;
 		}
 		else
 		{
@@ -801,10 +805,6 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		}
 
 		Segments[segnum].objects = -1;
-
-		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-		temp_ushort = read_short(LoadFile);
-		Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
 	
 		// Read the walls as a 6 int8_t array
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
