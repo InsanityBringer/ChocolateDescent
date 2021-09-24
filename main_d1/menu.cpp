@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamemine.h"
 #include "gamesave.h"
 #include "2d/palette.h"
-#include "args.h"
+#include "misc/args.h"
 #include "newdemo.h"
 #include "platform/timer.h"
 #include "sounds.h"

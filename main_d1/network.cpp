@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <time.h>
 
 #include "misc/types.h"
-#include "args.h"
+#include "misc/args.h"
 #include "platform/timer.h"
 #include "platform/mono.h"
 #include "platform/i_net.h"

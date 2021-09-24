@@ -5,7 +5,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set(CHOCOLATE_DESCENT_VERSION "0.1")
 
 set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 2 is highly broken atm. Won't link outside of Windows ATM.")
-set(NETWORK OFF CACHE BOOL "Build with NETWORK. At the moment, there are no networking capabilities. RIP.")
+set(NETWORK OFF CACHE BOOL "Build with UDP networking enabled.")
 #These features are intended for testing.
 set(DESCENT1_TEXMAP_IN_DESCENT2 OFF CACHE BOOL "Swaps Descent 1's texture mapper into Descent 2.")
 set(DESCENT2_TEXMAP_IN_DESCENT1 OFF CACHE BOOL "Swaps Descent 2's texture mapper into Descent 1. ")
@@ -61,10 +61,14 @@ set(SHARED_SOURCES
 	iff/iff.h
 	mem/mem.cpp
 	mem/mem.h
+    misc/args.cpp
+	misc/args.h
 	misc/byteswap.cpp
 	misc/byteswap.h
 	misc/error.cpp
 	misc/error.h
+	misc/hash.cpp
+	misc/hash.h
 	misc/parsarg.cpp
 	misc/parsarg.h
     misc/rand.h
@@ -104,8 +108,6 @@ set(DESCENT1_SOURCES
 	main_d1/aistruct.cpp
 	main_d1/aistruct.h
 	main_d1/arcade.h
-    main_d1/args.cpp
-	main_d1/args.h
 	main_d1/automap.cpp
 	main_d1/automap.h
 	main_d1/bm.cpp
@@ -149,8 +151,6 @@ set(DESCENT1_SOURCES
 	main_d1/gameseq.h
 	main_d1/gauges.cpp
 	main_d1/gauges.h
-	main_d1/hash.cpp
-	main_d1/hash.h
 	main_d1/hostage.cpp
 	main_d1/hostage.h
 	main_d1/hud.cpp
@@ -478,10 +478,6 @@ set(DESCENT2_SOURCES
 	main_d2/wall.h
 	main_d2/weapon.cpp
 	main_d2/weapon.h
-	misc/hash.cpp
-	misc/hash.h
-    misc/args.cpp
-	misc/args.h
 	mve/decoder8.cpp
 	mve/decoder16.cpp
 	mve/decoders.h

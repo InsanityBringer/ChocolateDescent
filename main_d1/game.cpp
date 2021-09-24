@@ -63,7 +63,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "weapon.h"
 #include "sounds.h"
-#include "args.h"
+#include "misc/args.h"
 #include "gameseq.h"
 #include "automap.h"
 #include "text.h"

@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "2d/palette.h"
 #include "platform/joy.h"
-#include "args.h"
+#include "misc/args.h"
 #include "player.h"
 #include "mission.h"
 #include "misc/error.h"

@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/joy.h"
 #include "digi.h"
 #include "sounds.h"
-#include "args.h"
+#include "misc/args.h"
 #include "platform/key.h"
 #include "newdemo.h"
 #include "game.h"

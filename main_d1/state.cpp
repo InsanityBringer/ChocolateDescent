@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "cfile/cfile.h"		
 #include "fuelcen.h"
-#include "hash.h"
+#include "misc/hash.h"
 #include "platform/key.h"
 #include "piggy.h"
 #include "player.h"
@@ -50,7 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/pcx.h"
 #include "mem/mem.h"
 #include "network.h"
-#include "args.h"
+#include "misc/args.h"
 
 #ifndef SHAREWARE
 

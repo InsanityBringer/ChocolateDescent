@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "inferno.h"
 #include "text.h"
-#include "args.h"
+#include "misc/args.h"
 #include "compbit.h"
 
 char* text;

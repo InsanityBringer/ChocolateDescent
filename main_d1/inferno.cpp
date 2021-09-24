@@ -53,7 +53,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "iff/iff.h"
 #include "2d/pcx.h"
 #include "2d/palette.h"
-#include "args.h"
+#include "misc/args.h"
 #include "sounds.h"
 #include "titles.h"
 #include "player.h"

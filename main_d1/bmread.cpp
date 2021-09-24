@@ -54,7 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "cntrlcen.h"
 #include "compbit.h"
-#include "args.h"
+#include "misc/args.h"
 
 
 #include "editor\texpage.h"
