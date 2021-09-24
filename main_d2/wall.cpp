@@ -1038,8 +1038,9 @@ int wall_hit_process(segment* seg, int side, fix damage, int playernum, object* 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_wall_hit_process(seg - Segments, side, damage, playernum);
 
-	if (w->type == WALL_BLASTABLE) {
-		if (obj->ctype.laser_info.parent_type == OBJ_PLAYER)
+	if (w->type == WALL_BLASTABLE) 
+	{
+		if (CurrentLogicVersion == LogicVer::SHAREWARE || obj->ctype.laser_info.parent_type == OBJ_PLAYER)
 			wall_damage(seg, side, damage);
 		return WHP_BLASTABLE;
 	}

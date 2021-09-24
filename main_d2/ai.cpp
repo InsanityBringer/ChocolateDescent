@@ -815,7 +815,7 @@ void do_ai_frame(object* obj)
 			if (do_stuff) {
 				Laser_create_new_easy(&obj->orient.fvec, &obj->pos, obj - Objects, FLARE_ID, 1);
 				ailp->next_fire = F1_0 / 2;
-				if (!Buddy_allowed_to_talk)	//	If buddy not talking, make him fire flares less often.
+				if (!Buddy_allowed_to_talk && CurrentLogicVersion > LogicVer::SHAREWARE)	//	If buddy not talking, make him fire flares less often.
 					ailp->next_fire += P_Rand() * 4;
 			}
 
@@ -840,7 +840,7 @@ void do_ai_frame(object* obj)
 				//	@mk, 05/08/95: Firing flare from center of object, this is dumb...
 				Laser_create_new_easy(&obj->orient.fvec, &obj->pos, obj - Objects, FLARE_ID, 1);
 				ailp->next_fire = F1_0 / 2;
-				if (Stolen_item_index == 0)		//	If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
+				if (Stolen_item_index == 0 && CurrentLogicVersion > LogicVer::SHAREWARE)		//	If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
 					ailp->next_fire += P_Rand() * 4;
 			}
 		}

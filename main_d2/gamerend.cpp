@@ -265,14 +265,17 @@ void render_countdown_gauge()
 	if (!Endlevel_sequence && Control_center_destroyed && (Countdown_seconds_left > -1)) { // && (Countdown_seconds_left<127))	{
 		int	y;
 
-#if !defined(D2_OEM) && !defined(SHAREWARE)		// no countdown on registered only
-		//	On last level, we don't want a countdown.
-		if ((Current_mission_num == 0) && (Current_level_num == Last_level))
+#if !defined(D2_OEM)	// no countdown on registered only
+		if (CurrentDataVersion == DataVer::FULL)
 		{
-			if (!(Game_mode & GM_MULTI))
-				return;
-			if (Game_mode & GM_MULTI_ROBOTS)
-				return;
+			//	On last level, we don't want a countdown.
+			if ((Current_mission_num == 0) && (Current_level_num == Last_level))
+			{
+				if (!(Game_mode & GM_MULTI))
+					return;
+				if (Game_mode & GM_MULTI_ROBOTS)
+					return;
+			}
 		}
 #endif
 

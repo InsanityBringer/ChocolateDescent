@@ -151,12 +151,12 @@ void do_countdown_frame()
 
 	#if !defined(D2_OEM) && !defined(SHAREWARE)	// get countdown in OEM and SHAREWARE only
 	//	On last level, we don't want a countdown.
-	if ((Current_mission_num == 0) && (Current_level_num == Last_level))
+	if (CurrentDataVersion == DataVer::FULL && (Current_mission_num == 0) && (Current_level_num == Last_level))
     {		
-     if (!(Game_mode & GM_MULTI))
-	   return;
-	  if (Game_mode & GM_MULTI_ROBOTS)
-		return;
+		if (!(Game_mode & GM_MULTI))
+			return;
+		if (Game_mode & GM_MULTI_ROBOTS)
+			return;
     }	 
 	#endif
    

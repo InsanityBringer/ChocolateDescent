@@ -2119,8 +2119,16 @@ void create_smart_children(object *objp, int num_smart_children)
 	} 
 	else if (objp->type == OBJ_ROBOT)
 	{
-		parent_type = OBJ_ROBOT;
-		parent_num = objp-Objects;
+		if (CurrentLogicVersion == LogicVer::SHAREWARE) //[ISB] SW always used code in above check, but this isn't always safe so try a safe emulation. 
+		{
+			parent_type = OBJ_POWERUP;
+			parent_num = 123;
+		}
+		else
+		{
+			parent_type = OBJ_ROBOT;
+			parent_num = objp - Objects;
+		}
 	} else
 		Int3();	//	Hey, what kind of object is this!?
 
