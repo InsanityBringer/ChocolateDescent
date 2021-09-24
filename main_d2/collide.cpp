@@ -1040,9 +1040,12 @@ void collide_robot_and_player(object* robot, object* playerobj, vms_vector* coll
 	if (robot->flags & OF_EXPLODING)
 		return;
 
-	collision_seg = find_point_seg(collision_point, playerobj->segnum);
-	if (collision_seg != -1)
-		object_create_explosion(collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip);
+	if (CurrentLogicVersion != LogicVer::SHAREWARE)
+	{
+		collision_seg = find_point_seg(collision_point, playerobj->segnum);
+		if (collision_seg != -1)
+			object_create_explosion(collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip);
+	}
 
 	if (playerobj->id == Player_num) {
 		if (Robot_info[robot->id].companion)	//	Player and companion don't collide.

@@ -470,38 +470,39 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 				break;
 			}
 
-			#ifndef SHAREWARE
-			truth = p_secret_level_destroyed();
-
-			if (Newdemo_state == ND_STATE_RECORDING)			// record whether we're really going to the secret level
-				newdemo_record_secret_exit_blown(truth);
-
-			if ((Newdemo_state != ND_STATE_PLAYBACK) && truth) 
+			if (CurrentDataVersion == DataVer::DEMO)
 			{
-				HUD_init_message("Secret Level destroyed.  Exit disabled.");
-				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+				HUD_init_message("Secret Level Teleporter disabled in Descent 2 Demo");
+				digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 				break;
 			}
-			#endif
+			else
+			{
+				truth = p_secret_level_destroyed();
 
-			#ifdef SHAREWARE
-				HUD_init_message("Secret Level Teleporter disabled in Descent 2 Demo");
-				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-				break;
-			#endif
-			
-			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
-				Newdemo_state = ND_STATE_PAUSED;
+				if (Newdemo_state == ND_STATE_RECORDING)			// record whether we're really going to the secret level
+					newdemo_record_secret_exit_blown(truth);
 
-			digi_stop_all();		//kill the sounds
+				if ((Newdemo_state != ND_STATE_PLAYBACK) && truth)
+				{
+					HUD_init_message("Secret Level destroyed.  Exit disabled.");
+					digi_play_sample(SOUND_BAD_SELECTION, F1_0);
+					break;
+				}
 
-			digi_play_sample( SOUND_SECRET_EXIT, F1_0 );
-			mprintf((0,"Exiting to secret level\n"));
+				if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
+					Newdemo_state = ND_STATE_PAUSED;
 
-			gr_palette_fade_out(gr_palette, 32, 0);
-			EnterSecretLevel();
-			Control_center_destroyed = 0;
-			return 1;
+				digi_stop_all();		//kill the sounds
+
+				digi_play_sample(SOUND_SECRET_EXIT, F1_0);
+				mprintf((0, "Exiting to secret level\n"));
+
+				gr_palette_fade_out(gr_palette, 32, 0);
+				EnterSecretLevel();
+				Control_center_destroyed = 0;
+				return 1;
+			}
 			break;
 
 		}
