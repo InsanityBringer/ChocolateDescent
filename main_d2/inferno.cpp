@@ -744,7 +744,9 @@ Here:
 		MenuHires = MenuHiresAvailable = 1;
 
 	mprintf((0, "\nInitializing movie libraries..."));
-	init_movies();		//init movie libraries
+
+	if (CurrentDataVersion == DataVer::FULL)
+		init_movies();		//init movie libraries
 
 	mprintf((0, "\nGoing into graphics mode..."));
 	verbose("\nSetting graphics mode...");
