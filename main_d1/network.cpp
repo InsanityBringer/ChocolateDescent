@@ -1786,6 +1786,8 @@ int network_get_game_params(char* game_name, int* mode, int* game_flags, int* le
 	char level_text[32];
 	char srinvul[32];
 
+	char buf[256];
+
 #ifndef SHAREWARE
 	int new_mission_num;
 	int anarchy_only;
@@ -1799,6 +1801,9 @@ int network_get_game_params(char* game_name, int* mode, int* game_flags, int* le
 	strcpy(Netgame.mission_title, Mission_list[new_mission_num].mission_name);
 	Netgame.control_invul_time = control_invul_time;
 #endif
+
+	snprintf(buf, 255, "%s\nHosting on port %d", TXT_NETGAME_SETUP, NetGetCurrentPort());
+	buf[255] = '\0';
 
 	sprintf(name, "%s%s", Players[Player_num].callsign, TXT_S_GAME);
 	sprintf(slevel, "1");
@@ -1857,7 +1862,7 @@ int network_get_game_params(char* game_name, int* mode, int* game_flags, int* le
 	Assert(opt <= 16);
 
 menu:
-	i = newmenu_do1(NULL, TXT_NETGAME_SETUP, opt, m, network_game_param_poll, 1);
+	i = newmenu_do1(NULL, buf, opt, m, network_game_param_poll, 1);
 
 	if (i > -1) {
 		int j;
