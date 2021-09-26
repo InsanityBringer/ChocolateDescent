@@ -849,6 +849,11 @@ void do_multi_player_menu()
 		old_game_mode = Game_mode;
 		num_options = 0;
 
+#ifdef NETWORK
+		//go back to the old port when starting new games
+		NetChangeDefaultSocket(Current_Port);
+#endif
+
 		ADD_ITEM(TXT_START_NET_GAME, MENU_START_NETGAME, -1);
 		ADD_ITEM(TXT_JOIN_NET_GAME, MENU_JOIN_NETGAME, -1);
 		ADD_ITEM(direct_join_str, MENU_START_SERIAL, -1);
@@ -864,6 +869,7 @@ void do_multi_player_menu()
 	} while (choice > -1);
 }
 
+#ifdef NETWORK
 void do_ip_address_menu()
 {
 	newmenu_item m;
@@ -927,8 +933,8 @@ void do_ip_address_menu()
 	if (colonPtr)
 	{
 		*colonPtr = ':';
-		NetChangeDefaultSocket(oldPort);
 	}
 
 	return;
 }
+#endif
