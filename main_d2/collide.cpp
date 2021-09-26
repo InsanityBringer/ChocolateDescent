@@ -1209,22 +1209,26 @@ void collide_player_and_marker(object* marker, object* playerobj, vms_vector* co
 //	If both objects are weapons, weaken the weapon.
 void maybe_kill_weapon(object* weapon, object* other_obj)
 {
-	if ((weapon->id == PROXIMITY_ID) || (weapon->id == SUPERPROX_ID) || (weapon->id == PMINE_ID)) {
+	if ((weapon->id == PROXIMITY_ID) || (weapon->id == SUPERPROX_ID) || (weapon->id == PMINE_ID)) 
+	{
 		weapon->flags |= OF_SHOULD_BE_DEAD;
 		return;
 	}
 
 	//	Changed, 10/12/95, MK: Make weapon-weapon collisions always kill both weapons if not persistent.
 	//	Reason: Otherwise you can't use proxbombs to detonate incoming homing missiles (or mega missiles).
-	if (weapon->mtype.phys_info.flags & PF_PERSISTENT) {
+	if (weapon->mtype.phys_info.flags & PF_PERSISTENT || (CurrentLogicVersion == LogicVer::SHAREWARE && other_obj->type == OBJ_WEAPON))
+	{
 		//	Weapons do a lot of damage to weapons, other objects do much less.
-		if (!(weapon->mtype.phys_info.flags & PF_PERSISTENT)) {
+		if (!(weapon->mtype.phys_info.flags & PF_PERSISTENT)) 
+		{
 			if (other_obj->type == OBJ_WEAPON)
 				weapon->shields -= other_obj->shields / 2;
 			else
 				weapon->shields -= other_obj->shields / 4;
 
-			if (weapon->shields <= 0) {
+			if (weapon->shields <= 0) 
+			{
 				weapon->shields = 0;
 				weapon->flags |= OF_SHOULD_BE_DEAD;	// weapon->lifeleft = 1;
 			}
@@ -2412,16 +2416,22 @@ void collide_weapon_and_weapon(object* weapon1, object* weapon2, vms_vector* col
 	if (weapon1->id == PMINE_ID && weapon2->id == PMINE_ID)
 		return;		//these can't blow each other up  
 
-	if (weapon1->id == OMEGA_ID) {
-		if (!ok_to_do_omega_damage(weapon1))
-			return;
-	}
-	else if (weapon2->id == OMEGA_ID) {
-		if (!ok_to_do_omega_damage(weapon2))
-			return;
+	if (CurrentLogicVersion == LogicVer::FULL_1_2)
+	{
+		if (weapon1->id == OMEGA_ID)
+		{
+			if (!ok_to_do_omega_damage(weapon1))
+				return;
+		}
+		else if (weapon2->id == OMEGA_ID)
+		{
+			if (!ok_to_do_omega_damage(weapon2))
+				return;
+		}
 	}
 
-	if ((Weapon_info[weapon1->id].destroyable) || (Weapon_info[weapon2->id].destroyable)) {
+	if ((Weapon_info[weapon1->id].destroyable) || (Weapon_info[weapon2->id].destroyable)) 
+	{
 
 		//	Bug reported by Adam Q. Pletcher on September 9, 1994, smart bomb homing missiles were toasting each other.
 		if ((weapon1->id == weapon2->id) && (weapon1->ctype.laser_info.parent_num == weapon2->ctype.laser_info.parent_num))

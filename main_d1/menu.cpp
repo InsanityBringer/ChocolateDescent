@@ -62,6 +62,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "config.h"
 
+#include "platform/i_net.h"
+
 #ifdef EDITOR
 #include "editor\editor.h"
 extern void init_cockpit(); //[ISB] I really should stuff these somewhere formal
@@ -871,11 +873,27 @@ void do_ip_address_menu()
 	int i;
 	int value;
 
+	char buf[256];
+
+	uint16_t oldPort = NetGetCurrentPort();
+	snprintf(buf, 255, "Enter IP address\nCurrent port is %d", oldPort);
+	buf[255] = '\0';
+
 	m.type = NM_TYPE_INPUT; m.text_len = 255; m.text = text;
 
-	newmenu_do(NULL, "Enter IP address", 1, &m, NULL);
+	int opt = newmenu_do(NULL, buf, 1, &m, NULL);
+
+	if (opt == -1) return;
 
 	//new_level_num = atoi(m.text);
+	char* colonPtr = strchr(text, ':');
+	if (colonPtr)
+	{
+		*colonPtr = '\0';
+		char* portString = colonPtr+1;
+		int newPort = atoi(portString);
+		NetChangeDefaultSocket(newPort);
+	}
 	ptr = oldptr = text;
 	for (i = 0; i < 4; i++)
 	{
@@ -905,6 +923,12 @@ void do_ip_address_menu()
 	}
 
 	network_join_game_at(address);
+
+	if (colonPtr)
+	{
+		*colonPtr = ':';
+		NetChangeDefaultSocket(oldPort);
+	}
 
 	return;
 }

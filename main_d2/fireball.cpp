@@ -926,15 +926,8 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 
 				obj = &Objects[objnum];
 
-				//@@Took out this ugly hack 1/12/96, because Mike has added code
-				//@@that should fix it in a better way.
-				//@@//this is a super-ugly hack.  Since the baby stripe robots have
-				//@@//their firing point on their bounding sphere, the firing points
-				//@@//can poke through a wall if the robots are very close to it. So
-				//@@//we make their radii bigger so the guns can't get too close to 
-				//@@//the walls
-				//@@if (Robot_info[obj->id].flags & RIF_BIG_RADIUS)
-				//@@	obj->size = (obj->size*3)/2;
+				if (Robot_info[obj->id].flags & RIF_BIG_RADIUS && CurrentLogicVersion == LogicVer::SHAREWARE)
+					obj->size = (obj->size*3)/2;
 
 				//Set polygon-object-specific data 
 
@@ -961,7 +954,7 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 			}
 
 			//	At JasenW's request, robots which contain robots sometimes drop shields.
-			if (P_Rand() > 16384)
+			if (P_Rand() > 16384 && CurrentLogicVersion >= LogicVer::FULL_1_0)
 				drop_powerup(OBJ_POWERUP, POW_SHIELD_BOOST, 1, init_vel, pos, segnum);
 
 			break;

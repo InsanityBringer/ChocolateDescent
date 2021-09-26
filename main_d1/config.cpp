@@ -27,9 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "mission.h"
 #include "misc/error.h"
-
- //#include "sos.h"//These sos headers are part of a commercial library, and aren't included-KRB
- //#include "sosm.h"
+#include "network.h"
 
 static const char* digi_dev_str = "DigiDeviceID";
 static const char* digi_port_str = "DigiPort";
@@ -47,7 +45,7 @@ static const char* joystick_max_str = "JoystickMax";
 static const char* joystick_cen_str = "JoystickCen";
 static const char* last_player_str = "LastPlayer";
 static const char* last_mission_str = "LastMission";
-
+static const char* port_number_str = "NetworkPort";
 
 char config_last_player[CALLSIGN_LEN + 1] = "";
 char config_last_mission[MISSION_NAME_LEN + 1] = "";
@@ -185,6 +183,10 @@ int ReadConfigFile()
 				p = strchr(config_last_mission, '\n');
 				if (p)* p = 0;
 			}
+			else if (!strcmp(token, port_number_str))
+			{
+				Current_Port = (uint16_t)strtol(value, NULL, 10);
+			}
 		}
 	}
 
@@ -281,6 +283,8 @@ int WriteConfigFile()
 	sprintf(str, "%s=%s\n", last_player_str, Players[Player_num].callsign);
 	fputs(str, infile);
 	sprintf(str, "%s=%s\n", last_mission_str, config_last_mission);
+	fputs(str, infile);
+	sprintf(str, "%s=%d\n", port_number_str, Current_Port);
 	fputs(str, infile);
 	fclose(infile);
 	return 0;

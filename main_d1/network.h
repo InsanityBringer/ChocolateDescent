@@ -118,6 +118,8 @@ extern int Network_rejoined;
 extern int Network_new_game;
 extern int Network_status;
 
+extern uint16_t Current_Port;
+
 extern fix LastPacketTime[MAX_PLAYERS];
 
 extern uint16_t my_segments_checksum;

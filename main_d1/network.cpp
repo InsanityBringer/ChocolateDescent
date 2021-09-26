@@ -96,6 +96,8 @@ int 	Network_games_changed = 0;
 int 	Network_socket = 0;
 int	Network_allow_socket_changes = 0;
 
+uint16_t Current_Port = IPX_DEFAULT_SOCKET;
+
 // For rejoin object syncing
 
 int	Network_rejoined = 0;       // Did WE rejoin this game?

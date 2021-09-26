@@ -414,15 +414,15 @@ int D_DescentMain(int argc, const char** argv)
 #ifdef NETWORK
 	if (!FindArg("-nonetwork")) 
 	{
-		int socket = 0, showaddress = 0;
+		int showaddress = 0;
 		int ipx_error;
 		if (Inferno_verbose) printf("\n%s ", TXT_INITIALIZING_NETWORK);
-		if ((t = FindArg("-socket")))
-			socket = atoi(Args[t + 1]);
+		if ((t = FindArg("-port")))
+			Current_Port = atoi(Args[t + 1]);
 		if (FindArg("-showaddress")) showaddress = 1;
-		if ((ipx_error = NetInit(IPX_DEFAULT_SOCKET + socket, showaddress)) == 0) 
+		if ((ipx_error = NetInit(Current_Port, showaddress)) == 0) 
 		{
-			if (Inferno_verbose) printf("%s %d.\n", TXT_IPX_CHANNEL, socket);
+			if (Inferno_verbose) printf("%s %d.\n", "Using UDP port", Current_Port);
 			Network_active = 1;
 		}
 		else
@@ -430,7 +430,7 @@ int D_DescentMain(int argc, const char** argv)
 			switch (ipx_error)
 			{
 			case 3: 	if (Inferno_verbose) printf("%s\n", TXT_NO_NETWORK); break;
-			case -2: if (Inferno_verbose) printf("%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET + socket); break;
+			case -2: if (Inferno_verbose) printf("%s 0x%x.\n", TXT_SOCKET_ERROR, Current_Port); break;
 			case -4: if (Inferno_verbose) printf("%s\n", TXT_MEMORY_IPX); break;
 			default:
 				if (Inferno_verbose) printf("%s %d", TXT_ERROR_IPX, ipx_error);

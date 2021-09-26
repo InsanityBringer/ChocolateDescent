@@ -148,7 +148,7 @@ int NetChangeRole(dbool host)
 
 	serverAddress[0] = self.sa_data[1];
 	serverAddress[1] = self.sa_data[0];
-	mprintf((0, "Role change, new port is %d.\n", BS_MakeShort(serverAddress)));
+	mprintf((0, "Role change, new port is %d.\n", port));
 
 	return 0;
 }

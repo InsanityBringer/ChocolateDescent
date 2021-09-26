@@ -1886,7 +1886,6 @@ void object_move_one(object* obj)
 		{
 			//slew_reset_orient(obj);
 			slew_reset_orient();
-			//*(uint8_t*)0x417 &= ~0x20;		//kill numlock //[ISB] wuighwriguwuifh3riguwrfiuwrnhiguwrgfywgvuwegfhwiruuegiwrhkgjwrhifugryuwifhwfryugwifjwhrigfuwhfrywgifuwhwiufgwgw
 		}
 		slew_frame(0);		// Does velocity addition for us.
 		break;

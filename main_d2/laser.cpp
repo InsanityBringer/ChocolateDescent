@@ -2121,8 +2121,8 @@ void create_smart_children(object *objp, int num_smart_children)
 	{
 		if (CurrentLogicVersion == LogicVer::SHAREWARE) //[ISB] SW always used code in above check, but this isn't always safe so try a safe emulation. 
 		{
-			parent_type = OBJ_POWERUP;
-			parent_num = 123;
+			parent_type = objp->ctype.ai_info.behavior | (objp->ctype.ai_info.flags[0] << 8);
+			parent_num = MAX_OBJECTS-1;
 		}
 		else
 		{
@@ -2136,14 +2136,17 @@ void create_smart_children(object *objp, int num_smart_children)
 		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
 
 // -- DEBUG --
-	if ((objp->type == OBJ_WEAPON) && ((objp->id == SMART_ID) || (objp->id == SUPERPROX_ID) || (objp->id == ROBOT_SUPERPROX_ID) || (objp->id == EARTHSHAKER_ID)))
+	if (CurrentDataVersion != DataVer::DEMO && ((objp->type == OBJ_WEAPON) && ((objp->id == SMART_ID) || (objp->id == SUPERPROX_ID) || (objp->id == ROBOT_SUPERPROX_ID) || (objp->id == EARTHSHAKER_ID))))
+	{
 		Assert(Weapon_info[objp->id].children != -1);
+	}
 // -- DEBUG --
 
 	if (((objp->type == OBJ_WEAPON) 
 		&& ((CurrentLogicVersion >= LogicVer::FULL_1_0 && Weapon_info[objp->id].children != -1) 
 			|| (CurrentLogicVersion == LogicVer::SHAREWARE && (objp->id == SMART_ID || objp->id == SUPERPROX_ID)))) //ew
-		|| (objp->type == OBJ_ROBOT)) {
+		|| (objp->type == OBJ_ROBOT)) 
+	{
 		int	i, objnum;
 
 		if (Game_mode & GM_MULTI)
@@ -2153,7 +2156,8 @@ void create_smart_children(object *objp, int num_smart_children)
 		{
 			object	*curobjp = &Objects[objnum];
 
-			if ((((curobjp->type == OBJ_ROBOT) && (!curobjp->ctype.ai_info.CLOAKED)) || (curobjp->type == OBJ_PLAYER)) && (objnum != parent_num)) {
+			if ((((curobjp->type == OBJ_ROBOT) && (!curobjp->ctype.ai_info.CLOAKED)) || (curobjp->type == OBJ_PLAYER)) && (objnum != parent_num)) 
+			{
 				fix	dist;
 
 				if (curobjp->type == OBJ_PLAYER)
@@ -2176,7 +2180,7 @@ void create_smart_children(object *objp, int num_smart_children)
 						continue;
 
 					//	Your shots won't track the buddy.
-					if (parent_type == OBJ_PLAYER)
+					if (parent_type == OBJ_PLAYER && CurrentLogicVersion >= LogicVer::FULL_1_0)
 						if (Robot_info[curobjp->id].companion)
 							continue;
 				}
