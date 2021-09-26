@@ -1067,7 +1067,7 @@ void network_remove_player(sequence_packet* p)
 	{
 		memcpy(Netgame.players[i].callsign, Netgame.players[i + 1].callsign, CALLSIGN_LEN + 1);
 		memcpy(Netgame.players[i].node, Netgame.players[i + 1].node, 4);
-		memcpy(&Netgame.players[i].identifier, &Netgame.players[i].identifier, sizeof(Netgame.players[i].identifier));
+		memcpy(&Netgame.players[i].identifier, &Netgame.players[i + 1].identifier, sizeof(Netgame.players[i].identifier));
 	}
 
 	N_players--;
