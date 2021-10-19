@@ -239,7 +239,9 @@ unsigned descent_critical_errcode = 0;
 
 extern int Network_allow_socket_changes;
 
+#ifdef NETWORK
 #include "netmisc.h"
+#endif
 
 //[ISB] Okay, the trouble is that SDL redefines main. I don't want to include SDL here. Solution is to rip off doom
 //and add a separate main function

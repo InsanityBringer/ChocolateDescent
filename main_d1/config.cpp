@@ -183,10 +183,12 @@ int ReadConfigFile()
 				p = strchr(config_last_mission, '\n');
 				if (p)* p = 0;
 			}
+#ifdef NETWORK
 			else if (!strcmp(token, port_number_str))
 			{
 				Current_Port = (uint16_t)strtol(value, NULL, 10);
 			}
+#endif
 		}
 	}
 
@@ -284,8 +286,10 @@ int WriteConfigFile()
 	fputs(str, infile);
 	sprintf(str, "%s=%s\n", last_mission_str, config_last_mission);
 	fputs(str, infile);
+#ifdef NETWORK
 	sprintf(str, "%s=%d\n", port_number_str, Current_Port);
 	fputs(str, infile);
+#endif
 	fclose(infile);
 	return 0;
 }
