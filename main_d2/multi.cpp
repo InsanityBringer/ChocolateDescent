@@ -61,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "misc/args.h"
 #include "automap.h"
+#include "platform/posixstub.h"
 
 //
 // Local macros and prototypes

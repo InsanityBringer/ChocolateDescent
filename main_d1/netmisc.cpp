@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef NETWORK
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -592,3 +594,5 @@ void netmisc_decode_object(uint8_t* ptr, int* offset, object* objp)
 	}
 	*offset += extra;
 }
+
+#endif
