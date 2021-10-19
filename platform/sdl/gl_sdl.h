@@ -18,7 +18,7 @@ Instead, it is released under the terms of the MIT License.
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/GL.h>
 #else
-#include <gl/GL.h>
+#include <GL/gl.h>
 #endif
 
 #include <SDL.h>
