@@ -18,8 +18,6 @@ set(SHARED_SOURCES
 	2d/circle.cpp
 	2d/clip.h
 	2d/disc.cpp
-	2d/effect2d.cpp
-	2d/effect2d.h
 	2d/gpixel.cpp
 	2d/gr.cpp
 	2d/gr.h

@@ -42,7 +42,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap/texmap.h"
 #include "3d/3d.h"
 #include "effects.h"
-#include "2d/effect2d.h"
 #include "menu.h"
 #include "gameseg.h"
 #include "wall.h"
