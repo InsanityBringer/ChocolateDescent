@@ -1960,11 +1960,7 @@ void show_escort_menu(char *msg)
 	int	w,h,aw;
 	int	x,y;
 
-
-	WINDOS(
-		dd_gr_set_current_canvas(&dd_VR_screen_pages[0]),
-		gr_set_current_canvas(&VR_screen_pages[0])
-	);
+	gr_set_current_canvas(&VR_screen_pages);
 
 	gr_set_curfont( GAME_FONT );
 

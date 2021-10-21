@@ -158,7 +158,7 @@ extern int* Toggle_var;
 
 extern int	Physics_cheat_flag;
 
-extern int	last_drawn_cockpit[2];
+extern int	last_drawn_cockpit;
 
 extern int	Debug_spew;
 extern int	Debug_pause;
@@ -805,8 +805,7 @@ void HandleEndlevelKey(int key)
 	if (key == KEY_ESC)
 	{
 		stop_endlevel_sequence();
-		last_drawn_cockpit[0] = -1;
-		last_drawn_cockpit[1] = -1;
+		last_drawn_cockpit = -1;
 		return;
 	}
 

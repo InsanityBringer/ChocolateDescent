@@ -148,8 +148,7 @@ int NumNetPlayerPositions = -1;
 extern fix ThisLevelTime;
 
 // Extern from game.c to fix a bug in the cockpit!
-
-extern int last_drawn_cockpit[2];
+extern int last_drawn_cockpit;
 extern int Last_level_path_created;
 
 //	HUD_clear_messages external, declared in gauges.h
@@ -1315,8 +1314,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 	m[0].type = NM_TYPE_TEXT;
 	m[0].text = const_cast<char*>(" ");
 
-	last_drawn_cockpit[0] = -1;
-	last_drawn_cockpit[1] = -1;
+	last_drawn_cockpit = -1;
 
 	if (Newdemo_state == ND_STATE_PAUSED)
 		Newdemo_state = ND_STATE_RECORDING;
@@ -1562,8 +1560,7 @@ void PlayerFinishedLevel(int secret_flag)
 	if (Game_mode & GM_NETWORK)
 		Players[Player_num].connected = 2; // Finished but did not die
 
-	last_drawn_cockpit[0] = -1;
-	last_drawn_cockpit[1] = -1;
+	last_drawn_cockpit = -1;
 
 	AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 }
@@ -1952,8 +1949,7 @@ void DoPlayerDead()
 			AdvanceLevel(0);			//if finished, go on to next level
 
 			init_player_stats_new_ship();
-			last_drawn_cockpit[0] = -1;
-			last_drawn_cockpit[1] = -1;
+			last_drawn_cockpit = -1;
 		}
 
 	}
@@ -1996,8 +1992,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 {
 	if (!(Game_mode & GM_MULTI))
 	{
-		last_drawn_cockpit[0] = -1;
-		last_drawn_cockpit[1] = -1;
+		last_drawn_cockpit = -1;
 	}
 	BigWindowSwitch = 0;
 

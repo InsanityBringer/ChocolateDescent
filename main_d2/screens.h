@@ -31,7 +31,6 @@ extern int set_screen_mode(int sm);		// True = editor screen
 
 //About the screen
 extern uint8_t			VR_screen_flags;
-extern uint8_t			VR_current_page;
 extern fix				VR_eye_width;
 extern int 				VR_eye_switch;
 
@@ -42,7 +41,6 @@ extern int 				VR_eye_switch;
 #define VR_BLACK_INDEX 0
 extern int				VR_eye_offset;
 extern int 				VR_eye_offset_changed;
-extern void 			VR_reset_params();
 extern int				VR_use_reg_code;
 
 
@@ -53,9 +51,9 @@ extern int 				VR_show_hud;
 extern int				VR_sensitivity;
 
 extern grs_canvas		*VR_offscreen_buffer;		// The offscreen data buffer
-extern grs_canvas		VR_render_buffer[2];			//  Two offscreen buffers for left/right eyes.
-extern grs_canvas		VR_render_sub_buffer[2];	//  Two sub buffers for left/right eyes.
-extern grs_canvas		VR_screen_pages[2];			//  Two pages of VRAM if paging is available
+extern grs_canvas		VR_render_buffer;			//  Two offscreen buffers for left/right eyes.
+extern grs_canvas		VR_render_sub_buffer;	//  Two sub buffers for left/right eyes.
+extern grs_canvas		VR_screen_pages;			//  Two pages of VRAM if paging is available
 extern grs_canvas		VR_screen_sub_pages[2];		//  Two sub pages of VRAM if paging is available
 
 //values for VR_screen_flags
