@@ -51,7 +51,8 @@ int BestFit = 0;
 int Fullscreen = 0;
 int SwapInterval = 0;
 
-SDL_Rect screenRectangle;
+SDL_Rect screenRectangle, sourceRectangle;
+SDL_Surface* softwareSurf = nullptr;
 
 uint32_t localPal[256];
 
@@ -59,6 +60,7 @@ uint32_t localPal[256];
 SDL_Color colors[256];
 
 int refreshDuration = US_70FPS;
+bool usingSoftware = false;
 
 int I_Init()
 {
@@ -90,7 +92,11 @@ int I_InitWindow()
 
 	CurWindowWidth = WindowWidth;
 	CurWindowHeight = WindowHeight;
-	int flags = SDL_WINDOW_OPENGL;
+	int flags = SDL_WINDOW_HIDDEN;
+	if (!NoOpenGL)
+		flags |= SDL_WINDOW_OPENGL;
+	else
+		usingSoftware = true;
 	if (Fullscreen)
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
 	//SDL is good, create a game window
@@ -101,13 +107,28 @@ int I_InitWindow()
 
 	if (!gameWindow)
 	{
-		Warning("Error creating game window: %s\n", SDL_GetError());
+		Error("Error creating game window: %s\n", SDL_GetError());
 		return 1;
 	}
 	//where else do i do this...
 	I_InitSDLJoysticks();
 
-	I_InitGLContext(gameWindow);
+	if (!NoOpenGL && I_InitGLContext(gameWindow))
+	{
+		//Failed to initialize OpenGL, try simple surface code instead
+		SDL_DestroyWindow(gameWindow);
+		usingSoftware = true;
+
+		flags &= ~SDL_WINDOW_OPENGL;
+		gameWindow = SDL_CreateWindow(titleMsg, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, flags);
+		if (!gameWindow)
+		{
+			Error("Error creating game window, after falling back to software: %s\n", SDL_GetError());
+			return 1;
+		}
+	}
+
+	SDL_ShowWindow(gameWindow);
 
 	return 0;
 }
@@ -116,7 +137,9 @@ void I_ShutdownGraphics()
 {
 	if (gameWindow)
 	{
-		I_ShutdownGL();
+		if (!usingSoftware)
+			I_ShutdownGL();
+
 		SDL_DestroyWindow(gameWindow);
 		gameWindow = NULL;
 	}
@@ -156,14 +179,19 @@ void I_SetScreenRect(int w, int h)
 	//Create the destination rectangle for the game screen
 	int bestWidth = CurWindowHeight * 4 / 3;
 	if (CurWindowWidth < bestWidth) bestWidth = CurWindowWidth;
+	sourceRectangle.x = sourceRectangle.y = 0;
+	sourceRectangle.w = w; sourceRectangle.h = h;
 
-	if (BestFit == FITMODE_FILTERED && h <= 400)
+	if (!usingSoftware)
 	{
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-		w *= 2; h *= 2;
+		if (BestFit == FITMODE_FILTERED && h <= 400)
+		{
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+			w *= 2; h *= 2;
+		}
+		else
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 	}
-	else
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
 	if (BestFit == FITMODE_BEST)
 	{
@@ -182,8 +210,17 @@ void I_SetScreenRect(int w, int h)
 		screenRectangle.y = (CurWindowHeight - screenRectangle.h) / 2;
 	}
 
-
-	GL_SetVideoMode(w, h, &screenRectangle);
+	if (!usingSoftware)
+		GL_SetVideoMode(w, h, &screenRectangle);
+	else
+	{
+		if (softwareSurf)
+			SDL_FreeSurface(softwareSurf);
+		
+		softwareSurf = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
+		if (!softwareSurf)
+			Error("Error creating software surface: %s\n", SDL_GetError());
+	}
 }
 
 int I_SetMode(int mode)
@@ -361,9 +398,10 @@ void I_WritePalette(int start, int end, uint8_t* data)
 		colors[i].r = (Uint8)(data[i * 3 + 0] * 255 / 63);
 		colors[i].g = (Uint8)(data[i * 3 + 1] * 255 / 63);
 		colors[i].b = (Uint8)(data[i * 3 + 2] * 255 / 63);
-		localPal[start+i] = (255 << 24) | (colors[i].r) | (colors[i].g << 8) | (colors[i].b << 16);
+		localPal[start+i] = (255 << 24) | (colors[i].r << 16) | (colors[i].g << 8) | (colors[i].b);
 	}
-	GL_SetPalette(localPal);
+	if (!usingSoftware)
+		GL_SetPalette(localPal);
 }
 
 void I_BlankPalette()
@@ -394,6 +432,35 @@ void I_WaitVBL()
 	I_MarkStart();
 }
 
+extern uint8_t* gr_video_memory;
+void I_SoftwareBlit()
+{
+	int x, y;
+	int sourcePitch = grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize;
+	int destPitch = softwareSurf->pitch;
+	uint8_t* source = gr_video_memory;
+	if (SDL_LockSurface(softwareSurf))
+		Error("Failed to lock software surface for blitting");
+
+	uint8_t* dest = (uint8_t*)softwareSurf->pixels;
+
+	for (y = 0; y < softwareSurf->h; y++)
+	{
+		for (x = 0; x < softwareSurf->w; x++)
+		{
+			*(uint32_t*)&dest[x<<2] = localPal[source[x]];
+		}
+		source += sourcePitch;
+		dest += destPitch;
+	}
+
+	SDL_UnlockSurface(softwareSurf);
+
+	SDL_Surface* windowSurf = SDL_GetWindowSurface(gameWindow);
+	//SDL_BlitSurface(softwareSurf, &sourceRectangle, windowSurf, &sourceRectangle);
+	SDL_BlitScaled(softwareSurf, &sourceRectangle, windowSurf, &screenRectangle);
+}
+
 void I_DrawCurrentCanvas(int sync)
 {
 	if (sync)
@@ -401,11 +468,18 @@ void I_DrawCurrentCanvas(int sync)
 		SDL_Delay(1000 / 70);
 	}
 
-	GL_DrawPhase1();
-	SDL_GL_SwapWindow(gameWindow);
+	if (!usingSoftware)
+	{
+		GL_DrawPhase1();
+		SDL_GL_SwapWindow(gameWindow);
+	}
+	else
+	{
+		I_SoftwareBlit();
+		SDL_UpdateWindowSurface(gameWindow);
+	}
 }
 
-extern unsigned char* gr_video_memory;
 void I_BlitCanvas(grs_canvas *canv)
 {
 	//[ISB] Under the assumption that the screen buffer is always static and valid, memcpy the contents of the canvas into it

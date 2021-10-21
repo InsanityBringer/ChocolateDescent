@@ -29,6 +29,9 @@ static const char* FullscreenStr = "Fullscreen";
 static const char* SoundFontPath = "SoundFontPath";
 static const char* MouseScalarStr = "MouseScalar";
 static const char* SwapIntervalStr = "SwapInterval";
+static const char* NoOpenGLStr = "NoOpenGL";
+
+bool NoOpenGL = false;
 
 //[ISB] to be honest, I hate this configuration parser. I should try to create something more flexible at some point.
 int I_ReadChocolateConfig()
@@ -104,6 +107,8 @@ int I_ReadChocolateConfig()
 				p = strchr(SoundFontFilename, '\n');
 				if (p)* p = 0;
 			}
+			else if (!strcmp(token, NoOpenGLStr))
+				NoOpenGL = strtol(value, NULL, 10) != 0;
 		}
 	}
 

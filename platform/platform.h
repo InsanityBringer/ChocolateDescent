@@ -14,6 +14,8 @@ extern int BestFit;
 extern int Fullscreen;
 extern int SwapInterval;
 
+extern bool NoOpenGL;
+
 //-----------------------------------------------------------------------------
 //	Graphics initalization and shutdown
 //-----------------------------------------------------------------------------

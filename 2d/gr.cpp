@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/palette.h"
 #include "platform/platform.h"
 
-unsigned char* gr_video_memory = (unsigned char*)NULL;
+uint8_t* gr_video_memory = (unsigned char*)NULL;
 
 char gr_pal_default[768];
 
@@ -200,7 +200,7 @@ int gr_init(int mode)
 
 	//[ISB] THIS IS A GODDAMNED HACK
 	//[ISB] okay so many problems with offset screens actually are pretty rational: The offscreen buffers point into video memory. Video memory keeps on jittering and being reallocated. So uh, lets just allocate once
-	MALLOC(gr_video_memory, unsigned char, 1280 * 1024 * 2);
+	MALLOC(gr_video_memory, uint8_t, 1280 * 1024 * 2);
 
 	// Save the current palette, and fade it out to black.
 	/*gr_palette_read((uint8_t*)gr_pal_default);
