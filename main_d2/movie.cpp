@@ -370,8 +370,6 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 		return MOVIE_NOT_PLAYED;
 	}
 
-	//[ISB] I think these are handled by mvelib. I hope. 
-	//[ISB] why do i make fucking dumb assumptions all the time. Argh.
 #if !defined(POLY_ACC)
 	MVE_sfCallbacks((mve_cb_ShowFrame*)MovieShowFrame);
 	MVE_palCallbacks((mve_cb_SetPalette*)MovieSetPalette);
