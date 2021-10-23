@@ -151,7 +151,7 @@ void load_text()
 				Error("Unsupported key sequence <\\%c> on line %d of file <%s>", p[1], i + 1, filename);
 
 			p[0] = newchar;
-			strcpy(p+1,p+2);
+			memmove(p + 1, p + 2, strlen(p + 2) + 1);
 			p++;
 		}
  
