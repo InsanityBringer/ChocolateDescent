@@ -1502,8 +1502,10 @@ network_verify_objects(int remote, int local)
 	if ((remote - local) > 10)
 		return(-1);
 
-	if (Game_mode & GM_MULTI_ROBOTS)
-		got_controlcen = 1;
+	//[ISB] Many fan levels don't use reactors, so allow connections otherwise. 
+	//Not very chocolately, but it's a bit late...
+	//if (Game_mode & GM_MULTI_ROBOTS)
+	//	got_controlcen = 1;
 
 	nplayers = 0;
 
@@ -1511,11 +1513,11 @@ network_verify_objects(int remote, int local)
 	{
 		if ((Objects[i].type == OBJ_PLAYER) || (Objects[i].type == OBJ_GHOST))
 			nplayers++;
-		if (Objects[i].type == OBJ_CNTRLCEN)
-			got_controlcen = 1;
+		//if (Objects[i].type == OBJ_CNTRLCEN)
+		//	got_controlcen = 1;
 	}
 
-	if (got_controlcen && (nplayers >= MaxNumNetPlayers))
+	if (/*got_controlcen &&*/ (nplayers >= MaxNumNetPlayers))
 		return(0);
 
 	return(1);
