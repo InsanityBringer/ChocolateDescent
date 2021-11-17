@@ -103,6 +103,7 @@ int S_InitMusic(int device)
 			return 1;
 		}
 		fluidSynth->SetSampleRate(I_GetPreferredMIDISampleRate());
+		fluidSynth->CreateSynth();
 		fluidSynth->SetSoundfont(SoundFontFilename);
 		synth = (MidiSynth*)fluidSynth;
 #else

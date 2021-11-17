@@ -19,7 +19,7 @@ as described in copying.txt.
 MidiFluidSynth::MidiFluidSynth()
 {
 	FluidSynthSettings = new_fluid_settings();
-	FluidSynth = new_fluid_synth(FluidSynthSettings);
+	//FluidSynth = new_fluid_synth(FluidSynthSettings);
 	//AudioDriver = new_fluid_audio_driver(FluidSynthSettings, FluidSynth);
 	AudioDriver = nullptr;
 
@@ -36,6 +36,13 @@ MidiFluidSynth::MidiFluidSynth()
 void MidiFluidSynth::SetSampleRate(uint32_t newSampleRate)
 {
 	fluid_settings_setnum(FluidSynthSettings, "synth.sample-rate", (double)newSampleRate);
+}
+
+//Doing this separately is required, since with post 2.1.0 versions of FluidSynth, the sample rate can't be changed while a synth is created
+//See https://www.mail-archive.com/fluid-dev@nongnu.org/msg05299.html
+void MidiFluidSynth::CreateSynth()
+{
+	FluidSynth = new_fluid_synth(FluidSynthSettings);
 }
 
 void MidiFluidSynth::Shutdown()

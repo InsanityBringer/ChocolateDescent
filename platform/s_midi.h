@@ -237,6 +237,8 @@ public:
 	virtual int ClassifySynth() = 0;
 	//Changes the sample rate for soft synths.
 	virtual void SetSampleRate(uint32_t newSampleRate) = 0;
+	//Actually creates the synth. This is required due to fluidsynth.
+	virtual void CreateSynth() = 0;
 	//Executes a midi event.
 	virtual void DoMidiEvent(midievent_t* ev) = 0;
 	//Renders a softsynth's output into a buffer. For stereo sounds samples are interleaved.
@@ -255,6 +257,7 @@ class DummyMidiSynth : public MidiSynth
 public:
 	int ClassifySynth() override { return MIDISYNTH_SOFT; }
 	void SetSampleRate(uint32_t newSampleRate) override { }
+	void CreateSynth() override { }
 	void DoMidiEvent(midievent_t* ev) override { }
 	void RenderMIDI(int numTicks, unsigned short* buffer) override { }
 	void StopSound() override { }

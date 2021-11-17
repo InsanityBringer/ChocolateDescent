@@ -19,6 +19,7 @@ public:
 	MidiFluidSynth();
 	void SetSoundfont(const char* filename);
 	void SetSampleRate(uint32_t newSampleRate) override;
+	void CreateSynth() override;
 	int ClassifySynth() override
 	{
 		return MIDISYNTH_SOFT;
