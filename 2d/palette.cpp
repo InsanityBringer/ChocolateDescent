@@ -71,6 +71,7 @@ void gr_copy_palette(uint8_t* gr_palette, uint8_t* pal, int size)
 void gr_use_palette_table(const char* filename)
 {
 	CFILE* fp;
+	FILE* wfp;
 	int i, c, fsize, offset;
 	int cr, cg, cb;
 	float factor;
@@ -102,6 +103,33 @@ void gr_use_palette_table(const char* filename)
 		}
 		gr_fade_table[offset + 255] = 255;
 	}
+
+	wfp = fopen("colormap.raw", "wb");
+	if (wfp == NULL)
+		Error("Can't open palette file <%s>", filename);
+
+	for (i = 0; i < 64; i++)
+	{
+		offset = i * 256;
+		for (c = 0; c < 256; c++)
+		{
+			cb = gr_fade_table[offset + c];
+
+			cr = gr_palette[cb * 3];
+			cg = gr_palette[cb * 3 + 1];
+			cb = gr_palette[cb * 3 + 2];
+
+			cr *= 255 / 63;
+			cg *= 255 / 63;
+			cb *= 255 / 63;
+
+			F_WriteByte(wfp, cr);
+			F_WriteByte(wfp, cg);
+			F_WriteByte(wfp, cb);
+		}
+	}
+
+	fclose(wfp);
 
 	// This is the TRANSPARENCY COLOR
 	/*for (i = 0; i < GR_FADE_LEVELS; i++)
