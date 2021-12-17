@@ -1256,6 +1256,9 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 			{
 				for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) 
 				{
+					//if (segp - Segments == segnum && sidenum == light_side) //No, it turns out that this is responsible for lighting the face itself. 
+					//	continue;
+
 					if (WALL_IS_DOORWAY(rsegp, sidenum) != 0) 
 					{
 						side			*rsidep = &rsegp->sides[sidenum];
@@ -1279,13 +1282,19 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 							//	but the light source is very nearby (eg, illuminating light itself!).
 							light_dot = vm_vec_dot(&vector_to_light, side_normalp);
 							if (distance_to_point < F1_0)
+							{
 								if (light_dot > 0)
-									light_dot = (light_dot + F1_0)/2;
+									light_dot = (light_dot + F1_0) / 2;
+
+								distance_to_point = F1_0;
+							}
 
 							if (light_dot > 0) 
 							{
+								distance_to_point = std::max(F1_0, fixdiv(distance_to_point, F1_0*4));
 								light_at_point = fixdiv(fixmul(light_dot, light_dot), distance_to_point);
-								light_at_point = fixmul(light_at_point, Magical_light_constant);
+								//light_at_point = fixmul(light_at_point, F2_0);
+								//light_at_point = fixmul(light_at_point, Magical_light_constant);
 								if (light_at_point >= 0) 
 								{
 									fvi_info	hit_data;
@@ -1356,8 +1365,8 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 											light_at_point = fixmul(light_at_point, light_intensity);
 											rsidep->uvls[vertnum].l += light_at_point;
 //mprintf((0, "(%5.2f) ", f2fl(light_at_point)));
-											if (rsidep->uvls[vertnum].l > F1_0)
-												rsidep->uvls[vertnum].l = F1_0;
+											if (rsidep->uvls[vertnum].l > F2_0)
+												rsidep->uvls[vertnum].l = F2_0;
 
 											if (!quick_light)
 											{
@@ -1571,7 +1580,7 @@ void calim_process_all_lights(int quick_light)
 						index->index = last_delta_light;
 						delta_light_count = 0;
 					}
-					light_intensity /= 4;			// casting light from four spots, so divide by 4.
+					//light_intensity /= 4;			// casting light from four spots, so divide by 4.
 					cast_light_from_side(segp, sidenum, light_intensity, quick_light);
 					cast_light_from_side_to_center(segp, sidenum, light_intensity, quick_light);
 					if (!quick_light)

@@ -2104,7 +2104,7 @@ int find_seg_side_face(short x, short y, int* seg, int* side, int* face, int* po
 		render_frame(0, 0);
 	}
 	else {
-		gr_set_current_canvas(&VR_render_sub_buffer[0]);	//render off-screen
+		gr_set_current_canvas(&VR_render_sub_buffer);	//render off-screen
 		render_frame(0, 0);
 	}
 

@@ -620,7 +620,7 @@ void draw_tmap(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 
 		// Lighting stuff:
 		if (lighting_mode)
-			tvp->l = vp->p3_l * NUM_LIGHTING_LEVELS;
+			tvp->l = vp->p3_l * HALF_LIGHT;
 	}
 
 #if defined(POLY_ACC)

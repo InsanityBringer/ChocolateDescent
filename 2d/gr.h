@@ -364,7 +364,7 @@ extern void gr_set_current_canvas(grs_canvas* canv);
 extern void rotate_bitmap(grs_bitmap* bp, grs_point* vertbuf, int light_value);
 
 extern uint8_t gr_palette[256 * 3];
-extern uint8_t gr_fade_table[256 * GR_FADE_LEVELS];
+extern uint8_t gr_fade_table[256 * 66];
 extern uint8_t gr_inverse_table[32 * 32 * 32];
 
 extern uint16_t gr_palette_selector;

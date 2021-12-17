@@ -30,7 +30,7 @@ extern int gr_installed;
 
 uint8_t gr_palette[256 * 3];
 uint8_t gr_current_pal[256 * 3];
-uint8_t gr_fade_table[256 * 34];
+uint8_t gr_fade_table[256 * 66];
 
 uint16_t gr_palette_selector;
 uint16_t gr_fade_table_selector;
@@ -71,7 +71,10 @@ void gr_copy_palette(uint8_t* gr_palette, uint8_t* pal, int size)
 void gr_use_palette_table(const char* filename)
 {
 	CFILE* fp;
-	int i, fsize;
+	int i, c, fsize, offset;
+	int cr, cg, cb;
+	float factor;
+	const float maxlight = 2.0f;
 
 	fp = cfopen(filename, "rb");
 	if (fp == NULL)
@@ -80,14 +83,31 @@ void gr_use_palette_table(const char* filename)
 	fsize = cfilelength(fp);
 	Assert(fsize == 9472);
 	cfread(gr_palette, 256 * 3, 1, fp);
-	cfread(gr_fade_table, 256 * 34, 1, fp);
+	//cfread(gr_fade_table, 256 * 34, 1, fp);
 	cfclose(fp);
 
+	for (i = 0; i < 64; i++)
+	{
+		factor = i / 64.0 * maxlight;
+		offset = i * 256;
+		for (c = 0; c < 255; c++)
+		{
+			cr = gr_palette[c * 3];
+			cg = gr_palette[c * 3 + 1];
+			cb = gr_palette[c * 3 + 2];
+
+			cr *= factor; cg *= factor; cb *= factor;
+
+			gr_fade_table[offset + c] = gr_find_closest_color(cr, cg, cb);
+		}
+		gr_fade_table[offset + 255] = 255;
+	}
+
 	// This is the TRANSPARENCY COLOR
-	for (i = 0; i < GR_FADE_LEVELS; i++)
+	/*for (i = 0; i < GR_FADE_LEVELS; i++)
 	{
 		gr_fade_table[i * 256 + 255] = 255;
-	}
+	}*/
 
 	Num_computed_colors = 0;	//[ISB] Flush palette cache.
 }

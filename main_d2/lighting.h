@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#define MAX_LIGHT		0x10000		//max value
+#define MAX_LIGHT		0x20000		//max value
 #define	MIN_LIGHT_DIST			(F1_0*4)
 
 extern fix	Beam_brightness;
