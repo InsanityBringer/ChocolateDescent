@@ -1532,6 +1532,248 @@ void cast_light_from_side_to_center(segment *segp, int light_side, fix light_int
 
 }
 
+struct lightside
+{
+	fix light[4];
+};
+
+struct lightseg
+{
+	lightside sides[MAX_SIDES_PER_SEGMENT];
+};
+
+lightseg sourcebuffer[MAX_SEGMENTS];
+lightseg lightbuffer[MAX_SEGMENTS];
+
+void accumulate_light_for_seg(segment* segp, int light_side, int quick_light)
+{
+	vms_vector	segment_center;
+	int			segnum, sidenum, vertnum, lightnum, start_delta_light;
+	lightseg* lsegp;
+	uint8_t varg;
+	fix light_intensity;
+
+	//mprintf((0, "From [%i %i %7.3f]:  ", segp-Segments, light_side, f2fl(light_intensity)));
+
+	//	Do for four lights, one just inside each corner of side containing light.
+	int			light_vertex_num, i;
+	vms_vector	vector_to_center;
+	vms_vector	light_location;
+	// fix			inverse_segment_magnitude;
+
+	compute_segment_center(&segment_center, segp);
+
+	lsegp = &lightbuffer[segp-Segments];
+
+	/*if (WALL_IS_DOORWAY(segp, light_side) == 0)
+	{
+		return;
+	}*/
+
+	for (lightnum = 0; lightnum < 4; lightnum++)
+	{
+		vms_vector vert_location;
+		int			abs_vertnum;
+
+		abs_vertnum = segp->verts[Side_to_verts[light_side][lightnum]];
+		vert_location = Vertices[abs_vertnum];
+
+		for (segnum = 0; segnum <= Highest_segment_index; segnum++)
+		{
+			segment* rsegp = &Segments[segnum];
+			vms_vector	r_segment_center;
+			fix			dist_to_rseg;
+
+			for (i = 0; i < FVI_HASH_SIZE; i++)
+				fvi_cache[i].flag = 0;
+
+			//	efficiency hack (I hope!), for faraway segments, don't check each point.
+			compute_segment_center(&r_segment_center, rsegp);
+			dist_to_rseg = vm_vec_dist_quick(&r_segment_center, &segment_center);
+
+			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD)
+			{
+				for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+				{
+					if (segp - Segments == segnum && sidenum == light_side)
+						continue;
+
+					if (WALL_IS_DOORWAY(rsegp, sidenum) != 0)
+					{
+						side* rsidep = &rsegp->sides[sidenum];
+						vms_vector* side_normalp = &rsidep->normals[0];	//	kinda stupid? always use vector 0.
+						int delta_light_number = -1, dl_num;
+						fix		inverse_segment_magnitude;
+
+						//mprintf((0, "[%i %i], ", rsegp-Segments, sidenum));
+						for (vertnum = 0; vertnum < 4; vertnum++)
+						{
+							fix			distance_to_point, light_at_point, light_dot;
+							vms_vector	 vector_to_light, r_vector_to_center, light_location_1;
+
+							//light_intensity = rsegp->sides[sidenum].uvls[vertnum].l;
+							light_intensity = sourcebuffer[segnum].sides[sidenum].light[vertnum];
+
+							if (light_intensity == 0) continue;
+
+							light_vertex_num = rsegp->verts[Side_to_verts[sidenum][vertnum]];
+							light_location = Vertices[light_vertex_num];
+
+							//	New way, 5/8/95: Move towards center irrespective of size of segment.
+							vm_vec_sub(&r_vector_to_center, &r_segment_center, &light_location);
+							vm_vec_normalize_quick(&r_vector_to_center);
+							inverse_segment_magnitude = fixdiv(F1_0 / 3, vm_vec_mag(&r_vector_to_center));
+							vm_vec_scale_add(&light_location_1, &light_location, &r_vector_to_center, inverse_segment_magnitude);
+							light_location = light_location_1;
+							//vm_vec_add2(&light_location, &r_vector_to_center);
+
+							distance_to_point = vm_vec_dist_quick(&vert_location, &light_location);
+							vm_vec_sub(&vector_to_light, &light_location, &vert_location);
+							vm_vec_normalize(&vector_to_light);
+
+							//	Hack: In oblong segments, it's possible to get a very small dot product
+							//	but the light source is very nearby (eg, illuminating light itself!).
+							light_dot = vm_vec_dot(&vector_to_light, side_normalp);
+							if (distance_to_point < F1_0)
+							{
+								if (light_dot > 0)
+									light_dot = (light_dot + F1_0) / 2;
+
+								distance_to_point = F1_0;
+							}
+
+							if (light_dot > 0)
+							{
+								distance_to_point = std::max(F1_0, fixdiv(distance_to_point, F1_0 * 16));
+								light_at_point = fixdiv(fixmul(light_dot, light_dot), distance_to_point);
+								//light_at_point = fixmul(light_at_point, F2_0);
+								//light_at_point = fixmul(light_at_point, Magical_light_constant);
+								if (light_at_point >= 0)
+								{
+									fvi_info	hit_data;
+									int		hit_type;
+									vms_vector vert_location_1 = vert_location;
+
+									vm_vec_sub(&vector_to_center, &segment_center, &vert_location_1);
+									vm_vec_normalize_quick(&vector_to_center);
+									vm_vec_add2(&vert_location_1, &vector_to_center);
+
+									//vm_vec_scale_add(&vert_location_1, &vert_location, &vector_to_center, inverse_segment_magnitude);
+									//vert_location = vert_location_1;
+
+									//if ((segp-Segments == 199) && (rsegp-Segments==199))
+									//	Int3();
+									// Seg0 = segp-Segments;
+									// Seg1 = rsegp-Segments;
+									if (!quick_light)
+									{
+										int hash_value = Side_to_verts[sidenum][vertnum];
+										hash_info* hashp = &fvi_cache[hash_value];
+										while (1)
+										{
+											if (hashp->flag)
+											{
+												if ((hashp->vector.x == vector_to_light.x) && (hashp->vector.y == vector_to_light.y) && (hashp->vector.z == vector_to_light.z)) {
+													//mprintf((0, "{CACHE %4x} ", hash_value));
+													hit_type = hashp->hit_type;
+													Hash_hits++;
+													break;
+												}
+												else
+												{
+													Int3();	// How is this possible?  Should be no hits!
+													Hash_retries++;
+													hash_value = (hash_value + 1) & FVI_HASH_AND_MASK;
+													hashp = &fvi_cache[hash_value];
+												}
+											}
+											else
+											{
+												//mprintf((0, "\nH:%04x ", hash_value));
+												fvi_query fq;
+
+												Hash_calcs++;
+												hashp->vector = vector_to_light;
+												hashp->flag = 1;
+
+												fq.p0 = &vert_location_1;
+												fq.startseg = segp - Segments;
+												fq.p1 = &light_location;
+												fq.rad = 0;
+												fq.thisobjnum = -1;
+												fq.ignore_obj_list = NULL;
+												fq.flags = 0;
+
+												hit_type = find_vector_intersection(&fq, &hit_data);
+												hashp->hit_type = hit_type;
+											}
+										}
+									}
+									else
+										hit_type = HIT_NONE;
+									//mprintf((0, "hit=%i ", hit_type));
+									switch (hit_type)
+									{
+									case HIT_NONE:
+										light_at_point = fixmul(light_at_point, light_intensity);
+										lsegp->sides[light_side].light[lightnum] += light_at_point;
+										//mprintf((0, "(%5.2f) ", f2fl(light_at_point)));
+										if (lsegp->sides[light_side].light[lightnum] > F2_0)
+											lsegp->sides[light_side].light[lightnum] = F2_0;
+
+										/*if (!quick_light)
+										{
+											//Since there's 4 vertices casting light, need to account for each. 
+											//Slow search to find the delta light for this particular light source for the current segnum and sidenum
+											if (delta_light_number == -1)
+											{
+												for (dl_num = start_delta_light; dl_num < last_delta_light; dl_num++)
+												{
+													if (Delta_lights[dl_num].segnum == segnum && Delta_lights[dl_num].sidenum == sidenum)
+													{
+														delta_light_number = dl_num;
+														break;
+													}
+												}
+
+												//If none found, create a new one. 
+												if (delta_light_number == -1)
+												{
+													Delta_lights[last_delta_light].segnum = segnum;
+													Delta_lights[last_delta_light].sidenum = sidenum;
+													memset(Delta_lights[last_delta_light].vert_light, 0, sizeof(Delta_lights[last_delta_light].vert_light));
+													delta_light_number = last_delta_light;
+													last_delta_light++;
+													delta_light_count++;
+												}
+											}
+
+											varg = std::min((Delta_lights[delta_light_number].vert_light[vertnum] + light_at_point / DL_SCALE), 255);
+											Delta_lights[delta_light_number].vert_light[vertnum] = varg;
+										}*/
+										break;
+									case HIT_WALL:
+										break;
+									case HIT_OBJECT:
+										Int3();	// Hit object, should be ignoring objects!
+										break;
+									case HIT_BAD_P0:
+										Int3();	//	Ugh, this thing again, what happened, what does it mean?
+										break;
+									}
+								}	//	end if (light_at_point...
+							}	// end if (light_dot >...
+						}	//	end for (vertnum=0...
+					}	//	end if (rsegp...
+				
+				}	//	end for (sidenum=0...
+			}	//	end if (dist_to_rseg...
+		} // end for (lightnum=0)
+	}	//	end for (segnum=0...
+
+//mprintf((0, "\n"));
+}
+
 //	------------------------------------------------------------------------------------------
 //	Process all lights.
 void calim_process_all_lights(int quick_light)
@@ -1544,6 +1786,9 @@ void calim_process_all_lights(int quick_light)
 	delta_light_count = 0;
 	last_delta_light = 0;
 
+	memset(&lightbuffer, 0, sizeof(lightbuffer));
+
+	//Initial pass: Set the light values of all faces to their base illumination values.
 	for (segnum=0; segnum<=Highest_segment_index; segnum++) 
 	{
 		segment	*segp = &Segments[segnum];
@@ -1554,6 +1799,133 @@ void calim_process_all_lights(int quick_light)
 			if (WALL_IS_DOORWAY(segp, sidenum) != 0) 
 			{
 				side	*sidep = &segp->sides[sidenum];
+				fix	light_intensity;
+
+				light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[sidep->tmap_num2 & 0x3fff].lighting;
+				//if (TmapInfo[sidep->tmap_num2 & 0x3fff].destroyed != -1 || (TmapInfo[sidep->tmap_num2 & 0x3fff].eclip_num != -1 && Effects[TmapInfo[sidep->tmap_num2 & 0x3fff].eclip_num].dest_bm_num != -1))
+				//	destroyable = 1; //[ISB] but then dynlights wouldn't be usable
+
+//				if (segp->sides[sidenum].wall_num != -1) {
+//					int	wall_num, bitmap_num, effect_num;
+//					wall_num = segp->sides[sidenum].wall_num;
+//					effect_num = Walls[wall_num].type;
+//					bitmap_num = effects_bm_num[effect_num];
+//
+//					light_intensity += TmapInfo[bitmap_num].lighting;
+//				}
+
+				if (light_intensity)
+				{
+					/*if (!quick_light)
+					{
+						index = &Dl_indices[Num_static_lights++];
+						index->count = 0;
+						index->segnum = segnum;
+						index->sidenum = sidenum;
+						index->index = last_delta_light;
+						delta_light_count = 0;
+					}
+					//light_intensity /= 4;			// casting light from four spots, so divide by 4.
+					cast_light_from_side(segp, sidenum, light_intensity, quick_light);
+					cast_light_from_side_to_center(segp, sidenum, light_intensity, quick_light);
+					if (!quick_light)
+					{
+						index->count = delta_light_count;
+					}*/
+					segp->sides[sidenum].uvls[0].l = sourcebuffer[segnum].sides[sidenum].light[0] = light_intensity;
+					segp->sides[sidenum].uvls[1].l = sourcebuffer[segnum].sides[sidenum].light[1] = light_intensity;
+					segp->sides[sidenum].uvls[2].l = sourcebuffer[segnum].sides[sidenum].light[2] = light_intensity;
+					segp->sides[sidenum].uvls[3].l = sourcebuffer[segnum].sides[sidenum].light[3] = light_intensity;
+				}
+			}
+		}
+	}
+
+	//Radiosity pass: Calculate light contributions from each light. 
+	for (segnum = 0; segnum <= Highest_segment_index; segnum++)
+	{
+		segment* segp = &Segments[segnum];
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
+			accumulate_light_for_seg(segp, sidenum, quick_light);
+		}
+	}
+
+	for (segnum = 0; segnum <= Highest_segment_index; segnum++)
+	{
+		segment* segp = &Segments[segnum];
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
+			segp->sides[sidenum].uvls[0].l = std::min(F2_0, segp->sides[sidenum].uvls[0].l + lightbuffer[segnum].sides[sidenum].light[0]);
+			segp->sides[sidenum].uvls[1].l = std::min(F2_0, segp->sides[sidenum].uvls[1].l + lightbuffer[segnum].sides[sidenum].light[1]);
+			segp->sides[sidenum].uvls[2].l = std::min(F2_0, segp->sides[sidenum].uvls[2].l + lightbuffer[segnum].sides[sidenum].light[2]);
+			segp->sides[sidenum].uvls[3].l = std::min(F2_0, segp->sides[sidenum].uvls[3].l + lightbuffer[segnum].sides[sidenum].light[3]);
+		}
+	}
+
+	//Bounces. Each bounce is less intense, hardcoded reflectivity of .5 right now.
+	fix reflectivity = F1_0 / 4;
+	for (segnum = 0; segnum <= Highest_segment_index; segnum++)
+	{
+		segment* segp = &Segments[segnum];
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
+			sourcebuffer[segnum].sides[sidenum].light[0] = fixmul(lightbuffer[segnum].sides[sidenum].light[0], reflectivity);
+			sourcebuffer[segnum].sides[sidenum].light[1] = fixmul(lightbuffer[segnum].sides[sidenum].light[1], reflectivity);
+			sourcebuffer[segnum].sides[sidenum].light[2] = fixmul(lightbuffer[segnum].sides[sidenum].light[2], reflectivity);
+			sourcebuffer[segnum].sides[sidenum].light[3] = fixmul(lightbuffer[segnum].sides[sidenum].light[3], reflectivity);
+		}
+	}
+	memset(&lightbuffer, 0, sizeof(lightbuffer));
+
+	//Radiosity pass: Calculate light contributions from each light. 
+	for (segnum = 0; segnum <= Highest_segment_index; segnum++)
+	{
+		segment* segp = &Segments[segnum];
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
+			accumulate_light_for_seg(segp, sidenum, quick_light);
+		}
+	}
+
+	for (segnum = 0; segnum <= Highest_segment_index; segnum++)
+	{
+		segment* segp = &Segments[segnum];
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
+			segp->sides[sidenum].uvls[0].l = std::min(F2_0, segp->sides[sidenum].uvls[0].l + lightbuffer[segnum].sides[sidenum].light[0]);
+			segp->sides[sidenum].uvls[1].l = std::min(F2_0, segp->sides[sidenum].uvls[1].l + lightbuffer[segnum].sides[sidenum].light[1]);
+			segp->sides[sidenum].uvls[2].l = std::min(F2_0, segp->sides[sidenum].uvls[2].l + lightbuffer[segnum].sides[sidenum].light[2]);
+			segp->sides[sidenum].uvls[3].l = std::min(F2_0, segp->sides[sidenum].uvls[3].l + lightbuffer[segnum].sides[sidenum].light[3]);
+		}
+	}
+
+	if (!quick_light)
+	{
+		mprintf((0, "Num light sources: %d, Num deltas: %d\n", Num_static_lights, last_delta_light));
+	}
+}
+
+void calim_process_all_lights_old(int quick_light)
+{
+	int	segnum, sidenum;
+	int destroyable;
+	dl_index* index;
+
+	Num_static_lights = 0;
+	delta_light_count = 0;
+	last_delta_light = 0;
+
+	for (segnum = 0; segnum <= Highest_segment_index; segnum++)
+	{
+		segment* segp = &Segments[segnum];
+		mprintf((0, "."));
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
+			// if (!IS_CHILD(segp->children[sidenum])) {
+			if (WALL_IS_DOORWAY(segp, sidenum) != 0)
+			{
+				side* sidep = &segp->sides[sidenum];
 				fix	light_intensity;
 
 				light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[sidep->tmap_num2 & 0x3fff].lighting;
