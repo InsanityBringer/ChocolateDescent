@@ -695,7 +695,7 @@ int set_screen_mode(int sm)
 
 		gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		Canv_editor = &VR_editor_canvas;
-		gr_init_sub_canvas( &VR_screen_pages[0], Canv_editor, 0, 0, Canv_editor->cv_w, Canv_editor->cv_h );
+		gr_init_sub_canvas( &VR_screen_pages, Canv_editor, 0, 0, Canv_editor->cv_w, Canv_editor->cv_h );
 		gr_set_current_canvas( Canv_editor );
 		init_editor_screen();   //setup other editor stuff
 		break;

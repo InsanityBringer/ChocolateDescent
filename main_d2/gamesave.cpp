@@ -1705,7 +1705,8 @@ int load_level(char* filename_passed)
 	change_filename_extension(filename, filename_passed, ".LVL");
 	use_compiled_level = 0;
 
-	if (!cfexist(filename)) {
+	if (!cfexist(filename))
+	{
 		change_filename_extension(filename, filename, ".RL2");
 		use_compiled_level = 1;
 	}
@@ -1713,7 +1714,8 @@ int load_level(char* filename_passed)
 
 	LoadFile = cfopen(filename, "rb");
 
-	if (!LoadFile) {
+	if (!LoadFile)
+	{
 #ifdef EDITOR
 		mprintf((0, "Can't open level file <%s>\n", filename));
 		return 1;
@@ -1754,7 +1756,8 @@ int load_level(char* filename_passed)
 	if (version < 5)
 		read_int(LoadFile);		//was hostagetext_offset
 
-	if (version > 1) {
+	if (version > 1)
+	{
 		cfgets(Current_level_palette, sizeof(Current_level_palette), LoadFile);
 		if (Current_level_palette[strlen(Current_level_palette) - 1] == '\n')
 			Current_level_palette[strlen(Current_level_palette) - 1] = 0;
@@ -1770,9 +1773,9 @@ int load_level(char* filename_passed)
 	else
 		Reactor_strength = -1;	//use old defaults
 
-	if (version >= 7) {
+	if (version >= 7)
+	{
 		Num_flickering_lights = read_int(LoadFile);
-#ifdef MACINTOSH
 		Assert((Num_flickering_lights >= 0) && (Num_flickering_lights < MAX_FLICKERING_LIGHTS));
 		for (i = 0; i < Num_flickering_lights; i++)
 		{
@@ -1782,9 +1785,6 @@ int load_level(char* filename_passed)
 			Flickering_lights[i].timer = read_fix(LoadFile);
 			Flickering_lights[i].delay = read_fix(LoadFile);
 		}
-#else
-		cfread(Flickering_lights, sizeof(*Flickering_lights), Num_flickering_lights, LoadFile);
-#endif
 	}
 	else
 		Num_flickering_lights = 0;
@@ -1792,13 +1792,15 @@ int load_level(char* filename_passed)
 	if (version <= 1 || Current_level_palette[0] == 0)
 		strcpy(Current_level_palette, "groupa.256");
 
-	if (version < 6) {
+	if (version < 6) 
+	{
 		Secret_return_segment = 0;
 		Secret_return_orient.rvec.x = F1_0;	Secret_return_orient.rvec.y = 0;			Secret_return_orient.rvec.z = 0;
 		Secret_return_orient.fvec.x = 0;	Secret_return_orient.fvec.y = F1_0;		Secret_return_orient.fvec.z = 0;
 		Secret_return_orient.uvec.x = 0;	Secret_return_orient.uvec.y = 0;			Secret_return_orient.uvec.z = F1_0;
 	}
-	else {
+	else 
+	{
 		Secret_return_segment = read_int(LoadFile);
 		Secret_return_orient.rvec.x = read_int(LoadFile);
 		Secret_return_orient.rvec.y = read_int(LoadFile);
@@ -1813,7 +1815,8 @@ int load_level(char* filename_passed)
 
 	cfseek(LoadFile, minedata_offset, SEEK_SET);
 #ifdef EDITOR
-	if (!use_compiled_level) {
+	if (!use_compiled_level) 
+	{
 		mine_err = load_mine_data(LoadFile);
 		//	Compress all uv coordinates in mine, improves texmap precision. --MK, 02/19/96
 		compress_uv_coordinates_all();
@@ -1823,7 +1826,8 @@ int load_level(char* filename_passed)
 		//NOTE LINK TO ABOVE!!
 		mine_err = load_mine_data_compiled(LoadFile);
 
-	if (mine_err == -1) {	//error!!
+	if (mine_err == -1) 
+	{	//error!!
 		cfclose(LoadFile);
 		return 2;
 	}
@@ -1831,7 +1835,8 @@ int load_level(char* filename_passed)
 	cfseek(LoadFile, gamedata_offset, SEEK_SET);
 	game_err = load_game_data(LoadFile);
 
-	if (game_err == -1) {	//error!!
+	if (game_err == -1) 
+	{	//error!!
 		cfclose(LoadFile);
 		return 3;
 	}
@@ -1845,8 +1850,10 @@ int load_level(char* filename_passed)
 
 #ifdef EDITOR
 	write_game_text_file(filename);
-	if (Errors_in_mine) {
-		if (is_real_level(filename)) {
+	if (Errors_in_mine)
+	{
+		if (is_real_level(filename))
+		{
 			char  ErrorMessage[200];
 
 			sprintf(ErrorMessage, "Warning: %i errors in %s!\n", Errors_in_mine, Level_being_loaded);
@@ -1862,7 +1869,8 @@ int load_level(char* filename_passed)
 
 #ifdef EDITOR
 	//If an old version, ask the use if he wants to save as new version
-	if (!no_old_level_file_error && (Function_mode == FMODE_EDITOR) && (((LEVEL_FILE_VERSION > 3) && version < LEVEL_FILE_VERSION) || mine_err == 1 || game_err == 1)) {
+	if (!no_old_level_file_error && (Function_mode == FMODE_EDITOR) && (((LEVEL_FILE_VERSION > 3) && version < LEVEL_FILE_VERSION) || mine_err == 1 || game_err == 1))
+	{
 		char  ErrorMessage[200];
 
 		sprintf(ErrorMessage,
@@ -2160,6 +2168,7 @@ int save_level_sub(char* filename, int compiled_version)
 	char temp_filename[128];
 	int sig = 'PLVL', version = LEVEL_FILE_VERSION;
 	int minedata_offset = 0, gamedata_offset = 0;
+	int i;
 
 	if (!compiled_version) {
 		write_game_text_file(filename);
@@ -2250,7 +2259,14 @@ int save_level_sub(char* filename, int compiled_version)
 	gs_write_int(Reactor_strength, SaveFile);
 
 	gs_write_int(Num_flickering_lights, SaveFile);
-	fwrite(Flickering_lights, sizeof(*Flickering_lights), Num_flickering_lights, SaveFile);
+	for (i = 0; i < Num_flickering_lights; i++)
+	{
+		gs_write_short(Flickering_lights[i].segnum, SaveFile);
+		gs_write_short(Flickering_lights[i].sidenum, SaveFile);
+		gs_write_int(Flickering_lights[i].mask, SaveFile);
+		gs_write_fix(Flickering_lights[i].timer, SaveFile);
+		gs_write_fix(Flickering_lights[i].delay, SaveFile);
+	}
 
 	gs_write_int(Secret_return_segment, SaveFile);
 	gs_write_int(Secret_return_orient.rvec.x, SaveFile);
@@ -2278,7 +2294,8 @@ int save_level_sub(char* filename, int compiled_version)
 	//==================== CLOSE THE FILE =============================
 	fclose(SaveFile);
 
-	if (!compiled_version) {
+	if (!compiled_version)
+	{
 		if (Function_mode == FMODE_EDITOR)
 			editor_status("Saved mine %s, \"%s\"", filename, Current_level_name);
 	}
