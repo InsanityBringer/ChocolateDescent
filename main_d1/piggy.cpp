@@ -310,7 +310,7 @@ int piggy_init()
 	if (Piggy_fp == NULL) return 0;
 
 	//cfread(&Pigdata_start, sizeof(int), 1, Piggy_fp);
-	Pigdata_start = CF_ReadInt(Piggy_fp);
+	Pigdata_start = cfile_read_int(Piggy_fp);
 #ifdef EDITOR
 	if (FindArg("-nobm"))
 #endif
@@ -336,7 +336,7 @@ int piggy_init()
 	gr_set_curfont(Gamefonts[GFONT_SMALL]);
 	gr_set_fontcolor(gr_find_closest_color_current(20, 20, 20), -1);
 	gr_printf(0x8000, y - 10, "%s...", TXT_LOADING_DATA);
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 
 	for (i = 0; i < N_bitmaps; i++) 
 	{
@@ -351,12 +351,12 @@ int piggy_init()
 	uint8_t avg_color;
 	int offset;*/
 		cfread(&bmh.name[0], 8 * sizeof(char), 1, Piggy_fp);
-		bmh.dflags = CF_ReadByte(Piggy_fp);
-		bmh.width = CF_ReadByte(Piggy_fp);
-		bmh.height = CF_ReadByte(Piggy_fp);
-		bmh.flags = CF_ReadByte(Piggy_fp);
-		bmh.avg_color = CF_ReadByte(Piggy_fp);
-		bmh.offset = CF_ReadInt(Piggy_fp);
+		bmh.dflags = cfile_read_byte(Piggy_fp);
+		bmh.width = cfile_read_byte(Piggy_fp);
+		bmh.height = cfile_read_byte(Piggy_fp);
+		bmh.flags = cfile_read_byte(Piggy_fp);
+		bmh.avg_color = cfile_read_byte(Piggy_fp);
+		bmh.offset = cfile_read_int(Piggy_fp);
 		memcpy(temp_name_read, bmh.name, 8);
 		temp_name_read[8] = 0;
 		if (bmh.dflags & DBM_FLAG_ABM)
@@ -389,9 +389,9 @@ int piggy_init()
 		//cfread(&sndh, sizeof(DiskSoundHeader), 1, Piggy_fp);
 		//[ISB] fix platform bugs, hopefully
 		cfread(&sndh.name, 8 * sizeof(char), 1, Piggy_fp);
-		sndh.length = CF_ReadInt(Piggy_fp);
-		sndh.data_length = CF_ReadInt(Piggy_fp);
-		sndh.offset = CF_ReadInt(Piggy_fp);
+		sndh.length = cfile_read_int(Piggy_fp);
+		sndh.data_length = cfile_read_int(Piggy_fp);
+		sndh.offset = cfile_read_int(Piggy_fp);
 		//size -= sizeof(DiskSoundHeader);
 		temp_sound.length = sndh.length;
 		temp_sound.data = (uint8_t*)(sndh.offset + header_size + (sizeof(int) * 2) + Pigdata_start);
@@ -548,7 +548,7 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 			int zsize = 0;
 			descent_critical_error = 0;
 			//temp = cfread(&zsize, 1, sizeof(int), Piggy_fp);
-			zsize = CF_ReadInt(Piggy_fp);
+			zsize = cfile_read_int(Piggy_fp);
 			if (descent_critical_error) 
 			{
 				piggy_critical_error();
@@ -752,17 +752,17 @@ void piggy_dump_all()
 	xlat_offset = ftell(fp);
 	for (i = 0; i < MAX_BITMAP_FILES; i++)
 	{
-		F_WriteShort(fp, GameBitmapXlat[i]);
+		file_write_short(fp, GameBitmapXlat[i]);
 	}
 	i = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
-	F_WriteInt(fp, i);
+	file_write_int(fp, i);
 	fseek(fp, i, SEEK_SET);
 
 	Num_bitmap_files--;
-	F_WriteInt(fp, Num_bitmap_files);
+	file_write_int(fp, Num_bitmap_files);
 	Num_bitmap_files++;
-	F_WriteInt(fp, Num_sound_files);
+	file_write_int(fp, Num_sound_files);
 
 	header_offset = ftell(fp);
 	header_offset += ((Num_bitmap_files - 1) * BITMAP_HEADER_SIZE) + (Num_sound_files * SOUND_HEADER_SIZE);
@@ -864,12 +864,12 @@ void piggy_dump_all()
 		}
 		bmh.avg_color = GameBitmaps[i].avg_color;
 		fwrite(bmh.name, 1, 8, fp); // Mark as a bitmap
-		F_WriteByte(fp, bmh.dflags);
-		F_WriteByte(fp, bmh.width);
-		F_WriteByte(fp, bmh.height);
-		F_WriteByte(fp, bmh.flags);
-		F_WriteByte(fp, bmh.avg_color);
-		F_WriteInt(fp, bmh.offset);
+		file_write_byte(fp, bmh.dflags);
+		file_write_byte(fp, bmh.width);
+		file_write_byte(fp, bmh.height);
+		file_write_byte(fp, bmh.flags);
+		file_write_byte(fp, bmh.avg_color);
+		file_write_int(fp, bmh.offset);
 	}
 
 	mprintf((0, "\nDumping sounds..."));
@@ -892,9 +892,9 @@ void piggy_dump_all()
 		fseek(fp, org_offset, SEEK_SET);
 		//fwrite(&sndh, sizeof(DiskSoundHeader), 1, fp);			// Mark as a bitmap
 		fwrite(sndh.name, 1, 8, fp);
-		F_WriteInt(fp, sndh.length);
-		F_WriteInt(fp, sndh.data_length);
-		F_WriteInt(fp, sndh.offset);
+		file_write_int(fp, sndh.length);
+		file_write_int(fp, sndh.data_length);
+		file_write_int(fp, sndh.offset);
 
 #ifndef RELEASE
 		fprintf(fp1, "SND: %s, size %d bytes\n", AllSounds[i].name, snd->length);
@@ -906,7 +906,7 @@ void piggy_dump_all()
 	fseek(fp, xlat_offset, SEEK_SET);
 	for (i = 0; i < MAX_BITMAP_FILES; i++) //[ISB] I guess we're doing this again for some reason
 	{
-		F_WriteShort(fp, GameBitmapXlat[i]);
+		file_write_short(fp, GameBitmapXlat[i]);
 	}
 
 	fclose(fp);

@@ -465,9 +465,9 @@ static void read_vector(vms_vector* v, CFILE* file)
 	//v->x = read_fix(file);
 	//v->y = read_fix(file);
 	//v->z = read_fix(file);
-	v->x = CF_ReadInt(file);
-	v->y = CF_ReadInt(file);
-	v->z = CF_ReadInt(file);
+	v->x = cfile_read_int(file);
+	v->y = cfile_read_int(file);
+	v->z = cfile_read_int(file);
 }
 
 static void read_matrix(vms_matrix* m, CFILE* file)
@@ -479,77 +479,77 @@ static void read_matrix(vms_matrix* m, CFILE* file)
 
 static void read_angvec(vms_angvec* v, CFILE* file)
 {
-	v->p = CF_ReadShort(file);
-	v->b = CF_ReadShort(file);
-	v->h = CF_ReadShort(file);
+	v->p = cfile_read_short(file);
+	v->b = cfile_read_short(file);
+	v->h = cfile_read_short(file);
 }
 
 //-----------------------------------------------------------------------------
 // [ISB]: Extra data readers
 //-----------------------------------------------------------------------------
-static void G_ReadWall(wall* nwall, CFILE* fp)
+static void gs_read_wall(wall* nwall, CFILE* fp)
 {
-	nwall->segnum = CF_ReadInt(fp);
-	nwall->sidenum = CF_ReadInt(fp);
-	nwall->hps = CF_ReadInt(fp);
-	nwall->linked_wall = CF_ReadInt(fp);
-	nwall->type = CF_ReadByte(fp);
-	nwall->flags = CF_ReadByte(fp);
-	nwall->state = CF_ReadByte(fp);
-	nwall->trigger = CF_ReadByte(fp);
-	nwall->clip_num = CF_ReadByte(fp);
-	nwall->keys = CF_ReadByte(fp);
-	nwall->pad = CF_ReadShort(fp);
+	nwall->segnum = cfile_read_int(fp);
+	nwall->sidenum = cfile_read_int(fp);
+	nwall->hps = cfile_read_int(fp);
+	nwall->linked_wall = cfile_read_int(fp);
+	nwall->type = cfile_read_byte(fp);
+	nwall->flags = cfile_read_byte(fp);
+	nwall->state = cfile_read_byte(fp);
+	nwall->trigger = cfile_read_byte(fp);
+	nwall->clip_num = cfile_read_byte(fp);
+	nwall->keys = cfile_read_byte(fp);
+	nwall->pad = cfile_read_short(fp);
 }
 
-static void G_ReadV16Wall(wall* nwall, CFILE* fp)
+static void gs_read_wall_v16(wall* nwall, CFILE* fp)
 {
 	nwall->segnum = nwall->sidenum = nwall->linked_wall = 0;
-	nwall->type = CF_ReadByte(fp);
-	nwall->flags = CF_ReadByte(fp);
-	nwall->hps = CF_ReadInt(fp);
-	nwall->trigger = CF_ReadByte(fp);
-	nwall->clip_num = CF_ReadByte(fp);
-	nwall->keys = CF_ReadByte(fp);
+	nwall->type = cfile_read_byte(fp);
+	nwall->flags = cfile_read_byte(fp);
+	nwall->hps = cfile_read_int(fp);
+	nwall->trigger = cfile_read_byte(fp);
+	nwall->clip_num = cfile_read_byte(fp);
+	nwall->keys = cfile_read_byte(fp);
 }
 
-static void G_ReadV19Wall(wall* nwall, CFILE* fp)
+static void gs_read_wall_v19(wall* nwall, CFILE* fp)
 {
-	nwall->segnum = CF_ReadInt(fp);
-	nwall->sidenum = CF_ReadInt(fp);
-	nwall->type = CF_ReadByte(fp);
-	nwall->flags = CF_ReadByte(fp);
-	nwall->hps = CF_ReadInt(fp);
-	nwall->trigger = CF_ReadByte(fp);
-	nwall->clip_num = CF_ReadByte(fp);
-	nwall->keys = CF_ReadByte(fp);
-	nwall->linked_wall = CF_ReadInt(fp);
+	nwall->segnum = cfile_read_int(fp);
+	nwall->sidenum = cfile_read_int(fp);
+	nwall->type = cfile_read_byte(fp);
+	nwall->flags = cfile_read_byte(fp);
+	nwall->hps = cfile_read_int(fp);
+	nwall->trigger = cfile_read_byte(fp);
+	nwall->clip_num = cfile_read_byte(fp);
+	nwall->keys = cfile_read_byte(fp);
+	nwall->linked_wall = cfile_read_int(fp);
 	nwall->state = WALL_DOOR_CLOSED;
 }
 
-static void G_ReadActiveDoor(active_door* door, CFILE* fp)
+static void gs_read_active_door(active_door* door, CFILE* fp)
 {
-	door->n_parts = CF_ReadInt(fp);
-	door->front_wallnum[0] = CF_ReadShort(fp);
-	door->front_wallnum[1] = CF_ReadShort(fp);
-	door->back_wallnum[0] = CF_ReadShort(fp);
-	door->back_wallnum[1] = CF_ReadShort(fp);
-	door->time = CF_ReadInt(fp);
+	door->n_parts = cfile_read_int(fp);
+	door->front_wallnum[0] = cfile_read_short(fp);
+	door->front_wallnum[1] = cfile_read_short(fp);
+	door->back_wallnum[0] = cfile_read_short(fp);
+	door->back_wallnum[1] = cfile_read_short(fp);
+	door->time = cfile_read_int(fp);
 }
 
-static void G_ReadV19ActiveDoor(active_door* door, CFILE* fp)
+static void gs_read_active_door_v19(active_door* door, CFILE* fp)
 {
 	v19_door oldDoor;
 	int p;
 
-	oldDoor.n_parts = CF_ReadInt(fp);
-	oldDoor.seg[0] = CF_ReadShort(fp);
-	oldDoor.seg[1] = CF_ReadShort(fp);
-	oldDoor.side[0] = CF_ReadShort(fp);
-	oldDoor.side[1] = CF_ReadShort(fp);
-	oldDoor.type[0] = CF_ReadShort(fp);
-	oldDoor.type[1] = CF_ReadShort(fp);
-	oldDoor.open = CF_ReadInt(fp);
+	oldDoor.n_parts = cfile_read_int(fp);
+	oldDoor.seg[0] = cfile_read_short(fp);
+	oldDoor.seg[1] = cfile_read_short(fp);
+	oldDoor.side[0] = cfile_read_short(fp);
+	oldDoor.side[1] = cfile_read_short(fp);
+	oldDoor.type[0] = cfile_read_short(fp);
+	oldDoor.type[1] = cfile_read_short(fp);
+	oldDoor.open = cfile_read_int(fp);
 
 	door->n_parts = oldDoor.n_parts;
 	for (p = 0; p < oldDoor.n_parts; p++)
@@ -564,24 +564,24 @@ static void G_ReadV19ActiveDoor(active_door* door, CFILE* fp)
 	}
 }
 
-static void G_ReadReactorTrigger(control_center_triggers* trigger, CFILE* fp)
+static void gs_read_reactor_trigger(control_center_triggers* trigger, CFILE* fp)
 {
 	int i;
 
-	trigger->num_links = CF_ReadShort(fp);
+	trigger->num_links = cfile_read_short(fp);
 	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
-		trigger->seg[i] = CF_ReadShort(fp);
+		trigger->seg[i] = cfile_read_short(fp);
 	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
-		trigger->side[i] = CF_ReadShort(fp);
+		trigger->side[i] = cfile_read_short(fp);
 }
 
-static void G_ReadMatcen(matcen_info* center, CFILE* fp)
+static void gs_read_matcen(matcen_info* center, CFILE* fp)
 {
-	center->robot_flags = CF_ReadInt(fp);
-	center->hit_points = CF_ReadInt(fp);
-	center->interval = CF_ReadInt(fp);
-	center->segnum = CF_ReadShort(fp);
-	center->fuelcen_num = CF_ReadShort(fp);
+	center->robot_flags = cfile_read_int(fp);
+	center->hit_points = cfile_read_int(fp);
+	center->interval = cfile_read_int(fp);
+	center->segnum = cfile_read_short(fp);
+	center->fuelcen_num = cfile_read_short(fp);
 }
 
 #ifdef EDITOR
@@ -589,7 +589,7 @@ static void gs_write_int(int i, FILE* file)
 {
 	/*if (fwrite(&i, sizeof(i), 1, file) != 1)
 		Error("Error reading int in gamesave.c");*/
-	F_WriteInt(file, i);
+	file_write_int(file, i);
 
 }
 
@@ -597,28 +597,28 @@ static void gs_write_fix(fix f, FILE* file)
 {
 	/*if (fwrite(&f, sizeof(f), 1, file) != 1)
 		Error("Error reading fix in gamesave.c");*/
-	F_WriteInt(file, f);
+	file_write_int(file, f);
 }
 
 static void gs_write_short(short s, FILE* file)
 {
 	/*if (fwrite(&s, sizeof(s), 1, file) != 1)
 		Error("Error reading short in gamesave.c");*/
-	F_WriteShort(file, s);
+	file_write_short(file, s);
 }
 
 static void gs_write_fixang(fixang f, FILE* file)
 {
 	/*if (fwrite(&f, sizeof(f), 1, file) != 1)
 		Error("Error reading fixang in gamesave.c");*/
-	F_WriteShort(file, f);
+	file_write_short(file, f);
 }
 
 static void gs_write_byte(int8_t b, FILE* file)
 {
 	/*if (fwrite(&b, sizeof(b), 1, file) != 1)
 		Error("Error reading byte in gamesave.c");*/
-	F_WriteByte(file, b);
+	file_write_byte(file, b);
 }
 
 static void gr_write_vector(vms_vector* v, FILE* file)
@@ -647,28 +647,28 @@ static void gs_write_angvec(vms_angvec* v, FILE* file)
 //reads one object of the given version from the given file
 void read_object(object* obj, CFILE* f, int version)
 {
-	obj->type = CF_ReadByte(f);
-	obj->id = CF_ReadByte(f);
+	obj->type = cfile_read_byte(f);
+	obj->id = cfile_read_byte(f);
 
-	obj->control_type = CF_ReadByte(f);
-	obj->movement_type = CF_ReadByte(f);
-	obj->render_type = CF_ReadByte(f);
-	obj->flags = CF_ReadByte(f);
+	obj->control_type = cfile_read_byte(f);
+	obj->movement_type = cfile_read_byte(f);
+	obj->render_type = cfile_read_byte(f);
+	obj->flags = cfile_read_byte(f);
 
-	obj->segnum = CF_ReadShort(f);
+	obj->segnum = cfile_read_short(f);
 	obj->attached_obj = -1;
 
 	read_vector(&obj->pos, f);
 	read_matrix(&obj->orient, f);
 
-	obj->size = CF_ReadInt(f);
-	obj->shields = CF_ReadInt(f);
+	obj->size = cfile_read_int(f);
+	obj->shields = cfile_read_int(f);
 
 	read_vector(&obj->last_pos, f);
 
-	obj->contains_type = CF_ReadByte(f);
-	obj->contains_id = CF_ReadByte(f);
-	obj->contains_count = CF_ReadByte(f);
+	obj->contains_type = cfile_read_byte(f);
+	obj->contains_id = cfile_read_byte(f);
+	obj->contains_count = cfile_read_byte(f);
 
 	switch (obj->movement_type) 
 	{
@@ -676,15 +676,15 @@ void read_object(object* obj, CFILE* f, int version)
 		read_vector(&obj->mtype.phys_info.velocity, f);
 		read_vector(&obj->mtype.phys_info.thrust, f);
 
-		obj->mtype.phys_info.mass = CF_ReadInt(f);
-		obj->mtype.phys_info.drag = CF_ReadInt(f);
-		obj->mtype.phys_info.brakes = CF_ReadInt(f);
+		obj->mtype.phys_info.mass = cfile_read_int(f);
+		obj->mtype.phys_info.drag = cfile_read_int(f);
+		obj->mtype.phys_info.brakes = cfile_read_int(f);
 
 		read_vector(&obj->mtype.phys_info.rotvel, f);
 		read_vector(&obj->mtype.phys_info.rotthrust, f);
 
-		obj->mtype.phys_info.turnroll = CF_ReadShort(f);
-		obj->mtype.phys_info.flags = CF_ReadShort(f);
+		obj->mtype.phys_info.turnroll = cfile_read_short(f);
+		obj->mtype.phys_info.flags = cfile_read_short(f);
 		break;
 
 	case MT_SPINNING:
@@ -705,27 +705,27 @@ void read_object(object* obj, CFILE* f, int version)
 	{
 		int i;
 
-		obj->ctype.ai_info.behavior = CF_ReadByte(f);
+		obj->ctype.ai_info.behavior = cfile_read_byte(f);
 
 		for (i = 0; i < MAX_AI_FLAGS; i++)
-			obj->ctype.ai_info.flags[i] = CF_ReadByte(f);
+			obj->ctype.ai_info.flags[i] = cfile_read_byte(f);
 
-		obj->ctype.ai_info.hide_segment = CF_ReadShort(f);
-		obj->ctype.ai_info.hide_index = CF_ReadShort(f);
-		obj->ctype.ai_info.path_length = CF_ReadShort(f);
-		obj->ctype.ai_info.cur_path_index = CF_ReadShort(f);
+		obj->ctype.ai_info.hide_segment = cfile_read_short(f);
+		obj->ctype.ai_info.hide_index = cfile_read_short(f);
+		obj->ctype.ai_info.path_length = cfile_read_short(f);
+		obj->ctype.ai_info.cur_path_index = cfile_read_short(f);
 
-		obj->ctype.ai_info.follow_path_start_seg = CF_ReadShort(f);
-		obj->ctype.ai_info.follow_path_end_seg = CF_ReadShort(f);
+		obj->ctype.ai_info.follow_path_start_seg = cfile_read_short(f);
+		obj->ctype.ai_info.follow_path_end_seg = cfile_read_short(f);
 
 		break;
 	}
 
 	case CT_EXPLOSION:
 
-		obj->ctype.expl_info.spawn_time = CF_ReadInt(f);
-		obj->ctype.expl_info.delete_time = CF_ReadInt(f);
-		obj->ctype.expl_info.delete_objnum = CF_ReadShort(f);
+		obj->ctype.expl_info.spawn_time = cfile_read_int(f);
+		obj->ctype.expl_info.delete_time = cfile_read_int(f);
+		obj->ctype.expl_info.delete_objnum = cfile_read_short(f);
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
 
 		break;
@@ -733,21 +733,21 @@ void read_object(object* obj, CFILE* f, int version)
 	case CT_WEAPON:
 
 		//do I really need to read these?  Are they even saved to disk?
-		obj->ctype.laser_info.parent_type = CF_ReadShort(f);
-		obj->ctype.laser_info.parent_num = CF_ReadShort(f);
-		obj->ctype.laser_info.parent_signature = CF_ReadInt(f);
+		obj->ctype.laser_info.parent_type = cfile_read_short(f);
+		obj->ctype.laser_info.parent_num = cfile_read_short(f);
+		obj->ctype.laser_info.parent_signature = cfile_read_int(f);
 
 		break;
 
 	case CT_LIGHT:
 
-		obj->ctype.light_info.intensity = CF_ReadInt(f);
+		obj->ctype.light_info.intensity = cfile_read_int(f);
 		break;
 
 	case CT_POWERUP:
 
 		if (version >= 25)
-			obj->ctype.powerup_info.count = CF_ReadInt(f);
+			obj->ctype.powerup_info.count = cfile_read_int(f);
 		else
 			obj->ctype.powerup_info.count = 1;
 
@@ -787,14 +787,14 @@ void read_object(object* obj, CFILE* f, int version)
 	{
 		int i, tmo;
 
-		obj->rtype.pobj_info.model_num = CF_ReadInt(f);
+		obj->rtype.pobj_info.model_num = cfile_read_int(f);
 
 		for (i = 0; i < MAX_SUBMODELS; i++)
 			read_angvec(&obj->rtype.pobj_info.anim_angles[i], f);
 
-		obj->rtype.pobj_info.subobj_flags = CF_ReadInt(f);
+		obj->rtype.pobj_info.subobj_flags = cfile_read_int(f);
 
-		tmo = CF_ReadInt(f);
+		tmo = cfile_read_int(f);
 
 #ifndef EDITOR
 		obj->rtype.pobj_info.tmap_override = tmo;
@@ -822,9 +822,9 @@ void read_object(object* obj, CFILE* f, int version)
 	case RT_POWERUP:
 	case RT_FIREBALL:
 
-		obj->rtype.vclip_info.vclip_num = CF_ReadInt(f);
-		obj->rtype.vclip_info.frametime = CF_ReadInt(f);
-		obj->rtype.vclip_info.framenum = CF_ReadByte(f);
+		obj->rtype.vclip_info.vclip_num = cfile_read_int(f);
+		obj->rtype.vclip_info.frametime = cfile_read_int(f);
+		obj->rtype.vclip_info.framenum = cfile_read_byte(f);
 
 		break;
 
@@ -843,27 +843,27 @@ void read_object(object* obj, CFILE* f, int version)
 //writes one object to the given file
 void write_object(object* obj, FILE* f)
 {
-	F_WriteByte(f, obj->type);
-	F_WriteByte(f, obj->id);
+	file_write_byte(f, obj->type);
+	file_write_byte(f, obj->id);
 
-	F_WriteByte(f, obj->control_type);
-	F_WriteByte(f, obj->movement_type);
-	F_WriteByte(f, obj->render_type);
-	F_WriteByte(f, obj->flags);
+	file_write_byte(f, obj->control_type);
+	file_write_byte(f, obj->movement_type);
+	file_write_byte(f, obj->render_type);
+	file_write_byte(f, obj->flags);
 
-	F_WriteShort(f, obj->segnum);
+	file_write_short(f, obj->segnum);
 
 	gr_write_vector(&obj->pos, f);
 	gs_write_matrix(&obj->orient, f);
 
-	F_WriteInt(f, obj->size);
-	F_WriteInt(f, obj->shields);
+	file_write_int(f, obj->size);
+	file_write_int(f, obj->shields);
 
 	gr_write_vector(&obj->last_pos, f);
 
-	F_WriteByte(f, obj->contains_type);
-	F_WriteByte(f, obj->contains_id);
-	F_WriteByte(f, obj->contains_count);
+	file_write_byte(f, obj->contains_type);
+	file_write_byte(f, obj->contains_id);
+	file_write_byte(f, obj->contains_count);
 
 	switch (obj->movement_type)
 	{
@@ -871,15 +871,15 @@ void write_object(object* obj, FILE* f)
 		gr_write_vector(&obj->mtype.phys_info.velocity, f);
 		gr_write_vector(&obj->mtype.phys_info.thrust, f);
 
-		F_WriteInt(f, obj->mtype.phys_info.mass);
-		F_WriteInt(f, obj->mtype.phys_info.drag);
-		F_WriteInt(f, obj->mtype.phys_info.brakes);
+		file_write_int(f, obj->mtype.phys_info.mass);
+		file_write_int(f, obj->mtype.phys_info.drag);
+		file_write_int(f, obj->mtype.phys_info.brakes);
 
 		gr_write_vector(&obj->mtype.phys_info.rotvel, f);
 		gr_write_vector(&obj->mtype.phys_info.rotthrust, f);
 
-		F_WriteShort(f, obj->mtype.phys_info.turnroll);
-		F_WriteShort(f, obj->mtype.phys_info.flags);
+		file_write_short(f, obj->mtype.phys_info.turnroll);
+		file_write_short(f, obj->mtype.phys_info.flags);
 		break;
 
 	case MT_SPINNING:
@@ -900,27 +900,27 @@ void write_object(object* obj, FILE* f)
 	{
 		int i;
 
-		F_WriteByte(f, obj->ctype.ai_info.behavior);
+		file_write_byte(f, obj->ctype.ai_info.behavior);
 
 		for (i = 0; i < MAX_AI_FLAGS; i++)
-			F_WriteByte(f, obj->ctype.ai_info.flags[i]);
+			file_write_byte(f, obj->ctype.ai_info.flags[i]);
 
-		F_WriteShort(f, obj->ctype.ai_info.hide_segment);
-		F_WriteShort(f, obj->ctype.ai_info.hide_index);
-		F_WriteShort(f, obj->ctype.ai_info.path_length);
-		F_WriteShort(f, obj->ctype.ai_info.cur_path_index);
+		file_write_short(f, obj->ctype.ai_info.hide_segment);
+		file_write_short(f, obj->ctype.ai_info.hide_index);
+		file_write_short(f, obj->ctype.ai_info.path_length);
+		file_write_short(f, obj->ctype.ai_info.cur_path_index);
 
-		F_WriteShort(f, obj->ctype.ai_info.follow_path_start_seg);
-		F_WriteShort(f, obj->ctype.ai_info.follow_path_end_seg);
+		file_write_short(f, obj->ctype.ai_info.follow_path_start_seg);
+		file_write_short(f, obj->ctype.ai_info.follow_path_end_seg);
 
 		break;
 	}
 
 	case CT_EXPLOSION:
 
-		F_WriteInt(f, obj->ctype.expl_info.spawn_time);
-		F_WriteInt(f, obj->ctype.expl_info.delete_time);
-		F_WriteShort(f, obj->ctype.expl_info.delete_objnum);
+		file_write_int(f, obj->ctype.expl_info.spawn_time);
+		file_write_int(f, obj->ctype.expl_info.delete_time);
+		file_write_short(f, obj->ctype.expl_info.delete_objnum);
 
 		break;
 
@@ -928,20 +928,20 @@ void write_object(object* obj, FILE* f)
 
 		//do I really need to write these objects?
 
-		F_WriteShort(f, obj->ctype.laser_info.parent_type);
-		F_WriteShort(f, obj->ctype.laser_info.parent_num);
-		F_WriteInt(f, obj->ctype.laser_info.parent_signature);
+		file_write_short(f, obj->ctype.laser_info.parent_type);
+		file_write_short(f, obj->ctype.laser_info.parent_num);
+		file_write_int(f, obj->ctype.laser_info.parent_signature);
 
 		break;
 
 	case CT_LIGHT:
 
-		F_WriteInt(f, obj->ctype.light_info.intensity);
+		file_write_int(f, obj->ctype.light_info.intensity);
 		break;
 
 	case CT_POWERUP:
 
-		F_WriteInt(f, obj->ctype.powerup_info.count);
+		file_write_int(f, obj->ctype.powerup_info.count);
 
 		break;
 
@@ -976,14 +976,14 @@ void write_object(object* obj, FILE* f)
 	{
 		int i;
 
-		F_WriteInt(f, obj->rtype.pobj_info.model_num);
+		file_write_int(f, obj->rtype.pobj_info.model_num);
 
 		for (i = 0; i < MAX_SUBMODELS; i++)
 			gs_write_angvec(&obj->rtype.pobj_info.anim_angles[i], f);
 
-		F_WriteInt(f, obj->rtype.pobj_info.subobj_flags);
+		file_write_int(f, obj->rtype.pobj_info.subobj_flags);
 
-		F_WriteInt(f, obj->rtype.pobj_info.tmap_override);
+		file_write_int(f, obj->rtype.pobj_info.tmap_override);
 
 		break;
 	}
@@ -993,9 +993,9 @@ void write_object(object* obj, FILE* f)
 	case RT_POWERUP:
 	case RT_FIREBALL:
 
-		F_WriteInt(f, obj->rtype.vclip_info.vclip_num);
-		F_WriteInt(f, obj->rtype.vclip_info.frametime);
-		F_WriteByte(f, obj->rtype.vclip_info.framenum);
+		file_write_int(f, obj->rtype.vclip_info.vclip_num);
+		file_write_int(f, obj->rtype.vclip_info.frametime);
+		file_write_byte(f, obj->rtype.vclip_info.framenum);
 
 		break;
 
@@ -1068,43 +1068,43 @@ int load_game_data(CFILE* LoadFile)
 	if (cfseek(LoadFile, start_offset, SEEK_SET))
 		Error("Error seeking to game_fileinfo in gamesave.c");
 
-	game_fileinfo.fileinfo_signature = CF_ReadShort(LoadFile);
+	game_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
 
-	game_fileinfo.fileinfo_version = CF_ReadShort(LoadFile);
-	game_fileinfo.fileinfo_sizeof = CF_ReadInt(LoadFile);
+	game_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
+	game_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
 	for (i = 0; i < 15; i++)
-		game_fileinfo.mine_filename[i] = CF_ReadByte(LoadFile);
-	game_fileinfo.level = CF_ReadInt(LoadFile);
-	game_fileinfo.player_offset = CF_ReadInt(LoadFile);				// Player info
-	game_fileinfo.player_sizeof = CF_ReadInt(LoadFile);
-	game_fileinfo.object_offset = CF_ReadInt(LoadFile);				// Object info
-	game_fileinfo.object_howmany = CF_ReadInt(LoadFile);
-	game_fileinfo.object_sizeof = CF_ReadInt(LoadFile);
-	game_fileinfo.walls_offset = CF_ReadInt(LoadFile);
-	game_fileinfo.walls_howmany = CF_ReadInt(LoadFile);
-	game_fileinfo.walls_sizeof = CF_ReadInt(LoadFile);
-	game_fileinfo.doors_offset = CF_ReadInt(LoadFile);
-	game_fileinfo.doors_howmany = CF_ReadInt(LoadFile);
-	game_fileinfo.doors_sizeof = CF_ReadInt(LoadFile);
-	game_fileinfo.triggers_offset = CF_ReadInt(LoadFile);
-	game_fileinfo.triggers_howmany = CF_ReadInt(LoadFile);
-	game_fileinfo.triggers_sizeof = CF_ReadInt(LoadFile);
-	game_fileinfo.links_offset = CF_ReadInt(LoadFile);
-	game_fileinfo.links_howmany = CF_ReadInt(LoadFile);
-	game_fileinfo.links_sizeof = CF_ReadInt(LoadFile);
-	game_fileinfo.control_offset = CF_ReadInt(LoadFile);
-	game_fileinfo.control_howmany = CF_ReadInt(LoadFile);
-	game_fileinfo.control_sizeof = CF_ReadInt(LoadFile);
-	game_fileinfo.matcen_offset = CF_ReadInt(LoadFile);
-	game_fileinfo.matcen_howmany = CF_ReadInt(LoadFile);
-	game_fileinfo.matcen_sizeof = CF_ReadInt(LoadFile);
+		game_fileinfo.mine_filename[i] = cfile_read_byte(LoadFile);
+	game_fileinfo.level = cfile_read_int(LoadFile);
+	game_fileinfo.player_offset = cfile_read_int(LoadFile);				// Player info
+	game_fileinfo.player_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.object_offset = cfile_read_int(LoadFile);				// Object info
+	game_fileinfo.object_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.object_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.walls_offset = cfile_read_int(LoadFile);
+	game_fileinfo.walls_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.walls_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.doors_offset = cfile_read_int(LoadFile);
+	game_fileinfo.doors_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.doors_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_offset = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.links_offset = cfile_read_int(LoadFile);
+	game_fileinfo.links_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.links_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.control_offset = cfile_read_int(LoadFile);
+	game_fileinfo.control_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.control_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_offset = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_sizeof = cfile_read_int(LoadFile);
 
 	if (game_top_fileinfo.fileinfo_version >= 14) //load mine filename
 	{
 		/*char* p = Current_level_name;
 		//must do read one char at a time, since no cfgets()
 		do *p = cfgetc(LoadFile); while (*p++ != 0);*/
-		CF_GetString(&Current_level_name[0], LEVEL_NAME_LEN, LoadFile);
+		cfile_get_string(&Current_level_name[0], LEVEL_NAME_LEN, LoadFile);
 	}
 	else
 		Current_level_name[0] = 0;
@@ -1112,7 +1112,7 @@ int load_game_data(CFILE* LoadFile)
 	if (game_top_fileinfo.fileinfo_version >= 19) //load pof names
 	{
 		//cfread(&N_save_pof_names, 2, 1, LoadFile);
-		N_save_pof_names = (int)CF_ReadShort(LoadFile); //[ISB] yes, it's an int, but the above line suggests its just a short so................................
+		N_save_pof_names = (int)cfile_read_short(LoadFile); //[ISB] yes, it's an int, but the above line suggests its just a short so................................
 		cfread(Save_pof_names, N_save_pof_names, 13, LoadFile);
 	}
 
@@ -1147,11 +1147,11 @@ int load_game_data(CFILE* LoadFile)
 			for (i = 0; i < game_fileinfo.walls_howmany; i++) 
 			{
 				if (game_top_fileinfo.fileinfo_version >= 20) 
-					G_ReadWall(&Walls[i], LoadFile);
+					gs_read_wall(&Walls[i], LoadFile);
 				else if (game_top_fileinfo.fileinfo_version >= 17)
-					G_ReadV19Wall(&Walls[i], LoadFile);
+					gs_read_wall_v19(&Walls[i], LoadFile);
 				else 
-					G_ReadV16Wall(&Walls[i], LoadFile);
+					gs_read_wall_v16(&Walls[i], LoadFile);
 			}
 		}
 	}
@@ -1164,9 +1164,9 @@ int load_game_data(CFILE* LoadFile)
 			for (i = 0; i < game_fileinfo.doors_howmany; i++) 
 			{
 				if (game_top_fileinfo.fileinfo_version >= 20) 
-					G_ReadActiveDoor(&ActiveDoors[i], LoadFile);
+					gs_read_active_door(&ActiveDoors[i], LoadFile);
 				else 
-					G_ReadV19ActiveDoor(&ActiveDoors[i], LoadFile);
+					gs_read_active_door_v19(&ActiveDoors[i], LoadFile);
 			}
 		}
 	}
@@ -1178,16 +1178,16 @@ int load_game_data(CFILE* LoadFile)
 		{
 			for (i = 0; i < game_fileinfo.triggers_howmany; i++) 
 			{
-				Triggers[i].type = CF_ReadByte(LoadFile);
-				Triggers[i].flags = CF_ReadShort(LoadFile);
-				Triggers[i].value = CF_ReadInt(LoadFile);
-				Triggers[i].time = CF_ReadInt(LoadFile);
-				Triggers[i].link_num = CF_ReadByte(LoadFile);
-				Triggers[i].num_links = CF_ReadShort(LoadFile);
+				Triggers[i].type = cfile_read_byte(LoadFile);
+				Triggers[i].flags = cfile_read_short(LoadFile);
+				Triggers[i].value = cfile_read_int(LoadFile);
+				Triggers[i].time = cfile_read_int(LoadFile);
+				Triggers[i].link_num = cfile_read_byte(LoadFile);
+				Triggers[i].num_links = cfile_read_short(LoadFile);
 				for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-					Triggers[i].seg[j] = CF_ReadShort(LoadFile);
+					Triggers[i].seg[j] = cfile_read_short(LoadFile);
 				for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-					Triggers[i].side[j] = CF_ReadShort(LoadFile);
+					Triggers[i].side[j] = cfile_read_short(LoadFile);
 			}
 		}
 	}
@@ -1200,7 +1200,7 @@ int load_game_data(CFILE* LoadFile)
 			for (i = 0; i < game_fileinfo.control_howmany; i++)
 			{
 				//[ISB] there's only one...
-				G_ReadReactorTrigger(&ControlCenterTriggers, LoadFile);
+				gs_read_reactor_trigger(&ControlCenterTriggers, LoadFile);
 			}
 		}
 	}
@@ -1218,7 +1218,7 @@ int load_game_data(CFILE* LoadFile)
 				//Assert(sizeof(RobotCenters[i]) == game_fileinfo.matcen_sizeof);
 				//if (cfread(&RobotCenters[i], game_fileinfo.matcen_sizeof, 1, LoadFile) != 1)
 				//	Error("Error reading RobotCenters in gamesave.c", i);
-				G_ReadMatcen(&RobotCenters[i], LoadFile);
+				gs_read_matcen(&RobotCenters[i], LoadFile);
 				//	Set links in RobotCenters to Station array
 				for (j = 0; j <= Highest_segment_index; j++)
 					if (Segments[j].special == SEGMENT_IS_ROBOTMAKER)
@@ -1535,39 +1535,39 @@ int get_level_name()
 
 #ifdef EDITOR
 
-static void GS_WriteGameData(FILE* SaveFile)
+static void gs_write_game_data(FILE* SaveFile)
 {
 	int i;
-	F_WriteShort(SaveFile, game_fileinfo.fileinfo_signature);
+	file_write_short(SaveFile, game_fileinfo.fileinfo_signature);
 
-	F_WriteShort(SaveFile, game_fileinfo.fileinfo_version);
-	F_WriteInt(SaveFile, game_fileinfo.fileinfo_sizeof);
+	file_write_short(SaveFile, game_fileinfo.fileinfo_version);
+	file_write_int(SaveFile, game_fileinfo.fileinfo_sizeof);
 	for (i = 0; i < 15; i++)
-		F_WriteByte(SaveFile, game_fileinfo.mine_filename[i]);
-	F_WriteInt(SaveFile, game_fileinfo.level);
-	F_WriteInt(SaveFile, game_fileinfo.player_offset);				// Player info
-	F_WriteInt(SaveFile, game_fileinfo.player_sizeof);
-	F_WriteInt(SaveFile, game_fileinfo.object_offset);				// Object info
-	F_WriteInt(SaveFile, game_fileinfo.object_howmany);
-	F_WriteInt(SaveFile, game_fileinfo.object_sizeof);
-	F_WriteInt(SaveFile, game_fileinfo.walls_offset);
-	F_WriteInt(SaveFile, game_fileinfo.walls_howmany);
-	F_WriteInt(SaveFile, game_fileinfo.walls_sizeof);
-	F_WriteInt(SaveFile, game_fileinfo.doors_offset);
-	F_WriteInt(SaveFile, game_fileinfo.doors_howmany);
-	F_WriteInt(SaveFile, game_fileinfo.doors_sizeof);
-	F_WriteInt(SaveFile, game_fileinfo.triggers_offset);
-	F_WriteInt(SaveFile, game_fileinfo.triggers_howmany);
-	F_WriteInt(SaveFile, game_fileinfo.triggers_sizeof);
-	F_WriteInt(SaveFile, game_fileinfo.links_offset);
-	F_WriteInt(SaveFile, game_fileinfo.links_howmany);
-	F_WriteInt(SaveFile, game_fileinfo.links_sizeof);
-	F_WriteInt(SaveFile, game_fileinfo.control_offset);
-	F_WriteInt(SaveFile, game_fileinfo.control_howmany);
-	F_WriteInt(SaveFile, game_fileinfo.control_sizeof);
-	F_WriteInt(SaveFile, game_fileinfo.matcen_offset);
-	F_WriteInt(SaveFile, game_fileinfo.matcen_howmany);
-	F_WriteInt(SaveFile, game_fileinfo.matcen_sizeof);
+		file_write_byte(SaveFile, game_fileinfo.mine_filename[i]);
+	file_write_int(SaveFile, game_fileinfo.level);
+	file_write_int(SaveFile, game_fileinfo.player_offset);				// Player info
+	file_write_int(SaveFile, game_fileinfo.player_sizeof);
+	file_write_int(SaveFile, game_fileinfo.object_offset);				// Object info
+	file_write_int(SaveFile, game_fileinfo.object_howmany);
+	file_write_int(SaveFile, game_fileinfo.object_sizeof);
+	file_write_int(SaveFile, game_fileinfo.walls_offset);
+	file_write_int(SaveFile, game_fileinfo.walls_howmany);
+	file_write_int(SaveFile, game_fileinfo.walls_sizeof);
+	file_write_int(SaveFile, game_fileinfo.doors_offset);
+	file_write_int(SaveFile, game_fileinfo.doors_howmany);
+	file_write_int(SaveFile, game_fileinfo.doors_sizeof);
+	file_write_int(SaveFile, game_fileinfo.triggers_offset);
+	file_write_int(SaveFile, game_fileinfo.triggers_howmany);
+	file_write_int(SaveFile, game_fileinfo.triggers_sizeof);
+	file_write_int(SaveFile, game_fileinfo.links_offset);
+	file_write_int(SaveFile, game_fileinfo.links_howmany);
+	file_write_int(SaveFile, game_fileinfo.links_sizeof);
+	file_write_int(SaveFile, game_fileinfo.control_offset);
+	file_write_int(SaveFile, game_fileinfo.control_howmany);
+	file_write_int(SaveFile, game_fileinfo.control_sizeof);
+	file_write_int(SaveFile, game_fileinfo.matcen_offset);
+	file_write_int(SaveFile, game_fileinfo.matcen_howmany);
+	file_write_int(SaveFile, game_fileinfo.matcen_sizeof);
 }
 
 int	Errors_in_mine;
@@ -1609,36 +1609,33 @@ int save_game_data(FILE* SaveFile)
 	game_fileinfo.matcen_sizeof = sizeof(matcen_info);
 
 	// Write the fileinfo
-	GS_WriteGameData(SaveFile);
+	gs_write_game_data(SaveFile);
 
 	// Write the mine name
 	char c;
 	for (int i = 0; i < LEVEL_NAME_LEN; i++) //[ISB] tbh this is overkill
 	{
 		c = Current_level_name[i];
-		F_WriteByte(SaveFile, c);
+		file_write_byte(SaveFile, c);
 		if (c == 0) break;
 	}
 
-	//fwrite(&N_save_pof_names, 2, 1, SaveFile);
-	F_WriteShort(SaveFile, (short)N_save_pof_names);
+	file_write_short(SaveFile, (short)N_save_pof_names);
 	for (int i = 0; i < N_polygon_models; i++)
 	{
 		fwrite(&Pof_names[i], 1, 13, SaveFile); //also overkill but I'm paranoid
 	}
-	//fwrite(Pof_names, N_polygon_models, 13, SaveFile);
 
 	//==================== SAVE PLAYER INFO ===========================
 
 	player_offset = ftell(SaveFile);
 	//fwrite(&Players[Player_num], sizeof(player), 1, SaveFile);
 	//Well this isn't very useful
-	P_WritePlayer(&Players[Player_num], SaveFile);
+	write_player_file(&Players[Player_num], SaveFile);
 
 	//==================== SAVE OBJECT INFO ===========================
 
 	object_offset = ftell(SaveFile);
-	//fwrite( &Objects, sizeof(object), game_fileinfo.object_howmany, SaveFile );
 	{
 		int i;
 		for (i = 0; i < game_fileinfo.object_howmany; i++)
@@ -1648,42 +1645,32 @@ int save_game_data(FILE* SaveFile)
 	//==================== SAVE WALL INFO =============================
 
 	walls_offset = ftell(SaveFile);
-	//fwrite(Walls, sizeof(wall), game_fileinfo.walls_howmany, SaveFile);
 	for (int i = 0; i < game_fileinfo.walls_howmany; i++)
-		P_WriteWall(&Walls[i], SaveFile);
+		write_wall(&Walls[i], SaveFile);
 
 	//==================== SAVE DOOR INFO =============================
 
 	doors_offset = ftell(SaveFile);
-	//fwrite(ActiveDoors, sizeof(active_door), game_fileinfo.doors_howmany, SaveFile);
 	for (int i = 0; i < game_fileinfo.doors_howmany; i++)
-		P_WriteActiveDoor(&ActiveDoors[i], SaveFile);
+		write_active_door(&ActiveDoors[i], SaveFile);
 
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = ftell(SaveFile);
-	//fwrite(Triggers, sizeof(trigger), game_fileinfo.triggers_howmany, SaveFile);
 	for (int i = 0; i < game_fileinfo.triggers_howmany; i++)
-		P_WriteTrigger(&Triggers[i], SaveFile);
+		write_trigger(&Triggers[i], SaveFile);
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
 	control_offset = ftell(SaveFile);
-	//fwrite(&ControlCenterTriggers, sizeof(control_center_triggers), 1, SaveFile);
-	P_WriteReactorTrigger(&ControlCenterTriggers, SaveFile);
-
+	write_reactor_triggers(&ControlCenterTriggers, SaveFile);
 
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
 	matcen_offset = ftell(SaveFile);
 	// mprintf((0, "Writing %i materialization centers\n", game_fileinfo.matcen_howmany));
-	// { int i;
-	// for (i=0; i<game_fileinfo.matcen_howmany; i++)
-	// 	mprintf((0, "   %i: robot_flags = %08x\n", i, RobotCenters[i].robot_flags));
-	// }
-	//fwrite(RobotCenters, sizeof(matcen_info), game_fileinfo.matcen_howmany, SaveFile);
 	for (int i = 0; i < game_fileinfo.matcen_howmany; i++)
-		P_WriteMatcen(&RobotCenters[i], SaveFile);
+		write_matcen(&RobotCenters[i], SaveFile);
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 
@@ -1701,7 +1688,7 @@ int save_game_data(FILE* SaveFile)
 
 	// Write the fileinfo
 	fseek(SaveFile, start_offset, SEEK_SET);  // Move to TOF
-	GS_WriteGameData(SaveFile);
+	gs_write_game_data(SaveFile);
 
 	// Go back to end of data
 	fseek(SaveFile, end_offset, SEEK_SET);

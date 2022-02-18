@@ -117,7 +117,7 @@ int show_title_screen(const char* filename, int allow_keys)
 	while (1) 
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		if (local_key_inkey() && allow_keys) break;
 		if (timer_get_fixed_seconds() > timer) break;
 
@@ -133,7 +133,7 @@ int show_title_screen(const char* filename, int allow_keys)
 			}
 		}
 #endif
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(US_70FPS);
 	}
 	if (gr_palette_fade_out(New_pal, 32, allow_keys))
@@ -471,8 +471,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	if (delay != 0) //Don't update if message should progress instantly. 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 	}
 	//[ISB] draw right before the erase
 	//	Erase cursor
@@ -730,8 +730,8 @@ int show_briefing_message(int screen_num, char* message)
 					}
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 					{
-						I_DrawCurrentCanvas(0);
-						I_DoEvents();
+						plat_present_canvas(0);
+						plat_do_events();
 					};
 					flash_cursor(flashing_cursor);
 					show_spinning_robot_frame(robot_num);
@@ -841,8 +841,8 @@ int show_briefing_message(int screen_num, char* message)
 				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 				{
 					//[ISB] the amount of frames that will get 2 events done is going to be high
-					I_DrawCurrentCanvas(0);
-					I_DoEvents();
+					plat_present_canvas(0);
+					plat_do_events();
 				};
 				flash_cursor(flashing_cursor);
 				show_spinning_robot_frame(robot_num);

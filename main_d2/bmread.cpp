@@ -2281,16 +2281,16 @@ void write_tmap_info(FILE* fp, int inNumTexturesToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumTexturesToRead + inOffset); i++)
 	{
-		F_WriteByte(fp, TmapInfo[i].flags);
-		F_WriteByte(fp, TmapInfo[i].pad[0]);
-		F_WriteByte(fp, TmapInfo[i].pad[1]);
-		F_WriteByte(fp, TmapInfo[i].pad[2]);
-		F_WriteInt(fp, TmapInfo[i].lighting);
-		F_WriteInt(fp, TmapInfo[i].damage);
-		F_WriteShort(fp, TmapInfo[i].eclip_num);
-		F_WriteShort(fp, TmapInfo[i].destroyed);
-		F_WriteShort(fp, TmapInfo[i].slide_u);
-		F_WriteShort(fp, TmapInfo[i].slide_v);
+		file_write_byte(fp, TmapInfo[i].flags);
+		file_write_byte(fp, TmapInfo[i].pad[0]);
+		file_write_byte(fp, TmapInfo[i].pad[1]);
+		file_write_byte(fp, TmapInfo[i].pad[2]);
+		file_write_int(fp, TmapInfo[i].lighting);
+		file_write_int(fp, TmapInfo[i].damage);
+		file_write_short(fp, TmapInfo[i].eclip_num);
+		file_write_short(fp, TmapInfo[i].destroyed);
+		file_write_short(fp, TmapInfo[i].slide_u);
+		file_write_short(fp, TmapInfo[i].slide_v);
 	}
 }
 
@@ -2300,14 +2300,14 @@ void write_vclip_info(FILE* fp, int inNumVClipsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumVClipsToRead + inOffset); i++)
 	{
-		F_WriteInt(fp, Vclip[i].play_time);
-		F_WriteInt(fp, Vclip[i].num_frames);
-		F_WriteInt(fp, Vclip[i].frame_time);
-		F_WriteInt(fp, Vclip[i].flags);
-		F_WriteShort(fp, Vclip[i].sound_num);
+		file_write_int(fp, Vclip[i].play_time);
+		file_write_int(fp, Vclip[i].num_frames);
+		file_write_int(fp, Vclip[i].frame_time);
+		file_write_int(fp, Vclip[i].flags);
+		file_write_short(fp, Vclip[i].sound_num);
 		for (j = 0; j < VCLIP_MAX_FRAMES; j++)
-			F_WriteShort(fp, Vclip[i].frames[j].index);
-		F_WriteInt(fp, Vclip[i].light_value);
+			file_write_short(fp, Vclip[i].frames[j].index);
+		file_write_int(fp, Vclip[i].light_value);
 	}
 }
 
@@ -2318,27 +2318,27 @@ void write_effect_info(FILE* fp, int inNumEffectsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumEffectsToRead + inOffset); i++)
 	{
-		F_WriteInt(fp, Effects[i].vc.play_time);
-		F_WriteInt(fp, Effects[i].vc.num_frames);
-		F_WriteInt(fp, Effects[i].vc.frame_time);
-		F_WriteInt(fp, Effects[i].vc.flags);
-		F_WriteShort(fp, Effects[i].vc.sound_num);
+		file_write_int(fp, Effects[i].vc.play_time);
+		file_write_int(fp, Effects[i].vc.num_frames);
+		file_write_int(fp, Effects[i].vc.frame_time);
+		file_write_int(fp, Effects[i].vc.flags);
+		file_write_short(fp, Effects[i].vc.sound_num);
 		for (j = 0; j < VCLIP_MAX_FRAMES; j++)
-			F_WriteShort(fp, Effects[i].vc.frames[j].index);
-		F_WriteInt(fp, Effects[i].vc.light_value);
-		F_WriteInt(fp, Effects[i].time_left);
-		F_WriteInt(fp, Effects[i].frame_count);
-		F_WriteShort(fp, Effects[i].changing_wall_texture);
-		F_WriteShort(fp, Effects[i].changing_object_texture);
-		F_WriteInt(fp, Effects[i].flags);
-		F_WriteInt(fp, Effects[i].crit_clip);
-		F_WriteInt(fp, Effects[i].dest_bm_num);
-		F_WriteInt(fp, Effects[i].dest_vclip);
-		F_WriteInt(fp, Effects[i].dest_eclip);
-		F_WriteInt(fp, Effects[i].dest_size);
-		F_WriteInt(fp, Effects[i].sound_num);
-		F_WriteInt(fp, Effects[i].segnum);
-		F_WriteInt(fp, Effects[i].sidenum);
+			file_write_short(fp, Effects[i].vc.frames[j].index);
+		file_write_int(fp, Effects[i].vc.light_value);
+		file_write_int(fp, Effects[i].time_left);
+		file_write_int(fp, Effects[i].frame_count);
+		file_write_short(fp, Effects[i].changing_wall_texture);
+		file_write_short(fp, Effects[i].changing_object_texture);
+		file_write_int(fp, Effects[i].flags);
+		file_write_int(fp, Effects[i].crit_clip);
+		file_write_int(fp, Effects[i].dest_bm_num);
+		file_write_int(fp, Effects[i].dest_vclip);
+		file_write_int(fp, Effects[i].dest_eclip);
+		file_write_int(fp, Effects[i].dest_size);
+		file_write_int(fp, Effects[i].sound_num);
+		file_write_int(fp, Effects[i].segnum);
+		file_write_int(fp, Effects[i].sidenum);
 	}
 }
 
@@ -2348,15 +2348,15 @@ void write_wallanim_info(FILE* fp, int inNumWallAnimsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumWallAnimsToRead + inOffset); i++)
 	{
-		F_WriteInt(fp, WallAnims[i].play_time);
-		F_WriteShort(fp, WallAnims[i].num_frames);
+		file_write_int(fp, WallAnims[i].play_time);
+		file_write_short(fp, WallAnims[i].num_frames);
 		for (j = 0; j < MAX_CLIP_FRAMES; j++)
-			F_WriteShort(fp, WallAnims[i].frames[j]);
-		F_WriteShort(fp, WallAnims[i].open_sound);
-		F_WriteShort(fp, WallAnims[i].close_sound);
-		F_WriteShort(fp, WallAnims[i].flags);
+			file_write_short(fp, WallAnims[i].frames[j]);
+		file_write_short(fp, WallAnims[i].open_sound);
+		file_write_short(fp, WallAnims[i].close_sound);
+		file_write_short(fp, WallAnims[i].flags);
 		fwrite(WallAnims[i].filename, 13, 1, fp);
-		F_WriteByte(fp, WallAnims[i].pad);
+		file_write_byte(fp, WallAnims[i].pad);
 	}
 }
 
@@ -2366,96 +2366,96 @@ void write_robot_info(FILE* fp, int inNumRobotsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumRobotsToRead + inOffset); i++)
 	{
-		F_WriteInt(fp, Robot_info[i].model_num);
+		file_write_int(fp, Robot_info[i].model_num);
 		for (j = 0; j < MAX_GUNS; j++)
 		{
-			F_WriteInt(fp, Robot_info[i].gun_points[j].x);
-			F_WriteInt(fp, Robot_info[i].gun_points[j].y);
-			F_WriteInt(fp, Robot_info[i].gun_points[j].z);
+			file_write_int(fp, Robot_info[i].gun_points[j].x);
+			file_write_int(fp, Robot_info[i].gun_points[j].y);
+			file_write_int(fp, Robot_info[i].gun_points[j].z);
 		}
 		for (j = 0; j < MAX_GUNS; j++)
-			F_WriteByte(fp, Robot_info[i].gun_submodels[j]);
+			file_write_byte(fp, Robot_info[i].gun_submodels[j]);
 
-		F_WriteShort(fp, Robot_info[i].exp1_vclip_num);
-		F_WriteShort(fp, Robot_info[i].exp1_sound_num);
+		file_write_short(fp, Robot_info[i].exp1_vclip_num);
+		file_write_short(fp, Robot_info[i].exp1_sound_num);
 
-		F_WriteShort(fp, Robot_info[i].exp2_vclip_num);
-		F_WriteShort(fp, Robot_info[i].exp2_sound_num);
+		file_write_short(fp, Robot_info[i].exp2_vclip_num);
+		file_write_short(fp, Robot_info[i].exp2_sound_num);
 
-		F_WriteByte(fp, Robot_info[i].weapon_type);
-		F_WriteByte(fp, Robot_info[i].weapon_type2);
-		F_WriteByte(fp, Robot_info[i].n_guns);
-		F_WriteByte(fp, Robot_info[i].contains_id);
+		file_write_byte(fp, Robot_info[i].weapon_type);
+		file_write_byte(fp, Robot_info[i].weapon_type2);
+		file_write_byte(fp, Robot_info[i].n_guns);
+		file_write_byte(fp, Robot_info[i].contains_id);
 
-		F_WriteByte(fp, Robot_info[i].contains_count);
-		F_WriteByte(fp, Robot_info[i].contains_prob);
-		F_WriteByte(fp, Robot_info[i].contains_type);
-		F_WriteByte(fp, Robot_info[i].kamikaze);
+		file_write_byte(fp, Robot_info[i].contains_count);
+		file_write_byte(fp, Robot_info[i].contains_prob);
+		file_write_byte(fp, Robot_info[i].contains_type);
+		file_write_byte(fp, Robot_info[i].kamikaze);
 
-		F_WriteShort(fp, Robot_info[i].score_value);
-		F_WriteByte(fp, Robot_info[i].badass);
-		F_WriteByte(fp, Robot_info[i].energy_drain);
+		file_write_short(fp, Robot_info[i].score_value);
+		file_write_byte(fp, Robot_info[i].badass);
+		file_write_byte(fp, Robot_info[i].energy_drain);
 
-		F_WriteInt(fp, Robot_info[i].lighting);
-		F_WriteInt(fp, Robot_info[i].strength);
+		file_write_int(fp, Robot_info[i].lighting);
+		file_write_int(fp, Robot_info[i].strength);
 
-		F_WriteInt(fp, Robot_info[i].mass);
-		F_WriteInt(fp, Robot_info[i].drag);
+		file_write_int(fp, Robot_info[i].mass);
+		file_write_int(fp, Robot_info[i].drag);
 
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].field_of_view[j]);
+			file_write_int(fp, Robot_info[i].field_of_view[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].firing_wait[j]);
+			file_write_int(fp, Robot_info[i].firing_wait[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].firing_wait2[j]);
+			file_write_int(fp, Robot_info[i].firing_wait2[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].turn_time[j]);
+			file_write_int(fp, Robot_info[i].turn_time[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].max_speed[j]);
+			file_write_int(fp, Robot_info[i].max_speed[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].circle_distance[j]);
+			file_write_int(fp, Robot_info[i].circle_distance[j]);
 		for (j = 0; j < NDL; j++)
 			fwrite(&(Robot_info[i].rapidfire_count[j]), sizeof(int8_t), 1, fp);
 		for (j = 0; j < NDL; j++)
 			fwrite(&(Robot_info[i].evade_speed[j]), sizeof(int8_t), 1, fp);
-		F_WriteByte(fp, Robot_info[i].cloak_type);
-		F_WriteByte(fp, Robot_info[i].attack_type);
+		file_write_byte(fp, Robot_info[i].cloak_type);
+		file_write_byte(fp, Robot_info[i].attack_type);
 
-		F_WriteByte(fp, Robot_info[i].see_sound);
-		F_WriteByte(fp, Robot_info[i].attack_sound);
-		F_WriteByte(fp, Robot_info[i].claw_sound);
-		F_WriteByte(fp, Robot_info[i].taunt_sound);
+		file_write_byte(fp, Robot_info[i].see_sound);
+		file_write_byte(fp, Robot_info[i].attack_sound);
+		file_write_byte(fp, Robot_info[i].claw_sound);
+		file_write_byte(fp, Robot_info[i].taunt_sound);
 
-		F_WriteByte(fp, Robot_info[i].boss_flag);
-		F_WriteByte(fp, Robot_info[i].companion);
-		F_WriteByte(fp, Robot_info[i].smart_blobs);
-		F_WriteByte(fp, Robot_info[i].energy_blobs);
+		file_write_byte(fp, Robot_info[i].boss_flag);
+		file_write_byte(fp, Robot_info[i].companion);
+		file_write_byte(fp, Robot_info[i].smart_blobs);
+		file_write_byte(fp, Robot_info[i].energy_blobs);
 
-		F_WriteByte(fp, Robot_info[i].thief);
-		F_WriteByte(fp, Robot_info[i].pursuit);
-		F_WriteByte(fp, Robot_info[i].lightcast);
-		F_WriteByte(fp, Robot_info[i].death_roll);
+		file_write_byte(fp, Robot_info[i].thief);
+		file_write_byte(fp, Robot_info[i].pursuit);
+		file_write_byte(fp, Robot_info[i].lightcast);
+		file_write_byte(fp, Robot_info[i].death_roll);
 
-		F_WriteByte(fp, Robot_info[i].flags);
-		F_WriteByte(fp, Robot_info[i].pad[0]);
-		F_WriteByte(fp, Robot_info[i].pad[1]);
-		F_WriteByte(fp, Robot_info[i].pad[2]);
+		file_write_byte(fp, Robot_info[i].flags);
+		file_write_byte(fp, Robot_info[i].pad[0]);
+		file_write_byte(fp, Robot_info[i].pad[1]);
+		file_write_byte(fp, Robot_info[i].pad[2]);
 
-		F_WriteByte(fp, Robot_info[i].deathroll_sound);
-		F_WriteByte(fp, Robot_info[i].glow);
-		F_WriteByte(fp, Robot_info[i].behavior);
-		F_WriteByte(fp, Robot_info[i].aim);
+		file_write_byte(fp, Robot_info[i].deathroll_sound);
+		file_write_byte(fp, Robot_info[i].glow);
+		file_write_byte(fp, Robot_info[i].behavior);
+		file_write_byte(fp, Robot_info[i].aim);
 
 		for (j = 0; j < MAX_GUNS + 1; j++)
 		{
 			for (k = 0; k < N_ANIM_STATES; k++)
 			{
-				F_WriteShort(fp, Robot_info[i].anim_states[j][k].n_joints);
-				F_WriteShort(fp, Robot_info[i].anim_states[j][k].offset);
+				file_write_short(fp, Robot_info[i].anim_states[j][k].n_joints);
+				file_write_short(fp, Robot_info[i].anim_states[j][k].offset);
 			}
 		}
 
-		F_WriteInt(fp, Robot_info[i].always_0xabcd);
+		file_write_int(fp, Robot_info[i].always_0xabcd);
 	}
 }
 
@@ -2465,10 +2465,10 @@ void write_robot_joint_info(FILE* fp, int inNumRobotJointsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumRobotJointsToRead + inOffset); i++)
 	{
-		F_WriteShort(fp, Robot_joints[i].jointnum);
-		F_WriteShort(fp, Robot_joints[i].angles.p);
-		F_WriteShort(fp, Robot_joints[i].angles.b);
-		F_WriteShort(fp, Robot_joints[i].angles.h);
+		file_write_short(fp, Robot_joints[i].jointnum);
+		file_write_short(fp, Robot_joints[i].angles.p);
+		file_write_short(fp, Robot_joints[i].angles.b);
+		file_write_short(fp, Robot_joints[i].angles.h);
 	}
 }
 
@@ -2478,58 +2478,58 @@ void write_weapon_info(FILE* fp, int inNumWeaponsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumWeaponsToRead + inOffset); i++)
 	{
-		F_WriteByte(fp, Weapon_info[i].render_type);
-		F_WriteByte(fp, Weapon_info[i].persistent);
-		F_WriteShort(fp, Weapon_info[i].model_num);
-		F_WriteShort(fp, Weapon_info[i].model_num_inner);
+		file_write_byte(fp, Weapon_info[i].render_type);
+		file_write_byte(fp, Weapon_info[i].persistent);
+		file_write_short(fp, Weapon_info[i].model_num);
+		file_write_short(fp, Weapon_info[i].model_num_inner);
 
-		F_WriteByte(fp, Weapon_info[i].flash_vclip);
-		F_WriteByte(fp, Weapon_info[i].robot_hit_vclip);
-		F_WriteShort(fp, Weapon_info[i].flash_sound);
+		file_write_byte(fp, Weapon_info[i].flash_vclip);
+		file_write_byte(fp, Weapon_info[i].robot_hit_vclip);
+		file_write_short(fp, Weapon_info[i].flash_sound);
 
-		F_WriteByte(fp, Weapon_info[i].wall_hit_vclip);
-		F_WriteByte(fp, Weapon_info[i].fire_count);
-		F_WriteShort(fp, Weapon_info[i].robot_hit_sound);
+		file_write_byte(fp, Weapon_info[i].wall_hit_vclip);
+		file_write_byte(fp, Weapon_info[i].fire_count);
+		file_write_short(fp, Weapon_info[i].robot_hit_sound);
 
-		F_WriteByte(fp, Weapon_info[i].ammo_usage);
-		F_WriteByte(fp, Weapon_info[i].weapon_vclip);
-		F_WriteShort(fp, Weapon_info[i].wall_hit_sound);
+		file_write_byte(fp, Weapon_info[i].ammo_usage);
+		file_write_byte(fp, Weapon_info[i].weapon_vclip);
+		file_write_short(fp, Weapon_info[i].wall_hit_sound);
 
-		F_WriteByte(fp, Weapon_info[i].destroyable);
-		F_WriteByte(fp, Weapon_info[i].matter);
-		F_WriteByte(fp, Weapon_info[i].bounce);
-		F_WriteByte(fp, Weapon_info[i].homing_flag);
+		file_write_byte(fp, Weapon_info[i].destroyable);
+		file_write_byte(fp, Weapon_info[i].matter);
+		file_write_byte(fp, Weapon_info[i].bounce);
+		file_write_byte(fp, Weapon_info[i].homing_flag);
 
-		F_WriteByte(fp, Weapon_info[i].speedvar);
-		F_WriteByte(fp, Weapon_info[i].flags);
-		F_WriteByte(fp, Weapon_info[i].flash);
-		F_WriteByte(fp, Weapon_info[i].afterburner_size);
+		file_write_byte(fp, Weapon_info[i].speedvar);
+		file_write_byte(fp, Weapon_info[i].flags);
+		file_write_byte(fp, Weapon_info[i].flash);
+		file_write_byte(fp, Weapon_info[i].afterburner_size);
 
-		F_WriteByte(fp, Weapon_info[i].children);
+		file_write_byte(fp, Weapon_info[i].children);
 
-		F_WriteInt(fp, Weapon_info[i].energy_usage);
-		F_WriteInt(fp, Weapon_info[i].fire_wait);
+		file_write_int(fp, Weapon_info[i].energy_usage);
+		file_write_int(fp, Weapon_info[i].fire_wait);
 
-		F_WriteInt(fp, Weapon_info[i].multi_damage_scale);
+		file_write_int(fp, Weapon_info[i].multi_damage_scale);
 
-		F_WriteShort(fp, Weapon_info[i].bitmap.index);	// bitmap_index = short
+		file_write_short(fp, Weapon_info[i].bitmap.index);	// bitmap_index = short
 
-		F_WriteInt(fp, Weapon_info[i].blob_size);
-		F_WriteInt(fp, Weapon_info[i].flash_size);
-		F_WriteInt(fp, Weapon_info[i].impact_size);
+		file_write_int(fp, Weapon_info[i].blob_size);
+		file_write_int(fp, Weapon_info[i].flash_size);
+		file_write_int(fp, Weapon_info[i].impact_size);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Weapon_info[i].strength[j]);
+			file_write_int(fp, Weapon_info[i].strength[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Weapon_info[i].speed[j]);
-		F_WriteInt(fp, Weapon_info[i].mass);
-		F_WriteInt(fp, Weapon_info[i].drag);
-		F_WriteInt(fp, Weapon_info[i].thrust);
-		F_WriteInt(fp, Weapon_info[i].po_len_to_width_ratio);
-		F_WriteInt(fp, Weapon_info[i].light);
-		F_WriteInt(fp, Weapon_info[i].lifetime);
-		F_WriteInt(fp, Weapon_info[i].damage_radius);
-		F_WriteShort(fp, Weapon_info[i].picture.index);		// bitmap_index is a short
-		F_WriteShort(fp, Weapon_info[i].hires_picture.index);		// bitmap_index is a short
+			file_write_int(fp, Weapon_info[i].speed[j]);
+		file_write_int(fp, Weapon_info[i].mass);
+		file_write_int(fp, Weapon_info[i].drag);
+		file_write_int(fp, Weapon_info[i].thrust);
+		file_write_int(fp, Weapon_info[i].po_len_to_width_ratio);
+		file_write_int(fp, Weapon_info[i].light);
+		file_write_int(fp, Weapon_info[i].lifetime);
+		file_write_int(fp, Weapon_info[i].damage_radius);
+		file_write_short(fp, Weapon_info[i].picture.index);		// bitmap_index is a short
+		file_write_short(fp, Weapon_info[i].hires_picture.index);		// bitmap_index is a short
 	}
 }
 
@@ -2539,10 +2539,10 @@ void write_powerup_info(FILE* fp, int inNumPowerupsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumPowerupsToRead + inOffset); i++)
 	{
-		F_WriteInt(fp, Powerup_info[i].vclip_num);
-		F_WriteInt(fp, Powerup_info[i].hit_sound);
-		F_WriteInt(fp, Powerup_info[i].size);
-		F_WriteInt(fp, Powerup_info[i].light);
+		file_write_int(fp, Powerup_info[i].vclip_num);
+		file_write_int(fp, Powerup_info[i].hit_sound);
+		file_write_int(fp, Powerup_info[i].size);
+		file_write_int(fp, Powerup_info[i].light);
 	}
 }
 
@@ -2552,55 +2552,55 @@ void write_polygon_models(FILE* fp, int inNumPolygonModelsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumPolygonModelsToRead + inOffset); i++)
 	{
-		F_WriteInt(fp, Polygon_models[i].n_models);
-		F_WriteInt(fp, Polygon_models[i].model_data_size);
-		F_WriteInt(fp, (uint32_t)Polygon_models[i].model_data);
+		file_write_int(fp, Polygon_models[i].n_models);
+		file_write_int(fp, Polygon_models[i].model_data_size);
+		file_write_int(fp, (uint32_t)Polygon_models[i].model_data);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			F_WriteInt(fp, Polygon_models[i].submodel_ptrs[j]);
+			file_write_int(fp, Polygon_models[i].submodel_ptrs[j]);
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_offsets[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_offsets[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_offsets[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].z);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_norms[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_norms[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_norms[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].z);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_pnts[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_pnts[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_pnts[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].z);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			F_WriteInt(fp, Polygon_models[i].submodel_rads[j]);
+			file_write_int(fp, Polygon_models[i].submodel_rads[j]);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			F_WriteByte(fp, Polygon_models[i].submodel_parents[j]);
+			file_write_byte(fp, Polygon_models[i].submodel_parents[j]);
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_mins[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_mins[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_mins[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].z);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_maxs[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_maxs[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_maxs[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].z);
 		}
-		F_WriteInt(fp, Polygon_models[i].mins.x);
-		F_WriteInt(fp, Polygon_models[i].mins.y);
-		F_WriteInt(fp, Polygon_models[i].mins.z);
-		F_WriteInt(fp, Polygon_models[i].maxs.x);
-		F_WriteInt(fp, Polygon_models[i].maxs.y);
-		F_WriteInt(fp, Polygon_models[i].maxs.z);
-		F_WriteInt(fp, Polygon_models[i].rad);
-		F_WriteByte(fp, Polygon_models[i].n_textures);
-		F_WriteShort(fp, Polygon_models[i].first_texture);
-		F_WriteByte(fp, Polygon_models[i].simpler_model);
+		file_write_int(fp, Polygon_models[i].mins.x);
+		file_write_int(fp, Polygon_models[i].mins.y);
+		file_write_int(fp, Polygon_models[i].mins.z);
+		file_write_int(fp, Polygon_models[i].maxs.x);
+		file_write_int(fp, Polygon_models[i].maxs.y);
+		file_write_int(fp, Polygon_models[i].maxs.z);
+		file_write_int(fp, Polygon_models[i].rad);
+		file_write_byte(fp, Polygon_models[i].n_textures);
+		file_write_short(fp, Polygon_models[i].first_texture);
+		file_write_byte(fp, Polygon_models[i].simpler_model);
 	}
 }
 
@@ -2608,20 +2608,20 @@ void write_player_ship(FILE* fp)
 {
 	int i;
 
-	F_WriteInt(fp, only_player_ship.model_num);
-	F_WriteInt(fp, only_player_ship.expl_vclip_num);
-	F_WriteInt(fp, only_player_ship.mass);
-	F_WriteInt(fp, only_player_ship.drag);
-	F_WriteInt(fp, only_player_ship.max_thrust);
-	F_WriteInt(fp, only_player_ship.reverse_thrust);
-	F_WriteInt(fp, only_player_ship.brakes);
-	F_WriteInt(fp, only_player_ship.wiggle);
-	F_WriteInt(fp, only_player_ship.max_rotthrust);
+	file_write_int(fp, only_player_ship.model_num);
+	file_write_int(fp, only_player_ship.expl_vclip_num);
+	file_write_int(fp, only_player_ship.mass);
+	file_write_int(fp, only_player_ship.drag);
+	file_write_int(fp, only_player_ship.max_thrust);
+	file_write_int(fp, only_player_ship.reverse_thrust);
+	file_write_int(fp, only_player_ship.brakes);
+	file_write_int(fp, only_player_ship.wiggle);
+	file_write_int(fp, only_player_ship.max_rotthrust);
 	for (i = 0; i < N_PLAYER_GUNS; i++)
 	{
-		F_WriteInt(fp, only_player_ship.gun_points[i].x);
-		F_WriteInt(fp, only_player_ship.gun_points[i].y);
-		F_WriteInt(fp, only_player_ship.gun_points[i].z);
+		file_write_int(fp, only_player_ship.gun_points[i].x);
+		file_write_int(fp, only_player_ship.gun_points[i].y);
+		file_write_int(fp, only_player_ship.gun_points[i].z);
 	}
 }
 
@@ -2631,19 +2631,19 @@ void write_reactor_info(FILE* fp, int inNumReactorsToRead, int inOffset)
 
 	for (i = inOffset; i < (inNumReactorsToRead + inOffset); i++)
 	{
-		F_WriteInt(fp, Reactors[i].model_num);
-		F_WriteInt(fp, Reactors[i].n_guns);
+		file_write_int(fp, Reactors[i].model_num);
+		file_write_int(fp, Reactors[i].n_guns);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
 		{
-			F_WriteInt(fp, Reactors[i].gun_points[j].x);
-			F_WriteInt(fp, Reactors[i].gun_points[j].y);
-			F_WriteInt(fp, Reactors[i].gun_points[j].z);
+			file_write_int(fp, Reactors[i].gun_points[j].x);
+			file_write_int(fp, Reactors[i].gun_points[j].y);
+			file_write_int(fp, Reactors[i].gun_points[j].z);
 		}
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
 		{
-			F_WriteInt(fp, Reactors[i].gun_dirs[j].x);
-			F_WriteInt(fp, Reactors[i].gun_dirs[j].y);
-			F_WriteInt(fp, Reactors[i].gun_dirs[j].z);
+			file_write_int(fp, Reactors[i].gun_dirs[j].x);
+			file_write_int(fp, Reactors[i].gun_dirs[j].y);
+			file_write_int(fp, Reactors[i].gun_dirs[j].z);
 		}
 	}
 }
@@ -2666,60 +2666,60 @@ void bm_write_all(FILE *fp)
 	tfile = fopen("hamfile.lst","wt");
 
 	t = NumTextures-1;	//don't save bogus texture
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	for (i = 0; i < t; i++)
-		F_WriteShort(fp, Textures[i].index);
+		file_write_short(fp, Textures[i].index);
 	write_tmap_info(fp, t, 0);
 
 	fprintf(tfile,"NumTextures = %d, Textures array = %d, TmapInfo array = %d\n",NumTextures,sizeof(bitmap_index)*NumTextures,sizeof(tmap_info)*NumTextures);
 
 	t = MAX_SOUNDS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	fwrite( Sounds, sizeof(int8_t), t, fp );
 	fwrite( AltSounds, sizeof(int8_t), t, fp );
 
 	fprintf(tfile,"Num Sounds = %d, Sounds array = %d, AltSounds array = %d\n",t,t,t);
 
-	F_WriteInt(fp, Num_vclips);
+	file_write_int(fp, Num_vclips);
 	write_vclip_info(fp, Num_vclips, 0);
 
 	fprintf(tfile,"Num_vclips = %d, Vclip array = %d\n",Num_vclips,sizeof(vclip)*Num_vclips);
 
-	F_WriteInt(fp, Num_effects);
+	file_write_int(fp, Num_effects);
 	write_effect_info(fp, Num_effects, 0);
 
 	fprintf(tfile,"Num_effects = %d, Effects array = %d\n",Num_effects,sizeof(eclip)*Num_effects);
 
-	F_WriteInt(fp, Num_wall_anims);
+	file_write_int(fp, Num_wall_anims);
 	write_wallanim_info(fp, Num_wall_anims, 0);
 
 	fprintf(tfile,"Num_wall_anims = %d, WallAnims array = %d\n",Num_wall_anims,sizeof(wclip)*Num_wall_anims);
 
 	t = N_D2_ROBOT_TYPES;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	write_robot_info(fp, t, 0);
 
 	fprintf(tfile,"N_robot_types = %d, Robot_info array = %d\n",t,sizeof(robot_info)*N_robot_types);
 
 	t = N_D2_ROBOT_JOINTS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	write_robot_joint_info(fp, t, 0);
 
 	fprintf(tfile,"N_robot_joints = %d, Robot_joints array = %d\n",t,sizeof(jointpos)*N_robot_joints);
 
 	t = N_D2_WEAPON_TYPES;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	write_weapon_info(fp, t, 0);
 
 	fprintf(tfile,"N_weapon_types = %d, Weapon_info array = %d\n",N_weapon_types,sizeof(weapon_info)*N_weapon_types);
 
-	F_WriteInt(fp, N_powerup_types);
+	file_write_int(fp, N_powerup_types);
 	write_powerup_info(fp, N_powerup_types, 0);
 	
 	fprintf(tfile,"N_powerup_types = %d, Powerup_info array = %d\n",N_powerup_types,sizeof(Powerup_info)*N_powerup_types);
 
 	t = N_D2_POLYGON_MODELS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	write_polygon_models(fp, t, 0);
 
 	fprintf(tfile,"N_polygon_models = %d, Polygon_models array = %d\n",t,sizeof(polymodel)*t);
@@ -2734,27 +2734,27 @@ void bm_write_all(FILE *fp)
 	fprintf(tfile,"Total model size = %d\n",s);
 
 	for (i = 0; i < t; i++)
-		F_WriteInt(fp, Dying_modelnums[i]);
+		file_write_int(fp, Dying_modelnums[i]);
 	for (i = 0; i < t; i++)
-		F_WriteInt(fp, Dead_modelnums[i]);
+		file_write_int(fp, Dead_modelnums[i]);
 
 	fprintf(tfile,"Dying_modelnums array = %d, Dead_modelnums array = %d\n",sizeof(int)*t,sizeof(int)*t);
 
 	t = MAX_GAUGE_BMS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	for (i = 0; i < t; i++)
-		F_WriteShort(fp, Gauges[i].index);
+		file_write_short(fp, Gauges[i].index);
 	for (i = 0; i < t; i++)
-		F_WriteShort(fp, Gauges_hires[i].index);
+		file_write_short(fp, Gauges_hires[i].index);
 
 	fprintf(tfile,"Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n",t,sizeof(bitmap_index)*t,sizeof(bitmap_index)*t);
 
 	t = MAX_OBJ_BITMAPS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	for (i = 0; i < t; i++)
-		F_WriteShort(fp, ObjBitmaps[i].index);
+		file_write_short(fp, ObjBitmaps[i].index);
 	for (i = 0; i < t; i++)
-		F_WriteShort(fp, ObjBitmapPtrs[i]);
+		file_write_short(fp, ObjBitmapPtrs[i]);
 
 	fprintf(tfile,"Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n",t,sizeof(bitmap_index)*t,sizeof(uint16_t)*t);
 
@@ -2762,9 +2762,9 @@ void bm_write_all(FILE *fp)
 
 	fprintf(tfile,"player_ship size = %d\n",sizeof(player_ship));
 
-	F_WriteInt(fp, Num_cockpits);
+	file_write_int(fp, Num_cockpits);
 	for (i = 0; i < Num_cockpits; i++)
-		F_WriteShort(fp, cockpit_bitmap[i].index);
+		file_write_short(fp, cockpit_bitmap[i].index);
 
 	fprintf(tfile,"Num_cockpits = %d, cockpit_bitmaps array = %d\n",Num_cockpits,sizeof(bitmap_index)*Num_cockpits);
 
@@ -2775,14 +2775,14 @@ void bm_write_all(FILE *fp)
 
 	fprintf(tfile,"Num_total_object_types = %d, ObjType array = %d, ObjId array = %d, ObjStrength array = %d\n",Num_total_object_types,Num_total_object_types,Num_total_object_types,sizeof(fix)*Num_total_object_types);
 
-	F_WriteInt(fp, First_multi_bitmap_num);
+	file_write_int(fp, First_multi_bitmap_num);
 
-	F_WriteInt(fp, Num_reactors);
+	file_write_int(fp, Num_reactors);
 	write_reactor_info(fp, Num_reactors, 0);
 
 	fprintf(tfile,"Num_reactors = %d, Reactors array = %d\n",Num_reactors,sizeof(*Reactors)*Num_reactors);
 
-	F_WriteInt(fp, Marker_model_num);
+	file_write_int(fp, Marker_model_num);
 
 	//@@fwrite( &N_controlcen_guns, sizeof(int), 1, fp );
 	//@@fwrite( controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns, fp );
@@ -2806,27 +2806,27 @@ void bm_write_extra_robots()
 	fp = fopen("robots.ham","wb");
 
 	t = 'XHAM';
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	t = 1;	//version
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 
 	//write weapon info
 	t = N_weapon_types - N_D2_WEAPON_TYPES;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	write_weapon_info(fp, t, N_D2_WEAPON_TYPES);
 
 	//now write robot info
 
 	t = N_robot_types - N_D2_ROBOT_TYPES;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	write_robot_info(fp, t, N_D2_ROBOT_TYPES);
 
 	t = N_robot_joints - N_D2_ROBOT_JOINTS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	write_robot_joint_info(fp, t, N_D2_ROBOT_JOINTS);
 
 	t = N_polygon_models - N_D2_POLYGON_MODELS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	write_polygon_models(fp, t, N_D2_POLYGON_MODELS);
 
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )	
@@ -2837,19 +2837,19 @@ void bm_write_extra_robots()
 	}
 
 	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
-		F_WriteInt(fp, Dying_modelnums[i]);
+		file_write_int(fp, Dying_modelnums[i]);
 	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
-		F_WriteInt(fp, Dead_modelnums[i]);
+		file_write_int(fp, Dead_modelnums[i]);
 
 	t = N_ObjBitmaps - N_D2_OBJBITMAPS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	for (i = N_D2_OBJBITMAPS; i < N_ObjBitmaps; i++)
-		F_WriteShort(fp, ObjBitmaps[i].index);
+		file_write_short(fp, ObjBitmaps[i].index);
 
 	t = N_ObjBitmapPtrs - N_D2_OBJBITMAPPTRS;
-	F_WriteInt(fp, t);
+	file_write_int(fp, t);
 	for (i = N_D2_OBJBITMAPPTRS; i < N_ObjBitmapPtrs; i++)
-		F_WriteShort(fp, ObjBitmapPtrs[i]);
+		file_write_short(fp, ObjBitmapPtrs[i]);
 
 	fclose(fp);
 }

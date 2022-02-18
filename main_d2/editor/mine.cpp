@@ -80,9 +80,9 @@ void M_WriteInt(FILE* fp, int i)
 
 static void m_write_vector(vms_vector* v, FILE* file)
 {
-	F_WriteInt(file, v->x);
-	F_WriteInt(file, v->y);
-	F_WriteInt(file, v->z);
+	file_write_int(file, v->x);
+	file_write_int(file, v->y);
+	file_write_int(file, v->z);
 }
 
 static void m_write_matrix(vms_matrix* m, FILE* file)
@@ -180,60 +180,60 @@ int med_save_mine(char * filename)
 //I don't actually need to do this, since it's aligned, but I'm a masochist I guess :D
 void write_mine_fileinfo(FILE* fp)
 {
-	F_WriteShort(fp, mine_fileinfo.fileinfo_signature);
-	F_WriteShort(fp, mine_fileinfo.fileinfo_version);
-	F_WriteInt(fp, mine_fileinfo.fileinfo_sizeof);
-	F_WriteInt(fp, mine_fileinfo.header_offset);          // Stuff common to game & editor
-	F_WriteInt(fp, mine_fileinfo.header_size);
-	F_WriteInt(fp, mine_fileinfo.editor_offset);   // Editor specific stuff
-	F_WriteInt(fp, mine_fileinfo.editor_size);
-	F_WriteInt(fp, mine_fileinfo.segment_offset);
-	F_WriteInt(fp, mine_fileinfo.segment_howmany);
-	F_WriteInt(fp, mine_fileinfo.segment_sizeof);
-	F_WriteInt(fp, mine_fileinfo.newseg_verts_offset);
-	F_WriteInt(fp, mine_fileinfo.newseg_verts_howmany);
-	F_WriteInt(fp, mine_fileinfo.newseg_verts_sizeof);
-	F_WriteInt(fp, mine_fileinfo.group_offset);
-	F_WriteInt(fp, mine_fileinfo.group_howmany);
-	F_WriteInt(fp, mine_fileinfo.group_sizeof);
-	F_WriteInt(fp, mine_fileinfo.vertex_offset);
-	F_WriteInt(fp, mine_fileinfo.vertex_howmany);
-	F_WriteInt(fp, mine_fileinfo.vertex_sizeof);
-	F_WriteInt(fp, mine_fileinfo.texture_offset);
-	F_WriteInt(fp, mine_fileinfo.texture_howmany);
-	F_WriteInt(fp, mine_fileinfo.texture_sizeof);
-	F_WriteInt(fp, mine_fileinfo.walls_offset);
-	F_WriteInt(fp, mine_fileinfo.walls_howmany);
-	F_WriteInt(fp, mine_fileinfo.walls_sizeof);
-	F_WriteInt(fp, mine_fileinfo.triggers_offset);
-	F_WriteInt(fp, mine_fileinfo.triggers_howmany);
-	F_WriteInt(fp, mine_fileinfo.triggers_sizeof);
-	F_WriteInt(fp, mine_fileinfo.links_offset);
-	F_WriteInt(fp, mine_fileinfo.links_howmany);
-	F_WriteInt(fp, mine_fileinfo.links_sizeof);
-	F_WriteInt(fp, mine_fileinfo.object_offset);				// Object info
-	F_WriteInt(fp, mine_fileinfo.object_howmany);
-	F_WriteInt(fp, mine_fileinfo.object_sizeof);
-	F_WriteInt(fp, mine_fileinfo.unused_offset);			//was: doors_offset
-	F_WriteInt(fp, mine_fileinfo.unused_howmamy);		//was: doors_howmany
-	F_WriteInt(fp, mine_fileinfo.unused_sizeof);			//was: doors_sizeof
-	F_WriteShort(fp, mine_fileinfo.level_shake_frequency);
-	F_WriteShort(fp, mine_fileinfo.level_shake_duration);
+	file_write_short(fp, mine_fileinfo.fileinfo_signature);
+	file_write_short(fp, mine_fileinfo.fileinfo_version);
+	file_write_int(fp, mine_fileinfo.fileinfo_sizeof);
+	file_write_int(fp, mine_fileinfo.header_offset);          // Stuff common to game & editor
+	file_write_int(fp, mine_fileinfo.header_size);
+	file_write_int(fp, mine_fileinfo.editor_offset);   // Editor specific stuff
+	file_write_int(fp, mine_fileinfo.editor_size);
+	file_write_int(fp, mine_fileinfo.segment_offset);
+	file_write_int(fp, mine_fileinfo.segment_howmany);
+	file_write_int(fp, mine_fileinfo.segment_sizeof);
+	file_write_int(fp, mine_fileinfo.newseg_verts_offset);
+	file_write_int(fp, mine_fileinfo.newseg_verts_howmany);
+	file_write_int(fp, mine_fileinfo.newseg_verts_sizeof);
+	file_write_int(fp, mine_fileinfo.group_offset);
+	file_write_int(fp, mine_fileinfo.group_howmany);
+	file_write_int(fp, mine_fileinfo.group_sizeof);
+	file_write_int(fp, mine_fileinfo.vertex_offset);
+	file_write_int(fp, mine_fileinfo.vertex_howmany);
+	file_write_int(fp, mine_fileinfo.vertex_sizeof);
+	file_write_int(fp, mine_fileinfo.texture_offset);
+	file_write_int(fp, mine_fileinfo.texture_howmany);
+	file_write_int(fp, mine_fileinfo.texture_sizeof);
+	file_write_int(fp, mine_fileinfo.walls_offset);
+	file_write_int(fp, mine_fileinfo.walls_howmany);
+	file_write_int(fp, mine_fileinfo.walls_sizeof);
+	file_write_int(fp, mine_fileinfo.triggers_offset);
+	file_write_int(fp, mine_fileinfo.triggers_howmany);
+	file_write_int(fp, mine_fileinfo.triggers_sizeof);
+	file_write_int(fp, mine_fileinfo.links_offset);
+	file_write_int(fp, mine_fileinfo.links_howmany);
+	file_write_int(fp, mine_fileinfo.links_sizeof);
+	file_write_int(fp, mine_fileinfo.object_offset);				// Object info
+	file_write_int(fp, mine_fileinfo.object_howmany);
+	file_write_int(fp, mine_fileinfo.object_sizeof);
+	file_write_int(fp, mine_fileinfo.unused_offset);			//was: doors_offset
+	file_write_int(fp, mine_fileinfo.unused_howmamy);		//was: doors_howmany
+	file_write_int(fp, mine_fileinfo.unused_sizeof);			//was: doors_sizeof
+	file_write_short(fp, mine_fileinfo.level_shake_frequency);
+	file_write_short(fp, mine_fileinfo.level_shake_duration);
 
-	F_WriteInt(fp, Secret_return_segment);
+	file_write_int(fp, Secret_return_segment);
 	m_write_matrix(&mine_fileinfo.secret_return_orient, fp);
 
-	F_WriteInt(fp, mine_fileinfo.dl_indices_offset);
-	F_WriteInt(fp, mine_fileinfo.dl_indices_howmany);
-	F_WriteInt(fp, mine_fileinfo.dl_indices_sizeof);
+	file_write_int(fp, mine_fileinfo.dl_indices_offset);
+	file_write_int(fp, mine_fileinfo.dl_indices_howmany);
+	file_write_int(fp, mine_fileinfo.dl_indices_sizeof);
 
-	F_WriteInt(fp, mine_fileinfo.delta_light_offset);
-	F_WriteInt(fp, mine_fileinfo.delta_light_howmany);
-	F_WriteInt(fp, mine_fileinfo.delta_light_sizeof);
+	file_write_int(fp, mine_fileinfo.delta_light_offset);
+	file_write_int(fp, mine_fileinfo.delta_light_howmany);
+	file_write_int(fp, mine_fileinfo.delta_light_sizeof);
 
-	F_WriteInt(fp, mine_fileinfo.segment2_offset);
-	F_WriteInt(fp, mine_fileinfo.segment2_howmany);
-	F_WriteInt(fp, mine_fileinfo.segment2_sizeof);
+	file_write_int(fp, mine_fileinfo.segment2_offset);
+	file_write_int(fp, mine_fileinfo.segment2_howmany);
+	file_write_int(fp, mine_fileinfo.segment2_sizeof);
 }
 
 // -----------------------------------------------------------------------------
@@ -318,8 +318,8 @@ int save_mine_data(FILE * SaveFile)
 	if (header_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 
-	F_WriteInt(SaveFile, mine_header.num_vertices);
-	F_WriteInt(SaveFile, mine_header.num_segments);
+	file_write_int(SaveFile, mine_header.num_vertices);
+	file_write_int(SaveFile, mine_header.num_segments);
 
 	//===================== SAVE EDITOR INFO ==========================
 	mine_editor.current_seg         =   Cursegp - Segments;
@@ -420,7 +420,7 @@ void dump_fix_as_short( fix value, int nbits, FILE * SaveFile )
 	else
 		short_value = (short)int_value;
 
-	F_WriteShort(SaveFile, short_value);
+	file_write_short(SaveFile, short_value);
 }
 
 //version of dump for unsigned values
@@ -446,7 +446,7 @@ void dump_fix_as_ushort( fix value, int nbits, FILE * SaveFile )
 	else
 		short_value = int_value;
 
-	F_WriteShort(SaveFile, short_value);
+	file_write_short(SaveFile, short_value);
 }
 
 int	New_file_format_save = 1;
@@ -568,17 +568,17 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 	}
 
 	//=============================== Writing part ==============================
-	F_WriteByte(SaveFile, version);						// 1 byte = compiled version
+	file_write_byte(SaveFile, version);						// 1 byte = compiled version
 	temp_short = Num_vertices;
-	F_WriteShort(SaveFile, temp_short);					// 2 bytes = Num_vertices
+	file_write_short(SaveFile, temp_short);					// 2 bytes = Num_vertices
 	temp_short = Num_segments;
-	F_WriteShort(SaveFile, temp_short);					// 2 bytes = Num_segments
+	file_write_short(SaveFile, temp_short);					// 2 bytes = Num_segments
 
 	for (i = 0; i < Num_vertices; i++)
 	{
-		F_WriteInt(SaveFile, Vertices[i].x);
-		F_WriteInt(SaveFile, Vertices[i].y);
-		F_WriteInt(SaveFile, Vertices[i].z);
+		file_write_int(SaveFile, Vertices[i].x);
+		file_write_int(SaveFile, Vertices[i].y);
+		file_write_int(SaveFile, Vertices[i].z);
 	}
 
 	for (segnum=0; segnum<Num_segments; segnum++ )	
@@ -592,17 +592,17 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 		if ((Segment2s[segnum].special != 0) || (Segment2s[segnum].matcen_num != 0) || (Segment2s[segnum].value != 0))
 			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
 
-		F_WriteByte(SaveFile, bit_mask);
+		file_write_byte(SaveFile, bit_mask);
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
 			if (bit_mask & (1 << sidenum))
-				F_WriteShort(SaveFile, Segments[segnum].children[sidenum]);
+				file_write_short(SaveFile, Segments[segnum].children[sidenum]);
 		}
 
 		for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
 		{
-			F_WriteShort(SaveFile, Segments[segnum].verts[i]);
+			file_write_short(SaveFile, Segments[segnum].verts[i]);
 		}
 	
 		// Write the walls as a 6 byte array
@@ -617,12 +617,12 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
 			}
 		}
-		F_WriteByte(SaveFile, bit_mask);
+		file_write_byte(SaveFile, bit_mask);
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
 		{
 			if (bit_mask & (1 << sidenum))
-				F_WriteByte(SaveFile, Segments[segnum].sides[sidenum].wall_num);
+				file_write_byte(SaveFile, Segments[segnum].sides[sidenum].wall_num);
 		}
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
@@ -636,9 +636,9 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 				if (tmap_num2 != 0)
 					tmap_num |= 0x8000;
 
-				F_WriteShort(SaveFile, tmap_num);
+				file_write_short(SaveFile, tmap_num);
 				if (tmap_num2 != 0)
-					F_WriteShort(SaveFile, tmap_num2);
+					file_write_short(SaveFile, tmap_num2);
 
 				for (i=0; i<4; i++ )	
 				{
@@ -654,11 +654,11 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 	//Write segments2
 	for (i = 0; i < Num_segments; i++)
 	{
-		F_WriteByte(SaveFile, Segment2s[i].special);
-		F_WriteByte(SaveFile, Segment2s[i].matcen_num);
-		F_WriteByte(SaveFile, Segment2s[i].value);
-		F_WriteByte(SaveFile, Segment2s[i].s2_flags);
-		F_WriteInt(SaveFile, Segment2s[i].static_light);
+		file_write_byte(SaveFile, Segment2s[i].special);
+		file_write_byte(SaveFile, Segment2s[i].matcen_num);
+		file_write_byte(SaveFile, Segment2s[i].value);
+		file_write_byte(SaveFile, Segment2s[i].s2_flags);
+		file_write_int(SaveFile, Segment2s[i].static_light);
 	}
 
 	return 0;

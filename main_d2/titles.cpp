@@ -177,8 +177,8 @@ int show_title_screen(const char* filename, int allow_keys, int from_hog_only)
 	timer = timer_get_fixed_seconds() + i2f(3);
 	while (1)
 	{
-		I_DoEvents();
-		I_DrawCurrentCanvas(0);
+		plat_do_events();
+		plat_present_canvas(0);
 		if (local_key_inkey() && allow_keys) break;
 		if (timer_get_fixed_seconds() > timer) break;
 
@@ -485,8 +485,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	{
 		if (RobotPlaying && delay != 0)
 		{
-			I_DoEvents();
-			I_DrawCurrentCanvas(0);
+			plat_do_events();
+			plat_present_canvas(0);
 			RotateRobot();
 		}
 	}
@@ -498,8 +498,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	//[ISB] surely this code could have been structured better
 	if (delay != 0)
 	{
-		I_DoEvents();
-		I_DrawCurrentCanvas(0);
+		plat_do_events();
+		plat_present_canvas(0);
 	}
 	//[ISB] draw right before the erase
 	//	Erase cursor
@@ -854,8 +854,8 @@ int show_briefing_message(int screen_num, char* message)
 				while ((keypress = local_key_inkey()) == 0) //	Wait for a key
 				{
 					//[ISB] the amount of frames that will get 2 events done is going to be high
-					I_DrawCurrentCanvas(0);
-					I_DoEvents();
+					plat_present_canvas(0);
+					plat_do_events();
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 					{
 					}
@@ -986,8 +986,8 @@ int show_briefing_message(int screen_num, char* message)
 
 		/*if (delay_count != 0) //Don't update if message should progress instantly.
 		{
-			I_DrawCurrentCanvas(0);
-			I_DoEvents();
+			plat_present_canvas(0);
+			plat_do_events();
 		}*/
 
 		if ((new_page) || (Briefing_text_y > bsp->text_uly + bsp->text_height)) 
@@ -1021,8 +1021,8 @@ int show_briefing_message(int screen_num, char* message)
 					break;
 				}
 #endif
-				I_DrawCurrentCanvas(0);
-				I_DoEvents();
+				plat_present_canvas(0);
+				plat_do_events();
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 				{
 				}

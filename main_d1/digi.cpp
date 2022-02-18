@@ -220,7 +220,7 @@ void digi_close_digi()
 {
 	if (digi_driver_board>0)	
 	{
-		I_ShutdownAudio();
+		plat_close_audio();
 		if ( hTimerEventHandle < 0xffff )	
 		{
 			//sosTIMERRemoveEvent( hTimerEventHandle );
@@ -464,7 +464,7 @@ int digi_init()
 
 	// initialize the DIGI system and lock down all SOS memory
 	//sosDIGIInitSystem( digi_driver_path, _SOS_DEBUG_NORMAL );
-	i = I_InitAudio();
+	i = plat_init_audio();
 	if (i)
 	{
 		Warning("Cannot initalize sound library\n");
@@ -568,11 +568,11 @@ void digi_reset_digi_sounds()
 		if (SampleHandles[i] < _MAX_VOICES )	
 		{
 			//if ( !sosDIGISampleDone( hSOSDigiDriver, SampleHandles[i])  )		
-			if (!I_CheckSoundPlaying(SampleHandles[i]))
+			if (!plat_check_if_sound_playing(SampleHandles[i]))
 			{
 				//mprintf(( 0, "Stopping sound %d.\n", next_handle ));
 				//sosDIGIStopSample(hSOSDigiDriver, SampleHandles[i]);
-				I_StopSound(SampleHandles[i]);
+				plat_stop_sound(SampleHandles[i]);
 			}
 			SampleHandles[i] = 0xffff;
 		}
@@ -642,7 +642,7 @@ uint16_t digi_start_sound(sampledata_t* sampledata, short soundnum)
 	ntries = 0;
 
 TryNextChannel:
-	if ((SampleHandles[next_handle] < _MAX_VOICES)  && !I_CheckSoundDone(SampleHandles[next_handle]) /*&& (!sosDIGISampleDone( hSOSDigiDriver, SampleHandles[next_handle]))*/)		
+	if ((SampleHandles[next_handle] < _MAX_VOICES)  && !plat_check_if_sound_finished(SampleHandles[next_handle]) /*&& (!sosDIGISampleDone( hSOSDigiDriver, SampleHandles[next_handle]))*/)		
 	{
 		if ( (SoundVolumes[next_handle] > (uint32_t)digi_volume) && (ntries<digi_max_channels) )	
 		{
@@ -655,7 +655,7 @@ TryNextChannel:
 		}
 		//mprintf(( 0, "[SS:%d]", next_handle ));
 		//sosDIGIStopSample(hSOSDigiDriver, SampleHandles[next_handle]);
-		I_StopSound(SampleHandles[next_handle]);
+		plat_stop_sound(SampleHandles[next_handle]);
 		SampleHandles[next_handle] = 0xffff;
 	}
 
@@ -671,16 +671,16 @@ TryNextChannel:
 	digi_lock_sound_data(soundnum);
 	//[ISB] TODO
 	//sHandle = sosDIGIStartSample( hSOSDigiDriver, sampledata );
-	sHandle = I_GetSoundHandle();
+	sHandle = plat_get_new_sound_handle();
 	if (sHandle == _ERR_NO_SLOTS)
 	{
 		mprintf(( 1, "NOT ENOUGH SOUND SLOTS!!!\n" ));
 		digi_unlock_sound_data(soundnum);
 		return sHandle;
 	}
-	I_SetSoundData(sHandle, sampledata->data, sampledata->length, 11025);
-	I_SetSoundInformation(sHandle, sampledata->volume, sampledata->angle);
-	I_PlaySound(sHandle, sampledata->loop);
+	plat_set_sound_data(sHandle, sampledata->data, sampledata->length, 11025);
+	plat_set_sound_position(sHandle, sampledata->volume, sampledata->angle);
+	plat_start_sound(sHandle, sampledata->loop);
 	//mprintf(( 0, "Starting sound on channel %d\n", sHandle ));
 
 #ifndef NDEBUG
@@ -758,12 +758,12 @@ void digi_play_sample_once(int soundno, fix max_volume)
 	}
 
 	//SampleHandle = sosDIGIGetSampleHandle( hSOSDigiDriver, soundno );
-	SampleHandle = I_GetSoundHandle();
+	SampleHandle = plat_get_new_sound_handle();
 	//if ( (SampleHandle < _MAX_VOICES) && (!sosDIGISampleDone( hSOSDigiDriver, SampleHandle)) )	
-	if ((SampleHandle < _MAX_VOICES) && (!I_CheckSoundDone(SampleHandle)))
+	if ((SampleHandle < _MAX_VOICES) && (!plat_check_if_sound_finished(SampleHandle)))
 	{
 		//sosDIGIStopSample(hSOSDigiDriver, SampleHandle);
-		I_StopSound(SampleHandle);
+		plat_stop_sound(SampleHandle);
 		//while ( !sosDIGISampleDone( hSOSDigiDriver, SampleHandle));
 		//return;
 	}
@@ -780,7 +780,7 @@ void digi_play_sample_once(int soundno, fix max_volume)
 	sSOSSampleData.wSamplePanSpeed 		= 0;
 	sSOSSampleData.wSampleFlags			= _DIGI_SAMPLE_FLAGS;*/
 
-	//I_SetSoundData(SampleHandle, snd->data, snd->length, 11025);
+	//plat_set_sound_data(SampleHandle, snd->data, snd->length, 11025);
 	
 	memset(&DigiSampleData, 0, sizeof(sampledata_t));
 	DigiSampleData.angle = 0xFFFF/2;
@@ -904,7 +904,7 @@ void digi_set_midi_volume(int mvolume)
 				digi_play_midi_song(digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1);
 		}
 		//sosMIDISetMasterVolume(midi_volume);
-		I_SetMusicVolume(midi_volume);
+		plat_set_music_volume(midi_volume);
 	}
 	
 }
@@ -1174,7 +1174,7 @@ void digi_init_sounds()
 			if ( SoundObjects[i].flags & SOF_PLAYING )	
 			{
 				//sosDIGIStopSample( hSOSDigiDriver, SoundObjects[i].handle );
-				I_StopSound(SoundObjects[i].handle);
+				plat_stop_sound(SoundObjects[i].handle);
 			}
 		}
 		SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
@@ -1389,7 +1389,7 @@ void digi_kill_sound_linked_to_segment(int segnum, int sidenum, int soundnum)
 				if ( SoundObjects[i].flags & SOF_PLAYING )	
 				{
 					//sosDIGIStopSample( hSOSDigiDriver, SoundObjects[i].handle );
-					I_StopSound(SoundObjects[i].handle);
+					plat_stop_sound(SoundObjects[i].handle);
 				}
 				SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 				killed++;
@@ -1422,7 +1422,7 @@ void digi_kill_sound_linked_to_object(int objnum)
 				if ( SoundObjects[i].flags & SOF_PLAYING )	
 				{
 					//sosDIGIStopSample( hSOSDigiDriver, SoundObjects[i].handle );
-					I_StopSound(SoundObjects[i].handle);
+					plat_stop_sound(SoundObjects[i].handle);
 				}
 				SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 				killed++;
@@ -1491,7 +1491,7 @@ void digi_sync_sounds()
 				if (SoundObjects[i].flags & SOF_PLAYING) 
 				{
 					//if (sosDIGISampleDone(hSOSDigiDriver, SoundObjects[i].handle) ) //[ISB] TODO
-					if (!I_CheckSoundPlaying(SoundObjects[i].handle))
+					if (!plat_check_if_sound_playing(SoundObjects[i].handle))
 					{
 						SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 						continue;		// Go on to next sound...
@@ -1518,7 +1518,7 @@ void digi_sync_sounds()
 					if ( (SoundObjects[i].flags & SOF_PLAYING)  && (SoundObjects[i].flags & SOF_PLAY_FOREVER))	
 					{
 						//sosDIGIStopSample( hSOSDigiDriver, SoundObjects[i].handle );
-						I_StopSound(SoundObjects[i].handle);
+						plat_stop_sound(SoundObjects[i].handle);
 					}
 					SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 					continue;		// Go on to next sound...
@@ -1539,7 +1539,7 @@ void digi_sync_sounds()
 					if ((SoundObjects[i].flags & SOF_PLAYING)&&(SoundObjects[i].flags & SOF_PLAY_FOREVER))	
 					{
 						//sosDIGIStopSample( hSOSDigiDriver, SoundObjects[i].handle );
-						I_StopSound(SoundObjects[i].handle);
+						plat_stop_sound(SoundObjects[i].handle);
 						SoundObjects[i].flags &= ~SOF_PLAYING;		// Mark sound as not playing
 					}
 				}
@@ -1552,7 +1552,7 @@ void digi_sync_sounds()
 					else 
 					{
 						//sosDIGISetSampleVolume( hSOSDigiDriver, SoundObjects[i].handle, fixmuldiv(SoundObjects[i].volume,digi_volume,F1_0) );
-						I_SetVolume(SoundObjects[i].handle, fixmuldiv(SoundObjects[i].volume, digi_volume, F1_0));
+						plat_set_sound_volume(SoundObjects[i].handle, fixmuldiv(SoundObjects[i].volume, digi_volume, F1_0));
 					}
 				}
 			}
@@ -1560,7 +1560,7 @@ void digi_sync_sounds()
 			if (oldpan != SoundObjects[i].pan) 	
 			{
 				if (SoundObjects[i].flags & SOF_PLAYING)
-					I_SetAngle(SoundObjects[i].handle, SoundObjects[i].pan);
+					plat_set_sound_angle(SoundObjects[i].handle, SoundObjects[i].pan);
 				//	sosDIGISetPanLocation( hSOSDigiDriver, SoundObjects[i].handle, SoundObjects[i].pan ); //[ISB] TODO
 			}
 		}
@@ -1599,7 +1599,7 @@ void digi_pause_all()
 				if ( (SoundObjects[i].flags & SOF_USED) && (SoundObjects[i].flags & SOF_PLAYING)&& (SoundObjects[i].flags & SOF_PLAY_FOREVER) )	
 				{
 					//sosDIGIStopSample( hSOSDigiDriver, SoundObjects[i].handle ); //[ISB] TODO
-					I_StopSound(SoundObjects[i].handle);
+					plat_stop_sound(SoundObjects[i].handle);
 					SoundObjects[i].flags &= ~SOF_PLAYING;		// Mark sound as not playing
 				}
 			}
@@ -1669,7 +1669,7 @@ void digi_stop_all()
 				if ( SoundObjects[i].flags & SOF_PLAYING )	
 				{
 					//sosDIGIStopSample( hSOSDigiDriver, SoundObjects[i].handle );
-					I_StopSound(SoundObjects[i].handle);
+					plat_stop_sound(SoundObjects[i].handle);
 				}
 				SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 			}
@@ -1766,12 +1766,12 @@ bool PlayHQSong(const char* filename, bool loop)
 
 	stb_vorbis_close(handle);
 
-	I_PlayHQSong(song_sample_rate, std::move(song_data), loop);
+	plat_start_hq_song(song_sample_rate, std::move(song_data), loop);
 
 	return true;
 }
 
 void StopHQSong()
 {
-	I_StopHQSong();
+	plat_stop_hq_song();
 }

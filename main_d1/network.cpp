@@ -1970,11 +1970,11 @@ network_find_game(void)
 	network_send_game_list_request();
 	t1 = timer_get_approx_seconds() + F1_0 * 2;
 
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 
 	while (timer_get_approx_seconds() < t1) // Wait 3 seconds for replies
 	{
-		I_DoEvents();
+		plat_do_events();
 		network_listen();
 	}
 
@@ -2864,7 +2864,7 @@ void network_join_game_at(uint8_t* address)
 	start_time = timer_get_fixed_seconds();
 
 	show_boxed_message(TXT_WAIT);
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 
 	if (setjmp(LeaveGame)) //aborting game
 		return;
@@ -2873,7 +2873,7 @@ void network_join_game_at(uint8_t* address)
 
 	for(;;)
 	{
-		I_DoEvents();
+		plat_do_events();
 		//listen for requests
 		network_listen();
 

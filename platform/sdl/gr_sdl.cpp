@@ -62,7 +62,7 @@ SDL_Color colors[256];
 int refreshDuration = US_70FPS;
 bool usingSoftware = false;
 
-int I_Init()
+int plat_init()
 {
 	int res;
 
@@ -79,11 +79,11 @@ int I_Init()
 		Error("I_Init(): Cannot load default OpenGL library: %s\n", SDL_GetError());
 		return res;
 	}*/
-	I_ReadChocolateConfig();
+	plat_read_chocolate_cfg();
 	return 0;
 }
 
-int I_InitWindow()
+int plat_create_window()
 {
 	//Attributes like this must be set before windows are created, apparently. 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -133,7 +133,7 @@ int I_InitWindow()
 	return 0;
 }
 
-void I_ShutdownGraphics()
+void plat_close_window()
 {
 	if (gameWindow)
 	{
@@ -145,7 +145,7 @@ void I_ShutdownGraphics()
 	}
 }
 
-int I_CheckMode(int mode)
+int plat_check_gr_mode(int mode)
 {
 	//For now, high color modes are rejected (were those ever well supported? or even used?)
 	switch (mode)
@@ -223,7 +223,7 @@ void I_SetScreenRect(int w, int h)
 	}
 }
 
-int I_SetMode(int mode)
+int plat_set_gr_mode(int mode)
 {
 	int w, h;
 
@@ -286,12 +286,12 @@ int I_SetMode(int mode)
 		w = 1280; h = 1024;
 		break;
 	default:
-		Error("I_SetMode: bad mode %d\n", mode);
+		Error("plat_set_gr_mode: bad mode %d\n", mode);
 		return 0;
 	}
 
 	//[ISB] this should hopefully fix all instances of the screen flashing white when changing modes
-	I_WritePalette(0, 255, gr_palette);
+	plat_write_palette(0, 255, gr_palette);
 	I_SetScreenRect(w, h);
 
 	return 0;
@@ -307,7 +307,7 @@ void I_ScaleMouseToWindow(int* x, int* y)
 	//printf("out: (%d, %d)\n", *x, *y);
 }
 
-void I_DoEvents()
+void plat_do_events()
 {
 	SDL_Event ev;
 	while (SDL_PollEvent(&ev))
@@ -373,7 +373,7 @@ void I_DoEvents()
 	I_ControllerHandler();
 }
 
-void I_SetRelative(int state)
+void plat_set_mouse_relative_mode(int state)
 {
 	SDL_bool formerState = SDL_GetRelativeMouseMode();
 	SDL_SetRelativeMouseMode((SDL_bool)state);
@@ -388,7 +388,7 @@ void I_SetRelative(int state)
 	}
 }
 
-void I_WritePalette(int start, int end, uint8_t* data)
+void plat_write_palette(int start, int end, uint8_t* data)
 {
 	int i;
 
@@ -404,14 +404,14 @@ void I_WritePalette(int start, int end, uint8_t* data)
 		GL_SetPalette(localPal);
 }
 
-void I_BlankPalette()
+void plat_blank_palette()
 {
 	uint8_t pal[768];
 	memset(&pal[0], 0, 768 * sizeof(uint8_t));
-	I_WritePalette(0, 255, &pal[0]);
+	plat_write_palette(0, 255, &pal[0]);
 }
 
-void I_ReadPalette(uint8_t* dest)
+void plat_read_palette(uint8_t* dest)
 {
 	int i;
 	SDL_Color color;
@@ -424,7 +424,7 @@ void I_ReadPalette(uint8_t* dest)
 	}
 }
 
-void I_WaitVBL()
+void plat_wait_for_vbl()
 {
 	//Now what is a VBL, anyways?
 	//SDL_Delay(1000 / 70);
@@ -461,7 +461,7 @@ void I_SoftwareBlit()
 	SDL_BlitScaled(softwareSurf, &sourceRectangle, windowSurf, &screenRectangle);
 }
 
-void I_DrawCurrentCanvas(int sync)
+void plat_present_canvas(int sync)
 {
 	if (sync)
 	{
@@ -480,21 +480,21 @@ void I_DrawCurrentCanvas(int sync)
 	}
 }
 
-void I_BlitCanvas(grs_canvas *canv)
+void plat_blit_canvas(grs_canvas *canv)
 {
 	//[ISB] Under the assumption that the screen buffer is always static and valid, memcpy the contents of the canvas into it
 	if (canv->cv_bitmap.bm_type == BM_SVGA)
 		memcpy(gr_video_memory, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
 }
 
-void I_Shutdown()
+void plat_close()
 {
 	//SDL_GL_UnloadLibrary();
-	I_ShutdownGraphics();
+	plat_close_window();
 	SDL_Quit();
 }
 
-void I_DisplayError(const char* msg)
+void plat_display_error(const char* msg)
 {
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game Error", msg, gameWindow);
 }

@@ -373,7 +373,7 @@ int BestFit = 0;
 int Fullscreen = 0;
 int SwapInterval = 0;
 
-int I_Init()
+int plat_init()
 {
 	WNDCLASSEX windowClassDesc;
 	memset(&windowClassDesc, 0, sizeof(WNDCLASSEX));
@@ -392,11 +392,11 @@ int I_Init()
 		return 1;
 	}
 
-	I_ReadChocolateConfig();
+	plat_read_chocolate_cfg();
 	return 0;
 }
 
-int I_InitWindow()
+int plat_create_window()
 {
 	if (!Window)
 	{
@@ -440,7 +440,7 @@ int I_InitWindow()
 	return 0;
 }
 
-void I_ShutdownGraphics()
+void plat_close_window()
 {
 	joysticks.clear();
 	if (surface) surface->Release();
@@ -451,7 +451,7 @@ void I_ShutdownGraphics()
 	Window = 0;
 }
 
-int I_CheckMode(int mode)
+int plat_check_gr_mode(int mode)
 {
 	//For now, high color modes are rejected (were those ever well supported? or even used?)
 	switch (mode)
@@ -480,7 +480,7 @@ int I_CheckMode(int mode)
 	return 11;
 }
 
-int I_SetMode(int mode)
+int plat_set_gr_mode(int mode)
 {
 	int w = 0, h = 0;
 	switch (mode)
@@ -541,7 +541,7 @@ int I_SetMode(int mode)
 		w = 1280; h = 1024;
 		break;
 	default:
-		Error("I_SetMode: bad mode %d\n", mode);
+		Error("plat_set_gr_mode: bad mode %d\n", mode);
 		return 0;
 	}
 	WindowWidth = w;
@@ -550,7 +550,7 @@ int I_SetMode(int mode)
 	return 0;
 }
 
-void I_DoEvents()
+void plat_do_events()
 {
 	while (true)
 	{
@@ -566,11 +566,11 @@ void I_DoEvents()
 	}
 }
 
-void I_SetRelative(int state)
+void plat_set_mouse_relative_mode(int state)
 {
 }
 
-void I_WritePalette(int start, int end, uint8_t* data)
+void plat_write_palette(int start, int end, uint8_t* data)
 {
 	for (int i = start; i <= end; i++)
 	{
@@ -578,14 +578,14 @@ void I_WritePalette(int start, int end, uint8_t* data)
 	}
 }
 
-void I_BlankPalette()
+void plat_blank_palette()
 {
 	uint8_t pal[768];
 	memset(&pal[0], 0, 768 * sizeof(uint8_t));
-	I_WritePalette(0, 255, &pal[0]);
+	plat_write_palette(0, 255, &pal[0]);
 }
 
-void I_ReadPalette(uint8_t* dest)
+void plat_read_palette(uint8_t* dest)
 {
 	for (int i = 0; i < 256; i++)
 	{
@@ -595,7 +595,7 @@ void I_ReadPalette(uint8_t* dest)
 	}
 }
 
-void I_WaitVBL()
+void plat_wait_for_vbl()
 {
 	I_MarkEnd(US_60FPS);
 	I_MarkStart();
@@ -644,7 +644,7 @@ static LetterboxRect FindLetterbox()
 	return result;
 }
 
-void I_DrawCurrentCanvas(int sync)
+void plat_present_canvas(int sync)
 {
 	vid_vsync = sync;
 
@@ -671,19 +671,19 @@ void I_DrawCurrentCanvas(int sync)
 }
 
 extern unsigned char* gr_video_memory;
-void I_BlitCanvas(grs_canvas* canv)
+void plat_blit_canvas(grs_canvas* canv)
 {
 	if (canv->cv_bitmap.bm_type == BM_SVGA)
 		memcpy(gr_video_memory, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
 }
 
-void I_Shutdown()
+void plat_close()
 {
 	if (d3d9) d3d9->Release();
 	d3d9 = nullptr;
 }
 
-void I_DisplayError(const char* msg)
+void plat_display_error(const char* msg)
 {
 	MessageBoxA(Window, msg, "Game Error", 0);
 }

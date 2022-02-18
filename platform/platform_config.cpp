@@ -34,7 +34,7 @@ static const char* NoOpenGLStr = "NoOpenGL";
 bool NoOpenGL = false;
 
 //[ISB] to be honest, I hate this configuration parser. I should try to create something more flexible at some point.
-int I_ReadChocolateConfig()
+int plat_read_chocolate_cfg()
 {
 	FILE* infile;
 	char line[512], * token, * value, * ptr;

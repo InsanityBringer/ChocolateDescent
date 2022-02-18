@@ -158,12 +158,12 @@ extern int Num_fuelcenters;
 
 extern void init_all_matcens(void);
 
-void P_ReadMatcen(matcen_info* center, FILE* fp);
-void P_ReadFuelCenter(FuelCenter* center, FILE* fp);
-void P_ReadReactorTrigger(control_center_triggers* trigger, FILE* fp);
+void read_matcen(matcen_info* center, FILE* fp);
+void read_fuelcen(FuelCenter* center, FILE* fp);
+void read_reactor_triggers(control_center_triggers* trigger, FILE* fp);
 
-void P_WriteMatcen(matcen_info* center, FILE* fp);
-void P_WriteFuelCenter(FuelCenter* center, FILE* fp);
-void P_WriteReactorTrigger(control_center_triggers* trigger, FILE* fp);
+void write_matcen(matcen_info* center, FILE* fp);
+void write_fuelcen(FuelCenter* center, FILE* fp);
+void write_reactor_triggers(control_center_triggers* trigger, FILE* fp);
 
 extern fix EnergyToCreateOneRobot;

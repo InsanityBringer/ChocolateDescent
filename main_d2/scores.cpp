@@ -455,7 +455,7 @@ ReshowScores:
 	while (!done)
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		if (citem > -1)
 		{
 			t1 = timer_get_fixed_seconds();
@@ -517,7 +517,7 @@ ReshowScores:
 			break;
 			}
 
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 		}
 

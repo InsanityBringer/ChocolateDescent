@@ -655,34 +655,34 @@ void triggers_frame_process()
 
 #include "cfile/cfile.h"
 
-void P_ReadTrigger(trigger* trig, FILE* fp)
+void read_trigger(trigger* trig, FILE* fp)
 {
 	int j;
-	trig->type = F_ReadByte(fp);
-	trig->flags = F_ReadByte(fp);
-	trig->num_links = F_ReadByte(fp);
-	trig->pad = F_ReadByte(fp);
+	trig->type = file_read_byte(fp);
+	trig->flags = file_read_byte(fp);
+	trig->num_links = file_read_byte(fp);
+	trig->pad = file_read_byte(fp);
 
-	trig->value = F_ReadInt(fp);
-	trig->time = F_ReadInt(fp);
+	trig->value = file_read_int(fp);
+	trig->time = file_read_int(fp);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		trig->seg[j] = F_ReadShort(fp);
+		trig->seg[j] = file_read_short(fp);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		trig->side[j] = F_ReadShort(fp);
+		trig->side[j] = file_read_short(fp);
 }
 
-void P_WriteTrigger(trigger* trig, FILE* fp)
+void write_trigger(trigger* trig, FILE* fp)
 {
 	int j;
-	F_WriteByte(fp, trig->type);
-	F_WriteByte(fp, trig->flags);
-	F_WriteByte(fp, trig->num_links);
-	F_WriteByte(fp, trig->pad);
+	file_write_byte(fp, trig->type);
+	file_write_byte(fp, trig->flags);
+	file_write_byte(fp, trig->num_links);
+	file_write_byte(fp, trig->pad);
 
-	F_WriteInt(fp, trig->value);
-	F_WriteInt(fp, trig->time);
+	file_write_int(fp, trig->value);
+	file_write_int(fp, trig->time);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		F_WriteShort(fp, trig->seg[j]);
+		file_write_short(fp, trig->seg[j]);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		F_WriteShort(fp, trig->side[j]);
+		file_write_short(fp, trig->side[j]);
 }

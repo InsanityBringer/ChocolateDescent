@@ -571,8 +571,8 @@ void do_automap(int key_code)
 			gr_palette_load(gr_palette);
 		}
 
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 		//[ISB] framerate limiter 
 		//waiting loop for polled fps mode
 		//With suggestions from dpjudas.

@@ -127,5 +127,5 @@ extern int Player_num;								// The player number who is on the console.
 extern player Players[MAX_PLAYERS];				// Misc player info
 extern player_ship* Player_ship;
 
-void P_ReadPlayer(player* plr, FILE* fp);
-void P_WritePlayer(player* plr, FILE* fp);
+void read_player_file(player* plr, FILE* fp);
+void write_player_file(player* plr, FILE* fp);

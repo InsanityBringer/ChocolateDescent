@@ -307,7 +307,7 @@ get_line:;
 		for (i = 0; i < ROW_SPACING; i += (MenuHires ? 2 : 1)) 
 		{
 			I_MarkStart();
-			I_DoEvents();
+			plat_do_events();
 			int y;
 
 			y = first_line_offset - i;
@@ -516,7 +516,7 @@ get_line:;
 				return;
 			}
 
-			I_DrawCurrentCanvas(0);
+			plat_present_canvas(0);
 			I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 		}
 

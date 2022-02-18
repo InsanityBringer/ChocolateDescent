@@ -15,7 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "platform/timer.h"
 
-//[ISB] goddamnit we need a dependency on 2d just for I_DoEvents aaa
+//[ISB] goddamnit we need a dependency on 2d just for plat_do_events aaa
 #include "platform/platform.h"
 
 #define KEY_BUFFER_SIZE 16
@@ -178,7 +178,7 @@ int key_getch()
 	while (!key_checkch())
 	{
 		I_MarkStart();
-		I_DoEvents(); //[ISB] so we can get the freakin key in the first place...
+		plat_do_events(); //[ISB] so we can get the freakin key in the first place...
 		I_MarkEnd(US_60FPS);
 	}
 

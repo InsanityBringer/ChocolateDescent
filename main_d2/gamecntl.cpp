@@ -590,14 +590,14 @@ int do_game_pause()
 		sprintf(msg, "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n", (*(&TXT_DIFFICULTY_1 + (Difficulty_level))), Players[Player_num].hostages_on_board);
 
 	show_boxed_message(Pause_msg = msg);		  //TXT_PAUSE);
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 
 	while (Game_paused)
 	{
 		int screen_changed;
 
 		I_MarkStart(); 
-		I_DoEvents();
+		plat_do_events();
 #if defined (WINDOWS)
 
 		if (!(VR_screen_flags & VRF_COMPATIBLE_MENUS)) {
@@ -650,7 +650,7 @@ int do_game_pause()
 			if (Cockpit_mode == CM_FULL_COCKPIT || Cockpit_mode == CM_STATUS_BAR)
 				render_gauges();
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(1000000 / FPSLimit);
 	}
 

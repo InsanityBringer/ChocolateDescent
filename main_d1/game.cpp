@@ -705,7 +705,7 @@ int set_screen_mode(int sm)
 	switch (Screen_mode) 
 	{
 	case SCREEN_MENU:
-		I_SetRelative(0); //[ISB] doesn't work rip
+		plat_set_mouse_relative_mode(0); //[ISB] doesn't work rip
 		if (grd_curscreen->sc_mode != SM_320x200C) 
 		{
 			if (gr_set_mode(SM_320x200C)) Error("Cannot set screen mode for game!");
@@ -715,7 +715,7 @@ int set_screen_mode(int sm)
 		gr_init_sub_canvas(&VR_screen_buffer, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h);
 		break;
 	case SCREEN_GAME:
-		I_SetRelative(1);
+		plat_set_mouse_relative_mode(1);
 		if (grd_curscreen->sc_mode != VR_screen_mode)
 			if (gr_set_mode(VR_screen_mode)) 
 			{
@@ -921,7 +921,7 @@ void calc_frame_time()
 		c = 0;
 		while (c == 0)
 		{
-			I_DoEvents();
+			plat_do_events();
 			c = key_peekkey();
 		}
 
@@ -1743,13 +1743,13 @@ int do_game_pause(int allow_menu)
 	gr_palette_load(gr_palette);
 
 	show_boxed_message(TXT_PAUSE);
-	//I_DrawCurrentCanvas(0);
+	//plat_present_canvas(0);
 
 	while (paused) 
 	{
 		I_MarkStart();
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 		key = key_getch();
 
 		switch (key)
@@ -2136,8 +2136,8 @@ void game()
 				longjmp(LeaveGame, 0);
 
 			//[ISB] assumption is that anything calling without renderflag (basically network mode) will already be updating. 
-			I_DrawCurrentCanvas(0);
-			I_DoEvents();
+			plat_present_canvas(0);
+			plat_do_events();
 			//waiting loop for polled fps mode
 			uint64_t numUS = 1000000 / FPSLimit;
 			//[ISB] Combine a sleep with the polling loop to try to spare CPU cycles
@@ -3159,7 +3159,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag)
 
 	//[ISB] Put the game in relative mouse mode, except if ReadControls isn't set
 	//as this prevents releasing mouse capture in the menus in multiplayer.
-	I_SetRelative(ReadControlsFlag);
+	plat_set_mouse_relative_mode(ReadControlsFlag);
 #ifndef	NDEBUG
 	//	Used to slow down frame rate for testing things.
 //	RenderFlag = 1; // DEBUG

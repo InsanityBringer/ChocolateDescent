@@ -619,20 +619,20 @@ void bm_read_all(CFILE* fp)
 	//cfread( Dying_modelnums, sizeof(int), N_polygon_models, fp );
 	//cfread( Dead_modelnums, sizeof(int), N_polygon_models, fp );
 	for (i = 0; i < N_polygon_models; i++)
-		Dying_modelnums[i] = CF_ReadInt(fp);
+		Dying_modelnums[i] = cfile_read_int(fp);
 	for (i = 0; i < N_polygon_models; i++)
-		Dead_modelnums[i] = CF_ReadInt(fp);
+		Dead_modelnums[i] = cfile_read_int(fp);
 
 	t = cfile_read_int(fp);
 	if (t > MAX_GAUGE_BMS)
 		Error("Too many gauges present in hamfile. Got %d, max %d.", t, MAX_GAUGE_BMS);
 	for (i = 0; i < t; i++)
 	{
-		Gauges[i].index = CF_ReadShort(fp);
+		Gauges[i].index = cfile_read_short(fp);
 	}
 	for (i = 0; i < t; i++)
 	{
-		Gauges_hires[i].index = CF_ReadShort(fp);
+		Gauges_hires[i].index = cfile_read_short(fp);
 	}
 
 	t = cfile_read_int(fp);
@@ -645,11 +645,11 @@ void bm_read_all(CFILE* fp)
 #endif
 	for (i = 0; i < t; i++)
 	{
-		ObjBitmaps[i].index = CF_ReadShort(fp);//SWAPSHORT(ObjBitmaps[i].index);
+		ObjBitmaps[i].index = cfile_read_short(fp);//SWAPSHORT(ObjBitmaps[i].index);
 	}
 	for (i = 0; i < t; i++)
 	{
-		ObjBitmapPtrs[i] = CF_ReadShort(fp);
+		ObjBitmapPtrs[i] = cfile_read_short(fp);
 	}
 
 	read_player_ship(fp);
@@ -659,7 +659,7 @@ void bm_read_all(CFILE* fp)
 	if (Num_cockpits > N_COCKPIT_BITMAPS)
 		Error("Too many cockpits present in hamfile. Got %d, max %d.", Num_cockpits, N_COCKPIT_BITMAPS);
 	for (i = 0; i < Num_cockpits; i++)
-		cockpit_bitmap[i].index = CF_ReadShort(fp);
+		cockpit_bitmap[i].index = cfile_read_short(fp);
 
 	First_multi_bitmap_num = cfile_read_int(fp);
 
@@ -750,11 +750,11 @@ void bm_read_extra_robots(char *fname,int type)
 
 	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
 	{
-		Dying_modelnums[i] = CF_ReadInt(fp);//SWAPINT(Dying_modelnums[i]);
+		Dying_modelnums[i] = cfile_read_int(fp);//SWAPINT(Dying_modelnums[i]);
 	}
 	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
 	{
-		Dead_modelnums[i] = CF_ReadInt(fp); //SWAPINT(Dead_modelnums[i]);
+		Dead_modelnums[i] = cfile_read_int(fp); //SWAPINT(Dead_modelnums[i]);
 	}
 
 	t = cfile_read_int(fp);
@@ -763,7 +763,7 @@ void bm_read_extra_robots(char *fname,int type)
 	//cfread( &ObjBitmaps[N_D2_OBJBITMAPS], sizeof(bitmap_index), t, fp );
 	for (i = N_D2_OBJBITMAPS; i < (N_D2_OBJBITMAPS + t); i++)
 	{
-		ObjBitmaps[i].index = CF_ReadShort(fp);//SWAPSHORT(ObjBitmaps[i].index);
+		ObjBitmaps[i].index = cfile_read_short(fp);//SWAPSHORT(ObjBitmaps[i].index);
 	}
 
 	t = cfile_read_int(fp);
@@ -772,7 +772,7 @@ void bm_read_extra_robots(char *fname,int type)
 	//cfread( &ObjBitmapPtrs[N_D2_OBJBITMAPPTRS], sizeof(uint16_t), t, fp );
 	for (i = N_D2_OBJBITMAPPTRS; i < (N_D2_OBJBITMAPPTRS + t); i++)
 	{
-		ObjBitmapPtrs[i] = CF_ReadShort(fp);//SWAPSHORT(ObjBitmapPtrs[i]);
+		ObjBitmapPtrs[i] = cfile_read_short(fp);//SWAPSHORT(ObjBitmapPtrs[i]);
 	}
 
 	cfclose(fp);

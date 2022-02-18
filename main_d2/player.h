@@ -191,5 +191,5 @@ typedef struct player16
 
 #include <stdio.h>
 
-void P_ReadPlayer(player* plr, FILE* fp);
-void P_WritePlayer(player* plr, FILE* fp);
+void read_player_file(player* plr, FILE* fp);
+void write_player_file(player* plr, FILE* fp);

@@ -132,11 +132,11 @@ extern void init_all_matcens(void);
 
 extern fix EnergyToCreateOneRobot;
 
-void P_ReadMatcen(matcen_info* center, FILE* fp);
-void P_ReadFuelCenter(FuelCenter* center, FILE* fp);
+void read_matcen(matcen_info* center, FILE* fp);
+void read_fuelcen(FuelCenter* center, FILE* fp);
 
-void P_WriteMatcen(matcen_info* center, FILE* fp);
-void P_WriteFuelCenter(FuelCenter* center, FILE* fp);
+void write_matcen(matcen_info* center, FILE* fp);
+void write_fuelcen(FuelCenter* center, FILE* fp);
 
 #ifdef NETWORK
 void fuelcen_check_for_hoard_goal(segment* segp);

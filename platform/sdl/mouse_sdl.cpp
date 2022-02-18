@@ -24,7 +24,7 @@ void mouse_get_pos(int* x, int* y)
 
 void mouse_get_delta(int* dx, int* dy)
 {
-	//hack: still return a delta in case I_SetRelative hasn't been called
+	//hack: still return a delta in case plat_set_mouse_relative_mode hasn't been called
 	if (SDL_GetRelativeMouseMode())
 	{
 		SDL_GetRelativeMouseState(dx, dy);

@@ -435,7 +435,7 @@ void verify_object(object* obj)
 
 static int read_int(CFILE* file)
 {
-	int i = CF_ReadInt(file);
+	int i = cfile_read_int(file);
 
 	//if (cfread(&i, sizeof(i), 1, file) != 1)
 	//	Error("Error reading int in gamesave.c");
@@ -445,7 +445,7 @@ static int read_int(CFILE* file)
 
 static fix read_fix(CFILE* file)
 {
-	fix f = CF_ReadInt(file);
+	fix f = cfile_read_int(file);
 
 	//if (cfread(&f, sizeof(f), 1, file) != 1)
 	//	Error("Error reading fix in gamesave.c");
@@ -455,7 +455,7 @@ static fix read_fix(CFILE* file)
 
 static short read_short(CFILE* file)
 {
-	short s = CF_ReadShort(file);
+	short s = cfile_read_short(file);
 
 	//if (cfread(&s, sizeof(s), 1, file) != 1)
 	//	Error("Error reading short in gamesave.c");
@@ -465,7 +465,7 @@ static short read_short(CFILE* file)
 
 static short read_fixang(CFILE* file)
 {
-	fixang f = CF_ReadShort(file);
+	fixang f = cfile_read_short(file);
 
 	//if (cfread(&f, sizeof(f), 1, file) != 1)
 	//	Error("Error reading fixang in gamesave.c");
@@ -475,7 +475,7 @@ static short read_fixang(CFILE* file)
 
 static int8_t read_byte(CFILE* file)
 {
-	int8_t b = CF_ReadByte(file);
+	int8_t b = cfile_read_byte(file);
 
 	//if (cfread(&b, sizeof(b), 1, file) != 1)
 	//	Error("Error reading int8_t in gamesave.c");
@@ -572,25 +572,25 @@ static void gs_write_angvec(vms_angvec* v, FILE* file)
 static void read_v16_wall(wall* nwall, CFILE* fp)
 {
 	nwall->segnum = nwall->sidenum = nwall->linked_wall = 0;
-	nwall->type = CF_ReadByte(fp);
-	nwall->flags = CF_ReadByte(fp);
-	nwall->hps = CF_ReadInt(fp);
-	nwall->trigger = CF_ReadByte(fp);
-	nwall->clip_num = CF_ReadByte(fp);
-	nwall->keys = CF_ReadByte(fp);
+	nwall->type = cfile_read_byte(fp);
+	nwall->flags = cfile_read_byte(fp);
+	nwall->hps = cfile_read_int(fp);
+	nwall->trigger = cfile_read_byte(fp);
+	nwall->clip_num = cfile_read_byte(fp);
+	nwall->keys = cfile_read_byte(fp);
 }
 
 static void read_v19_wall(wall* nwall, CFILE* fp)
 {
-	nwall->segnum = CF_ReadInt(fp);
-	nwall->sidenum = CF_ReadInt(fp);
-	nwall->type = CF_ReadByte(fp);
-	nwall->flags = CF_ReadByte(fp);
-	nwall->hps = CF_ReadInt(fp);
-	nwall->trigger = CF_ReadByte(fp);
-	nwall->clip_num = CF_ReadByte(fp);
-	nwall->keys = CF_ReadByte(fp);
-	nwall->linked_wall = CF_ReadInt(fp);
+	nwall->segnum = cfile_read_int(fp);
+	nwall->sidenum = cfile_read_int(fp);
+	nwall->type = cfile_read_byte(fp);
+	nwall->flags = cfile_read_byte(fp);
+	nwall->hps = cfile_read_int(fp);
+	nwall->trigger = cfile_read_byte(fp);
+	nwall->clip_num = cfile_read_byte(fp);
+	nwall->keys = cfile_read_byte(fp);
+	nwall->linked_wall = cfile_read_int(fp);
 	nwall->state = WALL_DOOR_CLOSED;
 }
 
@@ -599,14 +599,14 @@ static void read_v19_active_door(active_door* door, CFILE* fp)
 	v19_door oldDoor;
 	int p;
 
-	oldDoor.n_parts = CF_ReadInt(fp);
-	oldDoor.seg[0] = CF_ReadShort(fp);
-	oldDoor.seg[1] = CF_ReadShort(fp);
-	oldDoor.side[0] = CF_ReadShort(fp);
-	oldDoor.side[1] = CF_ReadShort(fp);
-	oldDoor.type[0] = CF_ReadShort(fp);
-	oldDoor.type[1] = CF_ReadShort(fp);
-	oldDoor.open = CF_ReadInt(fp);
+	oldDoor.n_parts = cfile_read_int(fp);
+	oldDoor.seg[0] = cfile_read_short(fp);
+	oldDoor.seg[1] = cfile_read_short(fp);
+	oldDoor.side[0] = cfile_read_short(fp);
+	oldDoor.side[1] = cfile_read_short(fp);
+	oldDoor.type[0] = cfile_read_short(fp);
+	oldDoor.type[1] = cfile_read_short(fp);
+	oldDoor.open = cfile_read_int(fp);
 
 	door->n_parts = oldDoor.n_parts;
 	for (p = 0; p < oldDoor.n_parts; p++)
@@ -1953,59 +1953,59 @@ int	Errors_in_mine;
 // -----------------------------------------------------------------------------
 void write_game_fileinfo(FILE* fp)
 {
-	F_WriteShort(fp, game_fileinfo.fileinfo_signature);
-	F_WriteShort(fp, game_fileinfo.fileinfo_version);
-	F_WriteInt(fp, game_fileinfo.fileinfo_sizeof);
+	file_write_short(fp, game_fileinfo.fileinfo_signature);
+	file_write_short(fp, game_fileinfo.fileinfo_version);
+	file_write_int(fp, game_fileinfo.fileinfo_sizeof);
 	fwrite(game_fileinfo.mine_filename, sizeof(char), 15, fp);
-	F_WriteInt(fp, game_fileinfo.level);
-	F_WriteInt(fp, game_fileinfo.player_offset);
-	F_WriteInt(fp, game_fileinfo.player_sizeof);
-	F_WriteInt(fp, game_fileinfo.object_offset);
-	F_WriteInt(fp, game_fileinfo.object_howmany);
-	F_WriteInt(fp, game_fileinfo.object_sizeof);
-	F_WriteInt(fp, game_fileinfo.walls_offset);
-	F_WriteInt(fp, game_fileinfo.walls_howmany);
-	F_WriteInt(fp, game_fileinfo.walls_sizeof);
-	F_WriteInt(fp, game_fileinfo.doors_offset);
-	F_WriteInt(fp, game_fileinfo.doors_howmany);
-	F_WriteInt(fp, game_fileinfo.doors_sizeof);
-	F_WriteInt(fp, game_fileinfo.triggers_offset);
-	F_WriteInt(fp, game_fileinfo.triggers_howmany);
-	F_WriteInt(fp, game_fileinfo.triggers_sizeof);
-	F_WriteInt(fp, game_fileinfo.links_offset);
-	F_WriteInt(fp, game_fileinfo.links_howmany);
-	F_WriteInt(fp, game_fileinfo.links_sizeof);
-	F_WriteInt(fp, game_fileinfo.control_offset);
-	F_WriteInt(fp, game_fileinfo.control_howmany);
-	F_WriteInt(fp, game_fileinfo.control_sizeof);
-	F_WriteInt(fp, game_fileinfo.matcen_offset);
-	F_WriteInt(fp, game_fileinfo.matcen_howmany);
-	F_WriteInt(fp, game_fileinfo.matcen_sizeof);
-	F_WriteInt(fp, game_fileinfo.dl_indices_offset);
-	F_WriteInt(fp, game_fileinfo.dl_indices_howmany);
-	F_WriteInt(fp, game_fileinfo.dl_indices_sizeof);
-	F_WriteInt(fp, game_fileinfo.delta_light_offset);
-	F_WriteInt(fp, game_fileinfo.delta_light_howmany);
-	F_WriteInt(fp, game_fileinfo.delta_light_sizeof);
+	file_write_int(fp, game_fileinfo.level);
+	file_write_int(fp, game_fileinfo.player_offset);
+	file_write_int(fp, game_fileinfo.player_sizeof);
+	file_write_int(fp, game_fileinfo.object_offset);
+	file_write_int(fp, game_fileinfo.object_howmany);
+	file_write_int(fp, game_fileinfo.object_sizeof);
+	file_write_int(fp, game_fileinfo.walls_offset);
+	file_write_int(fp, game_fileinfo.walls_howmany);
+	file_write_int(fp, game_fileinfo.walls_sizeof);
+	file_write_int(fp, game_fileinfo.doors_offset);
+	file_write_int(fp, game_fileinfo.doors_howmany);
+	file_write_int(fp, game_fileinfo.doors_sizeof);
+	file_write_int(fp, game_fileinfo.triggers_offset);
+	file_write_int(fp, game_fileinfo.triggers_howmany);
+	file_write_int(fp, game_fileinfo.triggers_sizeof);
+	file_write_int(fp, game_fileinfo.links_offset);
+	file_write_int(fp, game_fileinfo.links_howmany);
+	file_write_int(fp, game_fileinfo.links_sizeof);
+	file_write_int(fp, game_fileinfo.control_offset);
+	file_write_int(fp, game_fileinfo.control_howmany);
+	file_write_int(fp, game_fileinfo.control_sizeof);
+	file_write_int(fp, game_fileinfo.matcen_offset);
+	file_write_int(fp, game_fileinfo.matcen_howmany);
+	file_write_int(fp, game_fileinfo.matcen_sizeof);
+	file_write_int(fp, game_fileinfo.dl_indices_offset);
+	file_write_int(fp, game_fileinfo.dl_indices_howmany);
+	file_write_int(fp, game_fileinfo.dl_indices_sizeof);
+	file_write_int(fp, game_fileinfo.delta_light_offset);
+	file_write_int(fp, game_fileinfo.delta_light_howmany);
+	file_write_int(fp, game_fileinfo.delta_light_sizeof);
 }
 
 void write_dl_index(dl_index* index, FILE* fp)
 {
-	F_WriteShort(fp, index->segnum);
-	F_WriteByte(fp, index->sidenum);
-	F_WriteByte(fp, index->count);
-	F_WriteShort(fp, index->index);
+	file_write_short(fp, index->segnum);
+	file_write_byte(fp, index->sidenum);
+	file_write_byte(fp, index->count);
+	file_write_short(fp, index->index);
 }
 
 void write_delta_light(delta_light* light, FILE* fp)
 {
-	F_WriteShort(fp, light->segnum);
-	F_WriteByte(fp, light->sidenum);
-	F_WriteByte(fp, light->dummy);
-	F_WriteByte(fp, light->vert_light[0]);
-	F_WriteByte(fp, light->vert_light[1]);
-	F_WriteByte(fp, light->vert_light[2]);
-	F_WriteByte(fp, light->vert_light[3]);
+	file_write_short(fp, light->segnum);
+	file_write_byte(fp, light->sidenum);
+	file_write_byte(fp, light->dummy);
+	file_write_byte(fp, light->vert_light[0]);
+	file_write_byte(fp, light->vert_light[1]);
+	file_write_byte(fp, light->vert_light[2]);
+	file_write_byte(fp, light->vert_light[3]);
 }
 
 // -----------------------------------------------------------------------------
@@ -2075,13 +2075,13 @@ int save_game_data(FILE* SaveFile)
 	// Write the mine name
 	fprintf(SaveFile, "%s\n", Current_level_name);
 
-	F_WriteShort(SaveFile, N_polygon_models);
+	file_write_short(SaveFile, N_polygon_models);
 	fwrite(Pof_names, N_polygon_models, sizeof(*Pof_names), SaveFile);
 
 	//==================== SAVE PLAYER INFO ===========================
 
 	player_offset = ftell(SaveFile);
-	P_WritePlayer(&Players[Player_num], SaveFile);
+	write_player_file(&Players[Player_num], SaveFile);
 
 	//==================== SAVE OBJECT INFO ===========================
 
@@ -2094,24 +2094,24 @@ int save_game_data(FILE* SaveFile)
 
 	walls_offset = ftell(SaveFile);
 	for (i = 0; i < game_fileinfo.walls_howmany; i++)
-		P_WriteWall(&Walls[i], SaveFile);
+		write_wall(&Walls[i], SaveFile);
 
 	//==================== SAVE DOOR INFO =============================
 
 	doors_offset = ftell(SaveFile);
 	for (i = 0; i < game_fileinfo.doors_howmany; i++)
-		P_WriteActiveDoor(&ActiveDoors[i], SaveFile);
+		write_active_door(&ActiveDoors[i], SaveFile);
 
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = ftell(SaveFile);
 	for (i = 0; i < game_fileinfo.triggers_howmany; i++)
-		P_WriteTrigger(&Triggers[i], SaveFile);
+		write_trigger(&Triggers[i], SaveFile);
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
 	control_offset = ftell(SaveFile);
-	P_WriteReactorTrigger(&ControlCenterTriggers, SaveFile);
+	write_reactor_triggers(&ControlCenterTriggers, SaveFile);
 
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
@@ -2122,7 +2122,7 @@ int save_game_data(FILE* SaveFile)
 	// 	mprintf((0, "   %i: robot_flags = %08x\n", i, RobotCenters[i].robot_flags));
 	// }
 	for (i = 0; i < game_fileinfo.matcen_howmany; i++)
-		P_WriteMatcen(&RobotCenters[i], SaveFile);
+		write_matcen(&RobotCenters[i], SaveFile);
 
 	//================ SAVE DELTA LIGHT INFO ===============
 	dl_indices_offset = ftell(SaveFile);

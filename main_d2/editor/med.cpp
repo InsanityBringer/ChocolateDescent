@@ -994,7 +994,7 @@ void editor(void)
 	vms_matrix	MouseRotMat,tempm;
 	//@@short camera_objnum;			//a camera for viewing
 
-	I_SetRelative(1);
+	plat_set_mouse_relative_mode(1);
 	init_editor();
 
 	InitCurve();
@@ -1064,9 +1064,9 @@ void editor(void)
 
 	while (Function_mode == FMODE_EDITOR) 
 	{
-		I_SetRelative(1); //[ISB] mouse relative mode can be lost, so keep it going.
+		plat_set_mouse_relative_mode(1); //[ISB] mouse relative mode can be lost, so keep it going.
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		gr_set_curfont(editor_font);
 		info_display_all(EditorWindow);
 
@@ -1387,7 +1387,7 @@ void editor(void)
 		{
 			ui_mouse_show();
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(US_60FPS);
 	}
 
@@ -1401,7 +1401,7 @@ void editor(void)
 
 	close_editor();
 	ui_close();
-	I_SetRelative(0);
+	plat_set_mouse_relative_mode(0);
 
 }
 

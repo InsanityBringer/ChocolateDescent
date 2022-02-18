@@ -378,13 +378,13 @@ void piggy_init_pigfile(const char* filename)
 	for (i = 0; i < N_bitmaps; i++)
 	{
 		cfread(bmh.name, 8, 1, Piggy_fp);
-		bmh.dflags = CF_ReadByte(Piggy_fp);
-		bmh.width = CF_ReadByte(Piggy_fp);
-		bmh.height = CF_ReadByte(Piggy_fp);
-		bmh.wh_extra = CF_ReadByte(Piggy_fp);
-		bmh.flags = CF_ReadByte(Piggy_fp);
-		bmh.avg_color = CF_ReadByte(Piggy_fp);
-		bmh.offset = CF_ReadInt(Piggy_fp);
+		bmh.dflags = cfile_read_byte(Piggy_fp);
+		bmh.width = cfile_read_byte(Piggy_fp);
+		bmh.height = cfile_read_byte(Piggy_fp);
+		bmh.wh_extra = cfile_read_byte(Piggy_fp);
+		bmh.flags = cfile_read_byte(Piggy_fp);
+		bmh.avg_color = cfile_read_byte(Piggy_fp);
+		bmh.offset = cfile_read_int(Piggy_fp);
 
 		memcpy(temp_name_read, bmh.name, 8);
 		temp_name_read[8] = 0;
@@ -513,13 +513,13 @@ void piggy_new_pigfile(const char* pigname)
 		for (i = 1; i <= N_bitmaps; i++)
 		{
 			cfread(bmh.name, 8, 1, Piggy_fp);
-			bmh.dflags = CF_ReadByte(Piggy_fp);
-			bmh.width = CF_ReadByte(Piggy_fp);
-			bmh.height = CF_ReadByte(Piggy_fp);
-			bmh.wh_extra = CF_ReadByte(Piggy_fp);
-			bmh.flags = CF_ReadByte(Piggy_fp);
-			bmh.avg_color = CF_ReadByte(Piggy_fp);
-			bmh.offset = CF_ReadInt(Piggy_fp);
+			bmh.dflags = cfile_read_byte(Piggy_fp);
+			bmh.width = cfile_read_byte(Piggy_fp);
+			bmh.height = cfile_read_byte(Piggy_fp);
+			bmh.wh_extra = cfile_read_byte(Piggy_fp);
+			bmh.flags = cfile_read_byte(Piggy_fp);
+			bmh.avg_color = cfile_read_byte(Piggy_fp);
+			bmh.offset = cfile_read_int(Piggy_fp);
 
 			memcpy(temp_name_read, bmh.name, 8);
 			temp_name_read[8] = 0;

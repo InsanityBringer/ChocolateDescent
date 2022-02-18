@@ -77,5 +77,5 @@ extern int Reactor_strength;
 
 #include <stdio.h>
 
-void P_ReadReactorTrigger(control_center_triggers* trigger, FILE* fp);
-void P_WriteReactorTrigger(control_center_triggers* trigger, FILE* fp);
+void read_reactor_triggers(control_center_triggers* trigger, FILE* fp);
+void write_reactor_triggers(control_center_triggers* trigger, FILE* fp);

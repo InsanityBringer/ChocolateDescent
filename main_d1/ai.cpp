@@ -3610,8 +3610,8 @@ int ai_save_state(FILE* fp)
 	fwrite(&Boss_dying_sound_playing, sizeof(int), 1, fp);
 	fwrite(&Boss_hit_this_frame, sizeof(int), 1, fp);
 	fwrite(&Boss_been_hit, sizeof(int), 1, fp);*/
-	F_WriteInt(fp, Ai_initialized);
-	F_WriteInt(fp, Overall_agitation);
+	file_write_int(fp, Ai_initialized);
+	file_write_int(fp, Overall_agitation);
 	for (i = 0; i < MAX_OBJECTS; i++)
 		P_WriteAILocals(&Ai_local_info[i], fp);
 	for (i = 0; i < MAX_POINT_SEGS; i++)
@@ -3619,19 +3619,19 @@ int ai_save_state(FILE* fp)
 	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
 		P_WriteCloakInfo(&Ai_cloak_info[i], fp);
 
-	F_WriteInt(fp, Boss_cloak_start_time);
-	F_WriteInt(fp, Boss_cloak_end_time);
-	F_WriteInt(fp, Last_teleport_time);
-	F_WriteInt(fp, Boss_teleport_interval);
-	F_WriteInt(fp, Boss_cloak_interval);
-	F_WriteInt(fp, Boss_cloak_duration);
-	F_WriteInt(fp, Last_gate_time);
-	F_WriteInt(fp, Gate_interval);
-	F_WriteInt(fp, Boss_dying_start_time);
-	F_WriteInt(fp, Boss_dying);
-	F_WriteInt(fp, Boss_dying_sound_playing);
-	F_WriteInt(fp, Boss_hit_this_frame);
-	F_WriteInt(fp, Boss_been_hit);
+	file_write_int(fp, Boss_cloak_start_time);
+	file_write_int(fp, Boss_cloak_end_time);
+	file_write_int(fp, Last_teleport_time);
+	file_write_int(fp, Boss_teleport_interval);
+	file_write_int(fp, Boss_cloak_interval);
+	file_write_int(fp, Boss_cloak_duration);
+	file_write_int(fp, Last_gate_time);
+	file_write_int(fp, Gate_interval);
+	file_write_int(fp, Boss_dying_start_time);
+	file_write_int(fp, Boss_dying);
+	file_write_int(fp, Boss_dying_sound_playing);
+	file_write_int(fp, Boss_hit_this_frame);
+	file_write_int(fp, Boss_been_hit);
 	
 	return 1;
 }
@@ -3658,8 +3658,8 @@ int ai_restore_state(FILE* fp)
 	fread(&Boss_hit_this_frame, sizeof(int), 1, fp);
 	fread(&Boss_been_hit, sizeof(int), 1, fp);*/
 
-	Ai_initialized = F_ReadInt(fp);
-	Overall_agitation = F_ReadInt(fp);
+	Ai_initialized = file_read_int(fp);
+	Overall_agitation = file_read_int(fp);
 	for (i = 0; i < MAX_OBJECTS; i++)
 		P_ReadAILocals(&Ai_local_info[i], fp);
 	for (i = 0; i < MAX_POINT_SEGS; i++)
@@ -3667,19 +3667,19 @@ int ai_restore_state(FILE* fp)
 	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
 		P_ReadCloakInfo(&Ai_cloak_info[i], fp);
 
-	Boss_cloak_start_time = F_ReadInt(fp);
-	Boss_cloak_end_time = F_ReadInt(fp);
-	Last_teleport_time = F_ReadInt(fp);
-	Boss_teleport_interval = F_ReadInt(fp);
-	Boss_cloak_interval = F_ReadInt(fp);
-	Boss_cloak_duration = F_ReadInt(fp);
-	Last_gate_time = F_ReadInt(fp);
-	Gate_interval = F_ReadInt(fp);
-	Boss_dying_start_time = F_ReadInt(fp);
-	Boss_dying = F_ReadInt(fp);
-	Boss_dying_sound_playing = F_ReadInt(fp);
-	Boss_hit_this_frame = F_ReadInt(fp);
-	Boss_been_hit = F_ReadInt(fp);
+	Boss_cloak_start_time = file_read_int(fp);
+	Boss_cloak_end_time = file_read_int(fp);
+	Last_teleport_time = file_read_int(fp);
+	Boss_teleport_interval = file_read_int(fp);
+	Boss_cloak_interval = file_read_int(fp);
+	Boss_cloak_duration = file_read_int(fp);
+	Last_gate_time = file_read_int(fp);
+	Gate_interval = file_read_int(fp);
+	Boss_dying_start_time = file_read_int(fp);
+	Boss_dying = file_read_int(fp);
+	Boss_dying_sound_playing = file_read_int(fp);
+	Boss_hit_this_frame = file_read_int(fp);
+	Boss_been_hit = file_read_int(fp);
 
 	return 1;
 }

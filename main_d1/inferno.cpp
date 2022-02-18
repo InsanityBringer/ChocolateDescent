@@ -261,7 +261,7 @@ int D_DescentMain(int argc, const char** argv)
 
 	InitArgs(argc, argv);
 
-	int initStatus = I_Init();
+	int initStatus = plat_init();
 	if (initStatus)
 	{
 		Error("Error initalizing graphics library, code %d\n", initStatus);
@@ -690,7 +690,7 @@ int D_DescentMain(int argc, const char** argv)
 		//		show_mem_info = 1;		// Make memory statistics show
 #endif
 
-		I_Shutdown();
+		plat_close();
 		return(0);		//presumably successful exit
 }
 
@@ -728,10 +728,10 @@ void show_order_form()
 			while (!done) 
 			{
 				I_MarkStart();
-				I_DoEvents();
+				plat_do_events();
 				if (timer_get_approx_seconds() > time_out_value) done = 1;
 				if (key_inkey()) done = 1;
-				I_DrawCurrentCanvas(0);
+				plat_present_canvas(0);
 				I_MarkEnd(US_70FPS);
 			}
 		}

@@ -188,66 +188,66 @@ static short tmap_times_used[MAX_TEXTURES];
 
 void read_mine_fileinfo(CFILE* LoadFile, int version)
 {
-	mine_fileinfo.fileinfo_signature = CF_ReadShort(LoadFile);
-	mine_fileinfo.fileinfo_version = CF_ReadShort(LoadFile);
+	mine_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
+	mine_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
 
-	mine_fileinfo.fileinfo_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.header_offset = CF_ReadInt(LoadFile);          // Stuff common to game & editor
-	mine_fileinfo.header_size = CF_ReadInt(LoadFile);
-	mine_fileinfo.editor_offset = CF_ReadInt(LoadFile);   // Editor specific stuff
-	mine_fileinfo.editor_size = CF_ReadInt(LoadFile);
-	mine_fileinfo.segment_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.segment_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.segment_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.newseg_verts_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.newseg_verts_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.newseg_verts_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.group_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.group_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.group_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.vertex_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.vertex_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.vertex_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.texture_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.texture_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.texture_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.walls_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.walls_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.walls_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.triggers_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.triggers_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.triggers_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.links_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.links_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.links_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.object_offset = CF_ReadInt(LoadFile);				// Object info
-	mine_fileinfo.object_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.object_sizeof = CF_ReadInt(LoadFile);
-	mine_fileinfo.unused_offset = CF_ReadInt(LoadFile);			//was: doors_offset
-	mine_fileinfo.unused_howmamy = CF_ReadInt(LoadFile);		//was: doors_howmany
-	mine_fileinfo.unused_sizeof = CF_ReadInt(LoadFile);			//was: doors_sizeof
+	mine_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.header_offset = cfile_read_int(LoadFile);          // Stuff common to game & editor
+	mine_fileinfo.header_size = cfile_read_int(LoadFile);
+	mine_fileinfo.editor_offset = cfile_read_int(LoadFile);   // Editor specific stuff
+	mine_fileinfo.editor_size = cfile_read_int(LoadFile);
+	mine_fileinfo.segment_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.segment_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.segment_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.newseg_verts_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.newseg_verts_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.newseg_verts_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.group_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.group_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.group_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.vertex_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.vertex_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.vertex_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.texture_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.texture_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.texture_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.walls_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.walls_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.walls_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.triggers_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.triggers_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.triggers_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.links_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.links_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.links_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.object_offset = cfile_read_int(LoadFile);				// Object info
+	mine_fileinfo.object_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.object_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.unused_offset = cfile_read_int(LoadFile);			//was: doors_offset
+	mine_fileinfo.unused_howmamy = cfile_read_int(LoadFile);		//was: doors_howmany
+	mine_fileinfo.unused_sizeof = cfile_read_int(LoadFile);			//was: doors_sizeof
 
 	if (version < 18) return;
 
-	mine_fileinfo.level_shake_frequency = CF_ReadShort(LoadFile);
-	mine_fileinfo.level_shake_duration = CF_ReadShort(LoadFile);
+	mine_fileinfo.level_shake_frequency = cfile_read_short(LoadFile);
+	mine_fileinfo.level_shake_duration = cfile_read_short(LoadFile);
 
-	mine_fileinfo.secret_return_segment = CF_ReadInt(LoadFile);
+	mine_fileinfo.secret_return_segment = cfile_read_int(LoadFile);
 	read_matrix(&mine_fileinfo.secret_return_orient, LoadFile);
 
 	if (version < MINE_VERSION) return;
 
-	mine_fileinfo.dl_indices_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.dl_indices_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.dl_indices_sizeof = CF_ReadInt(LoadFile);
+	mine_fileinfo.dl_indices_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.dl_indices_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.dl_indices_sizeof = cfile_read_int(LoadFile);
 
-	mine_fileinfo.delta_light_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.delta_light_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.delta_light_sizeof = CF_ReadInt(LoadFile);
+	mine_fileinfo.delta_light_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.delta_light_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.delta_light_sizeof = cfile_read_int(LoadFile);
 
-	mine_fileinfo.segment2_offset = CF_ReadInt(LoadFile);
-	mine_fileinfo.segment2_howmany = CF_ReadInt(LoadFile);
-	mine_fileinfo.segment2_sizeof = CF_ReadInt(LoadFile);
+	mine_fileinfo.segment2_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.segment2_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.segment2_sizeof = cfile_read_int(LoadFile);
 }
 
 // -----------------------------------------------------------------------------
@@ -331,9 +331,9 @@ int load_mine_data(CFILE *LoadFile)
 
 	//if (cfread( &mine_top_fileinfo, sizeof(mine_top_fileinfo), 1, LoadFile )!=1)
 	//	Error( "Error reading mine_top_fileinfo in gamemine.c" );
-	mine_top_fileinfo.fileinfo_signature = CF_ReadShort(LoadFile);
-	mine_top_fileinfo.fileinfo_version = CF_ReadShort(LoadFile);
-	mine_top_fileinfo.fileinfo_sizeof = CF_ReadInt(LoadFile);
+	mine_top_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
+	mine_top_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
+	mine_top_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
 
 	if (mine_top_fileinfo.fileinfo_signature != 0x2884)
 		return -1;

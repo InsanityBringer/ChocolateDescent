@@ -404,5 +404,5 @@ void obj_detach_one(object* sub);
 void obj_detach_all(object* parent);
 
 //Reads an object from disk. This code is my absolute nightmare. Thanks, unions.
-void P_ReadObject(object* obj, FILE* f);
-void P_WriteObject(object* obj, FILE* f);
+void read_obj_instance(object* obj, FILE* f);
+void write_obj_instance(object* obj, FILE* f);

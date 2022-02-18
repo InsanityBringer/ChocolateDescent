@@ -152,7 +152,7 @@ void credits_show()
 		for (i = 0; i < ROW_SPACING; i++) 
 		{
 			I_MarkStart();
-			I_DoEvents();
+			plat_do_events();
 			int y;
 
 			y = first_line_offset - i;
@@ -239,7 +239,7 @@ void credits_show()
 				songs_play_song(SONG_TITLE, 1);
 				return;
 			}
-			I_DrawCurrentCanvas(0);
+			plat_present_canvas(0);
 			I_DelayUS(US_70FPS);
 		}
 

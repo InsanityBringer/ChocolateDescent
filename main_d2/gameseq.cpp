@@ -947,7 +947,7 @@ void LoadLevel(int level_num, int page_in_textures)
 #else
 	show_boxed_message(TXT_LOADING);
 	gr_palette_load(gr_palette);
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 	
 #endif
 

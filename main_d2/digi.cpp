@@ -176,7 +176,7 @@ void digi_close_digi()
 {
 	if (digi_driver_board>0)	
 	{
-		I_ShutdownAudio();
+		plat_close_audio();
 	}
 }
 
@@ -305,7 +305,7 @@ int digi_init()
 	}
 
 	// initialize the DIGI system and lock down all SOS memory
-	i = I_InitAudio();
+	i = plat_init_audio();
 	if (i)
 	{
 		Warning("Cannot initalize sound library\n");
@@ -434,7 +434,7 @@ int digi_is_channel_playing( int c )
 	if (!Digi_initialized) return 0;
 	if (digi_driver_board<1) return 0;
 
-	if ( channels[c].used && (I_CheckSoundPlaying(channels[c].handle) )  )
+	if ( channels[c].used && (plat_check_if_sound_playing(channels[c].handle) )  )
 		return 1;
 	return 0;
 }
@@ -447,7 +447,7 @@ void digi_set_channel_volume( int c, int volume )
 	if ( !channels[c].used ) return;
 
 	//sosDIGISetSampleVolume( hSOSDigiDriver, channels[c].handle, fixmuldiv(volume,digi_volume,F1_0)  );
-	I_SetVolume(channels[c].handle, fixmuldiv(volume, digi_volume, F1_0));
+	plat_set_sound_volume(channels[c].handle, fixmuldiv(volume, digi_volume, F1_0));
 }
 	
 void digi_set_channel_pan( int c, int pan )
@@ -458,7 +458,7 @@ void digi_set_channel_pan( int c, int pan )
 	if ( !channels[c].used ) return;
 
 	//sosDIGISetPanLocation( hSOSDigiDriver, channels[c].handle, pan  );
-	I_SetAngle(channels[c].handle, pan);
+	plat_set_sound_angle(channels[c].handle, pan);
 }
 
 void digi_stop_sound( int c )
@@ -471,7 +471,7 @@ void digi_stop_sound( int c )
 	if ( digi_is_channel_playing(c)  )		
 	{
 		//sosDIGIStopSample(hSOSDigiDriver, channels[c].handle );
-		I_StopSound(channels[c].handle);
+		plat_stop_sound(channels[c].handle);
 	}
 	digi_unlock_sound_data(channels[c].soundnum);
 	channels[c].used = 0;
@@ -526,11 +526,11 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 	{
 		if ( !channels[next_channel].used ) break;
 
-		if ( I_CheckSoundDone(channels[next_channel].handle)) break;
+		if ( plat_check_if_sound_finished(channels[next_channel].handle)) break;
 
 		if ( !channels[next_channel].persistant )	
 		{
-			I_StopSound(channels[next_channel].handle );
+			plat_stop_sound(channels[next_channel].handle );
 			break;	// use this channel!	
 		}
 		next_channel++;
@@ -555,18 +555,18 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 
 	digi_lock_sound_data(soundnum);
 	//sHandle = sosDIGIStartSample( hSOSDigiDriver, &sSOSSampleData );
-	sHandle = I_GetSoundHandle();
+	sHandle = plat_get_new_sound_handle();
 	if ( sHandle == _ERR_NO_SLOTS )	
 	{
 		mprintf(( 1, "NOT ENOUGH SOUND SLOTS!!!\n" ));
 		digi_unlock_sound_data(soundnum);
 		return -1;
 	}
-	I_SetSoundInformation(sHandle, DigiSampleData.volume, DigiSampleData.angle);
-	I_SetSoundData(sHandle, DigiSampleData.data, DigiSampleData.length, digi_sample_rate);
+	plat_set_sound_position(sHandle, DigiSampleData.volume, DigiSampleData.angle);
+	plat_set_sound_data(sHandle, DigiSampleData.data, DigiSampleData.length, digi_sample_rate);
 	if (looping)
-		I_SetLoopPoints(sHandle, loop_start, loop_end);
-	I_PlaySound(sHandle, DigiSampleData.loop);
+		plat_set_sound_loop_points(sHandle, loop_start, loop_end);
+	plat_start_sound(sHandle, DigiSampleData.loop);
 
 	#ifndef NDEBUG
 	verify_sound_channel_free(next_channel);
@@ -652,7 +652,7 @@ void digi_set_midi_volume( int mvolume )
 				digi_play_midi_song(digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1);
 		}
 		//sosMIDISetMasterVolume(midi_volume);
-		I_SetMusicVolume(midi_volume);
+		plat_set_music_volume(midi_volume);
 	}
 
 }
@@ -859,7 +859,7 @@ void digi_pause_midi()
 		if ( digi_midi_type > 0 )	
 		{
 			// pause here
-			I_SetMusicVolume(0);
+			plat_set_music_volume(0);
 		}
 	}
 	sound_paused++;
@@ -878,7 +878,7 @@ void digi_resume_midi()
 		// resume sound here
 		if ( digi_midi_type > 0 )	
 		{
-			I_SetMusicVolume(midi_volume);
+			plat_set_music_volume(midi_volume);
 		}
 	}
 	sound_paused--;
@@ -969,12 +969,12 @@ bool PlayHQSong(const char* filename, bool loop)
 
 	stb_vorbis_close(handle);
 
-	I_PlayHQSong(song_sample_rate, std::move(song_data), loop);
+	plat_start_hq_song(song_sample_rate, std::move(song_data), loop);
 
 	return true;
 }
 
 void StopHQSong()
 {
-	I_StopHQSong();
+	plat_stop_hq_song();
 }

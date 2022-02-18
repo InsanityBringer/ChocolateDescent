@@ -508,7 +508,7 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 	while (1) 
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		k = key_inkey();
 		if (!time_stopped)
 		{
@@ -668,7 +668,7 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 			kc_drawitem(&items[ocitem], 0);
 			kc_drawitem(&items[citem], 1);
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(US_70FPS);
 	}
 }
@@ -772,8 +772,8 @@ void kc_change_key(kc_item* item)
 	k = 255;
 	while ((k != KEY_ESC) && (keycode == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -834,8 +834,8 @@ void kc_change_joybutton(kc_item* item)
 	k = 255;
 	while ((k != KEY_ESC) && (code == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -917,8 +917,8 @@ void kc_change_mousebutton(kc_item* item)
 	k = 255;
 	while ((k != KEY_ESC) && (code == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -978,8 +978,8 @@ void kc_change_joyaxis(kc_item* item)
 
 	while ((k != KEY_ESC) && (code == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1040,8 +1040,8 @@ void kc_change_mouseaxis(kc_item* item)
 
 	while ((k != KEY_ESC) && (code == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();

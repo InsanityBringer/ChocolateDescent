@@ -57,47 +57,47 @@ struct me mine_editor;
 void load_v16_side(side* sidep, CFILE* LoadFile)
 {
 	int i;
-	sidep->type = CF_ReadByte(LoadFile);
-	sidep->pad = CF_ReadByte(LoadFile);
-	sidep->wall_num = CF_ReadShort(LoadFile);
-	sidep->tmap_num = CF_ReadShort(LoadFile);
-	sidep->tmap_num2 = CF_ReadShort(LoadFile);
+	sidep->type = cfile_read_byte(LoadFile);
+	sidep->pad = cfile_read_byte(LoadFile);
+	sidep->wall_num = cfile_read_short(LoadFile);
+	sidep->tmap_num = cfile_read_short(LoadFile);
+	sidep->tmap_num2 = cfile_read_short(LoadFile);
 	for (i = 0; i < 4; i++)
 	{
-		sidep->uvls[i].u = CF_ReadInt(LoadFile);
-		sidep->uvls[i].v = CF_ReadInt(LoadFile);
-		sidep->uvls[i].l = CF_ReadInt(LoadFile);
+		sidep->uvls[i].u = cfile_read_int(LoadFile);
+		sidep->uvls[i].v = cfile_read_int(LoadFile);
+		sidep->uvls[i].l = cfile_read_int(LoadFile);
 	}
 	for (i = 0; i < 2; i++)
 	{
-		sidep->normals[i].x = CF_ReadInt(LoadFile);
-		sidep->normals[i].y = CF_ReadInt(LoadFile);
-		sidep->normals[i].z = CF_ReadInt(LoadFile);
+		sidep->normals[i].x = cfile_read_int(LoadFile);
+		sidep->normals[i].y = cfile_read_int(LoadFile);
+		sidep->normals[i].z = cfile_read_int(LoadFile);
 	}
 }
 
 void load_v16_segment(segment* segp, CFILE* LoadFile)
 {
 	int i;
-	segp->segnum = CF_ReadShort(LoadFile);
+	segp->segnum = cfile_read_short(LoadFile);
 	for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
 	{
 		load_v16_side(&segp->sides[i], LoadFile);
 	}
 	for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
 	{
-		segp->children[i] = CF_ReadShort(LoadFile);
+		segp->children[i] = cfile_read_short(LoadFile);
 	}
 	for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
 	{
-		segp->verts[i] = CF_ReadShort(LoadFile);
+		segp->verts[i] = cfile_read_short(LoadFile);
 	}
-	segp->group = CF_ReadShort(LoadFile);
-	segp->objects = CF_ReadShort(LoadFile);
-	segp->special = CF_ReadByte(LoadFile);
-	segp->matcen_num = CF_ReadByte(LoadFile);
-	segp->value = CF_ReadShort(LoadFile);
-	segp->static_light = CF_ReadInt(LoadFile);
+	segp->group = cfile_read_short(LoadFile);
+	segp->objects = cfile_read_short(LoadFile);
+	segp->special = cfile_read_byte(LoadFile);
+	segp->matcen_num = cfile_read_byte(LoadFile);
+	segp->value = cfile_read_short(LoadFile);
+	segp->static_light = cfile_read_int(LoadFile);
 }
 
 static char old_tmap_list[MAX_TEXTURES][13];
@@ -305,9 +305,9 @@ int load_mine_data(CFILE* LoadFile)
 			Vertices[i].y = 1;
 			Vertices[i].z = 1;
 
-			Vertices[i].x = CF_ReadInt(LoadFile);
-			Vertices[i].y = CF_ReadInt(LoadFile);
-			Vertices[i].z = CF_ReadInt(LoadFile);
+			Vertices[i].x = cfile_read_int(LoadFile);
+			Vertices[i].y = cfile_read_int(LoadFile);
+			Vertices[i].z = cfile_read_int(LoadFile);
 
 			//if (cfread(&Vertices[i], mine_fileinfo.vertex_sizeof, 1, LoadFile) != 1)
 			//	Error("Error reading Vertices[i] in gamemine.c");
@@ -434,9 +434,9 @@ int load_mine_data(CFILE* LoadFile)
 			Vertices[NEW_SEGMENT_VERTICES + i].y = 1;
 			Vertices[NEW_SEGMENT_VERTICES + i].z = 1;
 
-			Vertices[NEW_SEGMENT_VERTICES + 1].x = CF_ReadInt(LoadFile);
-			Vertices[NEW_SEGMENT_VERTICES + 1].y = CF_ReadInt(LoadFile);
-			Vertices[NEW_SEGMENT_VERTICES + 1].z = CF_ReadInt(LoadFile);
+			Vertices[NEW_SEGMENT_VERTICES + 1].x = cfile_read_int(LoadFile);
+			Vertices[NEW_SEGMENT_VERTICES + 1].y = cfile_read_int(LoadFile);
+			Vertices[NEW_SEGMENT_VERTICES + 1].z = cfile_read_int(LoadFile);
 
 			//if (cfread(&Vertices[NEW_SEGMENT_VERTICES + i], mine_fileinfo.newseg_verts_sizeof, 1, LoadFile) != 1)
 			//	Error("Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c");

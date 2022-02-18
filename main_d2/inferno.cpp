@@ -525,7 +525,7 @@ int D_DescentMain(int argc, const char** argv)
 
 	InitArgs(argc, argv);
 
-	int initStatus = I_Init();
+	int initStatus = plat_init();
 	if (initStatus)
 	{
 		Error("Error initalizing graphics library, code %d\n", initStatus);
@@ -1088,7 +1088,7 @@ Here:
 		show_mem_info = 1;		// Make memory statistics show
 #endif
 
-	I_Shutdown();
+	plat_close();
 	return(0);		//presumably successful exit
 }
 

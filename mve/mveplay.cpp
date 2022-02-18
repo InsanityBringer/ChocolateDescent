@@ -210,7 +210,7 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 		format = MVESND_U8;
 	}
 
-	I_InitMovieAudio(format, sample_rate, stereo);
+	mvesnd_init_audio(format, sample_rate, stereo);
 	mve_audio_canplay = 1;
 
 	return 1;
@@ -261,7 +261,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 				memset(buf, 0, nsamp); /* XXX */
 			}
 
-			I_QueueMovieAudioBuffer(nsamp, buf);
+			mvesnd_queue_audio_buffer(nsamp, buf);
 		}
 	}
 
@@ -537,7 +537,7 @@ int MVE_rmStepMovie()
 	if (mve_audio_paused)
 	{
 		mve_audio_paused = 0;
-		I_UnPauseMovieAudio();
+		mvesnd_resume();
 	}
 
 	if (g_frameUpdated)
@@ -567,14 +567,14 @@ void MVE_rmEndMovie()
 	mve = NULL;
 
 	if (mve_audio_canplay)
-		I_DestroyMovieAudio();
+		mvesnd_close();
 }
 
 
 void MVE_rmHoldMovie()
 {
 	timer_started = 0;
-	I_PauseMovieAudio();
+	mvesnd_pause();
 	mve_audio_paused = 1;
 }
 

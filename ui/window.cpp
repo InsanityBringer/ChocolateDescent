@@ -337,7 +337,7 @@ int ui_get_idle_seconds()
 void ui_mega_process()
 {
 	I_MarkStart();
-	I_DoEvents();
+	plat_do_events();
 	int mx, my;
 	unsigned char k;
 
@@ -594,7 +594,7 @@ void ui_mega_process()
 	}
 
 	ui_mouse_process();
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 	I_MarkEnd(US_60FPS);
 }
 

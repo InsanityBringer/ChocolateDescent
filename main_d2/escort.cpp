@@ -1866,7 +1866,7 @@ void do_escort_menu(void)
 				, goal_str, tstr);
 
 	show_escort_menu(msg);		//TXT_PAUSE);
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 
 	while (paused) 
 	{

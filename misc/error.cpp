@@ -110,7 +110,7 @@ void Error(const char* fmt, ...)
 
 	if (!initialized) print_exit_message();
 
-	I_DisplayError(exit_message);
+	plat_display_error(exit_message);
 
 	exit(1);
 }

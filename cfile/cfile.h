@@ -41,23 +41,21 @@ char* cfgets(char* buf, size_t n, CFILE* fp);
 int cfexist(const char* filename);	// Returns true if file exists on disk (1) or in hog (2).
 
 //[ISB] little endian reading functions
-uint8_t CF_ReadByte(CFILE* fp);
-short CF_ReadShort(CFILE* fp);
-int CF_ReadInt(CFILE* fp);
-//[ISB] hey I made a mistake
-#define cfile_read_int(a) CF_ReadInt(a)
-#define cfile_read_short(a) CF_ReadShort(a)
-#define cfile_read_byte(a) CF_ReadByte(a)
-#define cfile_read_fix(a) ((fix)CF_ReadInt(a))
+uint8_t cfile_read_byte(CFILE* fp);
+short cfile_read_short(CFILE* fp);
+int cfile_read_int(CFILE* fp);
+
+#define cfile_read_fix(a) ((fix)cfile_read_int(a))
 
 //[ISB] normal file versions of these because why not
-uint8_t F_ReadByte(FILE* fp);
-short F_ReadShort(FILE* fp);
-int F_ReadInt(FILE* fp);
-void F_WriteByte(FILE* fp, uint8_t b);
-void F_WriteShort(FILE* fp, short s);
-void F_WriteInt(FILE* fp, int i);
-void CF_GetString(char* buffer, int count, CFILE* fp);
+uint8_t file_read_byte(FILE* fp);
+short file_read_short(FILE* fp);
+int file_read_int(FILE* fp);
+void file_write_byte(FILE* fp, uint8_t b);
+void file_write_short(FILE* fp, short s);
+void file_write_int(FILE* fp, int i);
+//Unlike cfgets, this will only end at null terminators, not newlines. 
+void cfile_get_string(char* buffer, int count, CFILE* fp);
 
 // Allows files to be gotten from an alternate hog file.
 // Passing NULL disables this.

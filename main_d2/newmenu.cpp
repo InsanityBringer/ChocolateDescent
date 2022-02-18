@@ -769,7 +769,7 @@ int newmenu_do4(const char* title, const char* subtitle, int nitems, newmenu_ite
 
 	//	set_screen_mode(SCREEN_MENU);
 	set_popup_screen();
-	I_SetRelative(0);
+	plat_set_mouse_relative_mode(0);
 
 	if (Function_mode == FMODE_GAME && !(Game_mode & GM_MULTI))
 	{
@@ -1175,7 +1175,7 @@ RePaintNewmenu4:
 	while (!done)
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 
 #ifdef WINDOWS
 		MSG msg;
@@ -1887,7 +1887,7 @@ RePaintNewmenu4:
 		{
 			gr_palette_fade_in(gr_palette, 32, 0);
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 	}
 
@@ -2323,7 +2323,7 @@ ReadFileNames:
 	while (!done) 
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 
 #ifdef WINDOWS
 		MSG msg;
@@ -2747,7 +2747,7 @@ ReadFileNames:
 
 
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 	}
 
@@ -2951,7 +2951,7 @@ RePaintNewmenuListbox:
 	while (!done) 
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 
 #ifdef WINDOWS
 		MSG msg;
@@ -3290,7 +3290,7 @@ RePaintNewmenuListbox:
 			WIN(ShowCursorW());
 			MAC(show_cursor());
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 	}
 	MAC(hide_cursor());

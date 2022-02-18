@@ -322,8 +322,8 @@ void paging_touch_all()
 	}
 
 	show_boxed_message(TXT_LOADING);
-	I_DrawCurrentCanvas(0);
-	I_DoEvents(); 
+	plat_present_canvas(0);
+	plat_do_events(); 
 
 	mprintf((0, "Loading all textures in mine..."));
 	for (s = 0; s <= Highest_segment_index; s++) 

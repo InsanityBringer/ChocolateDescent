@@ -102,7 +102,7 @@ int S_InitMusic(int device)
 			Error("S_InitMusic: Fatal: Cannot allocate fluid synth.");
 			return 1;
 		}
-		fluidSynth->SetSampleRate(I_GetPreferredMIDISampleRate());
+		fluidSynth->SetSampleRate(plat_get_preferred_midi_sample_rate());
 		fluidSynth->CreateSynth();
 		fluidSynth->SetSoundfont(SoundFontFilename);
 		synth = (MidiSynth*)fluidSynth;
@@ -117,7 +117,7 @@ int S_InitMusic(int device)
 		Warning("S_InitMusic: Unknown device.\n");
 		return 1;
 	}
-	sequencer = new MidiSequencer(synth, I_GetPreferredMIDISampleRate());
+	sequencer = new MidiSequencer(synth, plat_get_preferred_midi_sample_rate());
 
 	if (sequencer == nullptr)
 	{
@@ -130,9 +130,9 @@ int S_InitMusic(int device)
 	player->Start();
 
 	//Start the platform-dependent MIDI system
-	if (I_StartMIDI(sequencer))
+	if (plat_start_midi(sequencer))
 	{
-		Warning("S_InitMusic: I_StartMIDI failed.");
+		Warning("S_InitMusic: plat_start_midi failed.");
 		return 1;
 	}
 
@@ -144,7 +144,7 @@ int S_InitMusic(int device)
 void S_ShutdownMusic()
 {
 	if (CurrentDevice == 0) return;
-	I_ShutdownMIDI();
+	plat_close_midi();
 
 	if (player != nullptr)
 	{
@@ -205,7 +205,7 @@ uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle)
 	if (CurrentDevice == 0) return 1;
 	HMPFile* song = new HMPFile(length, data);
 	*handle = 0; //heh
-	I_StartMIDISong(song, loop);
+	plat_start_midi_song(song, loop);
 	if (player)
 		player->SetSong(song, loop);
 	return 0;
@@ -215,7 +215,7 @@ uint16_t S_StopSong()
 {
 	if (CurrentDevice == 0) return 1;
 	
-	I_StopMIDISong();
+	plat_stop_midi_song();
 	if (player)
 		player->StopSong();
 	return 0;
@@ -683,7 +683,7 @@ void MidiPlayer::Run()
 {
 	initialized = true;
 	nextTimerTick = I_GetUS();
-	I_StartMIDISource();
+	midi_start_source();
 	int i;
 
 	for (;;)
@@ -737,8 +737,8 @@ void MidiPlayer::Run()
 				//Ugh. This is hideous.
 				//Queue buffers as fast as possible. When done, sleep for a while. This comes close enough to avoiding starvation.
 				//Anything less than 5 120hz ticks of latency will result in OpenAL occasionally starving. It's the most I can do...
-				I_DequeueMusicBuffers();
-				while (I_CanQueueMusicBuffer())
+				midi_dequeue_midi_buffers();
+				while (midi_queue_slots_available())
 				{
 					for (i = 0; i < NUMSOFTTICKS; i++)
 					{
@@ -750,15 +750,15 @@ void MidiPlayer::Run()
 						}
 						sequencer->Render(MIDI_SAMPLERATE / 120, songBuffer + (MIDI_SAMPLERATE / 120 * 2) * i);
 					}
-					I_QueueMusicBuffer(MIDI_SAMPLERATE / 120 * NUMSOFTTICKS, songBuffer);
+					midi_queue_buffer(MIDI_SAMPLERATE / 120 * NUMSOFTTICKS, songBuffer);
 				}
 
-				I_CheckMIDISourceStatus();
+				midi_check_status();
 				I_DelayUS(4000);
 			}
 		}
 	}
-	I_StopMIDISource();
+	midi_stop_source();
 	shouldEnd = false;
 	hasEnded = true;
 	//printf("Midi thread rip\n");

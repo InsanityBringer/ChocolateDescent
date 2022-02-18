@@ -862,7 +862,7 @@ void calc_frame_time()
 		c = 0;
 		while (c == 0)
 		{
-			I_DoEvents();
+			plat_do_events();
 			c = key_peekkey();
 		}
 
@@ -1850,8 +1850,8 @@ void game()
 				longjmp(LeaveGame,0);
 			#endif
 
-			I_DrawCurrentCanvas(0);
-			I_DoEvents();
+			plat_present_canvas(0);
+			plat_do_events();
 			//waiting loop for polled fps mode
 			//With suggestions from dpjudas.
 			uint64_t numUS = 1000000 / FPSLimit;
@@ -2145,7 +2145,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
 	//[ISB] Okay I really don't want to track all the changes and mini loops and shit
 	//so the game loop will ensure the mouse is always in relative mode
-	I_SetRelative(1);
+	plat_set_mouse_relative_mode(1);
 
 	#ifndef	NDEBUG
 	//	Used to slow down frame rate for testing things.

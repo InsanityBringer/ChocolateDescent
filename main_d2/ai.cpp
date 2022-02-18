@@ -1625,8 +1625,8 @@ int ai_save_state(FILE* fp)
 
 	int i;
 
-	F_WriteInt(fp, Ai_initialized);
-	F_WriteInt(fp, Overall_agitation);
+	file_write_int(fp, Ai_initialized);
+	file_write_int(fp, Overall_agitation);
 	for (i = 0; i < MAX_OBJECTS; i++)
 		P_WriteAILocals(&Ai_local_info[i], fp);
 	for (i = 0; i < MAX_POINT_SEGS; i++)
@@ -1634,45 +1634,45 @@ int ai_save_state(FILE* fp)
 	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
 		P_WriteCloakInfo(&Ai_cloak_info[i], fp);
 
-	F_WriteInt(fp, Boss_cloak_start_time);
-	F_WriteInt(fp, Boss_cloak_end_time);
-	F_WriteInt(fp, Last_teleport_time);
-	F_WriteInt(fp, Boss_teleport_interval);
-	F_WriteInt(fp, Boss_cloak_interval);
-	F_WriteInt(fp, Boss_cloak_duration);
-	F_WriteInt(fp, Last_gate_time);
-	F_WriteInt(fp, Gate_interval);
-	F_WriteInt(fp, Boss_dying_start_time);
-	F_WriteInt(fp, Boss_dying);
-	F_WriteInt(fp, Boss_dying_sound_playing);
-	F_WriteInt(fp, Boss_hit_time);
+	file_write_int(fp, Boss_cloak_start_time);
+	file_write_int(fp, Boss_cloak_end_time);
+	file_write_int(fp, Last_teleport_time);
+	file_write_int(fp, Boss_teleport_interval);
+	file_write_int(fp, Boss_cloak_interval);
+	file_write_int(fp, Boss_cloak_duration);
+	file_write_int(fp, Last_gate_time);
+	file_write_int(fp, Gate_interval);
+	file_write_int(fp, Boss_dying_start_time);
+	file_write_int(fp, Boss_dying);
+	file_write_int(fp, Boss_dying_sound_playing);
+	file_write_int(fp, Boss_hit_time);
 
-	F_WriteInt(fp, Escort_kill_object);
-	F_WriteInt(fp, Escort_last_path_created);
-	F_WriteInt(fp, Escort_goal_object);
-	F_WriteInt(fp, Escort_special_goal);
-	F_WriteInt(fp, Escort_goal_index);
+	file_write_int(fp, Escort_kill_object);
+	file_write_int(fp, Escort_last_path_created);
+	file_write_int(fp, Escort_goal_object);
+	file_write_int(fp, Escort_special_goal);
+	file_write_int(fp, Escort_goal_index);
 	for (i = 0; i < MAX_STOLEN_ITEMS; i++)
-		F_WriteByte(fp, Stolen_items[i]);
+		file_write_byte(fp, Stolen_items[i]);
 
 	{ 
 		int temp;
 		temp = Point_segs_free_ptr - Point_segs;
 		//fwrite(&temp, sizeof(int), 1, fp);
-		F_WriteInt(fp, temp);
+		file_write_int(fp, temp);
 	}
 
-	F_WriteInt(fp, Num_boss_teleport_segs);
-	F_WriteInt(fp, Num_boss_gate_segs);
+	file_write_int(fp, Num_boss_teleport_segs);
+	file_write_int(fp, Num_boss_gate_segs);
 
 	//if (Num_boss_gate_segs)
 	for (int i = 0; i < Num_boss_gate_segs; i++)
 	{
-		F_WriteShort(fp, Boss_gate_segs[i]);
+		file_write_short(fp, Boss_gate_segs[i]);
 	}
 	for (int i = 0; i < Num_boss_teleport_segs; i++)
 	{
-		F_WriteShort(fp, Boss_teleport_segs[i]);
+		file_write_short(fp, Boss_teleport_segs[i]);
 	}
 		//fwrite(Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs, fp);
 
@@ -1685,8 +1685,8 @@ int ai_save_state(FILE* fp)
 int ai_restore_state(FILE* fp, int version)
 {
 	int i;
-	Ai_initialized = F_ReadInt(fp);
-	Overall_agitation = F_ReadInt(fp);
+	Ai_initialized = file_read_int(fp);
+	Overall_agitation = file_read_int(fp);
 	for (i = 0; i < MAX_OBJECTS; i++)
 		P_ReadAILocals(&Ai_local_info[i], fp);
 	for (i = 0; i < MAX_POINT_SEGS; i++)
@@ -1694,28 +1694,28 @@ int ai_restore_state(FILE* fp, int version)
 	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
 		P_ReadCloakInfo(&Ai_cloak_info[i], fp);
 
-	Boss_cloak_start_time = F_ReadInt(fp);
-	Boss_cloak_end_time = F_ReadInt(fp);
-	Last_teleport_time = F_ReadInt(fp);
-	Boss_teleport_interval = F_ReadInt(fp);
-	Boss_cloak_interval = F_ReadInt(fp);
-	Boss_cloak_duration = F_ReadInt(fp);
-	Last_gate_time = F_ReadInt(fp);
-	Gate_interval = F_ReadInt(fp);
-	Boss_dying_start_time = F_ReadInt(fp);
-	Boss_dying = F_ReadInt(fp);
-	Boss_dying_sound_playing = F_ReadInt(fp);
-	Boss_hit_time = F_ReadInt(fp);
+	Boss_cloak_start_time = file_read_int(fp);
+	Boss_cloak_end_time = file_read_int(fp);
+	Last_teleport_time = file_read_int(fp);
+	Boss_teleport_interval = file_read_int(fp);
+	Boss_cloak_interval = file_read_int(fp);
+	Boss_cloak_duration = file_read_int(fp);
+	Last_gate_time = file_read_int(fp);
+	Gate_interval = file_read_int(fp);
+	Boss_dying_start_time = file_read_int(fp);
+	Boss_dying = file_read_int(fp);
+	Boss_dying_sound_playing = file_read_int(fp);
+	Boss_hit_time = file_read_int(fp);
 
 	if (version >= 8)
 	{
-		Escort_kill_object = F_ReadInt(fp);
-		Escort_last_path_created = F_ReadInt(fp);
-		Escort_goal_object = F_ReadInt(fp);
-		Escort_special_goal = F_ReadInt(fp);
-		Escort_goal_index = F_ReadInt(fp);
+		Escort_kill_object = file_read_int(fp);
+		Escort_last_path_created = file_read_int(fp);
+		Escort_goal_object = file_read_int(fp);
+		Escort_special_goal = file_read_int(fp);
+		Escort_goal_index = file_read_int(fp);
 		for (i = 0; i < MAX_STOLEN_ITEMS; i++)
-			Stolen_items[i] = F_ReadByte(fp);
+			Stolen_items[i] = file_read_byte(fp);
 	}
 	else 
 	{
@@ -1731,7 +1731,7 @@ int ai_restore_state(FILE* fp, int version)
 
 	if (version >= 15)
 	{
-		int	temp = F_ReadInt(fp);
+		int	temp = file_read_int(fp);
 		//fread(&temp, sizeof(int), 1, fp);
 		Point_segs_free_ptr = &Point_segs[temp];
 	}
@@ -1742,8 +1742,8 @@ int ai_restore_state(FILE* fp, int version)
 	{
 		//fread(&Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1, fp);
 		//fread(&Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1, fp);
-		Num_boss_teleport_segs = F_ReadInt(fp);
-		Num_boss_gate_segs = F_ReadInt(fp);
+		Num_boss_teleport_segs = file_read_int(fp);
+		Num_boss_gate_segs = file_read_int(fp);
 
 		if (Num_boss_teleport_segs > MAX_BOSS_TELEPORT_SEGS)
 			Error("ai_restore_state: Too many boss teleport segments.\n");
@@ -1752,12 +1752,12 @@ int ai_restore_state(FILE* fp, int version)
 
 		if (Num_boss_gate_segs)
 			for (i = 0; i < Num_boss_gate_segs; i++)
-				Boss_gate_segs[i] = F_ReadShort(fp);
+				Boss_gate_segs[i] = file_read_short(fp);
 			//fread(Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs, fp);
 
 		if (Num_boss_teleport_segs)
 			for (i = 0; i < Num_boss_teleport_segs; i++)
-				Boss_teleport_segs[i] = F_ReadShort(fp);
+				Boss_teleport_segs[i] = file_read_short(fp);
 			//fread(Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs, fp);
 	}
 	else 

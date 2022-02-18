@@ -48,8 +48,8 @@ void gr_close()
 	{
 		gr_installed = 0;
 		free(grd_curscreen);
-		//[ISB] Oops, gr_close is an atexit, but I_ShutdownGraphics was expected to be called on the SDL code before. Keep call for Windows code atm.
-		I_ShutdownGraphics();
+		//[ISB] Oops, gr_close is an atexit, but plat_close_window was expected to be called on the SDL code before. Keep call for Windows code atm.
+		plat_close_window();
 	}
 }
 
@@ -154,7 +154,7 @@ int gr_set_mode(int mode)
 	//[ISB] Dropping the linearization of all modes, to allow the paged video modes to work. 
 	gr_palette_clear();
 
-	I_SetMode(mode);
+	plat_set_gr_mode(mode);
 
 	memset(grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = mode;
@@ -192,7 +192,7 @@ int gr_init(int mode)
 	if (gr_installed == 1)
 		return 1;
 
-	retcode = I_InitWindow();
+	retcode = plat_create_window();
 	if (retcode)
 	{
 		Error("gr_init: Error initalizing graphics library.");
@@ -253,12 +253,12 @@ int gr_init(int mode)
 
 int gr_check_mode(int mode)
 {
-	return I_CheckMode(mode);
+	return plat_check_gr_mode(mode);
 }
 
 //[ISB] come to think of it is there any point of having these stub fuctions 
 //that do nothing but call I_ functions
 void gr_sync_display()
 {
-	I_WaitVBL();
+	plat_wait_for_vbl();
 }
