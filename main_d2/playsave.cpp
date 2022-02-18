@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "menu.h"
 #include "config.h"
-#include "text.h"
+#include "stringtable.h"
 #include "platform/mono.h"
 #include "state.h"
 #include "gauges.h"

@@ -38,9 +38,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 
 #include "cfile/cfile.h"
-#include "compbit.h"
+#include "main_shared/compbit.h"
 //#include "vfx.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 
 #include "platform/platform.h"
 

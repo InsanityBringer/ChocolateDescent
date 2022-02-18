@@ -37,7 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "platform/joy.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "multi.h"
 #include "kmatrix.h"
 #include "gauges.h"

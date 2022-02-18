@@ -7,34 +7,50 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+
 #include "2d/gr.h"
-#include "inferno.h"
-#include "game.h"
-#include "vclip.h"
-#include "main_shared/effects.h"
-#include "bm.h"
+#include "effects.h"
 #include "platform/mono.h"
 #include "mem/mem.h"
-#include "textures.h"
-#include "fuelcen.h"
 #include "misc/error.h"
+
+//TODO: Some of these should be sharable
+#ifdef BUILD_DESCENT2
+#include "main_d2/inferno.h"
+#include "main_d2/bm.h"
+#include "main_d2/textures.h"
+#include "main_d2/cntrlcen.h"
+#include "main_d2/game.h"
+#include "main_d2/vclip.h"
+#else
+#include "main_d1/inferno.h"
+#include "main_d1/bm.h"
+#include "main_d1/textures.h"
+#include "main_d1/cntrlcen.h"
+#include "main_d1/game.h"
+#include "main_d1/vclip.h"
+#include "main_d1/fuelcen.h"
+
+//[ISB] til this was renamed in descent 2
+#define Control_center_destroyed Fuelcen_control_center_destroyed
+#endif
 
 int Num_effects;
 eclip Effects[MAX_EFFECTS];
 
-void init_special_effects()
+void init_special_effects() 
 {
 	int i;
 
-	for (i = 0; i < Num_effects; i++)
+	for (i=0;i<Num_effects;i++)
 		Effects[i].time_left = Effects[i].vc.frame_time;
 }
 
@@ -42,10 +58,10 @@ void reset_special_effects()
 {
 	int i;
 
-	for (i = 0; i < Num_effects; i++) 
+	for (i=0;i<Num_effects;i++) 
 	{
 		Effects[i].segnum = -1;					//clear any active one-shots
-		Effects[i].flags &= ~(EF_STOPPED | EF_ONE_SHOT);		//restart any stopped effects
+		Effects[i].flags &= ~(EF_STOPPED|EF_ONE_SHOT);		//restart any stopped effects
 
 		//reset bitmap, which could have been changed by a crit_clip
 		if (Effects[i].changing_wall_texture != -1)
@@ -60,11 +76,12 @@ void reset_special_effects()
 void do_special_effects()
 {
 	int i;
-	eclip* ec;
+	eclip *ec;
 
-	for (i = 0, ec = Effects; i < Num_effects; i++, ec++) 
+	for (i=0,ec=Effects;i<Num_effects;i++,ec++) 
 	{
-		if ((Effects[i].changing_wall_texture == -1) && (Effects[i].changing_object_texture == -1))
+
+		if ((Effects[i].changing_wall_texture == -1) && (Effects[i].changing_object_texture==-1) )
 			continue;
 
 		if (ec->flags & EF_STOPPED)
@@ -74,17 +91,18 @@ void do_special_effects()
 
 		while (ec->time_left < 0) 
 		{
-			ec->time_left += ec->vc.frame_time;
 
+			ec->time_left += ec->vc.frame_time;
+			
 			ec->frame_count++;
 			if (ec->frame_count >= ec->vc.num_frames) 
 			{
-				if (ec->flags & EF_ONE_SHOT) 
+				if (ec->flags & EF_ONE_SHOT)
 				{
-					Assert(ec->segnum != -1);
-					Assert(ec->sidenum >= 0 && ec->sidenum < 6);
-					Assert(ec->dest_bm_num != 0 && Segments[ec->segnum].sides[ec->sidenum].tmap_num2 != 0);
-					Segments[ec->segnum].sides[ec->sidenum].tmap_num2 = ec->dest_bm_num | (Segments[ec->segnum].sides[ec->sidenum].tmap_num2 & 0xc000);		//replace with destoyed
+					Assert(ec->segnum!=-1);
+					Assert(ec->sidenum>=0 && ec->sidenum<6);
+					Assert(ec->dest_bm_num!=0 && Segments[ec->segnum].sides[ec->sidenum].tmap_num2!=0);
+					Segments[ec->segnum].sides[ec->sidenum].tmap_num2 = ec->dest_bm_num | (Segments[ec->segnum].sides[ec->sidenum].tmap_num2&0xc000);		//replace with destoyed
 					ec->flags &= ~EF_ONE_SHOT;
 					ec->segnum = -1;		//done with this
 				}
@@ -96,7 +114,7 @@ void do_special_effects()
 		if (ec->flags & EF_CRITICAL)
 			continue;
 
-		if (ec->crit_clip != -1 && Fuelcen_control_center_destroyed) 
+		if (ec->crit_clip!=-1 && Control_center_destroyed) 
 		{
 			int n = ec->crit_clip;
 
@@ -108,45 +126,51 @@ void do_special_effects()
 				ObjBitmaps[ec->changing_object_texture] = Effects[n].vc.frames[Effects[n].frame_count];
 
 		}
-		else 
+		else	
 		{
 			// *ec->bm_ptr = &GameBitmaps[ec->vc.frames[ec->frame_count].index];
 			if (ec->changing_wall_texture != -1)
 				Textures[ec->changing_wall_texture] = ec->vc.frames[ec->frame_count];
-
+	
 			if (ec->changing_object_texture != -1)
 				ObjBitmaps[ec->changing_object_texture] = ec->vc.frames[ec->frame_count];
 		}
+
 	}
 }
 
 void restore_effect_bitmap_icons()
 {
 	int i;
-
-	for (i = 0; i < Num_effects; i++)
-		if (!(Effects[i].flags & EF_CRITICAL)) 
+	
+	for (i=0;i<Num_effects;i++)
+		if (! (Effects[i].flags & EF_CRITICAL))	
 		{
 			if (Effects[i].changing_wall_texture != -1)
 				Textures[Effects[i].changing_wall_texture] = Effects[i].vc.frames[0];
-
+	
 			if (Effects[i].changing_object_texture != -1)
 				ObjBitmaps[Effects[i].changing_object_texture] = Effects[i].vc.frames[0];
 		}
+			//if (Effects[i].bm_ptr != -1)
+			//	*Effects[i].bm_ptr = &GameBitmaps[Effects[i].vc.frames[0].index];
 }
 
 //stop an effect from animating.  Show first frame.
 void stop_effect(int effect_num)
 {
-	eclip* ec = &Effects[effect_num];
+	eclip *ec = &Effects[effect_num];
+	
+	//Assert(ec->bm_ptr != -1);
 
 	ec->flags |= EF_STOPPED;
 
 	ec->frame_count = 0;
+	//*ec->bm_ptr = &GameBitmaps[ec->vc.frames[0].index];
 
 	if (ec->changing_wall_texture != -1)
 		Textures[ec->changing_wall_texture] = ec->vc.frames[0];
-
+	
 	if (ec->changing_object_texture != -1)
 		ObjBitmaps[ec->changing_object_texture] = ec->vc.frames[0];
 
@@ -156,4 +180,7 @@ void stop_effect(int effect_num)
 void restart_effect(int effect_num)
 {
 	Effects[effect_num].flags &= ~EF_STOPPED;
+
+	//Assert(Effects[effect_num].bm_ptr != -1);
 }
+

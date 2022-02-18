@@ -18,9 +18,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mem/mem.h"
 #include "misc/error.h"
 #include "inferno.h"
-#include "text.h"
+#include "stringtable.h"
 #include "misc/args.h"
-#include "compbit.h"
+#include "main_shared/compbit.h"
 
 char* text;
 
@@ -56,7 +56,8 @@ void load_text()
 	if ((i = FindArg("-text")) != 0)
 		filename = Args[i + 1];
 
-	if ((tfile = cfopen(filename, "rb")) == NULL) {
+	if ((tfile = cfopen(filename, "rb")) == NULL) 
+	{
 		filename = "descent.txb";
 		if ((ifile = cfopen(filename, "rb")) == NULL)
 			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
@@ -64,8 +65,7 @@ void load_text()
 
 		len = cfilelength(ifile);
 
-		MALLOC(text,char,len);//Won't compile... working on it..-KRB
-		//text = malloc(len * sizeof(char));//my hack -KRB //[ISB] i fixed it i guess?
+		MALLOC(text,char,len);
 		atexit(free_text);
 
 		cfread(text, 1, len, ifile);
@@ -73,14 +73,14 @@ void load_text()
 		cfclose(ifile);
 
 	}
-	else {
+	else 
+	{
 		int c;
 		char* p;
 
 		len = cfilelength(tfile);
 
-		MALLOC(text,char,len);//Won't compile... working on it..-KRB
-		//text = malloc(len * sizeof(char));//my hack -KRB
+		MALLOC(text,char,len);
 
 		atexit(free_text);
 

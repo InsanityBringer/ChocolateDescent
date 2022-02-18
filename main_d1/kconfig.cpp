@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "multi.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "player.h"
 #include "menu.h"
 #include "misc/args.h"

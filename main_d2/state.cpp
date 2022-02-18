@@ -57,7 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "paging.h"
 #include "titles.h"
-#include "text.h"
+#include "stringtable.h"
 #include "mission.h"
 #include "2d/pcx.h"
 #include "mem/mem.h"

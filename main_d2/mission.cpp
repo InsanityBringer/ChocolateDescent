@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "gameseq.h"
 #include "titles.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "platform/mono.h"
 #include "misc/error.h"
 #include "platform/findfile.h"

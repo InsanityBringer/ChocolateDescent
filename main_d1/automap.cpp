@@ -51,7 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "multi.h"
 #include "endlevel.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gauges.h"
 #include "powerup.h"
 #include "network.h" 

@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "gamefont.h"
 #include "bm.h"
-#include "text.h"
+#include "stringtable.h"
 #include "powerup.h"
 #include "sounds.h"
 #include "multi.h"
@@ -47,7 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 
 #include "wall.h"
-#include "text.h"
+#include "stringtable.h"
 #include "render.h"
 #include "piggy.h"
 #include "laser.h"

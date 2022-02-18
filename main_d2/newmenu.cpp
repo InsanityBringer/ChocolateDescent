@@ -28,11 +28,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
 #include "2d/gr.h"
 #include "platform/mono.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "platform/key.h"
 #include "2d/palette.h"
 #include "game.h"
-#include "text.h"
+#include "stringtable.h"
 #include "platform/findfile.h"
 
 #include "menu.h"

@@ -52,7 +52,7 @@ void do_load_save_levels(int save);
 #include "gameseq.h"
 #include "automap.h"
 #include "polyobj.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gamefont.h"
 #include "gamesave.h"
 #include "gamepal.h"

@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "texmap/texmap.h"
 #include "3d/3d.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "menu.h"
 #include "gameseg.h"
 #include "wall.h"
@@ -69,7 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/args.h"
 #include "gameseq.h"
 #include "automap.h"
-#include "text.h"
+#include "stringtable.h"
 #include "powerup.h"
 #include "fireball.h"
 #include "newmenu.h"
@@ -81,7 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "switch.h"
 #include "controls.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "gamepal.h"
 
 #if defined(POLY_ACC)

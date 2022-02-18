@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "arcade.h"
 #include "screens.h"
-#include "text.h"
+#include "stringtable.h"
 #include "laser.h"
 #include "misc/args.h" //[ISB] die
 //#include "pa_enabl.h"

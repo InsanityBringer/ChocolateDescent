@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "sounds.h"
 #include "newdemo.h"
-#include "text.h"
+#include "stringtable.h"
 #include "kmatrix.h"
 #include "multibot.h"
 #include "gameseq.h"

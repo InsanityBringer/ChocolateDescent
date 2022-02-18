@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "player.h"
 #include "gauges.h"
-#include "text.h"
+#include "stringtable.h"
 #include "fireball.h"
 #include "textures.h"
 #include "sounds.h"
@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "laser.h"		//	For seeing if a flare is stuck in a wall.
 #include "collide.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"

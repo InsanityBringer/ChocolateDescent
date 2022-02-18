@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hostage.h"
 #include "vclip.h"
 #include "newdemo.h"
-#include "text.h"
+#include "stringtable.h"
 
 
 //------------- Globaly used hostage variables --------------------------------------------------

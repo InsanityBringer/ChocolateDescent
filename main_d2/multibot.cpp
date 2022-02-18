@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "platform/mono.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "ai.h"
 #include "fireball.h"
 #include "aistruct.h"
@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "morph.h"
 #include "digi.h"
 #include "sounds.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "physics.h" 
 #include "misc/byteswap.h"
 //

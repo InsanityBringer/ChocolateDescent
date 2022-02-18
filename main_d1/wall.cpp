@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "player.h"
 #include "gauges.h"
-#include "text.h"
+#include "stringtable.h"
 #include "fireball.h"
 #include "textures.h"
 #include "sounds.h"

@@ -45,8 +45,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 
 #include "cfile/cfile.h"
-#include "compbit.h"
-#include "songs.h"
+#include "main_shared/compbit.h"
+#include "main_shared/songs.h"
 #include "menu.h"			// for MenuHires
 
 #if defined(POLY_ACC)

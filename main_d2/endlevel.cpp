@@ -17,12 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
-#ifdef __WATCOMC__
-#if __WATCOMC__ < 1000
-#include <wsample.h>
-#endif
-#endif
-
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -57,11 +51,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "fireball.h"
 #include "network.h"
-#include "text.h"
+#include "stringtable.h"
 #include "digi.h"
 #include "cfile/cfile.h"
-#include "compbit.h"
-#include "songs.h"
+#include "main_shared/compbit.h"
+#include "main_shared/songs.h"
 #include "movie.h"
 #include "render.h"
 

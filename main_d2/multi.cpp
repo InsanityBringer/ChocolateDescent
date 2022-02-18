@@ -47,7 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "kconfig.h"
 #include "newdemo.h"
-#include "text.h"
+#include "stringtable.h"
 #include "kmatrix.h"
 #include "multibot.h"
 #include "gameseq.h"
@@ -5229,7 +5229,7 @@ void multi_do_play_by_play(char* buf)
 ///
 
 #include "cfile/cfile.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "mem/mem.h"
 
 void init_bitmap(grs_bitmap* bm, int w, int h, int flags, uint8_t* data)

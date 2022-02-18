@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gamefont.h"
 #include "mem/mem.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "newmenu.h"
 #include "menu.h"
 #include "player.h"
@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "platform/joy.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "platform/platform.h"
 
 #define VERSION_NUMBER 		1

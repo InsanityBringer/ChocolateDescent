@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "gamefont.h"
 #include "newdemo.h"
-#include "text.h"
+#include "stringtable.h"
 #include "multi.h"
 #include "endlevel.h"
 #include "cntrlcen.h"

@@ -57,6 +57,13 @@ set(SHARED_SOURCES
 	fix/tables.cpp
 	iff/iff.cpp
 	iff/iff.h
+	main_shared/compbit.h
+	main_shared/effects.cpp
+	main_shared/effects.h
+	main_shared/songs.cpp
+	main_shared/songs.h
+	main_shared/text.cpp
+	main_shared/text.h
 	mem/mem.cpp
 	mem/mem.h
     misc/args.cpp
@@ -115,7 +122,6 @@ set(DESCENT1_SOURCES
 	main_d1/cntrlcen.h
 	main_d1/collide.cpp
 	main_d1/collide.h
-	main_d1/compbit.h
 	main_d1/config.cpp
 	main_d1/config.h
 	main_d1/controls.cpp
@@ -126,7 +132,6 @@ set(DESCENT1_SOURCES
 	main_d1/digi.cpp
 	main_d1/digi.h
 	main_d1/dumpmine.cpp
-	main_d1/effects.cpp
 	main_d1/endlevel.cpp
 	main_d1/endlevel.h
 	main_d1/fireball.cpp
@@ -210,19 +215,16 @@ set(DESCENT1_SOURCES
 	main_d1/segpoint.h
 	main_d1/slew.cpp
 	main_d1/slew.h
-	main_d1/songs.cpp
-	main_d1/songs.h
 	main_d1/sounds.h
 	main_d1/state.cpp
 	main_d1/state.h
+	main_d1/stringtable.h
 	main_d1/switch.cpp
 	main_d1/switch.h
 	main_d1/terrain.cpp
 	main_d1/terrain.h
 	main_d1/texmerge.cpp
 	main_d1/texmerge.h
-	main_d1/text.cpp
-	main_d1/text.h
 	main_d1/textures.h
 	main_d1/titles.cpp
 	main_d1/titles.h
@@ -346,7 +348,6 @@ set(DESCENT2_SOURCES
 	main_d2/cntrlcen.h
 	main_d2/collide.cpp
 	main_d2/collide.h
-	main_d2/compbit.h
 	main_d2/config.cpp
 	main_d2/config.h
 	main_d2/controls.cpp
@@ -359,8 +360,6 @@ set(DESCENT2_SOURCES
 	main_d2/digi.h
 	main_d2/digiobj.cpp
 	main_d2/dumpmine.cpp
-	main_d2/effects.cpp
-	main_d2/effects.h
 	main_d2/endlevel.cpp
 	main_d2/endlevel.h
 	main_d2/escort.cpp
@@ -453,19 +452,16 @@ set(DESCENT2_SOURCES
 	main_d2/segpoint.h
 	main_d2/slew.cpp
 	main_d2/slew.h
-	main_d2/songs.cpp
-	main_d2/songs.h
 	main_d2/sounds.h
 	main_d2/state.cpp
 	main_d2/state.h
+	main_d2/stringtable.h
 	main_d2/switch.cpp
 	main_d2/switch.h
 	main_d2/terrain.cpp
 	main_d2/terrain.h
 	main_d2/texmerge.cpp
 	main_d2/texmerge.h
-	main_d2/text.cpp
-	main_d2/text.h
 	main_d2/textures.h
 	main_d2/titles.cpp
 	main_d2/titles.h
@@ -783,6 +779,7 @@ source_group("main_d1" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d1/.
 source_group("main_d1\\editor" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d1/editor/.+")
 source_group("main_d2" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d2/.+")
 source_group("main_d2\\editor" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d2/editor/.+")
+source_group("main_shared" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_shared/.+")
 source_group("mem" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/mem/.+")
 source_group("misc" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/misc/.+")
 source_group("mve" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/mve/.+")

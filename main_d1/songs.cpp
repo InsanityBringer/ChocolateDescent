@@ -15,7 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "misc/error.h"
 #include "misc/types.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "platform/mono.h"
 #include "cfile/cfile.h"
 #include "digi.h"

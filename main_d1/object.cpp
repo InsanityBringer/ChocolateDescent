@@ -60,7 +60,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "menu.h"
 #include "misc/args.h"
-#include "text.h"
+#include "stringtable.h"
 #include "piggy.h"
 #include "gameseq.h"
 

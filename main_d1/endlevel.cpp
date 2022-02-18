@@ -44,11 +44,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "fireball.h"
 #include "network.h"
-#include "text.h"
+#include "stringtable.h"
 #include "digi.h"
 #include "cfile/cfile.h"
-#include "compbit.h"
-#include "songs.h"
+#include "main_shared/compbit.h"
+#include "main_shared/songs.h"
 
 typedef struct flythrough_data
 {

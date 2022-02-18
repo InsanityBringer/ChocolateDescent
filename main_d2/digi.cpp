@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "cfile/cfile.h"
 #include "piggy.h"
-#include "text.h"
+#include "stringtable.h"
 
 #include "config.h"
 //#include "soscomp.h"

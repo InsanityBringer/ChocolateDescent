@@ -45,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "sounds.h"
 #include "screens.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gamefont.h"
 #include "newmenu.h"
 #include "playsave.h"

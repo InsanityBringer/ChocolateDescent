@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 
 #include "wall.h"
-#include "text.h"
+#include "stringtable.h"
 #include "weapon.h"
 #include "laser.h"
 #include "scores.h"

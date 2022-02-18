@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "2d/palette.h"
 #include "game.h"
-#include "text.h"
+#include "stringtable.h"
 #include "newmenu.h"
 #include "gamefont.h"
 #include "network.h"

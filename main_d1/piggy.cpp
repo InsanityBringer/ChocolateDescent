@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmerge.h"
 #include "paging.h"
 #include "game.h"
-#include "text.h"
+#include "stringtable.h"
 #include "cfile/cfile.h"
 #include "newmenu.h"
 #include "platform/platform.h"

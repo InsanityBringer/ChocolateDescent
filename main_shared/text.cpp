@@ -19,14 +19,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mem/mem.h"
 #include "misc/error.h"
 
-#include "inferno.h"
-#include "stringtable.h"
+#include "text.h"
 #include "misc/args.h"
-#include "main_shared/compbit.h"
+#include "compbit.h"
 
 char *text;
 
-char *Text_string[N_TEXT_STRINGS];
+std::vector<char*> Text_string;
 
 void free_text()
 {
@@ -57,17 +56,16 @@ void decode_text_line(char *p)
 }
 
 //load all the text strings for Descent
-void load_text()
+void load_text(int total_strings)
 {
 	CFILE  *tfile;
 	CFILE *ifile;
 	int len,i, have_binary = 0;
-	int N_text_strings = N_TEXT_STRINGS;
+	int N_text_strings = total_strings;
 	char *tptr;
 	const char *filename="descent.tex";
 
-	if (CurrentDataVersion == DataVer::DEMO)
-		N_text_strings = 644;
+	Text_string.resize(total_strings);
 
 	if ((i=FindArg("-text"))!=0)
 		filename = Args[i+1];
@@ -88,8 +86,8 @@ void load_text()
 		cfread(text,1,len,ifile);
 
 		cfclose(ifile);
-
-	} else 
+	} 
+	else 
 	{
 		int c;
 		char * p;
@@ -102,7 +100,8 @@ void load_text()
 
 		//fread(text,1,len,tfile);
 		p = text;
-		do {
+		do
+		{
 			c = cfgetc( tfile );
 			if ( c != 13 )
 				*p++ = c;
@@ -156,9 +155,6 @@ void load_text()
 		}
  
 	}
-
-//	Assert(tptr==text+len || tptr==text+len-2);
-	
 }
 
 

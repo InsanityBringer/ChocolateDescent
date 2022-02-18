@@ -47,7 +47,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "menu.h"
 #include "wall.h"
 #include "polyobj.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "digi.h"
 #include "iff/iff.h"
 #include "2d/pcx.h"
@@ -56,7 +56,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "sounds.h"
 #include "titles.h"
 #include "player.h"
-#include "text.h"
+#include "stringtable.h"
 #include "platform/i_net.h"
 #include "newdemo.h"
 #include "network.h"
@@ -69,13 +69,13 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "config.h"
 #include "joydefs.h"
 #include "multi.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "cfile/cfile.h"
 #include "gameseq.h"
 #include "gamepal.h"
 #include "mission.h"
 #include "movie.h"
-#include "compbit.h"
+#include "main_shared/compbit.h"
 #include "misc/types.h"
 
 #ifdef TACTILE
@@ -501,15 +501,6 @@ int open_movie_file(char* filename, int must_have);
 //	DESCENT II by Parallax Software
 //		Descent Main for DOS.
 
-#ifdef TACTILE
-extern void SerialHardwareInit();
-extern void SerialInit();
-extern void StatusCheck();
-extern char InBuf[];
-extern int SerialPort;
-extern char StatusBytes[];
-#endif
-
 #ifdef	EDITOR
 int	Auto_exit = 0;
 char	Auto_file[128] = "";
@@ -521,6 +512,7 @@ int D_DescentMain(int argc, const char** argv)
 {
 	int i, t;		//note: don't change these without changing stack lockdown code below
 	uint8_t title_pal[768];
+	int num_text_strings = 649;
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char hogfile_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	init_all_platform_localized_paths();
@@ -542,18 +534,6 @@ int D_DescentMain(int argc, const char** argv)
 
 	if (FindArg("-verbose"))
 		Inferno_verbose = 1;
-
-#ifdef TACTILE
-	//these adresses and lengths are based on perusing the map file.
-	//they could always change later with a different compiler or
-	//different version of the compiler.
-	dpmi_lock_region((void near*)SerialHardwareInit, 4096);
-	dpmi_lock_region((void near*)SerialInit, 4096);
-	dpmi_lock_region((void near*)StatusCheck, 4096);
-	dpmi_lock_region((uint8_t*)& SerialPort, 4096);
-	dpmi_lock_region((uint8_t*)InBuf, 4096);
-	dpmi_lock_region((uint8_t*)StatusBytes, 4096);
-#endif
 
 #define HOGNAME "descent2.hog"
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
@@ -581,10 +561,11 @@ int D_DescentMain(int argc, const char** argv)
 			CurrentLogicVersion = LogicVer::SHAREWARE; //Use demo game logic.
 			disable_high_res = 1;
 			fprintf(stderr, "Attempting to enter demo emulation mode\n");
+			num_text_strings = 644;
 		}
 	}
 
-	load_text();
+	load_text(num_text_strings);
 
 	//print out the banner title
 	printf("\nDESCENT 2 %s v%d.%d", VERSION_TYPE, Version_major, Version_minor);

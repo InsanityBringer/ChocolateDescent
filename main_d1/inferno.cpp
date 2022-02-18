@@ -48,7 +48,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "wall.h"
 #include "switch.h"
 #include "polyobj.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "digi.h"
 #include "iff/iff.h"
 #include "2d/pcx.h"
@@ -57,7 +57,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "sounds.h"
 #include "titles.h"
 #include "player.h"
-#include "text.h"
+#include "stringtable.h"
 #ifdef NETWORK
 #include "platform/i_net.h"
 #endif
@@ -76,7 +76,7 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "config.h"
 #include "joydefs.h"
 #include "multi.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "cfile/cfile.h"
 #include "gameseq.h"
 
@@ -271,7 +271,7 @@ int D_DescentMain(int argc, const char** argv)
 	if (FindArg("-verbose"))
 		Inferno_verbose = 1;
 
-	load_text();
+	load_text(621);
 
 	//	set_exit_message("\n\n%s", TXT_THANKS);
 

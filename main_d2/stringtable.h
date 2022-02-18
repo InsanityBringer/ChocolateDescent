@@ -13,11 +13,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-//Array of pointers to text
-extern char *Text_string[];
+#include "main_shared/text.h"
 
 //Symbolic constants for all the strings
-
 #define TXT_NEW_GAME				Text_string[ 0]
 #define TXT_VIEW_SCORES			Text_string[ 1]
 #define TXT_QUIT					Text_string[ 2]
@@ -717,9 +715,6 @@ extern char *Text_string[];
 #define TNUM_R1					(647)
 #define TNUM_YA1					(648)
 
-
-
-
 // Weapon names.
 #define PRIMARY_WEAPON_NAMES(weapon_num) (*(&TXT_W_LASER + (weapon_num)))
 #define SECONDARY_WEAPON_NAMES(weapon_num) (*(&TXT_W_C_MISSILE + (weapon_num)))
@@ -740,7 +735,3 @@ extern char *Text_string[];
 
 #define MENU_DIFFICULTY_TEXT(difficulty) (*(&TXT_DIFFICULTY_1 + (difficulty)))
 #define MENU_DETAIL_TEXT(detail) (*(&TXT_DETAIL_1 + (detail)))
-
-//Load function
-
-void load_text(void);

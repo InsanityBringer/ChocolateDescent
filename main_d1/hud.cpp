@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "arcade.h"
 #include "screens.h"
-#include "text.h"
+#include "stringtable.h"
 
 int hud_first = 0;
 int hud_last = 0;

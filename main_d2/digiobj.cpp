@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "cfile/cfile.h"
 #include "piggy.h"
-#include "text.h"
+#include "stringtable.h"
 #include "kconfig.h"
 
 #define SOF_USED				1 		// Set if this sample is used

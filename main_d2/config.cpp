@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "2d/palette.h"
 #include "platform/joy.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "misc/args.h"
 #include "player.h"
 #include "mission.h"

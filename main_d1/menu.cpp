@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile/cfile.h"
 #include "platform/joy.h"
 #include "vecmat/vecmat.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "slew.h"
 #include "gamemine.h"
 #include "gamesave.h"
@@ -44,7 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/timer.h"
 #include "sounds.h"
 #include "gameseq.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gamefont.h"
 #include "newmenu.h"
 #include "network.h"
@@ -59,7 +59,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "state.h"
 #include "mission.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "config.h"
 
 #include "platform/i_net.h"
@@ -319,13 +319,13 @@ void do_option(int select)
 	case MENU_PLAY_SONG: 
 	{
 		int i;
-		char* m[MAX_SONGS];
+		char* m[MAX_NUM_SONGS];
 
-		for (i = 0; i < MAX_SONGS; i++) 
+		for (i = 0; i < Num_songs; i++) 
 		{
 			m[i] = Songs[i].filename;
 		}
-		i = newmenu_listbox("Select Song", MAX_SONGS, m, 1, NULL);
+		i = newmenu_listbox("Select Song", Num_songs, m, 1, NULL);
 
 		if (i > -1) {
 			songs_play_song(i, 0);

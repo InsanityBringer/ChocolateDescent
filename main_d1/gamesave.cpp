@@ -46,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "automap.h"
 #include "polyobj.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gamefont.h"
 #include "gamesave.h"
 

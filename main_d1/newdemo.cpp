@@ -70,7 +70,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/palette.h"
 #include "multi.h"
 #include "network.h"
-#include "text.h"
+#include "stringtable.h"
 #include "cntrlcen.h"
 #include "aistruct.h"
 #include "mission.h"

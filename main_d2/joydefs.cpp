@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/palette.h"
 #include "newmenu.h"
 #include "misc/args.h" //[ISB] STOP PUTTING ARA ARA IN THE SOURCE AND FIX THE PROBLEM
-#include "text.h"
+#include "stringtable.h"
 #include "kconfig.h"
 #include "digi.h"
 #include "playsave.h"
