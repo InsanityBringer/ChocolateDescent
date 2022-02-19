@@ -43,7 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d2/bm.h"
 #include "main_d2/sounds.h"
 #include "centers.h"
-#include "main_d2/piggy.h"
+#include "main_shared/piggy.h"
 
 //-------------------------------------------------------------------------
 // Variables for this module...

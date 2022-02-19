@@ -15,11 +15,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/types.h"
 #include "vecmat/vecmat.h"
-//#include "segment.h"
-//#include "gameseg.h"
+#include "segment.h"
+#include "gameseg.h"
 #include "aistruct.h"
 #include "2d/gr.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 /*
  *		CONSTANTS

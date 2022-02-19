@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "fuelcen.h"
 #include "morph.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "sounds.h"
 #include "main_shared/effects.h"
 #include "physics.h" 

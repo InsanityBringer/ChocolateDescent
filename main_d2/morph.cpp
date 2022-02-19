@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "lighting.h"
 #include "newdemo.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #include "platform/mono.h"
 #include "bm.h"

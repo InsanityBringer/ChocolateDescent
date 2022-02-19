@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objpage.h"
 #include "main_d2/bm.h"
 #include "main_d2/player.h"
-#include "main_d2/piggy.h"
+#include "main_shared/piggy.h"
 #include "main_d2/cntrlcen.h"
 
 

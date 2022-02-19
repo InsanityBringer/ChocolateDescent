@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_shared/songs.h"
 #include "platform/mono.h"
 #include "cfile/cfile.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 //#include "rbaudio.h" //[ISB] fuck
 #include "kconfig.h"
 #include "platform/timer.h"

@@ -81,7 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "aistruct.h"
 #include "mission.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "controls.h"
 
 #include "platform/findfile.h"

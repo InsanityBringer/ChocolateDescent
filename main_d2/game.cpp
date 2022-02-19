@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "ai.h"
 #include "fuelcen.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "2d/ibitblt.h"
 #include "mem/mem.h"
 #include "2d/palette.h"
@@ -96,7 +96,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "desc_id.h"
 #include "cntrlcen.h"
 #include "state.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "multibot.h"
 #include "ai.h"
 //#include "rbaudio.h" //[ISB] ugh

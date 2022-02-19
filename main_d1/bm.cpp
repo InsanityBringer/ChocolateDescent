@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hostage.h"
 #include "powerup.h"
 #include "sounds.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "aistruct.h"
 #include "robot.h"
 #include "weapon.h"

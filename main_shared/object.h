@@ -119,6 +119,8 @@ extern char	Object_type_names[MAX_OBJECT_TYPES][9];
 
 //	List of objects rendered last frame in order.  Created at render time, used by homing missiles in laser.c
 #define	MAX_RENDERED_OBJECTS	50
+extern short Ordered_rendered_object_list[MAX_RENDERED_OBJECTS];
+extern int Num_rendered_objects;
 
 /*
  *		STRUCTURES

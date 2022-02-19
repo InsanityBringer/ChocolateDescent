@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_shared/songs.h"
 #include "render.h"
 #include "arcade.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "newmenu.h"
 #include "endlevel.h"
 #include "multi.h"

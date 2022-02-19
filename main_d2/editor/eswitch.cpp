@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "ehostage.h"
 #include "centers.h"
-#include "main_d2/piggy.h"
+#include "main_shared/piggy.h"
 
 #ifdef EDITOR
 

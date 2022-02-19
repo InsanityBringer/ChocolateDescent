@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/hash.h"
 #include "platform/key.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 

@@ -19,8 +19,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "platform/mono.h"
 #include "2d/rle.h"
-#include "piggy.h"
-#include "texmerge.h"
+#include "main_shared/piggy.h"
+#include "main_shared/texmerge.h"
 
 #define MAX_NUM_CACHE_BITMAPS 50
 

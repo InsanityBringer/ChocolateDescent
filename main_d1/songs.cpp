@@ -18,7 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_shared/songs.h"
 #include "platform/mono.h"
 #include "cfile/cfile.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 
 song_info Songs[MAX_SONGS];
 int Songs_initialized = 0;

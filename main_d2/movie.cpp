@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include "mvegfx.h"
 #include "platform/mono.h"
 #include "misc/error.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "main_shared/songs.h"
 #include "platform/timer.h"
 #include "platform/joy.h"

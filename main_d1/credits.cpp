@@ -35,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "platform/joy.h"
 #include "screens.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 
 #include "cfile/cfile.h"
 #include "main_shared/compbit.h"

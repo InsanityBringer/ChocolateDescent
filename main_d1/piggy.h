@@ -13,7 +13,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "sounds.h"
 
 typedef struct bitmap_index {

@@ -15,5 +15,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //This file contains defintions shared between Descent 1 and 2.
 
+//from mglobal.c
+extern fix FrameTime;					//time in seconds since last frame
+extern fix RealFrameTime;					//time in seconds since last frame
+extern fix GameTime;						//time in game (sum of FrameTime)
+extern int FrameCount;					//how many frames rendered
+extern fix	Next_laser_fire_time;	//	Time at which player can next fire his selected laser.
+extern fix	Last_laser_fired_time;
+extern fix	Next_missile_fire_time;	//	Time at which player can next fire his selected missile.
+extern fix	Laser_delay_time;			//	Delay between laser fires.
+extern int Cheats_enabled;
+
 #define	NDL	5		//	Number of difficulty levels.
 #define	NUM_DETAIL_LEVELS	6

@@ -52,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "network.h"
 #include "stringtable.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "cfile/cfile.h"
 #include "main_shared/compbit.h"
 #include "main_shared/songs.h"

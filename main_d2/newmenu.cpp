@@ -45,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mem/mem.h"
 #include "platform/mouse.h"
 #include "platform/joy.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 
 #include "multi.h"
 #include "endlevel.h"

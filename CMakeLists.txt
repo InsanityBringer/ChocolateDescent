@@ -58,12 +58,16 @@ set(SHARED_SOURCES
 	iff/iff.cpp
 	iff/iff.h
 	main_shared/compbit.h
+	main_shared/digi.h
 	main_shared/effects.cpp
 	main_shared/effects.h
 	main_shared/game_shared.h
 	main_shared/inferno_shared.h
+	main_shared/piggy.h
 	main_shared/songs.cpp
 	main_shared/songs.h
+	main_shared/texmerge.cpp
+	main_shared/texmerge.h
 	main_shared/text.cpp
 	main_shared/text.h
 	mem/mem.cpp
@@ -132,7 +136,6 @@ set(DESCENT1_SOURCES
 	main_d1/credits.h
 	main_d1/desc_id.h
 	main_d1/digi.cpp
-	main_d1/digi.h
 	main_d1/dumpmine.cpp
 	main_d1/endlevel.cpp
 	main_d1/endlevel.h
@@ -197,7 +200,6 @@ set(DESCENT1_SOURCES
 	main_d1/physics.cpp
 	main_d1/physics.h
 	main_d1/piggy.cpp
-	main_d1/piggy.h
 	main_d1/player.cpp
 	main_d1/player.h
 	main_d1/playsave.cpp
@@ -225,8 +227,6 @@ set(DESCENT1_SOURCES
 	main_d1/switch.h
 	main_d1/terrain.cpp
 	main_d1/terrain.h
-	main_d1/texmerge.cpp
-	main_d1/texmerge.h
 	main_d1/textures.h
 	main_d1/titles.cpp
 	main_d1/titles.h
@@ -359,7 +359,6 @@ set(DESCENT2_SOURCES
 	main_d2/crypt.cpp
 	main_d2/desc_id.h
 	main_d2/digi.cpp
-	main_d2/digi.h
 	main_d2/digiobj.cpp
 	main_d2/dumpmine.cpp
 	main_d2/endlevel.cpp
@@ -433,7 +432,6 @@ set(DESCENT2_SOURCES
 	main_d2/physics.cpp
 	main_d2/physics.h
 	main_d2/piggy.cpp
-	main_d2/piggy.h
 	main_d2/player.cpp
 	main_d2/player.h
 	main_d2/playsave.cpp
@@ -462,8 +460,6 @@ set(DESCENT2_SOURCES
 	main_d2/switch.h
 	main_d2/terrain.cpp
 	main_d2/terrain.h
-	main_d2/texmerge.cpp
-	main_d2/texmerge.h
 	main_d2/textures.h
 	main_d2/titles.cpp
 	main_d2/titles.h

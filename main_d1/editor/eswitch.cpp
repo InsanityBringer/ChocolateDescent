@@ -31,13 +31,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d1/screens.h"
 
 #include "main_d1/textures.h"
-#include "main_d1/texmerge.h"
+#include "main_shared/texmerge.h"
 #include "medrobot.h"
 #include "platform/timer.h"
 #include "platform/key.h"
 #include "ehostage.h"
 #include "centers.h"
-#include "main_d1/piggy.h"
+#include "main_shared/piggy.h"
 
 //-------------------------------------------------------------------------
 // Variables for this module...

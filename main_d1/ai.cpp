@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "wall.h"
 #include "vclip.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "fireball.h"
 #include "morph.h"
 #include "main_shared/effects.h"

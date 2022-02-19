@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "playsave.h"
 #include "platform/timer.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "sounds.h"
 #include "newdemo.h"
 #include "stringtable.h"

@@ -15,7 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fix/fix.h"
 #include "2d/gr.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "object.h"
 
 //from gauges.c

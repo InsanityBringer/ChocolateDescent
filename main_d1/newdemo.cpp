@@ -74,7 +74,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "aistruct.h"
 #include "mission.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"

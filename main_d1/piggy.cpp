@@ -32,8 +32,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "2d/rle.h"
 #include "screens.h"
-#include "piggy.h"
-#include "texmerge.h"
+#include "main_shared/piggy.h"
+#include "main_shared/texmerge.h"
 #include "paging.h"
 #include "game.h"
 #include "stringtable.h"
@@ -147,7 +147,7 @@ bitmap_index piggy_register_bitmap(grs_bitmap* bmp, const char* name, int in_fil
 	return temp;
 }
 
-int piggy_register_sound(digi_sound* snd, char* name, int in_file)
+int piggy_register_sound(digi_sound* snd, const char* name, int in_file)
 {
 	int i;
 
@@ -186,11 +186,11 @@ bitmap_index piggy_find_bitmap(char* name)
 	return bmp;
 }
 
-int piggy_find_sound(char* name)
+int piggy_find_sound(const char* name)
 {
 	int i;
 
-	i = hashtable_search(&AllDigiSndNames, name);
+	i = hashtable_search(&AllDigiSndNames, const_cast<char*>(name));
 
 	if (i < 0)
 		return 255;

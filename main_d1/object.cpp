@@ -61,7 +61,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "misc/args.h"
 #include "stringtable.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "gameseq.h"
 
 #ifdef EDITOR

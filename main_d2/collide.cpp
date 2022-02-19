@@ -60,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "endlevel.h"
 #include "multibot.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "stringtable.h"
 #include "automap.h"
 #include "switch.h"

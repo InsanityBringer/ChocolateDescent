@@ -16,11 +16,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "2d/gr.h"
 #include "misc/error.h"
-#include "game.h"
-#include "textures.h"
+#include "game_shared.h"
+#ifdef BUILD_DESCENT2
+#include "main_d2/textures.h"
+#else
+#include "main_d1/textures.h"
+#endif
 #include "platform/mono.h"
 #include "2d/rle.h"
-#include "main_shared/piggy.h"
+#include "piggy.h"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
@@ -92,7 +96,8 @@ int texmerge_init(int num_cached_textures)
 	else
 		num_cache_entries = MAX_NUM_CACHE_BITMAPS;
 	
-	for (i=0; i<num_cache_entries; i++ )	{
+	for (i=0; i<num_cache_entries; i++ )	
+	{
 			// Make temp tmap for use when combining
 		Cache[i].bitmap = gr_create_bitmap( 64, 64 );
 
@@ -113,7 +118,8 @@ void texmerge_flush()
 {
 	int i;
 
-	for (i=0; i<num_cache_entries; i++ )	{
+	for (i=0; i<num_cache_entries; i++ )	
+	{
 		Cache[i].last_frame_used = -1;
 		Cache[i].top_bmp = NULL;
 		Cache[i].bottom_bmp = NULL;
@@ -127,7 +133,8 @@ void texmerge_close()
 {
 	int i;
 
-	for (i=0; i<num_cache_entries; i++ )	{
+	for (i=0; i<num_cache_entries; i++ )	
+	{
 		gr_free_bitmap( Cache[i].bitmap );
 		Cache[i].bitmap = NULL;
 	}
@@ -157,13 +164,15 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	least_recently_used = 0;
 	lowest_frame_count = Cache[0].last_frame_used;
 	
-	for (i=0; i<num_cache_entries; i++ )	{
+	for (i=0; i<num_cache_entries; i++ )	
+	{
 		if ( (Cache[i].last_frame_used > -1) && (Cache[i].top_bmp==bitmap_top) && (Cache[i].bottom_bmp==bitmap_bottom) && (Cache[i].orient==orient ))	{
 			cache_hits++;
 			Cache[i].last_frame_used = FrameCount;
 			return Cache[i].bitmap;
 		}	
-		if ( Cache[i].last_frame_used < lowest_frame_count )	{
+		if ( Cache[i].last_frame_used < lowest_frame_count )	
+		{
 			lowest_frame_count = Cache[i].last_frame_used;
 			least_recently_used = i;
 		}
@@ -173,25 +182,26 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	cache_misses++;
 
 	// Make sure the bitmaps are paged in...
-#ifdef PIGGY_USE_PAGING
 	piggy_page_flushed = 0;
 
 	PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
 	PIGGY_PAGE_IN(Textures[tmap_bottom]);
-	if (piggy_page_flushed)	{
+	if (piggy_page_flushed)	
+	{
 		// If cache got flushed, re-read 'em.
 		piggy_page_flushed = 0;
 		PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
 		PIGGY_PAGE_IN(Textures[tmap_bottom]);
 	}
 	Assert( piggy_page_flushed == 0 );
-#endif
 
-	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
+	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	
+	{
 		merge_textures_super_xparent( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
 		Cache[least_recently_used].bitmap->bm_flags = BM_FLAG_TRANSPARENT;
 		Cache[least_recently_used].bitmap->avg_color = bitmap_top->avg_color;
-	} else	{
+	} else	
+	{
 		merge_textures_new( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
 		Cache[least_recently_used].bitmap->bm_flags = bitmap_bottom->bm_flags & (~BM_FLAG_RLE);
 		Cache[least_recently_used].bitmap->avg_color = bitmap_bottom->avg_color;
@@ -207,10 +217,6 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 
 void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp, uint8_t * dest_data )
 {
-#ifdef MACINTOSH
-	uint8_t c;
-	int x,y;
-#endif
 	uint8_t * top_data, *bottom_data;
 
 	if ( top_bmp->bm_flags & BM_FLAG_RLE )
@@ -231,57 +237,16 @@ void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp
 	switch( type )	{
 		case 0:
 			// Normal
-			
-#ifndef MACINTOSH
 			gr_merge_textures( bottom_data, top_data, dest_data );
-#else
-			for (y=0; y<64; y++ )
-				for (x=0; x<64; x++ )	{
-					c = top_data[ 64*y+x ];		
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ 64*y+x ];
-					*dest_data++ = c;
-				}
-#endif
 			break;
 		case 1:
-#ifndef MACINTOSH
 			gr_merge_textures_1( bottom_data, top_data, dest_data );
-#else
-			for (y=0; y<64; y++ )
-				for (x=0; x<64; x++ )	{
-					c = top_data[ 64*x+(63-y) ];		
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ 64*y+x ];
-					*dest_data++ = c;
-				}
-#endif
 			break;
 		case 2:
-#ifndef MACINTOSH
 			gr_merge_textures_2( bottom_data, top_data, dest_data );
-#else
-			for (y=0; y<64; y++ )
-				for (x=0; x<64; x++ )	{
-					c = top_data[ 64*(63-y)+(63-x) ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ 64*y+x ];
-					*dest_data++ = c;
-				}
-#endif
 			break;
 		case 3:
-#ifndef MACINTOSH
 			gr_merge_textures_3( bottom_data, top_data, dest_data );
-#else
-			for (y=0; y<64; y++ )
-				for (x=0; x<64; x++ )	{
-					c = top_data[ 64*(63-x)+y  ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ 64*y+x ];
-					*dest_data++ = c;
-				}
-#endif
 			break;
 	}
 }

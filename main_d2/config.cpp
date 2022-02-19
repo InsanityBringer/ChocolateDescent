@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "menu.h"
 #include "movie.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "kconfig.h"
 #include "2d/palette.h"
 #include "platform/joy.h"

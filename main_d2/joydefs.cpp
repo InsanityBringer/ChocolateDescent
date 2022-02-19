@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/args.h" //[ISB] STOP PUTTING ARA ARA IN THE SOURCE AND FIX THE PROBLEM
 #include "stringtable.h"
 #include "kconfig.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "playsave.h"
 
 int joydefs_calibrate_flag = 0;

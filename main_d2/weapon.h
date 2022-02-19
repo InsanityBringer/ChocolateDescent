@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "2d/gr.h"
 #include "game.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 //weapon info flags
 #define WIF_PLACABLE		1		//can be placed by level designer

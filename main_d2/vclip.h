@@ -15,7 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "2d/gr.h"
 #include "object.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #define VCLIP_SMALL_EXPLOSION		2
 #define VCLIP_PLAYER_HIT			1

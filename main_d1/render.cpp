@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "segpoint.h"
 #include "wall.h"
-#include "texmerge.h"
+#include "main_shared/texmerge.h"
 #include "physics.h"
 #include "3d/3d.h"
 #include "gameseg.h"
@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "newmenu.h"
 #include "mem/mem.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #define	INITIAL_LOCAL_LIGHT	(F1_0/4)		// local light value in segment of occurence (of light emission)
 

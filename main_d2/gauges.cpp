@@ -49,7 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "stringtable.h"
 #include "render.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "laser.h"
 
 #if defined(POLY_ACC)

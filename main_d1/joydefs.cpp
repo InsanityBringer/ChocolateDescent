@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/args.h"
 #include "stringtable.h"
 #include "kconfig.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "playsave.h"
 
 int joydefs_calibrate_flag = 0;

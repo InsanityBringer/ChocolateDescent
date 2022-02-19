@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d2/gamesave.h"
 
 #include "texpage.h"
-#include "main_d2/piggy.h"
+#include "main_shared/piggy.h"
 
 #define TMAPS_PER_PAGE 12
 

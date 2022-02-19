@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
  // Defines
 #include "gameseq.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 // What version of the multiplayer protocol is this?
 

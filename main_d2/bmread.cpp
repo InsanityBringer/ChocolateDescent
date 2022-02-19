@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "laser.h"
 #include "sounds.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "aistruct.h"
 #include "robot.h"
 #include "weapon.h"
