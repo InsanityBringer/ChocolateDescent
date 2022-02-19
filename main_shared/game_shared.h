@@ -7,22 +7,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #pragma once
 
- //	How close two points must be in all dimensions to be considered the same point.
-#define	FIX_EPSILON	10
+//This file contains defintions shared between Descent 1 and 2.
 
-#include "main_shared/inferno_shared.h"
-
-extern int Function_mode;			//in game or editor?
-extern int Screen_mode;				//editor screen or game screen?
-extern char Menu_pcx_name[13];
-
-void check_joystick_calibration();
-void show_order_form();
-
-int D_DescentMain(int argc, const char** argv);
+#define	NDL	5		//	Number of difficulty levels.
+#define	NUM_DETAIL_LEVELS	6

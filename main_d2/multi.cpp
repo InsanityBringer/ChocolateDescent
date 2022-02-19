@@ -1650,14 +1650,7 @@ multi_do_position(char* buf)
 		return;
 	}
 
-
-#ifndef MACINTOSH
-	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos*)(buf + 1), 0);
-#else
-	memcpy((uint8_t*)(sp.bytemat), (uint8_t*)(buf + 1), 9);
-	memcpy((uint8_t*)&(sp.xo), (uint8_t*)(buf + 10), 14);
-	extract_shortpos(&Objects[Players[pnum].objnum], &sp, 1);
-#endif
+	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos*)(buf + 1));
 
 	if (Objects[Players[pnum].objnum].movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(&Objects[Players[pnum].objnum]);
@@ -2995,7 +2988,7 @@ multi_send_position(int objnum)
 
 	multibuf[count++] = (char)MULTI_POSITION;
 #ifndef MACINTOSH
-	create_shortpos((shortpos*)(multibuf + count), Objects + objnum, 0);
+	create_shortpos((shortpos*)(multibuf + count), Objects + objnum);
 	count += sizeof(shortpos);
 #else
 	create_shortpos(&sp, Objects + objnum, 1);
@@ -4047,7 +4040,7 @@ void multi_send_guided_info(object* miss, char done)
 	multibuf[count++] = done;
 
 #ifndef MACINTOSH
-	create_shortpos((shortpos*)(multibuf + count), miss, 0);
+	create_shortpos((shortpos*)(multibuf + count), miss);
 	count += sizeof(shortpos);
 #else
 	create_shortpos(&sp, miss, 1);
@@ -4097,13 +4090,7 @@ void multi_do_guided(char* buf)
 		return;
 	}
 
-#ifndef MACINTOSH	
-	extract_shortpos(Guided_missile[pnum], (shortpos*)(buf + count), 0);
-#else
-	memcpy((uint8_t*)(sp.bytemat), (uint8_t*)(buf + count), 9);
-	memcpy((uint8_t*)&(sp.xo), (uint8_t*)(buf + count + 9), 14);
-	extract_shortpos(Guided_missile[pnum], &sp, 1);
-#endif
+	extract_shortpos(Guided_missile[pnum], (shortpos*)(buf + count));
 
 	count += sizeof(shortpos);
 

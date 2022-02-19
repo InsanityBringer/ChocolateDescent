@@ -4437,7 +4437,7 @@ void network_do_frame(int force, int listen)
 
 			if (Netgame.ShortPackets)
 			{
-				create_shortpos(&ShortSyncPack.thepos, Objects + objnum, 0);
+				create_shortpos(&ShortSyncPack.thepos, Objects + objnum);
 				ShortSyncPack.type = PID_PDATA;
 				ShortSyncPack.playernum = Player_num;
 				ShortSyncPack.obj_render_type = Objects[objnum].render_type;
@@ -4797,7 +4797,7 @@ void network_read_pdata_short_packet(short_frame_info* pd)
 
 	//------------ Read the player's ship's object info ----------------------
 
-	extract_shortpos(TheirObj, &new_pd.thepos, 0);
+	extract_shortpos(TheirObj, &new_pd.thepos);
 
 	if ((TheirObj->render_type != new_pd.obj_render_type) && (new_pd.obj_render_type == RT_POLYOBJ))
 		multi_make_ghost_player(TheirPlayernum);

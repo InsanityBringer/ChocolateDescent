@@ -15,8 +15,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/types.h"
 #include "vecmat/vecmat.h"
-//#include "segment.h"
-//#include "gameseg.h"
+#include "segment.h"
+#include "gameseg.h"
 #include "aistruct.h"
 #include "2d/gr.h"
 #include "piggy.h"
@@ -404,10 +404,10 @@ extern void dead_player_end(void);
 
 //	Extract information from an object (objp->orient, objp->pos, objp->segnum), stuff in a shortpos structure.
 // See typedef shortpos.
-extern void create_shortpos(shortpos *spp, object *objp);
+extern void create_shortpos(shortpos *spp, object *objp, int swap_bytes);
 
 //	Extract information from a shortpos, stuff in objp->orient (matrix), objp->pos, objp->segnum
-extern void extract_shortpos(object *objp, shortpos *spp);
+extern void extract_shortpos(object *objp, shortpos *spp, int swap_bytes);
 
 //delete objects, such as weapons & explosions, that shouldn't stay between levels
 //if clear_all is set, clear even proximity bombs

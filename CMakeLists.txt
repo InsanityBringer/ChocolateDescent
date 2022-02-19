@@ -60,6 +60,8 @@ set(SHARED_SOURCES
 	main_shared/compbit.h
 	main_shared/effects.cpp
 	main_shared/effects.h
+	main_shared/game_shared.h
+	main_shared/inferno_shared.h
 	main_shared/songs.cpp
 	main_shared/songs.h
 	main_shared/text.cpp
