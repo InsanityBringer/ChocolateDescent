@@ -56,7 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap/texmap.h"
 #include "main_d2/object.h"
 #include "cfile/cfile.h"
-#include "main_d2/effects.h"
+#include "main_shared/effects.h"
 #include "main_d2/wall.h"
 #include "info.h"
 #include "main_d2/ai.h"

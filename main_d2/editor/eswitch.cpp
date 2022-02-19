@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d2/screens.h"
 
 #include "main_d2/textures.h"
-#include "main_d2/texmerge.h"
+#include "main_shared/texmerge.h"
 #include "medrobot.h"
 #include "platform/timer.h"
 #include "platform/key.h"

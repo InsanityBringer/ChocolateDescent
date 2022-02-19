@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d2/switch.h"
 #include "eswitch.h"
 
-#include "main_d2/texmerge.h"
+#include "main_shared/texmerge.h"
 #include "medrobot.h"
 #include "platform/timer.h"
 #include "platform/mono.h"

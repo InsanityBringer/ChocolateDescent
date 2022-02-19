@@ -15,15 +15,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-//TODO: Digi will require a lot of adaption to be made sharable, but it's doable. 
 #ifdef BUILD_DESCENT2
 #include "main_d2/inferno.h"
-#include "main_d2/digi.h"
 #else
 #include "main_d1/inferno.h"
-#include "main_d1/digi.h"
 #endif
 
+#include "digi.h"
 #include "misc/error.h"
 #include "misc/types.h"
 #include "misc/args.h"
