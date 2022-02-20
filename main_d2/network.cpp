@@ -1343,6 +1343,21 @@ void network_send_game_list_request()
 	NetSendBroadcastPacket((uint8_t*)&me, sizeof(sequence_packet));
 }
 
+void network_send_game_list_request_to(uint8_t* address)
+{
+	// Send a broadcast request for game info
+
+	sequence_packet me;
+
+	mprintf((0, "Sending game_list request.\n"));
+	me.type = PID_GAME_LIST;
+	memcpy(me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN + 1);
+	memcpy(me.player.network.ipx.node, NetGetLocalAddress(), 4);
+	me.player.identifier = My_Seq.player.identifier;
+
+	NetSendInternetworkPacket((uint8_t*)&me, sizeof(sequence_packet), address);
+}
+
 void network_send_all_info_request(char type, int which_security)
 {
 	// Send a broadcast request for game info
@@ -3768,6 +3783,146 @@ remenu:
 
 void network_join_game_at(uint8_t* address)
 {
+	int i;
+	fix start_time;
+
+	if (!Network_active)
+	{
+		nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND);
+		return;
+	}
+
+	network_init();
+
+	N_players = 0;
+
+	setjmp(LeaveGame);
+
+	Network_send_objects = 0;
+	Network_sending_extras = 0;
+	Network_rejoined = 0;
+
+	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+
+	network_flush();
+	network_listen();  // Throw out old info
+
+	network_send_game_list_request_to(address); // broadcast a request for lists
+	start_time = timer_get_fixed_seconds();
+
+	show_boxed_message(TXT_WAIT);
+	plat_present_canvas(0);
+
+	num_active_games = 0;
+	memset(Active_games, 0, sizeof(netgame_info) * MAX_ACTIVE_NETGAMES);
+	memset(ActiveNetPlayers, 0, sizeof(AllNetPlayers_info) * MAX_ACTIVE_NETGAMES);
+
+	gr_set_fontcolor(BM_XRGB(15, 15, 23), -1);
+
+	if (setjmp(LeaveGame)) //aborting game
+		return;
+	Network_games_changed = 1;
+
+	for (;;)
+	{
+		plat_do_events();
+		//listen for requests
+		network_listen();
+
+		//Look if a game has been made available yet
+		if (num_active_games > 0)
+			break;
+
+		if (timer_get_fixed_seconds() > start_time + F1_0 * 5)
+		{
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, "No game found within 5 seconds.");
+			return;
+		}
+	}
+
+	// Choice has been made and looks legit
+	if (Active_games[0].game_status == NETSTAT_ENDLEVEL)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+		return;
+	}
+
+	if (Active_games[0].protocol_version != MULTI_PROTO_VERSION)
+	{
+		if (Active_games[0].protocol_version == 3)
+		{
+#ifndef SHAREWARE
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, "Your version of Descent 2\nis incompatible with the\nDemo version");
+#endif
+		}
+		else if (Active_games[0].protocol_version == 4) 
+		{
+#ifdef SHAREWARE
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, "This Demo version of\nDescent 2 is incompatible\nwith the full commercial version");
+#endif
+		}
+		else
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
+
+		return;
+	}
+
+#ifndef SHAREWARE
+	{
+		// Check for valid mission name
+		mprintf((0, "Loading mission:%s.\n", Active_games[0].mission_name));
+		if (!load_mission_by_name(Active_games[0].mission_name))
+		{
+			nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+			return;
+		}
+	}
+#endif
+
+#if defined (D2_OEM)
+	{
+		if (Active_games[0].levelnum > 8)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
+			return;
+		}
+	}
+#endif                  
+
+	if (!network_wait_for_all_info(0))
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, "There was a join error!");
+		Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+		return;
+	}
+
+	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+
+	if (!can_join_netgame(&Active_games[0], &ActiveNetPlayers[0]))
+	{
+		if (Active_games[0].numplayers == Active_games[0].max_numplayers)
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
+		else
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+		return;
+	}
+
+	// Choice is valid, prepare to join in
+
+	memcpy(&Netgame, &Active_games[0], sizeof(netgame_info));
+	memcpy(&NetPlayers, &ActiveNetPlayers[0], sizeof(AllNetPlayers_info));
+
+	Difficulty_level = Netgame.difficulty;
+	MaxNumNetPlayers = Netgame.max_numplayers;
+	change_playernum_to(1);
+
+	network_set_game_mode(Netgame.gamemode);
+
+	network_AdjustMaxDataSize();
+
+	StartNewLevel(Netgame.levelnum, 0);
+
+	return;         // look ma, we're in a game!!!
 }
 
 fix StartWaitAllTime = 0;

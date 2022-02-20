@@ -48,7 +48,6 @@ typedef struct sequence_packet
 {
 	uint8_t					type;
 	int 					Security;
-	uint8_t pad1[3];
 	netplayer_info		player;
 } sequence_packet;
 

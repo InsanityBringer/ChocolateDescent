@@ -1104,7 +1104,7 @@ network_send_game_list_request(void)
 	me.type = PID_GAME_LIST;
 
 	netmisc_encode_sequence_packet(buf, &len, &me);
-	NetSendBroadcastPacket((uint8_t*)& me, sizeof(sequence_packet));
+	NetSendBroadcastPacket((uint8_t*)& me, len);
 }
 
 void network_send_game_info_request_to(uint8_t* address)
@@ -1121,7 +1121,7 @@ void network_send_game_info_request_to(uint8_t* address)
 	me.type = PID_GAME_LIST;
 
 	netmisc_encode_sequence_packet(buf, &len, &me);
-	NetSendInternetworkPacket((uint8_t*)&me, sizeof(sequence_packet), address);
+	NetSendInternetworkPacket((uint8_t*)&me, len, address);
 }
 
 void
