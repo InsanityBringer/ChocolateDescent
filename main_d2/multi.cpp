@@ -1202,7 +1202,7 @@ extern fix StartingShields;
 fix PingLaunchTime, PingReturnTime;
 
 extern void network_send_ping(uint8_t);
-extern void network_dump_player(uint8_t* server, uint8_t* node, int why);
+extern void network_dump_player(uint8_t* node, int why);
 extern int network_who_is_master();
 extern void network_send_netgame_update();
 extern char NameReturning;
@@ -1373,7 +1373,6 @@ void multi_send_message_end()
 			}
 			else HUD_init_message("You cannot use # kicking with in team display.");
 
-
 			multi_message_index = 0;
 			multi_sending_message = 0;
 			return;
@@ -1381,10 +1380,10 @@ void multi_send_message_end()
 
 
 		for (i = 0; i < N_players; i++)
-			if ((!_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message) - name_index)) && (i != Player_num) && (Players[i].connected)) {
+			if ((!_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message) - name_index)) && (i != Player_num) && (Players[i].connected)) 
+			{
 			kick_player:;
-				if (Network_game_type == IPX_GAME)
-					network_dump_player(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, 7);
+				network_dump_player(NetPlayers.players[i].network.ipx.node, 7);
 
 				HUD_init_message("Dumping %s...", Players[i].callsign);
 				multi_message_index = 0;

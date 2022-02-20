@@ -27,7 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/rand.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
-//#include "vga.h"
 #include "inferno.h"
 #include "platform/posixstub.h"
 #include "menu.h"
@@ -74,6 +73,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 //#include "rbaudio.h"
 #include "powerup.h"
+#include "platform/i_net.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -131,10 +131,9 @@ int EscortHotKeys = 1;
 
 // Function Prototypes added after LINTING
 void do_option(int select);
-void do_detail_level_menu_custon(void);
-void do_multi_player_menu(void);
-void do_detail_level_menu_custom(void);
-void do_new_game_menu(void);
+void do_multi_player_menu();
+void do_detail_level_menu_custom();
+void do_new_game_menu();
 
 extern void ReorderSecondary();
 extern void ReorderPrimary();
@@ -313,6 +312,7 @@ int DoMenu()
 }
 
 extern void show_order_form(void);      // John didn't want this in inferno.h so I just externed it.
+void do_ip_address_menu();
 
 #ifdef WINDOWS
 #undef TXT_SELECT_DEMO
@@ -421,10 +421,6 @@ void do_option(int select)
 	case MENU_START_IPX_NETGAME:
 #ifdef NETWORK
 		load_mission(0);
-#ifdef MACINTOSH
-		Network_game_type = IPX_GAME;
-#endif
-		//			WIN(ipx_create_read_thread());
 		network_start_game();
 #endif
 		break;
@@ -432,23 +428,14 @@ void do_option(int select)
 	case MENU_JOIN_IPX_NETGAME:
 #ifdef NETWORK
 		load_mission(0);
-#ifdef MACINTOSH
-		Network_game_type = IPX_GAME;
-#endif
-		//			WIN(ipx_create_read_thread());
 		network_join_game();
 #endif
 		break;
 
-	case MENU_START_TCP_NETGAME:
-	case MENU_JOIN_TCP_NETGAME:
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, "Not available in shareware version!");
-		// DoNewIPAddress();
-		break;
-
 	case MENU_START_SERIAL:
 #ifdef NETWORK
-		nm_messagebox("Chocolate Note:", 1, TXT_OK, "Emulation of modem support is\nunlikely. Start a normal\nnetwork game.");
+		load_mission(0);
+		do_ip_address_menu();
 #endif
 		break;
 	case MENU_MULTIPLAYER:
@@ -1237,6 +1224,11 @@ void do_toggles_menu()
 	} while (i > -1);
 }
 
+//[ISB] These strings are replicated here since the Descent 2 versions of them explicitly reference IPX. 
+char start_net_game_str[40] = "Start a network game...";
+char join_net_game_str[40] = "Join a network game...\n";
+char direct_join_str[40] = "CONNECT TO IP ADDRESS...";
+
 void do_multi_player_menu()
 {
 	int menu_choice[5];
@@ -1246,17 +1238,17 @@ void do_multi_player_menu()
 
 	do
 	{
-		//		WIN(ipx_destroy_read_thread());
-
 		old_game_mode = Game_mode;
 		num_options = 0;
 
-		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1);
-		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1);
-		//  ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1 );
-		//  ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1 );
+#ifdef NETWORK
+		//go back to the old port when starting new games
+		NetChangeDefaultSocket(Current_Port);
+#endif
 
-		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
+		ADD_ITEM(start_net_game_str, MENU_START_IPX_NETGAME, -1);
+		ADD_ITEM(join_net_game_str, MENU_JOIN_IPX_NETGAME, -1);
+		ADD_ITEM(direct_join_str, MENU_START_SERIAL, -1);
 
 		choice = newmenu_do1(NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice);
 
@@ -1270,6 +1262,77 @@ void do_multi_player_menu()
 
 }
 
+#ifdef NETWORK
+void do_ip_address_menu()
+{
+	newmenu_item m;
+	static char text[256] = "";
+	uint8_t address[4];
+	char* ptr, * oldptr;
+	int i;
+	int value;
+
+	char buf[256];
+
+	uint16_t oldPort = NetGetCurrentPort();
+	snprintf(buf, 255, "Enter IP address\nCurrent port is %d", oldPort);
+	buf[255] = '\0';
+
+	m.type = NM_TYPE_INPUT; m.text_len = 255; m.text = text;
+
+	int opt = newmenu_do(NULL, buf, 1, &m, NULL);
+
+	if (opt == -1) return;
+
+	//new_level_num = atoi(m.text);
+	char* colonPtr = strchr(text, ':');
+	if (colonPtr)
+	{
+		*colonPtr = '\0';
+		char* portString = colonPtr + 1;
+		int newPort = atoi(portString);
+		NetChangeDefaultSocket(newPort);
+	}
+	ptr = oldptr = text;
+	for (i = 0; i < 4; i++)
+	{
+		if (i != 3)
+		{
+			ptr = strchr(ptr, '.');
+			if (!ptr)
+			{
+				nm_messagebox(NULL, 1, TXT_OK, "Address is formatted incorrectly");
+				return;
+			}
+			*ptr = '\0';
+		}
+		value = atoi(oldptr);
+		if (value > 255)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "Invalid number in address");
+			return;
+		}
+		address[i] = value;
+		if (i != 3)
+		{
+			*ptr = '.';
+			ptr++;
+		}
+		oldptr = ptr;
+	}
+
+	network_join_game_at(address);
+
+	if (colonPtr)
+	{
+		*colonPtr = ':';
+	}
+
+	return;
+}
+#endif
+
+/* [ISB] heh
 void DoNewIPAddress()
 {
 	newmenu_item m[4];
@@ -1287,3 +1350,4 @@ void DoNewIPAddress()
 
 	nm_messagebox(TXT_SORRY, 1, TXT_OK, "That address is not valid!");
 }
+*/

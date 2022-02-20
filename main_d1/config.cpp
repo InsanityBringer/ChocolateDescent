@@ -170,16 +170,16 @@ int ReadConfigFile()
 			else if (!strcmp(token, last_player_str)) 
 			{
 				char* p;
-				memset(config_last_player, '\0', CALLSIGN_LEN + 1 * sizeof(char));
 				strncpy(config_last_player, value, CALLSIGN_LEN);
+				config_last_player[CALLSIGN_LEN] = '\0';
 				p = strchr(config_last_player, '\n');
 				if (p)* p = 0;
 			}
 			else if (!strcmp(token, last_mission_str)) 
 			{
 				char* p;
-				memset(config_last_mission, '\0', MISSION_NAME_LEN + 1 * sizeof(char));
 				strncpy(config_last_mission, value, MISSION_NAME_LEN);
+				config_last_mission[CALLSIGN_LEN] = '\0';
 				p = strchr(config_last_mission, '\n');
 				if (p)* p = 0;
 			}

@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "platform/mono.h"
 //#include "pa_enabl.h"
+#include "network.h"
 
 uint8_t Config_digi_volume = 8;
 uint8_t Config_midi_volume = 8;
@@ -69,6 +70,7 @@ static const char *config_vr_type_str = "VR_type";
 static const char *config_vr_resolution_str = "VR_resolution";
 static const char *config_vr_tracking_str = "VR_tracking";
 static const char *movie_hires_str = "MovieHires";
+static const char* port_number_str = "NetworkPort";
 
 #define _CRYSTAL_LAKE_8_ST		0xe201
 #define _CRYSTAL_LAKE_16_ST	0xe202
@@ -90,8 +92,6 @@ int	 DOSJoySaveMax[4];
 char win95_current_joyname[256];
 #endif
 
-
-
 int Config_vr_type = 0;
 int Config_vr_resolution = 0;
 int Config_vr_tracking = 0;
@@ -104,70 +104,9 @@ extern int8_t	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, 
 void set_custom_detail_vars(void);
 
 
-#define CL_MC0 0xF8F
-#define CL_MC1 0xF8D
-
-void CrystalLakeWriteMCP( uint16_t mc_addr, uint8_t mc_data )
-{
-	/*_disable();
-	outp( CL_MC0, 0xE2 );				// Write password
-	outp( mc_addr, mc_data );		// Write data
-	_enable();*/
-	//Warning("CrystalLakeWriteMCP: STUB\n");
-	//fprintf(stderr, "CrystalLakeWriteMCP: STUB\n");
-}
-
-uint8_t CrystalLakeReadMCP(uint16_t mc_addr )
-{
-	uint8_t value = 0;
-	/*_disable();
-	outp( CL_MC0, 0xE2 );		// Write password
-	value = inp( mc_addr );		// Read data
-	_enable();*/
-	//fprintf(stderr, "CrystalLakeReadMCP: STUB\n");
-	return value;
-}
-
-void CrystalLakeSetSB()
-{
-	/*uint8_t tmp;
-	tmp = CrystalLakeReadMCP( CL_MC1 );
-	tmp &= 0x7F;
-	CrystalLakeWriteMCP( CL_MC1, tmp );*/
-}
-
-void CrystalLakeSetWSS()
-{
-	/*uint8_t tmp;
-	tmp = CrystalLakeReadMCP( CL_MC1 );
-	tmp |= 0x80;
-	CrystalLakeWriteMCP( CL_MC1, tmp );*/
-}
-
 //MovieHires might be changed by -nohighres, so save a "real" copy of it
 int SaveMovieHires;
 int save_redbook_enabled;
-
-#ifdef WINDOWS
-void CheckMovieAttributes()
-{
-		HKEY hKey;
-		DWORD len, type, val;
-		long lres;
-  
-		lres = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Parallax\\Descent II\\1.1\\INSTALL",
-							0, KEY_READ, &hKey);
-		if (lres == ERROR_SUCCESS) {
-			len = sizeof(val);
-			lres = RegQueryValueEx(hKey, "HIRES", NULL, &type, &val, &len);
-			if (lres == ERROR_SUCCESS) {
-				MovieHires = val;
-				logentry("HIRES=%d\n", val);
-			}
-			RegCloseKey(hKey);
-		}
-}
-#endif
 
 int ReadConfigFile()
 {
@@ -187,15 +126,6 @@ int ReadConfigFile()
 	joy_axis_min[0] = joy_axis_min[1] = joy_axis_min[2] = joy_axis_min[3] = 0;
 	joy_axis_max[0] = joy_axis_max[1] = joy_axis_max[2] = joy_axis_max[3] = 0;
 	joy_axis_center[0] = joy_axis_center[1] = joy_axis_center[2] = joy_axis_center[3] = 0;
-
-#ifdef WINDOWS
-	memset(&joy_axis_min[0], 0, sizeof(int)*7);
-	memset(&joy_axis_max[0], 0, sizeof(int)*7);
-	memset(&joy_axis_center[0], 0, sizeof(int)*7);
-//@@	joy_set_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
-#else
-	joy_set_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
-#endif
 
 	digi_driver_board = 0;
 	digi_driver_port = 0;
@@ -221,11 +151,13 @@ int ReadConfigFile()
 #else
 	infile = fopen("descent.cfg", "rt");
 #endif
-	if (infile == NULL) {
+	if (infile == NULL)
+	{
 		WIN(CheckMovieAttributes());
 		return 1;
 	}
-	while (!feof(infile)) {
+	while (!feof(infile)) 
+	{
 		memset(line, 0, 80);
 		fgets(line, 80, infile);
 		ptr = &(line[0]);
@@ -262,18 +194,22 @@ int ReadConfigFile()
 				Config_redbook_volume = strtol(value, NULL, 10);
 			else if (!strcmp(token, stereo_rev_str))
 				Config_channels_reversed = strtol(value, NULL, 10);
-			else if (!strcmp(token, gamma_level_str)) {
+			else if (!strcmp(token, gamma_level_str)) 
+			{
 				gamma = strtol(value, NULL, 10);
 				gr_palette_set_gamma( gamma );
 			}
-			else if (!strcmp(token, detail_level_str)) {
+			else if (!strcmp(token, detail_level_str))
+			{
 				Detail_level = strtol(value, NULL, 10);
-				if (Detail_level == NUM_DETAIL_LEVELS-1) {
+				if (Detail_level == NUM_DETAIL_LEVELS-1) 
+				{
 					int count,dummy,oc,od,wd,wrd,da,sc;
 
 					count = sscanf (value, "%d,%d,%d,%d,%d,%d,%d\n",&dummy,&oc,&od,&wd,&wrd,&da,&sc);
 
-					if (count == 7) {
+					if (count == 7) 
+					{
 						Object_complexity = oc;
 						Object_detail = od;
 						Wall_detail = wd;
@@ -290,50 +226,48 @@ int ReadConfigFile()
 					#endif
 				}
 			}
-			else if (!strcmp(token, joystick_min_str))	{
-				sscanf( value, "%d,%d,%d,%d", &joy_axis_min[0], &joy_axis_min[1], &joy_axis_min[2], &joy_axis_min[3] );
-			} 
-			else if (!strcmp(token, joystick_max_str))	{
-				sscanf( value, "%d,%d,%d,%d", &joy_axis_max[0], &joy_axis_max[1], &joy_axis_max[2], &joy_axis_max[3] );
-			}
-			else if (!strcmp(token, joystick_cen_str))	{
-				sscanf( value, "%d,%d,%d,%d", &joy_axis_center[0], &joy_axis_center[1], &joy_axis_center[2], &joy_axis_center[3] );
-			}
-			else if (!strcmp(token, last_player_str))	{
+			else if (!strcmp(token, last_player_str))	
+			{
 				char * p;
 				strncpy( config_last_player, value, CALLSIGN_LEN );
+				config_last_player[CALLSIGN_LEN] = '\0';
 				p = strchr( config_last_player, '\n');
 				if ( p ) *p = 0;
 			}
-			else if (!strcmp(token, last_mission_str))	{
+			else if (!strcmp(token, last_mission_str))	
+			{
 				char * p;
 				strncpy( config_last_mission, value, MISSION_NAME_LEN );
+				config_last_mission[MISSION_NAME_LEN] = '\0';
 				p = strchr( config_last_mission, '\n');
 				if ( p ) *p = 0;
-			} else if (!strcmp(token, config_vr_type_str)) {
+			} 
+			else if (!strcmp(token, config_vr_type_str)) 
+			{
 				Config_vr_type = strtol(value, NULL, 10);
-			} else if (!strcmp(token, config_vr_resolution_str)) {
+			} 
+			else if (!strcmp(token, config_vr_resolution_str)) 
+			{
 				Config_vr_resolution = strtol(value, NULL, 10);
-			} else if (!strcmp(token, config_vr_tracking_str)) {
+			} 
+			else if (!strcmp(token, config_vr_tracking_str)) 
+			{
 				Config_vr_tracking = strtol(value, NULL, 10);
-			} else if (!strcmp(token, movie_hires_str)) {
+			} 
+			else if (!strcmp(token, movie_hires_str)) 
+			{
 				SaveMovieHires = MovieHires = strtol(value, NULL, 10);
 			}
+#ifdef NETWORK
+			else if (!strcmp(token, port_number_str))
+			{
+				Current_Port = (uint16_t)strtol(value, NULL, 10);
+			}
+#endif
 		}
 	}
 
 	fclose(infile);
-
-#ifdef WINDOWS
-	for (i=0;i<4;i++)
-	{
-	 DOSJoySaveMin[i]=joy_axis_min[i];
-	 DOSJoySaveCen[i]=joy_axis_center[i];
-	 DOSJoySaveMax[i]=joy_axis_max[i];
-   	}
-#else
-	joy_set_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
-#endif
 
 	i = FindArg( "-volume" );
 	
@@ -365,18 +299,15 @@ int ReadConfigFile()
 	Config_digi_type = digi_driver_board;
 	Config_digi_dma = digi_driver_dma;
 
-#ifndef WINDOWS
 	if (digi_driver_board_16 > 0 && !FindArg("-no16bit")/* && digi_driver_board_16 != _GUS_16_ST*/) //[ISB] todo
 	{
 		digi_driver_board = digi_driver_board_16;
 		digi_driver_dma = digi_driver_dma_16;
 	}
-#endif
 
 	// HACK!!! 
 	//Hack to make some cards look like others, such as
 	//the Crytal Lake look like Microsoft Sound System
-#ifndef WINDOWS //[ISB] todo
 	/*
 	if ( digi_driver_board == _CRYSTAL_LAKE_8_ST )	{
 		uint8_t tmp;
@@ -399,36 +330,6 @@ int ReadConfigFile()
 	} else
 		digi_driver_board		= digi_driver_board;*/
 
-
-#else
-	infile = fopen("descentw.cfg", "rt");
-	if (infile) {
-		while (!feof(infile)) {
-			memset(line, 0, 80);
-			fgets(line, 80, infile);
-			ptr = &(line[0]);
-			while (isspace(*ptr))
-				ptr++;
-			if (*ptr != '\0') {
-				token = strtok(ptr, "=");
-				value = strtok(NULL, "=");
-				if (value[strlen(value)-1] == '\n')
-					value[strlen(value)-1] = 0;
-				if (!strcmp(token, joystick_min_str))	{
-					sscanf( value, "%d,%d,%d,%d,%d,%d,%d", &joy_axis_min[0], &joy_axis_min[1], &joy_axis_min[2], &joy_axis_min[3], &joy_axis_min[4], &joy_axis_min[5], &joy_axis_min[6] );
-				} 
-				else if (!strcmp(token, joystick_max_str))	{
-					sscanf( value, "%d,%d,%d,%d,%d,%d,%d", &joy_axis_max[0], &joy_axis_max[1], &joy_axis_max[2], &joy_axis_max[3], &joy_axis_max[4], &joy_axis_max[5], &joy_axis_max[6] );
-				}
-				else if (!strcmp(token, joystick_cen_str))	{
-					sscanf( value, "%d,%d,%d,%d,%d,%d,%d", &joy_axis_center[0], &joy_axis_center[1], &joy_axis_center[2], &joy_axis_center[3], &joy_axis_center[4], &joy_axis_center[5], &joy_axis_center[6] );
-				}
-			}
-		}
-		fclose(infile);
-	}
-#endif
-
 	return 0;
 }
 
@@ -446,15 +347,6 @@ int WriteConfigFile()
 	uint8_t gamma = gr_palette_get_gamma();
 	
 	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
-
-#ifdef WINDOWS
-	for (i=0;i<4;i++)
-   {
-	 joy_axis_min[i]=DOSJoySaveMin[i];
-	 joy_axis_center[i]=DOSJoySaveCen[i];
-	 joy_axis_max[i]=DOSJoySaveMax[i];
-   }
-#endif
 
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	get_full_file_path(filename, "descent.cfg", CHOCOLATE_CONFIG_DIR);
@@ -500,13 +392,6 @@ int WriteConfigFile()
 		sprintf (str, "%s=%d\n", detail_level_str, Detail_level);
 	fputs(str, infile);
 
-	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_min_str, joy_axis_min[0], joy_axis_min[1], joy_axis_min[2], joy_axis_min[3] );
-	fputs(str, infile);
-	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_cen_str, joy_axis_center[0], joy_axis_center[1], joy_axis_center[2], joy_axis_center[3] );
-	fputs(str, infile);
-	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_max_str, joy_axis_max[0], joy_axis_max[1], joy_axis_max[2], joy_axis_max[3] );
-	fputs(str, infile);
-
 	sprintf (str, "%s=%s\n", last_player_str, Players[Player_num].callsign );
 	fputs(str, infile);
 	sprintf (str, "%s=%s\n", last_mission_str, config_last_mission );
@@ -519,37 +404,11 @@ int WriteConfigFile()
 	fputs(str, infile);
 	sprintf (str, "%s=%d\n", movie_hires_str, SaveMovieHires );
 	fputs(str, infile);
-
-	fclose(infile);
-
-#ifdef WINDOWS
-{
-//	Save Windows Config File
-	char joyname[256];
-						
-
-	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
-	
-	infile = fopen("descentw.cfg", "wt");
-	if (infile == NULL) return 1;
-
-	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_min_str, 
-			joy_axis_min[0], joy_axis_min[1], joy_axis_min[2], joy_axis_min[3],
-			joy_axis_min[4], joy_axis_min[5], joy_axis_min[6]);
+#ifdef NETWORK
+	sprintf(str, "%s=%d\n", port_number_str, Current_Port);
 	fputs(str, infile);
-	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_cen_str, 
-			joy_axis_center[0], joy_axis_center[1], joy_axis_center[2], joy_axis_center[3],
-			joy_axis_center[4], joy_axis_center[5], joy_axis_center[6]);
-	fputs(str, infile);
-	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_max_str, 
-			joy_axis_max[0], joy_axis_max[1], joy_axis_max[2], joy_axis_max[3],
-			joy_axis_max[4], joy_axis_max[5], joy_axis_max[6]);
-	fputs(str, infile);
-
-	fclose(infile);
-}
-	CheckMovieAttributes();
 #endif
 
+	fclose(infile);
 	return 0;
 }		

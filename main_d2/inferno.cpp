@@ -78,10 +78,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "main_shared/compbit.h"
 #include "misc/types.h"
 
-#ifdef TACTILE
-#include "tactile.h"
-#endif
-
 //#include "3dfx_des.h"
 
 #if defined(POLY_ACC)
@@ -103,7 +99,6 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 #include "vers_id.h"
 
 //Current version number
-
 uint8_t Version_major = 1;		//FULL VERSION
 uint8_t Version_minor = 2;
 
@@ -283,22 +278,12 @@ unsigned descent_critical_errcode = 0;
 
 extern int Network_allow_socket_changes;
 
-extern void vfx_set_palette_sub(uint8_t*);
-
-extern int Game_vfx_flag;
-extern int Game_victor_flag;
-extern int Game_vio_flag;
-extern int Game_3dmax_flag;
-extern int VR_low_res;
-
 extern int Config_vr_type;
 extern int Config_vr_resolution;
 extern int Config_vr_tracking;
 extern int grd_fades_disabled;
 
 #define LINE_LEN	100
-
-int init_gameport();
 
 //read help from a file & print to screen
 void print_commandline_help()
@@ -421,8 +406,8 @@ void do_network_init()
 		int ipx_error;
 
 		verbose("\n%s ", TXT_INITIALIZING_NETWORK);
-		if ((t = FindArg("-socket")))
-			socket = atoi(Args[t + 1]);
+		if ((t = FindArg("-port")))
+			Current_Port = atoi(Args[t + 1]);
 		//@@if ( FindArg("-showaddress") ) showaddress=1;
 		if ((ipx_error = NetInit(IPX_DEFAULT_SOCKET + socket, showaddress)) == 0) {
 			verbose("%s %d.\n", TXT_IPX_CHANNEL, socket);

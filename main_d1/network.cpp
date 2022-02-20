@@ -863,14 +863,11 @@ void network_send_objects(void)
 			remote_objnum = objnum_local_to_remote((short)i, &owner);
 			Assert(owner == object_owner[i]);
 
-			//*(short*)(object_buffer + loc) = i;								loc += 2;
 			netmisc_encode_int16(object_buffer, &loc, i);
-			object_buffer[loc] = owner;											loc += 1;
-			//*(short*)(object_buffer + loc) = remote_objnum; 				loc += 2;
+			netmisc_encode_int8(object_buffer, &loc, owner);
 			netmisc_encode_int16(object_buffer, &loc, remote_objnum);
-			//memcpy(object_buffer + loc, &Objects[i], sizeof(object));	loc += sizeof(object);
 			netmisc_encode_object(object_buffer, &loc, &Objects[i]);
-			//			mprintf((0, "..packing object %d, remote %d\n", i, remote_objnum));
+			//mprintf((0, "..packing object %d, remote %d\n", i, remote_objnum));
 		}
 
 		if (obj_count_frame) // Send any objects we've buffered
@@ -880,7 +877,7 @@ void network_send_objects(void)
 			Network_send_objnum = i;
 			object_buffer[1] = obj_count_frame;
 			object_buffer[2] = frame_num;
-			//			mprintf((0, "Object packet %d contains %d objects.\n", frame_num, obj_count_frame));
+			//mprintf((0, "Object packet %d contains %d objects.\n", frame_num, obj_count_frame));
 
 			Assert(loc <= IPX_MAX_DATA_SIZE);
 
@@ -908,8 +905,6 @@ void network_send_objects(void)
 				loc = 3;
 				netmisc_encode_int16(object_buffer, &loc, -2); loc++;
 				netmisc_encode_int16(object_buffer, &loc, obj_count);
-				//*(short*)(object_buffer + 3) = -2;
-				//*(short*)(object_buffer + 6) = obj_count;
 				NetSendInternetworkPacket(object_buffer, 8, Network_player_rejoining.player.node);
 
 				// Send sync packet which tells the player who he is and to start!
@@ -1575,7 +1570,8 @@ void network_read_object_packet(uint8_t* data)
 			}
 			mprintf((0, "Objnum -2 found in frame local %d remote %d.\n", frame_num, remote_frame_num));
 			mprintf((0, "Got %d objects, expected %d.\n", object_count, remote_objnum));
-			if (remote_objnum != object_count) {
+			if (remote_objnum != object_count) 
+			{
 				Int3();
 			}
 			if (network_verify_objects(remote_objnum, object_count))
@@ -2552,8 +2548,7 @@ void network_join_poll(int nitems, newmenu_item* menus, int* key, int citem)
 	}
 }
 
-int
-network_wait_for_sync(void)
+int network_wait_for_sync()
 {
 	char text[60];
 	newmenu_item m[2];
