@@ -116,6 +116,7 @@ void MidiWin32Synth::PerformBranchResets(BranchEntry* entry, int chan)
 	for (int i = 0; i < entry->controlChangeCount; i++)
 	{
 		ev.status = (EVENT_CONTROLLER << 4) | chan;
+		ev.type = EVENT_CONTROLLER;
 		ev.param1 = entry->controlChanges[i].controller;
 		ev.param2 = entry->controlChanges[i].state;
 		DoMidiEvent(&ev);
