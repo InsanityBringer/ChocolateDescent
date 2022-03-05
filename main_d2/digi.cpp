@@ -652,7 +652,7 @@ void digi_set_midi_volume( int mvolume )
 				digi_play_midi_song(digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1);
 		}
 		//sosMIDISetMasterVolume(midi_volume);
-		plat_set_music_volume(midi_volume);
+		music_set_volume(midi_volume);
 	}
 
 }
@@ -859,7 +859,7 @@ void digi_pause_midi()
 		if ( digi_midi_type > 0 )	
 		{
 			// pause here
-			plat_set_music_volume(0);
+			music_set_volume(0);
 		}
 	}
 	sound_paused++;
@@ -878,7 +878,7 @@ void digi_resume_midi()
 		// resume sound here
 		if ( digi_midi_type > 0 )	
 		{
-			plat_set_music_volume(midi_volume);
+			music_set_volume(midi_volume);
 		}
 	}
 	sound_paused--;

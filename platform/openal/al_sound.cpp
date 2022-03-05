@@ -272,10 +272,12 @@ void plat_set_music_volume(int volume)
 	if (!AL_initialized) return;
 	//printf("Music volume %d\n", volume);
 	MusicVolume = volume;
-	if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
+
+	//[ISB] Midi volume is now handled at the synth level, not the mixer level. 
+	/*if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
 	{
 		alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
-	}
+	}*/
 	if (alIsSource(HQMusicSource)) //[ISB] heh
 	{
 		alSourcef(HQMusicSource, AL_GAIN, MusicVolume / 127.0f);

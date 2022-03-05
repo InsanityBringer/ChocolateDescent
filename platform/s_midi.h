@@ -67,6 +67,8 @@ typedef struct
 
 	uint8_t channel;
 	uint8_t type;
+	//HACK: just channel and type in one. idea: don't separate, have GetChannel and GetType methods?
+	uint8_t status;
 	uint8_t param1;
 	uint8_t param2;
 
@@ -75,6 +77,12 @@ typedef struct
 
 	//Used for branches. Ugh. 
 	uint32_t startPtr;  
+
+	uint32_t EncodeShortMessage()
+	{
+		return status + (param1 << 8) + (param2 << 16);
+	}
+
 } midievent_t;
 
 struct BranchControlChange
@@ -219,6 +227,7 @@ public:
 
 int S_InitMusic(int device);
 void S_ShutdownMusic();
+void music_set_volume(int volume);
 
 uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle);
 uint16_t S_StopSong();
@@ -250,6 +259,8 @@ public:
 	//Resets the default state for the synth, because HMI SOS has unusual specifications.
 	virtual void SetDefaults() = 0;
 	virtual void PerformBranchResets(BranchEntry* entry, int chan) = 0;
+	//Sets the volume of the synthesizer. Range is 0-127. 
+	virtual void SetVolume(int volume) = 0;
 };
 
 class DummyMidiSynth : public MidiSynth
@@ -264,6 +275,7 @@ public:
 	void Shutdown() override { }
 	void SetDefaults() override { }
 	void PerformBranchResets(BranchEntry* entry, int chan) override { }
+	void SetVolume(int volume) override { }
 };
 
 //Class which represents the midi thread. Has a Sequencer and a Synthesizer, and invokes the current audio backend to run

@@ -22,6 +22,10 @@ as described in copying.txt.
 #include "platform/fluidsynth/fluid_midi.h"
 #endif
 
+#ifdef _WIN32
+#include "platform/win32/win32midi.h"
+#endif
+
 //[ISB] Uncomment to enable MIDI file diagonstics. Extremely slow on windows. And probably linux tbh.
 //Will probably overflow your console buffer, so make it really long if you must
 //#define DEBUG_MIDI_READING
@@ -95,6 +99,7 @@ int S_InitMusic(int device)
 	{
 	case _MIDI_GEN:
 	{
+		/*
 #ifdef USE_FLUIDSYNTH
 		MidiFluidSynth* fluidSynth = new MidiFluidSynth();
 		if (fluidSynth == nullptr)
@@ -108,7 +113,15 @@ int S_InitMusic(int device)
 		synth = (MidiSynth*)fluidSynth;
 #else
 		synth = new DummyMidiSynth();
-#endif
+#endif*/
+		MidiWin32Synth* winsynth = new MidiWin32Synth();
+		if (winsynth == nullptr)
+		{
+			Error("S_InitMusic: Fatal: Cannot allocate win32 synth.");
+			return 1;
+		}
+		winsynth->CreateSynth();
+		synth = (MidiSynth*)winsynth;
 	}
 		break;
 	}
@@ -160,6 +173,13 @@ void S_ShutdownMusic()
 		delete sequencer;
 	}
 	CurrentDevice = 0;
+}
+
+void music_set_volume(int volume)
+{
+	plat_set_music_volume(volume); //Still needed for HQ music
+	if (synth)
+		synth->SetVolume(volume);
 }
 
 int S_ReadDelta(int* pointer, uint8_t* data)
@@ -444,7 +464,7 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 
 	while (ptr < destPointer) 
 	{
-		midievent_t ev;
+		midievent_t ev = {};
 		ev.startPtr = ptr - startOfData;
 		delta = S_ReadDelta(&ptr, data);
 		b = data[ptr]; ptr++;
@@ -455,6 +475,7 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 		else
 			command = (b >> 4) & 0xf;
 
+		ev.status = b;
 		ev.type = command;
 		ev.channel = b & 0xf;
 		ev.delta = delta;
@@ -681,6 +702,7 @@ void MidiPlayer::Shutdown()
 
 void MidiPlayer::Run()
 {
+	uint64_t currentTime, delta;
 	initialized = true;
 	nextTimerTick = I_GetUS();
 	midi_start_source();
@@ -755,6 +777,26 @@ void MidiPlayer::Run()
 
 				midi_check_status();
 				I_DelayUS(4000);
+			}
+			else if (synth->ClassifySynth() == MIDISYNTH_LIVE)
+			{
+				currentTime = I_GetUS();
+				if (currentTime > nextTimerTick)
+				{
+					currentTickFrac += TickFracDelta;
+					while (currentTickFrac >= 65536)
+					{
+						sequencer->Tick();
+						currentTickFrac -= 65536;
+					}
+
+					nextTimerTick += (1000000 / 120);
+					delta = nextTimerTick - I_GetUS();
+					if (delta > 2000)
+					{
+						I_DelayUS(delta - 2000);
+					}
+				}
 			}
 		}
 	}

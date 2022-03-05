@@ -8,21 +8,24 @@ as described in copying.txt.
 #pragma once
 
 #include "platform/s_midi.h"
-#include "fluidsynth.h"
 
-class MidiFluidSynth : MidiSynth
+#include <Windows.h>
+#include <mmeapi.h>
+
+class MidiWin32Synth : MidiSynth
 {
-	fluid_settings_t* FluidSynthSettings;
-	fluid_synth_t* FluidSynth;
-	fluid_audio_driver_t* AudioDriver;
+	HMIDIOUT OutputDevice;
+	uint8_t VolumeLevels[16];
+	int MasterVolume;
+
 public:
-	MidiFluidSynth();
+	MidiWin32Synth();
 	void SetSoundfont(const char* filename);
 	void SetSampleRate(uint32_t newSampleRate) override;
 	void CreateSynth() override;
 	int ClassifySynth() override
 	{
-		return MIDISYNTH_SOFT;
+		return MIDISYNTH_LIVE;
 	}
 	void DoMidiEvent(midievent_t* ev) override;
 	void RenderMIDI(int numTicks, unsigned short* buffer) override;

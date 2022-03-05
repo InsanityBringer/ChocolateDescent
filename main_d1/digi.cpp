@@ -904,7 +904,7 @@ void digi_set_midi_volume(int mvolume)
 				digi_play_midi_song(digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1);
 		}
 		//sosMIDISetMasterVolume(midi_volume);
-		plat_set_music_volume(midi_volume);
+		music_set_volume(midi_volume);
 	}
 	
 }

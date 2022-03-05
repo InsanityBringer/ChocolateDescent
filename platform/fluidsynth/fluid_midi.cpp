@@ -19,8 +19,7 @@ as described in copying.txt.
 MidiFluidSynth::MidiFluidSynth()
 {
 	FluidSynthSettings = new_fluid_settings();
-	//FluidSynth = new_fluid_synth(FluidSynthSettings);
-	//AudioDriver = new_fluid_audio_driver(FluidSynthSettings, FluidSynth);
+	FluidSynth = nullptr;
 	AudioDriver = nullptr;
 
 	if (FluidSynthSettings)
@@ -29,8 +28,6 @@ MidiFluidSynth::MidiFluidSynth()
 		fluid_settings_setint(FluidSynthSettings, "synth.reverb.active", 0);
 		fluid_settings_setnum(FluidSynthSettings, "synth.gain", 0.5);
 	}
-
-	//if (FluidSynth == nullptr) return 1;
 }
 
 void MidiFluidSynth::SetSampleRate(uint32_t newSampleRate)
@@ -142,6 +139,11 @@ void MidiFluidSynth::PerformBranchResets(BranchEntry* entry, int chan)
 	{
 		fluid_synth_cc(FluidSynth, chan, entry->controlChanges[i].controller, entry->controlChanges[i].state);
 	}
+}
+
+void MidiFluidSynth::SetVolume(int volume)
+{
+	fluid_settings_setnum(FluidSynthSettings, "synth.gain", 0.5 * volume / 127);
 }
 
 #endif

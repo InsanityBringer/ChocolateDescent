@@ -601,6 +601,8 @@ set(WIN32_SOURCES
 	platform/win32/win32joystick.cpp
 	platform/win32/win32joystick.h
 	platform/win32/win32main.cpp
+	platform/win32/win32midi.cpp
+	platform/win32/win32midi.h
 	platform/win32/win32window.cpp
 	ChocolateDescent.manifest
 )
