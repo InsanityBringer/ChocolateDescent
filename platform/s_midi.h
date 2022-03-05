@@ -59,6 +59,14 @@ as described in copying.txt
 
 #define MIDI_SAMPLERATE 48000 //changed from 44100 since 44100/120 = 367.5 which causes timing anomalies for MIDI
 
+enum class GenDevices
+{
+	NullDevice,
+	FluidSynthDevice,
+	MMEDevice
+};
+
+extern GenDevices PreferredGenDevice;
 extern char SoundFontFilename[];
 
 typedef struct

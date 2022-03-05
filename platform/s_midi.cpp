@@ -22,7 +22,7 @@ as described in copying.txt.
 #include "platform/fluidsynth/fluid_midi.h"
 #endif
 
-#ifdef _WIN32
+#ifdef _WINDOWS
 #include "platform/win32/win32midi.h"
 #endif
 
@@ -33,6 +33,7 @@ as described in copying.txt.
 //Uncomment to enable diagonstics of SOS's special MIDI controllers. 
 //#define DEBUG_SPECIAL_CONTROLLERS
 
+GenDevices PreferredGenDevice = GenDevices::FluidSynthDevice;
 int CurrentDevice = 0;
 
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
@@ -99,30 +100,68 @@ int S_InitMusic(int device)
 	{
 	case _MIDI_GEN:
 	{
-		/*
-#ifdef USE_FLUIDSYNTH
-		MidiFluidSynth* fluidSynth = new MidiFluidSynth();
-		if (fluidSynth == nullptr)
+		GenDevices genMidiDevice = PreferredGenDevice;
+
+		//Validate that the preferred device is actually available. 
+		//Messy macro abuse ahoy. 
+#ifndef USE_FLUIDSYNTH
+		if (genMidiDevice == GenDevices::FluidSynthDevice)
 		{
-			Error("S_InitMusic: Fatal: Cannot allocate fluid synth.");
-			return 1;
-		}
-		fluidSynth->SetSampleRate(plat_get_preferred_midi_sample_rate());
-		fluidSynth->CreateSynth();
-		fluidSynth->SetSoundfont(SoundFontFilename);
-		synth = (MidiSynth*)fluidSynth;
+#ifdef _WINDOWS
+			genMidiDevice = GenDevices::MMEDevice;
 #else
-		synth = new DummyMidiSynth();
-#endif*/
-		
-		MidiWin32Synth* winsynth = new MidiWin32Synth();
-		if (winsynth == nullptr)
-		{
-			Error("S_InitMusic: Fatal: Cannot allocate win32 synth.");
-			return 1;
+			genMidiDevice = GenDevices::NullDevice;
+#endif
 		}
-		winsynth->CreateSynth();
-		synth = (MidiSynth*)winsynth;
+#endif
+
+#ifndef _WINDOWS
+		if (genMidiDevice == GenDevices::MMEDevice)
+		{
+#ifdef USE_FLUIDSYNTH
+			genMidiDevice = GenDevices::FluidSynthDevice;
+#else
+			genMidiDevice = GenDevices::NullDevice;
+#endif
+		}
+#endif
+
+		switch (genMidiDevice)
+		{
+#ifdef USE_FLUIDSYNTH
+		case GenDevices::FluidSynthDevice:
+		{
+			MidiFluidSynth* fluidSynth = new MidiFluidSynth();
+			if (fluidSynth == nullptr)
+			{
+				Error("S_InitMusic: Fatal: Cannot allocate fluid synth.");
+				return 1;
+			}
+			fluidSynth->SetSampleRate(plat_get_preferred_midi_sample_rate());
+			fluidSynth->CreateSynth();
+			fluidSynth->SetSoundfont(SoundFontFilename);
+			synth = (MidiSynth*)fluidSynth;
+		}
+			break;
+#endif
+#ifdef _WINDOWS
+		case GenDevices::MMEDevice:
+		{
+			MidiWin32Synth* winsynth = new MidiWin32Synth();
+			if (winsynth == nullptr)
+			{
+				Error("S_InitMusic: Fatal: Cannot allocate win32 synth.");
+				return 1;
+			}
+			winsynth->CreateSynth();
+			synth = (MidiSynth*)winsynth;
+		}
+			break;
+#endif
+		default:
+			synth = new DummyMidiSynth();
+			break;
+		}
 	}
 		break;
 	}
@@ -780,7 +819,7 @@ void MidiPlayer::Run()
 			else if (synth->ClassifySynth() == MIDISYNTH_LIVE)
 			{
 				currentTime = I_GetUS();
-				if (currentTime > nextTimerTick)
+				while (currentTime > nextTimerTick)
 				{
 					currentTickFrac += TickFracDelta;
 					while (currentTickFrac >= 65536)
@@ -790,6 +829,7 @@ void MidiPlayer::Run()
 					}
 
 					nextTimerTick += (1000000 / 120);
+
 					delta = nextTimerTick - I_GetUS();
 					if (delta > 2000)
 					{

@@ -30,6 +30,7 @@ static const char* SoundFontPath = "SoundFontPath";
 static const char* MouseScalarStr = "MouseScalar";
 static const char* SwapIntervalStr = "SwapInterval";
 static const char* NoOpenGLStr = "NoOpenGL";
+static const char* GenDeviceStr = "PreferredGenMidiDevice";
 
 bool NoOpenGL = false;
 
@@ -66,6 +67,7 @@ int plat_read_chocolate_cfg()
 			fprintf(infile, "%s=%d\n", SwapIntervalStr, SwapInterval);
 			if (SoundFontFilename[0])
 				fprintf(infile, "%s=%s", SoundFontPath, SoundFontFilename);
+			fprintf(infile, "%s=%d\n", GenDeviceStr, (int)PreferredGenDevice);
 			fclose(infile);
 		}
 		return 1;
@@ -105,10 +107,12 @@ int plat_read_chocolate_cfg()
 #endif
 				//[ISB] godawful hack from Descent's config parser, should fix parsing the soundfont path
 				p = strchr(SoundFontFilename, '\n');
-				if (p)* p = 0;
+				if (p)*p = 0;
 			}
 			else if (!strcmp(token, NoOpenGLStr))
 				NoOpenGL = strtol(value, NULL, 10) != 0;
+			else if (!strcmp(token, GenDeviceStr))
+				PreferredGenDevice = (GenDevices)strtol(value, NULL, 10);
 		}
 	}
 

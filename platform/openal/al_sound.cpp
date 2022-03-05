@@ -321,7 +321,7 @@ void I_CreateMusicSource()
 	alGenSources(1, &MusicSource);
 	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
 	alSource3f(MusicSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
-	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
+	//alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
 	alGenBuffers(MAX_BUFFERS_QUEUED, MIDISourceBuffers);
 	for (i = 0; i < MAX_BUFFERS_QUEUED; i++)
