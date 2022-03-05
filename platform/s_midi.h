@@ -77,7 +77,7 @@ typedef struct
 
 	uint32_t EncodeShortMessage()
 	{
-		return status + (param1 << 8) + (param2 << 16);
+		return status | (param1 << 8) | (param2 << 16);
 	}
 
 	int GetType()

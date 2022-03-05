@@ -43,8 +43,8 @@ void MidiSequencer::RewindSong(bool resetLoop)
 	{
 		track = song->GetTrack(i);
 		track->StartSequence();
-		synth->SetDefaults();
 	}
+	synth->SetDefaults();
 }
 
 void MidiSequencer::StopSong()

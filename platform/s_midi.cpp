@@ -114,6 +114,7 @@ int S_InitMusic(int device)
 #else
 		synth = new DummyMidiSynth();
 #endif*/
+		
 		MidiWin32Synth* winsynth = new MidiWin32Synth();
 		if (winsynth == nullptr)
 		{
