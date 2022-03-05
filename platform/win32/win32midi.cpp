@@ -41,12 +41,12 @@ void MidiWin32Synth::DoMidiEvent(midievent_t* ev)
 {
 	midievent_t heh = {};
 	uint32_t msg;
-	if (!OutputDevice || ev->type == 0xff) return; //TODO
+	if (!OutputDevice || ev->GetType() == 0xff) return; //TODO
 
 	//Catch volume events, since they need to be caught for volume scaling
-	if (ev->type == EVENT_CONTROLLER && ev->param1 == 7)
+	if (ev->GetType() == EVENT_CONTROLLER && ev->param1 == 7)
 	{
-		VolumeLevels[ev->channel] = ev->param2;
+		VolumeLevels[ev->GetChannel()] = ev->param2;
 		heh.status = ev->status;
 		heh.param1 = ev->param1;
 		heh.param2 = ev->param2 * MasterVolume / 127;
@@ -116,8 +116,6 @@ void MidiWin32Synth::PerformBranchResets(BranchEntry* entry, int chan)
 	for (int i = 0; i < entry->controlChangeCount; i++)
 	{
 		ev.status = (EVENT_CONTROLLER << 4) | chan;
-		ev.type = EVENT_CONTROLLER;
-		ev.channel = chan;
 		ev.param1 = entry->controlChanges[i].controller;
 		ev.param2 = entry->controlChanges[i].state;
 		DoMidiEvent(&ev);

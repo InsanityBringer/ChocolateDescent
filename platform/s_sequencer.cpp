@@ -78,7 +78,7 @@ void MidiSequencer::Tick()
 		while (ev != nullptr)
 		{
 			//handle special controllers
-			if (ev->type == EVENT_CONTROLLER)
+			if (ev->GetType() == EVENT_CONTROLLER)
 			{
 				switch (ev->param1)
 				{
@@ -99,7 +99,7 @@ void MidiSequencer::Tick()
 						track->BranchToByteOffset(branchData->offset);
 						//printf("lbranch %d %d %d\n", i, branchnum, branchData->offset);
 
-						synth->PerformBranchResets(branchData, ev->channel);
+						synth->PerformBranchResets(branchData, ev->GetChannel());
 
 						ev = nullptr;
 					}

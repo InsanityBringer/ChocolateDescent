@@ -476,8 +476,6 @@ int HMPFile::ReadChunk(int ptr, uint8_t* data)
 			command = (b >> 4) & 0xf;
 
 		ev.status = b;
-		ev.type = command;
-		ev.channel = b & 0xf;
 		ev.delta = delta;
 
 		switch (command) //Actually load the params now

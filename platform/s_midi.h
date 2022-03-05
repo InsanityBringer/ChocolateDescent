@@ -65,9 +65,6 @@ typedef struct
 {
 	uint32_t delta;
 
-	uint8_t channel;
-	uint8_t type;
-	//HACK: just channel and type in one. idea: don't separate, have GetChannel and GetType methods?
 	uint8_t status;
 	uint8_t param1;
 	uint8_t param2;
@@ -81,6 +78,17 @@ typedef struct
 	uint32_t EncodeShortMessage()
 	{
 		return status + (param1 << 8) + (param2 << 16);
+	}
+
+	int GetType()
+	{
+		if (status == 0xff) return 0xff;
+		return (status >> 4) & 15;
+	}
+
+	int GetChannel()
+	{
+		return status & 15;
 	}
 
 } midievent_t;

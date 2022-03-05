@@ -63,29 +63,30 @@ void MidiFluidSynth::RenderMIDI(int numTicks, unsigned short* buffer)
 void MidiFluidSynth::DoMidiEvent(midievent_t *ev)
 {
 	//printf("event %d channel %d param 1 %d param 2 %d\n", ev->type, ev->channel, ev->param1, ev->param2);
-	switch (ev->type)
+	int channel = ev->GetChannel();
+	switch (ev->GetType())
 	{
 	case EVENT_NOTEON:
-		fluid_synth_noteon(FluidSynth, ev->channel, ev->param1, ev->param2);
+		fluid_synth_noteon(FluidSynth, channel, ev->param1, ev->param2);
 		break;
 	case EVENT_NOTEOFF:
-		fluid_synth_noteoff(FluidSynth, ev->channel, ev->param1);
+		fluid_synth_noteoff(FluidSynth, channel, ev->param1);
 		break;
 	case EVENT_AFTERTOUCH:
-		fluid_synth_key_pressure(FluidSynth, ev->channel, ev->param1, ev->param2);
+		fluid_synth_key_pressure(FluidSynth, channel, ev->param1, ev->param2);
 		break;
 	case EVENT_PRESSURE:
-		fluid_synth_channel_pressure(FluidSynth, ev->channel, ev->param1);
+		fluid_synth_channel_pressure(FluidSynth, channel, ev->param1);
 		break;
 	case EVENT_PITCH:
-		fluid_synth_pitch_bend(FluidSynth, ev->channel, ev->param1 + (ev->param2 << 7));
+		fluid_synth_pitch_bend(FluidSynth, channel, ev->param1 + (ev->param2 << 7));
 		break;
 	case EVENT_PATCH:
-		fluid_synth_program_change(FluidSynth, ev->channel, ev->param1);
+		fluid_synth_program_change(FluidSynth, channel, ev->param1);
 		//fluid_synth_program_change(FluidSynth, ev->channel, rand() & 127);
 		break;
 	case EVENT_CONTROLLER:
-		fluid_synth_cc(FluidSynth, ev->channel, ev->param1, ev->param2);
+		fluid_synth_cc(FluidSynth, channel, ev->param1, ev->param2);
 		break;
 		//[ISB] TODO: Sysex
 	}
