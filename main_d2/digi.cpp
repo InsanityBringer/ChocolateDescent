@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/joy.h"
 #include "main_shared/digi.h"
 #include "sounds.h"
-#include "misc/args.h" //[ISB] I SWEAR TO GOD PAST ISB
+#include "misc/args.h"
 #include "platform/key.h"
 #include "game.h"
 //#include "dpmi.h"

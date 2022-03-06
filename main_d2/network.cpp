@@ -289,6 +289,11 @@ extern int Final_boss_is_dead;
 
 #define NETWORK_OEM 0x10
 
+//[ISB]
+//Descent 2 attempts to broadcast for more information, but internet games need to be sent to a specific address.
+uint8_t Connecting_to_address[4];
+bool Connecting_directly = false;
+
 void network_init(void)
 {
 	// So you want to play a netgame, eh?  Let's a get a few things
@@ -566,9 +571,11 @@ int can_join_netgame(netgame_info* game, AllNetPlayers_info* people)
 
 	for (i = 0; i < num_players; i++)
 	{
-		if ((!_stricmp(Players[Player_num].callsign, people->players[i].callsign)) &&
-			(My_Seq.player.identifier == people->players[i].identifier))
+		if ((!_stricmp(Players[Player_num].callsign, people->players[i].callsign)) && (My_Seq.player.identifier == people->players[i].identifier))
+		{
+			mprintf((0, "Found ourselves in a closed netgame\n"));
 			break;
+		}
 	}
 
 	if (i != num_players)
@@ -735,7 +742,10 @@ void network_welcome_player(sequence_packet* their)
 	memset(&Network_player_rejoining, 0, sizeof(sequence_packet));
 	Network_player_added = 0;
 
-	memcpy(local_address, their->player.network.ipx.node, 4);
+	//memcpy(local_address, their->player.network.ipx.node, 4);
+	NetGetLastPacketOrigin(local_address);
+	//[ISB] This needs to be done to ensure object sync is broadcast to the right address, since this is where objects will be sent to. 
+	memcpy(their->player.network.ipx.node, local_address, 4);
 
 	for (i = 0; i < N_players; i++)
 	{
@@ -1372,7 +1382,11 @@ void network_send_all_info_request(char type, int which_security)
 	memcpy(me.player.network.ipx.node, NetGetLocalAddress(), 4);
 	me.player.identifier = My_Seq.player.identifier;
   
-	NetSendBroadcastPacket((uint8_t*)&me, sizeof(sequence_packet));
+	//hack, this needs to be cleaned up so all routes are using this. 
+	if (!Connecting_directly)
+		NetSendBroadcastPacket((uint8_t*)&me, sizeof(sequence_packet));
+	else
+		NetSendInternetworkPacket((uint8_t*)&me, sizeof(sequence_packet), Connecting_to_address);
 }
 
 void network_update_netgame(void)
@@ -1546,6 +1560,8 @@ void network_send_game_info(sequence_packet* their)
 
 void network_send_lite_info(sequence_packet* their)
 {
+	uint8_t source_address[4];
+	NetGetLastPacketOrigin(source_address);
 	// Send game info to someone who requested it
 
 	char old_type, old_status, oldstatus;
@@ -1580,7 +1596,7 @@ void network_send_lite_info(sequence_packet* their)
 	if (!their) 
 		NetSendBroadcastPacket((uint8_t*)&Netgame, sizeof(lite_info));
 	else 
-		NetSendInternetworkPacket((uint8_t*)&Netgame, sizeof(lite_info), their->player.network.ipx.node);
+		NetSendInternetworkPacket((uint8_t*)&Netgame, sizeof(lite_info), source_address);
 
 	//  Restore the pre-hoard mode
 	if (HoardEquipped())
@@ -1841,6 +1857,7 @@ void network_process_packet(uint8_t* data, int length)
 {
 	sequence_packet* their = (sequence_packet*)data;
 	uint8_t source_address[4];
+	NetGetLastPacketOrigin(source_address);
 
 	//mprintf( (0, "Got packet of length %d, type %d\n", length, their->type ));
 
@@ -1860,7 +1877,6 @@ void network_process_packet(uint8_t* data, int length)
 
 		if (Network_status == NETSTAT_WAITING)
 		{                  
-			NetGetLastPacketOrigin(source_address);
 			memcpy(&TempPlayersBase, data, sizeof(AllNetPlayers_info));
 
 			if (TempPlayersBase.Security != Netgame.Security)
@@ -3794,6 +3810,9 @@ void network_join_game_at(uint8_t* address)
 
 	network_init();
 
+	Connecting_directly = true;
+	memcpy(Connecting_to_address, address, sizeof(Connecting_to_address));
+
 	N_players = 0;
 
 	setjmp(LeaveGame);
@@ -3820,7 +3839,10 @@ void network_join_game_at(uint8_t* address)
 	gr_set_fontcolor(BM_XRGB(15, 15, 23), -1);
 
 	if (setjmp(LeaveGame)) //aborting game
+	{
+		Connecting_directly = false;
 		return;
+	}
 	Network_games_changed = 1;
 
 	for (;;)
@@ -3836,6 +3858,8 @@ void network_join_game_at(uint8_t* address)
 		if (timer_get_fixed_seconds() > start_time + F1_0 * 5)
 		{
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, "No game found within 5 seconds.");
+
+			Connecting_directly = false;
 			return;
 		}
 	}
@@ -3844,6 +3868,8 @@ void network_join_game_at(uint8_t* address)
 	if (Active_games[0].game_status == NETSTAT_ENDLEVEL)
 	{
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+
+		Connecting_directly = false;
 		return;
 	}
 
@@ -3864,6 +3890,7 @@ void network_join_game_at(uint8_t* address)
 		else
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
 
+		Connecting_directly = false;
 		return;
 	}
 
@@ -3874,6 +3901,8 @@ void network_join_game_at(uint8_t* address)
 		if (!load_mission_by_name(Active_games[0].mission_name))
 		{
 			nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+
+			Connecting_directly = false;
 			return;
 		}
 	}
@@ -3884,6 +3913,8 @@ void network_join_game_at(uint8_t* address)
 		if (Active_games[0].levelnum > 8)
 		{
 			nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
+
+			Connecting_directly = false;
 			return;
 		}
 	}
@@ -3904,6 +3935,8 @@ void network_join_game_at(uint8_t* address)
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
 		else
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+
+		Connecting_directly = false;
 		return;
 	}
 
@@ -3922,6 +3955,7 @@ void network_join_game_at(uint8_t* address)
 
 	StartNewLevel(Netgame.levelnum, 0);
 
+	Connecting_directly = false;
 	return;         // look ma, we're in a game!!!
 }
 
@@ -3985,6 +4019,7 @@ void network_do_big_wait(int choice)
 	AllNetPlayers_info* temp_info;
 
 	size = NetGetPacketData(packet);
+	NetGetLastPacketOrigin(source_address);
 
 	if (size > 0)
 	{
