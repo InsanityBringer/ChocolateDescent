@@ -1122,10 +1122,6 @@ int load_game_data(CFILE* LoadFile)
 
 	if (game_top_fileinfo.fileinfo_version >= 14) 	//load mine filename
 	{
-		//@@char *p=Current_level_name;
-		//@@//must do read one char at a time, since no cfgets()
-		//@@do *p = cfgetc(LoadFile); while (*p++!=0);
-
 		cfgets(Current_level_name, sizeof(Current_level_name), LoadFile);
 
 		if (Current_level_name[strlen(Current_level_name) - 1] == '\n')
@@ -1136,7 +1132,6 @@ int load_game_data(CFILE* LoadFile)
 
 	if (game_top_fileinfo.fileinfo_version >= 19) 	//load pof names
 	{
-//		cfread(&N_save_pof_names,2,1,LoadFile);
 		N_save_pof_names = read_short(LoadFile);
 		cfread(Save_pof_names, N_save_pof_names, FILENAME_LEN, LoadFile);
 	}
@@ -1154,6 +1149,9 @@ int load_game_data(CFILE* LoadFile)
 		if (cfseek(LoadFile, game_fileinfo.object_offset, SEEK_SET))
 			Error("Error seeking to object_offset in gamesave.c");
 
+		if (game_fileinfo.object_howmany >= MAX_OBJECTS)
+			Error("Level contains over MAX_OBJECTS(%d) objects.", MAX_OBJECTS);
+
 		for (i = 0; i < game_fileinfo.object_howmany; i++)
 		{
 			read_object(&Objects[i], LoadFile, game_top_fileinfo.fileinfo_version);
@@ -1161,7 +1159,6 @@ int load_game_data(CFILE* LoadFile)
 			Objects[i].signature = Object_next_signature++;
 			verify_object(&Objects[i]);
 		}
-
 	}
 
 	//===================== READ WALL INFO ============================
@@ -1170,9 +1167,11 @@ int load_game_data(CFILE* LoadFile)
 	{
 		if (!cfseek(LoadFile, game_fileinfo.walls_offset, SEEK_SET))
 		{
+			if (game_fileinfo.walls_howmany >= MAX_WALLS)
+				Error("Level contains over MAX_WALLS(%d) walls.", MAX_WALLS);
+
 			for (i = 0; i < game_fileinfo.walls_howmany; i++) 
 			{
-
 				if (game_top_fileinfo.fileinfo_version >= 20)
 				{
 					Assert(24 == game_fileinfo.walls_sizeof);
@@ -1206,7 +1205,6 @@ int load_game_data(CFILE* LoadFile)
 					mprintf((1, "load_game_data: legacy v16 walls present"));
 					read_v16_wall(&Walls[i], LoadFile);
 				}
-
 			}
 		}
 	}
@@ -1217,6 +1215,11 @@ int load_game_data(CFILE* LoadFile)
 	{
 		if (!cfseek(LoadFile, game_fileinfo.doors_offset, SEEK_SET)) 
 		{
+			mprintf((1, "load_game_data: active doors present"));
+
+			if (game_fileinfo.doors_howmany >= MAX_DOORS)
+				Error("Level contains over MAX_DOORS(%d) active doors.", MAX_DOORS);
+
 			for (i = 0; i < game_fileinfo.doors_howmany; i++)
 			{
 				if (game_top_fileinfo.fileinfo_version >= 20) 
@@ -1249,6 +1252,9 @@ int load_game_data(CFILE* LoadFile)
 	{
 		if (!cfseek(LoadFile, game_fileinfo.triggers_offset, SEEK_SET)) 
 		{
+			if (game_fileinfo.triggers_howmany >= MAX_TRIGGERS)
+				Error("Level contains more than MAX_TRIGGERS(%d) triggers.", MAX_TRIGGERS);
+
 			for (i = 0; i < game_fileinfo.triggers_howmany; i++)
 				if (game_top_fileinfo.fileinfo_version < 31)
 				{
@@ -1369,6 +1375,9 @@ int load_game_data(CFILE* LoadFile)
 
 		if (!cfseek(LoadFile, game_fileinfo.matcen_offset, SEEK_SET)) 
 		{
+			if (game_fileinfo.matcen_howmany >= MAX_ROBOT_CENTERS)
+				Error("Level contains over MAX_ROBOT_CENTERS(%d) matcens.", MAX_ROBOT_CENTERS);
+
 			// mprintf((0, "Reading %i materialization centers.\n", game_fileinfo.matcen_howmany));
 			for (i = 0; i < game_fileinfo.matcen_howmany; i++) 
 			{
@@ -1418,6 +1427,9 @@ int load_game_data(CFILE* LoadFile)
 		if (!cfseek(LoadFile, game_fileinfo.dl_indices_offset, SEEK_SET)) 
 		{
 			Num_static_lights = game_fileinfo.dl_indices_howmany;
+			if (Num_static_lights > MAX_DL_INDICES)
+				Error("Level contains more than MAX_DL_INDICIES(%d) dynamic light indicies.", MAX_DL_INDICES);
+
 			for (i = 0; i < game_fileinfo.dl_indices_howmany; i++) 
 			{
 				if (game_top_fileinfo.fileinfo_version < 29)
@@ -1447,6 +1459,8 @@ int load_game_data(CFILE* LoadFile)
 
 		if (!cfseek(LoadFile, game_fileinfo.delta_light_offset, SEEK_SET)) 
 		{
+			if (game_fileinfo.delta_light_howmany > MAX_DELTA_LIGHTS)
+				Error("Level contains more than MAX_DELTA_LIGHTS(%d) dynamic light deltas.", MAX_DELTA_LIGHTS);
 			for (i = 0; i < game_fileinfo.delta_light_howmany; i++) 
 			{
 				if (game_top_fileinfo.fileinfo_version < 29) 

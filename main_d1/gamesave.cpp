@@ -1101,9 +1101,6 @@ int load_game_data(CFILE* LoadFile)
 
 	if (game_top_fileinfo.fileinfo_version >= 14) //load mine filename
 	{
-		/*char* p = Current_level_name;
-		//must do read one char at a time, since no cfgets()
-		do *p = cfgetc(LoadFile); while (*p++ != 0);*/
 		cfile_get_string(&Current_level_name[0], LEVEL_NAME_LEN, LoadFile);
 	}
 	else
@@ -1111,7 +1108,6 @@ int load_game_data(CFILE* LoadFile)
 
 	if (game_top_fileinfo.fileinfo_version >= 19) //load pof names
 	{
-		//cfread(&N_save_pof_names, 2, 1, LoadFile);
 		N_save_pof_names = (int)cfile_read_short(LoadFile); //[ISB] yes, it's an int, but the above line suggests its just a short so................................
 		cfread(Save_pof_names, N_save_pof_names, 13, LoadFile);
 	}
@@ -1129,6 +1125,9 @@ int load_game_data(CFILE* LoadFile)
 		if (cfseek(LoadFile, game_fileinfo.object_offset, SEEK_SET))
 			Error("Error seeking to object_offset in gamesave.c");
 
+		if (game_fileinfo.object_howmany >= MAX_OBJECTS)
+			Error("Level contains over MAX_OBJECTS(%d) objects.", MAX_OBJECTS);
+
 		for (i = 0; i < game_fileinfo.object_howmany; i++) 
 		{
 			read_object(&Objects[i], LoadFile, game_top_fileinfo.fileinfo_version);
@@ -1136,7 +1135,6 @@ int load_game_data(CFILE* LoadFile)
 			Objects[i].signature = Object_next_signature++;
 			verify_object(&Objects[i]);
 		}
-
 	}
 
 	//===================== READ WALL INFO ============================
@@ -1144,6 +1142,9 @@ int load_game_data(CFILE* LoadFile)
 	{
 		if (!cfseek(LoadFile, game_fileinfo.walls_offset, SEEK_SET)) 
 		{
+			if (game_fileinfo.walls_howmany >= MAX_WALLS)
+				Error("Level contains over MAX_WALLS(%d) walls.", MAX_WALLS);
+
 			for (i = 0; i < game_fileinfo.walls_howmany; i++) 
 			{
 				if (game_top_fileinfo.fileinfo_version >= 20) 
@@ -1161,6 +1162,11 @@ int load_game_data(CFILE* LoadFile)
 	{
 		if (!cfseek(LoadFile, game_fileinfo.doors_offset, SEEK_SET)) 
 		{
+			mprintf((1, "load_game_data: active doors present"));
+
+			if (game_fileinfo.doors_howmany >= MAX_DOORS)
+				Error("Level contains over MAX_DOORS(%d) active doors.", MAX_DOORS);
+
 			for (i = 0; i < game_fileinfo.doors_howmany; i++) 
 			{
 				if (game_top_fileinfo.fileinfo_version >= 20) 
@@ -1176,6 +1182,9 @@ int load_game_data(CFILE* LoadFile)
 	{
 		if (!cfseek(LoadFile, game_fileinfo.triggers_offset, SEEK_SET)) 
 		{
+			if (game_fileinfo.triggers_howmany >= MAX_TRIGGERS)
+				Error("Level contains more than MAX_TRIGGERS(%d) triggers.", MAX_TRIGGERS);
+
 			for (i = 0; i < game_fileinfo.triggers_howmany; i++) 
 			{
 				Triggers[i].type = cfile_read_byte(LoadFile);
@@ -1212,6 +1221,9 @@ int load_game_data(CFILE* LoadFile)
 
 		if (!cfseek(LoadFile, game_fileinfo.matcen_offset, SEEK_SET)) 
 		{
+			if (game_fileinfo.matcen_howmany >= MAX_ROBOT_CENTERS)
+				Error("Level contains over MAX_ROBOT_CENTERS(%d) matcens.", MAX_ROBOT_CENTERS);
+
 			// mprintf((0, "Reading %i materialization centers.\n", game_fileinfo.matcen_howmany));
 			for (i = 0; i < game_fileinfo.matcen_howmany; i++) 
 			{
@@ -1297,7 +1309,8 @@ int load_game_data(CFILE* LoadFile)
 #ifndef NDEBUG
 	{
 		int	sidenum;
-		for (sidenum = 0; sidenum < 6; sidenum++) {
+		for (sidenum = 0; sidenum < 6; sidenum++) 
+		{
 			int	wallnum = Segments[Highest_segment_index].sides[sidenum].wall_num;
 			if (wallnum != -1)
 				if ((Walls[wallnum].segnum != Highest_segment_index) || (Walls[wallnum].sidenum != sidenum))
@@ -1361,12 +1374,14 @@ int load_level(char* filename_passed)
 	if (strstr(filename, ".LVL"))
 		use_compiled_level = 0;
 #ifdef SHAREWARE
-	else if (!strstr(filename, ".SDL")) {
+	else if (!strstr(filename, ".SDL")) 
+	{
 		convert_name_to_CDL(filename, filename_passed);
 		use_compiled_level = 1;
 	}
 #else
-	else if (!strstr(filename, ".RDL")) {
+	else if (!strstr(filename, ".RDL")) 
+	{
 		convert_name_to_CDL(filename, filename_passed);
 		use_compiled_level = 1;
 	}
@@ -1374,7 +1389,8 @@ int load_level(char* filename_passed)
 
 	// If we're trying to load a CDL, and we can't find it, and we have
 	// the editor compiled in, then load the LVL.
-	if ((!cfexist(filename)) && use_compiled_level) {
+	if ((!cfexist(filename)) && use_compiled_level) 
+	{
 		convert_name_to_LVL(filename, filename_passed);
 		use_compiled_level = 0;
 	}
@@ -1385,16 +1401,17 @@ int load_level(char* filename_passed)
 	get_full_file_path(full_path_filename, filename, CHOCOLATE_MISSIONS_DIR);
 
 	LoadFile = cfopen(full_path_filename, "rb");
-	if (!LoadFile) {
+	if (!LoadFile) 
+	{
 		LoadFile = cfopen(filename, "rb");
 	}
 #else
 	LoadFile = cfopen(filename, "rb");
 #endif
-	//CF_READ_MODE );
 
 #ifdef EDITOR
-	if (!LoadFile) {
+	if (!LoadFile)
+	{
 		mprintf((0, "load_level: Can't open file <%s>\n", filename));
 		return 1;
 	}
@@ -1442,8 +1459,10 @@ int load_level(char* filename_passed)
 
 #ifdef EDITOR
 	write_game_text_file(filename);
-	if (Errors_in_mine) {
-		if (is_real_level(filename)) {
+	if (Errors_in_mine) 
+	{
+		if (is_real_level(filename)) 
+		{
 			char  ErrorMessage[200];
 
 			sprintf(ErrorMessage, "Warning: %i errors in %s!\n", Errors_in_mine, Level_being_loaded);
@@ -1459,7 +1478,8 @@ int load_level(char* filename_passed)
 
 #ifdef EDITOR
 	//If an old version, ask the use if he wants to save as new version
-	if (((LEVEL_FILE_VERSION > 1) && version < LEVEL_FILE_VERSION) || mine_err == 1 || game_err == 1) {
+	if (((LEVEL_FILE_VERSION > 1) && version < LEVEL_FILE_VERSION) || mine_err == 1 || game_err == 1) 
+	{
 		char  ErrorMessage[200];
 
 		sprintf(ErrorMessage, "You just loaded a old version level.  Would\n"
