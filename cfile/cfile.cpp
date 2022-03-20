@@ -438,7 +438,9 @@ void cfclose(CFILE* fp)
 uint8_t cfile_read_byte(CFILE* fp)
 {
 	uint8_t b;
-	cfread(&b, sizeof(uint8_t), 1, fp);
+	size_t size = cfread(&b, sizeof(uint8_t), 1, fp);
+	if (size < 1)
+		Error("cfile_read_byte: read %d bytes, expected 1.", size);
 	return b;
 }
 
@@ -446,7 +448,10 @@ short cfile_read_short(CFILE* fp)
 {
 	uint8_t b[2];
 	short v;
-	cfread(&b[0], sizeof(uint8_t), 2, fp);
+	size_t size = cfread(&b[0], sizeof(uint8_t), 2, fp);
+	if (size < 2)
+		Error("cfile_read_short: read %d bytes, expected 2.", size);
+
 	v = b[0] + (b[1] << 8);
 	return v;
 }
@@ -455,7 +460,10 @@ int cfile_read_int(CFILE* fp)
 {
 	uint8_t b[4];
 	int v;
-	cfread(&b[0], sizeof(uint8_t), 4, fp);
+	size_t size = cfread(&b[0], sizeof(uint8_t), 4, fp);
+	if (size < 4)
+		Error("cfile_read_int: read %d bytes, expected 4.", size);
+
 	v = b[0] + (b[1] << 8) + (b[2] << 16) + (b[3] << 24);
 	return v;
 }
