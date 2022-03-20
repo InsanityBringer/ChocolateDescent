@@ -21,6 +21,7 @@ extern uint16_t netmisc_calc_checksum(void* vptr, int len);
 #define netmisc_encode_buffer(ptr, offset, buf, length) do { memcpy(&ptr[*offset], buf, length); *offset+=length; } while(0)
 #define netmisc_decode_buffer(ptr, offset, buf, length) do { memcpy(buf, &ptr[*offset], length); *offset+=length; } while(0)
 
+#ifdef NETWORK
 //Functions for encoding values into a block of memory.
 //All values are written little-endian indepenedent of alignment. 
 void netmisc_encode_int8(uint8_t* ptr, int* offset, uint8_t v);
@@ -51,3 +52,4 @@ void netmisc_decode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* 
 void netmisc_decode_frame_info(uint8_t* ptr, int* offset, frame_info* info);
 void netmisc_decode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info);
 void netmisc_decode_object(uint8_t* ptr, int* offset, object* objp);
+#endif
