@@ -137,7 +137,8 @@ UI_EVENT * DemoBuffer = NULL;
 int	Found_seg_index=0;				// Index in Found_segs corresponding to Cursegp
 
 
-void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
+void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) 
+{
 	int w,h,aw;
 
 	gr_set_current_canvas( NULL );
@@ -150,7 +151,8 @@ void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 	gr_rect( 4+w, 583, 799, 599 );
 }
 
-void print_diagnostic( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
+void print_diagnostic( char message[DIAGNOSTIC_MESSAGE_MAX] ) 
+{
 	int w,h,aw;
 
 	gr_set_current_canvas( NULL );
@@ -178,7 +180,6 @@ void editor_status( const char *format, ... )
 	print_status_bar(status_line);
 
 	Editor_status_last_time = Editor_time_of_day;
-
 }
 
 // 	int  tm_sec;	/* seconds after the minute -- [0,61] */
@@ -209,7 +210,6 @@ void clear_editor_status(void)
 	}
 }
 
-
 void diagnostic_message(const char *format, ... )
 {
 	char diag_line[DIAGNOSTIC_MESSAGE_MAX];
@@ -222,7 +222,6 @@ void diagnostic_message(const char *format, ... )
 
 	editor_status(diag_line);
 }
-
 
 static char sub_status_line[DIAGNOSTIC_MESSAGE_MAX];
 
@@ -263,13 +262,15 @@ int CallLisp()
 
 int ExitEditor()
 {
-	if (SafetyCheck())  {
+	if (SafetyCheck())  
+	{
 		ModeFlag = 1;
 	}
 	return 1;
 }
 
-int	GotoGameCommon(int mode) {
+int	GotoGameCommon(int mode)
+{
 	stop_time();
 
 //@@	init_player_stats();
@@ -281,7 +282,8 @@ int	GotoGameCommon(int mode) {
 // -- must always save gamesave.sav because the restore-objects code relies on it
 // -- that code could be made smarter and use the original file, if appropriate.
 //	if (mine_changed) 
-	if (gamestate_not_restored == 0) {
+	if (gamestate_not_restored == 0) 
+	{
 		gamestate_not_restored = 1;
 		save_level("GAMESAVE.LVL");
 		editor_status("Gamestate saved.\n");
@@ -843,7 +845,6 @@ void close_editor_screen()
 	objpage_close();
 
 	menubar_hide();
-
 }
 
 void med_show_warning(const char *s)
@@ -855,7 +856,6 @@ void med_show_warning(const char *s)
 	MessageBox(-2,-2,1,s,"OK");
 
 	gr_set_current_canvas(save_canv);
-
 }
 
 // Returns 1 if OK to trash current mine.
@@ -1304,7 +1304,8 @@ void editor(void)
 				xcrd = LargeViewBox->b1_drag_x1;
 				ycrd = LargeViewBox->b1_drag_y1;
 			}
-			else {
+			else 
+			{
 				xcrd = GameViewBox->b1_drag_x1;
 				ycrd = GameViewBox->b1_drag_y1;
 			}

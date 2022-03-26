@@ -1431,6 +1431,8 @@ void calim_zero_light_values(void)
 		}
 		Segment2s[segnum].static_light = F1_0/64;
 	}
+
+	memset(Delta_lights, 0, sizeof(Delta_lights));
 }
 
 

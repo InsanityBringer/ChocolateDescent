@@ -44,11 +44,13 @@ void checkforext( char * f, char *ext )
 {
 	int i;
 
-	for (i=1; i<MAX_NAME_LENGTH; i++ ) {
+	for (i=1; i<MAX_NAME_LENGTH; i++ )
+	{
 		if (f[i]=='.')
 			return;
 
-		if ((f[i] == ' ') || (f[i]==0) ) {
+		if ((f[i] == ' ') || (f[i]==0) ) 
+		{
 			f[i] = '.';
 			f[i+1] = ext[0];
 			f[i+2] = ext[1];
@@ -58,7 +60,8 @@ void checkforext( char * f, char *ext )
 		}
 	}
 
-	if (i < 123) {
+	if (i < 123) 
+	{
 		f[i] = '.';
 		f[i+1] = ext[0];
 		f[i+2] = ext[1];
@@ -73,8 +76,10 @@ void set_extension( char * f, char *ext )
 {
 	int i;
 
-	for (i=1; i<MAX_NAME_LENGTH-4; i++ ) {
-		if ((f[i]=='.') || (f[i] == ' ') || (f[i]==0) ) {
+	for (i=1; i<MAX_NAME_LENGTH-4; i++ )
+	{
+		if ((f[i]=='.') || (f[i] == ' ') || (f[i]==0) )
+		{
 			f[i] = '.';
 			f[i+1] = ext[0];
 			f[i+2] = ext[1];
@@ -94,9 +99,7 @@ int SaveMine()
 	MessageBox( -2, -2, 1, ErrorMessage, "Ok" );
 	return 1;
 }
-#endif
-
-#if !MINESAVE_CRIPPLED
+#else
 int SaveMine()
 {
 	// Save mine
@@ -115,7 +118,8 @@ int SaveMine()
 
 int CreateNewMine()
 {
-	if (SafetyCheck())  {
+	if (SafetyCheck()) 
+	{
 		texpage_goto_first();
 		create_new_mine();
 		LargeView.ev_matrix = vmd_identity_matrix;	//FrontView.ev_matrix;
@@ -276,9 +280,11 @@ _splitpath(filename,NULL,NULL,mine_name,NULL);
 //	-----------------------------------------------------------------------------
 int SaveSituation(void)
 {
-	if (ui_get_filename( sit_filename, 128, "*.SIT", "Save Situation" )) {
+	if (ui_get_filename( sit_filename, 128, "*.SIT", "Save Situation" ))
+	{
 		set_extension(sit_filename, "MIN");
-		if (med_save_mine(sit_filename)) {
+		if (med_save_mine(sit_filename))
+		{
 			mprintf((0, "Unable to save mine in SaveSituation.\n"));
 			return 0;
 		}

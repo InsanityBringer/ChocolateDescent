@@ -38,8 +38,6 @@ void do_load_save_levels(int save);
 #include "wall.h"
 #include "gamemine.h"
 #include "robot.h"
-
-
 #include "cfile/cfile.h"
 #include "bm.h"
 #include "menu.h"
@@ -58,10 +56,6 @@ void do_load_save_levels(int save);
 #include "gamepal.h"
 #include "laser.h"
 #include "misc/byteswap.h"
-
-#ifdef MACINTOSH
-#include "strutil.h"		// because my compiler doesn't have strupr
-#endif
 
 char Gamesave_current_filename[128];
 
@@ -224,7 +218,6 @@ int is_real_level(char* filename)
 
 	//mprintf((0, "String = [%s]\n", &filename[len-11]));
 	return !_strnfcmp(&filename[len - 11], "level", 5);
-
 }
 #endif
 
@@ -266,10 +259,10 @@ extern int multi_powerup_is_4pack(int);
 
 void verify_object(object* obj) 
 {
-
 	obj->lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
 
-	if (obj->type == OBJ_ROBOT) {
+	if (obj->type == OBJ_ROBOT) 
+	{
 		Gamesave_num_org_robots++;
 
 		// Make sure valid id...
@@ -277,7 +270,8 @@ void verify_object(object* obj)
 			obj->id = obj->id % N_robot_types;
 
 		// Make sure model number & size are correct...		
-		if (obj->render_type == RT_POLYOBJ) {
+		if (obj->render_type == RT_POLYOBJ) 
+		{
 			Assert(Robot_info[obj->id].model_num != -1);
 			//if you fail this assert, it means that a robot in this level
 			//hasn't been loaded, possibly because he's marked as
@@ -309,19 +303,22 @@ void verify_object(object* obj)
 		if (obj->id == 65)						//special "reactor" robots
 			obj->movement_type = MT_NONE;
 
-		if (obj->movement_type == MT_PHYSICS) {
+		if (obj->movement_type == MT_PHYSICS) 
+		{
 			obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
 			obj->mtype.phys_info.drag = Robot_info[obj->id].drag;
 		}
 	}
 	else {		//Robots taken care of above
 
-		if (obj->render_type == RT_POLYOBJ) {
+		if (obj->render_type == RT_POLYOBJ)
+		{
 			int i;
 			char* name = Save_pof_names[obj->rtype.pobj_info.model_num];
 
 			for (i = 0; i < N_polygon_models; i++)
-				if (!_stricmp(Pof_names[i], name)) {		//found it!	
+				if (!_stricmp(Pof_names[i], name)) //found it!	
+				{
 					// mprintf((0,"Mapping <%s> to %d (was %d)\n",name,i,obj->rtype.pobj_info.model_num));
 					obj->rtype.pobj_info.model_num = i;
 					break;
@@ -329,8 +326,10 @@ void verify_object(object* obj)
 		}
 	}
 
-	if (obj->type == OBJ_POWERUP) {
-		if (obj->id >= N_powerup_types) {
+	if (obj->type == OBJ_POWERUP)
+	{
+		if (obj->id >= N_powerup_types) 
+		{
 			obj->id = 0;
 			Assert(obj->render_type != RT_POLYOBJ);
 		}
@@ -364,8 +363,8 @@ void verify_object(object* obj)
 			Assert(obj->render_type != RT_POLYOBJ);
 		}
 
-		if (obj->id == PMINE_ID) {		//make sure pmines have correct values
-
+		if (obj->id == PMINE_ID) //make sure pmines have correct values
+		{		
 			obj->mtype.phys_info.mass = Weapon_info[obj->id].mass;
 			obj->mtype.phys_info.drag = Weapon_info[obj->id].drag;
 			obj->mtype.phys_info.flags |= PF_FREE_SPINNING;
@@ -378,8 +377,8 @@ void verify_object(object* obj)
 		}
 	}
 
-	if (obj->type == OBJ_CNTRLCEN) {
-
+	if (obj->type == OBJ_CNTRLCEN) 
+	{
 		obj->render_type = RT_POLYOBJ;
 		obj->control_type = CT_CNTRLCEN;
 
@@ -396,7 +395,8 @@ void verify_object(object* obj)
 			int i;
 			// Check, and set, strength of reactor
 			for (i = 0; i < Num_total_object_types; i++)
-				if (ObjType[i] == OL_CONTROL_CENTER && ObjId[i] == obj->id) {
+				if (ObjType[i] == OL_CONTROL_CENTER && ObjId[i] == obj->id) 
+				{
 					obj->shields = ObjStrength[i];
 					break;
 				}
@@ -405,7 +405,8 @@ void verify_object(object* obj)
 #endif
 	}
 
-	if (obj->type == OBJ_PLAYER) {
+	if (obj->type == OBJ_PLAYER) 
+	{
 		//int i;
 
 		//Assert(obj == Player);
@@ -422,8 +423,8 @@ void verify_object(object* obj)
 		obj->id = Gamesave_num_players++;
 	}
 
-	if (obj->type == OBJ_HOSTAGE) {
-
+	if (obj->type == OBJ_HOSTAGE) 
+	{
 		//@@if (obj->id > N_hostage_types)
 		//@@	obj->id = 0;
 
@@ -624,7 +625,6 @@ static void read_v19_active_door(active_door* door, CFILE* fp)
 //reads one object of the given version from the given file
 void read_object(object* obj, CFILE* f, int version)
 {
-
 	obj->type = read_byte(f);
 	obj->id = read_byte(f);
 
@@ -651,8 +651,8 @@ void read_object(object* obj, CFILE* f, int version)
 	obj->contains_id = read_byte(f);
 	obj->contains_count = read_byte(f);
 
-	switch (obj->movement_type) {
-
+	switch (obj->movement_type) 
+	{
 	case MT_PHYSICS:
 
 		read_vector(&obj->mtype.phys_info.velocity, f);
@@ -682,9 +682,10 @@ void read_object(object* obj, CFILE* f, int version)
 		Int3();
 	}
 
-	switch (obj->control_type) {
-
-	case CT_AI: {
+	switch (obj->control_type) 
+	{
+	case CT_AI:
+	{
 		int i;
 
 		obj->ctype.ai_info.behavior = read_byte(f);
@@ -764,16 +765,16 @@ void read_object(object* obj, CFILE* f, int version)
 	case CT_REPAIRCEN:
 	default:
 		Int3();
-
 	}
 
-	switch (obj->render_type) {
-
+	switch (obj->render_type) 
+	{
 	case RT_NONE:
 		break;
 
 	case RT_MORPH:
-	case RT_POLYOBJ: {
+	case RT_POLYOBJ:
+	{
 		int i, tmo;
 
 		obj->rtype.pobj_info.model_num = read_int(f);
@@ -790,9 +791,11 @@ void read_object(object* obj, CFILE* f, int version)
 #else
 		if (tmo == -1)
 			obj->rtype.pobj_info.tmap_override = -1;
-		else {
+		else 
+		{
 			int xlated_tmo = tmap_xlate_table[tmo];
-			if (xlated_tmo < 0) {
+			if (xlated_tmo < 0)
+			{
 				mprintf((0, "Couldn't find texture for demo object, model_num = %d\n", obj->rtype.pobj_info.model_num));
 				Int3();
 				xlated_tmo = 0;
@@ -854,8 +857,8 @@ void write_object(object* obj, FILE* f)
 	gs_write_byte(obj->contains_id, f);
 	gs_write_byte(obj->contains_count, f);
 
-	switch (obj->movement_type) {
-
+	switch (obj->movement_type)
+	{
 	case MT_PHYSICS:
 
 		gr_write_vector(&obj->mtype.phys_info.velocity, f);
@@ -885,9 +888,10 @@ void write_object(object* obj, FILE* f)
 		Int3();
 	}
 
-	switch (obj->control_type) {
-
-	case CT_AI: {
+	switch (obj->control_type) 
+	{
+	case CT_AI: 
+	{
 		int i;
 
 		gs_write_byte(obj->ctype.ai_info.behavior, f);
@@ -953,13 +957,14 @@ void write_object(object* obj, FILE* f)
 
 	}
 
-	switch (obj->render_type) {
-
+	switch (obj->render_type) 
+	{
 	case RT_NONE:
 		break;
 
 	case RT_MORPH:
-	case RT_POLYOBJ: {
+	case RT_POLYOBJ:
+	{
 		int i;
 
 		gs_write_int(obj->rtype.pobj_info.model_num, f);
@@ -990,13 +995,12 @@ void write_object(object* obj, FILE* f)
 
 	default:
 		Int3();
-
 	}
-
 }
 #endif
 
-typedef struct {
+typedef struct 
+{
 	int			robot_flags;		// Up to 32 different robots
 	fix			hit_points;			// How hard it is to destroy this particular matcen
 	fix			interval;			// Interval between materialogrifizations
@@ -1558,41 +1562,42 @@ int load_game_data(CFILE* LoadFile)
 
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
-	{	int t;
+	{	
+		int t;
 
-	for (i = 0; i < Num_walls; i++)
-		Walls[i].controlling_trigger = -1;
+		for (i = 0; i < Num_walls; i++)
+			Walls[i].controlling_trigger = -1;
 
-	for (t = 0; t < Num_triggers; t++) 
-	{
-		int	l;
-		for (l = 0; l < Triggers[t].num_links; l++)
+		for (t = 0; t < Num_triggers; t++) 
 		{
-			int	seg_num, side_num, wall_num;
-
-			seg_num = Triggers[t].seg[l];
-			side_num = Triggers[t].side[l];
-			wall_num = Segments[seg_num].sides[side_num].wall_num;
-
-			// -- if (Walls[wall_num].controlling_trigger != -1)
-			// -- 	Int3();
-
-			//check to see that if a trigger requires a wall that it has one,
-			//and if it requires a matcen that it has one
-
-			if (Triggers[t].type == TT_MATCEN) 
+			int	l;
+			for (l = 0; l < Triggers[t].num_links; l++)
 			{
-				if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
-					Int3();		//matcen trigger doesn't point to matcen
-			}
-			else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
-				if (wall_num == -1)
-					Int3();	//	This is illegal.  This trigger requires a wall
-				else
-					Walls[wall_num].controlling_trigger = t;
+				int	seg_num, side_num, wall_num;
+
+				seg_num = Triggers[t].seg[l];
+				side_num = Triggers[t].side[l];
+				wall_num = Segments[seg_num].sides[side_num].wall_num;
+
+				// -- if (Walls[wall_num].controlling_trigger != -1)
+				// -- 	Int3();
+
+				//check to see that if a trigger requires a wall that it has one,
+				//and if it requires a matcen that it has one
+
+				if (Triggers[t].type == TT_MATCEN) 
+				{
+					if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
+						Int3();		//matcen trigger doesn't point to matcen
+				}
+				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
+					if (wall_num == -1)
+						Int3();	//	This is illegal.  This trigger requires a wall
+					else
+						Walls[wall_num].controlling_trigger = t;
+				}
 			}
 		}
-	}
 	}
 
 	Num_robot_centers = game_fileinfo.matcen_howmany;
@@ -2034,7 +2039,6 @@ int compute_num_delta_light_records(void)
 	}
 
 	return total;
-
 }
 
 // -----------------------------------------------------------------------------
@@ -2049,7 +2053,6 @@ int save_game_data(FILE* SaveFile)
 	start_offset = ftell(SaveFile);
 
 	//===================== SAVE FILE INFO ========================
-
 	game_fileinfo.fileinfo_signature = 0x6705;
 	game_fileinfo.fileinfo_version = GAME_VERSION;
 	game_fileinfo.level = Current_level_num;
@@ -2159,7 +2162,6 @@ int save_game_data(FILE* SaveFile)
 	game_fileinfo.dl_indices_offset = dl_indices_offset;
 	game_fileinfo.delta_light_offset = delta_light_offset;
 
-
 	end_offset = ftell(SaveFile);
 
 	// Write the fileinfo
@@ -2184,18 +2186,22 @@ int save_level_sub(char* filename, int compiled_version)
 	int minedata_offset = 0, gamedata_offset = 0;
 	int i;
 
-	if (!compiled_version) {
+	if (!compiled_version) 
+	{
 		write_game_text_file(filename);
 
-		if (Errors_in_mine) {
-			if (is_real_level(filename)) {
+		if (Errors_in_mine)
+		{
+			if (is_real_level(filename))
+			{
 				char  ErrorMessage[200];
 
 				sprintf(ErrorMessage, "Warning: %i errors in this mine!\n", Errors_in_mine);
 				stop_time();
 				gr_palette_load(gr_palette);
 
-				if (nm_messagebox(NULL, 2, "Cancel Save", "Save", ErrorMessage) != 1) {
+				if (nm_messagebox(NULL, 2, "Cancel Save", "Save", ErrorMessage) != 1)
+				{
 					start_time();
 					return 1;
 				}
@@ -2242,7 +2248,8 @@ int save_level_sub(char* filename, int compiled_version)
 	compress_objects();		//after this, Highest_object_index == num objects
 
 	//make sure player is in a segment
-	if (update_object_seg(&Objects[Players[0].objnum]) == 0) {
+	if (update_object_seg(&Objects[Players[0].objnum]) == 0) 
+	{
 		if (ConsoleObject->segnum > Highest_segment_index)
 			ConsoleObject->segnum = 0;
 		compute_segment_center(&ConsoleObject->pos, &(Segments[ConsoleObject->segnum]));
@@ -2351,15 +2358,18 @@ void dump_mine_info(void)
 
 	max_sl = 0;
 
-	for (segnum = 0; segnum <= Highest_segment_index; segnum++) {
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
+	for (segnum = 0; segnum <= Highest_segment_index; segnum++) 
+	{
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) 
+		{
 			int	vertnum;
 			side* sidep = &Segments[segnum].sides[sidenum];
 
 			if (Segment2s[segnum].static_light > max_sl)
 				max_sl = Segment2s[segnum].static_light;
 
-			for (vertnum = 0; vertnum < 4; vertnum++) {
+			for (vertnum = 0; vertnum < 4; vertnum++) 
+			{
 				if (sidep->uvls[vertnum].u < min_u)
 					min_u = sidep->uvls[vertnum].u;
 				else if (sidep->uvls[vertnum].u > max_u)
@@ -2375,7 +2385,6 @@ void dump_mine_info(void)
 				else if (sidep->uvls[vertnum].l > max_l)
 					max_l = sidep->uvls[vertnum].l;
 			}
-
 		}
 	}
 
@@ -2401,7 +2410,6 @@ void load_all_levels(void)
 	do_load_save_levels(0);
 }
 
-
 void do_load_save_levels(int save)
 {
 	int level_num;
@@ -2411,14 +2419,16 @@ void do_load_save_levels(int save)
 
 	no_old_level_file_error = 1;
 
-	for (level_num = 1; level_num <= Last_level; level_num++) {
+	for (level_num = 1; level_num <= Last_level; level_num++)
+	{
 		load_level(Level_names[level_num - 1]);
 		load_palette(Current_level_palette, 1, 1);		//don't change screen
 		if (save)
 			save_level_sub(Level_names[level_num - 1], 1);
 	}
 
-	for (level_num = -1; level_num >= Last_secret_level; level_num--) {
+	for (level_num = -1; level_num >= Last_secret_level; level_num--) 
+	{
 		load_level(Secret_level_names[-level_num - 1]);
 		load_palette(Current_level_palette, 1, 1);		//don't change screen
 		if (save)
@@ -2426,7 +2436,6 @@ void do_load_save_levels(int save)
 	}
 
 	no_old_level_file_error = 0;
-
 }
 
 #endif
