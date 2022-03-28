@@ -70,16 +70,14 @@ void plat_set_music_volume(int volume);
 void plat_start_midi_song(HMPFile* song, bool loop);
 void plat_stop_midi_song();
 
-//[ISB] sigh. Hindsight's 20/20.
-//[FUTURE ISB] no I really should have known better.
-//[FUTURE FUTURE ISB] agh, no, we're restoring this interface, since it's needed for
-//hardsynths.
-
+//Sets the sample rate of the current music playback
+void midi_set_music_samplerate(uint32_t samplerate);
 //Returns true if there are available buffer slots in the music source's buffer queue.
 bool midi_queue_slots_available();
 //Clears all finished buffers from the queue.
 void midi_dequeue_midi_buffers();
-//Queues a new buffer into the music source, at MIDI_SAMPLERATE sample rate.
+//Queues a new buffer into the music source, at a specified sample rate.
+//This is used for both MIDI and CD music right now
 void midi_queue_buffer(int numSamples, uint16_t* data);
 
 //Readies the source for playing MIDI music.
@@ -88,6 +86,8 @@ void midi_start_source();
 void midi_stop_source();
 //Starts the MIDI source if it hasn't started already, and starts it again if it starved.
 void midi_check_status();
+//Checks if the MIDI source is done playing, returns true if it is.
+bool midi_check_finished();
 
 
 //-----------------------------------------------------------------------------

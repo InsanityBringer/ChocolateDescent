@@ -749,6 +749,7 @@ void MidiPlayer::Run()
 	for (;;)
 	{
 		//printf("I'm goin\n");
+		midi_set_music_samplerate(MIDI_SAMPLERATE);
 		std::unique_lock<std::mutex> lock(songMutex);
 		if (shouldEnd)
 		{

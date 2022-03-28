@@ -31,6 +31,7 @@ extern uint8_t Config_redbook_volume;
 #include "cfile/cfile.h"
 #include "platform/timer.h"
 #include "platform/platform_filesys.h"
+#include "hqmusic.h"
 
 song_info Songs[MAX_NUM_SONGS];
 int Songs_initialized = 0;
@@ -38,13 +39,9 @@ int Songs_initialized = 0;
 bool No_endlevel_songs;
 
 int Num_songs;
-int RBA_Num_tracks, RBA_Current_track;
-bool RBA_Initialized;
-
 extern void digi_stop_current_song();
 
 int Redbook_enabled = 1;
-
 //0 if redbook is no playing, else the track number
 int Redbook_playing = 0;
 
@@ -55,69 +52,6 @@ int Redbook_playing = 0;
 #else
 #define REDBOOK_VOLUME_SCALE	(255)
 #endif
-
-void RBAInit()
-{
-	int i;
-	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
-	char track_name[16];
-	FILE* fp;
-
-	//Simple hack to figure out how many CD tracks there are.
-	for (i = 0; i < 99; i++)
-	{
-		snprintf(track_name, 15, "track%02d.ogg", i+1);
-
-#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
-		get_full_file_path(filename_full_path, track_name, CHOCOLATE_SAVE_DIR);
-#else
-		snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "cdmusic/%s", track_name);
-		filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE - 1] = '\0';
-#endif
-
-		fp = fopen(filename_full_path, "rb");
-		if (fp)
-			fclose(fp);
-		else
-			break;
-	}
-
-	RBA_Num_tracks = 10;//i;
-	if (RBA_Num_tracks >= 3) //Need sufficient tracks
-		RBA_Initialized = true;
-}
-
-bool RBAEnabled()
-{
-	return RBA_Initialized;
-}
-
-void RBAStop()
-{
-}
-
-int RBAGetNumberOfTracks()
-{
-	return RBA_Num_tracks;
-}
-
-int RBAGetTrackNum()
-{
-	return RBA_Current_track;
-}
-
-int RBAPlayTrack(int track)
-{
-	RBA_Current_track = track;
-	mprintf((0, "Playing Track %d\n", track));
-	return 1;
-}
-
-int RBAPlayTracks(int first, int last)
-{
-	mprintf((0, "Playing tracks %d to %d\n", first, last));
-	return 1;
-}
 
 //takes volume in range 0..8
 void set_redbook_volume(int volume)

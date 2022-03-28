@@ -13,3 +13,14 @@ bool PlayHQSong(const char* filename, bool loop);
 
 //Stops playback of an OGG file
 void StopHQSong();
+
+//Redbook music emulation functions
+
+void RBAInit();
+bool RBAEnabled();
+void RBAStop();
+int RBAGetNumberOfTracks();
+int RBAGetTrackNum();
+int RBAPlayTrack(int track);
+int RBAPlayTracks(int first, int last);
+

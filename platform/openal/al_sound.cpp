@@ -48,6 +48,7 @@ int MIDIUsedBuffers[MAX_BUFFERS_QUEUED];
 ALuint MIDISourceBuffers[MAX_BUFFERS_QUEUED];
 ALuint BufferQueue[MAX_BUFFERS_QUEUED];
 ALuint MusicSource;
+ALuint MusicSampleRate;
 
 //HQ audio fields
 ALuint HQMusicSource;
@@ -348,6 +349,11 @@ void I_DestroyMusicSource()
 	MusicSource = 0;
 }
 
+void midi_set_music_samplerate(uint32_t samplerate)
+{
+	MusicSampleRate = samplerate;
+}
+
 void midi_check_status()
 {
 	ALenum playstatus;
@@ -369,6 +375,14 @@ void midi_check_status()
 			alSourcePlay(MusicSource);
 		}
 	}
+}
+
+bool midi_check_finished()
+{
+	ALenum playstatus;
+	alGetSourcei(MusicSource, AL_SOURCE_STATE, &playstatus);
+
+	return playstatus != AL_PLAYING;
 }
 
 bool midi_queue_slots_available()
