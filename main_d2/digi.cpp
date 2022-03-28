@@ -32,14 +32,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/args.h"
 #include "platform/key.h"
 #include "game.h"
-//#include "dpmi.h"
 #include "misc/error.h"
 #include "cfile/cfile.h"
 #include "main_shared/piggy.h"
 #include "stringtable.h"
 
 #include "config.h"
-//#include "soscomp.h"
 
 #define _DIGI_SAMPLE_FLAGS (_VOLUME | _PANNING | _TRANSLATE8TO16)
 
@@ -83,22 +81,6 @@ static int InstrumentSize = 0;
 static void * lpDrums = NULL;				// pointer to the drum file
 static int DrumSize = 0;
 
-// track mapping structure, this is used to map which track goes
-// out which device. this can also be mapped by the name of the 
-// midi track. to map by the name of the midi track use the define
-// _MIDI_MAP_TRACK for each of the tracks 
-/*
-static _SOS_MIDI_TRACK_DEVICE   sSOSTrackMap = { 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK,
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK 
-};*/
-
 // handle for the initialized MIDI song
 uint32_t     wSongHandle = 0xffff;         
 uint8_t		*SongData=NULL;
@@ -109,10 +91,8 @@ int verify_sound_channel_free(int channel);
 
 void * digi_load_file( char * szFileName, int * length );
 
-//void _far digi_midi_callback( uint16_t PassedSongHandle );
-//void  sosEndMIDICallback();
-
-typedef struct digi_channel {
+typedef struct digi_channel 
+{
 	uint8_t		used;				// Non-zero if a sound is playing on this channel 
 	int		soundnum;		// Which sound effect is on this channel, -1 if none
 	uint16_t		handle;			// What HMI handle this is playing on
@@ -153,15 +133,6 @@ void digi_close_midi()
 			free(SongData);
 			SongData = NULL;
 		}
-	   // reset the midi driver and
-	   // uninitialize the midi driver and tell it to free the memory allocated
-	   // for the driver
-		/*if ( hSOSMidiDriver < 0xffff )	
-		{
-		   sosMIDIResetDriver( hSOSMidiDriver );
-	   		sosMIDIUnInitDriver( hSOSMidiDriver, _TRUE  );
-			hSOSMidiDriver = 0xffff;
-		}*/
 
 		if ( midi_system_initialized )	
 		{
@@ -193,7 +164,6 @@ void digi_close()
 	   // uninitialize the DIGI system
 		digi_system_initialized = 0;
 	}
-
 }
 
 extern int loadpats( char * filename );

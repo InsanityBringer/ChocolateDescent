@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef BUILD_DESCENT2
 #include "main_d2/inferno.h"
+extern uint8_t Config_redbook_volume;
 #else
 #include "main_d1/inferno.h"
 #endif
@@ -29,15 +30,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "cfile/cfile.h"
 #include "platform/timer.h"
+#include "platform/platform_filesys.h"
 
 song_info Songs[MAX_NUM_SONGS];
 int Songs_initialized = 0;
 
 bool No_endlevel_songs;
 
-#ifndef MACINTOSH
 int Num_songs;
-#endif
+int RBA_Num_tracks, RBA_Current_track;
+bool RBA_Initialized;
 
 extern void digi_stop_current_song();
 
@@ -48,13 +50,74 @@ int Redbook_playing = 0;
 
 #define NumLevelSongs (Num_songs - SONG_FIRST_LEVEL_SONG)
 
-extern int CD_blast_mixer();
-
 #ifndef MACINTOSH
 #define REDBOOK_VOLUME_SCALE  (255/3)		//255 is MAX
 #else
 #define REDBOOK_VOLUME_SCALE	(255)
 #endif
+
+void RBAInit()
+{
+	int i;
+	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
+	char track_name[16];
+	FILE* fp;
+
+	//Simple hack to figure out how many CD tracks there are.
+	for (i = 0; i < 99; i++)
+	{
+		snprintf(track_name, 15, "track%02d.ogg", i+1);
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+		get_full_file_path(filename_full_path, track_name, CHOCOLATE_SAVE_DIR);
+#else
+		snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "cdmusic/%s", track_name);
+		filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE - 1] = '\0';
+#endif
+
+		fp = fopen(filename_full_path, "rb");
+		if (fp)
+			fclose(fp);
+		else
+			break;
+	}
+
+	RBA_Num_tracks = 10;//i;
+	if (RBA_Num_tracks >= 3) //Need sufficient tracks
+		RBA_Initialized = true;
+}
+
+bool RBAEnabled()
+{
+	return RBA_Initialized;
+}
+
+void RBAStop()
+{
+}
+
+int RBAGetNumberOfTracks()
+{
+	return RBA_Num_tracks;
+}
+
+int RBAGetTrackNum()
+{
+	return RBA_Current_track;
+}
+
+int RBAPlayTrack(int track)
+{
+	RBA_Current_track = track;
+	mprintf((0, "Playing Track %d\n", track));
+	return 1;
+}
+
+int RBAPlayTracks(int first, int last)
+{
+	mprintf((0, "Playing tracks %d to %d\n", first, last));
+	return 1;
+}
 
 //takes volume in range 0..8
 void set_redbook_volume(int volume)
@@ -75,65 +138,48 @@ void songs_init()
 
 	if ( Songs_initialized ) return;
 
-#if 0
-	#if !defined(MACINTOSH) && !defined(WINDOWS)  	// don't crank it if on a macintosh!!!!!
-		if (!FindArg("-nomixer"))
-			CD_blast_mixer();   // Crank it!
-	#endif
-#endif
-
-	#ifndef MACINTOSH	// macs don't use the .sng file
-		fp = cfopen( "descent.sng", "rb" );
-		if ( fp == NULL )
+	fp = cfopen( "descent.sng", "rb" );
+	if ( fp == NULL )
+	{
+		Error( "Couldn't open descent.sng" );
+	}
+	i = 0;
+	while (cfgets(inputline, 80, fp ))
+	{
+		char *p = strchr(inputline,'\n');
+		if (p) *p = '\0';
+		if ( strlen( inputline ) )
 		{
-			Error( "Couldn't open descent.sng" );
-		}
-		i = 0;
-		while (cfgets(inputline, 80, fp ))
-		{
-			char *p = strchr(inputline,'\n');
-			if (p) *p = '\0';
-			if ( strlen( inputline ) )
+			if (i < MAX_NUM_SONGS)
 			{
-				if (i < MAX_NUM_SONGS)
-				{
-					memset(&Songs[i], 0, sizeof(Songs[i]));
-					sscanf(inputline, "%15s %15s %15s", Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file);
-					//printf( "%d. '%s' '%s' '%s'\n",i,Songs[i].filename,Songs[i].melodic_bank_file,Songs[i].drum_bank_file );
-					i++;
-				}
+				memset(&Songs[i], 0, sizeof(Songs[i]));
+				sscanf(inputline, "%15s %15s %15s", Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file);
+				//printf( "%d. '%s' '%s' '%s'\n",i,Songs[i].filename,Songs[i].melodic_bank_file,Songs[i].drum_bank_file );
+				i++;
 			}
 		}
-		Num_songs = i;
-		if (Num_songs <= SONG_FIRST_LEVEL_SONG)
-			Error("Must have at least %d songs",SONG_FIRST_LEVEL_SONG+1);
-		cfclose(fp);
-	#endif // endof ifdef macintosh for dealing with the .sng file
+	}
+	Num_songs = i;
+	if (Num_songs <= SONG_FIRST_LEVEL_SONG)
+		Error("Must have at least %d songs",SONG_FIRST_LEVEL_SONG+1);
+	cfclose(fp);
 
 	Songs_initialized = 1;
 
-	/*//	RBA Hook
-	#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-		if (FindArg("-noredbook"))
-		{
-			Redbook_enabled = 0;
-		}
-		else	// use redbook
-		{
-			#if defined(WINDOWS) || defined(MACINTOSH)
-				RBAInit();
-			#else
-				RBAInit(toupper(CDROM_dir[0]) - 'A');
-			#endif
+	if (FindArg("-noredbook"))
+	{
+		Redbook_enabled = 0;
+	}
+	else	// use redbook
+	{
+		RBAInit();
 
-			if (RBAEnabled())
-			{
-				set_redbook_volume(Config_redbook_volume);
-				RBARegisterCD();
-			}
+		if (RBAEnabled())
+		{
+			set_redbook_volume(Config_redbook_volume);
 		}
-		atexit(RBAStop);	// stop song on exit
-	#endif	// endof ifndef SHAREWARE, ie ifdef SHAREWARE*/
+	}
+	atexit(RBAStop);	// stop song on exit
 }
 
 #define FADE_TIME (f1_0/2)
@@ -172,26 +218,21 @@ void songs_stop_redbook(void)
 void songs_stop_all(void)
 {
 	digi_stop_current_song();	// Stop midi song, if playing
-	//songs_stop_redbook();			// Stop CD, if playing
+	songs_stop_redbook();			// Stop CD, if playing
 }
 
 int force_rb_register=0;
 
 int reinit_redbook()
 {
-	/*
-	#if defined(WINDOWS) || defined(MACINTOSH)
-		RBAInit();
-	#else
-		RBAInit(toupper(CDROM_dir[0]) - 'A');
-	#endif
+	RBAInit();
 
 	if (RBAEnabled())
 	{
 		set_redbook_volume(Config_redbook_volume);
-		RBARegisterCD();
-		force_rb_register=0;
-	}*/
+		//RBARegisterCD();
+		//force_rb_register=0;
+	}
 	return 0;
 }
 
@@ -201,32 +242,35 @@ int reinit_redbook()
 //play only specified track
 int play_redbook_track(int tracknum,int keep_playing)
 {
-	/*
+	
 	Redbook_playing = 0;
 
 	if (!RBAEnabled() && Redbook_enabled && !FindArg("-noredbook"))
 		reinit_redbook();
 
-	if (force_rb_register) {
+	/*if (force_rb_register)
+	{
 		RBARegisterCD();			//get new track list for new CD
 		force_rb_register = 0;
-	}
+	}*/
 
-	if (Redbook_enabled && RBAEnabled()) {
+	if (Redbook_enabled && RBAEnabled()) 
+	{
 		int num_tracks = RBAGetNumberOfTracks();
 		if (tracknum <= num_tracks)
-			if (RBAPlayTracks(tracknum,keep_playing?num_tracks:tracknum))  {
+			if (RBAPlayTracks(tracknum,keep_playing?num_tracks:tracknum))  
+			{
 				Redbook_playing = tracknum;
 			}
 	}
 
-	return (Redbook_playing != 0);*/
-	return 0;
+	return (Redbook_playing != 0);
 }
 
-#define REDBOOK_TITLE_TRACK			2
-#define REDBOOK_CREDITS_TRACK			3
-#define REDBOOK_FIRST_LEVEL_TRACK	(songs_haved2_cd()?4:1)
+#define REDBOOK_TITLE_TRACK			1
+#define REDBOOK_CREDITS_TRACK			2
+#define REDBOOK_FIRST_LEVEL_TRACK	3 
+								//(songs_haved2_cd()?4:1)
 
 // songs_haved2_cd returns 1 if the descent 2 CD is in the drive and
 // 0 otherwise
@@ -275,12 +319,12 @@ void songs_play_song( int songnum, int repeat )
 	{
 		RBARegisterCD();			//get new track list for new CD
 		force_rb_register = 0;
-	}
+	}*/
 
 	if (songnum == SONG_TITLE)
 		play_redbook_track(REDBOOK_TITLE_TRACK,0);
 	else if (songnum == SONG_CREDITS)
-		play_redbook_track(REDBOOK_CREDITS_TRACK,0);*/
+		play_redbook_track(REDBOOK_CREDITS_TRACK,0);
 
 	if (!Redbook_playing) //not playing redbook, so play midi
 	{		
@@ -306,32 +350,27 @@ void songs_play_level_song( int levelnum )
 
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 	
-	/*
+	
 	if (!RBAEnabled() && Redbook_enabled && !FindArg("-noredbook"))
 		reinit_redbook();
 
-	if (force_rb_register) 
+	/*if (force_rb_register) 
 	{
 		RBARegisterCD();			//get new track list for new CD
 		force_rb_register = 0;
-	}
+	}*/
 
-	if (Redbook_enabled && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) {
-
+	if (Redbook_enabled && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) 
+	{
 		//try to play redbook
 		mprintf((0,"n_tracks = %d\n",n_tracks));
 		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),1);
 	}
-	*/
-	if (! Redbook_playing) //not playing redbook, so play midi
+	
+	if (!Redbook_playing) //not playing redbook, so play midi
 	{			
 		songnum = SONG_FIRST_LEVEL_SONG + (songnum % NumLevelSongs);
-
-		#ifndef MACINTOSH
-			digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
-		#else
-			digi_play_midi_song( songnum, 1 );
-		#endif
+		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
 	}
 }
 
@@ -371,23 +410,19 @@ void songs_check_redbook_repeat()
 //goto the next level song
 void songs_goto_next_song()
 {
-	/*
 	if (Redbook_playing) 		//get correct track
 		current_song_level = RBAGetTrackNum() - REDBOOK_FIRST_LEVEL_TRACK + 1;
-*/
+
 	songs_play_level_song(current_song_level+1);
-	
 }
 
 //goto the previous level song
 void songs_goto_prev_song()
 {
-	/*
 	if (Redbook_playing) 		//get correct track
 		current_song_level = RBAGetTrackNum() - REDBOOK_FIRST_LEVEL_TRACK + 1;
-		*/
+
 	if (current_song_level > 1)
 		songs_play_level_song(current_song_level-1);
-
 }
 

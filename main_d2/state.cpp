@@ -1292,11 +1292,6 @@ int state_restore_all_sub(char* filename, int multi, int secret_restore)
 	player restore_players[MAX_PLAYERS];
 	fix	old_gametime = GameTime;
 
-#if defined(MACINTOSH) && !defined(NDEBUG) 
-	if (strncmp(filename, ":Players:", 9))
-		Int3();
-#endif
-
 	fp = fopen(filename, "rb");
 	if (!fp) return 0;
 
