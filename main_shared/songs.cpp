@@ -426,3 +426,4 @@ void songs_goto_prev_song()
 		songs_play_level_song(current_song_level-1);
 }
 
+//CD music thread nonsense

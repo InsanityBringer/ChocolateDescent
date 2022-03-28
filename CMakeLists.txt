@@ -62,6 +62,8 @@ set(SHARED_SOURCES
 	main_shared/effects.cpp
 	main_shared/effects.h
 	main_shared/game_shared.h
+	main_shared/hqmusic.cpp
+	main_shared/hqmusic.h
 	main_shared/inferno_shared.h
 	main_shared/piggy.h
 	main_shared/songs.cpp
