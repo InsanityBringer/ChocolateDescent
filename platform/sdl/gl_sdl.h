@@ -24,7 +24,7 @@ Instead, it is released under the terms of the MIT License.
 #include <SDL.h>
 
 //Local funcs
-void I_InitGLContext(SDL_Window* win);
+bool I_InitGLContext(SDL_Window* win);
 void GL_SetVideoMode(int w, int h, bool highcolor, SDL_Rect *bounds);
 
 void GL_SetPalette(uint32_t* pal);
