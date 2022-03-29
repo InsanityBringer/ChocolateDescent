@@ -100,6 +100,7 @@ void songs_init()
 
 	Songs_initialized = 1;
 
+#ifdef BUILD_DESCENT2
 	if (FindArg("-noredbook"))
 	{
 		Redbook_enabled = 0;
@@ -114,6 +115,7 @@ void songs_init()
 		}
 	}
 	atexit(RBAStop);	// stop song on exit
+#endif
 }
 
 #define FADE_TIME (f1_0/2)
@@ -159,6 +161,7 @@ int force_rb_register=0;
 
 int reinit_redbook()
 {
+#ifdef BUILD_DESCENT2
 	RBAInit();
 
 	if (RBAEnabled())
@@ -167,6 +170,7 @@ int reinit_redbook()
 		//RBARegisterCD();
 		//force_rb_register=0;
 	}
+#endif
 	return 0;
 }
 
