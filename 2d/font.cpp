@@ -217,6 +217,113 @@ int gr_internal_string0(int x, int y, unsigned char* s)
 	return 0;
 }
 
+int gr_internal_string_rgb15(int x, int y, unsigned char* s)
+{
+	unsigned char* fp;
+	char* text_ptr, * next_row, * text_ptr1;
+	int r, BitMask, i, bits, width, spacing, letter, underline;
+
+	uint16_t* data16;
+
+	unsigned int VideoOffset, VideoOffset1;
+
+	x <<= 1;
+	VideoOffset1 = y * ROWSIZE + x;
+
+	next_row = (char*)s;
+
+	while (next_row != NULL)
+	{
+		text_ptr1 = next_row;
+		next_row = NULL;
+
+		if (x == 0x8000) //centered
+		{
+			int xx = get_centered_x((unsigned char*)text_ptr1);
+			VideoOffset1 = y * ROWSIZE + xx;
+		}
+
+		for (r = 0; r < FHEIGHT; r++)
+		{
+			text_ptr = text_ptr1;
+
+			VideoOffset = VideoOffset1;
+
+			data16 = (uint16_t*)&DATA[VideoOffset];
+
+			while (*text_ptr)
+			{
+				if (*text_ptr == '\n')
+				{
+					next_row = &text_ptr[1];
+					break;
+				}
+
+				underline = 0;
+				if (*text_ptr == '&')
+				{
+					if ((r == FBASELINE + 2) || (r == FBASELINE + 3))
+						underline = 1;
+					text_ptr++;
+				}
+
+				get_char_width(text_ptr[0], text_ptr[1], &width, &spacing);
+
+				letter = *text_ptr - FMINCHAR;
+
+				if (!INFONT(letter)) // not in font, draw as space
+				{
+					VideoOffset += spacing;
+					text_ptr++;
+					continue;
+				}
+
+				if (FFLAGS & FT_PROPORTIONAL)
+					fp = FCHARS[letter];
+				else
+					fp = FDATA + letter * BITS_TO_BYTES(width) * FHEIGHT;
+
+				if (underline)
+					for (i = 0; i < width; i++)
+					{
+						*data16 = gr_highcolor_clut[FG_COLOR];
+						data16++;
+					}
+				else
+				{
+					fp += BITS_TO_BYTES(width) * r;
+
+					BitMask = 0;
+
+					for (i = 0; i < width; i++)
+					{
+						if (BitMask == 0)
+						{
+							bits = *fp++;
+							BitMask = 0x80;
+						}
+
+						if (bits & BitMask)
+							*data16 = gr_highcolor_clut[FG_COLOR];
+						else
+							*data16 = gr_highcolor_clut[BG_COLOR];
+
+						data16++;
+						BitMask >>= 1;
+					}
+				}
+
+				VideoOffset += spacing;		//for kerning
+
+				text_ptr++;
+			}
+
+			VideoOffset1 += ROWSIZE; y++;
+		}
+	}
+	return 0;
+}
+
 int gr_internal_string0m(int x, int y, unsigned char* s)
 {
 	unsigned char* fp;
@@ -313,16 +420,106 @@ int gr_internal_string0m(int x, int y, unsigned char* s)
 	return 0;
 }
 
-
-int gr_internal_string2(int x, int y, char* s)
+int gr_internal_string_rgb15_m(int x, int y, unsigned char* s)
 {
-	Error("gr_internal_string2: STUB\n");
-	return 0;
-}
+	unsigned char* fp;
+	unsigned char* text_ptr, * next_row, * text_ptr1;
+	int r, BitMask, i, bits, width, spacing, letter, underline;
 
-int gr_internal_string2m(int x, int y, char* s)
-{
-	Error("gr_internal_string2m: STUB\n");
+	unsigned int VideoOffset, VideoOffset1;
+
+	uint16_t* data16;// = (uint16_t*)DATA;
+
+	x <<= 1;
+	VideoOffset1 = y * ROWSIZE + x;
+
+	next_row = s;
+
+	while (next_row != NULL)
+	{
+		text_ptr1 = next_row;
+		next_row = NULL;
+
+		if (x == 0x8000) //centered
+		{
+			int xx = get_centered_x((unsigned char*)text_ptr1);
+			VideoOffset1 = y * ROWSIZE + xx;
+		}
+
+		for (r = 0; r < FHEIGHT; r++)
+		{
+			text_ptr = text_ptr1;
+
+			VideoOffset = VideoOffset1;
+			data16 = (uint16_t*)&DATA[VideoOffset];
+
+			while (*text_ptr)
+			{
+				if (*text_ptr == '\n')
+				{
+					next_row = &text_ptr[1];
+					break;
+				}
+
+				underline = 0;
+				if (*text_ptr == '&')
+				{
+					if ((r == FBASELINE + 2) || (r == FBASELINE + 3))
+						underline = 1;
+					text_ptr++;
+				}
+
+				get_char_width(text_ptr[0], text_ptr[1], &width, &spacing);
+
+				letter = *text_ptr - FMINCHAR;
+
+				if (!INFONT(letter)) //not in font, draw as space
+				{
+					VideoOffset += spacing;
+					text_ptr++;
+					continue;
+				}
+
+				if (FFLAGS & FT_PROPORTIONAL)
+					fp = FCHARS[letter];
+				else
+					fp = FDATA + letter * BITS_TO_BYTES(width) * FHEIGHT;
+
+				if (underline)
+					for (i = 0; i < width; i++)
+					{
+						*data16 = gr_highcolor_clut[FG_COLOR];
+						data16++;
+					}
+				else
+				{
+					fp += BITS_TO_BYTES(width) * r;
+
+					BitMask = 0;
+
+					for (i = 0; i < width; i++)
+					{
+						if (BitMask == 0)
+						{
+							bits = *fp++;
+							BitMask = 0x80;
+						}
+
+						if (bits & BitMask)
+							*data16 = gr_highcolor_clut[FG_COLOR];
+						
+						data16++;
+						BitMask >>= 1;
+					}
+				}
+				text_ptr++;
+
+				VideoOffset += spacing;
+			}
+
+			VideoOffset1 += ROWSIZE; y++;
+		}
+	}
 	return 0;
 }
 
@@ -464,19 +661,19 @@ int gr_ustring(int x, int y, const char* s)
 		return gr_internal_color_string(x, y, s);
 	}
 	else
-		/*switch (TYPE)
+		switch (TYPE)
 		{
-		case BM_LINEAR:*/
+		case BM_RGB15:
+			if (BG_COLOR == -1)
+				return gr_internal_string_rgb15_m(x, y, (unsigned char*)s);
+			else
+				return gr_internal_string_rgb15(x, y, (unsigned char*)s);
+		default:
 			if (BG_COLOR == -1)
 				return gr_internal_string0m(x, y, (unsigned char*)s);
 			else
 				return gr_internal_string0(x, y, (unsigned char*)s);
-		/*case BM_SVGA:
-			if (BG_COLOR == -1)
-				return gr_internal_string2m(x, y, (char*)s);
-			else
-				return gr_internal_string2(x, y, (char*)s);
-		}*/
+		}
 
 	return 0;
 }

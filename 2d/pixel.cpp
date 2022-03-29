@@ -23,7 +23,10 @@ void gr_upixel(int x, int y)
 void gr_pixel(int x, int y)
 {
 	if ((x < 0) || (y < 0) || (x >= WIDTH) || (y >= HEIGHT)) return;
-	DATA[ROWSIZE * y + x] = (unsigned char)COLOR;
+	if (grd_curcanv->cv_bitmap.bm_type != BM_RGB15)
+		DATA[ROWSIZE * y + x] = (unsigned char)COLOR;
+	else
+		*((uint16_t*)&DATA[ROWSIZE * y + x]) = gr_highcolor_clut[COLOR];
 }
 
 void gr_bm_upixel(grs_bitmap* bm, int x, int y, unsigned char color)
