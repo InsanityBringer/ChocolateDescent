@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "player.h"
 #include "gauges.h"
-#include "text.h"
+#include "stringtable.h"
 #include "fireball.h"
 #include "textures.h"
 #include "sounds.h"
@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "laser.h"		//	For seeing if a flare is stuck in a wall.
 #include "collide.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -1038,8 +1038,9 @@ int wall_hit_process(segment* seg, int side, fix damage, int playernum, object* 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_wall_hit_process(seg - Segments, side, damage, playernum);
 
-	if (w->type == WALL_BLASTABLE) {
-		if (obj->ctype.laser_info.parent_type == OBJ_PLAYER)
+	if (w->type == WALL_BLASTABLE) 
+	{
+		if (CurrentLogicVersion == LogicVer::SHAREWARE || obj->ctype.laser_info.parent_type == OBJ_PLAYER)
 			wall_damage(seg, side, damage);
 		return WHP_BLASTABLE;
 	}
@@ -1535,78 +1536,78 @@ void blast_nearby_glass(object* objp, fix damage)
 
 #include "cfile/cfile.h"
 
-void P_ReadWall(wall* nwall, FILE* fp)
+void read_wall(wall* nwall, FILE* fp)
 {
-	nwall->segnum = F_ReadInt(fp);
-	nwall->sidenum = F_ReadInt(fp);
-	nwall->hps = F_ReadInt(fp);
-	nwall->linked_wall = F_ReadInt(fp);
-	nwall->type = F_ReadByte(fp);
-	nwall->flags = F_ReadByte(fp);
-	nwall->state = F_ReadByte(fp);
-	nwall->trigger = F_ReadByte(fp);
-	nwall->clip_num = F_ReadByte(fp);
-	nwall->keys = F_ReadByte(fp);
-	nwall->controlling_trigger = F_ReadByte(fp);
-	nwall->cloak_value = F_ReadByte(fp);
+	nwall->segnum = file_read_int(fp);
+	nwall->sidenum = file_read_int(fp);
+	nwall->hps = file_read_int(fp);
+	nwall->linked_wall = file_read_int(fp);
+	nwall->type = file_read_byte(fp);
+	nwall->flags = file_read_byte(fp);
+	nwall->state = file_read_byte(fp);
+	nwall->trigger = file_read_byte(fp);
+	nwall->clip_num = file_read_byte(fp);
+	nwall->keys = file_read_byte(fp);
+	nwall->controlling_trigger = file_read_byte(fp);
+	nwall->cloak_value = file_read_byte(fp);
 }
 
-void P_ReadActiveDoor(active_door* door, FILE* fp)
+void read_active_door(active_door* door, FILE* fp)
 {
-	door->n_parts = F_ReadInt(fp);
-	door->front_wallnum[0] = F_ReadShort(fp);
-	door->front_wallnum[1] = F_ReadShort(fp);
-	door->back_wallnum[0] = F_ReadShort(fp);
-	door->back_wallnum[1] = F_ReadShort(fp);
-	door->time = F_ReadInt(fp);
+	door->n_parts = file_read_int(fp);
+	door->front_wallnum[0] = file_read_short(fp);
+	door->front_wallnum[1] = file_read_short(fp);
+	door->back_wallnum[0] = file_read_short(fp);
+	door->back_wallnum[1] = file_read_short(fp);
+	door->time = file_read_int(fp);
 }
 
 void P_ReadCloakingWall(cloaking_wall* wall, FILE* fp)
 {
 	int i;
-	wall->front_wallnum = F_ReadShort(fp);
-	wall->back_wallnum = F_ReadShort(fp);
+	wall->front_wallnum = file_read_short(fp);
+	wall->back_wallnum = file_read_short(fp);
 	for (i = 0; i < 4; i++)
-		wall->front_ls[i] = F_ReadInt(fp);
+		wall->front_ls[i] = file_read_int(fp);
 	for (i = 0; i < 4; i++)
-		wall->back_ls[i] = F_ReadInt(fp);
-	wall->time = F_ReadInt(fp);
+		wall->back_ls[i] = file_read_int(fp);
+	wall->time = file_read_int(fp);
 }
 
-void P_WriteWall(wall* nwall, FILE* fp)
+void write_wall(wall* nwall, FILE* fp)
 {
-	F_WriteInt(fp, nwall->segnum);
-	F_WriteInt(fp, nwall->sidenum);
-	F_WriteInt(fp, nwall->hps);
-	F_WriteInt(fp, nwall->linked_wall);
-	F_WriteByte(fp, nwall->type);
-	F_WriteByte(fp, nwall->flags);
-	F_WriteByte(fp, nwall->state);
-	F_WriteByte(fp, nwall->trigger);
-	F_WriteByte(fp, nwall->clip_num);
-	F_WriteByte(fp, nwall->keys);
-	F_WriteByte(fp, nwall->controlling_trigger);
-	F_WriteByte(fp, nwall->cloak_value);
+	file_write_int(fp, nwall->segnum);
+	file_write_int(fp, nwall->sidenum);
+	file_write_int(fp, nwall->hps);
+	file_write_int(fp, nwall->linked_wall);
+	file_write_byte(fp, nwall->type);
+	file_write_byte(fp, nwall->flags);
+	file_write_byte(fp, nwall->state);
+	file_write_byte(fp, nwall->trigger);
+	file_write_byte(fp, nwall->clip_num);
+	file_write_byte(fp, nwall->keys);
+	file_write_byte(fp, nwall->controlling_trigger);
+	file_write_byte(fp, nwall->cloak_value);
 }
 
-void P_WriteActiveDoor(active_door* door, FILE* fp)
+void write_active_door(active_door* door, FILE* fp)
 {
-	F_WriteInt(fp, door->n_parts);
-	F_WriteShort(fp, door->front_wallnum[0]);
-	F_WriteShort(fp, door->front_wallnum[1]);
-	F_WriteShort(fp, door->back_wallnum[0]);
-	F_WriteShort(fp, door->back_wallnum[1]);
-	F_WriteInt(fp, door->time);
+	file_write_int(fp, door->n_parts);
+	file_write_short(fp, door->front_wallnum[0]);
+	file_write_short(fp, door->front_wallnum[1]);
+	file_write_short(fp, door->back_wallnum[0]);
+	file_write_short(fp, door->back_wallnum[1]);
+	file_write_int(fp, door->time);
 }
 
 void P_WriteCloakingWall(cloaking_wall* wall, FILE* fp)
 {
 	int i;
-	F_WriteShort(fp, wall->front_wallnum);
-	F_WriteShort(fp, wall->back_wallnum);
+	file_write_short(fp, wall->front_wallnum);
+	file_write_short(fp, wall->back_wallnum);
 	for (i = 0; i < 4; i++)
-		F_WriteInt(fp, wall->front_ls[i]);
+		file_write_int(fp, wall->front_ls[i]);
 	for (i = 0; i < 4; i++)
-		F_WriteInt(fp, wall->back_ls[i]);
-	F_WriteInt(fp, wall->time);
+		file_write_int(fp, wall->back_ls[i]);
+	file_write_int(fp, wall->time);
 }

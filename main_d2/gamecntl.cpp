@@ -50,12 +50,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "texmap/texmap.h"
 #include "3d/3d.h"
-#include "effects.h"
-#include "2d/effect2d.h"
+#include "main_shared/effects.h"
 #include "gameseg.h"
 #include "wall.h"
 #include "ai.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "2d/ibitblt.h"
 #include "mem/mem.h"
 #include "2d/palette.h"
@@ -67,7 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/args.h"
 #include "gameseq.h"
 #include "automap.h"
-#include "text.h"
+#include "stringtable.h"
 #include "powerup.h"
 #include "newmenu.h"
 #include "network.h"
@@ -82,7 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #include "scores.h"
 #ifdef MACINTOSH
-#include "songs.h"
+#include "main_shared/songs.h"
 #endif
 
 #ifdef ARCADE
@@ -98,7 +97,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "desc_id.h"
 #include "cntrlcen.h"
 #include "state.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "multibot.h"
 #include "ai.h"
 //#include "rbaudio.h"
@@ -159,7 +158,7 @@ extern int* Toggle_var;
 
 extern int	Physics_cheat_flag;
 
-extern int	last_drawn_cockpit[2];
+extern int	last_drawn_cockpit;
 
 extern int	Debug_spew;
 extern int	Debug_pause;
@@ -187,7 +186,7 @@ extern void	kconfig_center_headset(void);
 extern void game_render_frame_mono(void);
 extern void newdemo_strip_frames(char*, int);
 extern void toggle_cockpit(void);
-extern int  dump_used_textures_all(void);
+extern void dump_used_textures_all(void);
 extern void DropMarker();
 extern void DropSecondaryWeapon();
 extern void DropCurrentWeapon();
@@ -257,7 +256,6 @@ void HandleEndlevelKey(int key);
 void HandleDemoKey(int key);
 void HandleTestKey(int key);
 int HandleSystemKey(int key);
-void HandleVRKey(int key);
 
 void ReadControls()
 {
@@ -385,7 +383,6 @@ void ReadControls()
 			FinalCheats(key);
 
 			HandleSystemKey(key);
-			HandleVRKey(key);
 			HandleGameKey(key);
 
 #ifndef RELEASE
@@ -593,14 +590,14 @@ int do_game_pause()
 		sprintf(msg, "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n", (*(&TXT_DIFFICULTY_1 + (Difficulty_level))), Players[Player_num].hostages_on_board);
 
 	show_boxed_message(Pause_msg = msg);		  //TXT_PAUSE);
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 
 	while (Game_paused)
 	{
 		int screen_changed;
 
 		I_MarkStart(); 
-		I_DoEvents();
+		plat_do_events();
 #if defined (WINDOWS)
 
 		if (!(VR_screen_flags & VRF_COMPATIBLE_MENUS)) {
@@ -644,8 +641,6 @@ int do_game_pause()
 		}
 #endif
 
-		HandleVRKey(key);
-
 		if (screen_changed)
 		{
 			//			game_render_frame();
@@ -655,7 +650,7 @@ int do_game_pause()
 			if (Cockpit_mode == CM_FULL_COCKPIT || Cockpit_mode == CM_STATUS_BAR)
 				render_gauges();
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(1000000 / FPSLimit);
 	}
 
@@ -810,8 +805,7 @@ void HandleEndlevelKey(int key)
 	if (key == KEY_ESC)
 	{
 		stop_endlevel_sequence();
-		last_drawn_cockpit[0] = -1;
-		last_drawn_cockpit[1] = -1;
+		last_drawn_cockpit = -1;
 		return;
 	}
 
@@ -1361,101 +1355,6 @@ int HandleSystemKey(int key)
 	return screen_changed;
 }
 
-
-void HandleVRKey(int key)
-{
-	/*
-	switch( key )   {
-
-		case KEY_ALTED+KEY_F5:
-			#if !defined(WINDOWS) && !defined(MACINTOSH)
-			if ( Game_victor_flag )
-			{
-				victor_init_graphics();
-				HUD_init_message( "Victor mode toggled" );
-			}
-			#endif
-#ifndef MACINTOSH
-			kconfig_center_headset();
-#endif
-			if ( VR_render_mode != VR_NONE )	{
-				VR_reset_params();
-				HUD_init_message( "-Stereoscopic Parameters Reset-" );
-				HUD_init_message( "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
-				HUD_init_message( "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
-			}
-			break;
-
-		case KEY_ALTED+KEY_F6:
-			if ( VR_render_mode != VR_NONE )	{
-				VR_low_res++;
-				if ( VR_low_res > 3 ) VR_low_res = 0;
-				switch( VR_low_res )    {
-					case 0: HUD_init_message( "Normal Resolution" ); break;
-					case 1: HUD_init_message( "Low Vertical Resolution" ); break;
-					case 2: HUD_init_message( "Low Horizontal Resolution" ); break;
-					case 3: HUD_init_message( "Low Resolution" ); break;
-				}
-			}
-			break;
-
-		case KEY_ALTED+KEY_F7:
-			if ( VR_render_mode != VR_NONE )	{
-				VR_eye_switch = !VR_eye_switch;
-				HUD_init_message( "-Eyes toggled-" );
-				if ( VR_eye_switch )
-					HUD_init_message( "Right Eye -- Left Eye" );
-				else
-					HUD_init_message( "Left Eye -- Right Eye" );
-			}
-			break;
-
-		case KEY_ALTED+KEY_F8:
-			if ( VR_render_mode != VR_NONE )	{
-			VR_sensitivity++;
-			if (VR_sensitivity > 2 )
-				VR_sensitivity = 0;
-			HUD_init_message( "Head tracking sensitivy = %d", VR_sensitivity );
-		 }
-			break;
-		case KEY_ALTED+KEY_F9:
-			if ( VR_render_mode != VR_NONE )	{
-				VR_eye_width -= F1_0/10;
-				if ( VR_eye_width < 0 ) VR_eye_width = 0;
-				HUD_init_message( "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
-				HUD_init_message( "(The default value is %.2f)", f2fl(VR_SEPARATION) );
-			}
-			break;
-		case KEY_ALTED+KEY_F10:
-			if ( VR_render_mode != VR_NONE )	{
-				VR_eye_width += F1_0/10;
-				if ( VR_eye_width > F1_0*4 )    VR_eye_width = F1_0*4;
-				HUD_init_message( "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
-				HUD_init_message( "(The default value is %.2f)", f2fl(VR_SEPARATION) );
-			}
-			break;
-
-		case KEY_ALTED+KEY_F11:
-			if ( VR_render_mode != VR_NONE )	{
-				VR_eye_offset--;
-				if ( VR_eye_offset < -30 )	VR_eye_offset = -30;
-				HUD_init_message( "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
-				HUD_init_message( "(The default value is %.2f)", (float)VR_PIXEL_SHIFT/30.0 );
-				VR_eye_offset_changed = 2;
-			}
-			break;
-		case KEY_ALTED+KEY_F12:
-			if ( VR_render_mode != VR_NONE )	{
-				VR_eye_offset++;
-				if ( VR_eye_offset > 30 )	 VR_eye_offset = 30;
-				HUD_init_message( "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
-				HUD_init_message( "(The default value is %.2f)", (float)VR_PIXEL_SHIFT/30.0 );
-				VR_eye_offset_changed = 2;
-			}
-			break;
-	}*/
-}
-
 #ifdef NETWORK
 extern void DropFlag();
 #endif
@@ -1780,7 +1679,9 @@ void HandleTestKey(int key)
 #ifdef EDITOR		//editor-specific functions
 
 	case KEY_E + KEY_DEBUGGED:
+#ifdef NETWORK
 		network_leave_game();
+#endif
 		Function_mode = FMODE_EDITOR;
 		break;
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
@@ -2039,6 +1940,7 @@ char AcidCheatOn = 0;
 char old_IntMethod;
 char OldHomingState[20];
 extern char Monster_mode;
+bool SWCheatsBashed = false;
 
 void fill_background();
 void load_background_bitmap();
@@ -2047,10 +1949,26 @@ extern int Buddy_dude_cheat, Robots_kill_robots_cheat;
 extern char guidebot_name[];
 extern char real_guidebot_name[];
 
+int N_lamer_cheats = N_LAMER_CHEATS;
+
 void FinalCheats(int key)
 {
 	int i;
 	char* cryptstring;
+
+	if (CurrentLogicVersion == LogicVer::SHAREWARE && !SWCheatsBashed)
+	{
+		//Set up old cheats
+		N_lamer_cheats = 1;
+		WowieCheat = LamerCheats[1];
+		AllKeysCheat = LamerCheats[2];
+		InvulCheat = LamerCheats[3];
+		HomingCheatString = LamerCheats[4];
+		BouncyCheat = LamerCheats[5];
+		FullMapCheat = LamerCheats[6];
+		LevelWarpCheat = LamerCheats[7];
+		SWCheatsBashed = true;
+	}
 
 	key = key_to_ascii(key);
 
@@ -2061,7 +1979,7 @@ void FinalCheats(int key)
 
 	cryptstring = jcrypt(&CheatBuffer[7]);
 
-	for (i = 0; i < N_LAMER_CHEATS; i++)
+	for (i = 0; i < N_lamer_cheats; i++)
 		if (!(strcmp(cryptstring, LamerCheats[i])))
 		{
 			do_cheat_penalty();
@@ -2188,13 +2106,19 @@ void FinalCheats(int key)
 		HUD_init_message(TXT_WOWIE_ZOWIE);
 		do_cheat_penalty();
 
-#ifdef SHAREWARE
-		Players[Player_num].primary_weapon_flags = ~((1 << PHOENIX_INDEX) | (1 << OMEGA_INDEX) | (1 << FUSION_INDEX) | HAS_FLAG(SUPER_LASER_INDEX));
-		Players[Player_num].secondary_weapon_flags = ~((1 << SMISSILE4_INDEX) | (1 << MEGA_INDEX) | (1 << SMISSILE5_INDEX));
-#else
-		Players[Player_num].primary_weapon_flags = 0xffff ^ HAS_FLAG(SUPER_LASER_INDEX);		//no super laser
-		Players[Player_num].secondary_weapon_flags = 0xffff;
-#endif
+		if (CurrentLogicVersion < LogicVer::FULL_1_1)
+		{
+			if (CurrentLogicVersion == LogicVer::FULL_1_0)
+				Players[Player_num].primary_weapon_flags &= ~HAS_FLAG(SUPER_LASER_INDEX);
+
+			Players[Player_num].primary_weapon_flags = ~((1 << PHOENIX_INDEX) | (1 << OMEGA_INDEX) | (1 << FUSION_INDEX));
+			Players[Player_num].secondary_weapon_flags = ~((1 << SMISSILE4_INDEX) | (1 << MEGA_INDEX) | (1 << SMISSILE5_INDEX));
+		}
+		else
+		{
+			Players[Player_num].primary_weapon_flags = 0xffff ^ HAS_FLAG(SUPER_LASER_INDEX);		//no super laser
+			Players[Player_num].secondary_weapon_flags = 0xffff;
+		}
 
 		for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
@@ -2202,11 +2126,12 @@ void FinalCheats(int key)
 		for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 
-#ifdef SHAREWARE
-		Players[Player_num].secondary_ammo[SMISSILE4_INDEX] = 0;
-		Players[Player_num].secondary_ammo[SMISSILE5_INDEX] = 0;
-		Players[Player_num].secondary_ammo[MEGA_INDEX] = 0;
-#endif
+		if (CurrentLogicVersion < LogicVer::FULL_1_1)
+		{
+			Players[Player_num].secondary_ammo[SMISSILE4_INDEX] = 0;
+			Players[Player_num].secondary_ammo[SMISSILE5_INDEX] = 0;
+			Players[Player_num].secondary_ammo[MEGA_INDEX] = 0;
+		}
 
 		if (Game_mode & GM_HOARD)
 			Players[Player_num].secondary_ammo[PROXIMITY_INDEX] = 12;

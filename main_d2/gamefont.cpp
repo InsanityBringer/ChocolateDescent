@@ -39,12 +39,18 @@ int Gamefont_installed=0;
 void gamefont_init()
 {
 	int i;
+	int inc = 1;
+
+	if (CurrentDataVersion == DataVer::DEMO) //ew
+		inc = 2;
 
 	if (Gamefont_installed) return;
 	Gamefont_installed = 1;
 
-	for (i=0; i<MAX_FONTS; i++ )
+	for (i = 0; i < MAX_FONTS; i+=inc)
+	{
 		Gamefonts[i] = gr_init_font(Gamefont_filenames[i]);
+	}
 
 	atexit( gamefont_close );
 }

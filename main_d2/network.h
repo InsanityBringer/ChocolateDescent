@@ -42,23 +42,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CONNECT_ESCAPE_TUNNEL		5
 #define CONNECT_END_MENU			6
 
-#define NETGAMEIPX                              1
-#define NETGAMETCP                              2
-
 // defines and other things for appletalk/ipx games on mac
 
-#define IPX_GAME		1
-#define APPLETALK_GAME	2
-#ifdef MACINTOSH
-extern int Network_game_type;
-#else
-#define Network_game_type IPX_GAME
-#endif
-
-typedef struct sequence_packet {
+typedef struct sequence_packet
+{
 	uint8_t					type;
 	int 					Security;
-	uint8_t pad1[3];
 	netplayer_info		player;
 } sequence_packet;
 
@@ -106,6 +95,17 @@ typedef struct short_frame_info
 	uint8_t				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
 } short_frame_info;
 
+typedef struct endlevel_info
+{
+	uint8_t                                   type;
+	uint8_t                                   player_num;
+	int8_t                                    connected;
+	uint8_t                                   seconds_left;
+	short                                   kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+	short                                   kills;
+	short                                   killed;
+} endlevel_info;
+
 void network_start_game();
 void network_join_game();
 void network_rejoin_game();
@@ -136,6 +136,8 @@ extern int Network_rejoined;
 extern int Network_new_game;
 extern int Network_status;
 
+extern uint16_t Current_Port;
+
 extern fix LastPacketTime[MAX_PLAYERS];
 
 extern uint16_t my_segments_checksum;
@@ -150,6 +152,9 @@ void network_do_frame(int force, int listen);
 // Tacks data of length 'len' onto the end of the next
 // packet that we're transmitting.
 void network_send_data(uint8_t* ptr, int len, int urgent);
+
+//Connects to a game at a specific address with the current port.  
+void network_join_game_at(uint8_t* address);
 
 #endif
 #endif

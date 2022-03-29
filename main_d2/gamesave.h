@@ -15,7 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void LoadGame(void);
 void SaveGame(void);
-void get_level_name(void);
+int get_level_name(void);
 
 extern int load_level(char *filename);
 extern int save_level(char *filename);

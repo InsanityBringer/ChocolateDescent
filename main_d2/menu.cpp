@@ -27,10 +27,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/rand.h"
 
 //#include "pa_enabl.h"                   //$$POLY_ACC
-//#include "vga.h"
+#include "inferno.h"
 #include "platform/posixstub.h"
 #include "menu.h"
-#include "inferno.h"
 #include "game.h"
 #include "2d/gr.h"
 #include "platform/key.h"
@@ -42,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "platform/joy.h"
 #include "vecmat/vecmat.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "slew.h"
 #include "gamemine.h"
 #include "gamesave.h"
@@ -52,7 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/timer.h"
 #include "sounds.h"
 #include "gameseq.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gamefont.h"
 #include "newmenu.h"
 #include "network.h"
@@ -67,13 +66,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "state.h"
 #include "mission.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "config.h"
 #include "movie.h"
 #include "gamepal.h"
 #include "gauges.h"
 //#include "rbaudio.h"
 #include "powerup.h"
+#include "platform/i_net.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -131,10 +131,9 @@ int EscortHotKeys = 1;
 
 // Function Prototypes added after LINTING
 void do_option(int select);
-void do_detail_level_menu_custon(void);
-void do_multi_player_menu(void);
-void do_detail_level_menu_custom(void);
-void do_new_game_menu(void);
+void do_multi_player_menu();
+void do_detail_level_menu_custom();
+void do_new_game_menu();
 
 extern void ReorderSecondary();
 extern void ReorderPrimary();
@@ -169,7 +168,8 @@ void autodemo_menu_check(int nitems, newmenu_item* items, int* last_key, int cit
 
 		WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_printf(0x8000, grd_curcanv->cv_bitmap.bm_h - GAME_FONT->ft_h - 2, TXT_COPYRIGHT);
-		gr_printf(grd_curcanv->cv_bitmap.bm_w - w - 2, grd_curcanv->cv_bitmap.bm_h - GAME_FONT->ft_h - 2, "V%d.%d", Version_major, Version_minor);
+		if (CurrentDataVersion != DataVer::DEMO)
+			gr_printf(grd_curcanv->cv_bitmap.bm_w - w - 2, grd_curcanv->cv_bitmap.bm_h - GAME_FONT->ft_h - 2, "V%d.%d", Version_major, Version_minor);
 
 #ifdef SANTA		//say this is hoard version
 		if (HoardEquipped())
@@ -255,9 +255,9 @@ void create_main_menu(newmenu_item * m, int* menu_choice, int* callers_num_optio
 	ADD_ITEM(TXT_CHANGE_PILOTS, MENU_NEW_PLAYER, unused);
 	ADD_ITEM(TXT_VIEW_DEMO, MENU_DEMO_PLAY, 0);
 	ADD_ITEM(TXT_VIEW_SCORES, MENU_VIEW_SCORES, KEY_V);
-#ifdef SHAREWARE
-	ADD_ITEM(TXT_ORDERING_INFO, MENU_ORDER_INFO, -1);
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+		ADD_ITEM(TXT_ORDERING_INFO, MENU_ORDER_INFO, -1);
+
 	ADD_ITEM(TXT_CREDITS, MENU_SHOW_CREDITS, -1);
 #endif
 	ADD_ITEM(TXT_QUIT, MENU_QUIT, KEY_Q);
@@ -312,6 +312,7 @@ int DoMenu()
 }
 
 extern void show_order_form(void);      // John didn't want this in inferno.h so I just externed it.
+void do_ip_address_menu();
 
 #ifdef WINDOWS
 #undef TXT_SELECT_DEMO
@@ -357,11 +358,9 @@ void do_option(int select)
 		gr_palette_fade_out(gr_palette, 32, 0);
 		scores_view(-1);
 		break;
-#ifdef SHAREWARE
 	case MENU_ORDER_INFO:
 		show_order_form();
 		break;
-#endif
 	case MENU_QUIT:
 #ifdef EDITOR
 		if (!SafetyCheck()) break;
@@ -422,10 +421,6 @@ void do_option(int select)
 	case MENU_START_IPX_NETGAME:
 #ifdef NETWORK
 		load_mission(0);
-#ifdef MACINTOSH
-		Network_game_type = IPX_GAME;
-#endif
-		//			WIN(ipx_create_read_thread());
 		network_start_game();
 #endif
 		break;
@@ -433,23 +428,14 @@ void do_option(int select)
 	case MENU_JOIN_IPX_NETGAME:
 #ifdef NETWORK
 		load_mission(0);
-#ifdef MACINTOSH
-		Network_game_type = IPX_GAME;
-#endif
-		//			WIN(ipx_create_read_thread());
 		network_join_game();
 #endif
 		break;
 
-	case MENU_START_TCP_NETGAME:
-	case MENU_JOIN_TCP_NETGAME:
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, "Not available in shareware version!");
-		// DoNewIPAddress();
-		break;
-
 	case MENU_START_SERIAL:
 #ifdef NETWORK
-		nm_messagebox("Chocolate Note:", 1, TXT_OK, "Emulation of modem support is\nunlikely. Start a normal\nnetwork game.");
+		load_mission(0);
+		do_ip_address_menu();
 #endif
 		break;
 	case MENU_MULTIPLAYER:
@@ -759,6 +745,9 @@ void set_display_mode(int mode)
 	if ((Current_display_mode == -1) || (VR_render_mode != VR_NONE))	//special VR mode
 		return;								//...don't change
 
+	if (CurrentDataVersion == DataVer::DEMO)
+		mode = 0;
+
 	if (mode >= 5 && !FindArg("-superhires"))
 		mode = 4;
 
@@ -837,23 +826,25 @@ void do_screen_res_menu()
 
 	i--;
 
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		if (i != 0)
+			nm_messagebox(TXT_SORRY, 1, TXT_OK,
+				"High resolution modes are\n"
+				"only available in the\n"
+				"Commercial version of Descent 2.");
+		return;
+	}
+
 	if (((i != 0) && (i != 2) && !MenuHiresAvailable) || gr_check_mode(display_mode_info[i].VGA_mode)) {
 		nm_messagebox(TXT_SORRY, 1, TXT_OK,
 			"Cannot set requested\n"
 			"mode on this video card.");
 		return;
 	}
-#ifdef SHAREWARE
-	if (i != 0)
-		nm_messagebox(TXT_SORRY, 1, TXT_OK,
-			"High resolution modes are\n"
-			"only available in the\n"
-			"Commercial version of Descent 2.");
-	return;
-#else
+
 	if (i != Current_display_mode)
 		set_display_mode(i);
-#endif
 }
 
 void do_new_game_menu()
@@ -904,7 +895,7 @@ void do_new_game_menu()
 	{
 		newmenu_item m[4];
 		char info_text[80];
-		char num_text[10];
+		char num_text[11];
 		int choice;
 		int n_items;
 
@@ -955,60 +946,115 @@ void options_menuset(int nitems, newmenu_item * items, int* last_key, int citem)
 		gr_palette_set_gamma(items[5].value);
 	}
 
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		if (Config_digi_volume != items[0].value)
+		{
+			Config_digi_volume = items[0].value;
+
+			digi_set_digi_volume((Config_digi_volume * 32768) / 8);
+			digi_play_sample_once(SOUND_DROP_BOMB, F1_0);
+		}
+
+		if (Config_midi_volume != items[1].value)
+		{
+			Config_midi_volume = items[1].value;
+			digi_set_midi_volume((Config_midi_volume * 128) / 8);
+		}
+	}
+
 	nitems++;		//kill warning
 	last_key++;		//kill warning
 }
 
 void do_options_menu()
 {
-	newmenu_item m[12];
 	int i = 0;
 
-	do {
-		m[0].type = NM_TYPE_MENU;   m[0].text = const_cast<char*>("Sound effects & music...");
-		m[1].type = NM_TYPE_TEXT;   m[1].text = const_cast<char*>("");
-		m[2].type = NM_TYPE_MENU;   m[2].text = TXT_CONTROLS_;
-		m[3].type = NM_TYPE_MENU;   m[3].text = TXT_CAL_JOYSTICK;
-		m[4].type = NM_TYPE_TEXT;   m[4].text = const_cast<char*>("");
+	if (CurrentDataVersion == DataVer::DEMO) //[ISB] uh maybe emulating the freakin options menu is excessive...
+	{
+		newmenu_item m[14];
+		do {
+			m[0].type = NM_TYPE_SLIDER; m[0].text = TXT_FX_VOLUME; m[0].value = Config_digi_volume; m[0].min_value = 0; m[0].max_value = 8;
+			m[1].type = (Redbook_playing ? NM_TYPE_TEXT : NM_TYPE_SLIDER); m[1].text = const_cast<char*>("MIDI music volume"); m[1].value = Config_midi_volume; m[1].min_value = 0; m[1].max_value = 8;
+			m[2].type = NM_TYPE_TEXT;   m[2].text = const_cast<char*>("");
+			m[3].type = NM_TYPE_CHECK;  m[3].text = TXT_REVERSE_STEREO; m[3].value = Config_channels_reversed;
+			m[4].type = NM_TYPE_TEXT;   m[4].text = const_cast<char*>("");
+			m[5].type = NM_TYPE_SLIDER; m[5].text = TXT_BRIGHTNESS; m[5].value = gr_palette_get_gamma(); m[5].min_value = 0; m[5].max_value = 8;
+			m[6].type = NM_TYPE_MENU;   m[6].text = TXT_CONTROLS_;
+			m[7].type = NM_TYPE_MENU;   m[7].text = TXT_DETAIL_LEVELS;
+			m[8].type = NM_TYPE_MENU;   m[8].text = const_cast<char*>("Screen resolution...");
+			m[9].type = NM_TYPE_MENU;   m[9].text = TXT_CAL_JOYSTICK;
+			m[10].type = NM_TYPE_TEXT;   m[10].text = const_cast<char*>("");
+			m[11].type = NM_TYPE_MENU;   m[11].text = const_cast<char*>("Toggles...");
+			m[12].type = NM_TYPE_MENU;   m[12].text = const_cast<char*>("Primary autoselect ordering...");
+			m[13].type = NM_TYPE_MENU;   m[13].text = const_cast<char*>("Secondary autoselect ordering...");
+
+			i = newmenu_do1(NULL, TXT_OPTIONS, sizeof(m) / sizeof(*m), m, options_menuset, i);
+
+			switch (i)
+			{
+			case  6: joydefs_config();			break;
+			case  7: do_detail_level_menu(); 	break;
+			case  8: do_screen_res_menu();		break;
+			case  9: joydefs_calibrate();		break;
+			case 11: do_toggles_menu();			break;
+			case 12: ReorderPrimary();			break;
+			case 13: ReorderSecondary();		break;
+			}
+			Config_channels_reversed = m[3].value;
+
+		} while (i > -1);
+	}
+	else
+	{
+		newmenu_item m[12];
+		do {
+			m[0].type = NM_TYPE_MENU;   m[0].text = const_cast<char*>("Sound effects & music...");
+			m[1].type = NM_TYPE_TEXT;   m[1].text = const_cast<char*>("");
+			m[2].type = NM_TYPE_MENU;   m[2].text = TXT_CONTROLS_;
+			m[3].type = NM_TYPE_MENU;   m[3].text = TXT_CAL_JOYSTICK;
+			m[4].type = NM_TYPE_TEXT;   m[4].text = const_cast<char*>("");
 
 #if defined(POLY_ACC)
-		m[5].type = NM_TYPE_TEXT;   m[5].text = const_cast<char*>("");
+			m[5].type = NM_TYPE_TEXT;   m[5].text = const_cast<char*>("");
 #else
-		m[5].type = NM_TYPE_SLIDER; m[5].text = TXT_BRIGHTNESS; m[5].value = gr_palette_get_gamma(); m[5].min_value = 0; m[5].max_value = 8;
+			m[5].type = NM_TYPE_SLIDER; m[5].text = TXT_BRIGHTNESS; m[5].value = gr_palette_get_gamma(); m[5].min_value = 0; m[5].max_value = 8;
 #endif
 
 
 #ifdef PA_3DFX_VOODOO
-		m[6].type = NM_TYPE_TEXT;   m[6].text = const_cast<char*>("");
+			m[6].type = NM_TYPE_TEXT;   m[6].text = const_cast<char*>("");
 #else
-		m[6].type = NM_TYPE_MENU;   m[6].text = TXT_DETAIL_LEVELS;
+			m[6].type = NM_TYPE_MENU;   m[6].text = TXT_DETAIL_LEVELS;
 #endif
 
 #if defined(POLY_ACC)
-		m[7].type = NM_TYPE_TEXT;   m[7].text = const_cast<char*>("");
+			m[7].type = NM_TYPE_TEXT;   m[7].text = const_cast<char*>("");
 #else
-		m[7].type = NM_TYPE_MENU;   m[7].text = const_cast<char*>("Screen resolution...");
+			m[7].type = NM_TYPE_MENU;   m[7].text = const_cast<char*>("Screen resolution...");
 #endif
-		m[8].type = NM_TYPE_TEXT;   m[8].text = const_cast<char*>("");
-		m[9].type = NM_TYPE_MENU;   m[9].text = const_cast<char*>("Primary autoselect ordering...");
-		m[10].type = NM_TYPE_MENU;   m[10].text = const_cast<char*>("Secondary autoselect ordering...");
-		m[11].type = NM_TYPE_MENU;   m[11].text = const_cast<char*>("Toggles...");
+			m[8].type = NM_TYPE_TEXT;   m[8].text = const_cast<char*>("");
+			m[9].type = NM_TYPE_MENU;   m[9].text = const_cast<char*>("Primary autoselect ordering...");
+			m[10].type = NM_TYPE_MENU;   m[10].text = const_cast<char*>("Secondary autoselect ordering...");
+			m[11].type = NM_TYPE_MENU;   m[11].text = const_cast<char*>("Toggles...");
 
-		i = newmenu_do1(NULL, TXT_OPTIONS, sizeof(m) / sizeof(*m), m, options_menuset, i);
+			i = newmenu_do1(NULL, TXT_OPTIONS, sizeof(m) / sizeof(*m), m, options_menuset, i);
 
-		switch (i)
-		{
-		case  0: do_sound_menu();			break;
-		case  2: joydefs_config();			break;
-		case  3: joydefs_calibrate();		break;
-		case  6: do_detail_level_menu(); 	break;
-		case  7: do_screen_res_menu();		break;
-		case  9: ReorderPrimary();			break;
-		case 10: ReorderSecondary();		break;
-		case 11: do_toggles_menu();			break;
-		}
+			switch (i)
+			{
+			case  0: do_sound_menu();			break;
+			case  2: joydefs_config();			break;
+			case  3: joydefs_calibrate();		break;
+			case  6: do_detail_level_menu(); 	break;
+			case  7: do_screen_res_menu();		break;
+			case  9: ReorderPrimary();			break;
+			case 10: ReorderSecondary();		break;
+			case 11: do_toggles_menu();			break;
+			}
 
-	} while (i > -1);
+		} while (i > -1);
+	}
 
 	write_player_file();
 }
@@ -1139,6 +1185,8 @@ void do_toggles_menu()
 #define N_TOGGLE_ITEMS 7
 #endif
 
+	int N_toggle_items = N_TOGGLE_ITEMS-1;
+
 	newmenu_item m[N_TOGGLE_ITEMS];
 	int i = 0;
 
@@ -1152,9 +1200,11 @@ void do_toggles_menu()
 		ADD_CHECK(5, const_cast<char*>("Escort robot hot keys"), EscortHotKeys);
 #if !defined(POLY_ACC)
 		ADD_CHECK(6, const_cast<char*>("Always show HighRes Automap"), std::min(MenuHiresAvailable, Automap_always_hires));
+		if (CurrentDataVersion != DataVer::DEMO)
+			N_toggle_items++;
 #endif
 		//when adding more options, change N_TOGGLE_ITEMS above
-		i = newmenu_do1(NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i);
+		i = newmenu_do1(NULL, "Toggles", N_toggle_items, m, NULL, i);
 
 		Auto_leveling_on = m[0].value;
 		Reticle_on = m[1].value;
@@ -1174,6 +1224,11 @@ void do_toggles_menu()
 	} while (i > -1);
 }
 
+//[ISB] These strings are replicated here since the Descent 2 versions of them explicitly reference IPX. 
+char start_net_game_str[40] = "Start a network game...";
+char join_net_game_str[40] = "Join a network game...\n";
+char direct_join_str[40] = "CONNECT TO IP ADDRESS...";
+
 void do_multi_player_menu()
 {
 	int menu_choice[5];
@@ -1183,17 +1238,17 @@ void do_multi_player_menu()
 
 	do
 	{
-		//		WIN(ipx_destroy_read_thread());
-
 		old_game_mode = Game_mode;
 		num_options = 0;
 
-		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1);
-		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1);
-		//  ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1 );
-		//  ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1 );
+#ifdef NETWORK
+		//go back to the old port when starting new games
+		NetChangeDefaultSocket(Current_Port);
+#endif
 
-		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
+		ADD_ITEM(start_net_game_str, MENU_START_IPX_NETGAME, -1);
+		ADD_ITEM(join_net_game_str, MENU_JOIN_IPX_NETGAME, -1);
+		ADD_ITEM(direct_join_str, MENU_START_SERIAL, -1);
 
 		choice = newmenu_do1(NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice);
 
@@ -1207,6 +1262,77 @@ void do_multi_player_menu()
 
 }
 
+#ifdef NETWORK
+void do_ip_address_menu()
+{
+	newmenu_item m;
+	static char text[256] = "";
+	uint8_t address[4];
+	char* ptr, * oldptr;
+	int i;
+	int value;
+
+	char buf[256];
+
+	uint16_t oldPort = NetGetCurrentPort();
+	snprintf(buf, 255, "Enter IP address\nCurrent port is %d", oldPort);
+	buf[255] = '\0';
+
+	m.type = NM_TYPE_INPUT; m.text_len = 255; m.text = text;
+
+	int opt = newmenu_do(NULL, buf, 1, &m, NULL);
+
+	if (opt == -1) return;
+
+	//new_level_num = atoi(m.text);
+	char* colonPtr = strchr(text, ':');
+	if (colonPtr)
+	{
+		*colonPtr = '\0';
+		char* portString = colonPtr + 1;
+		int newPort = atoi(portString);
+		NetChangeDefaultSocket(newPort);
+	}
+	ptr = oldptr = text;
+	for (i = 0; i < 4; i++)
+	{
+		if (i != 3)
+		{
+			ptr = strchr(ptr, '.');
+			if (!ptr)
+			{
+				nm_messagebox(NULL, 1, TXT_OK, "Address is formatted incorrectly");
+				return;
+			}
+			*ptr = '\0';
+		}
+		value = atoi(oldptr);
+		if (value > 255)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "Invalid number in address");
+			return;
+		}
+		address[i] = value;
+		if (i != 3)
+		{
+			*ptr = '.';
+			ptr++;
+		}
+		oldptr = ptr;
+	}
+
+	network_join_game_at(address);
+
+	if (colonPtr)
+	{
+		*colonPtr = ':';
+	}
+
+	return;
+}
+#endif
+
+/* [ISB] heh
 void DoNewIPAddress()
 {
 	newmenu_item m[4];
@@ -1224,3 +1350,4 @@ void DoNewIPAddress()
 
 	nm_messagebox(TXT_SORRY, 1, TXT_OK, "That address is not valid!");
 }
+*/

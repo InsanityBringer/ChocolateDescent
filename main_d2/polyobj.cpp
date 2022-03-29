@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "lighting.h"
 #include "cfile/cfile.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #endif
 
 //#include "pa_enabl.h"

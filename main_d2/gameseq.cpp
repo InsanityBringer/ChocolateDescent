@@ -51,15 +51,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "texmap/texmap.h"
 #include "3d/3d.h"
-#include "effects.h"
-#include "2d/effect2d.h"
+#include "main_shared/effects.h"
 #include "menu.h"
 #include "gameseg.h"
 #include "wall.h"
 #include "ai.h"
 #include "fuelcen.h"
 #include "switch.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "gamesave.h"
 #include "scores.h"
 #include "2d/ibitblt.h"
@@ -89,14 +88,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "cntrlcen.h"
 #include "powerup.h"
-#include "text.h"
+#include "stringtable.h"
 #include "cfile/cfile.h"
-#include "piggy.h"
-#include "texmerge.h"
+#include "main_shared/piggy.h"
+#include "main_shared/texmerge.h"
 #include "paging.h"
 #include "mission.h"
 #include "state.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "netmisc.h"
 #include "gamepal.h"
 #include "movie.h"
@@ -149,8 +148,7 @@ int NumNetPlayerPositions = -1;
 extern fix ThisLevelTime;
 
 // Extern from game.c to fix a bug in the cockpit!
-
-extern int last_drawn_cockpit[2];
+extern int last_drawn_cockpit;
 extern int Last_level_path_created;
 
 //	HUD_clear_messages external, declared in gauges.h
@@ -938,18 +936,10 @@ void LoadLevel(int level_num, int page_in_textures)
 	else					//normal level
 		level_name = Level_names[level_num - 1];
 
-#ifdef WINDOWS
-	dd_gr_set_current_canvas(NULL);
-	dd_gr_clear_canvas(BM_XRGB(0, 0, 0));
-#else
 	gr_set_current_canvas(NULL);
 	gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious
-#endif
 
 	Last_msg_ycrd = -1;		//so we don't restore backgound under msg
-
-//	WIN(LoadCursorWin(MOUSE_WAIT_CURSOR));
-//	WIN(ShowCursorW());
 
 #if defined(POLY_ACC)
 	gr_palette_load(gr_palette);
@@ -957,7 +947,7 @@ void LoadLevel(int level_num, int page_in_textures)
 #else
 	show_boxed_message(TXT_LOADING);
 	gr_palette_load(gr_palette);
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 	
 #endif
 
@@ -972,9 +962,8 @@ void LoadLevel(int level_num, int page_in_textures)
 
 	load_palette(Current_level_palette, 1, 1);		//don't change screen
 
-#ifdef SHAREWARE
-	load_endlevel_data(level_num);
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+		load_endlevel_data(level_num);
 
 	if (page_in_textures)
 		piggy_load_level_data();
@@ -1325,8 +1314,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 	m[0].type = NM_TYPE_TEXT;
 	m[0].text = const_cast<char*>(" ");
 
-	last_drawn_cockpit[0] = -1;
-	last_drawn_cockpit[1] = -1;
+	last_drawn_cockpit = -1;
 
 	if (Newdemo_state == ND_STATE_PAUSED)
 		Newdemo_state = ND_STATE_RECORDING;
@@ -1572,17 +1560,12 @@ void PlayerFinishedLevel(int secret_flag)
 	if (Game_mode & GM_NETWORK)
 		Players[Player_num].connected = 2; // Finished but did not die
 
-	last_drawn_cockpit[0] = -1;
-	last_drawn_cockpit[1] = -1;
+	last_drawn_cockpit = -1;
 
 	AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 }
 
-#if defined(D2_OEM) || defined(COMPILATION)
-#define MOVIE_REQUIRED 0
-#else
-#define MOVIE_REQUIRED 1
-#endif
+#define MOVIE_REQUIRED 0 //[ISB] Really, why should I require these? Is it too unchocolate to do this?
 
 #ifdef D2_OEM
 #define ENDMOVIE "endo"
@@ -1615,22 +1598,26 @@ void DoEndGame(void)
 	{
 		int played = MOVIE_NOT_PLAYED;	//default is not played
 
-#ifdef SHAREWARE
-		songs_play_song(SONG_ENDGAME, 0);
-		mprintf((0, "doing briefing\n"));
-		do_briefing_screens("ending2.tex", 1);
-		mprintf((0, "briefing done\n"));
-#else
-		init_subtitles(ENDMOVIE ".tex");	//ingore errors
-		played = PlayMovie(ENDMOVIE, MOVIE_REQUIRED);
-		close_subtitles();
+		if (CurrentDataVersion == DataVer::DEMO)
+		{
+			songs_play_song(SONG_ENDGAME, 0);
+			mprintf((0, "doing briefing\n"));
+			do_briefing_screens("ending2.tex", 1);
+			mprintf((0, "briefing done\n"));
+		}
+		else
+		{
+			init_subtitles(ENDMOVIE ".tex");	//ingore errors
+			played = PlayMovie(ENDMOVIE, MOVIE_REQUIRED);
+			close_subtitles();
+		}
 #ifdef D2_OEM
-		if (!played) {
+		if (!played)
+		{
 			songs_play_song(SONG_TITLE, 0);
 			do_briefing_screens("end2oem.tex", 1);
 		}
 #endif
-#endif	
 	}
 	else if (!(Game_mode & GM_MULTI)) //not multi
 	{
@@ -1645,9 +1632,8 @@ void DoEndGame(void)
 
 	key_flush();
 
-#ifdef SHAREWARE
-	show_order_form();
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+		show_order_form();
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
@@ -1963,8 +1949,7 @@ void DoPlayerDead()
 			AdvanceLevel(0);			//if finished, go on to next level
 
 			init_player_stats_new_ship();
-			last_drawn_cockpit[0] = -1;
-			last_drawn_cockpit[1] = -1;
+			last_drawn_cockpit = -1;
 		}
 
 	}
@@ -2007,8 +1992,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 {
 	if (!(Game_mode & GM_MULTI))
 	{
-		last_drawn_cockpit[0] = -1;
-		last_drawn_cockpit[1] = -1;
+		last_drawn_cockpit = -1;
 	}
 	BigWindowSwitch = 0;
 
@@ -2187,12 +2171,7 @@ void ShowLevelIntro(int level_num)
 		if (Current_mission_num == 0)
 		{
 			int movie = 0;
-#ifdef SHAREWARE
-			if (level_num == 1)
-			{
-				do_briefing_screens("brief2.tex", 1);
-			}
-#else
+
 			for (i = 0; i < NUM_INTRO_MOVIES; i++)
 			{
 				if (intro_movie[i].level_num == level_num)
@@ -2203,32 +2182,33 @@ void ShowLevelIntro(int level_num)
 				}
 			}
 
-#ifdef WINDOWS
-			if (!movie) {					//must go before briefing
-				dd_gr_init_screen();
-				Screen_mode = -1;
-			}
-#endif
-
-			if (robot_movies)
+			if (CurrentDataVersion == DataVer::DEMO && level_num == 1)
 			{
-				int hires_save = MenuHiresAvailable;
-
-				if (robot_movies == 1)		//lowres only
-				{
-					MenuHiresAvailable = 0;		//pretend we can't do highres
-
-					if (hires_save != MenuHiresAvailable)
-						Screen_mode = -1;		//force reset
-
-				}
-				do_briefing_screens("robot.tex", level_num);
-				MenuHiresAvailable = hires_save;
+				do_briefing_screens("brief2.tex", 1);
 			}
 
-#endif
+			if (CurrentDataVersion != DataVer::DEMO)
+			{
+				if (robot_movies)
+				{
+					int hires_save = MenuHiresAvailable;
+
+					if (robot_movies == 1)		//lowres only
+					{
+						MenuHiresAvailable = 0;		//pretend we can't do highres
+
+						if (hires_save != MenuHiresAvailable)
+							Screen_mode = -1;		//force reset
+
+					}
+					do_briefing_screens("robot.tex", level_num);
+					MenuHiresAvailable = hires_save;
 		}
-		else {	//not the built-in mission.  check for add-on briefing
+	}
+
+		}
+		else //not the built-in mission.  check for add-on briefing
+		{
 			char tname[FILENAME_LEN];
 			sprintf(tname, "%s.tex", Current_mission_filename);
 			do_briefing_screens(tname, level_num);

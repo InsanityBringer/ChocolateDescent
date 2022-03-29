@@ -45,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "sounds.h"
 #include "screens.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gamefont.h"
 #include "newmenu.h"
 #include "playsave.h"
@@ -63,30 +63,30 @@ extern void multi_send_stolen_items();
 #endif
 
 const char *Escort_goal_text[MAX_ESCORT_GOALS] = {
-{	"BLUE KEY"},
-{	"YELLOW KEY"},
-{	"RED KEY"},
-{	"REACTOR"},
-{	"EXIT"},
-{	"ENERGY"},
-{	"ENERGYCEN"},
-{	"SHIELD"},
-{	"POWERUP"},
-{	"ROBOT"},
-{	"HOSTAGES"},
-{	"SPEW"},
-{	"SCRAM"},
-{	"EXIT"},
-{	"BOSS"},
-{	"MARKER 1"},
-{	"MARKER 2"},
-{	"MARKER 3"},
-{	"MARKER 4"},
-{	"MARKER 5"},
-{	"MARKER 6"},
-{	"MARKER 7"},
-{	"MARKER 8"},
-{	"MARKER 9"},
+	"BLUE KEY",
+	"YELLOW KEY",
+	"RED KEY",
+	"REACTOR",
+	"EXIT",
+	"ENERGY",
+	"ENERGYCEN",
+	"SHIELD",
+	"POWERUP",
+	"ROBOT",
+	"HOSTAGES",
+	"SPEW",
+	"SCRAM",
+	"EXIT",
+	"BOSS",
+	"MARKER 1",
+	"MARKER 2",
+	"MARKER 3",
+	"MARKER 4",
+	"MARKER 5",
+	"MARKER 6",
+	"MARKER 7",
+	"MARKER 8",
+	"MARKER 9",
 // -- too much work -- 	"KAMIKAZE  "
 };
 
@@ -1866,7 +1866,7 @@ void do_escort_menu(void)
 				, goal_str, tstr);
 
 	show_escort_menu(msg);		//TXT_PAUSE);
-	I_DrawCurrentCanvas(0);
+	plat_present_canvas(0);
 
 	while (paused) 
 	{
@@ -1960,11 +1960,7 @@ void show_escort_menu(char *msg)
 	int	w,h,aw;
 	int	x,y;
 
-
-	WINDOS(
-		dd_gr_set_current_canvas(&dd_VR_screen_pages[0]),
-		gr_set_current_canvas(&VR_screen_pages[0])
-	);
+	gr_set_current_canvas(&VR_screen_pages);
 
 	gr_set_curfont( GAME_FONT );
 

@@ -103,5 +103,3 @@ void kc_change_mousebutton(kc_item* item);
 void kc_change_joyaxis(kc_item* item);
 void kc_change_mouseaxis(kc_item* item);
 void kc_change_invert(kc_item* item);
-void kconfig_read_fcs(int raw_axis);
-void kconfig_set_fcs_button(int btn, int button);

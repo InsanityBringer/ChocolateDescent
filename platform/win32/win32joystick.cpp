@@ -63,7 +63,7 @@ std::vector<std::unique_ptr<Win32HidDevice>> Win32HidDevice::create_devices(HWND
 	rid[1].hwndTarget = window;
 	rid[2].usUsagePage = HID_USAGE_PAGE_GENERIC;
 	rid[2].usUsage = HID_USAGE_GENERIC_MOUSE;
-	rid[2].dwFlags = 0;
+	rid[2].dwFlags = RIDEV_NOLEGACY | RIDEV_CAPTUREMOUSE;
 	rid[2].hwndTarget = window;
 	RegisterRawInputDevices(rid, 3, sizeof(RAWINPUTDEVICE));
 

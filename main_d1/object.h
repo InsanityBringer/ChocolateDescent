@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "aistruct.h"
 #include "2d/gr.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #define MAX_OBJECTS			350		//increased on 01/24/95 for multiplayer. --MK;  total number of objects in world
 
@@ -404,5 +404,5 @@ void obj_detach_one(object* sub);
 void obj_detach_all(object* parent);
 
 //Reads an object from disk. This code is my absolute nightmare. Thanks, unions.
-void P_ReadObject(object* obj, FILE* f);
-void P_WriteObject(object* obj, FILE* f);
+void read_obj_instance(object* obj, FILE* f);
+void write_obj_instance(object* obj, FILE* f);

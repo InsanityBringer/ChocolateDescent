@@ -25,14 +25,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/types.h"
  // Defines
 #include "gameseq.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 // What version of the multiplayer protocol is this?
 
 #ifdef SHAREWARE
 #define MULTI_PROTO_VERSION 	1
 #else
-#define MULTI_PROTO_VERSION	2
+#define MULTI_PROTO_VERSION	3
 #endif
 
 // How many simultaneous network players do we support?
@@ -134,8 +134,8 @@ void multi_prep_level(void);
 int multi_endlevel(int* secret);
 int multi_menu_poll(void);
 void multi_leave_game(void);
-void multi_process_data(char* dat, int len);
-void multi_process_bigdata(char* buf, int len);
+void multi_process_data(uint8_t* dat, int len);
+void multi_process_bigdata(uint8_t* buf, int len);
 void multi_do_death(int objnum);
 void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);
@@ -149,7 +149,7 @@ void multi_sort_kill_list(void);
 int multi_choose_mission(int* anarchy_only);
 void multi_reset_stuff(void);
 
-void multi_send_data(char* buf, int len, int repeat);
+void multi_send_data(uint8_t* buf, int len, int repeat);
 
 int get_team(int pnum);
 
@@ -162,7 +162,7 @@ extern int Network_laser_level;
 extern int Network_laser_flags;
 
 extern int message_length[MULTI_MAX_TYPE + 1];
-extern char multibuf[MAX_MULTI_MESSAGE_LEN + 4];
+extern uint8_t multibuf[MAX_MULTI_MESSAGE_LEN + 4];
 extern short Network_laser_track;
 
 extern int who_killed_controlcen;
@@ -213,16 +213,19 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 
 #define NETGAME_NAME_LEN				15
 
-typedef struct netplayer_info {
+typedef struct netplayer_info 
+{
 	char		callsign[CALLSIGN_LEN + 1];
-	uint8_t		server[4];
-	uint8_t		node[6];
+	uint8_t		node[4];
 	uint16_t	socket;
 	int8_t 		connected;
+	uint32_t	identifier; //TODO: This is a hack. Each node gets a random identifier, since on the internet using IP addresses to check uniqueness gets weird on the client. Can collide!
 } netplayer_info;
 
-typedef struct netgame_info {
+typedef struct netgame_info 
+{
 	uint8_t					type;
+	uint8_t					protocol_version;
 	char					game_name[NETGAME_NAME_LEN + 1];
 	char					team_name[2][CALLSIGN_LEN + 1];
 	uint8_t					gamemode;
@@ -235,7 +238,6 @@ typedef struct netgame_info {
 	int					locations[MAX_PLAYERS];
 	short					kills[MAX_PLAYERS][MAX_PLAYERS];
 	int					levelnum;
-	uint8_t					protocol_version;
 	uint8_t					team_vector;
 	uint16_t				segments_checksum;
 	short					team_kills[2];

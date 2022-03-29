@@ -71,5 +71,5 @@ extern void triggers_frame_process();
 
 #include <stdio.h>
 
-void P_ReadTrigger(trigger* trig, FILE* fp);
-void P_WriteTrigger(trigger* trig, FILE* fp);
+void read_trigger(trigger* trig, FILE* fp);
+void write_trigger(trigger* trig, FILE* fp);

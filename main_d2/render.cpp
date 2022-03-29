@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "segpoint.h"
 #include "wall.h"
-#include "texmerge.h"
+#include "main_shared/texmerge.h"
 #include "physics.h"
 #include "3d/3d.h"
 #include "gameseg.h"
@@ -44,7 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "newmenu.h"
 #include "mem/mem.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #define	INITIAL_LOCAL_LIGHT	(F1_0/4)		// local light value in segment of occurence (of light emission)
 
@@ -1494,9 +1494,7 @@ void render_frame(fix eye_offset, int window_num)
 
 	if (Endlevel_sequence)
 	{
-#ifdef SHAREWARE
 		render_endlevel_frame(eye_offset);
-#endif
 		FrameCount++;
 		return;
 }
@@ -2071,7 +2069,7 @@ void render_mine(int start_seg_num, fix eye_offset, int window_num)
 #ifdef EDITOR
 #ifndef NDEUBG
 //draw curedge stuff
-	if (Outline_mode) outline_seg_side(Cursegp, Curside, Curedge, Curvert);
+	if (Outline_mode && Cursegp) outline_seg_side(Cursegp, Curside, Curedge, Curvert);
 #endif
 
 done_rendering:
@@ -2105,8 +2103,9 @@ int find_seg_side_face(short x, short y, int* seg, int* side, int* face, int* po
 
 		render_frame(0, 0);
 	}
-	else {
-		gr_set_current_canvas(&VR_render_sub_buffer[0]);	//render off-screen
+	else 
+	{
+		gr_set_current_canvas(&VR_render_sub_buffer);	//render off-screen
 		render_frame(0, 0);
 	}
 
@@ -2117,7 +2116,7 @@ int find_seg_side_face(short x, short y, int* seg, int* side, int* face, int* po
 	*face = found_face;
 	*poly = found_poly;
 
-	//	mprintf((0,"found seg=%d, side=%d, face=%d, poly=%d\n",found_seg,found_side,found_face,found_poly));
+	mprintf((0,"found seg=%d, side=%d, face=%d, poly=%d\n",found_seg,found_side,found_face,found_poly));
 
 	return (found_seg != -1);
 

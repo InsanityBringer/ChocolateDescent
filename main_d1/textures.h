@@ -14,7 +14,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "bm.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 extern int NumTextures;
 extern bitmap_index Textures[MAX_TEXTURES];	// Array of all texture tmaps.

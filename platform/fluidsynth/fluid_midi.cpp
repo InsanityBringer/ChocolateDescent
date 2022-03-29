@@ -19,8 +19,7 @@ as described in copying.txt.
 MidiFluidSynth::MidiFluidSynth()
 {
 	FluidSynthSettings = new_fluid_settings();
-	FluidSynth = new_fluid_synth(FluidSynthSettings);
-	//AudioDriver = new_fluid_audio_driver(FluidSynthSettings, FluidSynth);
+	FluidSynth = nullptr;
 	AudioDriver = nullptr;
 
 	if (FluidSynthSettings)
@@ -29,13 +28,18 @@ MidiFluidSynth::MidiFluidSynth()
 		fluid_settings_setint(FluidSynthSettings, "synth.reverb.active", 0);
 		fluid_settings_setnum(FluidSynthSettings, "synth.gain", 0.5);
 	}
-
-	//if (FluidSynth == nullptr) return 1;
 }
 
 void MidiFluidSynth::SetSampleRate(uint32_t newSampleRate)
 {
 	fluid_settings_setnum(FluidSynthSettings, "synth.sample-rate", (double)newSampleRate);
+}
+
+//Doing this separately is required, since with post 2.1.0 versions of FluidSynth, the sample rate can't be changed while a synth is created
+//See https://www.mail-archive.com/fluid-dev@nongnu.org/msg05299.html
+void MidiFluidSynth::CreateSynth()
+{
+	FluidSynth = new_fluid_synth(FluidSynthSettings);
 }
 
 void MidiFluidSynth::Shutdown()
@@ -59,29 +63,30 @@ void MidiFluidSynth::RenderMIDI(int numTicks, unsigned short* buffer)
 void MidiFluidSynth::DoMidiEvent(midievent_t *ev)
 {
 	//printf("event %d channel %d param 1 %d param 2 %d\n", ev->type, ev->channel, ev->param1, ev->param2);
-	switch (ev->type)
+	int channel = ev->GetChannel();
+	switch (ev->GetType())
 	{
 	case EVENT_NOTEON:
-		fluid_synth_noteon(FluidSynth, ev->channel, ev->param1, ev->param2);
+		fluid_synth_noteon(FluidSynth, channel, ev->param1, ev->param2);
 		break;
 	case EVENT_NOTEOFF:
-		fluid_synth_noteoff(FluidSynth, ev->channel, ev->param1);
+		fluid_synth_noteoff(FluidSynth, channel, ev->param1);
 		break;
 	case EVENT_AFTERTOUCH:
-		fluid_synth_key_pressure(FluidSynth, ev->channel, ev->param1, ev->param2);
+		fluid_synth_key_pressure(FluidSynth, channel, ev->param1, ev->param2);
 		break;
 	case EVENT_PRESSURE:
-		fluid_synth_channel_pressure(FluidSynth, ev->channel, ev->param1);
+		fluid_synth_channel_pressure(FluidSynth, channel, ev->param1);
 		break;
 	case EVENT_PITCH:
-		fluid_synth_pitch_bend(FluidSynth, ev->channel, ev->param1 + (ev->param2 << 7));
+		fluid_synth_pitch_bend(FluidSynth, channel, ev->param1 + (ev->param2 << 7));
 		break;
 	case EVENT_PATCH:
-		fluid_synth_program_change(FluidSynth, ev->channel, ev->param1);
+		fluid_synth_program_change(FluidSynth, channel, ev->param1);
 		//fluid_synth_program_change(FluidSynth, ev->channel, rand() & 127);
 		break;
 	case EVENT_CONTROLLER:
-		fluid_synth_cc(FluidSynth, ev->channel, ev->param1, ev->param2);
+		fluid_synth_cc(FluidSynth, channel, ev->param1, ev->param2);
 		break;
 		//[ISB] TODO: Sysex
 	}
@@ -98,12 +103,12 @@ void MidiFluidSynth::StopSound()
 
 void MidiFluidSynth::SetDefaults()
 {
-	//fluid_synth_system_reset(FluidSynth);
+	fluid_synth_system_reset(FluidSynth);
 	for (int chan = 0; chan < 16; chan++)
 	{
 		fluid_synth_cc(FluidSynth, chan, 7, 0); //volume. Set to 0 by default in HMI
 		fluid_synth_cc(FluidSynth, chan, 39, 0); //fine volume.
-		fluid_synth_cc(FluidSynth, chan, 1, 0); //modulation wheel
+		/*fluid_synth_cc(FluidSynth, chan, 1, 0); //modulation wheel
 		fluid_synth_cc(FluidSynth, chan, 11, 127); //expression
 		fluid_synth_cc(FluidSynth, chan, 64, 0); //pedals
 		fluid_synth_cc(FluidSynth, chan, 65, 0);
@@ -121,17 +126,25 @@ void MidiFluidSynth::SetDefaults()
 		for (int key = 0; key < 128; key++) //this isn't going to cause problems with the polyphony limit is it...
 			fluid_synth_key_pressure(FluidSynth, chan, key, 0);
 
-		fluid_synth_cc(FluidSynth, chan, 121, 0); //send all notes off TODO: This can be adjusted in HMI. 
+		fluid_synth_cc(FluidSynth, chan, 121, 0); //send all notes off TODO: This can be adjusted in HMI. */
 	}
 }
 
 void MidiFluidSynth::PerformBranchResets(BranchEntry* entry, int chan)
 {
 	int i;
+	//Attempting to set a default bank, since occasionally there are undefined ones. If a different bank is needed, it should hopefully be set in the CC messages. 
+	//fluid_synth_bank_select(FluidSynth, chan, 0);
+	//fluid_synth_program_change(FluidSynth, chan, entry->program);
 	for (i = 0; i < entry->controlChangeCount; i++)
 	{
 		fluid_synth_cc(FluidSynth, chan, entry->controlChanges[i].controller, entry->controlChanges[i].state);
 	}
+}
+
+void MidiFluidSynth::SetVolume(int volume)
+{
+	fluid_settings_setnum(FluidSynthSettings, "synth.gain", 0.5 * volume / 127);
 }
 
 #endif

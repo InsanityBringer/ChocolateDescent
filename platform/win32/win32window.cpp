@@ -31,7 +31,6 @@
 namespace
 {
 	HWND Window;
-	grs_canvas* screenBuffer;
 	uint32_t palette[256];
 
 	std::vector<std::unique_ptr<Win32HidDevice>> joysticks;
@@ -85,12 +84,16 @@ namespace
 		else if (message == WM_KEYDOWN)
 		{
 			int scancode = (lparam >> 16) & 0xff;
+			if (lparam & 0x1000000) //handle extended flag
+				scancode |= 0x80;
 			KeyPressed(scancode);
 			return 0;
 		}
 		else if (message == WM_KEYUP)
 		{
 			int scancode = (lparam >> 16) & 0xff;
+			if (lparam & 0x1000000) //handle extended flag
+				scancode |= 0x80;
 			KeyReleased(scancode);
 			return 0;
 		}
@@ -108,8 +111,64 @@ namespace
 					RAWINPUT* rawinput = (RAWINPUT*)buf.data();
 					if (rawinput->header.dwType == RIM_TYPEMOUSE)
 					{
+						uint32_t buttons;
 						mousedx += rawinput->data.mouse.lLastX;
 						mousedy += rawinput->data.mouse.lLastY;
+
+						//[ISB] Making buttons use rawinput
+						buttons = rawinput->data.mouse.ulButtons;
+
+						if (buttons & RI_MOUSE_LEFT_BUTTON_DOWN && !mouse_button_state(MBUTTON_LEFT))
+						{
+							MousePressed(MBUTTON_LEFT);
+							mousebuttons |= 1;
+						}
+						else if (buttons & RI_MOUSE_LEFT_BUTTON_UP && mouse_button_state(MBUTTON_LEFT))
+						{
+							MouseReleased(MBUTTON_LEFT);
+							mousebuttons &= ~1;
+						}
+						if (buttons & RI_MOUSE_RIGHT_BUTTON_DOWN && !mouse_button_state(MBUTTON_RIGHT))
+						{
+							MousePressed(MBUTTON_RIGHT);
+							mousebuttons |= 2;
+						}
+						else if (buttons & RI_MOUSE_RIGHT_BUTTON_UP && mouse_button_state(MBUTTON_RIGHT))
+						{
+							MouseReleased(MBUTTON_RIGHT);
+							mousebuttons &= ~2;
+						}
+						if (buttons & RI_MOUSE_MIDDLE_BUTTON_DOWN && !mouse_button_state(MBUTTON_MIDDLE))
+						{
+							MousePressed(MBUTTON_MIDDLE);
+							mousebuttons |= 4;
+						}
+						else if (buttons & RI_MOUSE_MIDDLE_BUTTON_UP && mouse_button_state(MBUTTON_MIDDLE))
+						{
+							MouseReleased(MBUTTON_MIDDLE);
+							mousebuttons &= ~4;
+						}
+						if (buttons & RI_MOUSE_BUTTON_4_DOWN && !mouse_button_state(MBUTTON_4))
+						{
+							MousePressed(MBUTTON_4);
+							mousebuttons |= 8;
+						}
+						else if (buttons & RI_MOUSE_BUTTON_4_UP && mouse_button_state(MBUTTON_4))
+						{
+							MouseReleased(MBUTTON_4);
+							mousebuttons &= ~8;
+						}
+						if (buttons & RI_MOUSE_BUTTON_5_DOWN && !mouse_button_state(MBUTTON_5))
+						{
+							MousePressed(MBUTTON_5);
+							mousebuttons |= 16;
+						}
+						else if (buttons & RI_MOUSE_BUTTON_5_UP && mouse_button_state(MBUTTON_5))
+						{
+							MouseReleased(MBUTTON_5);
+							mousebuttons &= ~16;
+						}
+
 					}
 					else if (rawinput->header.dwType == RIM_TYPEHID)
 					{
@@ -177,66 +236,6 @@ namespace
 					}
 				}
 			}
-			return 0;
-		}
-		else if (message == WM_LBUTTONDOWN)
-		{
-			mousebuttons |= 1;
-			MousePressed(MBUTTON_LEFT);
-			return 0;
-		}
-		else if (message == WM_LBUTTONUP)
-		{
-			mousebuttons &= ~1;
-			MouseReleased(MBUTTON_LEFT);
-			return 0;
-		}
-		else if (message == WM_RBUTTONDOWN)
-		{
-			mousebuttons |= 2;
-			MousePressed(MBUTTON_RIGHT);
-			return 0;
-		}
-		else if (message == WM_RBUTTONUP)
-		{
-			mousebuttons &= ~2;
-			MouseReleased(MBUTTON_RIGHT);
-			return 0;
-		}
-		else if (message == WM_MBUTTONDOWN)
-		{
-			mousebuttons |= 4;
-			MousePressed(MBUTTON_MIDDLE);
-			return 0;
-		}
-		else if (message == WM_MBUTTONUP)
-		{
-			mousebuttons &= ~4;
-			MouseReleased(MBUTTON_MIDDLE);
-			return 0;
-		}
-		else if (message == WM_XBUTTONDOWN && lparam == MK_XBUTTON1)
-		{
-			mousebuttons |= 8;
-			MousePressed(MBUTTON_4);
-			return 0;
-		}
-		else if (message == WM_XBUTTONUP && lparam == MK_XBUTTON1)
-		{
-			mousebuttons &= ~8;
-			MouseReleased(MBUTTON_4);
-			return 0;
-		}
-		else if (message == WM_XBUTTONDOWN && lparam == MK_XBUTTON2)
-		{
-			mousebuttons |= 16;
-			MousePressed(MBUTTON_5);
-			return 0;
-		}
-		else if (message == WM_XBUTTONUP && lparam == MK_XBUTTON2)
-		{
-			mousebuttons &= ~16;
-			MouseReleased(MBUTTON_5);
 			return 0;
 		}
 		return DefWindowProc(handle, message, wparam, lparam);
@@ -374,7 +373,7 @@ int BestFit = 0;
 int Fullscreen = 0;
 int SwapInterval = 0;
 
-int I_Init()
+int plat_init()
 {
 	WNDCLASSEX windowClassDesc;
 	memset(&windowClassDesc, 0, sizeof(WNDCLASSEX));
@@ -393,11 +392,11 @@ int I_Init()
 		return 1;
 	}
 
-	I_ReadChocolateConfig();
+	plat_read_chocolate_cfg();
 	return 0;
 }
 
-int I_InitWindow()
+int plat_create_window()
 {
 	if (!Window)
 	{
@@ -441,7 +440,7 @@ int I_InitWindow()
 	return 0;
 }
 
-void I_ShutdownGraphics()
+void plat_close_window()
 {
 	joysticks.clear();
 	if (surface) surface->Release();
@@ -452,7 +451,7 @@ void I_ShutdownGraphics()
 	Window = 0;
 }
 
-int I_CheckMode(int mode)
+int plat_check_gr_mode(int mode)
 {
 	//For now, high color modes are rejected (were those ever well supported? or even used?)
 	switch (mode)
@@ -481,12 +480,7 @@ int I_CheckMode(int mode)
 	return 11;
 }
 
-void I_SetScreenCanvas(grs_canvas* canv)
-{
-	screenBuffer = canv;
-}
-
-int I_SetMode(int mode)
+int plat_set_gr_mode(int mode)
 {
 	int w = 0, h = 0;
 	switch (mode)
@@ -547,7 +541,7 @@ int I_SetMode(int mode)
 		w = 1280; h = 1024;
 		break;
 	default:
-		Error("I_SetMode: bad mode %d\n", mode);
+		Error("plat_set_gr_mode: bad mode %d\n", mode);
 		return 0;
 	}
 	WindowWidth = w;
@@ -556,7 +550,7 @@ int I_SetMode(int mode)
 	return 0;
 }
 
-void I_DoEvents()
+void plat_do_events()
 {
 	while (true)
 	{
@@ -572,11 +566,11 @@ void I_DoEvents()
 	}
 }
 
-void I_SetRelative(int state)
+void plat_set_mouse_relative_mode(int state)
 {
 }
 
-void I_WritePalette(int start, int end, uint8_t* data)
+void plat_write_palette(int start, int end, uint8_t* data)
 {
 	for (int i = start; i <= end; i++)
 	{
@@ -584,14 +578,14 @@ void I_WritePalette(int start, int end, uint8_t* data)
 	}
 }
 
-void I_BlankPalette()
+void plat_blank_palette()
 {
 	uint8_t pal[768];
 	memset(&pal[0], 0, 768 * sizeof(uint8_t));
-	I_WritePalette(0, 255, &pal[0]);
+	plat_write_palette(0, 255, &pal[0]);
 }
 
-void I_ReadPalette(uint8_t* dest)
+void plat_read_palette(uint8_t* dest)
 {
 	for (int i = 0; i < 256; i++)
 	{
@@ -601,8 +595,10 @@ void I_ReadPalette(uint8_t* dest)
 	}
 }
 
-void I_WaitVBL()
+void plat_wait_for_vbl()
 {
+	I_MarkEnd(US_60FPS);
+	I_MarkStart();
 }
 
 struct LetterboxRect { int left, top, width, height; };
@@ -622,8 +618,8 @@ static LetterboxRect FindLetterbox()
 		clientWidth = 320;
 		clientHeight = 200;
 	}
-	int screenWidth = screenBuffer->cv_bitmap.bm_w;
-	int screenHeight = screenBuffer->cv_bitmap.bm_h;
+	int screenWidth = grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	int screenHeight = grd_curscreen->sc_canvas.cv_bitmap.bm_h;
 
 	if (screenHeight == 400) // Minimap support
 		screenHeight = 200;
@@ -648,15 +644,12 @@ static LetterboxRect FindLetterbox()
 	return result;
 }
 
-void I_DrawCurrentCanvas(int sync)
+void plat_present_canvas(int sync)
 {
-	if (!screenBuffer)
-		return;
-
 	vid_vsync = sync;
 
-	int width = screenBuffer->cv_bitmap.bm_w;
-	int height = screenBuffer->cv_bitmap.bm_h;
+	int width = grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	int height = grd_curscreen->sc_canvas.cv_bitmap.bm_h;
 	int pitch = 0;
 
 	uint8_t* pixels = PresentLock(width, height, pitch);
@@ -665,7 +658,7 @@ void I_DrawCurrentCanvas(int sync)
 		for (int y = 0; y < height; y++)
 		{
 			uint32_t* dest = (uint32_t*)(pixels + pitch * (ptrdiff_t)y);
-			const uint8_t* src = screenBuffer->cv_bitmap.bm_data + width * (ptrdiff_t)y;
+			const uint8_t* src = grd_curscreen->sc_canvas.cv_bitmap.bm_data + width * (ptrdiff_t)y;
 			for (int x = 0; x < width; x++)
 			{
 				dest[x] = palette[src[x]];
@@ -677,21 +670,20 @@ void I_DrawCurrentCanvas(int sync)
 	}
 }
 
-void I_BlitCurrentCanvas()
+extern unsigned char* gr_video_memory;
+void plat_blit_canvas(grs_canvas* canv)
 {
+	if (canv->cv_bitmap.bm_type == BM_SVGA)
+		memcpy(gr_video_memory, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
 }
 
-void I_BlitCanvas(grs_canvas* canv)
-{
-}
-
-void I_Shutdown()
+void plat_close()
 {
 	if (d3d9) d3d9->Release();
 	d3d9 = nullptr;
 }
 
-void I_DisplayError(const char* msg)
+void plat_display_error(const char* msg)
 {
 	MessageBoxA(Window, msg, "Game Error", 0);
 }

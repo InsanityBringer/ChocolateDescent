@@ -69,9 +69,6 @@ static grs_bitmap* default_pointer;
 
 UI_MOUSE Mouse;
 
-//[ISB] okay i'm stabbing someone now
-//#define TICKER (*(volatile int *)0x46C)
-
 /*
 int ui_mouse_find_gadget(short n)
 {
@@ -191,7 +188,6 @@ void ui_mouse_process()
 
 	if ((Mouse.b1_status & BUTTON_PRESSED) && (Mouse.b1_last_status & BUTTON_RELEASED))
 	{
-		//[ISB] yeah stabbing someone
 		if ((I_GetTicks() <= Mouse.time_lastpressed + 5))  //&& (Mouse.moved==0)
 			Mouse.b1_status |= BUTTON_DOUBLE_CLICKED;
 

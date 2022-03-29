@@ -1148,56 +1148,56 @@ void fuelcen_check_for_hoard_goal(segment* segp)
 #include "cfile/cfile.h"
 #include "cntrlcen.h"
 
-void P_ReadMatcen(matcen_info* center, FILE* fp)
+void read_matcen(matcen_info* center, FILE* fp)
 {
-	center->robot_flags[0] = F_ReadInt(fp);
-	center->robot_flags[1] = F_ReadInt(fp);
-	center->hit_points = F_ReadInt(fp);
-	center->interval = F_ReadInt(fp);
-	center->segnum = F_ReadShort(fp);
-	center->fuelcen_num = F_ReadShort(fp);
+	center->robot_flags[0] = file_read_int(fp);
+	center->robot_flags[1] = file_read_int(fp);
+	center->hit_points = file_read_int(fp);
+	center->interval = file_read_int(fp);
+	center->segnum = file_read_short(fp);
+	center->fuelcen_num = file_read_short(fp);
 }
 
-void P_WriteMatcen(matcen_info* center, FILE* fp)
+void write_matcen(matcen_info* center, FILE* fp)
 {
-	F_WriteInt(fp, center->robot_flags[0]);
-	F_WriteInt(fp, center->robot_flags[1]);
-	F_WriteInt(fp, center->hit_points);
-	F_WriteInt(fp, center->interval);
-	F_WriteShort(fp, center->segnum);
-	F_WriteShort(fp, center->fuelcen_num);
+	file_write_int(fp, center->robot_flags[0]);
+	file_write_int(fp, center->robot_flags[1]);
+	file_write_int(fp, center->hit_points);
+	file_write_int(fp, center->interval);
+	file_write_short(fp, center->segnum);
+	file_write_short(fp, center->fuelcen_num);
 }
 
-void P_ReadFuelCenter(FuelCenter* center, FILE* fp)
+void read_fuelcen(FuelCenter* center, FILE* fp)
 {
-	center->Type = F_ReadInt(fp);
-	center->segnum = F_ReadInt(fp);
-	center->Flag = F_ReadByte(fp);
-	center->Enabled = F_ReadByte(fp);
-	center->Lives = F_ReadByte(fp);
-	center->dum1 = F_ReadByte(fp);
-	center->Capacity = F_ReadInt(fp);
-	center->MaxCapacity = F_ReadInt(fp);
-	center->Timer = F_ReadInt(fp);
-	center->Disable_time = F_ReadInt(fp);
-	center->Center.x = F_ReadInt(fp);
-	center->Center.y = F_ReadInt(fp);
-	center->Center.z = F_ReadInt(fp);
+	center->Type = file_read_int(fp);
+	center->segnum = file_read_int(fp);
+	center->Flag = file_read_byte(fp);
+	center->Enabled = file_read_byte(fp);
+	center->Lives = file_read_byte(fp);
+	center->dum1 = file_read_byte(fp);
+	center->Capacity = file_read_int(fp);
+	center->MaxCapacity = file_read_int(fp);
+	center->Timer = file_read_int(fp);
+	center->Disable_time = file_read_int(fp);
+	center->Center.x = file_read_int(fp);
+	center->Center.y = file_read_int(fp);
+	center->Center.z = file_read_int(fp);
 }
 
-void P_WriteFuelCenter(FuelCenter* center, FILE* fp)
+void write_fuelcen(FuelCenter* center, FILE* fp)
 {
-	F_WriteInt(fp, center->Type);
-	F_WriteInt(fp, center->segnum);
-	F_WriteByte(fp, center->Flag);
-	F_WriteByte(fp, center->Enabled);
-	F_WriteByte(fp, center->Lives);
-	F_WriteByte(fp, center->dum1);
-	F_WriteInt(fp, center->Capacity);
-	F_WriteInt(fp, center->MaxCapacity);
-	F_WriteInt(fp, center->Timer);
-	F_WriteInt(fp, center->Disable_time);
-	F_WriteInt(fp, center->Center.x);
-	F_WriteInt(fp, center->Center.y);
-	F_WriteInt(fp, center->Center.z);
+	file_write_int(fp, center->Type);
+	file_write_int(fp, center->segnum);
+	file_write_byte(fp, center->Flag);
+	file_write_byte(fp, center->Enabled);
+	file_write_byte(fp, center->Lives);
+	file_write_byte(fp, center->dum1);
+	file_write_int(fp, center->Capacity);
+	file_write_int(fp, center->MaxCapacity);
+	file_write_int(fp, center->Timer);
+	file_write_int(fp, center->Disable_time);
+	file_write_int(fp, center->Center.x);
+	file_write_int(fp, center->Center.y);
+	file_write_int(fp, center->Center.z);
 }

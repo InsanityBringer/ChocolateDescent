@@ -24,110 +24,110 @@ void P_WriteAILocals(ai_local* info, FILE* fp)
 {
 	int i;
 
-	F_WriteInt(fp, info->player_awareness_type);
-	F_WriteInt(fp, info->retry_count);
-	F_WriteInt(fp, info->consecutive_retries);
-	F_WriteInt(fp, info->mode);
-	F_WriteInt(fp, info->previous_visibility);
-	F_WriteInt(fp, info->rapidfire_count);
-	F_WriteInt(fp, info->goal_segment);
+	file_write_int(fp, info->player_awareness_type);
+	file_write_int(fp, info->retry_count);
+	file_write_int(fp, info->consecutive_retries);
+	file_write_int(fp, info->mode);
+	file_write_int(fp, info->previous_visibility);
+	file_write_int(fp, info->rapidfire_count);
+	file_write_int(fp, info->goal_segment);
 
-	F_WriteInt(fp, info->next_action_time);
-	F_WriteInt(fp, info->next_fire);
-	F_WriteInt(fp, info->next_fire2);
-	F_WriteInt(fp, info->player_awareness_time);
-	F_WriteInt(fp, info->time_player_seen);
-	F_WriteInt(fp, info->time_player_sound_attacked);
-	F_WriteInt(fp, info->next_misc_sound_time);
-	F_WriteInt(fp, info->time_since_processed);
+	file_write_int(fp, info->next_action_time);
+	file_write_int(fp, info->next_fire);
+	file_write_int(fp, info->next_fire2);
+	file_write_int(fp, info->player_awareness_time);
+	file_write_int(fp, info->time_player_seen);
+	file_write_int(fp, info->time_player_sound_attacked);
+	file_write_int(fp, info->next_misc_sound_time);
+	file_write_int(fp, info->time_since_processed);
 
 	for (i = 0; i < MAX_SUBMODELS; i++)
 	{
-		F_WriteShort(fp, info->goal_angles[i].p);
-		F_WriteShort(fp, info->goal_angles[i].b);
-		F_WriteShort(fp, info->goal_angles[i].h);
+		file_write_short(fp, info->goal_angles[i].p);
+		file_write_short(fp, info->goal_angles[i].b);
+		file_write_short(fp, info->goal_angles[i].h);
 	}
 	for (i = 0; i < MAX_SUBMODELS; i++)
 	{
-		F_WriteShort(fp, info->delta_angles[i].p);
-		F_WriteShort(fp, info->delta_angles[i].b);
-		F_WriteShort(fp, info->delta_angles[i].h);
+		file_write_short(fp, info->delta_angles[i].p);
+		file_write_short(fp, info->delta_angles[i].b);
+		file_write_short(fp, info->delta_angles[i].h);
 	}
 	for (i = 0; i < MAX_SUBMODELS; i++)
-		F_WriteByte(fp, info->goal_state[i]);
+		file_write_byte(fp, info->goal_state[i]);
 	for (i = 0; i < MAX_SUBMODELS; i++)
-		F_WriteByte(fp, info->achieved_state[i]);
+		file_write_byte(fp, info->achieved_state[i]);
 }
 
 void P_WriteSegPoint(point_seg* point, FILE* fp)
 {
-	F_WriteInt(fp, point->segnum);
-	F_WriteInt(fp, point->point.x);
-	F_WriteInt(fp, point->point.y);
-	F_WriteInt(fp, point->point.z);
+	file_write_int(fp, point->segnum);
+	file_write_int(fp, point->point.x);
+	file_write_int(fp, point->point.y);
+	file_write_int(fp, point->point.z);
 }
 
 void P_WriteCloakInfo(ai_cloak_info* info, FILE* fp)
 {
-	F_WriteInt(fp, info->last_time);
-	F_WriteInt(fp, info->last_segment);
-	F_WriteInt(fp, info->last_position.x);
-	F_WriteInt(fp, info->last_position.y);
-	F_WriteInt(fp, info->last_position.z);
+	file_write_int(fp, info->last_time);
+	file_write_int(fp, info->last_segment);
+	file_write_int(fp, info->last_position.x);
+	file_write_int(fp, info->last_position.y);
+	file_write_int(fp, info->last_position.z);
 }
 
 void P_ReadAILocals(ai_local* info, FILE* fp)
 {
 	int i;
 
-	info->player_awareness_type = F_ReadInt(fp);
-	info->retry_count = F_ReadInt(fp);
-	info->consecutive_retries = F_ReadInt(fp);
-	info->mode = F_ReadInt(fp);
-	info->previous_visibility = F_ReadInt(fp);
-	info->rapidfire_count = F_ReadInt(fp);
-	info->goal_segment = F_ReadInt(fp);
+	info->player_awareness_type = file_read_int(fp);
+	info->retry_count = file_read_int(fp);
+	info->consecutive_retries = file_read_int(fp);
+	info->mode = file_read_int(fp);
+	info->previous_visibility = file_read_int(fp);
+	info->rapidfire_count = file_read_int(fp);
+	info->goal_segment = file_read_int(fp);
 
-	info->next_action_time = F_ReadInt(fp);
-	info->next_fire = F_ReadInt(fp);
-	info->next_fire2 = F_ReadInt(fp);
-	info->player_awareness_time = F_ReadInt(fp);
-	info->time_player_seen = F_ReadInt(fp);
-	info->time_player_sound_attacked = F_ReadInt(fp);
-	info->next_misc_sound_time = F_ReadInt(fp);
-	info->time_since_processed = F_ReadInt(fp);
+	info->next_action_time = file_read_int(fp);
+	info->next_fire = file_read_int(fp);
+	info->next_fire2 = file_read_int(fp);
+	info->player_awareness_time = file_read_int(fp);
+	info->time_player_seen = file_read_int(fp);
+	info->time_player_sound_attacked = file_read_int(fp);
+	info->next_misc_sound_time = file_read_int(fp);
+	info->time_since_processed = file_read_int(fp);
 
 	for (i = 0; i < MAX_SUBMODELS; i++)
 	{
-		info->goal_angles[i].p = F_ReadShort(fp);
-		info->goal_angles[i].b = F_ReadShort(fp);
-		info->goal_angles[i].h = F_ReadShort(fp);
+		info->goal_angles[i].p = file_read_short(fp);
+		info->goal_angles[i].b = file_read_short(fp);
+		info->goal_angles[i].h = file_read_short(fp);
 	}
 	for (i = 0; i < MAX_SUBMODELS; i++)
 	{
-		info->delta_angles[i].p = F_ReadShort(fp);
-		info->delta_angles[i].b = F_ReadShort(fp);
-		info->delta_angles[i].h = F_ReadShort(fp);
+		info->delta_angles[i].p = file_read_short(fp);
+		info->delta_angles[i].b = file_read_short(fp);
+		info->delta_angles[i].h = file_read_short(fp);
 	}
 	for (i = 0; i < MAX_SUBMODELS; i++)
-		info->goal_state[i] = F_ReadByte(fp);
+		info->goal_state[i] = file_read_byte(fp);
 	for (i = 0; i < MAX_SUBMODELS; i++)
-		info->achieved_state[i] = F_ReadByte(fp);
+		info->achieved_state[i] = file_read_byte(fp);
 }
 
 void P_ReadSegPoint(point_seg* point, FILE* fp)
 {
-	point->segnum = F_ReadInt(fp);
-	point->point.x = F_ReadInt(fp);
-	point->point.y = F_ReadInt(fp);
-	point->point.z = F_ReadInt(fp);
+	point->segnum = file_read_int(fp);
+	point->point.x = file_read_int(fp);
+	point->point.y = file_read_int(fp);
+	point->point.z = file_read_int(fp);
 }
 
 void P_ReadCloakInfo(ai_cloak_info *info, FILE* fp)
 {
-	info->last_time = F_ReadInt(fp);
-	info->last_segment = F_ReadInt(fp);
-	info->last_position.x = F_ReadInt(fp);
-	info->last_position.y = F_ReadInt(fp);
-	info->last_position.z = F_ReadInt(fp);
+	info->last_time = file_read_int(fp);
+	info->last_segment = file_read_int(fp);
+	info->last_position.x = file_read_int(fp);
+	info->last_position.y = file_read_int(fp);
+	info->last_position.z = file_read_int(fp);
 }

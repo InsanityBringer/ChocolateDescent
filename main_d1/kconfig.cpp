@@ -33,15 +33,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joydefs.h"
 #include "render.h"
 #include "arcade.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "newmenu.h"
 #include "endlevel.h"
 #include "multi.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "player.h"
 #include "menu.h"
-#include "args.h"
+#include "misc/args.h"
 #include "platform/platform.h"
 
 //#define TABLE_CREATION 1
@@ -508,7 +508,7 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 	while (1) 
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		k = key_inkey();
 		if (!time_stopped)
 		{
@@ -668,7 +668,7 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 			kc_drawitem(&items[ocitem], 0);
 			kc_drawitem(&items[citem], 1);
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(US_70FPS);
 	}
 }
@@ -772,8 +772,8 @@ void kc_change_key(kc_item* item)
 	k = 255;
 	while ((k != KEY_ESC) && (keycode == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -834,8 +834,8 @@ void kc_change_joybutton(kc_item* item)
 	k = 255;
 	while ((k != KEY_ESC) && (code == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -854,7 +854,6 @@ void kc_change_joybutton(kc_item* item)
 		{
 			int axis[4];
 			joystick_read_raw_axis(JOY_ALL_AXIS, axis);
-			kconfig_read_fcs(axis[3]);
 			if (joy_get_button_state(7)) code = 7;
 			if (joy_get_button_state(11)) code = 11;
 			if (joy_get_button_state(15)) code = 15;
@@ -918,8 +917,8 @@ void kc_change_mousebutton(kc_item* item)
 	k = 255;
 	while ((k != KEY_ESC) && (code == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -979,8 +978,8 @@ void kc_change_joyaxis(kc_item* item)
 
 	while ((k != KEY_ESC) && (code == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1041,8 +1040,8 @@ void kc_change_mouseaxis(kc_item* item)
 
 	while ((k != KEY_ESC) && (code == 255)) 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1131,83 +1130,15 @@ void kconfig(int n, char* title)
 
 }
 
-
-void kconfig_read_fcs(int raw_axis)
-{
-	int raw_button, button, axis_min[4], axis_center[4], axis_max[4];
-
-	if (Config_control_type != CONTROL_THRUSTMASTER_FCS) return;
-
-	joy_get_cal_vals(axis_min, axis_center, axis_max);
-
-	if (axis_max[3] > 1)
-		raw_button = (raw_axis * 100) / axis_max[3];
-	else
-		raw_button = 0;
-
-	if (raw_button > 88)
-		button = 0;
-	else if (raw_button > 63)
-		button = 7;
-	else if (raw_button > 39)
-		button = 11;
-	else if (raw_button > 15)
-		button = 15;
-	else
-		button = 19;
-
-	kconfig_set_fcs_button(19, button);
-	kconfig_set_fcs_button(15, button);
-	kconfig_set_fcs_button(11, button);
-	kconfig_set_fcs_button(7, button);
-}
-
-
-void kconfig_set_fcs_button(int btn, int button)
-{
-	int state, time_down, upcount, downcount;
-	state = time_down = upcount = downcount = 0;
-
-	if (joy_get_button_state(btn)) 
-	{
-		if (btn == button)
-		{
-			state = 1;
-			time_down = FrameTime;
-		}
-		else 
-		{
-			upcount = 1;
-		}
-	}
-	else 
-	{
-		if (btn == button) 
-		{
-			state = 1;
-			time_down = FrameTime;
-			downcount = 1;
-		}
-		else 
-		{
-			upcount = 1;
-		}
-	}
-	joy_set_btn_values(btn, state, time_down, downcount, upcount);
-}
-
 fix Last_angles_p = 0;
 fix Last_angles_b = 0;
 fix Last_angles_h = 0;
 uint8_t Last_angles_read = 0;
 
-extern int			VR_sensitivity;
-
 int VR_sense_range[3] = { 25, 50, 75 };
 
 void read_head_tracker()
 {
-	//Warning("read_head_tracker: STUB\n");
 }
 
 #define	PH_SCALE	8
@@ -1252,11 +1183,6 @@ void controls_read_all()
 	if (Game_turbo_mode)
 		speed_factor = 2;
 
-	if (Arcade_mode) {
-		arcade_read_controls();
-		return;
-	}
-
 	{
 		fix temp = Controls.heading_time;
 		fix temp1 = Controls.pitch_time;
@@ -1270,50 +1196,52 @@ void controls_read_all()
 	ctime = timer_get_fixed_seconds();
 
 	//---------  Read Joystick -----------
-	if ((LastReadTime + JOYSTICK_READ_TIME > ctime) && (Config_control_type != CONTROL_THRUSTMASTER_FCS)) {
+	if ((LastReadTime + JOYSTICK_READ_TIME > ctime) && (Config_control_type != CONTROL_THRUSTMASTER_FCS))
+	{
 		if ((ctime < 0) && (LastReadTime > 0))
 			LastReadTime = ctime;
 		use_joystick = 1;
 	}
-	else if ((Config_control_type > 0) && (Config_control_type < 5)) {
+	else if ((Config_control_type > 0) && (Config_control_type < 5))
+	{
 		LastReadTime = ctime;
 		channel_masks = joystick_read_raw_axis(JOY_ALL_AXIS, raw_joy_axis);
 
-		for (i = 0; i < 4; i++) {
-			if (channel_masks & (1 << i)) {
+		for (i = 0; i < 4; i++)
+		{
+			if (channel_masks & (1 << i))
+			{
 				int joy_null_value = 10;
 
-				if ((i == 3) && (Config_control_type == CONTROL_THRUSTMASTER_FCS)) {
-					kconfig_read_fcs(raw_joy_axis[i]);
-				}
-				else {
-					raw_joy_axis[i] = joy_get_scaled_reading(raw_joy_axis[i], i);
+				raw_joy_axis[i] = joy_get_scaled_reading(raw_joy_axis[i], i);
 
-					if (kc_joystick[23].value == i)		// If this is the throttle
-						joy_null_value = 20;				// Then use a larger dead-zone
+				if (kc_joystick[23].value == i)		// If this is the throttle
+					joy_null_value = 20;				// Then use a larger dead-zone
 
-					if (raw_joy_axis[i] > joy_null_value)
-						raw_joy_axis[i] = ((raw_joy_axis[i] - joy_null_value) * 128) / (128 - joy_null_value);
-					else if (raw_joy_axis[i] < -joy_null_value)
-						raw_joy_axis[i] = ((raw_joy_axis[i] + joy_null_value) * 128) / (128 - joy_null_value);
-					else
-						raw_joy_axis[i] = 0;
-					joy_axis[i] = (raw_joy_axis[i] * FrameTime) / 128;
-				}
+				if (raw_joy_axis[i] > joy_null_value)
+					raw_joy_axis[i] = ((raw_joy_axis[i] - joy_null_value) * 128) / (128 - joy_null_value);
+				else if (raw_joy_axis[i] < -joy_null_value)
+					raw_joy_axis[i] = ((raw_joy_axis[i] + joy_null_value) * 128) / (128 - joy_null_value);
+				else
+					raw_joy_axis[i] = 0;
+				joy_axis[i] = (raw_joy_axis[i] * FrameTime) / 128;
 			}
-			else {
+			else 
+			{
 				joy_axis[i] = 0;
 			}
 		}
 		use_joystick = 1;
 	}
-	else {
+	else
+	{
 		for (i = 0; i < 4; i++)
 			joy_axis[i] = 0;
 		use_joystick = 0;
 	}
 
-	if (Config_control_type == 5) {
+	if (Config_control_type == 5) 
+	{
 		//---------  Read Mouse -----------
 		mouse_get_delta(&dx, &dy);
 		mouse_axis[0] = (dx * FrameTime) / 35;
@@ -1322,7 +1250,8 @@ void controls_read_all()
 		//mprintf(( 0, "Mouse %d,%d b:%d, 0x%x\n", mouse_axis[0], mouse_axis[1], mouse_buttons, FrameTime ));
 		use_mouse = 1;
 	}
-	else if (Config_control_type == 6) {
+	else if (Config_control_type == 6) 
+	{
 		//---------  Read Cyberman -----------
 		mouse_get_cyberman_pos(&idx, &idy);
 		mouse_axis[0] = (idx * FrameTime) / 128;
@@ -1330,7 +1259,8 @@ void controls_read_all()
 		mouse_buttons = mouse_get_btns();
 		use_mouse = 1;
 	}
-	else {
+	else
+	{
 		mouse_axis[0] = 0;
 		mouse_axis[1] = 0;
 		mouse_buttons = 0;
@@ -1359,7 +1289,8 @@ void controls_read_all()
 	if ((use_mouse) && (kc_mouse[10].value < 255)) bank_on |= mouse_buttons & (1 << kc_mouse[10].value);
 
 	//------------ Read pitch_time -----------
-	if (!slide_on) {
+	if (!slide_on)
+	{
 		// mprintf((0, "pitch: %7.3f %7.3f: %7.3f\n", f2fl(k4), f2fl(k6), f2fl(Controls.heading_time)));
 		kp = 0;
 		k0 = speed_factor * key_down_time(kc_keyboard[0].value) / 2;	// Divide by two since we want pitch to go slower
@@ -1373,12 +1304,6 @@ void controls_read_all()
 		if (kc_keyboard[2].value < 255) kp -= k2 / PH_SCALE;
 		if (kc_keyboard[3].value < 255) kp -= k3 / PH_SCALE;
 
-		// From Cyberman...
-		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			kp += mouse_button_down_time(MBUTTON_PITCH_FORWARD) / (PH_SCALE * 2);
-			kp -= mouse_button_down_time(MBUTTON_PITCH_BACKWARD) / (PH_SCALE * 2);
-		}
-
 		if (kp == 0)
 			Controls.pitch_time = 0;
 		else if (kp > 0) {
@@ -1391,7 +1316,8 @@ void controls_read_all()
 		Controls.pitch_time += kp;
 
 		// From joystick...
-		if ((use_joystick) && (kc_joystick[13].value < 255)) {
+		if ((use_joystick) && (kc_joystick[13].value < 255))
+		{
 			if (!kc_joystick[14].value)		// If not inverted...
 				Controls.pitch_time -= (joy_axis[kc_joystick[13].value] * Config_joystick_sensitivity) / 8;
 			else
@@ -1400,21 +1326,24 @@ void controls_read_all()
 
 		// From mouse...
 		//mprintf(( 0, "UM: %d, PV: %d\n", use_mouse, kc_mouse[13].value ));
-		if ((use_mouse) && (kc_mouse[13].value < 255)) {
+		if ((use_mouse) && (kc_mouse[13].value < 255))
+		{
 			if (!kc_mouse[14].value)		// If not inverted...
 				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value] * Config_joystick_sensitivity) / 8;
 			else
 				Controls.pitch_time += (mouse_axis[kc_mouse[13].value] * Config_joystick_sensitivity) / 8;
 		}
 	}
-	else {
+	else 
+	{
 		Controls.pitch_time = 0;
 	}
 
 
 	//----------- Read vertical_thrust_time -----------------
 
-	if (slide_on) {
+	if (slide_on) 
+	{
 		k0 = speed_factor * key_down_time(kc_keyboard[0].value);
 		k1 = speed_factor * key_down_time(kc_keyboard[1].value);
 		k2 = speed_factor * key_down_time(kc_keyboard[2].value);
@@ -1426,14 +1355,9 @@ void controls_read_all()
 		if (kc_keyboard[2].value < 255) Controls.vertical_thrust_time -= k2;
 		if (kc_keyboard[3].value < 255) Controls.vertical_thrust_time -= k3;
 
-		// From Cyberman...
-		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			Controls.vertical_thrust_time -= mouse_button_down_time(MBUTTON_PITCH_FORWARD);
-			Controls.vertical_thrust_time += mouse_button_down_time(MBUTTON_PITCH_BACKWARD);
-		}
-
 		// From joystick...
-		if ((use_joystick) && (kc_joystick[13].value < 255)) {
+		if ((use_joystick) && (kc_joystick[13].value < 255)) 
+		{
 			if (!kc_joystick[14].value)		// If not inverted...
 				Controls.vertical_thrust_time += joy_axis[kc_joystick[13].value];
 			else
@@ -1441,7 +1365,8 @@ void controls_read_all()
 		}
 
 		// From mouse...
-		if ((use_mouse) && (kc_mouse[13].value < 255)) {
+		if ((use_mouse) && (kc_mouse[13].value < 255)) 
+		{
 			if (!kc_mouse[14].value)		// If not inverted...
 				Controls.vertical_thrust_time -= mouse_axis[kc_mouse[13].value];
 			else
@@ -1479,15 +1404,10 @@ void controls_read_all()
 			Controls.vertical_thrust_time -= mouse_axis[kc_mouse[19].value];
 	}
 
-	// From Cyberman...
-	if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-		Controls.vertical_thrust_time += mouse_button_down_time(MBUTTON_Z_UP) / 2;
-		Controls.vertical_thrust_time -= mouse_button_down_time(MBUTTON_Z_DOWN) / 2;
-	}
-
 	//---------- Read heading_time -----------
 
-	if (!slide_on && !bank_on) {
+	if (!slide_on && !bank_on) 
+	{
 		//mprintf((0, "heading: %7.3f %7.3f: %7.3f\n", f2fl(k4), f2fl(k6), f2fl(Controls.heading_time)));
 		kh = 0;
 		k4 = speed_factor * key_down_time(kc_keyboard[4].value);
@@ -1501,15 +1421,10 @@ void controls_read_all()
 		if (kc_keyboard[6].value < 255) kh += k6 / PH_SCALE;
 		if (kc_keyboard[7].value < 255) kh += k7 / PH_SCALE;
 
-		// From Cyberman...
-		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			kh -= mouse_button_down_time(MBUTTON_HEAD_LEFT) / PH_SCALE;
-			kh += mouse_button_down_time(MBUTTON_HEAD_RIGHT) / PH_SCALE;
-		}
-
 		if (kh == 0)
 			Controls.heading_time = 0;
-		else if (kh > 0) {
+		else if (kh > 0) 
+		{
 			if (Controls.heading_time < 0)
 				Controls.heading_time = 0;
 		}
@@ -1519,7 +1434,8 @@ void controls_read_all()
 		Controls.heading_time += kh;
 
 		// From joystick...
-		if ((use_joystick) && (kc_joystick[15].value < 255)) {
+		if ((use_joystick) && (kc_joystick[15].value < 255))
+		{
 			if (!kc_joystick[16].value)		// If not inverted...
 				Controls.heading_time += (joy_axis[kc_joystick[15].value] * Config_joystick_sensitivity) / 8;
 			else
@@ -1534,13 +1450,15 @@ void controls_read_all()
 				Controls.heading_time -= (mouse_axis[kc_mouse[15].value] * Config_joystick_sensitivity) / 8;
 		}
 	}
-	else {
+	else
+	{
 		Controls.heading_time = 0;
 	}
 
 	//----------- Read sideways_thrust_time -----------------
 
-	if (slide_on) {
+	if (slide_on)
+	{
 		k0 = speed_factor * key_down_time(kc_keyboard[4].value);
 		k1 = speed_factor * key_down_time(kc_keyboard[5].value);
 		k2 = speed_factor * key_down_time(kc_keyboard[6].value);
@@ -1553,21 +1471,17 @@ void controls_read_all()
 		if (kc_keyboard[7].value < 255) Controls.sideways_thrust_time += k3;
 
 		// From joystick...
-		if ((use_joystick) && (kc_joystick[15].value < 255)) {
+		if ((use_joystick) && (kc_joystick[15].value < 255)) 
+		{
 			if (!kc_joystick[16].value)		// If not inverted...
 				Controls.sideways_thrust_time += joy_axis[kc_joystick[15].value];
 			else
 				Controls.sideways_thrust_time -= joy_axis[kc_joystick[15].value];
 		}
 
-		// From cyberman
-		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			Controls.sideways_thrust_time -= mouse_button_down_time(MBUTTON_HEAD_LEFT);
-			Controls.sideways_thrust_time += mouse_button_down_time(MBUTTON_HEAD_RIGHT);
-		}
-
 		// From mouse...
-		if ((use_mouse) && (kc_mouse[15].value < 255)) {
+		if ((use_mouse) && (kc_mouse[15].value < 255))
+		{
 			if (!kc_mouse[16].value)		// If not inverted...
 				Controls.sideways_thrust_time += mouse_axis[kc_mouse[15].value];
 			else
@@ -1582,7 +1496,8 @@ void controls_read_all()
 	if (kc_keyboard[13].value < 255) Controls.sideways_thrust_time += speed_factor * key_down_time(kc_keyboard[13].value);
 
 	// From joystick...
-	if ((use_joystick) && (kc_joystick[17].value < 255)) {
+	if ((use_joystick) && (kc_joystick[17].value < 255))
+	{
 		if (!kc_joystick[18].value)		// If not inverted...
 			Controls.sideways_thrust_time -= joy_axis[kc_joystick[17].value];
 		else
@@ -1598,7 +1513,8 @@ void controls_read_all()
 	if ((use_mouse) && (kc_mouse[7].value < 255)) Controls.sideways_thrust_time += mouse_button_down_time(kc_mouse[7].value);
 
 	// From mouse...
-	if ((use_mouse) && (kc_mouse[17].value < 255)) {
+	if ((use_mouse) && (kc_mouse[17].value < 255)) 
+	{
 		if (!kc_mouse[18].value)		// If not inverted...
 			Controls.sideways_thrust_time += mouse_axis[kc_mouse[17].value];
 		else
@@ -1618,12 +1534,6 @@ void controls_read_all()
 		if (kc_keyboard[5].value < 255) Controls.bank_time += k1;
 		if (kc_keyboard[6].value < 255) Controls.bank_time -= k2;
 		if (kc_keyboard[7].value < 255) Controls.bank_time -= k3;
-
-		// From Cyberman...
-		if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-			Controls.bank_time -= mouse_button_down_time(MBUTTON_HEAD_LEFT);
-			Controls.bank_time += mouse_button_down_time(MBUTTON_HEAD_RIGHT);
-		}
 
 		// From joystick...
 		if ((use_joystick) && (kc_joystick[15].value < 255)) {
@@ -1649,7 +1559,8 @@ void controls_read_all()
 	if (kc_keyboard[23].value < 255) Controls.bank_time -= speed_factor * key_down_time(kc_keyboard[23].value);
 
 	// From joystick...
-	if ((use_joystick) && (kc_joystick[21].value < 255)) {
+	if ((use_joystick) && (kc_joystick[21].value < 255))
+	{
 		if (!kc_joystick[22].value)		// If not inverted...
 			Controls.bank_time -= joy_axis[kc_joystick[21].value];
 		else
@@ -1672,12 +1583,6 @@ void controls_read_all()
 			Controls.bank_time -= mouse_axis[kc_mouse[21].value];
 	}
 
-	// From Cyberman
-	if ((use_mouse) && (Config_control_type == CONTROL_CYBERMAN)) {
-		Controls.bank_time += mouse_button_down_time(MBUTTON_BANK_LEFT);
-		Controls.bank_time -= mouse_button_down_time(MBUTTON_BANK_RIGHT);
-	}
-
 	//----------- Read forward_thrust_time -------------
 
 		// From keyboard...
@@ -1687,7 +1592,8 @@ void controls_read_all()
 	if (kc_keyboard[33].value < 255) Controls.forward_thrust_time -= speed_factor * key_down_time(kc_keyboard[33].value);
 
 	// From joystick...
-	if ((use_joystick) && (kc_joystick[23].value < 255)) {
+	if ((use_joystick) && (kc_joystick[23].value < 255)) 
+	{
 		if (!kc_joystick[24].value)		// If not inverted...
 			Controls.forward_thrust_time -= joy_axis[kc_joystick[23].value];
 		else
@@ -1699,7 +1605,8 @@ void controls_read_all()
 	if ((use_joystick) && (kc_joystick[3].value < 255)) Controls.forward_thrust_time -= joy_get_button_down_time(kc_joystick[3].value);
 
 	// From mouse...
-	if ((use_mouse) && (kc_mouse[23].value < 255)) {
+	if ((use_mouse) && (kc_mouse[23].value < 255)) 
+	{
 		if (!kc_mouse[24].value)		// If not inverted...
 			Controls.forward_thrust_time -= mouse_axis[kc_mouse[23].value];
 		else
@@ -1817,7 +1724,8 @@ void controls_read_all()
 
 	//--------- Don't do anything if in debug mode
 #ifndef NDEBUG
-	if (keyd_pressed[KEY_DELETE]) {
+	if (keyd_pressed[KEY_DELETE])
+	{
 		memset(&Controls, 0, sizeof(control_info));
 	}
 #endif

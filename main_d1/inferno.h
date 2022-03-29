@@ -16,17 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  //	How close two points must be in all dimensions to be considered the same point.
 #define	FIX_EPSILON	10
 
-//for Function_mode variable
-#define FMODE_EXIT		0		//leaving the program
-#define FMODE_MENU		1		//Using the menu
-#define FMODE_GAME		2		//running the game
-#define FMODE_EDITOR		3		//running the editor
-
-//This constant doesn't really belong here, but it is because of horrible
-//circular dependencies involving object.h, aistruct.h, polyobj.h, & robot.h
-#define MAX_SUBMODELS 10			//how many animating sub-objects per model
-
-#define FILENAME_LEN 13
+#include "main_shared/inferno_shared.h"
 
 extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?

@@ -67,7 +67,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 }
 
 #define CLIPLINE(x1,y1,x2,y2,XMIN,YMIN,XMAX,YMAX,WHEN_OUTSIDE,WHEN_CLIPPED,MY_SCALE) do {                                    \
-    register int temp;                                                  \
+    int temp;                                                  			\
                                                                         \
     if(y1 > y2)                                                         \
         { EXCHG(y1,y2); EXCHG(x1,x2); }                                 \

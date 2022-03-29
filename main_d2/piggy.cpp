@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "misc/error.h"
 #include "sounds.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "bm.h"
 #include "bmread.h"
 #include "misc/hash.h"
@@ -42,11 +42,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "2d/rle.h"
 #include "screens.h"
-#include "piggy.h"
-#include "texmerge.h"
+#include "main_shared/piggy.h"
+#include "main_shared/texmerge.h"
 #include "paging.h"
 #include "game.h"
-#include "text.h"
+#include "stringtable.h"
 #include "cfile/cfile.h"
 #include "newmenu.h"
 #include "misc/byteswap.h"
@@ -60,15 +60,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
 
 
-#ifdef SHAREWARE
-#define DEFAULT_HAMFILE         "d2demo.ham"
-#define DEFAULT_PIGFILE         DEFAULT_PIGFILE_SHAREWARE
-#define DEFAULT_SNDFILE			"descent2.s11"
-#else
 #define DEFAULT_HAMFILE         "descent2.ham"
 #define DEFAULT_PIGFILE         DEFAULT_PIGFILE_REGISTERED
 #define DEFAULT_SNDFILE	 		((digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
-#endif	// end of ifdef SHAREWARE
 
 uint8_t* BitmapBits = NULL;
 uint8_t* SoundBits = NULL;
@@ -156,12 +150,9 @@ typedef struct DiskSoundHeader
 
 uint8_t BigPig = 0;
 
-#ifdef MACINTOSH
-extern short 	cd_VRefNum;
-extern void		ConcatPStr(StringPtr dst, StringPtr src);
-extern int		ConvertPToCStr(StringPtr inPStr, char* outCStrBuf);
-extern int		ConvertCToPStr(char* inCStr, StringPtr outPStrBuf);
-#endif
+void piggy_write_pigfile(const char* filename); 
+static void write_int(int i, FILE* file);
+int piggy_is_substitutable_bitmap(char* name, char* subst_name);
 
 #ifdef EDITOR
 void swap_0_255(grs_bitmap* bmp)
@@ -387,13 +378,13 @@ void piggy_init_pigfile(const char* filename)
 	for (i = 0; i < N_bitmaps; i++)
 	{
 		cfread(bmh.name, 8, 1, Piggy_fp);
-		bmh.dflags = CF_ReadByte(Piggy_fp);
-		bmh.width = CF_ReadByte(Piggy_fp);
-		bmh.height = CF_ReadByte(Piggy_fp);
-		bmh.wh_extra = CF_ReadByte(Piggy_fp);
-		bmh.flags = CF_ReadByte(Piggy_fp);
-		bmh.avg_color = CF_ReadByte(Piggy_fp);
-		bmh.offset = CF_ReadInt(Piggy_fp);
+		bmh.dflags = cfile_read_byte(Piggy_fp);
+		bmh.width = cfile_read_byte(Piggy_fp);
+		bmh.height = cfile_read_byte(Piggy_fp);
+		bmh.wh_extra = cfile_read_byte(Piggy_fp);
+		bmh.flags = cfile_read_byte(Piggy_fp);
+		bmh.avg_color = cfile_read_byte(Piggy_fp);
+		bmh.offset = cfile_read_int(Piggy_fp);
 
 		memcpy(temp_name_read, bmh.name, 8);
 		temp_name_read[8] = 0;
@@ -461,10 +452,11 @@ void piggy_new_pigfile(const char* pigname)
 	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
-#ifdef SHAREWARE                //rename pigfile for shareware
-	if (strfcmp(pigname, DEFAULT_PIGFILE_REGISTERED) == 0)
-		pigname = DEFAULT_PIGFILE_SHAREWARE;
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)             //rename pigfile for shareware
+	{
+		if (_strfcmp(pigname, DEFAULT_PIGFILE_REGISTERED) == 0)
+			pigname = DEFAULT_PIGFILE_SHAREWARE;
+	}
 
 	if (_strnfcmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0)
 		return;         //already have correct pig
@@ -521,13 +513,13 @@ void piggy_new_pigfile(const char* pigname)
 		for (i = 1; i <= N_bitmaps; i++)
 		{
 			cfread(bmh.name, 8, 1, Piggy_fp);
-			bmh.dflags = CF_ReadByte(Piggy_fp);
-			bmh.width = CF_ReadByte(Piggy_fp);
-			bmh.height = CF_ReadByte(Piggy_fp);
-			bmh.wh_extra = CF_ReadByte(Piggy_fp);
-			bmh.flags = CF_ReadByte(Piggy_fp);
-			bmh.avg_color = CF_ReadByte(Piggy_fp);
-			bmh.offset = CF_ReadInt(Piggy_fp);
+			bmh.dflags = cfile_read_byte(Piggy_fp);
+			bmh.width = cfile_read_byte(Piggy_fp);
+			bmh.height = cfile_read_byte(Piggy_fp);
+			bmh.wh_extra = cfile_read_byte(Piggy_fp);
+			bmh.flags = cfile_read_byte(Piggy_fp);
+			bmh.avg_color = cfile_read_byte(Piggy_fp);
+			bmh.offset = cfile_read_int(Piggy_fp);
 
 			memcpy(temp_name_read, bmh.name, 8);
 			temp_name_read[8] = 0;
@@ -650,19 +642,20 @@ void piggy_new_pigfile(const char* pigname)
 			}
 			else {          //this is a BBM
 
-				grs_bitmap* new;
+				grs_bitmap* newbm;
 				uint8_t newpal[256 * 3];
 				int iff_error;
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
-				MALLOC(new, grs_bitmap, 1);
+				MALLOC(newbm, grs_bitmap, 1);
 
 				sprintf(bbmname, "%s.bbm", AllBitmaps[i].name);
-				iff_error = iff_read_bitmap(bbmname, new, BM_LINEAR, newpal);
+				iff_error = iff_read_bitmap(bbmname, newbm, BM_LINEAR, newpal);
 
-				new->bm_handle = 0;
-				if (iff_error != IFF_NO_ERROR) {
+				//newbm->bm_handle = 0;
+				if (iff_error != IFF_NO_ERROR) 
+				{
 					mprintf((1, "File %s - IFF error: %s", bbmname, iff_errormsg(iff_error)));
 					Error("File %s - IFF error: %s", bbmname, iff_errormsg(iff_error));
 				}
@@ -671,31 +664,31 @@ void piggy_new_pigfile(const char* pigname)
 				//above makes assumption that supertransparent color is 254
 
 				if (iff_has_transparency)
-					gr_remap_bitmap_good(new, newpal, iff_transparent_color, SuperX);
+					gr_remap_bitmap_good(newbm, newpal, iff_transparent_color, SuperX);
 				else
-					gr_remap_bitmap_good(new, newpal, -1, SuperX);
+					gr_remap_bitmap_good(newbm, newpal, -1, SuperX);
 
-				new->avg_color = compute_average_pixel(new);
+				newbm->avg_color = compute_average_pixel(newbm);
 
 #ifdef EDITOR
 				if (FindArg("-macdata"))
-					swap_0_255(new);
+					swap_0_255(newbm);
 #endif
-				if (!BigPig)  gr_bitmap_rle_compress(new);
+				if (!BigPig)  gr_bitmap_rle_compress(newbm);
 
-				if (new->bm_flags & BM_FLAG_RLE)
-					size = *((int*) new->bm_data);
+				if (newbm->bm_flags & BM_FLAG_RLE)
+					size = *((int*)newbm->bm_data);
 				else
-					size = new->bm_w * new->bm_h;
+					size = newbm->bm_w * newbm->bm_h;
 
-				memcpy(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], new->bm_data, size);
-				free(new->bm_data);
-				new->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
+				memcpy(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], newbm->bm_data, size);
+				free(newbm->bm_data);
+				newbm->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 				Piggy_bitmap_cache_next += size;
 
-				GameBitmaps[i] = *new;
+				GameBitmaps[i] = *newbm;
 
-				free(new);
+				free(newbm);
 
 				// -- mprintf( (0, "U" ));
 			}
@@ -739,23 +732,28 @@ int read_hamfile()
 {
 	CFILE* ham_fp = NULL;
 	int ham_id, ham_version;
-#ifdef MACINTOSH
-	char name[255];
-#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	int expected_ham_version = HAMFILE_VERSION;
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
-#endif
-
-#ifdef MACINTOSH
-	sprintf(name, ":Data:%s", DEFAULT_HAMFILE);
-	ham_fp = cfopen(name, "rb");
-#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
-	get_full_file_path(name, DEFAULT_HAMFILE, CHOCOLATE_SYSTEM_FILE_DIR);
-	ham_fp = cfopen(name, "rb");
 #else
-	ham_fp = cfopen(DEFAULT_HAMFILE, "rb");
+	char name[256];
 #endif
 
-	if (ham_fp == NULL) {
+	strcpy(name, DEFAULT_HAMFILE);
+
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		strcpy(name, "d2demo.ham");
+		expected_ham_version = 2;
+	}
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(name, DEFAULT_HAMFILE, CHOCOLATE_SYSTEM_FILE_DIR);
+#endif
+	ham_fp = cfopen(name, "rb");
+
+	if (ham_fp == NULL) 
+	{
 		Must_write_hamfile = 1;
 		return 0;
 	}
@@ -763,25 +761,20 @@ int read_hamfile()
 	//make sure ham is valid type file & is up-to-date
 	ham_id = cfile_read_int(ham_fp);
 	ham_version = cfile_read_int(ham_fp);
-	if (ham_id != HAMFILE_ID || ham_version != HAMFILE_VERSION)
+	if (ham_id != HAMFILE_ID || ham_version != expected_ham_version)
 	{
 		Must_write_hamfile = 1;
 		cfclose(ham_fp);						//out of date ham
 		return 0;
 	}
 
+	if (CurrentDataVersion == DataVer::DEMO)
+		cfile_read_int(ham_fp); //skip data ptr
+
 #ifndef EDITOR
 	{
 		bm_read_all(ham_fp);  // Note connection to above if!!!
 		cfread(GameBitmapXlat, sizeof(uint16_t) * MAX_BITMAP_FILES, 1, ham_fp);
-#ifdef MACINTOSH
-		{
-			int i;
-
-			for (i = 0; i < MAX_BITMAP_FILES; i++)
-				GameBitmapXlat[i] = SWAPSHORT(GameBitmapXlat[i]);
-		}
-#endif
 	}
 #endif
 
@@ -802,21 +795,36 @@ int read_sndfile()
 	digi_sound temp_sound;
 	char temp_name_read[16];
 	int sbytes = 0;
-#ifdef MACINTOSH
-	char name[255];
-#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	int data_offset;
+
+	int expected_header = SNDFILE_ID;
+	int expected_version = SNDFILE_VERSION;
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
+	char name[256];
 #endif
 
-#ifdef MACINTOSH
-	sprintf(name, ":Data:%s", DEFAULT_SNDFILE);
-	snd_fp = cfopen(name, "rb");
-#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
-	get_full_file_path(name, DEFAULT_SNDFILE, CHOCOLATE_SYSTEM_FILE_DIR);
-	snd_fp = cfopen(name, "rb");
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		expected_header = HAMFILE_ID;
+		expected_version = 2;
+	}
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	if (CurrentDataVersion == DataVer::DEMO)
+		get_full_file_path(name, "d2demo.ham", CHOCOLATE_SYSTEM_FILE_DIR);
+	else
+		get_full_file_path(name, DEFAULT_SNDFILE, CHOCOLATE_SYSTEM_FILE_DIR);
 #else
-	snd_fp = cfopen(DEFAULT_SNDFILE, "rb");
+	if (CurrentDataVersion == DataVer::DEMO)
+		strcpy(name, "d2demo.ham");
+	else
+		strcpy(name, DEFAULT_SNDFILE);
 #endif
+
+	snd_fp = cfopen(name, "rb");
 
 	if (snd_fp == NULL)
 		return 0;
@@ -824,10 +832,16 @@ int read_sndfile()
 	//make sure soundfile is valid type file & is up-to-date
 	snd_id = cfile_read_int(snd_fp);
 	snd_version = cfile_read_int(snd_fp);
-	if (snd_id != SNDFILE_ID || snd_version != SNDFILE_VERSION)
+	if (snd_id != expected_header || snd_version != expected_version)
 	{
 		cfclose(snd_fp);						//out of date sound file
 		return 0;
+	}
+
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		data_offset = cfile_read_int(snd_fp);
+		cfseek(snd_fp, data_offset, SEEK_SET);
 	}
 
 	N_sounds = cfile_read_int(snd_fp);
@@ -971,33 +985,49 @@ void piggy_read_sounds(void)
 	CFILE* fp = NULL;
 	uint8_t* ptr;
 	int i, sbytes;
-#ifdef MACINTOSH
-	char name[255];
-#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	int expected_header = SNDFILE_ID;
+	int expected_version = SNDFILE_VERSION;
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
+#else
+	char name[256];
 #endif
+
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		expected_header = HAMFILE_ID;
+		expected_version = 2;
+	}
 
 	ptr = SoundBits;
 	sbytes = 0;
 
-#ifdef MACINTOSH
-	sprintf(name, ":Data:%s", DEFAULT_SNDFILE);
-	fp = cfopen(name, "rb");
-#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
-	get_full_file_path(name, DEFAULT_SNDFILE, CHOCOLATE_SYSTEM_FILE_DIR);
-	fp = cfopen(name, "rb");
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	if (CurrentDataVersion == DataVer::DEMO)
+		get_full_file_path(name, "d2demo.ham", CHOCOLATE_SYSTEM_FILE_DIR);
+	else
+		get_full_file_path(name, DEFAULT_SNDFILE, CHOCOLATE_SYSTEM_FILE_DIR);
 #else
-	fp = cfopen(DEFAULT_SNDFILE, "rb");
+	if (CurrentDataVersion == DataVer::DEMO)
+		strcpy(name, "d2demo.ham");
+	else
+		strcpy(name, DEFAULT_SNDFILE);
 #endif
+
+	fp = cfopen(name, "rb");
 
 	if (fp == NULL)
 		return;
 
-	for (i = 0; i < Num_sound_files; i++) {
+	for (i = 0; i < Num_sound_files; i++)
+	{
 		digi_sound* snd = &GameSounds[i];
 
-		if (SoundOffset[i] > 0) {
-			if (piggy_is_needed(i)) {
+		if (SoundOffset[i] > 0) 
+		{
+			if (piggy_is_needed(i))
+			{
 				cfseek(fp, SoundOffset[i], SEEK_SET);
 
 				// Read in the sound data!!!
@@ -1398,8 +1428,8 @@ void piggy_dump_all()
 		mprintf((0, "\n"));
 	}
 
-	if (Num_sound_files_new) {
-
+	if (Num_sound_files_new) 
+	{
 		mprintf((0, "Creating %s...", DEFAULT_HAMFILE));
 		// Now dump sound file
 #if defined (CHOCOLATE_USE_LOCALIZED_PATHS)
@@ -1444,11 +1474,12 @@ void piggy_dump_all()
 
 		fclose(ham_fp);
 		mprintf((0, "\n"));
-	}
 
-	fprintf(fp1, "Total sound size: %d bytes\n", data_offset - sound_data_start);
-	mprintf((0, " Dumped %d assorted sounds.\n", Num_sound_files));
-	fprintf(fp1, " Dumped %d assorted sounds.\n", Num_sound_files);
+		//[ISB] needs to be here, otherwise it crashes in debug since these variables aren't initalized
+		fprintf(fp1, "Total sound size: %d bytes\n", data_offset - sound_data_start);
+		mprintf((0, " Dumped %d assorted sounds.\n", Num_sound_files));
+		fprintf(fp1, " Dumped %d assorted sounds.\n", Num_sound_files);
+	}
 
 	fclose(fp1);
 	fclose(fp2);

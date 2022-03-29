@@ -26,6 +26,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #ifdef EDITOR
 #include "editor\editor.h"
+#include "player.h"
+
+extern void compress_uv_coordinates_all(void);
+void do_load_save_levels(int save);
 #endif
 #include "misc/error.h"
 #include "object.h"
@@ -34,8 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "gamemine.h"
 #include "robot.h"
-
-
 #include "cfile/cfile.h"
 #include "bm.h"
 #include "menu.h"
@@ -48,16 +50,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "automap.h"
 #include "polyobj.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gamefont.h"
 #include "gamesave.h"
 #include "gamepal.h"
 #include "laser.h"
 #include "misc/byteswap.h"
-
-#ifdef MACINTOSH
-#include "strutil.h"		// because my compiler doesn't have strupr
-#endif
 
 char Gamesave_current_filename[128];
 
@@ -220,7 +218,6 @@ int is_real_level(char* filename)
 
 	//mprintf((0, "String = [%s]\n", &filename[len-11]));
 	return !_strnfcmp(&filename[len - 11], "level", 5);
-
 }
 #endif
 
@@ -262,10 +259,10 @@ extern int multi_powerup_is_4pack(int);
 
 void verify_object(object* obj) 
 {
-
 	obj->lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
 
-	if (obj->type == OBJ_ROBOT) {
+	if (obj->type == OBJ_ROBOT) 
+	{
 		Gamesave_num_org_robots++;
 
 		// Make sure valid id...
@@ -273,7 +270,8 @@ void verify_object(object* obj)
 			obj->id = obj->id % N_robot_types;
 
 		// Make sure model number & size are correct...		
-		if (obj->render_type == RT_POLYOBJ) {
+		if (obj->render_type == RT_POLYOBJ) 
+		{
 			Assert(Robot_info[obj->id].model_num != -1);
 			//if you fail this assert, it means that a robot in this level
 			//hasn't been loaded, possibly because he's marked as
@@ -305,19 +303,22 @@ void verify_object(object* obj)
 		if (obj->id == 65)						//special "reactor" robots
 			obj->movement_type = MT_NONE;
 
-		if (obj->movement_type == MT_PHYSICS) {
+		if (obj->movement_type == MT_PHYSICS) 
+		{
 			obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
 			obj->mtype.phys_info.drag = Robot_info[obj->id].drag;
 		}
 	}
 	else {		//Robots taken care of above
 
-		if (obj->render_type == RT_POLYOBJ) {
+		if (obj->render_type == RT_POLYOBJ)
+		{
 			int i;
 			char* name = Save_pof_names[obj->rtype.pobj_info.model_num];
 
 			for (i = 0; i < N_polygon_models; i++)
-				if (!_stricmp(Pof_names[i], name)) {		//found it!	
+				if (!_stricmp(Pof_names[i], name)) //found it!	
+				{
 					// mprintf((0,"Mapping <%s> to %d (was %d)\n",name,i,obj->rtype.pobj_info.model_num));
 					obj->rtype.pobj_info.model_num = i;
 					break;
@@ -325,8 +326,10 @@ void verify_object(object* obj)
 		}
 	}
 
-	if (obj->type == OBJ_POWERUP) {
-		if (obj->id >= N_powerup_types) {
+	if (obj->type == OBJ_POWERUP)
+	{
+		if (obj->id >= N_powerup_types) 
+		{
 			obj->id = 0;
 			Assert(obj->render_type != RT_POLYOBJ);
 		}
@@ -360,8 +363,8 @@ void verify_object(object* obj)
 			Assert(obj->render_type != RT_POLYOBJ);
 		}
 
-		if (obj->id == PMINE_ID) {		//make sure pmines have correct values
-
+		if (obj->id == PMINE_ID) //make sure pmines have correct values
+		{		
 			obj->mtype.phys_info.mass = Weapon_info[obj->id].mass;
 			obj->mtype.phys_info.drag = Weapon_info[obj->id].drag;
 			obj->mtype.phys_info.flags |= PF_FREE_SPINNING;
@@ -374,8 +377,8 @@ void verify_object(object* obj)
 		}
 	}
 
-	if (obj->type == OBJ_CNTRLCEN) {
-
+	if (obj->type == OBJ_CNTRLCEN) 
+	{
 		obj->render_type = RT_POLYOBJ;
 		obj->control_type = CT_CNTRLCEN;
 
@@ -392,7 +395,8 @@ void verify_object(object* obj)
 			int i;
 			// Check, and set, strength of reactor
 			for (i = 0; i < Num_total_object_types; i++)
-				if (ObjType[i] == OL_CONTROL_CENTER && ObjId[i] == obj->id) {
+				if (ObjType[i] == OL_CONTROL_CENTER && ObjId[i] == obj->id) 
+				{
 					obj->shields = ObjStrength[i];
 					break;
 				}
@@ -401,7 +405,8 @@ void verify_object(object* obj)
 #endif
 	}
 
-	if (obj->type == OBJ_PLAYER) {
+	if (obj->type == OBJ_PLAYER) 
+	{
 		//int i;
 
 		//Assert(obj == Player);
@@ -418,8 +423,8 @@ void verify_object(object* obj)
 		obj->id = Gamesave_num_players++;
 	}
 
-	if (obj->type == OBJ_HOSTAGE) {
-
+	if (obj->type == OBJ_HOSTAGE) 
+	{
 		//@@if (obj->id > N_hostage_types)
 		//@@	obj->id = 0;
 
@@ -431,50 +436,50 @@ void verify_object(object* obj)
 
 static int read_int(CFILE* file)
 {
-	int i;
+	int i = cfile_read_int(file);
 
-	if (cfread(&i, sizeof(i), 1, file) != 1)
-		Error("Error reading int in gamesave.c");
+	//if (cfread(&i, sizeof(i), 1, file) != 1)
+	//	Error("Error reading int in gamesave.c");
 
 	return i;
 }
 
 static fix read_fix(CFILE* file)
 {
-	fix f;
+	fix f = cfile_read_int(file);
 
-	if (cfread(&f, sizeof(f), 1, file) != 1)
-		Error("Error reading fix in gamesave.c");
+	//if (cfread(&f, sizeof(f), 1, file) != 1)
+	//	Error("Error reading fix in gamesave.c");
 
 	return f;
 }
 
 static short read_short(CFILE* file)
 {
-	short s;
+	short s = cfile_read_short(file);
 
-	if (cfread(&s, sizeof(s), 1, file) != 1)
-		Error("Error reading short in gamesave.c");
+	//if (cfread(&s, sizeof(s), 1, file) != 1)
+	//	Error("Error reading short in gamesave.c");
 
 	return s;
 }
 
 static short read_fixang(CFILE* file)
 {
-	fixang f;
+	fixang f = cfile_read_short(file);
 
-	if (cfread(&f, sizeof(f), 1, file) != 1)
-		Error("Error reading fixang in gamesave.c");
+	//if (cfread(&f, sizeof(f), 1, file) != 1)
+	//	Error("Error reading fixang in gamesave.c");
 
 	return f;
 }
 
 static int8_t read_byte(CFILE* file)
 {
-	int8_t b;
+	int8_t b = cfile_read_byte(file);
 
-	if (cfread(&b, sizeof(b), 1, file) != 1)
-		Error("Error reading int8_t in gamesave.c");
+	//if (cfread(&b, sizeof(b), 1, file) != 1)
+	//	Error("Error reading int8_t in gamesave.c");
 
 	return b;
 }
@@ -538,7 +543,7 @@ static void gs_write_fixang(fixang f, FILE* file)
 static void gs_write_byte(int8_t b, FILE* file)
 {
 	if (fwrite(&b, sizeof(b), 1, file) != 1)
-		Error("Error reading int8_t in gamesave.c");
+		Error("Error reading byte in gamesave.c");
 
 }
 
@@ -565,12 +570,61 @@ static void gs_write_angvec(vms_angvec* v, FILE* file)
 
 #endif
 
+static void read_v16_wall(wall* nwall, CFILE* fp)
+{
+	nwall->segnum = nwall->sidenum = nwall->linked_wall = 0;
+	nwall->type = cfile_read_byte(fp);
+	nwall->flags = cfile_read_byte(fp);
+	nwall->hps = cfile_read_int(fp);
+	nwall->trigger = cfile_read_byte(fp);
+	nwall->clip_num = cfile_read_byte(fp);
+	nwall->keys = cfile_read_byte(fp);
+}
 
+static void read_v19_wall(wall* nwall, CFILE* fp)
+{
+	nwall->segnum = cfile_read_int(fp);
+	nwall->sidenum = cfile_read_int(fp);
+	nwall->type = cfile_read_byte(fp);
+	nwall->flags = cfile_read_byte(fp);
+	nwall->hps = cfile_read_int(fp);
+	nwall->trigger = cfile_read_byte(fp);
+	nwall->clip_num = cfile_read_byte(fp);
+	nwall->keys = cfile_read_byte(fp);
+	nwall->linked_wall = cfile_read_int(fp);
+	nwall->state = WALL_DOOR_CLOSED;
+}
+
+static void read_v19_active_door(active_door* door, CFILE* fp)
+{
+	v19_door oldDoor;
+	int p;
+
+	oldDoor.n_parts = cfile_read_int(fp);
+	oldDoor.seg[0] = cfile_read_short(fp);
+	oldDoor.seg[1] = cfile_read_short(fp);
+	oldDoor.side[0] = cfile_read_short(fp);
+	oldDoor.side[1] = cfile_read_short(fp);
+	oldDoor.type[0] = cfile_read_short(fp);
+	oldDoor.type[1] = cfile_read_short(fp);
+	oldDoor.open = cfile_read_int(fp);
+
+	door->n_parts = oldDoor.n_parts;
+	for (p = 0; p < oldDoor.n_parts; p++)
+	{
+		int cseg, cside;
+
+		cseg = Segments[oldDoor.seg[p]].children[oldDoor.side[p]];
+		cside = find_connect_side(&Segments[oldDoor.seg[p]], &Segments[cseg]);
+
+		door->front_wallnum[p] = Segments[oldDoor.seg[p]].sides[oldDoor.side[p]].wall_num;
+		door->back_wallnum[p] = Segments[cseg].sides[cside].wall_num;
+	}
+}
 
 //reads one object of the given version from the given file
 void read_object(object* obj, CFILE* f, int version)
 {
-
 	obj->type = read_byte(f);
 	obj->id = read_byte(f);
 
@@ -597,8 +651,8 @@ void read_object(object* obj, CFILE* f, int version)
 	obj->contains_id = read_byte(f);
 	obj->contains_count = read_byte(f);
 
-	switch (obj->movement_type) {
-
+	switch (obj->movement_type) 
+	{
 	case MT_PHYSICS:
 
 		read_vector(&obj->mtype.phys_info.velocity, f);
@@ -628,9 +682,10 @@ void read_object(object* obj, CFILE* f, int version)
 		Int3();
 	}
 
-	switch (obj->control_type) {
-
-	case CT_AI: {
+	switch (obj->control_type) 
+	{
+	case CT_AI:
+	{
 		int i;
 
 		obj->ctype.ai_info.behavior = read_byte(f);
@@ -710,16 +765,16 @@ void read_object(object* obj, CFILE* f, int version)
 	case CT_REPAIRCEN:
 	default:
 		Int3();
-
 	}
 
-	switch (obj->render_type) {
-
+	switch (obj->render_type) 
+	{
 	case RT_NONE:
 		break;
 
 	case RT_MORPH:
-	case RT_POLYOBJ: {
+	case RT_POLYOBJ:
+	{
 		int i, tmo;
 
 		obj->rtype.pobj_info.model_num = read_int(f);
@@ -736,9 +791,11 @@ void read_object(object* obj, CFILE* f, int version)
 #else
 		if (tmo == -1)
 			obj->rtype.pobj_info.tmap_override = -1;
-		else {
+		else 
+		{
 			int xlated_tmo = tmap_xlate_table[tmo];
-			if (xlated_tmo < 0) {
+			if (xlated_tmo < 0)
+			{
 				mprintf((0, "Couldn't find texture for demo object, model_num = %d\n", obj->rtype.pobj_info.model_num));
 				Int3();
 				xlated_tmo = 0;
@@ -800,8 +857,8 @@ void write_object(object* obj, FILE* f)
 	gs_write_byte(obj->contains_id, f);
 	gs_write_byte(obj->contains_count, f);
 
-	switch (obj->movement_type) {
-
+	switch (obj->movement_type)
+	{
 	case MT_PHYSICS:
 
 		gr_write_vector(&obj->mtype.phys_info.velocity, f);
@@ -831,9 +888,10 @@ void write_object(object* obj, FILE* f)
 		Int3();
 	}
 
-	switch (obj->control_type) {
-
-	case CT_AI: {
+	switch (obj->control_type) 
+	{
+	case CT_AI: 
+	{
 		int i;
 
 		gs_write_byte(obj->ctype.ai_info.behavior, f);
@@ -899,13 +957,14 @@ void write_object(object* obj, FILE* f)
 
 	}
 
-	switch (obj->render_type) {
-
+	switch (obj->render_type) 
+	{
 	case RT_NONE:
 		break;
 
 	case RT_MORPH:
-	case RT_POLYOBJ: {
+	case RT_POLYOBJ:
+	{
 		int i;
 
 		gs_write_int(obj->rtype.pobj_info.model_num, f);
@@ -936,13 +995,12 @@ void write_object(object* obj, FILE* f)
 
 	default:
 		Int3();
-
 	}
-
 }
 #endif
 
-typedef struct {
+typedef struct 
+{
 	int			robot_flags;		// Up to 32 different robots
 	fix			hit_points;			// How hard it is to destroy this particular matcen
 	fix			interval;			// Interval between materialogrifizations
@@ -950,7 +1008,7 @@ typedef struct {
 	short			fuelcen_num;		// Index in fuelcen array.
 } old_matcen_info;
 
-extern int remove_trigger_num(int trigger_num);
+extern void remove_trigger_num(int trigger_num);
 
 // -----------------------------------------------------------------------------
 // Load game 
@@ -1055,7 +1113,8 @@ int load_game_data(CFILE* LoadFile)
 	game_fileinfo.matcen_howmany = read_int(LoadFile);
 	game_fileinfo.matcen_sizeof = read_int(LoadFile);
 
-	if (game_top_fileinfo.fileinfo_version >= 29) {
+	if (game_top_fileinfo.fileinfo_version >= 29) 
+	{
 		game_fileinfo.dl_indices_offset = read_int(LoadFile);
 		game_fileinfo.dl_indices_howmany = read_int(LoadFile);
 		game_fileinfo.dl_indices_sizeof = read_int(LoadFile);
@@ -1065,11 +1124,8 @@ int load_game_data(CFILE* LoadFile)
 		game_fileinfo.delta_light_sizeof = read_int(LoadFile);
 	}
 
-	if (game_top_fileinfo.fileinfo_version >= 14) {	//load mine filename
-		//@@char *p=Current_level_name;
-		//@@//must do read one char at a time, since no cfgets()
-		//@@do *p = cfgetc(LoadFile); while (*p++!=0);
-
+	if (game_top_fileinfo.fileinfo_version >= 14) 	//load mine filename
+	{
 		cfgets(Current_level_name, sizeof(Current_level_name), LoadFile);
 
 		if (Current_level_name[strlen(Current_level_name) - 1] == '\n')
@@ -1078,8 +1134,8 @@ int load_game_data(CFILE* LoadFile)
 	else
 		Current_level_name[0] = 0;
 
-	if (game_top_fileinfo.fileinfo_version >= 19) {	//load pof names
-//		cfread(&N_save_pof_names,2,1,LoadFile);
+	if (game_top_fileinfo.fileinfo_version >= 19) 	//load pof names
+	{
 		N_save_pof_names = read_short(LoadFile);
 		cfread(Save_pof_names, N_save_pof_names, FILENAME_LEN, LoadFile);
 	}
@@ -1092,38 +1148,38 @@ int load_game_data(CFILE* LoadFile)
 	Gamesave_num_org_robots = 0;
 	Gamesave_num_players = 0;
 
-	if (game_fileinfo.object_offset > -1) {
+	if (game_fileinfo.object_offset > -1)
+	{
 		if (cfseek(LoadFile, game_fileinfo.object_offset, SEEK_SET))
 			Error("Error seeking to object_offset in gamesave.c");
 
-		for (i = 0; i < game_fileinfo.object_howmany; i++) {
+		if (game_fileinfo.object_howmany >= MAX_OBJECTS)
+			Error("Level contains over MAX_OBJECTS(%d) objects.", MAX_OBJECTS);
 
+		for (i = 0; i < game_fileinfo.object_howmany; i++)
+		{
 			read_object(&Objects[i], LoadFile, game_top_fileinfo.fileinfo_version);
 
 			Objects[i].signature = Object_next_signature++;
 			verify_object(&Objects[i]);
 		}
-
 	}
 
 	//===================== READ WALL INFO ============================
 
 	if (game_fileinfo.walls_offset > -1)
 	{
+		if (!cfseek(LoadFile, game_fileinfo.walls_offset, SEEK_SET))
+		{
+			if (game_fileinfo.walls_howmany >= MAX_WALLS)
+				Error("Level contains over MAX_WALLS(%d) walls.", MAX_WALLS);
 
-		if (!cfseek(LoadFile, game_fileinfo.walls_offset, SEEK_SET)) {
-			for (i = 0; i < game_fileinfo.walls_howmany; i++) {
+			for (i = 0; i < game_fileinfo.walls_howmany; i++) 
+			{
+				if (game_top_fileinfo.fileinfo_version >= 20)
+				{
+					Assert(24 == game_fileinfo.walls_sizeof);
 
-				if (game_top_fileinfo.fileinfo_version >= 20) {
-
-					Assert(sizeof(Walls[i]) == game_fileinfo.walls_sizeof);
-
-					// code to correctly read wall structure on mac.  I'm assuming only v20 walls
-					// and up.
-#ifndef MACINTOSH
-					if (cfread(&Walls[i], game_fileinfo.walls_sizeof, 1, LoadFile) != 1)
-						Error("Error reading Walls[%d] in gamesave.c", i);
-#else
 					Walls[i].segnum = read_int(LoadFile);
 					Walls[i].sidenum = read_int(LoadFile);
 					Walls[i].hps = read_fix(LoadFile);
@@ -1136,47 +1192,23 @@ int load_game_data(CFILE* LoadFile)
 					Walls[i].keys = read_byte(LoadFile);
 					Walls[i].controlling_trigger = read_byte(LoadFile);
 					Walls[i].cloak_value = read_byte(LoadFile);
-#endif
 				}
-				else if (game_top_fileinfo.fileinfo_version >= 17) {
+				else if (game_top_fileinfo.fileinfo_version >= 17) 
+				{
 					v19_wall w;
 
-					Assert(sizeof(w) == game_fileinfo.walls_sizeof);
-
-					if (cfread(&w, game_fileinfo.walls_sizeof, 1, LoadFile) != 1)
-						Error("Error reading Walls[%d] in gamesave.c", i);
-
-					Walls[i].segnum = w.segnum;
-					Walls[i].sidenum = w.sidenum;
-					Walls[i].linked_wall = w.linked_wall;
-
-					Walls[i].type = w.type;
-					Walls[i].flags = w.flags;
-					Walls[i].hps = w.hps;
-					Walls[i].trigger = w.trigger;
-					Walls[i].clip_num = w.clip_num;
-					Walls[i].keys = w.keys;
-
-					Walls[i].state = WALL_DOOR_CLOSED;
+					Assert(21 == game_fileinfo.walls_sizeof);
+					mprintf((1, "load_game_data: legacy v19 walls present"));
+					read_v19_wall(&Walls[i], LoadFile);
 				}
-				else {
+				else 
+				{
 					v16_wall w;
 
-					Assert(sizeof(w) == game_fileinfo.walls_sizeof);
-
-					if (cfread(&w, game_fileinfo.walls_sizeof, 1, LoadFile) != 1)
-						Error("Error reading Walls[%d] in gamesave.c", i);
-
-					Walls[i].segnum = Walls[i].sidenum = Walls[i].linked_wall = -1;
-
-					Walls[i].type = w.type;
-					Walls[i].flags = w.flags;
-					Walls[i].hps = w.hps;
-					Walls[i].trigger = w.trigger;
-					Walls[i].clip_num = w.clip_num;
-					Walls[i].keys = w.keys;
+					Assert(9 == game_fileinfo.walls_sizeof);
+					mprintf((1, "load_game_data: legacy v16 walls present"));
+					read_v16_wall(&Walls[i], LoadFile);
 				}
-
 			}
 		}
 	}
@@ -1185,69 +1217,60 @@ int load_game_data(CFILE* LoadFile)
 
 	if (game_fileinfo.doors_offset > -1)
 	{
-		if (!cfseek(LoadFile, game_fileinfo.doors_offset, SEEK_SET)) {
+		if (!cfseek(LoadFile, game_fileinfo.doors_offset, SEEK_SET)) 
+		{
+			mprintf((1, "load_game_data: active doors present"));
 
-			for (i = 0; i < game_fileinfo.doors_howmany; i++) {
+			if (game_fileinfo.doors_howmany >= MAX_DOORS)
+				Error("Level contains over MAX_DOORS(%d) active doors.", MAX_DOORS);
 
-				if (game_top_fileinfo.fileinfo_version >= 20) {
+			for (i = 0; i < game_fileinfo.doors_howmany; i++)
+			{
+				if (game_top_fileinfo.fileinfo_version >= 20) 
+				{
+					Assert(16 == game_fileinfo.doors_sizeof);
 
-					Assert(sizeof(ActiveDoors[i]) == game_fileinfo.doors_sizeof);
-
-					// code to read doors for mac -- assume version 20 and greater for doors
-#ifndef MACINTOSH
-					if (cfread(&ActiveDoors[i], game_fileinfo.doors_sizeof, 1, LoadFile) != 1)
-						Error("Error reading ActiveDoors[%d] in gamesave.c", i);
-#else
 					ActiveDoors[i].n_parts = read_int(LoadFile);
 					ActiveDoors[i].front_wallnum[0] = read_short(LoadFile);
 					ActiveDoors[i].front_wallnum[1] = read_short(LoadFile);
 					ActiveDoors[i].back_wallnum[0] = read_short(LoadFile);
 					ActiveDoors[i].back_wallnum[1] = read_short(LoadFile);
 					ActiveDoors[i].time = read_fix(LoadFile);
-#endif
 				}
-				else {
+				else 
+				{
 					v19_door d;
 					int p;
 
-					Assert(sizeof(d) == game_fileinfo.doors_sizeof);
+					Assert(20 == game_fileinfo.doors_sizeof);
 
-					if (cfread(&d, game_fileinfo.doors_sizeof, 1, LoadFile) != 1)
-						Error("Error reading Doors[%d] in gamesave.c", i);
-
-					ActiveDoors[i].n_parts = d.n_parts;
-
-					for (p = 0; p < d.n_parts; p++) {
-						int cseg, cside;
-
-						cseg = Segments[d.seg[p]].children[d.side[p]];
-						cside = find_connect_side(&Segments[d.seg[p]], &Segments[cseg]);
-
-						ActiveDoors[i].front_wallnum[p] = Segments[d.seg[p]].sides[d.side[p]].wall_num;
-						ActiveDoors[i].back_wallnum[p] = Segments[cseg].sides[cside].wall_num;
-					}
+					read_v19_active_door(&ActiveDoors[i], LoadFile);
 				}
-
 			}
 		}
 	}
 
 	//==================== READ TRIGGER INFO ==========================
 
-
-// for MACINTOSH -- assume all triggers >= verion 31 triggers.
-
 	if (game_fileinfo.triggers_offset > -1)
 	{
-		if (!cfseek(LoadFile, game_fileinfo.triggers_offset, SEEK_SET)) {
+		if (!cfseek(LoadFile, game_fileinfo.triggers_offset, SEEK_SET)) 
+		{
+			if (game_fileinfo.triggers_howmany >= MAX_TRIGGERS)
+				Error("Level contains more than MAX_TRIGGERS(%d) triggers.", MAX_TRIGGERS);
+
 			for (i = 0; i < game_fileinfo.triggers_howmany; i++)
-				if (game_top_fileinfo.fileinfo_version < 31) {
+				if (game_top_fileinfo.fileinfo_version < 31)
+				{
 					v30_trigger trig;
 					int t, type;
 
-					if (game_top_fileinfo.fileinfo_version < 30) {
+					if (game_top_fileinfo.fileinfo_version < 30)
+					{
 						v29_trigger trig29;
 						int t;
+
+						mprintf((1, "load_game_data: loading v29 trigger"));
 
 						if (cfread(&trig29, game_fileinfo.triggers_sizeof, 1, LoadFile) != 1)
 							Error("Error reading Triggers[%d] in gamesave.c", i);
@@ -1258,14 +1281,18 @@ int load_game_data(CFILE* LoadFile)
 						trig.value = trig29.value;
 						trig.time = trig29.time;
 
-						for (t = 0; t < trig.num_links; t++) {
+						for (t = 0; t < trig.num_links; t++) 
+						{
 							trig.seg[t] = trig29.seg[t];
 							trig.side[t] = trig29.side[t];
 						}
 					}
 					else
+					{
+						mprintf((1, "load_game_data: loading v30 trigger"));
 						if (cfread(&trig, game_fileinfo.triggers_sizeof, 1, LoadFile) != 1)
 							Error("Error reading Triggers[%d] in gamesave.c", i);
+					}
 
 					//Assert(trig.flags & TRIGGER_ON);
 					trig.flags &= ~TRIGGER_ON;
@@ -1306,16 +1333,14 @@ int load_game_data(CFILE* LoadFile)
 					Triggers[i].value = trig.value;
 					Triggers[i].time = trig.time;
 
-					for (t = 0; t < trig.num_links; t++) {
+					for (t = 0; t < trig.num_links; t++) 
+					{
 						Triggers[i].seg[t] = trig.seg[t];
 						Triggers[i].side[t] = trig.side[t];
 					}
 				}
-				else {
-#ifndef MACINTOSH
-					if (cfread(&Triggers[i], game_fileinfo.triggers_sizeof, 1, LoadFile) != 1)
-						Error("Error reading Triggers[%d] in gamesave.c", i);
-#else
+				else 
+				{
 					Triggers[i].type = read_byte(LoadFile);
 					Triggers[i].flags = read_byte(LoadFile);
 					Triggers[i].num_links = read_byte(LoadFile);
@@ -1326,7 +1351,6 @@ int load_game_data(CFILE* LoadFile)
 						Triggers[i].seg[j] = read_short(LoadFile);
 					for (j = 0; j < MAX_WALLS_PER_LINK; j++)
 						Triggers[i].side[j] = read_short(LoadFile);
-#endif
 				}
 		}
 	}
@@ -1335,18 +1359,14 @@ int load_game_data(CFILE* LoadFile)
 
 	if (game_fileinfo.control_offset > -1)
 	{
-		if (!cfseek(LoadFile, game_fileinfo.control_offset, SEEK_SET)) {
+		if (!cfseek(LoadFile, game_fileinfo.control_offset, SEEK_SET)) 
+		{
 			for (i = 0; i < game_fileinfo.control_howmany; i++)
-#ifndef MACINTOSH
-				if (cfread(&ControlCenterTriggers, game_fileinfo.control_sizeof, 1, LoadFile) != 1)
-					Error("Error reading ControlCenterTriggers in gamesave.c", i);
-#else
 				ControlCenterTriggers.num_links = read_short(LoadFile);
 			for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
 				ControlCenterTriggers.seg[j] = read_short(LoadFile);
 			for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
 				ControlCenterTriggers.side[j] = read_short(LoadFile);
-#endif
 		}
 	}
 
@@ -1357,34 +1377,34 @@ int load_game_data(CFILE* LoadFile)
 	{
 		int	j;
 
-		if (!cfseek(LoadFile, game_fileinfo.matcen_offset, SEEK_SET)) {
+		if (!cfseek(LoadFile, game_fileinfo.matcen_offset, SEEK_SET)) 
+		{
+			if (game_fileinfo.matcen_howmany >= MAX_ROBOT_CENTERS)
+				Error("Level contains over MAX_ROBOT_CENTERS(%d) matcens.", MAX_ROBOT_CENTERS);
+
 			// mprintf((0, "Reading %i materialization centers.\n", game_fileinfo.matcen_howmany));
-			for (i = 0; i < game_fileinfo.matcen_howmany; i++) {
-				if (game_top_fileinfo.fileinfo_version < 27) {
+			for (i = 0; i < game_fileinfo.matcen_howmany; i++) 
+			{
+				if (game_top_fileinfo.fileinfo_version < 27) 
+				{
 					old_matcen_info m;
-					Assert(game_fileinfo.matcen_sizeof == sizeof(m));
-					if (cfread(&m, game_fileinfo.matcen_sizeof, 1, LoadFile) != 1)
-						Error("Error reading RobotCenters in gamesave.c", i);
-					RobotCenters[i].robot_flags[0] = m.robot_flags;
+					Assert(game_fileinfo.matcen_sizeof == 16);
+					RobotCenters[i].robot_flags[0] = read_int(LoadFile);
 					RobotCenters[i].robot_flags[1] = 0;
-					RobotCenters[i].hit_points = m.hit_points;
-					RobotCenters[i].interval = m.interval;
-					RobotCenters[i].segnum = m.segnum;
-					RobotCenters[i].fuelcen_num = m.fuelcen_num;
+					RobotCenters[i].hit_points = read_fix(LoadFile);
+					RobotCenters[i].interval = read_fix(LoadFile);
+					RobotCenters[i].segnum = read_short(LoadFile);
+					RobotCenters[i].fuelcen_num = read_short(LoadFile);
 				}
-				else {
-					Assert(game_fileinfo.matcen_sizeof == sizeof(RobotCenters[i]));
-#ifndef MACINTOSH
-					if (cfread(&RobotCenters[i], game_fileinfo.matcen_sizeof, 1, LoadFile) != 1)
-						Error("Error reading RobotCenters in gamesave.c", i);
-#else
+				else 
+				{
+					Assert(game_fileinfo.matcen_sizeof == 20);
 					RobotCenters[i].robot_flags[0] = read_int(LoadFile);
 					RobotCenters[i].robot_flags[1] = read_int(LoadFile);
 					RobotCenters[i].hit_points = read_fix(LoadFile);
 					RobotCenters[i].interval = read_fix(LoadFile);
 					RobotCenters[i].segnum = read_short(LoadFile);
 					RobotCenters[i].fuelcen_num = read_short(LoadFile);
-#endif
 				}
 
 				//	Set links in RobotCenters to Station array
@@ -1404,28 +1424,30 @@ int load_game_data(CFILE* LoadFile)
 
 	Num_static_lights = 0;
 
-	if (game_fileinfo.dl_indices_offset > -1) {
+	if (game_fileinfo.dl_indices_offset > -1)
+	{
 		int	i;
 
-		if (!cfseek(LoadFile, game_fileinfo.dl_indices_offset, SEEK_SET)) {
+		if (!cfseek(LoadFile, game_fileinfo.dl_indices_offset, SEEK_SET)) 
+		{
 			Num_static_lights = game_fileinfo.dl_indices_howmany;
-			for (i = 0; i < game_fileinfo.dl_indices_howmany; i++) {
-				if (game_top_fileinfo.fileinfo_version < 29) {
+			if (Num_static_lights > MAX_DL_INDICES)
+				Error("Level contains more than MAX_DL_INDICIES(%d) dynamic light indicies.", MAX_DL_INDICES);
+
+			for (i = 0; i < game_fileinfo.dl_indices_howmany; i++) 
+			{
+				if (game_top_fileinfo.fileinfo_version < 29)
+				{
 					mprintf((0, "Warning: Old mine version.  Not reading Dl_indices info.\n"));
 					Int3();	//shouldn't be here!!!
 				}
-				else {
-#ifndef MACINTOSH
-					if (cfread(&Dl_indices[i], game_fileinfo.dl_indices_sizeof, 1, LoadFile) != 1)
-						Error("Error reading Dl_indices in gamesave.c", i);
-#else
+				else 
+				{
 					Dl_indices[i].segnum = read_short(LoadFile);
 					Dl_indices[i].sidenum = read_byte(LoadFile);
 					Dl_indices[i].count = read_byte(LoadFile);
 					Dl_indices[i].index = read_short(LoadFile);
-#endif
 				}
-
 			}
 		}
 	}
@@ -1435,19 +1457,22 @@ int load_game_data(CFILE* LoadFile)
 
 	//================ READ DELTA LIGHT INFO ===============
 
-	if (game_fileinfo.delta_light_offset > -1) {
+	if (game_fileinfo.delta_light_offset > -1) 
+	{
 		int	i;
 
-		if (!cfseek(LoadFile, game_fileinfo.delta_light_offset, SEEK_SET)) {
-			for (i = 0; i < game_fileinfo.delta_light_howmany; i++) {
-				if (game_top_fileinfo.fileinfo_version < 29) {
+		if (!cfseek(LoadFile, game_fileinfo.delta_light_offset, SEEK_SET)) 
+		{
+			if (game_fileinfo.delta_light_howmany > MAX_DELTA_LIGHTS)
+				Error("Level contains more than MAX_DELTA_LIGHTS(%d) dynamic light deltas.", MAX_DELTA_LIGHTS);
+			for (i = 0; i < game_fileinfo.delta_light_howmany; i++) 
+			{
+				if (game_top_fileinfo.fileinfo_version < 29) 
+				{
 					mprintf((0, "Warning: Old mine version.  Not reading delta light info.\n"));
 				}
-				else {
-#ifndef MACINTOSH
-					if (cfread(&Delta_lights[i], game_fileinfo.delta_light_sizeof, 1, LoadFile) != 1)
-						Error("Error reading Delta Lights in gamesave.c", i);
-#else
+				else 
+				{
 					Delta_lights[i].segnum = read_short(LoadFile);
 					Delta_lights[i].sidenum = read_byte(LoadFile);
 					Delta_lights[i].dummy = read_byte(LoadFile);
@@ -1455,9 +1480,7 @@ int load_game_data(CFILE* LoadFile)
 					Delta_lights[i].vert_light[1] = read_byte(LoadFile);
 					Delta_lights[i].vert_light[2] = read_byte(LoadFile);
 					Delta_lights[i].vert_light[3] = read_byte(LoadFile);
-#endif
 				}
-
 			}
 		}
 	}
@@ -1466,9 +1489,11 @@ int load_game_data(CFILE* LoadFile)
 
 	reset_objects(game_fileinfo.object_howmany);
 
-	for (i = 0; i < MAX_OBJECTS; i++) {
+	for (i = 0; i < MAX_OBJECTS; i++) 
+	{
 		Objects[i].next = Objects[i].prev = -1;
-		if (Objects[i].type != OBJ_NONE) {
+		if (Objects[i].type != OBJ_NONE) 
+		{
 			int objsegnum = Objects[i].segnum;
 
 			if (objsegnum > Highest_segment_index)		//bogus object
@@ -1484,11 +1509,14 @@ int load_game_data(CFILE* LoadFile)
 
 	// Make sure non-transparent doors are set correctly.
 	for (i = 0; i < Num_segments; i++)
-		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
+		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++)
+		{
 			side* sidep = &Segments[i].sides[j];
-			if ((sidep->wall_num != -1) && (Walls[sidep->wall_num].clip_num != -1)) {
+			if ((sidep->wall_num != -1) && (Walls[sidep->wall_num].clip_num != -1)) 
+			{
 				//mprintf((0, "Checking Wall %d\n", Segments[i].sides[j].wall_num));
-				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) {
+				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) 
+				{
 					//mprintf((0, "Fixing non-transparent door.\n"));
 					sidep->tmap_num = WallAnims[Walls[sidep->wall_num].clip_num].frames[0];
 					sidep->tmap_num2 = 0;
@@ -1505,13 +1533,15 @@ int load_game_data(CFILE* LoadFile)
 
 	//go through all walls, killing references to invalid triggers
 	for (i = 0; i < Num_walls; i++)
-		if (Walls[i].trigger >= Num_triggers) {
+		if (Walls[i].trigger >= Num_triggers)
+		{
 			mprintf((0, "Removing reference to invalid trigger %d from wall %d\n", Walls[i].trigger, i));
 			Walls[i].trigger = -1;	//kill trigger
 		}
 
 	//go through all triggers, killing unused ones
-	for (i = 0; i < Num_triggers;) {
+	for (i = 0; i < Num_triggers;) 
+	{
 		int w;
 
 		//	Find which wall this trigger is connected to.
@@ -1520,7 +1550,8 @@ int load_game_data(CFILE* LoadFile)
 				break;
 
 #ifdef EDITOR
-		if (w == Num_walls) {
+		if (w == Num_walls) 
+		{
 			mprintf((0, "Removing unreferenced trigger %d\n", i));
 			remove_trigger_num(i);
 		}
@@ -1531,49 +1562,55 @@ int load_game_data(CFILE* LoadFile)
 
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
-	{	int t;
+	{	
+		int t;
 
-	for (i = 0; i < Num_walls; i++)
-		Walls[i].controlling_trigger = -1;
+		for (i = 0; i < Num_walls; i++)
+			Walls[i].controlling_trigger = -1;
 
-	for (t = 0; t < Num_triggers; t++) {
-		int	l;
-		for (l = 0; l < Triggers[t].num_links; l++) {
-			int	seg_num, side_num, wall_num;
+		for (t = 0; t < Num_triggers; t++) 
+		{
+			int	l;
+			for (l = 0; l < Triggers[t].num_links; l++)
+			{
+				int	seg_num, side_num, wall_num;
 
-			seg_num = Triggers[t].seg[l];
-			side_num = Triggers[t].side[l];
-			wall_num = Segments[seg_num].sides[side_num].wall_num;
+				seg_num = Triggers[t].seg[l];
+				side_num = Triggers[t].side[l];
+				wall_num = Segments[seg_num].sides[side_num].wall_num;
 
-			// -- if (Walls[wall_num].controlling_trigger != -1)
-			// -- 	Int3();
+				// -- if (Walls[wall_num].controlling_trigger != -1)
+				// -- 	Int3();
 
-			//check to see that if a trigger requires a wall that it has one,
-			//and if it requires a matcen that it has one
+				//check to see that if a trigger requires a wall that it has one,
+				//and if it requires a matcen that it has one
 
-			if (Triggers[t].type == TT_MATCEN) {
-				if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
-					Int3();		//matcen trigger doesn't point to matcen
-			}
-			else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
-				if (wall_num == -1)
-					Int3();	//	This is illegal.  This trigger requires a wall
-				else
-					Walls[wall_num].controlling_trigger = t;
+				if (Triggers[t].type == TT_MATCEN) 
+				{
+					if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
+						Int3();		//matcen trigger doesn't point to matcen
+				}
+				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
+					if (wall_num == -1)
+						Int3();	//	This is illegal.  This trigger requires a wall
+					else
+						Walls[wall_num].controlling_trigger = t;
+				}
 			}
 		}
-	}
 	}
 
 	Num_robot_centers = game_fileinfo.matcen_howmany;
 
 	//fix old wall structs
-	if (game_top_fileinfo.fileinfo_version < 17) {
+	if (game_top_fileinfo.fileinfo_version < 17) 
+	{
 		int segnum, sidenum, wallnum;
 
 		for (segnum = 0; segnum <= Highest_segment_index; segnum++)
 			for (sidenum = 0; sidenum < 6; sidenum++)
-				if ((wallnum = Segments[segnum].sides[sidenum].wall_num) != -1) {
+				if ((wallnum = Segments[segnum].sides[sidenum].wall_num) != -1) 
+				{
 					Walls[wallnum].segnum = segnum;
 					Walls[wallnum].sidenum = sidenum;
 				}
@@ -1582,7 +1619,8 @@ int load_game_data(CFILE* LoadFile)
 #ifndef NDEBUG
 	{
 		int	sidenum;
-		for (sidenum = 0; sidenum < 6; sidenum++) {
+		for (sidenum = 0; sidenum < 6; sidenum++)
+		{
 			int	wallnum = Segments[Highest_segment_index].sides[sidenum].wall_num;
 			if (wallnum != -1)
 				if ((Walls[wallnum].segnum != Highest_segment_index) || (Walls[wallnum].sidenum != sidenum))
@@ -1686,7 +1724,8 @@ int load_level(char* filename_passed)
 	change_filename_extension(filename, filename_passed, ".LVL");
 	use_compiled_level = 0;
 
-	if (!cfexist(filename)) {
+	if (!cfexist(filename))
+	{
 		change_filename_extension(filename, filename, ".RL2");
 		use_compiled_level = 1;
 	}
@@ -1694,7 +1733,8 @@ int load_level(char* filename_passed)
 
 	LoadFile = cfopen(filename, "rb");
 
-	if (!LoadFile) {
+	if (!LoadFile)
+	{
 #ifdef EDITOR
 		mprintf((0, "Can't open level file <%s>\n", filename));
 		return 1;
@@ -1735,7 +1775,8 @@ int load_level(char* filename_passed)
 	if (version < 5)
 		read_int(LoadFile);		//was hostagetext_offset
 
-	if (version > 1) {
+	if (version > 1)
+	{
 		cfgets(Current_level_palette, sizeof(Current_level_palette), LoadFile);
 		if (Current_level_palette[strlen(Current_level_palette) - 1] == '\n')
 			Current_level_palette[strlen(Current_level_palette) - 1] = 0;
@@ -1751,9 +1792,9 @@ int load_level(char* filename_passed)
 	else
 		Reactor_strength = -1;	//use old defaults
 
-	if (version >= 7) {
+	if (version >= 7)
+	{
 		Num_flickering_lights = read_int(LoadFile);
-#ifdef MACINTOSH
 		Assert((Num_flickering_lights >= 0) && (Num_flickering_lights < MAX_FLICKERING_LIGHTS));
 		for (i = 0; i < Num_flickering_lights; i++)
 		{
@@ -1763,9 +1804,6 @@ int load_level(char* filename_passed)
 			Flickering_lights[i].timer = read_fix(LoadFile);
 			Flickering_lights[i].delay = read_fix(LoadFile);
 		}
-#else
-		cfread(Flickering_lights, sizeof(*Flickering_lights), Num_flickering_lights, LoadFile);
-#endif
 	}
 	else
 		Num_flickering_lights = 0;
@@ -1773,13 +1811,15 @@ int load_level(char* filename_passed)
 	if (version <= 1 || Current_level_palette[0] == 0)
 		strcpy(Current_level_palette, "groupa.256");
 
-	if (version < 6) {
+	if (version < 6) 
+	{
 		Secret_return_segment = 0;
 		Secret_return_orient.rvec.x = F1_0;	Secret_return_orient.rvec.y = 0;			Secret_return_orient.rvec.z = 0;
 		Secret_return_orient.fvec.x = 0;	Secret_return_orient.fvec.y = F1_0;		Secret_return_orient.fvec.z = 0;
 		Secret_return_orient.uvec.x = 0;	Secret_return_orient.uvec.y = 0;			Secret_return_orient.uvec.z = F1_0;
 	}
-	else {
+	else 
+	{
 		Secret_return_segment = read_int(LoadFile);
 		Secret_return_orient.rvec.x = read_int(LoadFile);
 		Secret_return_orient.rvec.y = read_int(LoadFile);
@@ -1794,7 +1834,8 @@ int load_level(char* filename_passed)
 
 	cfseek(LoadFile, minedata_offset, SEEK_SET);
 #ifdef EDITOR
-	if (!use_compiled_level) {
+	if (!use_compiled_level) 
+	{
 		mine_err = load_mine_data(LoadFile);
 		//	Compress all uv coordinates in mine, improves texmap precision. --MK, 02/19/96
 		compress_uv_coordinates_all();
@@ -1804,7 +1845,8 @@ int load_level(char* filename_passed)
 		//NOTE LINK TO ABOVE!!
 		mine_err = load_mine_data_compiled(LoadFile);
 
-	if (mine_err == -1) {	//error!!
+	if (mine_err == -1) 
+	{	//error!!
 		cfclose(LoadFile);
 		return 2;
 	}
@@ -1812,7 +1854,8 @@ int load_level(char* filename_passed)
 	cfseek(LoadFile, gamedata_offset, SEEK_SET);
 	game_err = load_game_data(LoadFile);
 
-	if (game_err == -1) {	//error!!
+	if (game_err == -1) 
+	{	//error!!
 		cfclose(LoadFile);
 		return 3;
 	}
@@ -1821,12 +1864,15 @@ int load_level(char* filename_passed)
 
 	cfclose(LoadFile);
 
-	set_ambient_sound_flags();
+	if (CurrentDataVersion != DataVer::DEMO)
+		set_ambient_sound_flags();
 
 #ifdef EDITOR
 	write_game_text_file(filename);
-	if (Errors_in_mine) {
-		if (is_real_level(filename)) {
+	if (Errors_in_mine)
+	{
+		if (is_real_level(filename))
+		{
 			char  ErrorMessage[200];
 
 			sprintf(ErrorMessage, "Warning: %i errors in %s!\n", Errors_in_mine, Level_being_loaded);
@@ -1842,7 +1888,8 @@ int load_level(char* filename_passed)
 
 #ifdef EDITOR
 	//If an old version, ask the use if he wants to save as new version
-	if (!no_old_level_file_error && (Function_mode == FMODE_EDITOR) && (((LEVEL_FILE_VERSION > 3) && version < LEVEL_FILE_VERSION) || mine_err == 1 || game_err == 1)) {
+	if (!no_old_level_file_error && (Function_mode == FMODE_EDITOR) && (((LEVEL_FILE_VERSION > 3) && version < LEVEL_FILE_VERSION) || mine_err == 1 || game_err == 1))
+	{
 		char  ErrorMessage[200];
 
 		sprintf(ErrorMessage,
@@ -1875,7 +1922,7 @@ int load_level(char* filename_passed)
 }
 
 #ifdef EDITOR
-void get_level_name()
+int get_level_name()
 {
 	//NO_UI!!!	UI_WINDOW 				*NameWindow = NULL;
 	//NO_UI!!!	UI_GADGET_INPUTBOX	*NameText;
@@ -1913,6 +1960,7 @@ void get_level_name()
 
 	newmenu_do(NULL, "Enter mine name", 2, m, NULL);
 
+	return 0;
 }
 #endif
 
@@ -1922,17 +1970,75 @@ void get_level_name()
 int	Errors_in_mine;
 
 // -----------------------------------------------------------------------------
+void write_game_fileinfo(FILE* fp)
+{
+	file_write_short(fp, game_fileinfo.fileinfo_signature);
+	file_write_short(fp, game_fileinfo.fileinfo_version);
+	file_write_int(fp, game_fileinfo.fileinfo_sizeof);
+	fwrite(game_fileinfo.mine_filename, sizeof(char), 15, fp);
+	file_write_int(fp, game_fileinfo.level);
+	file_write_int(fp, game_fileinfo.player_offset);
+	file_write_int(fp, game_fileinfo.player_sizeof);
+	file_write_int(fp, game_fileinfo.object_offset);
+	file_write_int(fp, game_fileinfo.object_howmany);
+	file_write_int(fp, game_fileinfo.object_sizeof);
+	file_write_int(fp, game_fileinfo.walls_offset);
+	file_write_int(fp, game_fileinfo.walls_howmany);
+	file_write_int(fp, game_fileinfo.walls_sizeof);
+	file_write_int(fp, game_fileinfo.doors_offset);
+	file_write_int(fp, game_fileinfo.doors_howmany);
+	file_write_int(fp, game_fileinfo.doors_sizeof);
+	file_write_int(fp, game_fileinfo.triggers_offset);
+	file_write_int(fp, game_fileinfo.triggers_howmany);
+	file_write_int(fp, game_fileinfo.triggers_sizeof);
+	file_write_int(fp, game_fileinfo.links_offset);
+	file_write_int(fp, game_fileinfo.links_howmany);
+	file_write_int(fp, game_fileinfo.links_sizeof);
+	file_write_int(fp, game_fileinfo.control_offset);
+	file_write_int(fp, game_fileinfo.control_howmany);
+	file_write_int(fp, game_fileinfo.control_sizeof);
+	file_write_int(fp, game_fileinfo.matcen_offset);
+	file_write_int(fp, game_fileinfo.matcen_howmany);
+	file_write_int(fp, game_fileinfo.matcen_sizeof);
+	file_write_int(fp, game_fileinfo.dl_indices_offset);
+	file_write_int(fp, game_fileinfo.dl_indices_howmany);
+	file_write_int(fp, game_fileinfo.dl_indices_sizeof);
+	file_write_int(fp, game_fileinfo.delta_light_offset);
+	file_write_int(fp, game_fileinfo.delta_light_howmany);
+	file_write_int(fp, game_fileinfo.delta_light_sizeof);
+}
+
+void write_dl_index(dl_index* index, FILE* fp)
+{
+	file_write_short(fp, index->segnum);
+	file_write_byte(fp, index->sidenum);
+	file_write_byte(fp, index->count);
+	file_write_short(fp, index->index);
+}
+
+void write_delta_light(delta_light* light, FILE* fp)
+{
+	file_write_short(fp, light->segnum);
+	file_write_byte(fp, light->sidenum);
+	file_write_byte(fp, light->dummy);
+	file_write_byte(fp, light->vert_light[0]);
+	file_write_byte(fp, light->vert_light[1]);
+	file_write_byte(fp, light->vert_light[2]);
+	file_write_byte(fp, light->vert_light[3]);
+}
+
+// -----------------------------------------------------------------------------
 int compute_num_delta_light_records(void)
 {
 	int	i;
 	int	total = 0;
 
-	for (i = 0; i < Num_static_lights; i++) {
+	for (i = 0; i < Num_static_lights; i++) 
+	{
 		total += Dl_indices[i].count;
 	}
 
 	return total;
-
 }
 
 // -----------------------------------------------------------------------------
@@ -1942,11 +2048,11 @@ int save_game_data(FILE* SaveFile)
 	int  player_offset, object_offset, walls_offset, doors_offset, triggers_offset, control_offset, matcen_offset; //, links_offset;
 	int	dl_indices_offset, delta_light_offset;
 	int start_offset, end_offset;
+	int i;
 
 	start_offset = ftell(SaveFile);
 
 	//===================== SAVE FILE INFO ========================
-
 	game_fileinfo.fileinfo_signature = 0x6705;
 	game_fileinfo.fileinfo_version = GAME_VERSION;
 	game_fileinfo.level = Current_level_num;
@@ -1981,49 +2087,48 @@ int save_game_data(FILE* SaveFile)
 	game_fileinfo.delta_light_sizeof = sizeof(delta_light);
 
 	// Write the fileinfo
-	fwrite(&game_fileinfo, sizeof(game_fileinfo), 1, SaveFile);
+	write_game_fileinfo(SaveFile);
 
 	// Write the mine name
 	fprintf(SaveFile, "%s\n", Current_level_name);
 
-	fwrite(&N_polygon_models, 2, 1, SaveFile);
+	file_write_short(SaveFile, N_polygon_models);
 	fwrite(Pof_names, N_polygon_models, sizeof(*Pof_names), SaveFile);
 
 	//==================== SAVE PLAYER INFO ===========================
 
 	player_offset = ftell(SaveFile);
-	fwrite(&Players[Player_num], sizeof(player), 1, SaveFile);
+	write_player_file(&Players[Player_num], SaveFile);
 
 	//==================== SAVE OBJECT INFO ===========================
 
 	object_offset = ftell(SaveFile);
 	//fwrite( &Objects, sizeof(object), game_fileinfo.object_howmany, SaveFile );
-	{
-		int i;
-		for (i = 0; i < game_fileinfo.object_howmany; i++)
-			write_object(&Objects[i], SaveFile);
-	}
+	for (i = 0; i < game_fileinfo.object_howmany; i++)
+		write_object(&Objects[i], SaveFile);
 
 	//==================== SAVE WALL INFO =============================
 
 	walls_offset = ftell(SaveFile);
-	fwrite(Walls, sizeof(wall), game_fileinfo.walls_howmany, SaveFile);
+	for (i = 0; i < game_fileinfo.walls_howmany; i++)
+		write_wall(&Walls[i], SaveFile);
 
 	//==================== SAVE DOOR INFO =============================
 
 	doors_offset = ftell(SaveFile);
-	fwrite(ActiveDoors, sizeof(active_door), game_fileinfo.doors_howmany, SaveFile);
+	for (i = 0; i < game_fileinfo.doors_howmany; i++)
+		write_active_door(&ActiveDoors[i], SaveFile);
 
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = ftell(SaveFile);
-	fwrite(Triggers, sizeof(trigger), game_fileinfo.triggers_howmany, SaveFile);
+	for (i = 0; i < game_fileinfo.triggers_howmany; i++)
+		write_trigger(&Triggers[i], SaveFile);
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
 	control_offset = ftell(SaveFile);
-	fwrite(&ControlCenterTriggers, sizeof(control_center_triggers), 1, SaveFile);
-
+	write_reactor_triggers(&ControlCenterTriggers, SaveFile);
 
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
@@ -2033,11 +2138,13 @@ int save_game_data(FILE* SaveFile)
 	// for (i=0; i<game_fileinfo.matcen_howmany; i++)
 	// 	mprintf((0, "   %i: robot_flags = %08x\n", i, RobotCenters[i].robot_flags));
 	// }
-	fwrite(RobotCenters, sizeof(matcen_info), game_fileinfo.matcen_howmany, SaveFile);
+	for (i = 0; i < game_fileinfo.matcen_howmany; i++)
+		write_matcen(&RobotCenters[i], SaveFile);
 
 	//================ SAVE DELTA LIGHT INFO ===============
 	dl_indices_offset = ftell(SaveFile);
-	fwrite(Dl_indices, sizeof(dl_index), game_fileinfo.dl_indices_howmany, SaveFile);
+	for (i = 0; i < game_fileinfo.dl_indices_howmany; i++)
+		write_dl_index(&Dl_indices[i], SaveFile);
 
 	delta_light_offset = ftell(SaveFile);
 	fwrite(Delta_lights, sizeof(delta_light), game_fileinfo.delta_light_howmany, SaveFile);
@@ -2055,12 +2162,11 @@ int save_game_data(FILE* SaveFile)
 	game_fileinfo.dl_indices_offset = dl_indices_offset;
 	game_fileinfo.delta_light_offset = delta_light_offset;
 
-
 	end_offset = ftell(SaveFile);
 
 	// Write the fileinfo
 	fseek(SaveFile, start_offset, SEEK_SET);  // Move to TOF
-	fwrite(&game_fileinfo, sizeof(game_fileinfo), 1, SaveFile);
+	write_game_fileinfo(SaveFile);
 
 	// Go back to end of data
 	fseek(SaveFile, end_offset, SEEK_SET);
@@ -2077,20 +2183,25 @@ int save_level_sub(char* filename, int compiled_version)
 	FILE* SaveFile;
 	char temp_filename[128];
 	int sig = 'PLVL', version = LEVEL_FILE_VERSION;
-	int minedata_offset, gamedata_offset;
+	int minedata_offset = 0, gamedata_offset = 0;
+	int i;
 
-	if (!compiled_version) {
+	if (!compiled_version) 
+	{
 		write_game_text_file(filename);
 
-		if (Errors_in_mine) {
-			if (is_real_level(filename)) {
+		if (Errors_in_mine)
+		{
+			if (is_real_level(filename))
+			{
 				char  ErrorMessage[200];
 
 				sprintf(ErrorMessage, "Warning: %i errors in this mine!\n", Errors_in_mine);
 				stop_time();
 				gr_palette_load(gr_palette);
 
-				if (nm_messagebox(NULL, 2, "Cancel Save", "Save", ErrorMessage) != 1) {
+				if (nm_messagebox(NULL, 2, "Cancel Save", "Save", ErrorMessage) != 1)
+				{
 					start_time();
 					return 1;
 				}
@@ -2137,7 +2248,8 @@ int save_level_sub(char* filename, int compiled_version)
 	compress_objects();		//after this, Highest_object_index == num objects
 
 	//make sure player is in a segment
-	if (update_object_seg(&Objects[Players[0].objnum]) == 0) {
+	if (update_object_seg(&Objects[Players[0].objnum]) == 0) 
+	{
 		if (ConsoleObject->segnum > Highest_segment_index)
 			ConsoleObject->segnum = 0;
 		compute_segment_center(&ConsoleObject->pos, &(Segments[ConsoleObject->segnum]));
@@ -2168,7 +2280,14 @@ int save_level_sub(char* filename, int compiled_version)
 	gs_write_int(Reactor_strength, SaveFile);
 
 	gs_write_int(Num_flickering_lights, SaveFile);
-	fwrite(Flickering_lights, sizeof(*Flickering_lights), Num_flickering_lights, SaveFile);
+	for (i = 0; i < Num_flickering_lights; i++)
+	{
+		gs_write_short(Flickering_lights[i].segnum, SaveFile);
+		gs_write_short(Flickering_lights[i].sidenum, SaveFile);
+		gs_write_int(Flickering_lights[i].mask, SaveFile);
+		gs_write_fix(Flickering_lights[i].timer, SaveFile);
+		gs_write_fix(Flickering_lights[i].delay, SaveFile);
+	}
 
 	gs_write_int(Secret_return_segment, SaveFile);
 	gs_write_int(Secret_return_orient.rvec.x, SaveFile);
@@ -2196,7 +2315,8 @@ int save_level_sub(char* filename, int compiled_version)
 	//==================== CLOSE THE FILE =============================
 	fclose(SaveFile);
 
-	if (!compiled_version) {
+	if (!compiled_version)
+	{
 		if (Function_mode == FMODE_EDITOR)
 			editor_status("Saved mine %s, \"%s\"", filename, Current_level_name);
 	}
@@ -2238,15 +2358,18 @@ void dump_mine_info(void)
 
 	max_sl = 0;
 
-	for (segnum = 0; segnum <= Highest_segment_index; segnum++) {
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
+	for (segnum = 0; segnum <= Highest_segment_index; segnum++) 
+	{
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) 
+		{
 			int	vertnum;
 			side* sidep = &Segments[segnum].sides[sidenum];
 
 			if (Segment2s[segnum].static_light > max_sl)
 				max_sl = Segment2s[segnum].static_light;
 
-			for (vertnum = 0; vertnum < 4; vertnum++) {
+			for (vertnum = 0; vertnum < 4; vertnum++) 
+			{
 				if (sidep->uvls[vertnum].u < min_u)
 					min_u = sidep->uvls[vertnum].u;
 				else if (sidep->uvls[vertnum].u > max_u)
@@ -2262,7 +2385,6 @@ void dump_mine_info(void)
 				else if (sidep->uvls[vertnum].l > max_l)
 					max_l = sidep->uvls[vertnum].l;
 			}
-
 		}
 	}
 
@@ -2288,7 +2410,6 @@ void load_all_levels(void)
 	do_load_save_levels(0);
 }
 
-
 void do_load_save_levels(int save)
 {
 	int level_num;
@@ -2298,14 +2419,16 @@ void do_load_save_levels(int save)
 
 	no_old_level_file_error = 1;
 
-	for (level_num = 1; level_num <= Last_level; level_num++) {
+	for (level_num = 1; level_num <= Last_level; level_num++)
+	{
 		load_level(Level_names[level_num - 1]);
 		load_palette(Current_level_palette, 1, 1);		//don't change screen
 		if (save)
 			save_level_sub(Level_names[level_num - 1], 1);
 	}
 
-	for (level_num = -1; level_num >= Last_secret_level; level_num--) {
+	for (level_num = -1; level_num >= Last_secret_level; level_num--) 
+	{
 		load_level(Secret_level_names[-level_num - 1]);
 		load_palette(Current_level_palette, 1, 1);		//don't change screen
 		if (save)
@@ -2313,7 +2436,6 @@ void do_load_save_levels(int save)
 	}
 
 	no_old_level_file_error = 0;
-
 }
 
 #endif

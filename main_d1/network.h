@@ -80,7 +80,15 @@ typedef struct frame_info {
 } frame_info;
 #endif
 
-
+typedef struct endlevel_info {
+	uint8_t					type;
+	uint8_t					player_num;
+	int8_t					connected;
+	short					kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+	short					kills;
+	short					killed;
+	uint8_t					seconds_left;
+} endlevel_info;
 
 void network_start_game();
 void network_join_game();
@@ -110,6 +118,8 @@ extern int Network_rejoined;
 extern int Network_new_game;
 extern int Network_status;
 
+extern uint16_t Current_Port;
+
 extern fix LastPacketTime[MAX_PLAYERS];
 
 extern uint16_t my_segments_checksum;
@@ -124,5 +134,8 @@ void network_do_frame(int force, int listen);
 // Tacks data of length 'len' onto the end of the next
 // packet that we're transmitting.
 void network_send_data(uint8_t* ptr, int len, int urgent);
+
+//Connects to a game at a specific address with the current port.  
+void network_join_game_at(uint8_t* address);
 
 #endif

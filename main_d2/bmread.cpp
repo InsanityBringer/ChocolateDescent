@@ -20,32 +20,33 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
+#include <algorithm>
 
-#include "pstypes.h"
+#include "misc/types.h"
 #include "inferno.h"
-#include "gr.h"
+#include "2d/gr.h"
 #include "bm.h"
 #include "gamepal.h"
-#include "mem.h"
-#include "mono.h"
-#include "error.h"
+#include "mem/mem.h"
+#include "platform/mono.h"
+#include "misc/error.h"
 #include "object.h"
 #include "vclip.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "polyobj.h"
 #include "wall.h"
 #include "textures.h"
 #include "game.h"
 #include "multi.h"
 
-#include "iff.h"
-#include "cfile.h"
+#include "iff/iff.h"
+#include "cfile/cfile.h"
 
 #include "hostage.h"
 #include "powerup.h"
 #include "laser.h"
 #include "sounds.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "aistruct.h"
 #include "robot.h"
 #include "weapon.h"
@@ -53,9 +54,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "endlevel.h"
 #include "cntrlcen.h"
-#include "compbit.h"
-#include "args.h"
-
+#include "main_shared/compbit.h"
+#include "misc/args.h"
 
 #include "editor\texpage.h"
 
@@ -99,7 +99,7 @@ static short 		sound_num;
 static short 		frames;
 static float 		time;
 static int			hit_sound = -1;
-static byte 		bm_flag = BM_NONE;
+static int8_t 		bm_flag = BM_NONE;
 static int 			abm_flag = 0;
 static int 			rod_flag = 0;
 static short		wall_open_sound, wall_close_sound,wall_explodes,wall_blastable, wall_hidden;
@@ -140,6 +140,10 @@ void bm_read_some_file(void);
 void bm_read_sound(void);
 void verify_textures(void);
 
+void bm_read_alias();
+void bm_read_marker();
+void clear_to_end_of_line();
+void bm_write_extra_robots();
 
 //----------------------------------------------------------------------
 void remove_char( char * s, char c )
@@ -150,29 +154,29 @@ void remove_char( char * s, char c )
 }
 
 //---------------------------------------------------------------
-int compute_average_pixel(grs_bitmap *new)
+int compute_average_pixel(grs_bitmap *newbm)
 {
 	int	row, column, color;
 	char	*pptr;
 	int	total_red, total_green, total_blue;
 
-	pptr = (char *)new->bm_data;
+	pptr = (char *)newbm->bm_data;
 
 	total_red = 0;
 	total_green = 0;
 	total_blue = 0;
 
-	for (row=0; row<new->bm_h; row++)
-		for (column=0; column<new->bm_w; column++) {
+	for (row=0; row<newbm->bm_h; row++)
+		for (column=0; column<newbm->bm_w; column++) {
 			color = *pptr++;
 			total_red += gr_palette[color*3];
 			total_green += gr_palette[color*3+1];
 			total_blue += gr_palette[color*3+2];
 		}
 
-	total_red /= (new->bm_h * new->bm_w);
-	total_green /= (new->bm_h * new->bm_w);
-	total_blue /= (new->bm_h * new->bm_w);
+	total_red /= (newbm->bm_h * newbm->bm_w);
+	total_green /= (newbm->bm_h * newbm->bm_w);
+	total_blue /= (newbm->bm_h * newbm->bm_w);
 
 	return BM_XRGB(total_red/2, total_green/2, total_blue/2);
 }
@@ -184,8 +188,8 @@ int compute_average_pixel(grs_bitmap *new)
 bitmap_index bm_load_sub( char * filename )
 {
 	bitmap_index bitmap_num;
-	grs_bitmap * new;
-	ubyte newpal[256*3];
+	grs_bitmap * newbm;
+	uint8_t newpal[256*3];
 	int iff_error;		//reference parm to avoid warning message
 	char fname[20];
 
@@ -206,29 +210,29 @@ bitmap_index bm_load_sub( char * filename )
 		return bitmap_num;
 	}
    
-	MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
-	new->bm_handle=0;
+	MALLOC( newbm, grs_bitmap, 1 );
+	iff_error = iff_read_bitmap(filename,newbm,BM_LINEAR,newpal);
+	newbm->bm_selector=0;
 	if (iff_error != IFF_NO_ERROR)		{
 		mprintf((1, "File %s - IFF error: %s",filename,iff_errormsg(iff_error)));
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
 
 	if ( iff_has_transparency )
-		gr_remap_bitmap_good( new, newpal, iff_transparent_color, SuperX );
+		gr_remap_bitmap_good( newbm, newpal, iff_transparent_color, SuperX );
 	else
-		gr_remap_bitmap_good( new, newpal, -1, SuperX );
+		gr_remap_bitmap_good( newbm, newpal, -1, SuperX );
 
-	new->avg_color = compute_average_pixel(new);
+	newbm->avg_color = compute_average_pixel(newbm);
 
 	// -- mprintf((0, "N" ));
-	bitmap_num = piggy_register_bitmap( new, fname, 0 );
-	free( new );
+	bitmap_num = piggy_register_bitmap( newbm, fname, 0 );
+	free( newbm );
 	return bitmap_num;
 }
 
 extern grs_bitmap bogus_bitmap;
-extern ubyte bogus_bitmap_initialized;
+extern int8_t bogus_bitmap_initialized;
 extern digi_sound bogus_sound;
 
 void ab_load( char * filename, bitmap_index bmp[], int *nframes )
@@ -237,7 +241,7 @@ void ab_load( char * filename, bitmap_index bmp[], int *nframes )
 	bitmap_index bi;
 	int i;
 	int iff_error;		//reference parm to avoid warning message
-	ubyte newpal[768];
+	uint8_t newpal[768];
 	char fname[20];
 	char tempname[20];
 
@@ -302,7 +306,7 @@ void ab_load( char * filename, bitmap_index bmp[], int *nframes )
 int ds_load( char * filename )	{
 	int i;
 	CFILE * cfp;
-	digi_sound new;
+	digi_sound newbm;
 	char fname[20];
 	char rawname[100];
 
@@ -324,9 +328,9 @@ int ds_load( char * filename )	{
 	cfp = cfopen( rawname, "rb" );
 
 	if (cfp!=NULL) {
-		new.length	= cfilelength( cfp );
-		MALLOC( new.data, ubyte, new.length );
-		cfread( new.data, 1, new.length, cfp );
+		newbm.length	= cfilelength( cfp );
+		MALLOC( newbm.data, uint8_t, newbm.length );
+		cfread( newbm.data, 1, newbm.length, cfp );
 		cfclose(cfp);
 		// -- mprintf( (0, "S" ));
 		// -- mprintf( (0, "<%s>", rawname ));
@@ -334,7 +338,7 @@ int ds_load( char * filename )	{
 		mprintf( (1, "Warning: Couldn't find '%s'\n", filename ));
 		return 255;
 	}
-	i = piggy_register_sound( &new, fname, 0 );
+	i = piggy_register_sound( &newbm, fname, 0 );
 	return i;
 }
 
@@ -356,7 +360,7 @@ int get_int()
 	return atoi( xarg );
 }
 
-// rotates a byte left one bit, preserving the bit falling off the right
+// rotates a int8_t left one bit, preserving the bit falling off the right
 //void
 //rotate_left(char *c)
 //{
@@ -379,7 +383,7 @@ int get_texture(char *name)
 	strcpy(short_name,name);
 	REMOVE_DOTS(short_name);
 	for (i=0;i<texture_count;i++)
-		if (!stricmp(TmapInfo[i].filename,short_name))
+		if (!_stricmp(TmapInfo[i].filename,short_name))
 			break;
 	if (i==texture_count) {
 		Textures[texture_count] = bm_load_sub(name);
@@ -523,7 +527,7 @@ int bm_init_use_tbl()
 		if ( (temp_ptr=strstr( inputline, "superx=" )) )	{
 			SuperX = atoi( &temp_ptr[7] );
 			Assert(SuperX == 254);
-				//the superx color isn't kept around, so the new piggy regeneration
+				//the superx color isn't kept around, so the newbm piggy regeneration
 				//code doesn't know what it is, so it assumes that it's 254, so
 				//this code requires that it be 254
 										
@@ -712,7 +716,7 @@ void verify_textures()
 
 }
 
-bm_read_alias()
+void bm_read_alias()
 {
 	char *t;
 
@@ -728,7 +732,7 @@ bm_read_alias()
 //--unused-- {
 //--unused-- 	FILE * fp;
 //--unused-- 	int i,j,k;
-//--unused-- 	ubyte * p;
+//--unused-- 	int8_t * p;
 //--unused-- 	fp = fopen( "XPARENT.LST", "wt" );
 //--unused-- 	for (i=0; i<Num_tmaps; i++ )	{
 //--unused-- 		k = 0; 
@@ -751,7 +755,7 @@ void bm_close()
  	}
 }
 
-void set_lighting_flag(byte *bp)
+void set_lighting_flag(int8_t *bp)
 {
 	if (vlighting < 0)
 		*bp |= BM_FLAG_NO_LIGHTING;
@@ -786,7 +790,7 @@ void bm_read_eclip()
 		strcpy(short_name,dest_bm);
 		REMOVE_DOTS(short_name);
 		for (i=0;i<texture_count;i++)
-			if (!stricmp(TmapInfo[i].filename,short_name))
+			if (!_stricmp(TmapInfo[i].filename,short_name))
 				break;
 		if (i==texture_count) {
 			Textures[texture_count] = bm_load_sub(dest_bm);
@@ -1075,7 +1079,7 @@ void get4fix(fix *fixp)
 }
 
 // ------------------------------------------------------------------------------
-void get4byte(byte *bytep)
+void get4byte(int8_t *bytep)
 {
 	char	*curtext;
 	int	i;
@@ -1257,7 +1261,7 @@ void bm_read_robot()
 	int			attack_sound = ROBOT_ATTACK_SOUND_DEFAULT;
 	int			claw_sound = ROBOT_CLAW_SOUND_DEFAULT;
 	int			taunt_sound = ROBOT_SEE_SOUND_DEFAULT;
-	ubyte flags=0;
+	int8_t flags=0;
 
 	Assert(N_robot_types < MAX_ROBOT_TYPES);
 
@@ -1286,105 +1290,105 @@ void bm_read_robot()
 			*equal_ptr='\0';
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			if (!stricmp( arg, "exp1_vclip" ))	{
+			if (!_stricmp( arg, "exp1_vclip" ))	{
 				exp1_vclip_num = atoi(equal_ptr);
-			} else if (!stricmp( arg, "exp2_vclip" ))	{
+			} else if (!_stricmp( arg, "exp2_vclip" ))	{
 				exp2_vclip_num = atoi(equal_ptr);
-			} else if (!stricmp( arg, "exp1_sound" ))	{
+			} else if (!_stricmp( arg, "exp1_sound" ))	{
 				exp1_sound_num = atoi(equal_ptr);
-			} else if (!stricmp( arg, "exp2_sound" ))	{
+			} else if (!_stricmp( arg, "exp2_sound" ))	{
 				exp2_sound_num = atoi(equal_ptr);
-			} else if (!stricmp( arg, "lighting" ))	{
+			} else if (!_stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
 					mprintf( (1, "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting)));
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
-			} else if (!stricmp( arg, "weapon_type" )) {
+			} else if (!_stricmp( arg, "weapon_type" )) {
 				weapon_type = atoi(equal_ptr);
-			} else if (!stricmp( arg, "weapon_type2" )) {
+			} else if (!_stricmp( arg, "weapon_type2" )) {
 				weapon_type2 = atoi(equal_ptr);
-			} else if (!stricmp( arg, "strength" )) {
+			} else if (!_stricmp( arg, "strength" )) {
 				strength = i2f(atoi(equal_ptr));
-			} else if (!stricmp( arg, "mass" )) {
+			} else if (!_stricmp( arg, "mass" )) {
 				mass = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "drag" )) {
+			} else if (!_stricmp( arg, "drag" )) {
 				drag = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "contains_id" )) {
+			} else if (!_stricmp( arg, "contains_id" )) {
 				contains_id = atoi(equal_ptr);
-			} else if (!stricmp( arg, "contains_type" )) {
+			} else if (!_stricmp( arg, "contains_type" )) {
 				contains_type = atoi(equal_ptr);
-			} else if (!stricmp( arg, "contains_count" )) {
+			} else if (!_stricmp( arg, "contains_count" )) {
 				contains_count = atoi(equal_ptr);
-			} else if (!stricmp( arg, "companion" )) {
+			} else if (!_stricmp( arg, "companion" )) {
 				companion = atoi(equal_ptr);
-			} else if (!stricmp( arg, "badass" )) {
+			} else if (!_stricmp( arg, "badass" )) {
 				badass = atoi(equal_ptr);
-			} else if (!stricmp( arg, "lightcast" )) {
+			} else if (!_stricmp( arg, "lightcast" )) {
 				lightcast = atoi(equal_ptr);
-			} else if (!stricmp( arg, "glow" )) {
+			} else if (!_stricmp( arg, "glow" )) {
 				glow = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "death_roll" )) {
+			} else if (!_stricmp( arg, "death_roll" )) {
 				death_roll = atoi(equal_ptr);
-			} else if (!stricmp( arg, "deathroll_sound" )) {
+			} else if (!_stricmp( arg, "deathroll_sound" )) {
 				deathroll_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "thief" )) {
+			} else if (!_stricmp( arg, "thief" )) {
 				thief = atoi(equal_ptr);
-			} else if (!stricmp( arg, "kamikaze" )) {
+			} else if (!_stricmp( arg, "kamikaze" )) {
 				kamikaze = atoi(equal_ptr);
-			} else if (!stricmp( arg, "pursuit" )) {
+			} else if (!_stricmp( arg, "pursuit" )) {
 				pursuit = atoi(equal_ptr);
-			} else if (!stricmp( arg, "smart_blobs" )) {
+			} else if (!_stricmp( arg, "smart_blobs" )) {
 				smart_blobs = atoi(equal_ptr);
-			} else if (!stricmp( arg, "energy_blobs" )) {
+			} else if (!_stricmp( arg, "energy_blobs" )) {
 				energy_blobs = atoi(equal_ptr);
-			} else if (!stricmp( arg, "energy_drain" )) {
+			} else if (!_stricmp( arg, "energy_drain" )) {
 				energy_drain = atoi(equal_ptr);
-			} else if (!stricmp( arg, "contains_prob" )) {
+			} else if (!_stricmp( arg, "contains_prob" )) {
 				contains_prob = atoi(equal_ptr);
-			} else if (!stricmp( arg, "cloak_type" )) {
+			} else if (!_stricmp( arg, "cloak_type" )) {
 				cloak_type = atoi(equal_ptr);
-			} else if (!stricmp( arg, "attack_type" )) {
+			} else if (!_stricmp( arg, "attack_type" )) {
 				attack_type = atoi(equal_ptr);
-			} else if (!stricmp( arg, "boss" )) {
+			} else if (!_stricmp( arg, "boss" )) {
 				boss_flag = atoi(equal_ptr);
-			} else if (!stricmp( arg, "score_value" )) {
+			} else if (!_stricmp( arg, "score_value" )) {
 				score_value = atoi(equal_ptr);
-			} else if (!stricmp( arg, "see_sound" )) {
+			} else if (!_stricmp( arg, "see_sound" )) {
 				see_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "attack_sound" )) {
+			} else if (!_stricmp( arg, "attack_sound" )) {
 				attack_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "claw_sound" )) {
+			} else if (!_stricmp( arg, "claw_sound" )) {
 				claw_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "taunt_sound" )) {
+			} else if (!_stricmp( arg, "taunt_sound" )) {
 				taunt_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "aim" )) {
+			} else if (!_stricmp( arg, "aim" )) {
 				aim = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "big_radius" )) {
+			} else if (!_stricmp( arg, "big_radius" )) {
 				if (atoi(equal_ptr))
 					flags |= RIF_BIG_RADIUS;
-			} else if (!stricmp( arg, "behavior" )) {
-				if (!stricmp(equal_ptr, "STILL"))
+			} else if (!_stricmp( arg, "behavior" )) {
+				if (!_stricmp(equal_ptr, "STILL"))
 					behavior = AIB_STILL;
-				else if (!stricmp(equal_ptr, "NORMAL"))
+				else if (!_stricmp(equal_ptr, "NORMAL"))
 					behavior = AIB_NORMAL;
-				else if (!stricmp(equal_ptr, "BEHIND"))
+				else if (!_stricmp(equal_ptr, "BEHIND"))
 					behavior = AIB_BEHIND;
-				else if (!stricmp(equal_ptr, "RUN_FROM"))
+				else if (!_stricmp(equal_ptr, "RUN_FROM"))
 					behavior = AIB_RUN_FROM;
-				else if (!stricmp(equal_ptr, "SNIPE"))
+				else if (!_stricmp(equal_ptr, "SNIPE"))
 					behavior = AIB_SNIPE;
-				else if (!stricmp(equal_ptr, "STATION"))
+				else if (!_stricmp(equal_ptr, "STATION"))
 					behavior = AIB_STATION;
-				else if (!stricmp(equal_ptr, "FOLLOW"))
+				else if (!_stricmp(equal_ptr, "FOLLOW"))
 					behavior = AIB_FOLLOW;
 				else
 					Int3();	//	Error.  Illegal behavior type for current robot.
-			} else if (!stricmp( arg, "name" )) {
+			} else if (!_stricmp( arg, "name" )) {
 				Assert(strlen(equal_ptr) < ROBOT_NAME_LENGTH);	//	Oops, name too long.
 				strcpy(name, &equal_ptr[1]);
 				name[strlen(name)-1] = 0;
-			} else if (!stricmp( arg, "simple_model" )) {
+			} else if (!_stricmp( arg, "simple_model" )) {
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
@@ -1408,7 +1412,7 @@ void bm_read_robot()
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-		int model_num,last_model_num;
+		int model_num,last_model_num = 0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -1466,7 +1470,7 @@ void bm_read_robot()
 	Robot_info[N_robot_types].claw_sound = claw_sound;
 	Robot_info[N_robot_types].taunt_sound = taunt_sound;
 	Robot_info[N_robot_types].behavior = behavior;		//	Default behavior for this robot, if coming out of matcen.
-	Robot_info[N_robot_types].aim = min(f2i(aim*255), 255);		//	how well this robot type can aim.  255=perfect
+	Robot_info[N_robot_types].aim = std::min(f2i(aim*255), 255);		//	how well this robot type can aim.  255=perfect
 
 	if (contains_type)
 		Robot_info[N_robot_types].contains_type = OBJ_ROBOT;
@@ -1526,27 +1530,27 @@ void bm_read_reactor()
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			//@@if (!stricmp(arg,"type")) {
-			//@@	if (!stricmp(equal_ptr,"controlcen"))
+			//@@if (!_stricmp(arg,"type")) {
+			//@@	if (!_stricmp(equal_ptr,"controlcen"))
 			//@@		type = OL_CONTROL_CENTER;
-			//@@	else if (!stricmp(equal_ptr,"clutter"))
+			//@@	else if (!_stricmp(equal_ptr,"clutter"))
 			//@@		type = OL_CLUTTER;
 			//@@}
 
-			if (!stricmp( arg, "exp_vclip" ))	{
+			if (!_stricmp( arg, "exp_vclip" ))	{
 				explosion_vclip_num = atoi(equal_ptr);
-			} else if (!stricmp( arg, "dead_pof" ))	{
+			} else if (!_stricmp( arg, "dead_pof" ))	{
 				model_name_dead = equal_ptr;
 				first_bitmap_num_dead=N_ObjBitmapPtrs;
-			} else if (!stricmp( arg, "exp_sound" ))	{
+			} else if (!_stricmp( arg, "exp_sound" ))	{
 				explosion_sound_num = atoi(equal_ptr);
-			} else if (!stricmp( arg, "lighting" ))	{
+			} else if (!_stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
 					mprintf( (1, "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting)));
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
-			} else if (!stricmp( arg, "strength" )) {
+			} else if (!_stricmp( arg, "strength" )) {
 				strength = fl2f(atof(equal_ptr));
 			} else {
 				Int3();
@@ -1650,7 +1654,7 @@ void bm_read_exitmodel()
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			if (!stricmp( arg, "dead_pof" ))	{
+			if (!_stricmp( arg, "dead_pof" ))	{
 				model_name_dead = equal_ptr;
 				first_bitmap_num_dead=N_ObjBitmapPtrs;
 			} else {
@@ -1718,12 +1722,12 @@ void bm_read_player_ship()
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			if (!stricmp( arg, "model" )) {
+			if (!_stricmp( arg, "model" )) {
 				Assert(n_models==0);
 				model_name[0] = equal_ptr;
 				first_bitmap_num[0] = N_ObjBitmapPtrs;
 				n_models = 1;
-			} else if (!stricmp( arg, "simple_model" )) {
+			} else if (!_stricmp( arg, "simple_model" )) {
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
@@ -1732,32 +1736,32 @@ void bm_read_player_ship()
 				if (First_multi_bitmap_num!=-1 && last_multi_bitmap_num==-1)
 					last_multi_bitmap_num=N_ObjBitmapPtrs;
 			}
-			else if (!stricmp( arg, "mass" ))
+			else if (!_stricmp( arg, "mass" ))
 				Player_ship->mass = fl2f(atof(equal_ptr));
-			else if (!stricmp( arg, "drag" ))
+			else if (!_stricmp( arg, "drag" ))
 				Player_ship->drag = fl2f(atof(equal_ptr));
-//			else if (!stricmp( arg, "low_thrust" ))
+//			else if (!_stricmp( arg, "low_thrust" ))
 //				Player_ship->low_thrust = fl2f(atof(equal_ptr));
-			else if (!stricmp( arg, "max_thrust" ))
+			else if (!_stricmp( arg, "max_thrust" ))
 				Player_ship->max_thrust = fl2f(atof(equal_ptr));
-			else if (!stricmp( arg, "reverse_thrust" ))
+			else if (!_stricmp( arg, "reverse_thrust" ))
 				Player_ship->reverse_thrust = fl2f(atof(equal_ptr));
-			else if (!stricmp( arg, "brakes" ))
+			else if (!_stricmp( arg, "brakes" ))
 				Player_ship->brakes = fl2f(atof(equal_ptr));
-			else if (!stricmp( arg, "wiggle" ))
+			else if (!_stricmp( arg, "wiggle" ))
 				Player_ship->wiggle = fl2f(atof(equal_ptr));
-			else if (!stricmp( arg, "max_rotthrust" ))
+			else if (!_stricmp( arg, "max_rotthrust" ))
 				Player_ship->max_rotthrust = fl2f(atof(equal_ptr));
-			else if (!stricmp( arg, "dying_pof" ))
+			else if (!_stricmp( arg, "dying_pof" ))
 				model_name_dying = equal_ptr;
-			else if (!stricmp( arg, "expl_vclip_num" ))
+			else if (!_stricmp( arg, "expl_vclip_num" ))
 				Player_ship->expl_vclip_num=atoi(equal_ptr);
 			else {
 				Int3();
 				mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			}		
 		}
-		else if (!stricmp( arg, "multi_textures" )) {
+		else if (!_stricmp( arg, "multi_textures" )) {
 
 			First_multi_bitmap_num = N_ObjBitmapPtrs;
 			first_bitmap_num[n_models] = N_ObjBitmapPtrs;
@@ -1778,11 +1782,15 @@ void bm_read_player_ship()
 	if (First_multi_bitmap_num==-1)
 		first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
+#ifndef NETWORK
+#define MAX_NUM_NET_PLAYERS 8
+#endif
+
 	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_NUM_NET_PLAYERS-1)*2);
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-		int model_num,last_model_num;
+		int model_num,last_model_num = 0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -1983,123 +1991,123 @@ void bm_read_weapon(int unused_flag)
 			*equal_ptr='\0';
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			if (!stricmp( arg, "laser_bmp" ))	{
+			if (!_stricmp( arg, "laser_bmp" ))	{
 				// Load bitmap with name equal_ptr
 
 				Weapon_info[n].bitmap = bm_load_sub(equal_ptr);		//load_polymodel_bitmap(equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_LASER;
 
-			} else if (!stricmp( arg, "blob_bmp" ))	{
+			} else if (!_stricmp( arg, "blob_bmp" ))	{
 				// Load bitmap with name equal_ptr
 
 				Weapon_info[n].bitmap = bm_load_sub(equal_ptr);		//load_polymodel_bitmap(equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_BLOB;
 
-			} else if (!stricmp( arg, "weapon_vclip" ))	{
+			} else if (!_stricmp( arg, "weapon_vclip" ))	{
 				// Set vclip to play for this weapon.
 				Weapon_info[n].bitmap.index = 0;
 				Weapon_info[n].render_type = WEAPON_RENDER_VCLIP;
 				Weapon_info[n].weapon_vclip = atoi(equal_ptr);
 
-			} else if (!stricmp( arg, "none_bmp" )) {
+			} else if (!_stricmp( arg, "none_bmp" )) {
 				Weapon_info[n].bitmap = bm_load_sub(equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_NONE;
 
-			} else if (!stricmp( arg, "weapon_pof" ))	{
+			} else if (!_stricmp( arg, "weapon_pof" ))	{
 				// Load pof file
 				Assert(n_models==0);
 				model_name[0] = equal_ptr;
 				first_bitmap_num[0] = N_ObjBitmapPtrs;
 				n_models=1;
-			} else if (!stricmp( arg, "simple_model" )) {
+			} else if (!_stricmp( arg, "simple_model" )) {
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
 				Assert(n_models < MAX_MODEL_VARIANTS);
-			} else if (!stricmp( arg, "weapon_pof_inner" ))	{
+			} else if (!_stricmp( arg, "weapon_pof_inner" ))	{
 				// Load pof file
 				pof_file_inner = equal_ptr;
-			} else if (!stricmp( arg, "strength" )) {
+			} else if (!_stricmp( arg, "strength" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].strength[i] = fl2f(atof(equal_ptr));
 					equal_ptr = strtok(NULL, space);
 				}
 				Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
-			} else if (!stricmp( arg, "mass" )) {
+			} else if (!_stricmp( arg, "mass" )) {
 				Weapon_info[n].mass = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "drag" )) {
+			} else if (!_stricmp( arg, "drag" )) {
 				Weapon_info[n].drag = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "thrust" )) {
+			} else if (!_stricmp( arg, "thrust" )) {
 				Weapon_info[n].thrust = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "matter" )) {
+			} else if (!_stricmp( arg, "matter" )) {
 				Weapon_info[n].matter = atoi(equal_ptr);
-			} else if (!stricmp( arg, "bounce" )) {
+			} else if (!_stricmp( arg, "bounce" )) {
 				Weapon_info[n].bounce = atoi(equal_ptr);
-			} else if (!stricmp( arg, "speed" )) {
+			} else if (!_stricmp( arg, "speed" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
 					equal_ptr = strtok(NULL, space);
 				}
 				Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
-			} else if (!stricmp( arg, "speedvar" ))	{
+			} else if (!_stricmp( arg, "speedvar" ))	{
 				Weapon_info[n].speedvar = (atoi(equal_ptr) * 128) / 100;
-			} else if (!stricmp( arg, "flash_vclip" ))	{
+			} else if (!_stricmp( arg, "flash_vclip" ))	{
 				Weapon_info[n].flash_vclip = atoi(equal_ptr);
-			} else if (!stricmp( arg, "flash_sound" ))	{
+			} else if (!_stricmp( arg, "flash_sound" ))	{
 				Weapon_info[n].flash_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "flash_size" ))	{
+			} else if (!_stricmp( arg, "flash_size" ))	{
 				Weapon_info[n].flash_size = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "blob_size" ))	{
+			} else if (!_stricmp( arg, "blob_size" ))	{
 				Weapon_info[n].blob_size = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "robot_hit_vclip" ))	{
+			} else if (!_stricmp( arg, "robot_hit_vclip" ))	{
 				Weapon_info[n].robot_hit_vclip = atoi(equal_ptr);
-			} else if (!stricmp( arg, "robot_hit_sound" ))	{
+			} else if (!_stricmp( arg, "robot_hit_sound" ))	{
 				Weapon_info[n].robot_hit_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "wall_hit_vclip" ))	{
+			} else if (!_stricmp( arg, "wall_hit_vclip" ))	{
 				Weapon_info[n].wall_hit_vclip = atoi(equal_ptr);
-			} else if (!stricmp( arg, "wall_hit_sound" ))	{
+			} else if (!_stricmp( arg, "wall_hit_sound" ))	{
 				Weapon_info[n].wall_hit_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "impact_size" ))	{
+			} else if (!_stricmp( arg, "impact_size" ))	{
 				Weapon_info[n].impact_size = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "lighted" ))	{
+			} else if (!_stricmp( arg, "lighted" ))	{
 				lighted = atoi(equal_ptr);
-			} else if (!stricmp( arg, "lw_ratio" ))	{
+			} else if (!_stricmp( arg, "lw_ratio" ))	{
 				Weapon_info[n].po_len_to_width_ratio = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "lightcast" ))	{
+			} else if (!_stricmp( arg, "lightcast" ))	{
 				Weapon_info[n].light = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "persistent" ))	{
+			} else if (!_stricmp( arg, "persistent" ))	{
 				Weapon_info[n].persistent = atoi(equal_ptr);
-			} else if (!stricmp(arg, "energy_usage" )) {
+			} else if (!_stricmp(arg, "energy_usage" )) {
 				Weapon_info[n].energy_usage = fl2f(atof(equal_ptr));
-			} else if (!stricmp(arg, "ammo_usage" )) {
+			} else if (!_stricmp(arg, "ammo_usage" )) {
 				Weapon_info[n].ammo_usage = atoi(equal_ptr);
-			} else if (!stricmp(arg, "fire_wait" )) {
+			} else if (!_stricmp(arg, "fire_wait" )) {
 				Weapon_info[n].fire_wait = fl2f(atof(equal_ptr));
-			} else if (!stricmp(arg, "fire_count" )) {
+			} else if (!_stricmp(arg, "fire_count" )) {
 				Weapon_info[n].fire_count = atoi(equal_ptr);
-			} else if (!stricmp(arg, "damage_radius" )) {
+			} else if (!_stricmp(arg, "damage_radius" )) {
 				Weapon_info[n].damage_radius = fl2f(atof(equal_ptr));
-//--01/19/95, mk--			} else if (!stricmp(arg, "damage_force" )) {
+//--01/19/95, mk--			} else if (!_stricmp(arg, "damage_force" )) {
 //--01/19/95, mk--				Weapon_info[n].damage_force = fl2f(atof(equal_ptr));
-			} else if (!stricmp(arg, "lifetime" )) {
+			} else if (!_stricmp(arg, "lifetime" )) {
 				Weapon_info[n].lifetime = fl2f(atof(equal_ptr));
-			} else if (!stricmp(arg, "destroyable" )) {
+			} else if (!_stricmp(arg, "destroyable" )) {
 				Weapon_info[n].destroyable = atoi(equal_ptr);
-			} else if (!stricmp(arg, "picture" )) {
+			} else if (!_stricmp(arg, "picture" )) {
 				Weapon_info[n].picture = bm_load_sub(equal_ptr);
-			} else if (!stricmp(arg, "hires_picture" )) {
+			} else if (!_stricmp(arg, "hires_picture" )) {
 				Weapon_info[n].hires_picture = bm_load_sub(equal_ptr);
-			} else if (!stricmp(arg, "homing" )) {
+			} else if (!_stricmp(arg, "homing" )) {
 				Weapon_info[n].homing_flag = !!atoi(equal_ptr);
-			} else if (!stricmp(arg, "flash" )) {
+			} else if (!_stricmp(arg, "flash" )) {
 				Weapon_info[n].flash = atoi(equal_ptr);
-			} else if (!stricmp(arg, "multi_damage_scale" )) {
+			} else if (!_stricmp(arg, "multi_damage_scale" )) {
 				Weapon_info[n].multi_damage_scale = fl2f(atof(equal_ptr));
-			} else if (!stricmp(arg, "afterburner_size" )) {
+			} else if (!_stricmp(arg, "afterburner_size" )) {
 				Weapon_info[n].afterburner_size = f2i(16*fl2f(atof(equal_ptr)));
-			} else if (!stricmp(arg, "children" )) {
+			} else if (!_stricmp(arg, "children" )) {
 				Weapon_info[n].children = atoi(equal_ptr);
-			} else if (!stricmp(arg, "placable" )) {
+			} else if (!_stricmp(arg, "placable" )) {
 				if (atoi(equal_ptr)) {
 					Weapon_info[n].flags |= WIF_PLACABLE;
 
@@ -2128,7 +2136,7 @@ void bm_read_weapon(int unused_flag)
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-		int model_num,last_model_num;
+		int model_num,last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -2193,17 +2201,17 @@ void bm_read_powerup(int unused_flag)
 			*equal_ptr='\0';
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			if (!stricmp( arg, "vclip_num" ))	{
+			if (!_stricmp( arg, "vclip_num" ))	{
 				Powerup_info[n].vclip_num = atoi(equal_ptr);
-			} else if (!stricmp( arg, "light" ))	{
+			} else if (!_stricmp( arg, "light" ))	{
 				Powerup_info[n].light = fl2f(atof(equal_ptr));
-			} else if (!stricmp( arg, "hit_sound" ))	{
+			} else if (!_stricmp( arg, "hit_sound" ))	{
 				Powerup_info[n].hit_sound = atoi(equal_ptr);
-			} else if (!stricmp( arg, "name" )) {
+			} else if (!_stricmp( arg, "name" )) {
 				Assert(strlen(equal_ptr) < POWERUP_NAME_LENGTH);	//	Oops, name too long.
 				strcpy(Powerup_names[n], &equal_ptr[1]);
 				Powerup_names[n][strlen(Powerup_names[n])-1] = 0;
-			} else if (!stricmp( arg, "size" ))	{
+			} else if (!_stricmp( arg, "size" ))	{
 				Powerup_info[n].size = fl2f(atof(equal_ptr));
 			} else {
 				Int3();
@@ -2243,7 +2251,7 @@ void bm_read_hostage()
 			*equal_ptr='\0';
 			equal_ptr++;
 
-			if (!stricmp( arg, "vclip_num" ))
+			if (!_stricmp( arg, "vclip_num" ))
 
 				Hostage_vclip_num[n] = atoi(equal_ptr);
 
@@ -2267,6 +2275,379 @@ void bm_read_hostage()
 
 }
 
+void write_tmap_info(FILE* fp, int inNumTexturesToRead, int inOffset)
+{
+	int i;
+
+	for (i = inOffset; i < (inNumTexturesToRead + inOffset); i++)
+	{
+		file_write_byte(fp, TmapInfo[i].flags);
+		file_write_byte(fp, TmapInfo[i].pad[0]);
+		file_write_byte(fp, TmapInfo[i].pad[1]);
+		file_write_byte(fp, TmapInfo[i].pad[2]);
+		file_write_int(fp, TmapInfo[i].lighting);
+		file_write_int(fp, TmapInfo[i].damage);
+		file_write_short(fp, TmapInfo[i].eclip_num);
+		file_write_short(fp, TmapInfo[i].destroyed);
+		file_write_short(fp, TmapInfo[i].slide_u);
+		file_write_short(fp, TmapInfo[i].slide_v);
+	}
+}
+
+void write_vclip_info(FILE* fp, int inNumVClipsToRead, int inOffset)
+{
+	int i, j;
+
+	for (i = inOffset; i < (inNumVClipsToRead + inOffset); i++)
+	{
+		file_write_int(fp, Vclip[i].play_time);
+		file_write_int(fp, Vclip[i].num_frames);
+		file_write_int(fp, Vclip[i].frame_time);
+		file_write_int(fp, Vclip[i].flags);
+		file_write_short(fp, Vclip[i].sound_num);
+		for (j = 0; j < VCLIP_MAX_FRAMES; j++)
+			file_write_short(fp, Vclip[i].frames[j].index);
+		file_write_int(fp, Vclip[i].light_value);
+	}
+}
+
+void write_effect_info(FILE* fp, int inNumEffectsToRead, int inOffset)
+{
+	int i, j;
+
+
+	for (i = inOffset; i < (inNumEffectsToRead + inOffset); i++)
+	{
+		file_write_int(fp, Effects[i].vc.play_time);
+		file_write_int(fp, Effects[i].vc.num_frames);
+		file_write_int(fp, Effects[i].vc.frame_time);
+		file_write_int(fp, Effects[i].vc.flags);
+		file_write_short(fp, Effects[i].vc.sound_num);
+		for (j = 0; j < VCLIP_MAX_FRAMES; j++)
+			file_write_short(fp, Effects[i].vc.frames[j].index);
+		file_write_int(fp, Effects[i].vc.light_value);
+		file_write_int(fp, Effects[i].time_left);
+		file_write_int(fp, Effects[i].frame_count);
+		file_write_short(fp, Effects[i].changing_wall_texture);
+		file_write_short(fp, Effects[i].changing_object_texture);
+		file_write_int(fp, Effects[i].flags);
+		file_write_int(fp, Effects[i].crit_clip);
+		file_write_int(fp, Effects[i].dest_bm_num);
+		file_write_int(fp, Effects[i].dest_vclip);
+		file_write_int(fp, Effects[i].dest_eclip);
+		file_write_int(fp, Effects[i].dest_size);
+		file_write_int(fp, Effects[i].sound_num);
+		file_write_int(fp, Effects[i].segnum);
+		file_write_int(fp, Effects[i].sidenum);
+	}
+}
+
+void write_wallanim_info(FILE* fp, int inNumWallAnimsToRead, int inOffset)
+{
+	int i, j;
+
+	for (i = inOffset; i < (inNumWallAnimsToRead + inOffset); i++)
+	{
+		file_write_int(fp, WallAnims[i].play_time);
+		file_write_short(fp, WallAnims[i].num_frames);
+		for (j = 0; j < MAX_CLIP_FRAMES; j++)
+			file_write_short(fp, WallAnims[i].frames[j]);
+		file_write_short(fp, WallAnims[i].open_sound);
+		file_write_short(fp, WallAnims[i].close_sound);
+		file_write_short(fp, WallAnims[i].flags);
+		fwrite(WallAnims[i].filename, 13, 1, fp);
+		file_write_byte(fp, WallAnims[i].pad);
+	}
+}
+
+void write_robot_info(FILE* fp, int inNumRobotsToRead, int inOffset)
+{
+	int i, j, k;
+
+	for (i = inOffset; i < (inNumRobotsToRead + inOffset); i++)
+	{
+		file_write_int(fp, Robot_info[i].model_num);
+		for (j = 0; j < MAX_GUNS; j++)
+		{
+			file_write_int(fp, Robot_info[i].gun_points[j].x);
+			file_write_int(fp, Robot_info[i].gun_points[j].y);
+			file_write_int(fp, Robot_info[i].gun_points[j].z);
+		}
+		for (j = 0; j < MAX_GUNS; j++)
+			file_write_byte(fp, Robot_info[i].gun_submodels[j]);
+
+		file_write_short(fp, Robot_info[i].exp1_vclip_num);
+		file_write_short(fp, Robot_info[i].exp1_sound_num);
+
+		file_write_short(fp, Robot_info[i].exp2_vclip_num);
+		file_write_short(fp, Robot_info[i].exp2_sound_num);
+
+		file_write_byte(fp, Robot_info[i].weapon_type);
+		file_write_byte(fp, Robot_info[i].weapon_type2);
+		file_write_byte(fp, Robot_info[i].n_guns);
+		file_write_byte(fp, Robot_info[i].contains_id);
+
+		file_write_byte(fp, Robot_info[i].contains_count);
+		file_write_byte(fp, Robot_info[i].contains_prob);
+		file_write_byte(fp, Robot_info[i].contains_type);
+		file_write_byte(fp, Robot_info[i].kamikaze);
+
+		file_write_short(fp, Robot_info[i].score_value);
+		file_write_byte(fp, Robot_info[i].badass);
+		file_write_byte(fp, Robot_info[i].energy_drain);
+
+		file_write_int(fp, Robot_info[i].lighting);
+		file_write_int(fp, Robot_info[i].strength);
+
+		file_write_int(fp, Robot_info[i].mass);
+		file_write_int(fp, Robot_info[i].drag);
+
+		for (j = 0; j < NDL; j++)
+			file_write_int(fp, Robot_info[i].field_of_view[j]);
+		for (j = 0; j < NDL; j++)
+			file_write_int(fp, Robot_info[i].firing_wait[j]);
+		for (j = 0; j < NDL; j++)
+			file_write_int(fp, Robot_info[i].firing_wait2[j]);
+		for (j = 0; j < NDL; j++)
+			file_write_int(fp, Robot_info[i].turn_time[j]);
+		for (j = 0; j < NDL; j++)
+			file_write_int(fp, Robot_info[i].max_speed[j]);
+		for (j = 0; j < NDL; j++)
+			file_write_int(fp, Robot_info[i].circle_distance[j]);
+		for (j = 0; j < NDL; j++)
+			fwrite(&(Robot_info[i].rapidfire_count[j]), sizeof(int8_t), 1, fp);
+		for (j = 0; j < NDL; j++)
+			fwrite(&(Robot_info[i].evade_speed[j]), sizeof(int8_t), 1, fp);
+		file_write_byte(fp, Robot_info[i].cloak_type);
+		file_write_byte(fp, Robot_info[i].attack_type);
+
+		file_write_byte(fp, Robot_info[i].see_sound);
+		file_write_byte(fp, Robot_info[i].attack_sound);
+		file_write_byte(fp, Robot_info[i].claw_sound);
+		file_write_byte(fp, Robot_info[i].taunt_sound);
+
+		file_write_byte(fp, Robot_info[i].boss_flag);
+		file_write_byte(fp, Robot_info[i].companion);
+		file_write_byte(fp, Robot_info[i].smart_blobs);
+		file_write_byte(fp, Robot_info[i].energy_blobs);
+
+		file_write_byte(fp, Robot_info[i].thief);
+		file_write_byte(fp, Robot_info[i].pursuit);
+		file_write_byte(fp, Robot_info[i].lightcast);
+		file_write_byte(fp, Robot_info[i].death_roll);
+
+		file_write_byte(fp, Robot_info[i].flags);
+		file_write_byte(fp, Robot_info[i].pad[0]);
+		file_write_byte(fp, Robot_info[i].pad[1]);
+		file_write_byte(fp, Robot_info[i].pad[2]);
+
+		file_write_byte(fp, Robot_info[i].deathroll_sound);
+		file_write_byte(fp, Robot_info[i].glow);
+		file_write_byte(fp, Robot_info[i].behavior);
+		file_write_byte(fp, Robot_info[i].aim);
+
+		for (j = 0; j < MAX_GUNS + 1; j++)
+		{
+			for (k = 0; k < N_ANIM_STATES; k++)
+			{
+				file_write_short(fp, Robot_info[i].anim_states[j][k].n_joints);
+				file_write_short(fp, Robot_info[i].anim_states[j][k].offset);
+			}
+		}
+
+		file_write_int(fp, Robot_info[i].always_0xabcd);
+	}
+}
+
+void write_robot_joint_info(FILE* fp, int inNumRobotJointsToRead, int inOffset)
+{
+	int i;
+
+	for (i = inOffset; i < (inNumRobotJointsToRead + inOffset); i++)
+	{
+		file_write_short(fp, Robot_joints[i].jointnum);
+		file_write_short(fp, Robot_joints[i].angles.p);
+		file_write_short(fp, Robot_joints[i].angles.b);
+		file_write_short(fp, Robot_joints[i].angles.h);
+	}
+}
+
+void write_weapon_info(FILE* fp, int inNumWeaponsToRead, int inOffset)
+{
+	int i, j;
+
+	for (i = inOffset; i < (inNumWeaponsToRead + inOffset); i++)
+	{
+		file_write_byte(fp, Weapon_info[i].render_type);
+		file_write_byte(fp, Weapon_info[i].persistent);
+		file_write_short(fp, Weapon_info[i].model_num);
+		file_write_short(fp, Weapon_info[i].model_num_inner);
+
+		file_write_byte(fp, Weapon_info[i].flash_vclip);
+		file_write_byte(fp, Weapon_info[i].robot_hit_vclip);
+		file_write_short(fp, Weapon_info[i].flash_sound);
+
+		file_write_byte(fp, Weapon_info[i].wall_hit_vclip);
+		file_write_byte(fp, Weapon_info[i].fire_count);
+		file_write_short(fp, Weapon_info[i].robot_hit_sound);
+
+		file_write_byte(fp, Weapon_info[i].ammo_usage);
+		file_write_byte(fp, Weapon_info[i].weapon_vclip);
+		file_write_short(fp, Weapon_info[i].wall_hit_sound);
+
+		file_write_byte(fp, Weapon_info[i].destroyable);
+		file_write_byte(fp, Weapon_info[i].matter);
+		file_write_byte(fp, Weapon_info[i].bounce);
+		file_write_byte(fp, Weapon_info[i].homing_flag);
+
+		file_write_byte(fp, Weapon_info[i].speedvar);
+		file_write_byte(fp, Weapon_info[i].flags);
+		file_write_byte(fp, Weapon_info[i].flash);
+		file_write_byte(fp, Weapon_info[i].afterburner_size);
+
+		file_write_byte(fp, Weapon_info[i].children);
+
+		file_write_int(fp, Weapon_info[i].energy_usage);
+		file_write_int(fp, Weapon_info[i].fire_wait);
+
+		file_write_int(fp, Weapon_info[i].multi_damage_scale);
+
+		file_write_short(fp, Weapon_info[i].bitmap.index);	// bitmap_index = short
+
+		file_write_int(fp, Weapon_info[i].blob_size);
+		file_write_int(fp, Weapon_info[i].flash_size);
+		file_write_int(fp, Weapon_info[i].impact_size);
+		for (j = 0; j < NDL; j++)
+			file_write_int(fp, Weapon_info[i].strength[j]);
+		for (j = 0; j < NDL; j++)
+			file_write_int(fp, Weapon_info[i].speed[j]);
+		file_write_int(fp, Weapon_info[i].mass);
+		file_write_int(fp, Weapon_info[i].drag);
+		file_write_int(fp, Weapon_info[i].thrust);
+		file_write_int(fp, Weapon_info[i].po_len_to_width_ratio);
+		file_write_int(fp, Weapon_info[i].light);
+		file_write_int(fp, Weapon_info[i].lifetime);
+		file_write_int(fp, Weapon_info[i].damage_radius);
+		file_write_short(fp, Weapon_info[i].picture.index);		// bitmap_index is a short
+		file_write_short(fp, Weapon_info[i].hires_picture.index);		// bitmap_index is a short
+	}
+}
+
+void write_powerup_info(FILE* fp, int inNumPowerupsToRead, int inOffset)
+{
+	int i;
+
+	for (i = inOffset; i < (inNumPowerupsToRead + inOffset); i++)
+	{
+		file_write_int(fp, Powerup_info[i].vclip_num);
+		file_write_int(fp, Powerup_info[i].hit_sound);
+		file_write_int(fp, Powerup_info[i].size);
+		file_write_int(fp, Powerup_info[i].light);
+	}
+}
+
+void write_polygon_models(FILE* fp, int inNumPolygonModelsToRead, int inOffset)
+{
+	int i, j;
+
+	for (i = inOffset; i < (inNumPolygonModelsToRead + inOffset); i++)
+	{
+		file_write_int(fp, Polygon_models[i].n_models);
+		file_write_int(fp, Polygon_models[i].model_data_size);
+		file_write_int(fp, (uint32_t)Polygon_models[i].model_data);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			file_write_int(fp, Polygon_models[i].submodel_ptrs[j]);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+		{
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].z);
+		}
+		for (j = 0; j < MAX_SUBMODELS; j++)
+		{
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].z);
+		}
+		for (j = 0; j < MAX_SUBMODELS; j++)
+		{
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].z);
+		}
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			file_write_int(fp, Polygon_models[i].submodel_rads[j]);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			file_write_byte(fp, Polygon_models[i].submodel_parents[j]);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+		{
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].z);
+		}
+		for (j = 0; j < MAX_SUBMODELS; j++)
+		{
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].z);
+		}
+		file_write_int(fp, Polygon_models[i].mins.x);
+		file_write_int(fp, Polygon_models[i].mins.y);
+		file_write_int(fp, Polygon_models[i].mins.z);
+		file_write_int(fp, Polygon_models[i].maxs.x);
+		file_write_int(fp, Polygon_models[i].maxs.y);
+		file_write_int(fp, Polygon_models[i].maxs.z);
+		file_write_int(fp, Polygon_models[i].rad);
+		file_write_byte(fp, Polygon_models[i].n_textures);
+		file_write_short(fp, Polygon_models[i].first_texture);
+		file_write_byte(fp, Polygon_models[i].simpler_model);
+	}
+}
+
+void write_player_ship(FILE* fp)
+{
+	int i;
+
+	file_write_int(fp, only_player_ship.model_num);
+	file_write_int(fp, only_player_ship.expl_vclip_num);
+	file_write_int(fp, only_player_ship.mass);
+	file_write_int(fp, only_player_ship.drag);
+	file_write_int(fp, only_player_ship.max_thrust);
+	file_write_int(fp, only_player_ship.reverse_thrust);
+	file_write_int(fp, only_player_ship.brakes);
+	file_write_int(fp, only_player_ship.wiggle);
+	file_write_int(fp, only_player_ship.max_rotthrust);
+	for (i = 0; i < N_PLAYER_GUNS; i++)
+	{
+		file_write_int(fp, only_player_ship.gun_points[i].x);
+		file_write_int(fp, only_player_ship.gun_points[i].y);
+		file_write_int(fp, only_player_ship.gun_points[i].z);
+	}
+}
+
+void write_reactor_info(FILE* fp, int inNumReactorsToRead, int inOffset)
+{
+	int i, j;
+
+	for (i = inOffset; i < (inNumReactorsToRead + inOffset); i++)
+	{
+		file_write_int(fp, Reactors[i].model_num);
+		file_write_int(fp, Reactors[i].n_guns);
+		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
+		{
+			file_write_int(fp, Reactors[i].gun_points[j].x);
+			file_write_int(fp, Reactors[i].gun_points[j].y);
+			file_write_int(fp, Reactors[i].gun_points[j].z);
+		}
+		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
+		{
+			file_write_int(fp, Reactors[i].gun_dirs[j].x);
+			file_write_int(fp, Reactors[i].gun_dirs[j].y);
+			file_write_int(fp, Reactors[i].gun_dirs[j].z);
+		}
+	}
+}
+
 //these values are the number of each item in the release of d2
 //extra items added after the release get written in an additional hamfile
 #define N_D2_ROBOT_TYPES		66
@@ -2282,118 +2663,126 @@ void bm_write_all(FILE *fp)
 	FILE *tfile;
 	int s=0;
 
-tfile = fopen("hamfile.lst","wt");
+	tfile = fopen("hamfile.lst","wt");
 
 	t = NumTextures-1;	//don't save bogus texture
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Textures, sizeof(bitmap_index), t, fp );
-	for (i=0;i<t;i++)
-		fwrite( &TmapInfo[i], sizeof(*TmapInfo)-sizeof(TmapInfo->filename)-sizeof(TmapInfo->pad2), 1, fp );
+	file_write_int(fp, t);
+	for (i = 0; i < t; i++)
+		file_write_short(fp, Textures[i].index);
+	write_tmap_info(fp, t, 0);
 
-fprintf(tfile,"NumTextures = %d, Textures array = %d, TmapInfo array = %d\n",NumTextures,sizeof(bitmap_index)*NumTextures,sizeof(tmap_info)*NumTextures);
+	fprintf(tfile,"NumTextures = %d, Textures array = %d, TmapInfo array = %d\n",NumTextures,sizeof(bitmap_index)*NumTextures,sizeof(tmap_info)*NumTextures);
 
 	t = MAX_SOUNDS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Sounds, sizeof(ubyte), t, fp );
-	fwrite( AltSounds, sizeof(ubyte), t, fp );
+	file_write_int(fp, t);
+	fwrite( Sounds, sizeof(int8_t), t, fp );
+	fwrite( AltSounds, sizeof(int8_t), t, fp );
 
-fprintf(tfile,"Num Sounds = %d, Sounds array = %d, AltSounds array = %d\n",t,t,t);
+	fprintf(tfile,"Num Sounds = %d, Sounds array = %d, AltSounds array = %d\n",t,t,t);
 
-	fwrite( &Num_vclips, sizeof(int), 1, fp );
-	fwrite( Vclip, sizeof(vclip), Num_vclips, fp );
+	file_write_int(fp, Num_vclips);
+	write_vclip_info(fp, Num_vclips, 0);
 
-fprintf(tfile,"Num_vclips = %d, Vclip array = %d\n",Num_vclips,sizeof(vclip)*Num_vclips);
+	fprintf(tfile,"Num_vclips = %d, Vclip array = %d\n",Num_vclips,sizeof(vclip)*Num_vclips);
 
-	fwrite( &Num_effects, sizeof(int), 1, fp );
-	fwrite( Effects, sizeof(eclip), Num_effects, fp );
+	file_write_int(fp, Num_effects);
+	write_effect_info(fp, Num_effects, 0);
 
-fprintf(tfile,"Num_effects = %d, Effects array = %d\n",Num_effects,sizeof(eclip)*Num_effects);
+	fprintf(tfile,"Num_effects = %d, Effects array = %d\n",Num_effects,sizeof(eclip)*Num_effects);
 
-	fwrite( &Num_wall_anims, sizeof(int), 1, fp );
-	fwrite( WallAnims, sizeof(wclip), Num_wall_anims, fp );
+	file_write_int(fp, Num_wall_anims);
+	write_wallanim_info(fp, Num_wall_anims, 0);
 
-fprintf(tfile,"Num_wall_anims = %d, WallAnims array = %d\n",Num_wall_anims,sizeof(wclip)*Num_wall_anims);
+	fprintf(tfile,"Num_wall_anims = %d, WallAnims array = %d\n",Num_wall_anims,sizeof(wclip)*Num_wall_anims);
 
 	t = N_D2_ROBOT_TYPES;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Robot_info, sizeof(robot_info), t, fp );
+	file_write_int(fp, t);
+	write_robot_info(fp, t, 0);
 
-fprintf(tfile,"N_robot_types = %d, Robot_info array = %d\n",t,sizeof(robot_info)*N_robot_types);
+	fprintf(tfile,"N_robot_types = %d, Robot_info array = %d\n",t,sizeof(robot_info)*N_robot_types);
 
 	t = N_D2_ROBOT_JOINTS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Robot_joints, sizeof(jointpos), t, fp );
+	file_write_int(fp, t);
+	write_robot_joint_info(fp, t, 0);
 
-fprintf(tfile,"N_robot_joints = %d, Robot_joints array = %d\n",t,sizeof(jointpos)*N_robot_joints);
+	fprintf(tfile,"N_robot_joints = %d, Robot_joints array = %d\n",t,sizeof(jointpos)*N_robot_joints);
 
 	t = N_D2_WEAPON_TYPES;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Weapon_info, sizeof(weapon_info), t, fp );
+	file_write_int(fp, t);
+	write_weapon_info(fp, t, 0);
 
-fprintf(tfile,"N_weapon_types = %d, Weapon_info array = %d\n",N_weapon_types,sizeof(weapon_info)*N_weapon_types);
+	fprintf(tfile,"N_weapon_types = %d, Weapon_info array = %d\n",N_weapon_types,sizeof(weapon_info)*N_weapon_types);
 
-	fwrite( &N_powerup_types, sizeof(int), 1, fp );
-	fwrite( Powerup_info, sizeof(powerup_type_info), N_powerup_types, fp );
+	file_write_int(fp, N_powerup_types);
+	write_powerup_info(fp, N_powerup_types, 0);
 	
-fprintf(tfile,"N_powerup_types = %d, Powerup_info array = %d\n",N_powerup_types,sizeof(powerup_info)*N_powerup_types);
+	fprintf(tfile,"N_powerup_types = %d, Powerup_info array = %d\n",N_powerup_types,sizeof(Powerup_info)*N_powerup_types);
 
 	t = N_D2_POLYGON_MODELS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Polygon_models, sizeof(polymodel), t, fp );
+	file_write_int(fp, t);
+	write_polygon_models(fp, t, 0);
 
-fprintf(tfile,"N_polygon_models = %d, Polygon_models array = %d\n",t,sizeof(polymodel)*t);
+	fprintf(tfile,"N_polygon_models = %d, Polygon_models array = %d\n",t,sizeof(polymodel)*t);
 
-	for (i=0; i<t; i++ )	{
+	for (i=0; i<t; i++ )	
+	{
 		g3_uninit_polygon_model(Polygon_models[i].model_data);	//get RGB colors
-		fwrite( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
-fprintf(tfile,"  Model %d, data size = %d\n",i,Polygon_models[i].model_data_size); s+=Polygon_models[i].model_data_size;
+		fwrite( Polygon_models[i].model_data, sizeof(int8_t), Polygon_models[i].model_data_size, fp );
+		fprintf(tfile,"  Model %d, data size = %d\n",i,Polygon_models[i].model_data_size); s+=Polygon_models[i].model_data_size;
 		g3_init_polygon_model(Polygon_models[i].model_data);	//map colors again
 	}
-fprintf(tfile,"Total model size = %d\n",s);
+	fprintf(tfile,"Total model size = %d\n",s);
 
-	fwrite( Dying_modelnums, sizeof(int), t, fp );
-	fwrite( Dead_modelnums, sizeof(int), t, fp );
+	for (i = 0; i < t; i++)
+		file_write_int(fp, Dying_modelnums[i]);
+	for (i = 0; i < t; i++)
+		file_write_int(fp, Dead_modelnums[i]);
 
-fprintf(tfile,"Dying_modelnums array = %d, Dead_modelnums array = %d\n",sizeof(int)*t,sizeof(int)*t);
+	fprintf(tfile,"Dying_modelnums array = %d, Dead_modelnums array = %d\n",sizeof(int)*t,sizeof(int)*t);
 
 	t = MAX_GAUGE_BMS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Gauges, sizeof(bitmap_index), t, fp );
-	fwrite( Gauges_hires, sizeof(bitmap_index), t, fp );
+	file_write_int(fp, t);
+	for (i = 0; i < t; i++)
+		file_write_short(fp, Gauges[i].index);
+	for (i = 0; i < t; i++)
+		file_write_short(fp, Gauges_hires[i].index);
 
-fprintf(tfile,"Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n",t,sizeof(bitmap_index)*t,sizeof(bitmap_index)*t);
+	fprintf(tfile,"Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n",t,sizeof(bitmap_index)*t,sizeof(bitmap_index)*t);
 
 	t = MAX_OBJ_BITMAPS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( ObjBitmaps, sizeof(bitmap_index), t, fp );
-	fwrite( ObjBitmapPtrs, sizeof(ushort), t, fp );
+	file_write_int(fp, t);
+	for (i = 0; i < t; i++)
+		file_write_short(fp, ObjBitmaps[i].index);
+	for (i = 0; i < t; i++)
+		file_write_short(fp, ObjBitmapPtrs[i]);
 
-fprintf(tfile,"Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n",t,sizeof(bitmap_index)*t,sizeof(ushort)*t);
+	fprintf(tfile,"Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n",t,sizeof(bitmap_index)*t,sizeof(uint16_t)*t);
 
-	fwrite( &only_player_ship, sizeof(player_ship), 1, fp );
+	write_player_ship(fp);
 
-fprintf(tfile,"player_ship size = %d\n",sizeof(player_ship));
+	fprintf(tfile,"player_ship size = %d\n",sizeof(player_ship));
 
-	fwrite( &Num_cockpits, sizeof(int), 1, fp );
-	fwrite( cockpit_bitmap, sizeof(bitmap_index), Num_cockpits, fp );
+	file_write_int(fp, Num_cockpits);
+	for (i = 0; i < Num_cockpits; i++)
+		file_write_short(fp, cockpit_bitmap[i].index);
 
-fprintf(tfile,"Num_cockpits = %d, cockpit_bitmaps array = %d\n",Num_cockpits,sizeof(bitmap_index)*Num_cockpits);
+	fprintf(tfile,"Num_cockpits = %d, cockpit_bitmaps array = %d\n",Num_cockpits,sizeof(bitmap_index)*Num_cockpits);
 
 //@@	fwrite( &Num_total_object_types, sizeof(int), 1, fp );
-//@@	fwrite( ObjType, sizeof(byte), Num_total_object_types, fp );
-//@@	fwrite( ObjId, sizeof(byte), Num_total_object_types, fp );
+//@@	fwrite( ObjType, sizeof(int8_t), Num_total_object_types, fp );
+//@@	fwrite( ObjId, sizeof(int8_t), Num_total_object_types, fp );
 //@@	fwrite( ObjStrength, sizeof(fix), Num_total_object_types, fp );
 
-fprintf(tfile,"Num_total_object_types = %d, ObjType array = %d, ObjId array = %d, ObjStrength array = %d\n",Num_total_object_types,Num_total_object_types,Num_total_object_types,sizeof(fix)*Num_total_object_types);
+	fprintf(tfile,"Num_total_object_types = %d, ObjType array = %d, ObjId array = %d, ObjStrength array = %d\n",Num_total_object_types,Num_total_object_types,Num_total_object_types,sizeof(fix)*Num_total_object_types);
 
-	fwrite( &First_multi_bitmap_num, sizeof(int), 1, fp );
+	file_write_int(fp, First_multi_bitmap_num);
 
-	fwrite( &Num_reactors, sizeof(Num_reactors), 1, fp );
-	fwrite( Reactors, sizeof(*Reactors), Num_reactors, fp);
+	file_write_int(fp, Num_reactors);
+	write_reactor_info(fp, Num_reactors, 0);
 
-fprintf(tfile,"Num_reactors = %d, Reactors array = %d\n",Num_reactors,sizeof(*Reactors)*Num_reactors);
+	fprintf(tfile,"Num_reactors = %d, Reactors array = %d\n",Num_reactors,sizeof(*Reactors)*Num_reactors);
 
-	fwrite( &Marker_model_num, sizeof(Marker_model_num), 1, fp);
+	file_write_int(fp, Marker_model_num);
 
 	//@@fwrite( &N_controlcen_guns, sizeof(int), 1, fp );
 	//@@fwrite( controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns, fp );
@@ -2404,12 +2793,12 @@ fprintf(tfile,"Num_reactors = %d, Reactors array = %d\n",Num_reactors,sizeof(*Re
 	fwrite( &destroyed_exit_modelnum, sizeof(int), 1, fp );
 	#endif
 
-fclose(tfile);
+	fclose(tfile);
 
 	bm_write_extra_robots();
 }
 
-bm_write_extra_robots()
+void bm_write_extra_robots()
 {
 	FILE *fp;
 	int t,i;
@@ -2417,47 +2806,50 @@ bm_write_extra_robots()
 	fp = fopen("robots.ham","wb");
 
 	t = 'XHAM';
-	fwrite( &t, sizeof(int), 1, fp );
+	file_write_int(fp, t);
 	t = 1;	//version
-	fwrite( &t, sizeof(int), 1, fp );
+	file_write_int(fp, t);
 
 	//write weapon info
 	t = N_weapon_types - N_D2_WEAPON_TYPES;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &Weapon_info[N_D2_WEAPON_TYPES], sizeof(weapon_info), t, fp );
+	file_write_int(fp, t);
+	write_weapon_info(fp, t, N_D2_WEAPON_TYPES);
 
 	//now write robot info
 
 	t = N_robot_types - N_D2_ROBOT_TYPES;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &Robot_info[N_D2_ROBOT_TYPES], sizeof(robot_info), t, fp );
+	file_write_int(fp, t);
+	write_robot_info(fp, t, N_D2_ROBOT_TYPES);
 
 	t = N_robot_joints - N_D2_ROBOT_JOINTS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &Robot_joints[N_D2_ROBOT_JOINTS], sizeof(jointpos), t, fp );
+	file_write_int(fp, t);
+	write_robot_joint_info(fp, t, N_D2_ROBOT_JOINTS);
 
 	t = N_polygon_models - N_D2_POLYGON_MODELS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &Polygon_models[N_D2_POLYGON_MODELS], sizeof(polymodel), t, fp );
+	file_write_int(fp, t);
+	write_polygon_models(fp, t, N_D2_POLYGON_MODELS);
 
-	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )	{
+	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )	
+	{
 		g3_uninit_polygon_model(Polygon_models[i].model_data);	//get RGB colors
-		fwrite( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
+		fwrite( Polygon_models[i].model_data, sizeof(int8_t), Polygon_models[i].model_data_size, fp );
 		g3_init_polygon_model(Polygon_models[i].model_data);	//map colors again
 	}
 
-	fwrite( &Dying_modelnums[N_D2_POLYGON_MODELS], sizeof(int), t, fp );
-	fwrite( &Dead_modelnums[N_D2_POLYGON_MODELS], sizeof(int), t, fp );
+	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
+		file_write_int(fp, Dying_modelnums[i]);
+	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
+		file_write_int(fp, Dead_modelnums[i]);
 
 	t = N_ObjBitmaps - N_D2_OBJBITMAPS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &ObjBitmaps[N_D2_OBJBITMAPS], sizeof(bitmap_index), t, fp );
+	file_write_int(fp, t);
+	for (i = N_D2_OBJBITMAPS; i < N_ObjBitmaps; i++)
+		file_write_short(fp, ObjBitmaps[i].index);
 
 	t = N_ObjBitmapPtrs - N_D2_OBJBITMAPPTRS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &ObjBitmapPtrs[N_D2_OBJBITMAPPTRS], sizeof(ushort), t, fp );
-
-	fwrite( ObjBitmapPtrs, sizeof(ushort), t, fp );
+	file_write_int(fp, t);
+	for (i = N_D2_OBJBITMAPPTRS; i < N_ObjBitmapPtrs; i++)
+		file_write_short(fp, ObjBitmapPtrs[i]);
 
 	fclose(fp);
 }

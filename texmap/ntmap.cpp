@@ -29,14 +29,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d/3d.h"
 #include "2d/gr.h"
 #include "misc/error.h"
-//#include "platform/key.h" //[ISB] i'm sure there's some good reason why the texture mapping code needs the keyboard API
 
 #include "texmap/texmap.h"
 #include "texmapl.h"
 #include "2d/rle.h"
 #include "scanline.h"
-//[ISB] WHAT IS PROJECT DESIGN
-//#include "..\main\textures.h" //[ISB] cherry on top: unused
 
 #define	EDITOR_TMAP	1		//if in, include extra stuff
 
@@ -80,15 +77,9 @@ int	window_top;
 int	window_bottom;
 int  	window_width;
 int  	window_height;
-#ifdef EDITOR_TMAP
-#ifdef BUILD_DESCENT2
+
 #define	MAX_Y_POINTERS	1024
-#else
-#define	MAX_Y_POINTERS	480
-#endif
-#else
-#define	MAX_Y_POINTERS	480
-#endif
+
 int	y_pointers[MAX_Y_POINTERS];
 
 short	pixel_data_selector;		// selector for current pixel data for texture mapper

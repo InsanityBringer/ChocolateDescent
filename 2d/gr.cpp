@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/palette.h"
 #include "platform/platform.h"
 
-unsigned char* gr_video_memory = (unsigned char*)NULL;
+uint8_t* gr_video_memory = (unsigned char*)NULL;
 
 char gr_pal_default[768];
 
@@ -48,8 +48,8 @@ void gr_close()
 	{
 		gr_installed = 0;
 		free(grd_curscreen);
-		//[ISB] Oops, gr_close is an atexit, but I_ShutdownGraphics was expected to be called on the SDL code before. Keep call for Windows code atm.
-		I_ShutdownGraphics();
+		//[ISB] Oops, gr_close is an atexit, but plat_close_window was expected to be called on the SDL code before. Keep call for Windows code atm.
+		plat_close_window();
 	}
 }
 
@@ -157,7 +157,7 @@ int gr_set_mode(int mode)
 	//[ISB] Dropping the linearization of all modes, to allow the paged video modes to work. 
 	gr_palette_clear();
 
-	I_SetMode(mode);
+	plat_set_gr_mode(mode);
 
 	memset(grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = mode;
@@ -174,8 +174,6 @@ int gr_set_mode(int mode)
 	//[ISB] Point the bitmap data at the big video memory buffer. This formerly reallocated on mode change, but this caused too many problems. 
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = gr_video_memory;
 	memset(grd_curscreen->sc_canvas.cv_bitmap.bm_data, 0, r * h * NUMSCREENS * sizeof(unsigned char));
-	//[ISB] Set the screen buffer
-	I_SetScreenCanvas(&grd_curscreen->sc_canvas);
 
 #ifndef BUILD_DESCENT2
 	gr_set_current_canvas(NULL);
@@ -197,7 +195,7 @@ int gr_init(int mode)
 	if (gr_installed == 1)
 		return 1;
 
-	retcode = I_InitWindow();
+	retcode = plat_create_window();
 	if (retcode)
 	{
 		Error("gr_init: Error initalizing graphics library.");
@@ -205,7 +203,7 @@ int gr_init(int mode)
 
 	//[ISB] THIS IS A GODDAMNED HACK
 	//[ISB] okay so many problems with offset screens actually are pretty rational: The offscreen buffers point into video memory. Video memory keeps on jittering and being reallocated. So uh, lets just allocate once
-	MALLOC(gr_video_memory, unsigned char, 1280 * 1024 * 2);
+	MALLOC(gr_video_memory, uint8_t, 1280 * 1024 * 2);
 
 	// Save the current palette, and fade it out to black.
 	/*gr_palette_read((uint8_t*)gr_pal_default);
@@ -258,12 +256,12 @@ int gr_init(int mode)
 
 int gr_check_mode(int mode)
 {
-	return I_CheckMode(mode);
+	return plat_check_gr_mode(mode);
 }
 
 //[ISB] come to think of it is there any point of having these stub fuctions 
 //that do nothing but call I_ functions
 void gr_sync_display()
 {
-	I_WaitVBL();
+	plat_wait_for_vbl();
 }

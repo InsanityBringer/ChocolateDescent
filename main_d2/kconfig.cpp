@@ -39,15 +39,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "gauges.h"
 #include "joydefs.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "render.h"
 #include "arcade.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "newmenu.h"
 #include "endlevel.h"
 #include "multi.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "player.h"
 #include "menu.h"
 #include "automap.h"
@@ -669,7 +669,7 @@ KConfigPaint:
 	while (1)
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
@@ -859,7 +859,7 @@ KConfigPaint:
 			kc_drawitem(&items[citem], 1);
 			//WIN(ShowCursorW());
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 	}
 }
@@ -972,8 +972,8 @@ void kc_change_key(kc_item* item)
 
 	while ((k != KEY_ESC) && (keycode == 255))
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
@@ -1020,8 +1020,6 @@ void kc_change_key(kc_item* item)
 	game_flush_inputs();
 }
 
-void kconfig_read_fcs(int raw_axis);
-
 void kc_change_joybutton(kc_item* item)
 {
 	int n, i, k;
@@ -1036,8 +1034,8 @@ void kc_change_joybutton(kc_item* item)
 
 	while ((k != KEY_ESC) && (code == 255))
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1055,7 +1053,6 @@ void kc_change_joybutton(kc_item* item)
 		{
 			int axis[4];
 			joystick_read_raw_axis(JOY_ALL_AXIS, axis);
-			kconfig_read_fcs(axis[3]);
 			if (joy_get_button_state(7)) code = 7;
 			if (joy_get_button_state(11)) code = 11;
 			if (joy_get_button_state(15)) code = 15;
@@ -1119,8 +1116,8 @@ void kc_change_mousebutton(kc_item* item)
 
 	while ((k != KEY_ESC) && (code == 255))
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1180,8 +1177,8 @@ void kc_change_joyaxis(kc_item* item)
 
 	while ((k != KEY_ESC) && (code == 255))
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1252,8 +1249,8 @@ void kc_change_mouseaxis(kc_item * item)
 
 	while ((k != KEY_ESC) && (code == 255))
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1363,74 +1360,6 @@ void kconfig(int n, char* title)
 			kconfig_settings[Config_control_type][i] = kc_superjoy[i].value;
 	}
 }
-
-void kconfig_set_fcs_button(int btn, int button);
-
-void kconfig_read_fcs(int raw_axis)
-{
-	int raw_button, button, axis_min[4], axis_center[4], axis_max[4];
-
-	if (Config_control_type != CONTROL_THRUSTMASTER_FCS) return;
-
-	joy_get_cal_vals(axis_min, axis_center, axis_max);
-
-	if (axis_max[3] > 1)
-		raw_button = (raw_axis * 100) / axis_max[3];
-	else
-		raw_button = 0;
-
-	if (raw_button > 88)
-		button = 0;
-	else if (raw_button > 63)
-		button = 7;
-	else if (raw_button > 39)
-		button = 11;
-	else if (raw_button > 15)
-		button = 15;
-	else
-		button = 19;
-
-	kconfig_set_fcs_button(19, button);
-	kconfig_set_fcs_button(15, button);
-	kconfig_set_fcs_button(11, button);
-	kconfig_set_fcs_button(7, button);
-}
-
-
-void kconfig_set_fcs_button(int btn, int button)
-{
-	int state, time_down, upcount, downcount;
-	state = time_down = upcount = downcount = 0;
-
-	if (joy_get_button_state(btn)) 
-	{
-		if (btn == button) 
-		{
-			state = 1;
-			time_down = FrameTime;
-		}
-		else 
-		{
-			upcount = 1;
-		}
-	}
-	else 
-	{
-		if (btn == button) 
-		{
-			state = 1;
-			time_down = FrameTime;
-			downcount = 1;
-		}
-		else 
-		{
-			upcount = 1;
-		}
-	}
-	joy_set_btn_values(btn, state, time_down, downcount, upcount);
-}
-
-
 
 fix Last_angles_p = 0;
 fix Last_angles_b = 0;
@@ -1543,25 +1472,18 @@ void controls_read_all()
 			{
 				int joy_null_value = 10;
 
-				if ((i == 3) && (Config_control_type == CONTROL_THRUSTMASTER_FCS)) 
-				{
-					kconfig_read_fcs(raw_joy_axis[i]);
-				}
+				raw_joy_axis[i] = joy_get_scaled_reading(raw_joy_axis[i], i);
+
+				if (kc_joystick[23].value == i)		// If this is the throttle
+					joy_null_value = 20;				// Then use a larger dead-zone
+
+				if (raw_joy_axis[i] > joy_null_value)
+					raw_joy_axis[i] = ((raw_joy_axis[i] - joy_null_value) * 128) / (128 - joy_null_value);
+				else if (raw_joy_axis[i] < -joy_null_value)
+					raw_joy_axis[i] = ((raw_joy_axis[i] + joy_null_value) * 128) / (128 - joy_null_value);
 				else
-				{
-					raw_joy_axis[i] = joy_get_scaled_reading(raw_joy_axis[i], i);
-
-					if (kc_joystick[23].value == i)		// If this is the throttle
-						joy_null_value = 20;				// Then use a larger dead-zone
-
-					if (raw_joy_axis[i] > joy_null_value)
-						raw_joy_axis[i] = ((raw_joy_axis[i] - joy_null_value) * 128) / (128 - joy_null_value);
-					else if (raw_joy_axis[i] < -joy_null_value)
-						raw_joy_axis[i] = ((raw_joy_axis[i] + joy_null_value) * 128) / (128 - joy_null_value);
-					else
-						raw_joy_axis[i] = 0;
-					joy_axis[i] = (raw_joy_axis[i] * FrameTime) / 128;
-				}
+					raw_joy_axis[i] = 0;
+				joy_axis[i] = (raw_joy_axis[i] * FrameTime) / 128;
 			}
 			else
 			{

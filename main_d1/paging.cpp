@@ -25,16 +25,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "gameseg.h"
 #include "game.h"
-#include "piggy.h"
-#include "texmerge.h"
+#include "main_shared/piggy.h"
+#include "main_shared/texmerge.h"
 #include "polyobj.h"
 #include "vclip.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "fireball.h"
 #include "weapon.h"
 #include "2d/palette.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "cntrlcen.h"
 #include "gauges.h"
 #include "powerup.h"
@@ -322,8 +322,8 @@ void paging_touch_all()
 	}
 
 	show_boxed_message(TXT_LOADING);
-	I_DrawCurrentCanvas(0);
-	I_DoEvents(); 
+	plat_present_canvas(0);
+	plat_do_events(); 
 
 	mprintf((0, "Loading all textures in mine..."));
 	for (s = 0; s <= Highest_segment_index; s++) 

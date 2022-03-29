@@ -26,8 +26,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamepal.h"
 #include "mission.h"
 #include "newmenu.h"
-#include "texmerge.h"
-#include "piggy.h"
+#include "main_shared/texmerge.h"
+#include "main_shared/piggy.h"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"

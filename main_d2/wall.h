@@ -228,11 +228,11 @@ void start_wall_decloak(segment *seg, int side);
 #include <stdio.h>
 
 //Reads a wall from the specified file. 
-void P_ReadWall(wall* nwall, FILE* fp);
-void P_ReadActiveDoor(active_door* door, FILE* fp);
+void read_wall(wall* nwall, FILE* fp);
+void read_active_door(active_door* door, FILE* fp);
 
-void P_WriteWall(wall* nwall, FILE* fp);
-void P_WriteActiveDoor(active_door* door, FILE* fp);
+void write_wall(wall* nwall, FILE* fp);
+void write_active_door(active_door* door, FILE* fp);
 
 void P_ReadCloakingWall(cloaking_wall* wall, FILE* fp);
 void P_WriteCloakingWall(cloaking_wall* wall, FILE* fp);

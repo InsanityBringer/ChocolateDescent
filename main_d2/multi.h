@@ -20,7 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Defines
 #include "gameseq.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 // What version of the multiplayer protocol is this?
 
@@ -254,33 +254,26 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 
 enum comp_type {DOS,WIN_32,WIN_95,MAC};
 
-// sigh...the socket structure member was moved away from it's friends.
-// I'll have to create a union for appletalk network info with just
-// the server and node members since I cannot change the order ot these
-// members.
-
-typedef struct netplayer_info {
-	char		callsign[CALLSIGN_LEN+1];
-	union {
-		struct {
-			uint8_t		server[4];
-			uint8_t		node[6];
+typedef struct netplayer_info
+{
+	char callsign[CALLSIGN_LEN+1];
+	union 
+	{
+		struct 
+		{
+			uint8_t		node[4];
 		} ipx;
-		struct {
-			uint16_t		net;
-			uint8_t		node;
-			uint8_t		socket;
-		} appletalk;
 	} network;
 
-   uint8_t version_major;
-   uint8_t version_minor;
+	uint8_t version_major;
+	uint8_t version_minor;
 	enum comp_type computer_type;
 	int8_t 		connected;
 
 	uint16_t	socket;
 
-   uint8_t rank;
+	uint8_t rank;
+	uint32_t	identifier; //TODO: This is a hack. Each node gets a random identifier, since on the internet using IP addresses to check uniqueness gets weird on the client. Can collide!
 
 } netplayer_info;
 

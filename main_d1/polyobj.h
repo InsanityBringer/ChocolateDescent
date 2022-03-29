@@ -20,7 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef DRIVE
 #include "robot.h"
 #endif
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #ifndef DRIVE
 #define MAX_POLYGON_MODELS 85

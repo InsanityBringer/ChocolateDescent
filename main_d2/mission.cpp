@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "gameseq.h"
 #include "titles.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "platform/mono.h"
 #include "misc/error.h"
 #include "platform/findfile.h"
@@ -39,6 +39,9 @@ char *Current_mission_filename,*Current_mission_longname;
 char Level_names[MAX_LEVELS_PER_MISSION][FILENAME_LEN];
 char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 
+#define SHAREWARE_MISSION_FILENAME	"d2demo"
+#define SHAREWARE_MISSION_NAME		"Descent 2 Demo"
+
 //where the missions go
 #ifndef EDITOR
 #define MISSION_DIR ".\\missions\\"
@@ -51,9 +54,6 @@ char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 //
 //  Special versions of mission routines for shareware
 //
-
-#define SHAREWARE_MISSION_FILENAME	"d2demo"
-#define SHAREWARE_MISSION_NAME		"Descent 2 Demo"
 
 int build_mission_list(int anarchy_mode)
 {
@@ -236,6 +236,9 @@ extern int HoardEquipped();
 //returns 1 if file read ok, else 0
 int read_mission_file(char *filename,int count,int location)
 {
+	if (CurrentDataVersion == DataVer::DEMO)
+		return 1;
+
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char filename2[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	CFILE *mfile;
@@ -367,6 +370,15 @@ int build_mission_list(int anarchy_mode)
 	char search_name[256] = MISSION_DIR "*.MN2";
 #endif
 
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		strcpy(Mission_list[0].filename, SHAREWARE_MISSION_FILENAME);
+		strcpy(Mission_list[0].mission_name, SHAREWARE_MISSION_NAME);
+		Mission_list[0].anarchy_only_flag = 0;
+
+		return load_mission(0);
+	}
+
 	//now search for levels on disk
 
 //@@Took out this code because after this routine was called once for
@@ -460,6 +472,26 @@ int load_mission(int mission_num)
 	Current_mission_num = mission_num;
 
 	mprintf(( 0, "Loading mission %d\n", mission_num ));
+
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		Assert(mission_num == 0);
+
+		Current_mission_num = 0;
+		Current_mission_filename = Mission_list[0].filename;
+		Current_mission_longname = Mission_list[0].mission_name;
+
+		N_secret_levels = 0;
+
+		//Assert(Last_level == 3);
+		Last_level = 3;
+
+		strcpy(Level_names[0], "d2leva-1.sl2");
+		strcpy(Level_names[1], "d2leva-2.sl2");
+		strcpy(Level_names[2], "d2leva-3.sl2");
+
+		return 1;
+	}
 
 	//read mission from file 
 
@@ -568,7 +600,7 @@ int load_mission(int mission_num)
 				{
 
 					add_term(buf);
-					if (strlen(buf) <= 12) 
+					if (strlen(buf) <= 12 && i < MAX_LEVELS_PER_MISSION) 
 					{
 						strcpy(Level_names[i],buf);
 						Last_level++;
@@ -597,7 +629,7 @@ int load_mission(int mission_num)
 						break;
 
 					add_term(buf);
-					if (strlen(buf) <= 12)
+					if (strlen(buf) <= 12 && i < MAX_SECRET_LEVELS_PER_MISSION)
 					{
 						strcpy(Secret_level_names[i],buf);
 						Secret_level_table[i] = atoi(t);
@@ -642,6 +674,14 @@ int load_mission(int mission_num)
 int load_mission_by_name(char *mission_name)
 {
 	int n,i;
+
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		if (strcmp(mission_name, SHAREWARE_MISSION_FILENAME))
+			return 0;		//cannot load requested mission
+		else
+			return load_mission(0);
+	}
 
 	n = build_mission_list(1);
 

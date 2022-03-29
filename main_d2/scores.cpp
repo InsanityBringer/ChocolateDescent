@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gamefont.h"
 #include "mem/mem.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "newmenu.h"
 #include "menu.h"
 #include "player.h"
@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "platform/joy.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "platform/platform.h"
 
 #define VERSION_NUMBER 		1
@@ -455,7 +455,7 @@ ReshowScores:
 	while (!done)
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		if (citem > -1)
 		{
 			t1 = timer_get_fixed_seconds();
@@ -517,7 +517,7 @@ ReshowScores:
 			break;
 			}
 
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 		}
 

@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "main_d2/editor/editor.h"
 #endif
 
 #include "cfile/cfile.h"		
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "misc/hash.h"
 #include "platform/key.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #include "misc/byteswap.h"
 
@@ -153,6 +153,13 @@ static void read_vector(vms_vector *v,CFILE *file)
 	v->z = read_fix(file);
 }
 
+static void read_matrix(vms_matrix* m, CFILE* file)
+{
+	read_vector(&m->rvec, file);
+	read_vector(&m->uvec, file);
+	read_vector(&m->fvec, file);
+}
+
 static short read_short(CFILE *file)
 {
 	short s;
@@ -178,6 +185,70 @@ static int8_t read_byte(CFILE *file)
 static char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
 short tmap_xlate_table[MAX_TEXTURES];
 static short tmap_times_used[MAX_TEXTURES];
+
+void read_mine_fileinfo(CFILE* LoadFile, int version)
+{
+	mine_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
+	mine_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
+
+	mine_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.header_offset = cfile_read_int(LoadFile);          // Stuff common to game & editor
+	mine_fileinfo.header_size = cfile_read_int(LoadFile);
+	mine_fileinfo.editor_offset = cfile_read_int(LoadFile);   // Editor specific stuff
+	mine_fileinfo.editor_size = cfile_read_int(LoadFile);
+	mine_fileinfo.segment_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.segment_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.segment_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.newseg_verts_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.newseg_verts_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.newseg_verts_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.group_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.group_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.group_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.vertex_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.vertex_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.vertex_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.texture_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.texture_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.texture_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.walls_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.walls_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.walls_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.triggers_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.triggers_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.triggers_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.links_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.links_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.links_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.object_offset = cfile_read_int(LoadFile);				// Object info
+	mine_fileinfo.object_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.object_sizeof = cfile_read_int(LoadFile);
+	mine_fileinfo.unused_offset = cfile_read_int(LoadFile);			//was: doors_offset
+	mine_fileinfo.unused_howmamy = cfile_read_int(LoadFile);		//was: doors_howmany
+	mine_fileinfo.unused_sizeof = cfile_read_int(LoadFile);			//was: doors_sizeof
+
+	if (version < 18) return;
+
+	mine_fileinfo.level_shake_frequency = cfile_read_short(LoadFile);
+	mine_fileinfo.level_shake_duration = cfile_read_short(LoadFile);
+
+	mine_fileinfo.secret_return_segment = cfile_read_int(LoadFile);
+	read_matrix(&mine_fileinfo.secret_return_orient, LoadFile);
+
+	if (version < MINE_VERSION) return;
+
+	mine_fileinfo.dl_indices_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.dl_indices_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.dl_indices_sizeof = cfile_read_int(LoadFile);
+
+	mine_fileinfo.delta_light_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.delta_light_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.delta_light_sizeof = cfile_read_int(LoadFile);
+
+	mine_fileinfo.segment2_offset = cfile_read_int(LoadFile);
+	mine_fileinfo.segment2_howmany = cfile_read_int(LoadFile);
+	mine_fileinfo.segment2_sizeof = cfile_read_int(LoadFile);
+}
 
 // -----------------------------------------------------------------------------
 //loads from an already-open file
@@ -239,16 +310,13 @@ int load_mine_data(CFILE *LoadFile)
 	mine_fileinfo.level_shake_duration		=	0;
 
 	//	Delta light stuff for blowing out light sources.
-//	if (mine_top_fileinfo.fileinfo_version >= 19) {
-		mine_fileinfo.dl_indices_offset		=	-1;
-		mine_fileinfo.dl_indices_howmany		=	0;
-		mine_fileinfo.dl_indices_sizeof		=	sizeof(dl_index);  
+	mine_fileinfo.dl_indices_offset		=	-1;
+	mine_fileinfo.dl_indices_howmany		=	0;
+	mine_fileinfo.dl_indices_sizeof		=	sizeof(dl_index);  
 
-		mine_fileinfo.delta_light_offset		=	-1;
-		mine_fileinfo.delta_light_howmany		=	0;
-		mine_fileinfo.delta_light_sizeof		=	sizeof(delta_light);  
-
-//	}
+	mine_fileinfo.delta_light_offset		=	-1;
+	mine_fileinfo.delta_light_howmany		=	0;
+	mine_fileinfo.delta_light_sizeof		=	sizeof(delta_light);  
 
 	mine_fileinfo.segment2_offset		= -1;
 	mine_fileinfo.segment2_howmany	= 0;
@@ -261,8 +329,11 @@ int load_mine_data(CFILE *LoadFile)
 	if (cfseek( LoadFile, mine_start, SEEK_SET ))
 		Error( "Error moving to top of file in gamemine.c" );
 
-	if (cfread( &mine_top_fileinfo, sizeof(mine_top_fileinfo), 1, LoadFile )!=1)
-		Error( "Error reading mine_top_fileinfo in gamemine.c" );
+	//if (cfread( &mine_top_fileinfo, sizeof(mine_top_fileinfo), 1, LoadFile )!=1)
+	//	Error( "Error reading mine_top_fileinfo in gamemine.c" );
+	mine_top_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
+	mine_top_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
+	mine_top_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
 
 	if (mine_top_fileinfo.fileinfo_signature != 0x2884)
 		return -1;
@@ -275,16 +346,19 @@ int load_mine_data(CFILE *LoadFile)
 	if (cfseek( LoadFile, mine_start, SEEK_SET ))
 		Error( "Error seeking to top of file in gamemine.c" );
 
-	if (cfread( &mine_fileinfo, mine_top_fileinfo.fileinfo_sizeof, 1, LoadFile )!=1)
-		Error( "Error reading mine_fileinfo in gamemine.c" );
+	read_mine_fileinfo(LoadFile, mine_top_fileinfo.fileinfo_version);
+	//if (cfread( &mine_fileinfo, mine_top_fileinfo.fileinfo_sizeof, 1, LoadFile )!=1)
+	//	Error( "Error reading mine_fileinfo in gamemine.c" );
 
-	if (mine_top_fileinfo.fileinfo_version < 18) {
+	if (mine_top_fileinfo.fileinfo_version < 18) 
+	{
 		mprintf((1, "Old version, setting shake intensity to 0.\n"));
 		Level_shake_frequency = 0;
 		Level_shake_duration = 0;
 		Secret_return_segment = 0;
 		Secret_return_orient = vmd_identity_matrix;
-	} else {
+	} else 
+	{
 		Level_shake_frequency = mine_fileinfo.level_shake_frequency << 12;
 		Level_shake_duration = mine_fileinfo.level_shake_duration << 12;
 		Secret_return_segment = mine_fileinfo.secret_return_segment;
@@ -434,12 +508,14 @@ int load_mine_data(CFILE *LoadFile)
 
 		Highest_segment_index = mine_fileinfo.segment_howmany-1;
 
-		for (i=0; i< mine_fileinfo.segment_howmany; i++ ) {
+		for (i=0; i< mine_fileinfo.segment_howmany; i++ )
+		{
 
 			// Set the default values for this segment (clear to zero )
 			//memset( &Segments[i], 0, sizeof(segment) );
 
-			if (mine_top_fileinfo.fileinfo_version < 20) {
+			if (mine_top_fileinfo.fileinfo_version < 20)
+			{
 				v16_segment v16_seg;
 
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
@@ -468,7 +544,9 @@ int load_mine_data(CFILE *LoadFile)
 				Segment2s[i].static_light = v16_seg.static_light;
 				fuelcen_activate( &Segments[i], Segment2s[i].special );
 
-			} else  {
+			}
+			else  
+			{
 				if (cfread( &Segments[i], mine_fileinfo.segment_sizeof, 1, LoadFile )!=1)
 					Error("Unable to read segment %i\n", i);
 			}
@@ -478,7 +556,8 @@ int load_mine_data(CFILE *LoadFile)
 			Segments[i].group = -1;
 			#endif
 
-			if (mine_top_fileinfo.fileinfo_version < 15) {	//used old uvl ranges
+			if (mine_top_fileinfo.fileinfo_version < 15) 
+			{	//used old uvl ranges
 				int sn,uvln;
 
 				for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++)
@@ -490,7 +569,8 @@ int load_mine_data(CFILE *LoadFile)
 			}
 
 			if (translate == 1)
-				for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
+				for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) 
+				{
 					unsigned short orient;
 					tmap_xlate = Segments[i].sides[j].tmap_num;
 					Segments[i].sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
@@ -584,8 +664,8 @@ int load_mine_data(CFILE *LoadFile)
 	else
 		Markedsegp = NULL;
 
-	num_groups = 0;
-	current_group = -1;
+	Num_groups = 0;
+	Current_group = -1;
 
 	#endif
 
@@ -646,24 +726,26 @@ void read_verts(int segnum,CFILE *LoadFile)
 		Segments[segnum].verts[i] = read_short(LoadFile);
 }
 
-// -- void read_special(int segnum,uint8_t bit_mask,CFILE *LoadFile)
-// -- {
-// -- 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-// -- 		// Read uint8_t	Segments[segnum].special
-// -- //		cfread( &Segments[segnum].special, sizeof(uint8_t), 1, LoadFile );
-// -- 		Segment2s[segnum].special = read_byte(LoadFile);
-// -- 		// Read int8_t	Segments[segnum].matcen_num
-// -- //		cfread( &Segments[segnum].matcen_num, sizeof(uint8_t), 1, LoadFile );
-// -- 		Segment2s[segnum].matcen_num = read_byte(LoadFile);
-// -- 		// Read short	Segments[segnum].value
-// -- //		cfread( &Segments[segnum].value, sizeof(short), 1, LoadFile );
-// -- 		Segment2s[segnum].value = read_short(LoadFile);
-// -- 	} else {
-// -- 		Segment2s[segnum].special = 0;
-// -- 		Segment2s[segnum].matcen_num = -1;
-// -- 		Segment2s[segnum].value = 0;
-// -- 	}
-// -- }
+//for shareware only
+void read_special(int segnum, uint8_t bit_mask, CFILE* LoadFile)
+{
+	Segment2s[segnum].s2_flags = 0;
+	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
+	{
+		// Read uint8_t	Segments[segnum].special
+		Segment2s[segnum].special = read_byte(LoadFile);
+		// Read int8_t	Segments[segnum].matcen_num
+		Segment2s[segnum].matcen_num = read_byte(LoadFile);
+		// Read short	Segments[segnum].value
+		Segment2s[segnum].value = read_short(LoadFile);
+	}
+	else 
+	{
+		Segment2s[segnum].special = 0;
+		Segment2s[segnum].matcen_num = -1;
+		Segment2s[segnum].value = 0;
+	}
+}
 
 int load_mine_data_compiled(CFILE *LoadFile)
 {
@@ -684,62 +766,59 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	fuelcen_reset();
 
 	//=============================== Reading part ==============================
-//	cfread( &version, sizeof(uint8_t), 1, LoadFile );						// 1 int8_t = compiled version
-	version = read_byte(LoadFile);
+	version = read_byte(LoadFile);						// 1 int8_t = compiled version
 	Assert( version==COMPILED_MINE_VERSION );
 
-//	cfread( &temp_ushort, sizeof(uint16_t), 1, LoadFile );					// 2 bytes = Num_vertices
-//	Num_vertices = temp_ushort;
-	Num_vertices = read_short(LoadFile);
+	Num_vertices = read_short(LoadFile);					// 2 bytes = Num_vertices
 	Assert( Num_vertices <= MAX_VERTICES );
 
-//	cfread( &temp_ushort, sizeof(uint16_t), 1, LoadFile );					// 2 bytes = Num_segments
-//	Num_segments = INTEL_SHORT(temp_ushort);
-	Num_segments = read_short(LoadFile);
+	Num_segments = read_short(LoadFile);					// 2 bytes = Num_segments
 	Assert( Num_segments <= MAX_SEGMENTS );
-
-//	cfread( Vertices, sizeof(vms_vector), Num_vertices, LoadFile );
 
 	for (i = 0; i < Num_vertices; i++)
 		read_vector( &(Vertices[i]), LoadFile);
 
-	for (segnum=0; segnum<Num_segments; segnum++ )	{
-
-		#ifdef EDITOR
+	for (segnum = 0; segnum < Num_segments; segnum++)
+	{
+#ifdef EDITOR
 		Segments[segnum].segnum = segnum;
 		Segments[segnum].group = 0;
-		#endif
+#endif
 
- 		cfread( &bit_mask, sizeof(uint8_t), 1, LoadFile );
+		cfread(&bit_mask, sizeof(uint8_t), 1, LoadFile);
 
-		#if defined(SHAREWARE) && !defined(MACINTOSH)
-			// -- read_special(segnum,bit_mask,LoadFile);
-			read_verts(segnum,LoadFile);
-			read_children(segnum,bit_mask,LoadFile);
-		#else
-			read_children(segnum,bit_mask,LoadFile);
-			read_verts(segnum,LoadFile);
+		if (CurrentDataVersion == DataVer::DEMO)
+		{
+			read_special(segnum,bit_mask,LoadFile);
+			read_verts(segnum, LoadFile);
+			read_children(segnum, bit_mask, LoadFile);
+
+			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
+			temp_ushort = read_short(LoadFile);
+			Segment2s[segnum].static_light = ((fix)temp_ushort) << 4;
+		}
+		else
+		{
+			read_children(segnum, bit_mask, LoadFile);
+			read_verts(segnum, LoadFile);
 			// --read_special(segnum,bit_mask,LoadFile);
-		#endif
+		}
 
 		Segments[segnum].objects = -1;
-
-		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-//		cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
-//		temp_ushort = read_short(LoadFile);
-//		Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
-		//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
 	
 		// Read the walls as a 6 int8_t array
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
+		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
+		{
 			Segments[segnum].sides[sidenum].pad = 0;
 		}
 
  		cfread( &bit_mask, sizeof(uint8_t), 1, LoadFile );
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
+		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) 
+		{
 			uint8_t byte_wallnum;
 
-			if (bit_mask & (1 << sidenum)) {
+			if (bit_mask & (1 << sidenum)) 
+			{
 				cfread( &byte_wallnum, sizeof(uint8_t), 1, LoadFile );
 				if ( byte_wallnum == 255 )			
 					Segments[segnum].sides[sidenum].wall_num = -1;
@@ -749,39 +828,39 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					Segments[segnum].sides[sidenum].wall_num = -1;
 		}
 
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
-
-			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
+		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	
+		{
+			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	
+			{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-//				cfread( &temp_ushort, sizeof(uint16_t), 1, LoadFile );
 				temp_ushort = read_short(LoadFile);
 				Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
 
 				if (!(temp_ushort & 0x8000))
 					Segments[segnum].sides[sidenum].tmap_num2 = 0;
-				else {
+				else 
+				{
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-//					cfread( &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1, LoadFile );
 					Segments[segnum].sides[sidenum].tmap_num2 = read_short(LoadFile);
 				}
 
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
-				for (i=0; i<4; i++ )	{
-//					cfread( &temp_short, sizeof(short), 1, LoadFile );
+				for (i=0; i<4; i++ )	
+				{
 					temp_short = read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].u = ((fix)temp_short) << 5;
-//					cfread( &temp_short, sizeof(short), 1, LoadFile );
 					temp_short = read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].v = ((fix)temp_short) << 5;
-//					cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
 					temp_ushort = read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) << 1;
-					//cfread( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, LoadFile );
 				}	
-			} else {
+			} 
+			else 
+			{
 				Segments[segnum].sides[sidenum].tmap_num = 0;
 				Segments[segnum].sides[sidenum].tmap_num2 = 0;
-				for (i=0; i<4; i++ )	{
+				for (i=0; i<4; i++ )	
+				{
 					Segments[segnum].sides[sidenum].uvls[i].u = 0;
 					Segments[segnum].sides[sidenum].uvls[i].v = 0;
 					Segments[segnum].sides[sidenum].uvls[i].l = 0;
@@ -827,14 +906,24 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 // MIKE!!!!! You should know better than this when the mac is involved!!!!!!
 
-	for (i=0; i<Num_segments; i++) {
-// NO NO!!!!		cfread( &Segment2s[i], sizeof(segment2), 1, LoadFile );
-		Segment2s[i].special = read_byte(LoadFile);
-		Segment2s[i].matcen_num = read_byte(LoadFile);
-		Segment2s[i].value = read_byte(LoadFile);
-		Segment2s[i].s2_flags = read_byte(LoadFile);
-		Segment2s[i].static_light = read_fix(LoadFile);
-		fuelcen_activate( &Segments[i], Segment2s[i].special );
+	if (CurrentDataVersion != DataVer::DEMO)
+	{
+		for (i = 0; i < Num_segments; i++)
+		{
+			Segment2s[i].special = read_byte(LoadFile);
+			Segment2s[i].matcen_num = read_byte(LoadFile);
+			Segment2s[i].value = read_byte(LoadFile);
+			Segment2s[i].s2_flags = read_byte(LoadFile);
+			Segment2s[i].static_light = read_fix(LoadFile);
+			fuelcen_activate(&Segments[i], Segment2s[i].special);
+		}
+	}
+	else
+	{
+		for (i = 0; i < Num_segments; i++)
+		{
+			fuelcen_activate(&Segments[i], Segment2s[i].special);
+		}
 	}
 
 	reset_objects(1);		//one object, the player

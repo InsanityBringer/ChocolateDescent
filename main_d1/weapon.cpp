@@ -18,7 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "misc/error.h"
 #include "sounds.h"
-#include "text.h"
+#include "stringtable.h"
 #include "powerup.h"
 #include "newdemo.h"
 #include "multi.h"

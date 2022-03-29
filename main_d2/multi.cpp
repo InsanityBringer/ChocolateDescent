@@ -43,11 +43,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "playsave.h"
 #include "platform/timer.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "sounds.h"
 #include "kconfig.h"
 #include "newdemo.h"
-#include "text.h"
+#include "stringtable.h"
 #include "kmatrix.h"
 #include "multibot.h"
 #include "gameseq.h"
@@ -61,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "misc/args.h"
 #include "automap.h"
+#include "platform/posixstub.h"
 
 //
 // Local macros and prototypes
@@ -1201,7 +1202,7 @@ extern fix StartingShields;
 fix PingLaunchTime, PingReturnTime;
 
 extern void network_send_ping(uint8_t);
-extern void network_dump_player(uint8_t* server, uint8_t* node, int why);
+extern void network_dump_player(uint8_t* node, int why);
 extern int network_who_is_master();
 extern void network_send_netgame_update();
 extern char NameReturning;
@@ -1372,7 +1373,6 @@ void multi_send_message_end()
 			}
 			else HUD_init_message("You cannot use # kicking with in team display.");
 
-
 			multi_message_index = 0;
 			multi_sending_message = 0;
 			return;
@@ -1380,10 +1380,10 @@ void multi_send_message_end()
 
 
 		for (i = 0; i < N_players; i++)
-			if ((!_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message) - name_index)) && (i != Player_num) && (Players[i].connected)) {
+			if ((!_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message) - name_index)) && (i != Player_num) && (Players[i].connected)) 
+			{
 			kick_player:;
-				if (Network_game_type == IPX_GAME)
-					network_dump_player(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, 7);
+				network_dump_player(NetPlayers.players[i].network.ipx.node, 7);
 
 				HUD_init_message("Dumping %s...", Players[i].callsign);
 				multi_message_index = 0;
@@ -1649,14 +1649,7 @@ multi_do_position(char* buf)
 		return;
 	}
 
-
-#ifndef MACINTOSH
-	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos*)(buf + 1), 0);
-#else
-	memcpy((uint8_t*)(sp.bytemat), (uint8_t*)(buf + 1), 9);
-	memcpy((uint8_t*)&(sp.xo), (uint8_t*)(buf + 10), 14);
-	extract_shortpos(&Objects[Players[pnum].objnum], &sp, 1);
-#endif
+	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos*)(buf + 1));
 
 	if (Objects[Players[pnum].objnum].movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(&Objects[Players[pnum].objnum]);
@@ -2994,7 +2987,7 @@ multi_send_position(int objnum)
 
 	multibuf[count++] = (char)MULTI_POSITION;
 #ifndef MACINTOSH
-	create_shortpos((shortpos*)(multibuf + count), Objects + objnum, 0);
+	create_shortpos((shortpos*)(multibuf + count), Objects + objnum);
 	count += sizeof(shortpos);
 #else
 	create_shortpos(&sp, Objects + objnum, 1);
@@ -4046,7 +4039,7 @@ void multi_send_guided_info(object* miss, char done)
 	multibuf[count++] = done;
 
 #ifndef MACINTOSH
-	create_shortpos((shortpos*)(multibuf + count), miss, 0);
+	create_shortpos((shortpos*)(multibuf + count), miss);
 	count += sizeof(shortpos);
 #else
 	create_shortpos(&sp, miss, 1);
@@ -4096,13 +4089,7 @@ void multi_do_guided(char* buf)
 		return;
 	}
 
-#ifndef MACINTOSH	
-	extract_shortpos(Guided_missile[pnum], (shortpos*)(buf + count), 0);
-#else
-	memcpy((uint8_t*)(sp.bytemat), (uint8_t*)(buf + count), 9);
-	memcpy((uint8_t*)&(sp.xo), (uint8_t*)(buf + count + 9), 14);
-	extract_shortpos(Guided_missile[pnum], &sp, 1);
-#endif
+	extract_shortpos(Guided_missile[pnum], (shortpos*)(buf + count));
 
 	count += sizeof(shortpos);
 
@@ -5228,7 +5215,7 @@ void multi_do_play_by_play(char* buf)
 ///
 
 #include "cfile/cfile.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "mem/mem.h"
 
 void init_bitmap(grs_bitmap* bm, int w, int h, int flags, uint8_t* data)

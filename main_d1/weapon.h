@@ -16,7 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "2d/gr.h"
 #include "game.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 typedef struct weapon_info {
 	int8_t	render_type;				// How to draw 0=laser, 1=blob, 2=object

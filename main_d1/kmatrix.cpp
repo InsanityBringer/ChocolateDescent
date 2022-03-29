@@ -37,7 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "platform/joy.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "multi.h"
 #include "kmatrix.h"
 #include "gauges.h"
@@ -207,8 +207,8 @@ void kmatrix_view(int network)
 	while (!done) 
 	{
 		I_MarkStart();
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 		for (i = 0; i < 4; i++)
 			if (joy_get_button_down_cnt(i) > 0) done = 1;
 		for (i = 0; i < 3; i++)

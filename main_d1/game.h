@@ -19,17 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat/vecmat.h"
 #include "object.h"
 #include "misc/types.h"
-
- //from mglobal.c
-extern fix FrameTime;					//time in seconds since last frame
-extern fix RealFrameTime;					//time in seconds since last frame
-extern fix GameTime;						//time in game (sum of FrameTime)
-extern int FrameCount;					//how many frames rendered
-extern fix	Next_laser_fire_time;	//	Time at which player can next fire his selected laser.
-extern fix	Last_laser_fired_time;
-extern fix	Next_missile_fire_time;	//	Time at which player can next fire his selected missile.
-extern fix	Laser_delay_time;			//	Delay between laser fires.
-extern int Cheats_enabled;
+#include "main_shared/game_shared.h"
 
 //constants for ft_preference
 #define FP_RIGHT		0
@@ -201,22 +191,16 @@ extern int Game_turbo_mode;
 #define VR_AREA_DET		1	//viewing with the stereo area determined method
 #define VR_INTERLACED	2	//viewing with the stereo interlaced method
 
-extern uint8_t		VR_use_paging;
-extern uint8_t		VR_current_page;
-extern uint8_t		VR_switch_eyes;
-extern fix			VR_eye_width;
 extern int			VR_screen_mode;
 extern int			VR_render_width;
 extern int			VR_render_height;
-extern int			VR_render_mode;
 extern int			VR_compatible_menus;
 extern grs_canvas* VR_offscreen_buffer;		// The offscreen data buffer
-extern grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eyes.
-extern grs_canvas	VR_render_sub_buffer[2];			//  Two sub buffers for left/right eyes.
-extern grs_canvas	VR_screen_pages[2];					//  Two pages of VRAM if paging is available
-extern grs_canvas	VR_screen_sub_pages[2];				//  Two sub pages of VRAM if paging is available
+extern grs_canvas	VR_render_buffer;					//  Two offscreen buffers for left/right eyes.
+extern grs_canvas	VR_render_sub_buffer;			//  Two sub buffers for left/right eyes.
+extern grs_canvas	VR_screen_buffer;
 
-void game_init_render_buffers(int screen_mode, int render_max_w, int render_max_h, int use_paging, int render_method, int compatible_menus);
+void game_init_render_buffers(int screen_mode, int render_max_w, int render_max_h, int compatible_menus);
 
 void fill_background(int x, int y, int w, int h, int dx, int dy);
 void game_init_render_sub_buffers(int x, int y, int w, int h);

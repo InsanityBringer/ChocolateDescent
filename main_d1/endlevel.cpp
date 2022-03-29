@@ -12,7 +12,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 //#define SLEW_ON 1
-//#define _MARK_ON
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -45,11 +44,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "fireball.h"
 #include "network.h"
-#include "text.h"
-#include "digi.h"
+#include "stringtable.h"
+#include "main_shared/digi.h"
 #include "cfile/cfile.h"
-#include "compbit.h"
-#include "songs.h"
+#include "main_shared/compbit.h"
+#include "main_shared/songs.h"
 
 typedef struct flythrough_data
 {
@@ -117,6 +116,10 @@ void start_endlevel_flythrough(int n, object* obj, fix speed);
 
 grs_bitmap terrain_bm_instance;
 grs_bitmap satellite_bm_instance;
+
+#ifdef SLEW_ON		//this is a special routine for slewing around external scene
+int _do_slew_movement(object* obj, int check_keys, int check_joy);
+#endif
 
 //find delta between two angles
 fixang delta_ang(fixang a, fixang b)
@@ -620,8 +623,6 @@ void do_endlevel_frame()
 
 			ConsoleObject->control_type = endlevel_camera->control_type = CT_NONE;
 
-			//_MARK_("Starting outside");//Commented out by KRB
-
 #ifdef SLEW_ON
 			slew_obj = endlevel_camera;
 #endif
@@ -730,8 +731,6 @@ void do_endlevel_frame()
 			vms_vector tvec;
 
 			Endlevel_sequence = EL_CHASING;
-
-			//_MARK_("Done outside");//Commented out -KRB
 
 			vm_vec_normalized_dir_quick(&tvec, &station_pos, &ConsoleObject->pos);
 			vm_vector_2_matrix(&ConsoleObject->orient, &tvec, &surface_orient.uvec, NULL);
@@ -1127,13 +1126,7 @@ void do_endlevel_flythrough(int n)
 
 			for (i = 0; i < 6; i++) 
 			{
-#ifdef COMPACT_SEGS
-				vms_vector v1;
-				get_side_normal(pseg, i, 0, &v1);
-				d = vm_vec_dot(&v1, &flydata->obj->orient.uvec);
-#else
 				d = vm_vec_dot(&pseg->sides[i].normals[0], &flydata->obj->orient.uvec);
-#endif
 				if (d > largest_d) { largest_d = d; up_side = i; }
 			}
 
@@ -1178,15 +1171,7 @@ void do_endlevel_flythrough(int n)
 		compute_segment_center(&nextcenter, &Segments[pseg->children[exit_side]]);
 		vm_vec_sub(&flydata->headvec, &nextcenter, &curcenter);
 
-#ifdef COMPACT_SEGS	
-		{
-			vms_vector _v1;
-			get_side_normal(pseg, up_side, 0, &_v1);
-			vm_vector_2_matrix(&dest_orient, &flydata->headvec, &_v1, NULL);
-		}
-#else
 		vm_vector_2_matrix(&dest_orient, &flydata->headvec, &pseg->sides[up_side].normals[0], NULL);
-#endif
 		vm_extract_angles_matrix(&dest_angles, &dest_orient);
 
 		if (flydata->first_time)
@@ -1231,19 +1216,19 @@ int _do_slew_movement(object* obj, int check_keys, int check_joy)
 	vms_angvec rotang;
 
 	if (keyd_pressed[KEY_PAD5])
-		vm_vec_zero(&obj->phys_info.velocity);
+		vm_vec_zero(&obj->mtype.phys_info.velocity);
 
 	if (check_keys) {
-		obj->phys_info.velocity.x += VEL_SPEED * (key_down_time(KEY_PAD9) - key_down_time(KEY_PAD7));
-		obj->phys_info.velocity.y += VEL_SPEED * (key_down_time(KEY_PADMINUS) - key_down_time(KEY_PADPLUS));
-		obj->phys_info.velocity.z += VEL_SPEED * (key_down_time(KEY_PAD8) - key_down_time(KEY_PAD2));
+		obj->mtype.phys_info.velocity.x += VEL_SPEED * (key_down_time(KEY_PAD9) - key_down_time(KEY_PAD7));
+		obj->mtype.phys_info.velocity.y += VEL_SPEED * (key_down_time(KEY_PADMINUS) - key_down_time(KEY_PADPLUS));
+		obj->mtype.phys_info.velocity.z += VEL_SPEED * (key_down_time(KEY_PAD8) - key_down_time(KEY_PAD2));
 
-		rotang.pitch = (key_down_time(KEY_LBRACKET) - key_down_time(KEY_RBRACKET)) / ROT_SPEED;
-		rotang.bank = (key_down_time(KEY_PAD1) - key_down_time(KEY_PAD3)) / ROT_SPEED;
-		rotang.head = (key_down_time(KEY_PAD6) - key_down_time(KEY_PAD4)) / ROT_SPEED;
+		rotang.p = (key_down_time(KEY_LBRACKET) - key_down_time(KEY_RBRACKET)) / ROT_SPEED;
+		rotang.b = (key_down_time(KEY_PAD1) - key_down_time(KEY_PAD3)) / ROT_SPEED;
+		rotang.h = (key_down_time(KEY_PAD6) - key_down_time(KEY_PAD4)) / ROT_SPEED;
 	}
 	else
-		rotang.pitch = rotang.bank = rotang.head = 0;
+		rotang.p = rotang.b = rotang.h = 0;
 
 	//check for joystick movement
 
@@ -1258,26 +1243,26 @@ int _do_slew_movement(object* obj, int check_keys, int check_joy)
 		if (abs(joy_y) < JOY_NULL) joy_y = 0;
 
 		if (btns)
-			if (!rotang.pitch) rotang.pitch = fixmul(-joy_y * 512, FrameTime); else;
+			if (!rotang.p) rotang.p = fixmul(-joy_y * 512, FrameTime); else;
 		else
-			if (joyy_moved) obj->phys_info.velocity.z = -joy_y * 8192;
+			if (joyy_moved) obj->mtype.phys_info.velocity.z = -joy_y * 8192;
 
-		if (!rotang.head) rotang.head = fixmul(joy_x * 512, FrameTime);
+		if (!rotang.h) rotang.h = fixmul(joy_x * 512, FrameTime);
 
 		if (joyx_moved) old_joy_x = joy_x;
 		if (joyy_moved) old_joy_y = joy_y;
 	}
 
-	moved = rotang.pitch | rotang.bank | rotang.head;
+	moved = rotang.p | rotang.b | rotang.h;
 
 	vm_angles_2_matrix(&rotmat, &rotang);
 	vm_matrix_x_matrix(&new_pm, &obj->orient, &rotmat);
 	obj->orient = new_pm;
 	vm_transpose_matrix(&new_pm);		//make those columns rows
 
-	moved |= obj->phys_info.velocity.x | obj->phys_info.velocity.y | obj->phys_info.velocity.z;
+	moved |= obj->mtype.phys_info.velocity.x | obj->mtype.phys_info.velocity.y | obj->mtype.phys_info.velocity.z;
 
-	svel = obj->phys_info.velocity;
+	svel = obj->mtype.phys_info.velocity;
 	vm_vec_scale(&svel, FrameTime);		//movement in this frame
 	vm_vec_rotate(&movement, &svel, &new_pm);
 

@@ -117,7 +117,7 @@ int cfile_init_hogfile(const char* fname, hogfile* hog_files, int* nfiles)
 	if (fp == NULL)
 	{
 		Warning("cfile_init_hogfile: Can't open hogfile: %s\n", fname);
-		return 1;
+		return 0;
 	}
 
 	fread(id, 3, 1, fp);
@@ -435,39 +435,47 @@ void cfclose(CFILE* fp)
 	return;
 }
 
-uint8_t CF_ReadByte(CFILE* fp)
+uint8_t cfile_read_byte(CFILE* fp)
 {
 	uint8_t b;
-	cfread(&b, sizeof(uint8_t), 1, fp);
+	size_t size = cfread(&b, sizeof(uint8_t), 1, fp);
+	if (size < 1)
+		Error("cfile_read_byte: read %d bytes, expected 1.", size);
 	return b;
 }
 
-short CF_ReadShort(CFILE* fp)
+short cfile_read_short(CFILE* fp)
 {
 	uint8_t b[2];
 	short v;
-	cfread(&b[0], sizeof(uint8_t), 2, fp);
+	size_t size = cfread(&b[0], sizeof(uint8_t), 2, fp);
+	if (size < 2)
+		Error("cfile_read_short: read %d bytes, expected 2.", size);
+
 	v = b[0] + (b[1] << 8);
 	return v;
 }
 
-int CF_ReadInt(CFILE* fp)
+int cfile_read_int(CFILE* fp)
 {
 	uint8_t b[4];
 	int v;
-	cfread(&b[0], sizeof(uint8_t), 4, fp);
+	size_t size = cfread(&b[0], sizeof(uint8_t), 4, fp);
+	if (size < 4)
+		Error("cfile_read_int: read %d bytes, expected 4.", size);
+
 	v = b[0] + (b[1] << 8) + (b[2] << 16) + (b[3] << 24);
 	return v;
 }
 
-uint8_t F_ReadByte(FILE* fp)
+uint8_t file_read_byte(FILE* fp)
 {
 	uint8_t b;
 	fread(&b, sizeof(uint8_t), 1, fp);
 	return b;
 }
 
-short F_ReadShort(FILE* fp)
+short file_read_short(FILE* fp)
 {
 	uint8_t b[2];
 	short v;
@@ -476,7 +484,7 @@ short F_ReadShort(FILE* fp)
 	return v;
 }
 
-int F_ReadInt(FILE* fp)
+int file_read_int(FILE* fp)
 {
 	uint8_t b[4];
 	int v;
@@ -485,12 +493,12 @@ int F_ReadInt(FILE* fp)
 	return v;
 }
 
-void F_WriteByte(FILE* fp, uint8_t b)
+void file_write_byte(FILE* fp, uint8_t b)
 {
 	fwrite(&b, sizeof(uint8_t), 1, fp);
 }
 
-void F_WriteShort(FILE* fp, short s)
+void file_write_short(FILE* fp, short s)
 {
 	uint8_t b1 = s & 255;
 	uint8_t b2 = (s >> 8) & 255;
@@ -498,7 +506,7 @@ void F_WriteShort(FILE* fp, short s)
 	fwrite(&b2, sizeof(uint8_t), 1, fp);
 }
 
-void F_WriteInt(FILE* fp, int i)
+void file_write_int(FILE* fp, int i)
 {
 	uint8_t b1 = i & 255;
 	uint8_t b2 = (i >> 8) & 255;
@@ -511,7 +519,7 @@ void F_WriteInt(FILE* fp, int i)
 }
 
 //[ISB] so it turns out there was already a cfgets. OOPS. This is still needed for the level name loader though
-void CF_GetString(char* buffer, int count, CFILE* fp)
+void cfile_get_string(char* buffer, int count, CFILE* fp)
 {
 	int i = 0;
 	char c;
@@ -529,14 +537,14 @@ void CF_GetString(char* buffer, int count, CFILE* fp)
 
 void cfile_read_vector(vms_vector* vec, CFILE* fp)
 {
-	vec->x = CF_ReadInt(fp);
-	vec->y = CF_ReadInt(fp);
-	vec->z = CF_ReadInt(fp);
+	vec->x = cfile_read_int(fp);
+	vec->y = cfile_read_int(fp);
+	vec->z = cfile_read_int(fp);
 }
 
 void cfile_read_angvec(vms_angvec *vec, CFILE* fp)
 {
-	vec->p = CF_ReadShort(fp);
-	vec->b = CF_ReadShort(fp);
-	vec->h = CF_ReadShort(fp);
+	vec->p = cfile_read_short(fp);
+	vec->b = cfile_read_short(fp);
+	vec->h = cfile_read_short(fp);
 }

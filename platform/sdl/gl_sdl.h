@@ -18,7 +18,7 @@ Instead, it is released under the terms of the MIT License.
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/GL.h>
 #else
-#include <gl/GL.h>
+#include <GL/gl.h>
 #endif
 
 #include <SDL.h>
@@ -43,12 +43,16 @@ void I_ShutdownGL();
 
 //ugh
 //TODO check if needed on linux
+#ifndef GL_VERSION_2_0
 typedef char GLchar;
+#endif
 
 //These are how these are defined in GLEW
 //Not sure why sizeiptr isn't unsigned, but okay.
+#ifndef GL_VERSION_1_5
 typedef ptrdiff_t GLsizeiptr;
 typedef ptrdiff_t GLintptr;
+#endif
 
 //basics
 extern void(APIENTRY* sglClear)(GLbitfield mask);
@@ -57,6 +61,7 @@ extern void(APIENTRY* sglViewport)(GLint x, GLint y, GLsizei width, GLsizei heig
 extern GLenum(APIENTRY* sglGetError)();
 
 //shaders
+#ifndef GL_VERSION_2_0
 #define GL_FRAGMENT_SHADER 0x8B30
 #define GL_VERTEX_SHADER 0x8B31
 #define GL_MAX_FRAGMENT_UNIFORM_COMPONENTS 0x8B49
@@ -81,6 +86,7 @@ extern GLenum(APIENTRY* sglGetError)();
 #define GL_FRAGMENT_SHADER_DERIVATIVE_HINT 0x8B8B
 #define GL_SHADING_LANGUAGE_VERSION 0x8B8C
 #define GL_CURRENT_PROGRAM 0x8B8D
+#endif
 
 extern GLuint(APIENTRY* sglCreateShader)(GLenum type);
 extern GLuint(APIENTRY* sglCreateProgram)();
@@ -120,7 +126,7 @@ extern void(APIENTRY* sglEnableVertexAttribArray)(GLuint index);
 extern void(APIENTRY* sglVertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
 
 //Buffers
-
+#ifndef GL_VERSION_1_5
 #define GL_ARRAY_BUFFER 0x8892
 #define GL_ELEMENT_ARRAY_BUFFER 0x8893
 #define GL_STREAM_DRAW 0x88E0
@@ -132,6 +138,7 @@ extern void(APIENTRY* sglVertexAttribPointer)(GLuint index, GLint size, GLenum t
 #define GL_DYNAMIC_DRAW 0x88E8
 #define GL_DYNAMIC_READ 0x88E9
 #define GL_DYNAMIC_COPY 0x88EA
+#endif
 
 extern void(APIENTRY* sglBindBuffer)(GLenum target, GLuint buffer);
 extern void(APIENTRY* sglDeleteBuffers)(GLsizei n, const GLuint* buffers);
@@ -141,6 +148,7 @@ extern void(APIENTRY* sglBufferSubData)(GLenum target, GLintptr offset, GLsizeip
 
 //Textures
 //Should be more defintions but this is already way more than this project needs.
+#ifndef GL_TEXTURE0
 #define GL_TEXTURE0 0x84C0
 #define GL_TEXTURE1 0x84C1
 #define GL_TEXTURE2 0x84C2
@@ -150,6 +158,7 @@ extern void(APIENTRY* sglBufferSubData)(GLenum target, GLintptr offset, GLsizeip
 #define GL_TEXTURE6 0x84C6
 #define GL_TEXTURE7 0x84C7
 #define GL_TEXTURE8 0x84C8
+#endif
 
 #define GL_RG 0x8227
 #define GL_RG_INTEGER 0x8228

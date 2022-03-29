@@ -350,7 +350,7 @@ namespace
 	}
 }
 
-int I_InitAudio()
+int plat_init_audio()
 {
 	CoInitialize(0);
 	static int majorhack = 1;
@@ -359,7 +359,7 @@ int I_InitAudio()
 	HRESULT result = CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&device_enumerator);
 	if (FAILED(result))
 	{
-		Warning("I_InitAudio(): Unable to create IMMDeviceEnumerator instance\n"); //[ISB] downgrading to nonfatal warning for moment
+		Warning("plat_init_audio(): Unable to create IMMDeviceEnumerator instance\n"); //[ISB] downgrading to nonfatal warning for moment
 		return 1;
 	}
 
@@ -367,14 +367,14 @@ int I_InitAudio()
 	device_enumerator->Release();
 	if (FAILED(result))
 	{
-		Warning("I_InitAudio(): IDeviceEnumerator.GetDefaultAudioEndpoint failed\n");
+		Warning("plat_init_audio(): IDeviceEnumerator.GetDefaultAudioEndpoint failed\n");
 		return 1;
 	}
 
 	result = mmdevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, 0, (void**)&audio_client);
 	if (FAILED(result))
 	{
-		Warning("I_InitAudio(): IMMDevice.Activate failed\n");
+		Warning("plat_init_audio(): IMMDevice.Activate failed\n");
 		mmdevice->Release();
 		return 1;
 	}
@@ -400,7 +400,7 @@ int I_InitAudio()
 		mmdevice->Release();
 		audio_client = nullptr;
 		mmdevice = nullptr;
-		Warning("I_InitAudio(): IAudioClient.IsFormatSupported failed\n"); //[ISB] not fully sure if the cleanup is vital, but make sure its done before terminating through Error
+		Warning("plat_init_audio(): IAudioClient.IsFormatSupported failed\n"); //[ISB] not fully sure if the cleanup is vital, but make sure its done before terminating through Error
 		return 1;
 	}
 
@@ -423,7 +423,7 @@ int I_InitAudio()
 		mmdevice->Release();
 		audio_client = nullptr;
 		mmdevice = nullptr;
-		Warning("I_InitAudio(): IAudioClient.Initialize failed\n"); 
+		Warning("plat_init_audio(): IAudioClient.Initialize failed\n"); 
 		return 1;
 	}
 
@@ -434,7 +434,7 @@ int I_InitAudio()
 		mmdevice->Release();
 		audio_client = nullptr;
 		mmdevice = nullptr;
-		Warning("I_InitAudio(): IAudioClient.GetService(IAudioRenderClient) failed\n");
+		Warning("plat_init_audio(): IAudioClient.GetService(IAudioRenderClient) failed\n");
 		return 1;
 	}
 
@@ -447,7 +447,7 @@ int I_InitAudio()
 		audio_render_client = nullptr;
 		audio_client = nullptr;
 		mmdevice = nullptr;
-		Warning("I_InitAudio(): CreateEvent failed\n");
+		Warning("plat_init_audio(): CreateEvent failed\n");
 		return 1;
 	}
 
@@ -460,7 +460,7 @@ int I_InitAudio()
 		audio_render_client = nullptr;
 		audio_client = nullptr;
 		mmdevice = nullptr;
-		Warning("I_InitAudio(): IAudioClient.SetEventHandle failed\n");
+		Warning("plat_init_audio(): IAudioClient.SetEventHandle failed\n");
 		return 1;
 	}
 
@@ -473,7 +473,7 @@ int I_InitAudio()
 		audio_render_client = nullptr;
 		audio_client = nullptr;
 		mmdevice = nullptr;
-		Warning("I_InitAudio(): IAudioClient.GetBufferSize failed\n");
+		Warning("plat_init_audio(): IAudioClient.GetBufferSize failed\n");
 		return 1;
 	}
 
@@ -484,7 +484,7 @@ int I_InitAudio()
 	return 0;
 }
 
-void I_ShutdownAudio()
+void plat_close_audio()
 {
 	if (audio_render_client)
 	{
@@ -508,7 +508,7 @@ void I_ShutdownAudio()
 	}
 }
 
-int I_GetSoundHandle()
+int plat_get_new_sound_handle()
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	for (int i = 0; i < _MAX_VOICES; i++)
@@ -519,7 +519,7 @@ int I_GetSoundHandle()
 	return _ERR_NO_SLOTS;
 }
 
-void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
+void plat_set_sound_data(int handle, unsigned char* data, int length, int sampleRate)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
@@ -534,7 +534,7 @@ void I_SetSoundData(int handle, unsigned char* data, int length, int sampleRate)
 	sources[handle].loop_start = 0;
 }
 
-void I_SetSoundInformation(int handle, int volume, int angle)
+void plat_set_sound_position(int handle, int volume, int angle)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
@@ -548,7 +548,7 @@ void I_SetSoundInformation(int handle, int volume, int angle)
 	sources[handle].volume = volume / 32768.0f;
 }
 
-void I_SetAngle(int handle, int angle)
+void plat_set_sound_angle(int handle, int angle)
 {
 	if (handle < 0 ||handle >= _MAX_VOICES) return;
 
@@ -561,7 +561,7 @@ void I_SetAngle(int handle, int angle)
 	sources[handle].angle_y = y;
 }
 
-void I_SetVolume(int handle, int volume)
+void plat_set_sound_volume(int handle, int volume)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
@@ -569,7 +569,7 @@ void I_SetVolume(int handle, int volume)
 	sources[handle].volume = volume / 32768.0f;
 }
 
-void I_PlaySound(int handle, int loop)
+void plat_start_sound(int handle, int loop)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
@@ -580,7 +580,7 @@ void I_PlaySound(int handle, int loop)
 	sources[handle].loop = loop;
 }
 
-void I_StopSound(int handle)
+void plat_stop_sound(int handle)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
@@ -588,7 +588,7 @@ void I_StopSound(int handle)
 	sources[handle].playing = false;
 }
 
-void I_SetLoopPoints(int handle, int start, int end)
+void plat_set_sound_loop_points(int handle, int start, int end)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return;
 
@@ -599,7 +599,7 @@ void I_SetLoopPoints(int handle, int start, int end)
 		sources[handle].length = end; //[ISB] kinda a hack tbh
 }
 
-int I_CheckSoundPlaying(int handle)
+int plat_check_if_sound_playing(int handle)
 {
 	if (handle < 0 || handle >= _MAX_VOICES) return 0;
 
@@ -607,12 +607,12 @@ int I_CheckSoundPlaying(int handle)
 	return sources[handle].playing;
 }
 
-int I_CheckSoundDone(int handle)
+int plat_check_if_sound_finished(int handle)
 {
-	return !I_CheckSoundPlaying(handle);
+	return !plat_check_if_sound_playing(handle);
 }
 
-void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
+void plat_start_hq_song(int sample_rate, std::vector<float>&& song_data, bool loop)
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	music.sample_rate = sample_rate;
@@ -623,7 +623,7 @@ void I_PlayHQSong(int sample_rate, std::vector<float>&& song_data, bool loop)
 	music.playing = true;
 }
 
-void I_StopHQSong()
+void plat_stop_hq_song()
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	music.sample_rate = 0;
@@ -634,7 +634,7 @@ void I_StopHQSong()
 	music.playing = false;
 }
 
-int I_StartMIDI(MidiSequencer* newSeq)
+int plat_start_midi(MidiSequencer* newSeq)
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	return 0;
@@ -645,51 +645,51 @@ void I_ShutdownMIDI()
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 }
 
-void I_StartMIDISong(HMPFile* song, bool loop)
+void plat_start_midi_song(HMPFile* song, bool loop)
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex); //[ISB] OOPS
 }
 
-void I_StopMIDISong()
+void plat_stop_midi_song()
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 }
 
 //[ISB] new MIDI buffering inferface
-bool I_CanQueueMusicBuffer()
+bool midi_queue_slots_available()
 {
 	return false;
 }
 
-void I_DequeueMusicBuffers()
+void midi_dequeue_midi_buffers()
 {
 }
 
-void I_QueueMusicBuffer(int numSamples, uint16_t* data)
+void midi_queue_buffer(int numSamples, uint16_t* data)
 {
 }
 
-void I_StartMIDISource()
+void midi_start_source()
 {
 }
 
-void I_StopMIDISource()
+void midi_stop_source()
 {
 }
 
-void I_SetMusicVolume(int volume)
+void plat_set_music_volume(int volume)
 {
 	music_volume = volume / 127.0f;
 }
 
-uint32_t I_GetPreferredMIDISampleRate()
+uint32_t plat_get_preferred_midi_sample_rate()
 {
 	return mixing_frequency;
 }
 
 //Movie buffering interface
 
-void I_InitMovieAudio(int format, int samplerate, int stereo)
+void mvesnd_init_audio(int format, int samplerate, int stereo)
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	switch (format)
@@ -711,7 +711,7 @@ void I_InitMovieAudio(int format, int samplerate, int stereo)
 	moviebuffer.last_queued_buffer = 0;
 }
 
-void I_QueueMovieAudioBuffer(int len, short* data)
+void mvesnd_queue_audio_buffer(int len, short* data)
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	moviebuffer.buffers[moviebuffer.last_queued_buffer].data = new uint8_t[len];
@@ -732,7 +732,7 @@ void I_QueueMovieAudioBuffer(int len, short* data)
 	moviebuffer.playing = true;
 }
 
-void I_DestroyMovieAudio()
+void mvesnd_close()
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	moviebuffer.playing = false;
@@ -746,14 +746,14 @@ void I_DestroyMovieAudio()
 	}
 }
 
-void I_PauseMovieAudio()
+void mvesnd_pause()
 {
 	//[ISB] strictly speaking I don't think these need to be synced, but just in case. 
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	moviebuffer.playing = false;
 }
 
-void I_UnPauseMovieAudio()
+void mvesnd_resume()
 {
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 	moviebuffer.playing = true;

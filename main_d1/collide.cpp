@@ -50,15 +50,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "network.h"
 #include "newmenu.h"
 #include "scores.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "textures.h"
 #include "multi.h"
 #include "cntrlcen.h"
 #include "newdemo.h"
 #include "endlevel.h"
 #include "multibot.h"
-#include "piggy.h"
-#include "text.h"
+#include "main_shared/piggy.h"
+#include "stringtable.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -329,11 +329,7 @@ void scrape_object_on_wall(object* obj, short hitseg, short hitside, vms_vector*
 						multi_send_play_sound(SOUND_VOLATILE_WALL_HISS, F1_0);
 #endif
 				}
-#ifdef COMPACT_SEGS
-				get_side_normal(&Segments[hitseg], hitside, 0, &hit_dir);
-#else
 				hit_dir = Segments[hitseg].sides[hitside].normals[0];
-#endif
 				make_random_vector(&rand_vec);
 				vm_vec_scale_add2(&hit_dir, &rand_vec, F1_0 / 8);
 				vm_vec_normalize_quick(&hit_dir);

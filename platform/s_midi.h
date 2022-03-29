@@ -59,14 +59,21 @@ as described in copying.txt
 
 #define MIDI_SAMPLERATE 48000 //changed from 44100 since 44100/120 = 367.5 which causes timing anomalies for MIDI
 
+enum class GenDevices
+{
+	NullDevice,
+	FluidSynthDevice,
+	MMEDevice
+};
+
+extern GenDevices PreferredGenDevice;
 extern char SoundFontFilename[];
 
 typedef struct
 {
 	uint32_t delta;
 
-	uint8_t channel;
-	uint8_t type;
+	uint8_t status;
 	uint8_t param1;
 	uint8_t param2;
 
@@ -75,6 +82,23 @@ typedef struct
 
 	//Used for branches. Ugh. 
 	uint32_t startPtr;  
+
+	uint32_t EncodeShortMessage()
+	{
+		return status | (param1 << 8) | (param2 << 16);
+	}
+
+	int GetType()
+	{
+		if (status == 0xff) return 0xff;
+		return (status >> 4) & 15;
+	}
+
+	int GetChannel()
+	{
+		return status & 15;
+	}
+
 } midievent_t;
 
 struct BranchControlChange
@@ -219,6 +243,7 @@ public:
 
 int S_InitMusic(int device);
 void S_ShutdownMusic();
+void music_set_volume(int volume);
 
 uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle);
 uint16_t S_StopSong();
@@ -237,6 +262,8 @@ public:
 	virtual int ClassifySynth() = 0;
 	//Changes the sample rate for soft synths.
 	virtual void SetSampleRate(uint32_t newSampleRate) = 0;
+	//Actually creates the synth. This is required due to fluidsynth.
+	virtual void CreateSynth() = 0;
 	//Executes a midi event.
 	virtual void DoMidiEvent(midievent_t* ev) = 0;
 	//Renders a softsynth's output into a buffer. For stereo sounds samples are interleaved.
@@ -248,6 +275,8 @@ public:
 	//Resets the default state for the synth, because HMI SOS has unusual specifications.
 	virtual void SetDefaults() = 0;
 	virtual void PerformBranchResets(BranchEntry* entry, int chan) = 0;
+	//Sets the volume of the synthesizer. Range is 0-127. 
+	virtual void SetVolume(int volume) = 0;
 };
 
 class DummyMidiSynth : public MidiSynth
@@ -255,12 +284,14 @@ class DummyMidiSynth : public MidiSynth
 public:
 	int ClassifySynth() override { return MIDISYNTH_SOFT; }
 	void SetSampleRate(uint32_t newSampleRate) override { }
+	void CreateSynth() override { }
 	void DoMidiEvent(midievent_t* ev) override { }
 	void RenderMIDI(int numTicks, unsigned short* buffer) override { }
 	void StopSound() override { }
 	void Shutdown() override { }
 	void SetDefaults() override { }
 	void PerformBranchResets(BranchEntry* entry, int chan) override { }
+	void SetVolume(int volume) override { }
 };
 
 //Class which represents the midi thread. Has a Sequencer and a Synthesizer, and invokes the current audio backend to run
@@ -268,6 +299,7 @@ class MidiPlayer
 {
 	//The digi code can call shutdown before an init, so uh...
 	bool initialized; 
+	bool songLoaded;
 	MidiSequencer* sequencer;
 	MidiSynth* synth;
 

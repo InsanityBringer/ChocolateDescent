@@ -43,8 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "texmap/texmap.h"
 #include "3d/3d.h"
-#include "effects.h"
-#include "2d/effect2d.h"
+#include "main_shared/effects.h"
 #include "menu.h"
 #include "gameseg.h"
 #include "wall.h"
@@ -52,7 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hostage.h"
 #include "fuelcen.h"
 #include "switch.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "gamesave.h"
 #include "scores.h"
 #include "2d/ibitblt.h"
@@ -65,7 +64,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "weapon.h"
 #include "sounds.h"
-#include "args.h"
+#include "misc/args.h"
 #include "gameseq.h"
 #include "gamefont.h"
 #include "newmenu.h"
@@ -84,15 +83,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "cntrlcen.h"
 #include "powerup.h"
-#include "text.h"
+#include "stringtable.h"
 #include "cfile/cfile.h"
-#include "piggy.h"
-#include "texmerge.h"
+#include "main_shared/piggy.h"
+#include "main_shared/texmerge.h"
 #include "paging.h"
 #include "mission.h"
 #include "state.h"
-#include "songs.h"
+#include "main_shared/songs.h"
+#ifdef NETWORK
 #include "netmisc.h"
+#endif
 
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -117,7 +118,7 @@ int MaxNumNetPlayers = -1;
 int NumNetPlayerPositions = -1;
 
 // Extern from game.c to fix a bug in the cockpit!
-extern int last_drawn_cockpit[2];
+extern int last_drawn_cockpit;
 extern int Last_level_path_created;
 
 void HUD_clear_messages(); // From hud.c
@@ -941,7 +942,7 @@ void PlayerFinishedLevel(int secret_flag)
 		else
 			Players[Player_num].connected = 2; // Finished but did not die
 
-	last_drawn_cockpit[0] = -1;
+	last_drawn_cockpit = -1;
 
 	if (Current_level_num == Last_level) 
 	{
@@ -1138,7 +1139,7 @@ void DoPlayerDead()
 				DoEndLevelScoreGlitz(0);
 			}
 			init_player_stats_new_ship();
-			last_drawn_cockpit[0] = -1;
+			last_drawn_cockpit = -1;
 		}
 		else {
 #ifdef NETWORK
@@ -1150,7 +1151,7 @@ void DoPlayerDead()
 
 			rval = AdvanceLevel(0);			//if finished, go on to next level
 			init_player_stats_new_ship();
-			last_drawn_cockpit[0] = -1;
+			last_drawn_cockpit = -1;
 		}
 
 		if (rval)
@@ -1175,7 +1176,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 {
 	if (!(Game_mode & GM_MULTI)) 
 	{
-		last_drawn_cockpit[0] = -1;
+		last_drawn_cockpit = -1;
 	}
 
 	if (Newdemo_state == ND_STATE_PAUSED)
@@ -1396,7 +1397,6 @@ void copy_defaults_to_robot_all(void)
 int	Do_appearance_effect = 0;
 
 extern int Rear_view;
-extern void vr_reset_display();
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
@@ -1442,7 +1442,4 @@ void StartLevel(int random)
 	Fusion_charge = 0;
 
 	Robot_firing_enabled = 1;
-
-	if (VR_screen_mode == SCREEN_MENU)
-		vr_reset_display();
 }

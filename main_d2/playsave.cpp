@@ -31,14 +31,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "platform/joy.h"
 #include "kconfig.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "newmenu.h"
 #include "joydefs.h"
 #include "2d/palette.h"
 #include "multi.h"
 #include "menu.h"
 #include "config.h"
-#include "text.h"
+#include "stringtable.h"
 #include "platform/mono.h"
 #include "state.h"
 #include "gauges.h"
@@ -171,32 +171,32 @@ int new_player_config()
 
 static int read_int(FILE* file)
 {
-	return F_ReadInt(file);
+	return file_read_int(file);
 }
 
 static short read_short(FILE* file)
 {
-	return F_ReadShort(file);
+	return file_read_short(file);
 }
 
 static int8_t read_byte(FILE* file)
 {
-	return F_ReadByte(file);
+	return file_read_byte(file);
 }
 
 static void write_int(int i, FILE* file)
 {
-	F_WriteInt(file, i);
+	file_write_int(file, i);
 }
 
 static void write_short(short s, FILE* file)
 {
-	F_WriteShort(file, s);
+	file_write_short(file, s);
 }
 
 static void write_byte(int8_t i, FILE* file)
 {
-	F_WriteByte(file, i);
+	file_write_byte(file, i);
 }
 
 extern int Guided_in_big_window, Automap_always_hires;

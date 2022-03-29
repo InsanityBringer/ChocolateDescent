@@ -27,19 +27,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mono.h"
 #include "platform/timer.h"
 #include "platform/joy.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "sounds.h"
-#include "misc/args.h" //[ISB] I SWEAR TO GOD PAST ISB
+#include "misc/args.h"
 #include "platform/key.h"
 #include "game.h"
-//#include "dpmi.h"
 #include "misc/error.h"
 #include "cfile/cfile.h"
-#include "piggy.h"
-#include "text.h"
+#include "main_shared/piggy.h"
+#include "main_shared/hqmusic.h"
+#include "stringtable.h"
 
 #include "config.h"
-//#include "soscomp.h"
 
 #define _DIGI_SAMPLE_FLAGS (_VOLUME | _PANNING | _TRANSLATE8TO16)
 
@@ -83,22 +82,6 @@ static int InstrumentSize = 0;
 static void * lpDrums = NULL;				// pointer to the drum file
 static int DrumSize = 0;
 
-// track mapping structure, this is used to map which track goes
-// out which device. this can also be mapped by the name of the 
-// midi track. to map by the name of the midi track use the define
-// _MIDI_MAP_TRACK for each of the tracks 
-/*
-static _SOS_MIDI_TRACK_DEVICE   sSOSTrackMap = { 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK,
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, 
-   _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK, _MIDI_MAP_TRACK 
-};*/
-
 // handle for the initialized MIDI song
 uint32_t     wSongHandle = 0xffff;         
 uint8_t		*SongData=NULL;
@@ -109,10 +92,8 @@ int verify_sound_channel_free(int channel);
 
 void * digi_load_file( char * szFileName, int * length );
 
-//void _far digi_midi_callback( uint16_t PassedSongHandle );
-//void  sosEndMIDICallback();
-
-typedef struct digi_channel {
+typedef struct digi_channel 
+{
 	uint8_t		used;				// Non-zero if a sound is playing on this channel 
 	int		soundnum;		// Which sound effect is on this channel, -1 if none
 	uint16_t		handle;			// What HMI handle this is playing on
@@ -153,15 +134,6 @@ void digi_close_midi()
 			free(SongData);
 			SongData = NULL;
 		}
-	   // reset the midi driver and
-	   // uninitialize the midi driver and tell it to free the memory allocated
-	   // for the driver
-		/*if ( hSOSMidiDriver < 0xffff )	
-		{
-		   sosMIDIResetDriver( hSOSMidiDriver );
-	   		sosMIDIUnInitDriver( hSOSMidiDriver, _TRUE  );
-			hSOSMidiDriver = 0xffff;
-		}*/
 
 		if ( midi_system_initialized )	
 		{
@@ -176,7 +148,7 @@ void digi_close_digi()
 {
 	if (digi_driver_board>0)	
 	{
-		I_ShutdownAudio();
+		plat_close_audio();
 	}
 }
 
@@ -193,7 +165,6 @@ void digi_close()
 	   // uninitialize the DIGI system
 		digi_system_initialized = 0;
 	}
-
 }
 
 extern int loadpats( char * filename );
@@ -305,7 +276,7 @@ int digi_init()
 	}
 
 	// initialize the DIGI system and lock down all SOS memory
-	i = I_InitAudio();
+	i = plat_init_audio();
 	if (i)
 	{
 		Warning("Cannot initalize sound library\n");
@@ -434,7 +405,7 @@ int digi_is_channel_playing( int c )
 	if (!Digi_initialized) return 0;
 	if (digi_driver_board<1) return 0;
 
-	if ( channels[c].used && (I_CheckSoundPlaying(channels[c].handle) )  )
+	if ( channels[c].used && (plat_check_if_sound_playing(channels[c].handle) )  )
 		return 1;
 	return 0;
 }
@@ -447,7 +418,7 @@ void digi_set_channel_volume( int c, int volume )
 	if ( !channels[c].used ) return;
 
 	//sosDIGISetSampleVolume( hSOSDigiDriver, channels[c].handle, fixmuldiv(volume,digi_volume,F1_0)  );
-	I_SetVolume(channels[c].handle, fixmuldiv(volume, digi_volume, F1_0));
+	plat_set_sound_volume(channels[c].handle, fixmuldiv(volume, digi_volume, F1_0));
 }
 	
 void digi_set_channel_pan( int c, int pan )
@@ -458,7 +429,7 @@ void digi_set_channel_pan( int c, int pan )
 	if ( !channels[c].used ) return;
 
 	//sosDIGISetPanLocation( hSOSDigiDriver, channels[c].handle, pan  );
-	I_SetAngle(channels[c].handle, pan);
+	plat_set_sound_angle(channels[c].handle, pan);
 }
 
 void digi_stop_sound( int c )
@@ -471,7 +442,7 @@ void digi_stop_sound( int c )
 	if ( digi_is_channel_playing(c)  )		
 	{
 		//sosDIGIStopSample(hSOSDigiDriver, channels[c].handle );
-		I_StopSound(channels[c].handle);
+		plat_stop_sound(channels[c].handle);
 	}
 	digi_unlock_sound_data(channels[c].soundnum);
 	channels[c].used = 0;
@@ -526,11 +497,11 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 	{
 		if ( !channels[next_channel].used ) break;
 
-		if ( I_CheckSoundDone(channels[next_channel].handle)) break;
+		if ( plat_check_if_sound_finished(channels[next_channel].handle)) break;
 
 		if ( !channels[next_channel].persistant )	
 		{
-			I_StopSound(channels[next_channel].handle );
+			plat_stop_sound(channels[next_channel].handle );
 			break;	// use this channel!	
 		}
 		next_channel++;
@@ -555,18 +526,18 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 
 	digi_lock_sound_data(soundnum);
 	//sHandle = sosDIGIStartSample( hSOSDigiDriver, &sSOSSampleData );
-	sHandle = I_GetSoundHandle();
+	sHandle = plat_get_new_sound_handle();
 	if ( sHandle == _ERR_NO_SLOTS )	
 	{
 		mprintf(( 1, "NOT ENOUGH SOUND SLOTS!!!\n" ));
 		digi_unlock_sound_data(soundnum);
 		return -1;
 	}
-	I_SetSoundInformation(sHandle, DigiSampleData.volume, DigiSampleData.angle);
-	I_SetSoundData(sHandle, DigiSampleData.data, DigiSampleData.length, digi_sample_rate);
+	plat_set_sound_position(sHandle, DigiSampleData.volume, DigiSampleData.angle);
+	plat_set_sound_data(sHandle, DigiSampleData.data, DigiSampleData.length, digi_sample_rate);
 	if (looping)
-		I_SetLoopPoints(sHandle, loop_start, loop_end);
-	I_PlaySound(sHandle, DigiSampleData.loop);
+		plat_set_sound_loop_points(sHandle, loop_start, loop_end);
+	plat_start_sound(sHandle, DigiSampleData.loop);
 
 	#ifndef NDEBUG
 	verify_sound_channel_free(next_channel);
@@ -652,7 +623,7 @@ void digi_set_midi_volume( int mvolume )
 				digi_play_midi_song(digi_last_midi_song, digi_last_melodic_bank, digi_last_drum_bank, 1);
 		}
 		//sosMIDISetMasterVolume(midi_volume);
-		I_SetMusicVolume(midi_volume);
+		music_set_volume(midi_volume);
 	}
 
 }
@@ -859,7 +830,7 @@ void digi_pause_midi()
 		if ( digi_midi_type > 0 )	
 		{
 			// pause here
-			I_SetMusicVolume(0);
+			music_set_volume(0);
 		}
 	}
 	sound_paused++;
@@ -878,7 +849,7 @@ void digi_resume_midi()
 		// resume sound here
 		if ( digi_midi_type > 0 )	
 		{
-			I_SetMusicVolume(midi_volume);
+			music_set_volume(midi_volume);
 		}
 	}
 	sound_paused--;
@@ -904,77 +875,3 @@ void digi_debug()
 	mprintf_at(( 0, 3, 0, "DIGI: Number locked sounds:  %d                          ", digi_total_locks ));
 }
 #endif
-
-/////////////////////////////////////////////////////////////////////////////
-
-#include "misc/stb_vorbis.h"
-#include <string>
-
-bool PlayHQSong(const char* filename, bool loop)
-{
-	// Load ogg into memory:
-
-	std::string name = filename;
-	name = name.substr(0, name.size() - 4); // cut off extension
-
-	FILE* file = fopen(("music/" + name + ".ogg").c_str(), "rb");
-	if (!file) return false;
-	fseek(file, 0, SEEK_END);
-	auto size = ftell(file);
-	fseek(file, 0, SEEK_SET);
-	std::vector<uint8_t> filedata(size);
-	fread(filedata.data(), filedata.size(), 1, file);
-	fclose(file);
-
-	// Decompress it:
-
-	int error = 0;
-	int stream_byte_offset = 0;
-	stb_vorbis* handle = stb_vorbis_open_pushdata(filedata.data(), filedata.size(), &stream_byte_offset, &error, nullptr);
-	if (handle == nullptr)
-		return false;
-
-	stb_vorbis_info stream_info = stb_vorbis_get_info(handle);
-	int song_sample_rate = stream_info.sample_rate;
-	int song_channels = stream_info.channels;
-	std::vector<float> song_data;
-
-	while (true)
-	{
-		float** pcm = nullptr;
-		int pcm_samples = 0;
-		int bytes_used = stb_vorbis_decode_frame_pushdata(handle, filedata.data() + stream_byte_offset, filedata.size() - stream_byte_offset, nullptr, &pcm, &pcm_samples);
-
-		if (song_channels > 1)
-		{
-			for (int i = 0; i < pcm_samples; i++)
-			{
-				song_data.push_back(pcm[0][i]);
-				song_data.push_back(pcm[1][i]);
-			}
-		}
-		else
-		{
-			for (int i = 0; i < pcm_samples; i++)
-			{
-				song_data.push_back(pcm[0][i]);
-				song_data.push_back(pcm[0][i]);
-			}
-		}
-
-		stream_byte_offset += bytes_used;
-		if (bytes_used == 0 || stream_byte_offset == filedata.size())
-			break;
-	}
-
-	stb_vorbis_close(handle);
-
-	I_PlayHQSong(song_sample_rate, std::move(song_data), loop);
-
-	return true;
-}
-
-void StopHQSong()
-{
-	I_StopHQSong();
-}

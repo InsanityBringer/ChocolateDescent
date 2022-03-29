@@ -24,14 +24,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "platform/joy.h"
 #include "kconfig.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "newmenu.h"
 #include "joydefs.h"
 #include "2d/palette.h"
 #include "multi.h"
 #include "menu.h"
 #include "config.h"
-#include "text.h"
+#include "stringtable.h"
 #include "platform/mono.h"
 #include "state.h"
 #include "cfile/cfile.h"
@@ -100,38 +100,38 @@ int Default_leveling_on = 1;
 
 int D_LoadInfoHeader(FILE* fp, save_info* info)
 {
-	info->id = F_ReadInt(fp);
-	info->saved_game_version = F_ReadShort(fp);
-	info->player_struct_version = F_ReadShort(fp);
-	info->n_highest_levels = F_ReadInt(fp);
-	info->default_difficulty_level = F_ReadInt(fp);
-	info->default_leveling_on = F_ReadInt(fp);
+	info->id = file_read_int(fp);
+	info->saved_game_version = file_read_short(fp);
+	info->player_struct_version = file_read_short(fp);
+	info->n_highest_levels = file_read_int(fp);
+	info->default_difficulty_level = file_read_int(fp);
+	info->default_leveling_on = file_read_int(fp);
 
 	return 1;
 }
 
 int D_WriteInfoHeader(FILE* fp, save_info* info)
 {
-	F_WriteInt(fp, info->id);
-	F_WriteShort(fp, info->saved_game_version);
-	F_WriteShort(fp, info->player_struct_version);
-	F_WriteInt(fp, info->n_highest_levels);
-	F_WriteInt(fp, info->default_difficulty_level);
-	F_WriteInt(fp, info->default_leveling_on);
+	file_write_int(fp, info->id);
+	file_write_short(fp, info->saved_game_version);
+	file_write_short(fp, info->player_struct_version);
+	file_write_int(fp, info->n_highest_levels);
+	file_write_int(fp, info->default_difficulty_level);
+	file_write_int(fp, info->default_leveling_on);
 	return 1;
 }
 
 int D_LoadHighestLevel(FILE* fp, hli* info)
 {
 	fread(&info->shortname[0], sizeof(char), 9, fp);
-	info->level_num = F_ReadInt(fp);
+	info->level_num = file_read_int(fp);
 	return 1;
 }
 
 int D_WriteHighestLevel(FILE* fp, hli* info)
 {
 	fwrite(&info->shortname[0], sizeof(char), 9, fp);
-	F_WriteInt(fp, info->level_num);
+	file_write_int(fp, info->level_num);
 	return 1;
 }
 

@@ -11,9 +11,12 @@ as described in copying.txt.
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include <algorithm>
 
 #include "platform/mono.h"
+
+#if defined (_WIN32) && !defined(_CONSOLE)
+#include <Windows.h>
+#endif
 
 #define NUMWINDOWS 2
 
@@ -35,12 +38,22 @@ void mclose(int num)
 
 void mopen(int n, int row, int col, int width, int height, const char* title)
 {
+	FILE* destStream;
 	if (n < NUMWINDOWS)
 	{
 		windowStates[n] = 1;
-		fprintf(stderr, "Opened mono window %d: %s\n", n, title);
 		//is this sufficient error checking?
-		strncpy(windowNames[n], title, std::min(strlen(title), (size_t)255));
+		strncpy(windowNames[n], title, 255);
+		windowNames[n][255] = '\0';
+
+#if defined (_WIN32) && !defined(_CONSOLE)
+		AllocConsole();
+		destStream = freopen("conout$", "w", stderr);
+		if (!destStream)
+			fprintf(stderr, "Cannot reopen stderr\n");
+#endif
+
+		fprintf(stderr, "Opened mono window %d: %s\n", n, title);
 	}
 }
 

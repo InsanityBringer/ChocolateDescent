@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "object.h"
 #include "vclip.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "polyobj.h"
 #include "wall.h"
 #include "textures.h"
@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hostage.h"
 #include "powerup.h"
 #include "sounds.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "aistruct.h"
 #include "robot.h"
 #include "weapon.h"
@@ -47,8 +47,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #define FIX_STARTS
 #endif
-
-#define CF_ReadFix(a) ((fix)CF_ReadInt(a))
 
 uint8_t Sounds[MAX_SOUNDS];
 uint8_t AltSounds[MAX_SOUNDS];
@@ -100,10 +98,10 @@ void read_tmap_info(CFILE* fp)
 	for (i = 0; i < MAX_TEXTURES; i++) 
 	{
 		cfread(&TmapInfo[i].filename[0], 13, 1, fp);
-		TmapInfo[i].flags = CF_ReadByte(fp);
-		TmapInfo[i].lighting = CF_ReadFix(fp);
-		TmapInfo[i].damage = CF_ReadFix(fp);
-		TmapInfo[i].eclip_num = CF_ReadInt(fp);
+		TmapInfo[i].flags = cfile_read_byte(fp);
+		TmapInfo[i].lighting = cfile_read_fix(fp);
+		TmapInfo[i].damage = cfile_read_fix(fp);
+		TmapInfo[i].eclip_num = cfile_read_int(fp);
 	}
 }
 
@@ -114,10 +112,10 @@ void write_tmap_info(FILE* fp)
 	for (i = 0; i < MAX_TEXTURES; i++)
 	{
 		fwrite(&TmapInfo[i].filename[0], 13, 1, fp);
-		F_WriteByte(fp, TmapInfo[i].flags);
-		F_WriteInt(fp, TmapInfo[i].lighting);
-		F_WriteInt(fp, TmapInfo[i].damage);
-		F_WriteInt(fp, TmapInfo[i].eclip_num);
+		file_write_byte(fp, TmapInfo[i].flags);
+		file_write_int(fp, TmapInfo[i].lighting);
+		file_write_int(fp, TmapInfo[i].damage);
+		file_write_int(fp, TmapInfo[i].eclip_num);
 	}
 }
 
@@ -127,14 +125,14 @@ void read_vclip_info(CFILE* fp)
 
 	for (i = 0; i < VCLIP_MAXNUM; i++) 
 	{
-		Vclip[i].play_time = CF_ReadFix(fp);
-		Vclip[i].num_frames = CF_ReadInt(fp);
-		Vclip[i].frame_time = CF_ReadFix(fp);
-		Vclip[i].flags = CF_ReadInt(fp);
-		Vclip[i].sound_num = CF_ReadShort(fp);
+		Vclip[i].play_time = cfile_read_fix(fp);
+		Vclip[i].num_frames = cfile_read_int(fp);
+		Vclip[i].frame_time = cfile_read_fix(fp);
+		Vclip[i].flags = cfile_read_int(fp);
+		Vclip[i].sound_num = cfile_read_short(fp);
 		for (j = 0; j < VCLIP_MAX_FRAMES; j++)
-			Vclip[i].frames[j].index = CF_ReadShort(fp);
-		Vclip[i].light_value = CF_ReadFix(fp);
+			Vclip[i].frames[j].index = cfile_read_short(fp);
+		Vclip[i].light_value = cfile_read_fix(fp);
 	}
 }
 
@@ -144,14 +142,14 @@ void write_vclip_info(FILE* fp)
 
 	for (i = 0; i < VCLIP_MAXNUM; i++)
 	{
-		F_WriteInt(fp, Vclip[i].play_time);
-		F_WriteInt(fp, Vclip[i].num_frames);
-		F_WriteInt(fp, Vclip[i].frame_time);
-		F_WriteInt(fp, Vclip[i].flags);
-		F_WriteShort(fp, Vclip[i].sound_num);
+		file_write_int(fp, Vclip[i].play_time);
+		file_write_int(fp, Vclip[i].num_frames);
+		file_write_int(fp, Vclip[i].frame_time);
+		file_write_int(fp, Vclip[i].flags);
+		file_write_short(fp, Vclip[i].sound_num);
 		for (j = 0; j < VCLIP_MAX_FRAMES; j++)
-			F_WriteShort(fp, Vclip[i].frames[j].index);
-		F_WriteInt(fp, Vclip[i].light_value);
+			file_write_short(fp, Vclip[i].frames[j].index);
+		file_write_int(fp, Vclip[i].light_value);
 	}
 }
 
@@ -161,27 +159,27 @@ void read_effect_info(CFILE* fp)
 
 	for (i = 0; i < MAX_EFFECTS; i++)
 	{
-		Effects[i].vc.play_time = CF_ReadFix(fp);
-		Effects[i].vc.num_frames = CF_ReadInt(fp);
-		Effects[i].vc.frame_time = CF_ReadFix(fp);
-		Effects[i].vc.flags = CF_ReadInt(fp);
-		Effects[i].vc.sound_num = CF_ReadShort(fp);
+		Effects[i].vc.play_time = cfile_read_fix(fp);
+		Effects[i].vc.num_frames = cfile_read_int(fp);
+		Effects[i].vc.frame_time = cfile_read_fix(fp);
+		Effects[i].vc.flags = cfile_read_int(fp);
+		Effects[i].vc.sound_num = cfile_read_short(fp);
 		for (j = 0; j < VCLIP_MAX_FRAMES; j++)
-			Effects[i].vc.frames[j].index = CF_ReadShort(fp);
-		Effects[i].vc.light_value = CF_ReadFix(fp);
-		Effects[i].time_left = CF_ReadFix(fp);
-		Effects[i].frame_count = CF_ReadInt(fp);
-		Effects[i].changing_wall_texture = CF_ReadShort(fp);
-		Effects[i].changing_object_texture = CF_ReadShort(fp);
-		Effects[i].flags = CF_ReadInt(fp);
-		Effects[i].crit_clip = CF_ReadInt(fp);
-		Effects[i].dest_bm_num = CF_ReadInt(fp);
-		Effects[i].dest_vclip = CF_ReadInt(fp);
-		Effects[i].dest_eclip = CF_ReadInt(fp);
-		Effects[i].dest_size = CF_ReadFix(fp);
-		Effects[i].sound_num = CF_ReadInt(fp);
-		Effects[i].segnum = CF_ReadInt(fp);
-		Effects[i].sidenum = CF_ReadInt(fp);
+			Effects[i].vc.frames[j].index = cfile_read_short(fp);
+		Effects[i].vc.light_value = cfile_read_fix(fp);
+		Effects[i].time_left = cfile_read_fix(fp);
+		Effects[i].frame_count = cfile_read_int(fp);
+		Effects[i].changing_wall_texture = cfile_read_short(fp);
+		Effects[i].changing_object_texture = cfile_read_short(fp);
+		Effects[i].flags = cfile_read_int(fp);
+		Effects[i].crit_clip = cfile_read_int(fp);
+		Effects[i].dest_bm_num = cfile_read_int(fp);
+		Effects[i].dest_vclip = cfile_read_int(fp);
+		Effects[i].dest_eclip = cfile_read_int(fp);
+		Effects[i].dest_size = cfile_read_fix(fp);
+		Effects[i].sound_num = cfile_read_int(fp);
+		Effects[i].segnum = cfile_read_int(fp);
+		Effects[i].sidenum = cfile_read_int(fp);
 	}
 }
 
@@ -191,27 +189,27 @@ void write_effect_info(FILE* fp)
 
 	for (i = 0; i < MAX_EFFECTS; i++)
 	{
-		F_WriteInt(fp, Effects[i].vc.play_time);
-		F_WriteInt(fp, Effects[i].vc.num_frames);
-		F_WriteInt(fp, Effects[i].vc.frame_time);
-		F_WriteInt(fp, Effects[i].vc.flags);
-		F_WriteShort(fp, Effects[i].vc.sound_num);
+		file_write_int(fp, Effects[i].vc.play_time);
+		file_write_int(fp, Effects[i].vc.num_frames);
+		file_write_int(fp, Effects[i].vc.frame_time);
+		file_write_int(fp, Effects[i].vc.flags);
+		file_write_short(fp, Effects[i].vc.sound_num);
 		for (j = 0; j < VCLIP_MAX_FRAMES; j++)
-			F_WriteShort(fp, Effects[i].vc.frames[j].index);
-		F_WriteInt(fp, Effects[i].vc.light_value);
-		F_WriteInt(fp, Effects[i].time_left);
-		F_WriteInt(fp, Effects[i].frame_count);
-		F_WriteShort(fp, Effects[i].changing_wall_texture);
-		F_WriteShort(fp, Effects[i].changing_object_texture);
-		F_WriteInt(fp, Effects[i].flags);
-		F_WriteInt(fp, Effects[i].crit_clip);
-		F_WriteInt(fp, Effects[i].dest_bm_num);
-		F_WriteInt(fp, Effects[i].dest_vclip);
-		F_WriteInt(fp, Effects[i].dest_eclip);
-		F_WriteInt(fp, Effects[i].dest_size);
-		F_WriteInt(fp, Effects[i].sound_num);
-		F_WriteInt(fp, Effects[i].segnum);
-		F_WriteInt(fp, Effects[i].sidenum);
+			file_write_short(fp, Effects[i].vc.frames[j].index);
+		file_write_int(fp, Effects[i].vc.light_value);
+		file_write_int(fp, Effects[i].time_left);
+		file_write_int(fp, Effects[i].frame_count);
+		file_write_short(fp, Effects[i].changing_wall_texture);
+		file_write_short(fp, Effects[i].changing_object_texture);
+		file_write_int(fp, Effects[i].flags);
+		file_write_int(fp, Effects[i].crit_clip);
+		file_write_int(fp, Effects[i].dest_bm_num);
+		file_write_int(fp, Effects[i].dest_vclip);
+		file_write_int(fp, Effects[i].dest_eclip);
+		file_write_int(fp, Effects[i].dest_size);
+		file_write_int(fp, Effects[i].sound_num);
+		file_write_int(fp, Effects[i].segnum);
+		file_write_int(fp, Effects[i].sidenum);
 	}
 }
 
@@ -221,15 +219,15 @@ void read_wallanim_info(CFILE* fp)
 
 	for (i = 0; i < MAX_WALL_ANIMS; i++) 
 	{
-		WallAnims[i].play_time = CF_ReadFix(fp);;
-		WallAnims[i].num_frames = CF_ReadShort(fp);;
+		WallAnims[i].play_time = cfile_read_fix(fp);;
+		WallAnims[i].num_frames = cfile_read_short(fp);;
 		for (j = 0; j < MAX_CLIP_FRAMES; j++)
-			WallAnims[i].frames[j] = CF_ReadShort(fp);
-		WallAnims[i].open_sound = CF_ReadShort(fp);
-		WallAnims[i].close_sound = CF_ReadShort(fp);
-		WallAnims[i].flags = CF_ReadShort(fp);
+			WallAnims[i].frames[j] = cfile_read_short(fp);
+		WallAnims[i].open_sound = cfile_read_short(fp);
+		WallAnims[i].close_sound = cfile_read_short(fp);
+		WallAnims[i].flags = cfile_read_short(fp);
 		cfread(&WallAnims[i].filename[0], 13, 1, fp);
-		WallAnims[i].pad = CF_ReadByte(fp);
+		WallAnims[i].pad = cfile_read_byte(fp);
 	}
 }
 
@@ -239,15 +237,15 @@ void write_wallanim_info(FILE* fp)
 
 	for (i = 0; i < MAX_WALL_ANIMS; i++)
 	{
-		F_WriteInt(fp, WallAnims[i].play_time);
-		F_WriteShort(fp, WallAnims[i].num_frames);
+		file_write_int(fp, WallAnims[i].play_time);
+		file_write_short(fp, WallAnims[i].num_frames);
 		for (j = 0; j < MAX_CLIP_FRAMES; j++)
-			F_WriteShort(fp, WallAnims[i].frames[j]);
-		F_WriteShort(fp, WallAnims[i].open_sound);
-		F_WriteShort(fp, WallAnims[i].close_sound);
-		F_WriteShort(fp, WallAnims[i].flags);
+			file_write_short(fp, WallAnims[i].frames[j]);
+		file_write_short(fp, WallAnims[i].open_sound);
+		file_write_short(fp, WallAnims[i].close_sound);
+		file_write_short(fp, WallAnims[i].flags);
 		fwrite(&WallAnims[i].filename[0], 13, 1, fp);
-		F_WriteByte(fp, WallAnims[i].pad);
+		file_write_byte(fp, WallAnims[i].pad);
 	}
 }
 
@@ -257,65 +255,65 @@ void read_robot_info(CFILE* fp)
 
 	for (i = 0; i < MAX_ROBOT_TYPES; i++) 
 	{
-		Robot_info[i].model_num = CF_ReadInt(fp);
-		Robot_info[i].n_guns = CF_ReadInt(fp);
+		Robot_info[i].model_num = cfile_read_int(fp);
+		Robot_info[i].n_guns = cfile_read_int(fp);
 		for (j = 0; j < MAX_GUNS; j++) 
 		{
-			Robot_info[i].gun_points[j].x = CF_ReadFix(fp);
-			Robot_info[i].gun_points[j].y = CF_ReadFix(fp);
-			Robot_info[i].gun_points[j].z = CF_ReadFix(fp);
+			Robot_info[i].gun_points[j].x = cfile_read_fix(fp);
+			Robot_info[i].gun_points[j].y = cfile_read_fix(fp);
+			Robot_info[i].gun_points[j].z = cfile_read_fix(fp);
 		}
 		for (j = 0; j < MAX_GUNS; j++)
-			Robot_info[i].gun_submodels[j] = CF_ReadByte(fp);
-		Robot_info[i].exp1_vclip_num = CF_ReadShort(fp);
-		Robot_info[i].exp1_sound_num = CF_ReadShort(fp);
-		Robot_info[i].exp2_vclip_num = CF_ReadShort(fp);
-		Robot_info[i].exp2_sound_num = CF_ReadShort(fp);
-		Robot_info[i].weapon_type = CF_ReadShort(fp);
-		Robot_info[i].contains_id = CF_ReadByte(fp);
-		Robot_info[i].contains_count = CF_ReadByte(fp);
-		Robot_info[i].contains_prob = CF_ReadByte(fp);
-		Robot_info[i].contains_type = CF_ReadByte(fp);
-		Robot_info[i].score_value = CF_ReadInt(fp);
-		Robot_info[i].lighting = CF_ReadFix(fp);
-		Robot_info[i].strength = CF_ReadFix(fp);
-		Robot_info[i].mass = CF_ReadFix(fp);
-		Robot_info[i].drag = CF_ReadFix(fp);
+			Robot_info[i].gun_submodels[j] = cfile_read_byte(fp);
+		Robot_info[i].exp1_vclip_num = cfile_read_short(fp);
+		Robot_info[i].exp1_sound_num = cfile_read_short(fp);
+		Robot_info[i].exp2_vclip_num = cfile_read_short(fp);
+		Robot_info[i].exp2_sound_num = cfile_read_short(fp);
+		Robot_info[i].weapon_type = cfile_read_short(fp);
+		Robot_info[i].contains_id = cfile_read_byte(fp);
+		Robot_info[i].contains_count = cfile_read_byte(fp);
+		Robot_info[i].contains_prob = cfile_read_byte(fp);
+		Robot_info[i].contains_type = cfile_read_byte(fp);
+		Robot_info[i].score_value = cfile_read_int(fp);
+		Robot_info[i].lighting = cfile_read_fix(fp);
+		Robot_info[i].strength = cfile_read_fix(fp);
+		Robot_info[i].mass = cfile_read_fix(fp);
+		Robot_info[i].drag = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].field_of_view[j] = CF_ReadFix(fp);
+			Robot_info[i].field_of_view[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].firing_wait[j] = CF_ReadFix(fp);
+			Robot_info[i].firing_wait[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].turn_time[j] = CF_ReadFix(fp);
+			Robot_info[i].turn_time[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].fire_power[j] = CF_ReadFix(fp);
+			Robot_info[i].fire_power[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].shield[j] = CF_ReadFix(fp);
+			Robot_info[i].shield[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].max_speed[j] = CF_ReadFix(fp);
+			Robot_info[i].max_speed[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].circle_distance[j] = CF_ReadFix(fp);
+			Robot_info[i].circle_distance[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].rapidfire_count[j] = CF_ReadByte(fp);
+			Robot_info[i].rapidfire_count[j] = cfile_read_byte(fp);
 		for (j = 0; j < NDL; j++)
-			Robot_info[i].evade_speed[j] = CF_ReadByte(fp);
-		Robot_info[i].cloak_type = CF_ReadByte(fp);
-		Robot_info[i].attack_type = CF_ReadByte(fp);
-		Robot_info[i].boss_flag = CF_ReadByte(fp);
-		Robot_info[i].see_sound = CF_ReadByte(fp);
-		Robot_info[i].attack_sound = CF_ReadByte(fp);
-		Robot_info[i].claw_sound = CF_ReadByte(fp);
+			Robot_info[i].evade_speed[j] = cfile_read_byte(fp);
+		Robot_info[i].cloak_type = cfile_read_byte(fp);
+		Robot_info[i].attack_type = cfile_read_byte(fp);
+		Robot_info[i].boss_flag = cfile_read_byte(fp);
+		Robot_info[i].see_sound = cfile_read_byte(fp);
+		Robot_info[i].attack_sound = cfile_read_byte(fp);
+		Robot_info[i].claw_sound = cfile_read_byte(fp);
 
 		for (j = 0; j < MAX_GUNS + 1; j++) 
 		{
 			for (k = 0; k < N_ANIM_STATES; k++) 
 			{
-				Robot_info[i].anim_states[j][k].n_joints = CF_ReadShort(fp);
-				Robot_info[i].anim_states[j][k].offset = CF_ReadShort(fp);
+				Robot_info[i].anim_states[j][k].n_joints = cfile_read_short(fp);
+				Robot_info[i].anim_states[j][k].offset = cfile_read_short(fp);
 			}
 		}
 
-		Robot_info[i].always_0xabcd = CF_ReadInt(fp);
+		Robot_info[i].always_0xabcd = cfile_read_int(fp);
 	}
 }
 
@@ -325,65 +323,65 @@ void write_robot_info(FILE* fp)
 
 	for (i = 0; i < MAX_ROBOT_TYPES; i++)
 	{
-		F_WriteInt(fp, Robot_info[i].model_num);
-		F_WriteInt(fp, Robot_info[i].n_guns);
+		file_write_int(fp, Robot_info[i].model_num);
+		file_write_int(fp, Robot_info[i].n_guns);
 		for (j = 0; j < MAX_GUNS; j++)
 		{
-			F_WriteInt(fp, Robot_info[i].gun_points[j].x);
-			F_WriteInt(fp, Robot_info[i].gun_points[j].y);
-			F_WriteInt(fp, Robot_info[i].gun_points[j].z);
+			file_write_int(fp, Robot_info[i].gun_points[j].x);
+			file_write_int(fp, Robot_info[i].gun_points[j].y);
+			file_write_int(fp, Robot_info[i].gun_points[j].z);
 		}
 		for (j = 0; j < MAX_GUNS; j++)
-			F_WriteByte(fp, Robot_info[i].gun_submodels[j]);
-		F_WriteShort(fp, Robot_info[i].exp1_vclip_num);
-		F_WriteShort(fp, Robot_info[i].exp1_sound_num);
-		F_WriteShort(fp, Robot_info[i].exp2_vclip_num);
-		F_WriteShort(fp, Robot_info[i].exp2_sound_num);
-		F_WriteShort(fp, Robot_info[i].weapon_type);
-		F_WriteByte(fp, Robot_info[i].contains_id);
-		F_WriteByte(fp, Robot_info[i].contains_count);
-		F_WriteByte(fp, Robot_info[i].contains_prob);
-		F_WriteByte(fp, Robot_info[i].contains_type);
-		F_WriteInt(fp, Robot_info[i].score_value);
-		F_WriteInt(fp, Robot_info[i].lighting);
-		F_WriteInt(fp, Robot_info[i].strength);
-		F_WriteInt(fp, Robot_info[i].mass);
-		F_WriteInt(fp, Robot_info[i].drag);
+			file_write_byte(fp, Robot_info[i].gun_submodels[j]);
+		file_write_short(fp, Robot_info[i].exp1_vclip_num);
+		file_write_short(fp, Robot_info[i].exp1_sound_num);
+		file_write_short(fp, Robot_info[i].exp2_vclip_num);
+		file_write_short(fp, Robot_info[i].exp2_sound_num);
+		file_write_short(fp, Robot_info[i].weapon_type);
+		file_write_byte(fp, Robot_info[i].contains_id);
+		file_write_byte(fp, Robot_info[i].contains_count);
+		file_write_byte(fp, Robot_info[i].contains_prob);
+		file_write_byte(fp, Robot_info[i].contains_type);
+		file_write_int(fp, Robot_info[i].score_value);
+		file_write_int(fp, Robot_info[i].lighting);
+		file_write_int(fp, Robot_info[i].strength);
+		file_write_int(fp, Robot_info[i].mass);
+		file_write_int(fp, Robot_info[i].drag);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].field_of_view[j]);
+			file_write_int(fp, Robot_info[i].field_of_view[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].firing_wait[j]);
+			file_write_int(fp, Robot_info[i].firing_wait[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].turn_time[j]);
+			file_write_int(fp, Robot_info[i].turn_time[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].fire_power[j]);
+			file_write_int(fp, Robot_info[i].fire_power[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].shield[j]);
+			file_write_int(fp, Robot_info[i].shield[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].max_speed[j]);
+			file_write_int(fp, Robot_info[i].max_speed[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Robot_info[i].circle_distance[j]);
+			file_write_int(fp, Robot_info[i].circle_distance[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteByte(fp, Robot_info[i].rapidfire_count[j]);
+			file_write_byte(fp, Robot_info[i].rapidfire_count[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteByte(fp, Robot_info[i].evade_speed[j]);
-		F_WriteByte(fp, Robot_info[i].cloak_type);
-		F_WriteByte(fp, Robot_info[i].attack_type);
-		F_WriteByte(fp, Robot_info[i].boss_flag);
-		F_WriteByte(fp, Robot_info[i].see_sound);
-		F_WriteByte(fp, Robot_info[i].attack_sound);
-		F_WriteByte(fp, Robot_info[i].claw_sound);
+			file_write_byte(fp, Robot_info[i].evade_speed[j]);
+		file_write_byte(fp, Robot_info[i].cloak_type);
+		file_write_byte(fp, Robot_info[i].attack_type);
+		file_write_byte(fp, Robot_info[i].boss_flag);
+		file_write_byte(fp, Robot_info[i].see_sound);
+		file_write_byte(fp, Robot_info[i].attack_sound);
+		file_write_byte(fp, Robot_info[i].claw_sound);
 
 		for (j = 0; j < MAX_GUNS + 1; j++)
 		{
 			for (k = 0; k < N_ANIM_STATES; k++)
 			{
-				F_WriteShort(fp, Robot_info[i].anim_states[j][k].n_joints);
-				F_WriteShort(fp, Robot_info[i].anim_states[j][k].offset);
+				file_write_short(fp, Robot_info[i].anim_states[j][k].n_joints);
+				file_write_short(fp, Robot_info[i].anim_states[j][k].offset);
 			}
 		}
 
-		F_WriteInt(fp, Robot_info[i].always_0xabcd);
+		file_write_int(fp, Robot_info[i].always_0xabcd);
 	}
 }
 
@@ -394,10 +392,10 @@ void read_robot_joints_info(CFILE* fp)
 
 	for (i = 0; i < MAX_ROBOT_JOINTS; i++)
 	{
-		Robot_joints[i].jointnum = CF_ReadShort(fp);
-		Robot_joints[i].angles.p = CF_ReadShort(fp);
-		Robot_joints[i].angles.b = CF_ReadShort(fp);
-		Robot_joints[i].angles.h = CF_ReadShort(fp);
+		Robot_joints[i].jointnum = cfile_read_short(fp);
+		Robot_joints[i].angles.p = cfile_read_short(fp);
+		Robot_joints[i].angles.b = cfile_read_short(fp);
+		Robot_joints[i].angles.h = cfile_read_short(fp);
 	}
 }
 
@@ -407,10 +405,10 @@ void write_robot_joints_info(FILE* fp)
 
 	for (i = 0; i < MAX_ROBOT_JOINTS; i++)
 	{
-		F_WriteShort(fp, Robot_joints[i].jointnum);
-		F_WriteShort(fp, Robot_joints[i].angles.p);
-		F_WriteShort(fp, Robot_joints[i].angles.b);
-		F_WriteShort(fp, Robot_joints[i].angles.h);
+		file_write_short(fp, Robot_joints[i].jointnum);
+		file_write_short(fp, Robot_joints[i].angles.p);
+		file_write_short(fp, Robot_joints[i].angles.b);
+		file_write_short(fp, Robot_joints[i].angles.h);
 	}
 }
 
@@ -420,45 +418,45 @@ void read_weapon_info(CFILE* fp)
 
 	for (i = 0; i < MAX_WEAPON_TYPES; i++)
 	{
-		Weapon_info[i].render_type = CF_ReadByte(fp);
-		Weapon_info[i].model_num = CF_ReadByte(fp);
-		Weapon_info[i].model_num_inner = CF_ReadByte(fp);
-		Weapon_info[i].persistent = CF_ReadByte(fp);
-		Weapon_info[i].flash_vclip = CF_ReadByte(fp);
-		Weapon_info[i].flash_sound = CF_ReadShort(fp);
-		Weapon_info[i].robot_hit_vclip = CF_ReadByte(fp);
-		Weapon_info[i].robot_hit_sound = CF_ReadShort(fp);
-		Weapon_info[i].wall_hit_vclip = CF_ReadByte(fp);
-		Weapon_info[i].wall_hit_sound = CF_ReadShort(fp);
-		Weapon_info[i].fire_count = CF_ReadByte(fp);
-		Weapon_info[i].ammo_usage = CF_ReadByte(fp);
-		Weapon_info[i].weapon_vclip = CF_ReadByte(fp);
-		Weapon_info[i].destroyable = CF_ReadByte(fp);
-		Weapon_info[i].matter = CF_ReadByte(fp);
-		Weapon_info[i].bounce = CF_ReadByte(fp);
-		Weapon_info[i].homing_flag = CF_ReadByte(fp);
-		Weapon_info[i].dum1 = CF_ReadByte(fp);
-		Weapon_info[i].dum2 = CF_ReadByte(fp);
-		Weapon_info[i].dum3 = CF_ReadByte(fp);
-		Weapon_info[i].energy_usage = CF_ReadFix(fp);
-		Weapon_info[i].fire_wait = CF_ReadFix(fp);
-		Weapon_info[i].bitmap.index = CF_ReadShort(fp);	// bitmap_index = short
-		Weapon_info[i].blob_size = CF_ReadFix(fp);
-		Weapon_info[i].flash_size = CF_ReadFix(fp);
-		Weapon_info[i].impact_size = CF_ReadFix(fp);
+		Weapon_info[i].render_type = cfile_read_byte(fp);
+		Weapon_info[i].model_num = cfile_read_byte(fp);
+		Weapon_info[i].model_num_inner = cfile_read_byte(fp);
+		Weapon_info[i].persistent = cfile_read_byte(fp);
+		Weapon_info[i].flash_vclip = cfile_read_byte(fp);
+		Weapon_info[i].flash_sound = cfile_read_short(fp);
+		Weapon_info[i].robot_hit_vclip = cfile_read_byte(fp);
+		Weapon_info[i].robot_hit_sound = cfile_read_short(fp);
+		Weapon_info[i].wall_hit_vclip = cfile_read_byte(fp);
+		Weapon_info[i].wall_hit_sound = cfile_read_short(fp);
+		Weapon_info[i].fire_count = cfile_read_byte(fp);
+		Weapon_info[i].ammo_usage = cfile_read_byte(fp);
+		Weapon_info[i].weapon_vclip = cfile_read_byte(fp);
+		Weapon_info[i].destroyable = cfile_read_byte(fp);
+		Weapon_info[i].matter = cfile_read_byte(fp);
+		Weapon_info[i].bounce = cfile_read_byte(fp);
+		Weapon_info[i].homing_flag = cfile_read_byte(fp);
+		Weapon_info[i].dum1 = cfile_read_byte(fp);
+		Weapon_info[i].dum2 = cfile_read_byte(fp);
+		Weapon_info[i].dum3 = cfile_read_byte(fp);
+		Weapon_info[i].energy_usage = cfile_read_fix(fp);
+		Weapon_info[i].fire_wait = cfile_read_fix(fp);
+		Weapon_info[i].bitmap.index = cfile_read_short(fp);	// bitmap_index = short
+		Weapon_info[i].blob_size = cfile_read_fix(fp);
+		Weapon_info[i].flash_size = cfile_read_fix(fp);
+		Weapon_info[i].impact_size = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Weapon_info[i].strength[j] = CF_ReadFix(fp);
+			Weapon_info[i].strength[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			Weapon_info[i].speed[j] = CF_ReadFix(fp);
-		Weapon_info[i].mass = CF_ReadFix(fp);
-		Weapon_info[i].drag = CF_ReadFix(fp);
-		Weapon_info[i].thrust = CF_ReadFix(fp);
+			Weapon_info[i].speed[j] = cfile_read_fix(fp);
+		Weapon_info[i].mass = cfile_read_fix(fp);
+		Weapon_info[i].drag = cfile_read_fix(fp);
+		Weapon_info[i].thrust = cfile_read_fix(fp);
 
-		Weapon_info[i].po_len_to_width_ratio = CF_ReadFix(fp);
-		Weapon_info[i].light = CF_ReadFix(fp);
-		Weapon_info[i].lifetime = CF_ReadFix(fp);
-		Weapon_info[i].damage_radius = CF_ReadFix(fp);
-		Weapon_info[i].picture.index = CF_ReadShort(fp);		// bitmap_index is a short
+		Weapon_info[i].po_len_to_width_ratio = cfile_read_fix(fp);
+		Weapon_info[i].light = cfile_read_fix(fp);
+		Weapon_info[i].lifetime = cfile_read_fix(fp);
+		Weapon_info[i].damage_radius = cfile_read_fix(fp);
+		Weapon_info[i].picture.index = cfile_read_short(fp);		// bitmap_index is a short
 	}
 }
 
@@ -468,45 +466,45 @@ void write_weapon_info(FILE* fp)
 
 	for (i = 0; i < MAX_WEAPON_TYPES; i++)
 	{
-		F_WriteByte(fp, Weapon_info[i].render_type);
-		F_WriteByte(fp, Weapon_info[i].model_num);
-		F_WriteByte(fp, Weapon_info[i].model_num_inner);
-		F_WriteByte(fp, Weapon_info[i].persistent);
-		F_WriteByte(fp, Weapon_info[i].flash_vclip);
-		F_WriteShort(fp, Weapon_info[i].flash_sound);
-		F_WriteByte(fp, Weapon_info[i].robot_hit_vclip);
-		F_WriteShort(fp, Weapon_info[i].robot_hit_sound);
-		F_WriteByte(fp, Weapon_info[i].wall_hit_vclip);
-		F_WriteShort(fp, Weapon_info[i].wall_hit_sound);
-		F_WriteByte(fp, Weapon_info[i].fire_count);
-		F_WriteByte(fp, Weapon_info[i].ammo_usage);
-		F_WriteByte(fp, Weapon_info[i].weapon_vclip);
-		F_WriteByte(fp, Weapon_info[i].destroyable);
-		F_WriteByte(fp, Weapon_info[i].matter);
-		F_WriteByte(fp, Weapon_info[i].bounce);
-		F_WriteByte(fp, Weapon_info[i].homing_flag);
-		F_WriteByte(fp, Weapon_info[i].dum1);
-		F_WriteByte(fp, Weapon_info[i].dum2);
-		F_WriteByte(fp, Weapon_info[i].dum3);
-		F_WriteInt(fp, Weapon_info[i].energy_usage);
-		F_WriteInt(fp, Weapon_info[i].fire_wait);
-		F_WriteShort(fp, Weapon_info[i].bitmap.index);	// bitmap_index = short
-		F_WriteInt(fp, Weapon_info[i].blob_size);
-		F_WriteInt(fp, Weapon_info[i].flash_size);
-		F_WriteInt(fp, Weapon_info[i].impact_size);
+		file_write_byte(fp, Weapon_info[i].render_type);
+		file_write_byte(fp, Weapon_info[i].model_num);
+		file_write_byte(fp, Weapon_info[i].model_num_inner);
+		file_write_byte(fp, Weapon_info[i].persistent);
+		file_write_byte(fp, Weapon_info[i].flash_vclip);
+		file_write_short(fp, Weapon_info[i].flash_sound);
+		file_write_byte(fp, Weapon_info[i].robot_hit_vclip);
+		file_write_short(fp, Weapon_info[i].robot_hit_sound);
+		file_write_byte(fp, Weapon_info[i].wall_hit_vclip);
+		file_write_short(fp, Weapon_info[i].wall_hit_sound);
+		file_write_byte(fp, Weapon_info[i].fire_count);
+		file_write_byte(fp, Weapon_info[i].ammo_usage);
+		file_write_byte(fp, Weapon_info[i].weapon_vclip);
+		file_write_byte(fp, Weapon_info[i].destroyable);
+		file_write_byte(fp, Weapon_info[i].matter);
+		file_write_byte(fp, Weapon_info[i].bounce);
+		file_write_byte(fp, Weapon_info[i].homing_flag);
+		file_write_byte(fp, Weapon_info[i].dum1);
+		file_write_byte(fp, Weapon_info[i].dum2);
+		file_write_byte(fp, Weapon_info[i].dum3);
+		file_write_int(fp, Weapon_info[i].energy_usage);
+		file_write_int(fp, Weapon_info[i].fire_wait);
+		file_write_short(fp, Weapon_info[i].bitmap.index);	// bitmap_index = short
+		file_write_int(fp, Weapon_info[i].blob_size);
+		file_write_int(fp, Weapon_info[i].flash_size);
+		file_write_int(fp, Weapon_info[i].impact_size);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Weapon_info[i].strength[j]);
+			file_write_int(fp, Weapon_info[i].strength[j]);
 		for (j = 0; j < NDL; j++)
-			F_WriteInt(fp, Weapon_info[i].speed[j]);
-		F_WriteInt(fp, Weapon_info[i].mass);
-		F_WriteInt(fp, Weapon_info[i].drag);
-		F_WriteInt(fp, Weapon_info[i].thrust);
+			file_write_int(fp, Weapon_info[i].speed[j]);
+		file_write_int(fp, Weapon_info[i].mass);
+		file_write_int(fp, Weapon_info[i].drag);
+		file_write_int(fp, Weapon_info[i].thrust);
 
-		F_WriteInt(fp, Weapon_info[i].po_len_to_width_ratio);
-		F_WriteInt(fp, Weapon_info[i].light);
-		F_WriteInt(fp, Weapon_info[i].lifetime);
-		F_WriteInt(fp, Weapon_info[i].damage_radius);
-		F_WriteShort(fp, Weapon_info[i].picture.index);		// bitmap_index is a short
+		file_write_int(fp, Weapon_info[i].po_len_to_width_ratio);
+		file_write_int(fp, Weapon_info[i].light);
+		file_write_int(fp, Weapon_info[i].lifetime);
+		file_write_int(fp, Weapon_info[i].damage_radius);
+		file_write_short(fp, Weapon_info[i].picture.index);		// bitmap_index is a short
 	}
 }
 
@@ -516,10 +514,10 @@ void read_powerup_info(CFILE* fp)
 
 	for (i = 0; i < MAX_POWERUP_TYPES; i++) 
 	{
-		Powerup_info[i].vclip_num = CF_ReadInt(fp);
-		Powerup_info[i].hit_sound = CF_ReadInt(fp);
-		Powerup_info[i].size = CF_ReadFix(fp);
-		Powerup_info[i].light = CF_ReadFix(fp);
+		Powerup_info[i].vclip_num = cfile_read_int(fp);
+		Powerup_info[i].hit_sound = cfile_read_int(fp);
+		Powerup_info[i].size = cfile_read_fix(fp);
+		Powerup_info[i].light = cfile_read_fix(fp);
 	}
 }
 
@@ -529,10 +527,10 @@ void write_powerup_info(FILE* fp)
 
 	for (i = 0; i < MAX_POWERUP_TYPES; i++)
 	{
-		F_WriteInt(fp, Powerup_info[i].vclip_num);
-		F_WriteInt(fp, Powerup_info[i].hit_sound);
-		F_WriteInt(fp, Powerup_info[i].size);
-		F_WriteInt(fp, Powerup_info[i].light);
+		file_write_int(fp, Powerup_info[i].vclip_num);
+		file_write_int(fp, Powerup_info[i].hit_sound);
+		file_write_int(fp, Powerup_info[i].size);
+		file_write_int(fp, Powerup_info[i].light);
 	}
 }
 
@@ -540,60 +538,64 @@ void read_polygon_models(CFILE* fp)
 {
 	int i, j;
 
-	Assert(N_polygon_models < MAX_POLYGON_MODELS); //avoid trashing memory I guess
+	if (N_polygon_models > MAX_POLYGON_MODELS)
+	{
+		Error("Too many polymodels in piggy file!");
+		return;
+	}
 
 	//[ISB] however it's supposed to only fill out so many...
 	for (i = 0; i < N_polygon_models; i++) 
 	{
-		Polygon_models[i].n_models = CF_ReadInt(fp);
-		Polygon_models[i].model_data_size = CF_ReadInt(fp);
-		Polygon_models[i].model_data = (uint8_t*)CF_ReadInt(fp);
+		Polygon_models[i].n_models = cfile_read_int(fp);
+		Polygon_models[i].model_data_size = cfile_read_int(fp);
+		Polygon_models[i].model_data = (uint8_t*)cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			Polygon_models[i].submodel_ptrs[j] = CF_ReadInt(fp);
+			Polygon_models[i].submodel_ptrs[j] = cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++) 
 		{
-			Polygon_models[i].submodel_offsets[j].x = CF_ReadFix(fp);
-			Polygon_models[i].submodel_offsets[j].y = CF_ReadFix(fp);
-			Polygon_models[i].submodel_offsets[j].z = CF_ReadFix(fp);
+			Polygon_models[i].submodel_offsets[j].x = cfile_read_fix(fp);
+			Polygon_models[i].submodel_offsets[j].y = cfile_read_fix(fp);
+			Polygon_models[i].submodel_offsets[j].z = cfile_read_fix(fp);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++) 
 		{
-			Polygon_models[i].submodel_norms[j].x = CF_ReadFix(fp);
-			Polygon_models[i].submodel_norms[j].y = CF_ReadFix(fp);
-			Polygon_models[i].submodel_norms[j].z = CF_ReadFix(fp);
+			Polygon_models[i].submodel_norms[j].x = cfile_read_fix(fp);
+			Polygon_models[i].submodel_norms[j].y = cfile_read_fix(fp);
+			Polygon_models[i].submodel_norms[j].z = cfile_read_fix(fp);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++) 
 		{
-			Polygon_models[i].submodel_pnts[j].x = CF_ReadFix(fp);
-			Polygon_models[i].submodel_pnts[j].y = CF_ReadFix(fp);
-			Polygon_models[i].submodel_pnts[j].z = CF_ReadFix(fp);
+			Polygon_models[i].submodel_pnts[j].x = cfile_read_fix(fp);
+			Polygon_models[i].submodel_pnts[j].y = cfile_read_fix(fp);
+			Polygon_models[i].submodel_pnts[j].z = cfile_read_fix(fp);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			Polygon_models[i].submodel_rads[j] = CF_ReadFix(fp);
+			Polygon_models[i].submodel_rads[j] = cfile_read_fix(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			Polygon_models[i].submodel_parents[j] = CF_ReadByte(fp);
+			Polygon_models[i].submodel_parents[j] = cfile_read_byte(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++) 
 		{
-			Polygon_models[i].submodel_mins[j].x = CF_ReadFix(fp);
-			Polygon_models[i].submodel_mins[j].y = CF_ReadFix(fp);
-			Polygon_models[i].submodel_mins[j].z = CF_ReadFix(fp);
+			Polygon_models[i].submodel_mins[j].x = cfile_read_fix(fp);
+			Polygon_models[i].submodel_mins[j].y = cfile_read_fix(fp);
+			Polygon_models[i].submodel_mins[j].z = cfile_read_fix(fp);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++) 
 		{
-			Polygon_models[i].submodel_maxs[j].x = CF_ReadFix(fp);
-			Polygon_models[i].submodel_maxs[j].y = CF_ReadFix(fp);
-			Polygon_models[i].submodel_maxs[j].z = CF_ReadFix(fp);
+			Polygon_models[i].submodel_maxs[j].x = cfile_read_fix(fp);
+			Polygon_models[i].submodel_maxs[j].y = cfile_read_fix(fp);
+			Polygon_models[i].submodel_maxs[j].z = cfile_read_fix(fp);
 		}
-		Polygon_models[i].mins.x = CF_ReadFix(fp);
-		Polygon_models[i].mins.y = CF_ReadFix(fp);
-		Polygon_models[i].mins.z = CF_ReadFix(fp);
-		Polygon_models[i].maxs.x = CF_ReadFix(fp);
-		Polygon_models[i].maxs.y = CF_ReadFix(fp);
-		Polygon_models[i].maxs.z = CF_ReadFix(fp);
-		Polygon_models[i].rad = CF_ReadFix(fp);
-		Polygon_models[i].n_textures = CF_ReadByte(fp);
-		Polygon_models[i].first_texture = CF_ReadShort(fp);
-		Polygon_models[i].simpler_model = CF_ReadByte(fp);
+		Polygon_models[i].mins.x = cfile_read_fix(fp);
+		Polygon_models[i].mins.y = cfile_read_fix(fp);
+		Polygon_models[i].mins.z = cfile_read_fix(fp);
+		Polygon_models[i].maxs.x = cfile_read_fix(fp);
+		Polygon_models[i].maxs.y = cfile_read_fix(fp);
+		Polygon_models[i].maxs.z = cfile_read_fix(fp);
+		Polygon_models[i].rad = cfile_read_fix(fp);
+		Polygon_models[i].n_textures = cfile_read_byte(fp);
+		Polygon_models[i].first_texture = cfile_read_short(fp);
+		Polygon_models[i].simpler_model = cfile_read_byte(fp);
 	}
 }
 
@@ -606,95 +608,95 @@ void write_polygon_models(FILE* fp)
 	//[ISB] however it's supposed to only fill out so many...
 	for (i = 0; i < N_polygon_models; i++)
 	{
-		F_WriteInt(fp, Polygon_models[i].n_models);
-		F_WriteInt(fp, Polygon_models[i].model_data_size);
-		F_WriteInt(fp, (uintptr_t)Polygon_models[i].model_data);
+		file_write_int(fp, Polygon_models[i].n_models);
+		file_write_int(fp, Polygon_models[i].model_data_size);
+		file_write_int(fp, (uintptr_t)Polygon_models[i].model_data);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			F_WriteInt(fp, Polygon_models[i].submodel_ptrs[j]);
+			file_write_int(fp, Polygon_models[i].submodel_ptrs[j]);
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_offsets[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_offsets[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_offsets[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_offsets[j].z);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_norms[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_norms[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_norms[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_norms[j].z);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_pnts[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_pnts[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_pnts[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_pnts[j].z);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			F_WriteInt(fp, Polygon_models[i].submodel_rads[j]);
+			file_write_int(fp, Polygon_models[i].submodel_rads[j]);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			F_WriteByte(fp, Polygon_models[i].submodel_parents[j]);
+			file_write_byte(fp, Polygon_models[i].submodel_parents[j]);
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_mins[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_mins[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_mins[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_mins[j].z);
 		}
 		for (j = 0; j < MAX_SUBMODELS; j++)
 		{
-			F_WriteInt(fp, Polygon_models[i].submodel_maxs[j].x);
-			F_WriteInt(fp, Polygon_models[i].submodel_maxs[j].y);
-			F_WriteInt(fp, Polygon_models[i].submodel_maxs[j].z);
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].x);
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].y);
+			file_write_int(fp, Polygon_models[i].submodel_maxs[j].z);
 		}
-		F_WriteInt(fp, Polygon_models[i].mins.x);
-		F_WriteInt(fp, Polygon_models[i].mins.y);
-		F_WriteInt(fp, Polygon_models[i].mins.z);
-		F_WriteInt(fp, Polygon_models[i].maxs.x);
-		F_WriteInt(fp, Polygon_models[i].maxs.y);
-		F_WriteInt(fp, Polygon_models[i].maxs.z);
-		F_WriteInt(fp, Polygon_models[i].rad);
-		F_WriteByte(fp, Polygon_models[i].n_textures);
-		F_WriteShort(fp, Polygon_models[i].first_texture);
-		F_WriteByte(fp, Polygon_models[i].simpler_model);
+		file_write_int(fp, Polygon_models[i].mins.x);
+		file_write_int(fp, Polygon_models[i].mins.y);
+		file_write_int(fp, Polygon_models[i].mins.z);
+		file_write_int(fp, Polygon_models[i].maxs.x);
+		file_write_int(fp, Polygon_models[i].maxs.y);
+		file_write_int(fp, Polygon_models[i].maxs.z);
+		file_write_int(fp, Polygon_models[i].rad);
+		file_write_byte(fp, Polygon_models[i].n_textures);
+		file_write_short(fp, Polygon_models[i].first_texture);
+		file_write_byte(fp, Polygon_models[i].simpler_model);
 	}
 }
 
 void read_player_ship(CFILE* fp)
 {
 	int i;
-	only_player_ship.model_num = CF_ReadInt(fp);
-	only_player_ship.expl_vclip_num = CF_ReadInt(fp);
-	only_player_ship.mass = CF_ReadFix(fp);
-	only_player_ship.drag = CF_ReadFix(fp);
-	only_player_ship.max_thrust = CF_ReadFix(fp);
-	only_player_ship.reverse_thrust = CF_ReadFix(fp);
-	only_player_ship.brakes = CF_ReadFix(fp);
-	only_player_ship.wiggle = CF_ReadFix(fp);
-	only_player_ship.max_rotthrust = CF_ReadFix(fp);
+	only_player_ship.model_num = cfile_read_int(fp);
+	only_player_ship.expl_vclip_num = cfile_read_int(fp);
+	only_player_ship.mass = cfile_read_fix(fp);
+	only_player_ship.drag = cfile_read_fix(fp);
+	only_player_ship.max_thrust = cfile_read_fix(fp);
+	only_player_ship.reverse_thrust = cfile_read_fix(fp);
+	only_player_ship.brakes = cfile_read_fix(fp);
+	only_player_ship.wiggle = cfile_read_fix(fp);
+	only_player_ship.max_rotthrust = cfile_read_fix(fp);
 	for (i = 0; i < N_PLAYER_GUNS; i++)
 	{
-		only_player_ship.gun_points[i].x = CF_ReadFix(fp);
-		only_player_ship.gun_points[i].y = CF_ReadFix(fp);
-		only_player_ship.gun_points[i].z = CF_ReadFix(fp);
+		only_player_ship.gun_points[i].x = cfile_read_fix(fp);
+		only_player_ship.gun_points[i].y = cfile_read_fix(fp);
+		only_player_ship.gun_points[i].z = cfile_read_fix(fp);
 	}
 }
 
 void write_player_ship(FILE* fp)
 {
 	int i;
-	F_WriteInt(fp, only_player_ship.model_num);
-	F_WriteInt(fp, only_player_ship.expl_vclip_num);
-	F_WriteInt(fp, only_player_ship.mass);
-	F_WriteInt(fp, only_player_ship.drag);
-	F_WriteInt(fp, only_player_ship.max_thrust);
-	F_WriteInt(fp, only_player_ship.reverse_thrust);
-	F_WriteInt(fp, only_player_ship.brakes);
-	F_WriteInt(fp, only_player_ship.wiggle);
-	F_WriteInt(fp, only_player_ship.max_rotthrust);
+	file_write_int(fp, only_player_ship.model_num);
+	file_write_int(fp, only_player_ship.expl_vclip_num);
+	file_write_int(fp, only_player_ship.mass);
+	file_write_int(fp, only_player_ship.drag);
+	file_write_int(fp, only_player_ship.max_thrust);
+	file_write_int(fp, only_player_ship.reverse_thrust);
+	file_write_int(fp, only_player_ship.brakes);
+	file_write_int(fp, only_player_ship.wiggle);
+	file_write_int(fp, only_player_ship.max_rotthrust);
 	for (i = 0; i < N_PLAYER_GUNS; i++)
 	{
-		F_WriteInt(fp, only_player_ship.gun_points[i].x);
-		F_WriteInt(fp, only_player_ship.gun_points[i].y);
-		F_WriteInt(fp, only_player_ship.gun_points[i].z);
+		file_write_int(fp, only_player_ship.gun_points[i].x);
+		file_write_int(fp, only_player_ship.gun_points[i].y);
+		file_write_int(fp, only_player_ship.gun_points[i].z);
 	}
 }
 
@@ -705,37 +707,37 @@ void bm_read_all(CFILE* fp)
 
 	//  bitmap_index is a short
 
-	NumTextures = CF_ReadInt(fp);
+	NumTextures = cfile_read_int(fp);
 	for (i = 0; i < MAX_TEXTURES; i++)
-		Textures[i].index = CF_ReadShort(fp);
+		Textures[i].index = cfile_read_short(fp);
 
 	read_tmap_info(fp);
 
 	cfread(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 	cfread(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
-	Num_vclips = CF_ReadInt(fp);
+	Num_vclips = cfile_read_int(fp);
 	read_vclip_info(fp);
 
-	Num_effects = CF_ReadInt(fp);
+	Num_effects = cfile_read_int(fp);
 	read_effect_info(fp);
 
-	Num_wall_anims = CF_ReadInt(fp);
+	Num_wall_anims = cfile_read_int(fp);
 	read_wallanim_info(fp);
 
-	N_robot_types = CF_ReadInt(fp);
+	N_robot_types = cfile_read_int(fp);
 	read_robot_info(fp);
 
-	N_robot_joints = CF_ReadInt(fp);
+	N_robot_joints = cfile_read_int(fp);
 	read_robot_joints_info(fp);
 
-	N_weapon_types = CF_ReadInt(fp);
+	N_weapon_types = cfile_read_int(fp);
 	read_weapon_info(fp);
 
-	N_powerup_types = CF_ReadInt(fp);
+	N_powerup_types = cfile_read_int(fp);
 	read_powerup_info(fp);
 
-	N_polygon_models = CF_ReadInt(fp);
+	N_polygon_models = cfile_read_int(fp);
 	read_polygon_models(fp);
 
 	for (i = 0; i < N_polygon_models; i++) 
@@ -746,51 +748,51 @@ void bm_read_all(CFILE* fp)
 	}
 
 	for (i = 0; i < MAX_GAUGE_BMS; i++)
-		Gauges[i].index = CF_ReadShort(fp);
+		Gauges[i].index = cfile_read_short(fp);
 
 	for (i = 0; i < MAX_POLYGON_MODELS; i++)
-		Dying_modelnums[i] = CF_ReadInt(fp);
+		Dying_modelnums[i] = cfile_read_int(fp);
 	for (i = 0; i < MAX_POLYGON_MODELS; i++)
-		Dead_modelnums[i] = CF_ReadInt(fp);
+		Dead_modelnums[i] = cfile_read_int(fp);
 
 	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
-		ObjBitmaps[i].index = CF_ReadShort(fp);
+		ObjBitmaps[i].index = cfile_read_short(fp);
 	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
-		ObjBitmapPtrs[i] = CF_ReadShort(fp);
+		ObjBitmapPtrs[i] = cfile_read_short(fp);
 
 	read_player_ship(fp);
 
-	Num_cockpits = CF_ReadInt(fp);
+	Num_cockpits = cfile_read_int(fp);
 	for (i = 0; i < N_COCKPIT_BITMAPS; i++)
-		cockpit_bitmap[i].index = CF_ReadShort(fp);
+		cockpit_bitmap[i].index = cfile_read_short(fp);
 	//[ISB] there's a story behind this, isn't there... who was drunk...
 	cfread(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 	cfread(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
-	Num_total_object_types = CF_ReadInt(fp);
+	Num_total_object_types = cfile_read_int(fp);
 	cfread(ObjType, sizeof(int8_t), MAX_OBJTYPE, fp);
 	cfread(ObjId, sizeof(int8_t), MAX_OBJTYPE, fp);
 	for (i = 0; i < MAX_OBJTYPE; i++)
-		ObjStrength[i] = CF_ReadFix(fp);
+		ObjStrength[i] = cfile_read_fix(fp);
 
-	First_multi_bitmap_num = CF_ReadInt(fp);
-	N_controlcen_guns = CF_ReadInt(fp);
+	First_multi_bitmap_num = cfile_read_int(fp);
+	N_controlcen_guns = cfile_read_int(fp);
 
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++) 
 	{
-		controlcen_gun_points[i].x = CF_ReadFix(fp);
-		controlcen_gun_points[i].y = CF_ReadFix(fp);
-		controlcen_gun_points[i].z = CF_ReadFix(fp);
+		controlcen_gun_points[i].x = cfile_read_fix(fp);
+		controlcen_gun_points[i].y = cfile_read_fix(fp);
+		controlcen_gun_points[i].z = cfile_read_fix(fp);
 	}
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++) 
 	{
-		controlcen_gun_dirs[i].x = CF_ReadFix(fp);
-		controlcen_gun_dirs[i].y = CF_ReadFix(fp);
-		controlcen_gun_dirs[i].z = CF_ReadFix(fp);
+		controlcen_gun_dirs[i].x = cfile_read_fix(fp);
+		controlcen_gun_dirs[i].y = cfile_read_fix(fp);
+		controlcen_gun_dirs[i].z = cfile_read_fix(fp);
 	}
 
-	exit_modelnum = CF_ReadInt(fp);
-	destroyed_exit_modelnum = CF_ReadInt(fp);
+	exit_modelnum = cfile_read_int(fp);
+	destroyed_exit_modelnum = cfile_read_int(fp);
 
 #ifdef FIX_STARS
 	init_endlevel();

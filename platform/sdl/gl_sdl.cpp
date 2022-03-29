@@ -52,7 +52,7 @@ const char* fragmentSource =
 "\n"
 "void main()\n"
 "{\n"
-"	color = texelFetch(palette, int(texture(srcfb, uv).r), 0);\n"
+"	color = texelFetch(palette, int(texture(srcfb, uv).r), 0).bgra;\n"
 //"	color = texture(palette, gl_FragCoord.x / 256.0);\n"
 //"	color = vec4(0.0, 0.0, 0.5, 1.0);\n"
 //"	float h = texture(srcfb, vec2(gl_FragCoord.x / 640.0, gl_FragCoord.y / 480.0)).r / 255.0;\n"
@@ -154,13 +154,15 @@ GLuint GL_LinkProgram(GLuint vshader, GLuint fshader)
 	return name;
 }
 
-void I_InitGLContext(SDL_Window *win)
+bool I_InitGLContext(SDL_Window *win)
 {
+	if (NoOpenGL) return true;
 	window = win;
 	context = SDL_GL_CreateContext(win);
 	if (!context)
 	{
-		Error("I_InitGLContext: Cannot create GL context: %s\n", SDL_GetError());
+		fprintf(stderr, "I_InitGLContext: Cannot create GL context: %s\n", SDL_GetError());
+		return true;
 	}
 
 	SDL_GL_MakeCurrent(win, context);
@@ -259,7 +261,8 @@ void I_InitGLContext(SDL_Window *win)
 
 	if (!phase1ProgramName)
 	{
-		Error("I_InitGLContext: Can't link shader program.");
+		fprintf(stderr, "I_InitGLContext: Can't link shader program.");
+		return true;
 	}
 	GL_ErrorCheck("Linking shaders");
 	sglUseProgram(phase1ProgramName);
@@ -304,9 +307,11 @@ void I_InitGLContext(SDL_Window *win)
 	GL_ErrorCheck("Enabling vertex attributes");
 
 	SDL_GL_SetSwapInterval(SwapInterval);
+
+	return false;
 }
 
-extern unsigned char* gr_video_memory;
+extern uint8_t* gr_video_memory;
 void GL_SetVideoMode(int w, int h, bool highcolor, SDL_Rect *bounds)
 {
 	sglActiveTexture(GL_TEXTURE0);

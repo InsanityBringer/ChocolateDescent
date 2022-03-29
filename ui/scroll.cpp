@@ -19,9 +19,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "platform/timer.h"
 
-//[ISB] horray more shitty timing code to squash
-//#define TICKER (*(volatile int *)0x46C)
-
 void ui_draw_scrollbar(UI_GADGET_SCROLLBAR* scrollbar)
 {
 	int x, y;

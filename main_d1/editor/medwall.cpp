@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_d1/switch.h"
 #include "eswitch.h"
 
-#include "main_d1/texmerge.h"
+#include "main_shared/texmerge.h"
 #include "medrobot.h"
 #include "platform/timer.h"
 #include "platform/mono.h"
@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "ehostage.h"
 #include "centers.h"
-#include "main_d1/piggy.h"
+#include "main_shared/piggy.h"
 
 int wall_add_to_side(segment* segp, int side, int8_t type);
 int wall_add_door_flag(int8_t flag);

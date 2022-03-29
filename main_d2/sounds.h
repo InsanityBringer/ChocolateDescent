@@ -14,7 +14,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "vecmat/vecmat.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 
 //------------------- List of sound effects --------------------
 
@@ -101,10 +101,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	ROBOT_ATTACK_SOUND_DEFAULT					171
 #define	ROBOT_CLAW_SOUND_DEFAULT					190
 
-#ifdef SHAREWARE
 #define 	SOUND_BIG_ENDLEVEL_EXPLOSION				SOUND_EXPLODING_WALL
 #define 	SOUND_TUNNEL_EXPLOSION						SOUND_EXPLODING_WALL
-#endif
 
 #define	SOUND_DROP_BOMB								26
 

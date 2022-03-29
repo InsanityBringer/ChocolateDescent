@@ -14,74 +14,73 @@ extern int BestFit;
 extern int Fullscreen;
 extern int SwapInterval;
 
+extern bool NoOpenGL;
+
 //-----------------------------------------------------------------------------
 //	Graphics initalization and shutdown
 //-----------------------------------------------------------------------------
 
 //Init the framework
-int I_Init();
+int plat_init();
 
 //Load configuration
-int I_ReadChocolateConfig();
+int plat_read_chocolate_cfg();
 
 //Init graphics library and create a window
-int I_InitWindow();
+int plat_create_window();
 
 //Close any active windows
-void I_ShutdownGraphics();
+void plat_close_window();
 
 //Shutdown framework;
-void I_Shutdown();
+void plat_close();
 
 //Display an error message
-void I_DisplayError(const char* msg);
+void plat_display_error(const char* msg);
 
 //-----------------------------------------------------------------------------
 //	Setting graphics modes
 //-----------------------------------------------------------------------------
 
 //Check if a mode is okay to use
-int I_CheckMode(int mode);
+int plat_check_gr_mode(int mode);
 
 //Set a graphics mode
-int I_SetMode(int mode);
+int plat_set_gr_mode(int mode);
 
 //-----------------------------------------------------------------------------
 //	Screen palettes
 //-----------------------------------------------------------------------------
 
 //Copy a block of palette information into the current palette
-void I_WritePalette(int start, int end, uint8_t* data);
+void plat_write_palette(int start, int end, uint8_t* data);
 
 //Blank the palette in screen memory
-void I_BlankPalette();
+void plat_blank_palette();
 
 //Read the palette back from screen memory.
-void I_ReadPalette(uint8_t* dest);
+void plat_read_palette(uint8_t* dest);
 
 //-----------------------------------------------------------------------------
 //	Screen operations
 //-----------------------------------------------------------------------------
 
 //I have no idea how this is going to work... attempt to wait on a VBL if possible.
-void I_WaitVBL();
+void plat_wait_for_vbl();
 
 //Draws the contents of the currently assigned graphics canvas to the current window and peform buffer swap
 //Set sync to wait for v-sync while drawing.
-void I_DrawCurrentCanvas(int sync);
+void plat_present_canvas(int sync);
 
 //Composition nightmare: Blit given canvas to window buffer, don't trigger redraw. This is needed for paged graphics modes in Descent 1. 
-void I_BlitCanvas(grs_canvas *canv);
-
-//More nightmare: Set the "screen canvas"
-void I_SetScreenCanvas(grs_canvas* canv);
+void plat_blit_canvas(grs_canvas *canv);
 
 //-----------------------------------------------------------------------------
 //	Control operations
 //-----------------------------------------------------------------------------
 
 //Run all pending events. 
-void I_DoEvents();
+void plat_do_events();
 
 //Put the mouse in relative mode
-void I_SetRelative(int state);
+void plat_set_mouse_relative_mode(int state);

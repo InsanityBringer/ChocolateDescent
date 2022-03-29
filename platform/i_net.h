@@ -30,10 +30,12 @@ extern int NetChangeDefaultSocket(uint16_t socket_number);
 //trying to recieve must not be a host. This is a mess, but it should work.
 extern int NetChangeRole(dbool host);
 
-// Returns a pointer to 6-byte address [ISB] Note that this information is not reliable and shouldn't actually be used.
+// Returns a pointer to 4-byte address [ISB] Note that this information is not reliable and shouldn't actually be used.
 extern uint8_t* NetGetLocalAddress();
 // Returns a pointer to 4-byte server
 extern uint8_t* NetGetServerAddress();
+// Returns the port number currently in use. 
+extern uint16_t NetGetCurrentPort();
 
 // Determines the local address equivalent of an internetwork address.
 void NetGetLocalTarget(uint8_t* server, uint8_t* node, uint8_t* local_target);
@@ -51,11 +53,11 @@ extern void NetGetLastPacketOrigin(uint8_t* addrBuf);
 extern void NetSendBroadcastPacket(uint8_t* data, int datasize);
 
 // Sends a packet to a certain address
-extern void NetSendPacket(uint8_t* data, int datasize, uint8_t* port, uint8_t* address, uint8_t* immediate_address);
-extern void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* port, uint8_t* address);
+extern void NetSendPacket(uint8_t* data, int datasize, uint8_t* address, uint8_t* immediate_address);
+extern void NetSendInternetworkPacket(uint8_t* data, int datasize, uint8_t* address);
 
 //[ISB] changed to fit aligned size of network information structure. God, this is going to be an adenture...
-#define IPX_MAX_DATA_SIZE (546)
+#define IPX_MAX_DATA_SIZE (1024)
 
 extern void ipx_read_user_file(char* filename);
 extern void ipx_read_network_file(char* filename);

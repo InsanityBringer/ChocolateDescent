@@ -18,9 +18,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat/vecmat.h"
 #include "segment.h"
 
- //figure out what seg the given point is in, tracing through segments
-//int get_new_seg(vms_vector* p0, int startseg); //[ISB] cut i guess
-
 typedef struct segmasks 
 {
 	short facemask;     //which faces sphere pokes through (12 bits)

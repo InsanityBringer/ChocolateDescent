@@ -16,6 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "settings.h"	//include personal settings
 
 #include "misc/types.h"
+#include "main_shared/inferno_shared.h"
 
 //	MACRO for single line #ifdef WINDOWS #else DOS
 #ifdef WINDOWS_FAKE_NOTACTUALLYWINDOWS
@@ -32,23 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAC(x)
 #endif
 
-
-/**
- **	Constants
- **/
-
-//the maximum length of a filename
-#define FILENAME_LEN 13
-
-//for Function_mode variable
-#define FMODE_EXIT		0		//leaving the program
-#define FMODE_MENU		1		//Using the menu
-#define FMODE_GAME		2		//running the game
-#define FMODE_EDITOR		3		//running the editor
-
-//This constant doesn't really belong here, but it is because of horrible
-//circular dependencies involving object.h, aistruct.h, polyobj.h, & robot.h
-#define MAX_SUBMODELS 10			//how many animating sub-objects per model
 
 /**
  **	Global variables
@@ -77,7 +61,22 @@ enum class LogicVer
 	FULL_1_2 //Emulate 1.2 patch. The default
 };
 
+//Data version support:
+//Data version affects anything related to the game data itself.
+//It is set based on what game data is present, and will control how that data
+//is loaded, and what features are available.
+//There's only two options here, Demo and Full, as all full releases use the same formats.
+//This may eventually include Destination Quartzon since while that uses mostly full data,
+//the logic is much different. 
+
+enum class DataVer
+{
+	DEMO = 0,
+	FULL
+};
+
 extern LogicVer CurrentLogicVersion;
+extern DataVer CurrentDataVersion;
 
 #ifdef MACINTOSH
 extern ubyte Version_fix;

@@ -36,7 +36,6 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "inferno.h"
 #include "misc/error.h"
 #include "cfile/cfile.h"
-//#include "div0.h" //[ISB] one worry
 #include "game.h"
 #include "segment.h"		//for Side_to_verts
 #include "mem/mem.h"
@@ -44,21 +43,21 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "segpoint.h"
 #include "screens.h"
 #include "texmap/texmap.h"
-#include "texmerge.h"
+#include "main_shared/texmerge.h"
 #include "menu.h"
 #include "wall.h"
 #include "switch.h"
 #include "polyobj.h"
-#include "effects.h"
-#include "digi.h"
+#include "main_shared/effects.h"
+#include "main_shared/digi.h"
 #include "iff/iff.h"
 #include "2d/pcx.h"
 #include "2d/palette.h"
-#include "args.h"
+#include "misc/args.h"
 #include "sounds.h"
 #include "titles.h"
 #include "player.h"
-#include "text.h"
+#include "stringtable.h"
 #ifdef NETWORK
 #include "platform/i_net.h"
 #endif
@@ -77,11 +76,8 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 #include "config.h"
 #include "joydefs.h"
 #include "multi.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "cfile/cfile.h"
-#ifdef USE_CDROM
-#include "cdrom.h"
-#endif
 #include "gameseq.h"
 
 #ifdef EDITOR
@@ -91,8 +87,6 @@ static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE C
 
 #include "vers_id.h"
 #include "platform/platform.h"
-
-extern int Game_simuleyes_flag;
 
 static const char desc_id_checksum_str[] = DESC_ID_CHKSUM;
 char desc_id_exit_num = 0;
@@ -245,21 +239,9 @@ unsigned descent_critical_errcode = 0;
 
 extern int Network_allow_socket_changes;
 
-extern void vfx_set_palette_sub(uint8_t*);
-
-extern int Game_vfx_flag;
-extern int Game_victor_flag;
-extern int Game_vio_flag;
-extern int Game_3dmax_flag;
-extern int VR_low_res;
-
-#ifdef USE_CD
-char destsat_cdpath[128] = "";
-int find_descent_cd();
+#ifdef NETWORK
+#include "netmisc.h"
 #endif
-
-extern int Config_vr_type;
-extern int Config_vr_tracking;
 
 //[ISB] Okay, the trouble is that SDL redefines main. I don't want to include SDL here. Solution is to rip off doom
 //and add a separate main function
@@ -272,14 +254,14 @@ int D_DescentMain(int argc, const char** argv)
 	init_all_platform_localized_paths();
 	validate_required_files();
 #endif
-
+	
 	error_init(NULL);
 
 	setbuf(stdout, NULL);	// unbuffered output via printf
 
 	InitArgs(argc, argv);
 
-	int initStatus = I_Init();
+	int initStatus = plat_init();
 	if (initStatus)
 	{
 		Error("Error initalizing graphics library, code %d\n", initStatus);
@@ -289,7 +271,7 @@ int D_DescentMain(int argc, const char** argv)
 	if (FindArg("-verbose"))
 		Inferno_verbose = 1;
 
-	load_text();
+	load_text(621);
 
 	//	set_exit_message("\n\n%s", TXT_THANKS);
 
@@ -434,15 +416,15 @@ int D_DescentMain(int argc, const char** argv)
 #ifdef NETWORK
 	if (!FindArg("-nonetwork")) 
 	{
-		int socket = 0, showaddress = 0;
+		int showaddress = 0;
 		int ipx_error;
 		if (Inferno_verbose) printf("\n%s ", TXT_INITIALIZING_NETWORK);
-		if ((t = FindArg("-socket")))
-			socket = atoi(Args[t + 1]);
+		if ((t = FindArg("-port")))
+			Current_Port = atoi(Args[t + 1]);
 		if (FindArg("-showaddress")) showaddress = 1;
-		if ((ipx_error = NetInit(IPX_DEFAULT_SOCKET + socket, showaddress)) == 0) 
+		if ((ipx_error = NetInit(Current_Port, showaddress)) == 0) 
 		{
-			if (Inferno_verbose) printf("%s %d.\n", TXT_IPX_CHANNEL, socket);
+			if (Inferno_verbose) printf("%s %d.\n", "Using UDP port", Current_Port);
 			Network_active = 1;
 		}
 		else
@@ -450,7 +432,7 @@ int D_DescentMain(int argc, const char** argv)
 			switch (ipx_error)
 			{
 			case 3: 	if (Inferno_verbose) printf("%s\n", TXT_NO_NETWORK); break;
-			case -2: if (Inferno_verbose) printf("%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET + socket); break;
+			case -2: if (Inferno_verbose) printf("%s 0x%x.\n", TXT_SOCKET_ERROR, Current_Port); break;
 			case -4: if (Inferno_verbose) printf("%s\n", TXT_MEMORY_IPX); break;
 			default:
 				if (Inferno_verbose) printf("%s %d", TXT_ERROR_IPX, ipx_error);
@@ -477,9 +459,7 @@ int D_DescentMain(int argc, const char** argv)
 		int screen_mode = SM_320x200V15;
 		int screen_width = 320;
 		int screen_height = 200;
-		int vr_mode = VR_NONE;
 		int screen_compatible = 1;
-		int use_double_buffer = 0;
 
 		if (FindArg("-320x240")) 
 		{
@@ -488,7 +468,6 @@ int D_DescentMain(int argc, const char** argv)
 			screen_width = 320;
 			screen_height = 240;
 			screen_compatible = 0;
-			use_double_buffer = 1;
 		}
 
 		if (FindArg("-320x400")) 
@@ -498,27 +477,24 @@ int D_DescentMain(int argc, const char** argv)
 			screen_width = 320;
 			screen_height = 400;
 			screen_compatible = 0;
-			use_double_buffer = 1;
 		}
 
-		if (!Game_simuleyes_flag && FindArg("-640x400"))
+		if (FindArg("-640x400"))
 		{
 			if (Inferno_verbose) printf("Using 640x400 VESA...\n");
 			screen_mode = SM_640x400V;
 			screen_width = 640;
 			screen_height = 400;
 			screen_compatible = 0;
-			use_double_buffer = 1;
 		}
 
-		if (!Game_simuleyes_flag && FindArg("-640x480")) 
+		if (FindArg("-640x480")) 
 		{
 			if (Inferno_verbose) printf("Using 640x480 VESA...\n");
 			screen_mode = SM_640x480V;
 			screen_width = 640;
 			screen_height = 480;
 			screen_compatible = 0;
-			use_double_buffer = 1;
 		}
 		if (FindArg("-320x100")) 
 		{
@@ -529,16 +505,8 @@ int D_DescentMain(int argc, const char** argv)
 			screen_compatible = 0;
 		}
 
-		if (FindArg("-nodoublebuffer")) 
-		{
-			if (Inferno_verbose) printf("Double-buffering disabled...\n");
-			use_double_buffer = 0;
-		}
-
-		game_init_render_buffers(screen_mode, screen_width, screen_height, use_double_buffer, vr_mode, screen_compatible);
+		game_init_render_buffers(screen_mode, screen_width, screen_height, screen_compatible);
 	}
-
-	VR_switch_eyes = 0;
 
 #ifdef NETWORK
 	//	i = FindArg( "-rinvul" );
@@ -579,7 +547,6 @@ int D_DescentMain(int argc, const char** argv)
 		strcpy(filename, "descent.pcx");
 
 		if ((pcx_error = pcx_read_bitmap(filename, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, title_pal)) == PCX_ERROR_NONE) {
-			vfx_set_palette_sub(title_pal);
 			gr_palette_clear();
 			//gr_bitmap( 0, 0, &title_bm );
 			gr_palette_fade_in(title_pal, 32, 0);
@@ -723,43 +690,13 @@ int D_DescentMain(int argc, const char** argv)
 		//		show_mem_info = 1;		// Make memory statistics show
 #endif
 
-		I_Shutdown();
+		plat_close();
 		return(0);		//presumably successful exit
 }
 
 
 void check_joystick_calibration()
 {
-	/*
-	int x1, y1, x2, y2, c;
-	fix t1;
-
-	if ((Config_control_type != CONTROL_JOYSTICK) &&
-		(Config_control_type != CONTROL_FLIGHTSTICK_PRO) &&
-		(Config_control_type != CONTROL_THRUSTMASTER_FCS) &&
-		(Config_control_type != CONTROL_GRAVIS_GAMEPAD)
-		) return;
-
-	joy_get_pos(&x1, &y1);
-
-	t1 = timer_get_fixed_seconds();
-	while (timer_get_fixed_seconds() < t1 + F1_0 / 100)
-		;
-
-	joy_get_pos(&x2, &y2);
-
-	// If joystick hasn't moved...
-	
-	if ((abs(x2 - x1) < 30) && (abs(y2 - y1) < 30)) 
-	{
-		if ((abs(x1) > 30) || (abs(x2) > 30) || (abs(y1) > 30) || (abs(y2) > 30)) {
-			c = nm_messagebox(NULL, 2, TXT_CALIBRATE, TXT_SKIP, TXT_JOYSTICK_NOT_CEN);
-			if (c == 0) {
-				joydefs_calibrate();
-			}
-		}
-	}
-	*/
 }
 
 void show_order_form()
@@ -784,7 +721,6 @@ void show_order_form()
 #endif
 	if ((pcx_error = pcx_read_bitmap(exit_screen, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, title_pal)) == PCX_ERROR_NONE) 
 	{
-		vfx_set_palette_sub(title_pal);
 		gr_palette_fade_in(title_pal, 32, 0);
 		{
 			int done = 0;
@@ -792,10 +728,10 @@ void show_order_form()
 			while (!done) 
 			{
 				I_MarkStart();
-				I_DoEvents();
+				plat_do_events();
 				if (timer_get_approx_seconds() > time_out_value) done = 1;
 				if (key_inkey()) done = 1;
-				I_DrawCurrentCanvas(0);
+				plat_present_canvas(0);
 				I_MarkEnd(US_70FPS);
 			}
 		}

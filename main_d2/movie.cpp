@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/platform_filesys.h"
 #include "platform/platform.h"
 #include "inferno.h"
-#include "text.h"
+#include "stringtable.h"
 #include "misc/args.h"
 #include "mem/mem.h"
 #include "misc/byteswap.h"
@@ -40,8 +40,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include "mvegfx.h"
 #include "platform/mono.h"
 #include "misc/error.h"
-#include "digi.h"
-#include "songs.h"
+#include "main_shared/digi.h"
+#include "main_shared/songs.h"
 #include "platform/timer.h"
 #include "platform/joy.h"
 #include "platform/key.h"
@@ -370,8 +370,6 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 		return MOVIE_NOT_PLAYED;
 	}
 
-	//[ISB] I think these are handled by mvelib. I hope. 
-	//[ISB] why do i make fucking dumb assumptions all the time. Argh.
 #if !defined(POLY_ACC)
 	MVE_sfCallbacks((mve_cb_ShowFrame*)MovieShowFrame);
 	MVE_palCallbacks((mve_cb_SetPalette*)MovieSetPalette);
@@ -384,7 +382,7 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 	while ((result = MVE_rmStepMovie()) == 0) 
 	{
 		int key;
-		I_DoEvents(); //Timed from rmStepMovie
+		plat_do_events(); //Timed from rmStepMovie
 
 		draw_subtitles(frame_num);
 
@@ -405,13 +403,13 @@ int RunMovie(char* filename, int hires_flag, int must_have, int dx, int dy)
 			while (!key_inkey())
 			{
 				I_MarkStart();
-				I_DoEvents();
-				I_DrawCurrentCanvas(0);
+				plat_do_events();
+				plat_present_canvas(0);
 				I_MarkEnd(MovieHires ? US_60FPS : US_70FPS);
 			}
 			clear_pause_message();
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		frame_num++;
 	}
 
@@ -676,7 +674,7 @@ void PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 	//MVE_SetPalette(p, start, count); //[ISB] I need to figure out if I should do something here
 	//[ISB] for whatever reason, the implication of the above line is that the palette is set without actually informing the game's palette code
 	//Replicate this by using a raw palette push call. 
-	I_WritePalette(start, start + count - 1, p + (start*3));
+	plat_write_palette(start, start + count - 1, p + (start*3));
 }
 
 
@@ -992,7 +990,7 @@ movielib * init_new_movie_lib(const char* filename, FILE * fp)
 			break;		//end of file (probably)
 
 		//n = fread(&len, 4, 1, fp);
-		len = F_ReadInt(fp);
+		len = file_read_int(fp);
 		//if (n != 1)
 		//	Error("error reading movie library <%s>", filename);
 
@@ -1026,7 +1024,7 @@ movielib* init_old_movie_lib(const char* filename, FILE * fp)
 			break;		//end of file (probably)
 
 		i = fread(&len, 4, 1, fp);
-		len = F_ReadInt(fp);
+		len = file_read_int(fp);
 		//if (i != 1)
 		//	Error("error reading movie library <%s>", filename);
 

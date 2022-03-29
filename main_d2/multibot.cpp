@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "platform/mono.h"
 #include "platform/timer.h"
-#include "text.h"
+#include "stringtable.h"
 #include "ai.h"
 #include "fireball.h"
 #include "aistruct.h"
@@ -36,9 +36,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "fuelcen.h"
 #include "morph.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "sounds.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "physics.h" 
 #include "misc/byteswap.h"
 //
@@ -414,7 +414,7 @@ multi_send_robot_position_sub(int objnum)
 
 	loc += 3;
 #ifndef MACINTOSH
-	create_shortpos((shortpos*)(multibuf + loc), Objects + objnum, 0);		loc += sizeof(shortpos);
+	create_shortpos((shortpos*)(multibuf + loc), Objects + objnum);		loc += sizeof(shortpos);
 #else
 	create_shortpos(&sp, Objects + objnum, 1);
 	memcpy(&(multibuf[loc]), (uint8_t*)(sp.bytemat), 9);
@@ -799,13 +799,7 @@ multi_do_robot_position(char *buf)
 	set_thrust_from_velocity(&Objects[botnum]); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
 
-#ifndef MACINTOSH	
-	extract_shortpos(&Objects[botnum], (shortpos *)(buf+loc), 0);
-#else
-	memcpy((uint8_t *)(sp.bytemat), (uint8_t *)(buf + loc), 9);		loc += 9;
-	memcpy((uint8_t *)&(sp.xo), (uint8_t *)(buf + loc), 14);
-	extract_shortpos(&Objects[botnum], &sp, 1);
-#endif
+	extract_shortpos(&Objects[botnum], (shortpos *)(buf+loc));
 }
 
 void

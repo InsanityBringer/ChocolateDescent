@@ -252,8 +252,8 @@ int pcx_encode_line(uint8_t* inBuff, int inLen, FILE* fp)
 {
 	uint8_t cur, last;
 	int srcIndex, i;
-	register int total;
-	register uint8_t runCount; 	// max single runlength is 63
+	int total;
+	uint8_t runCount; 	// max single runlength is 63
 	total = 0;
 	last = *(inBuff);
 	runCount = 1;

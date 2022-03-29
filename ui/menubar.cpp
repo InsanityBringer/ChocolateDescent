@@ -654,8 +654,7 @@ void menubar_init(const char* file)
 		}
 	}
 
-	//infile = fopen(file, "rt");
-	errno_t err = fopen_s(&infile, file, "rt");
+	infile = fopen(file, "rt");
 
 	if (!infile) return;
 
@@ -686,7 +685,7 @@ void menubar_init(const char* file)
 
 		if (buf1[0] != '-')
 		{
-			sprintf_s(buf2, 200, " %s ", buf1);
+			snprintf(buf2, 200, " %s ", buf1);
 			Menu[menu].Item[item].Text = _strdup(buf2);
 		}
 		else

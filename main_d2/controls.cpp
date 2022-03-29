@@ -27,9 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "controls.h"
 #include "joydefs.h"
-//#include "victor.h"
 #include "render.h"
-#include "misc/args.h" //[ISB] I SWEAR TO GOD IF YOU DON'T FIX THIS FUTURE ISB...
+#include "misc/args.h" 
 #include "2d/palette.h"
 #include "platform/mouse.h"
 #include "kconfig.h"

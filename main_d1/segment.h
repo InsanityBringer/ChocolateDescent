@@ -68,17 +68,6 @@ typedef struct uvl {
 	fix u, v, l;
 } uvl;
 
-#ifdef COMPACT_SEGS
-typedef struct side {
-	int8_t		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
-	uint8_t		pad;									//keep us longword alligned
-	short		wall_num;
-	short		tmap_num;
-	short		tmap_num2;
-	uvl		uvls[4];
-	// vms_vector	normals[2];						// 2 normals, if quadrilateral, both the same.
-} side;
-#else
 typedef struct side {
 	int8_t		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
 	uint8_t		pad;									//keep us longword alligned
@@ -88,7 +77,6 @@ typedef struct side {
 	uvl		uvls[4];
 	vms_vector	normals[2];						// 2 normals, if quadrilateral, both the same.
 } side;
-#endif
 
 #ifdef EDITOR
 #define SEGMENT_SIZEOF 522
@@ -116,11 +104,6 @@ typedef struct segment
 #endif
 } segment;
 
-#ifdef COMPACT_SEGS
-extern void get_side_normal(segment* sp, int sidenum, int normal_num, vms_vector* vm);
-extern void get_side_normals(segment* sp, int sidenum, vms_vector* vm1, vms_vector* vm2);
-#endif
-
 //	Local segment data.
 //	This is stuff specific to a segment that does not need to get written to disk.
 //	This is a handy separation because we can add to this structure without obsoleting
@@ -135,7 +118,8 @@ typedef struct
 } lsegment;
 #endif
 
-typedef struct {
+typedef struct 
+{
 	int		num_segments;
 	int		num_vertices;
 	short		segments[MAX_SEGMENTS];

@@ -55,9 +55,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "multi.h"
 #include "endlevel.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gauges.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "powerup.h"
 #include "network.h"
 #include "switch.h"
@@ -778,9 +778,9 @@ void do_automap(int key_code)
 		}
 		else 
 		{
-			if (VR_render_buffer[0].cv_w >= 640 && VR_render_buffer[0].cv_h >= 480)
+			if (VR_render_buffer.cv_w >= 640 && VR_render_buffer.cv_h >= 480)
 			{
-				gr_init_sub_canvas(&Page, &VR_render_buffer[0], 0, 0, 640, 480);
+				gr_init_sub_canvas(&Page, &VR_render_buffer, 0, 0, 640, 480);
 			}
 			else 
 			{
@@ -1035,8 +1035,8 @@ void do_automap(int key_code)
 				gr_palette_load(gr_palette);
 			}
 
-			I_DrawCurrentCanvas(0);
-			I_DoEvents();
+			plat_present_canvas(0);
+			plat_do_events();
 			//[ISB] framerate limiter 
 			//waiting loop for polled fps mode
 			//With suggestions from dpjudas.

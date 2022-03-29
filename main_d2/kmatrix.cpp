@@ -42,13 +42,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "platform/joy.h"
 #include "platform/timer.h"
-#include "text.h"
-#include "songs.h"
+#include "stringtable.h"
+#include "main_shared/songs.h"
 #include "multi.h"
 #include "kmatrix.h"
 #include "gauges.h"
 #include "2d/pcx.h"
 #include "network.h"
+#include "platform/platform.h"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
@@ -573,22 +574,9 @@ void kmatrix_view(int network)
 
 	set_screen_mode(SCREEN_MENU);
 
-	WINDOS(
-		StarBackCanvas = dd_gr_create_canvas(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h),
-		StarBackCanvas = gr_create_canvas(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h)
-	);
-	WINDOS(
-		dd_gr_set_current_canvas(StarBackCanvas),
-		gr_set_current_canvas(StarBackCanvas)
-	);
-#ifdef MACINTOSH
-	if (virtual_memory_on) {
-		load_stars_palette();		// horrible hack to prevent too much paging when doing endlevel syncing
-		gr_clear_canvas(BM_XRGB(0, 0, 0));
-	}
-	else
-#endif							// note link to above if/else pair
-		load_stars();
+	StarBackCanvas = gr_create_canvas(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
+	gr_set_current_canvas(StarBackCanvas);
+	load_stars();
 
 	WaitingForOthers = 0;
 	kmatrix_redraw();
@@ -604,16 +592,11 @@ void kmatrix_view(int network)
 	if (network)
 		network_endlevel(&key);
 
-	while (!done) {
-#ifdef WINDOWS
-		MSG msg;
-
-		DoMessageStuff(&msg);
-
-		DDGRRESTORE;
-
-#endif
-
+	while (!done) 
+	{
+		I_MarkStart();
+		plat_present_canvas(0);
+		plat_do_events();
 		kmatrix_kills_changed = 0;
 		for (i = 0; i < 4; i++)
 			if (joy_get_button_down_cnt(i) > 0)
@@ -802,6 +785,7 @@ void kmatrix_view(int network)
 			}
 
 		}
+		I_MarkEnd(US_70FPS);
 	}
 
 	Players[Player_num].connected = 7;

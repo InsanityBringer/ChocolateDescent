@@ -42,11 +42,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/mouse.h"
 #include "platform/joy.h"
 #include "screens.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 
 #include "cfile/cfile.h"
-#include "compbit.h"
-#include "songs.h"
+#include "main_shared/compbit.h"
+#include "main_shared/songs.h"
 #include "menu.h"			// for MenuHires
 
 #if defined(POLY_ACC)
@@ -307,7 +307,7 @@ get_line:;
 		for (i = 0; i < ROW_SPACING; i += (MenuHires ? 2 : 1)) 
 		{
 			I_MarkStart();
-			I_DoEvents();
+			plat_do_events();
 			int y;
 
 			y = first_line_offset - i;
@@ -516,7 +516,7 @@ get_line:;
 				return;
 			}
 
-			I_DrawCurrentCanvas(0);
+			plat_present_canvas(0);
 			I_MarkEnd(MenuHires ? US_60FPS : US_70FPS);
 		}
 

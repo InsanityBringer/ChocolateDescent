@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "2d/palette.h"
 #include "game.h"
-#include "text.h"
+#include "stringtable.h"
 #include "newmenu.h"
 #include "gamefont.h"
 #include "network.h"
@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mem/mem.h"
 #include "platform/mouse.h"
 #include "platform/joy.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "multi.h"
 #include "endlevel.h"
 #include "screens.h"
@@ -475,7 +475,7 @@ int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_ite
 		return -1;
 
 	set_screen_mode(SCREEN_MENU);
-	I_SetRelative(0);
+	plat_set_mouse_relative_mode(0);
 
 	//NO_SOUND_PAUSE	if ( Function_mode == FMODE_GAME )	{
 	//NO_SOUND_PAUSE		digi_pause_all();
@@ -776,7 +776,7 @@ int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_ite
 	{
 		//network_listen();
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		k = key_inkey();
 
 		if (subfunction)
@@ -1070,7 +1070,7 @@ int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_ite
 		{
 			gr_palette_fade_in(gr_palette, 32, 0);
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(US_70FPS);
 	}
 
@@ -1374,7 +1374,7 @@ ReadFileNames:
 	while (!done) 
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		ocitem = citem;
 		ofirst_item = first_item;
 		key = key_inkey();
@@ -1567,7 +1567,7 @@ ReadFileNames:
 				gr_string(105, y, (&filenames[i * 14]) + ((player_mode && filenames[i * 14] == '$') ? 1 : 0));
 			}
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(US_70FPS);
 	}
 
@@ -1679,7 +1679,7 @@ int newmenu_listbox1(const char* title, int nitems, char* items[], int allow_abo
 	while (!done) 
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		ocitem = citem;
 		ofirst_item = first_item;
 		key = key_inkey();
@@ -1831,7 +1831,7 @@ int newmenu_listbox1(const char* title, int nitems, char* items[], int allow_abo
 				gr_string(wx + 5, y, items[i]);
 			}
 		}
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(US_70FPS);
 	}
 	keyd_repeat = old_keyd_repeat;

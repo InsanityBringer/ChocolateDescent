@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "platform/mono.h"
 #include "mem/mem.h"
-#include "args.h"
+#include "misc/args.h"
 
 #ifndef DRIVE
 #include "bm.h"
@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "lighting.h"
 #include "cfile/cfile.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #endif
 
 polymodel Polygon_models[MAX_POLYGON_MODELS];	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};

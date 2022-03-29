@@ -456,6 +456,13 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		case TT_SECRET_EXIT: 
 		{
 			int	truth;
+
+			if (CurrentDataVersion == DataVer::DEMO)
+			{
+				HUD_init_message("Secret Level Teleporter disabled in Descent 2 Demo");
+				digi_play_sample(SOUND_BAD_SELECTION, F1_0);
+				break;
+			}
  
 			if (pnum!=Player_num)
 				break;
@@ -470,33 +477,25 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 				break;
 			}
 
-			#ifndef SHAREWARE
 			truth = p_secret_level_destroyed();
 
 			if (Newdemo_state == ND_STATE_RECORDING)			// record whether we're really going to the secret level
 				newdemo_record_secret_exit_blown(truth);
 
-			if ((Newdemo_state != ND_STATE_PLAYBACK) && truth) 
+			if ((Newdemo_state != ND_STATE_PLAYBACK) && truth)
 			{
 				HUD_init_message("Secret Level destroyed.  Exit disabled.");
-				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+				digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 				break;
 			}
-			#endif
 
-			#ifdef SHAREWARE
-				HUD_init_message("Secret Level Teleporter disabled in Descent 2 Demo");
-				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-				break;
-			#endif
-			
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
 			digi_stop_all();		//kill the sounds
 
-			digi_play_sample( SOUND_SECRET_EXIT, F1_0 );
-			mprintf((0,"Exiting to secret level\n"));
+			digi_play_sample(SOUND_SECRET_EXIT, F1_0);
+			mprintf((0, "Exiting to secret level\n"));
 
 			gr_palette_fade_out(gr_palette, 32, 0);
 			EnterSecretLevel();
@@ -656,34 +655,34 @@ void triggers_frame_process()
 
 #include "cfile/cfile.h"
 
-void P_ReadTrigger(trigger* trig, FILE* fp)
+void read_trigger(trigger* trig, FILE* fp)
 {
 	int j;
-	trig->type = F_ReadByte(fp);
-	trig->flags = F_ReadByte(fp);
-	trig->num_links = F_ReadByte(fp);
-	trig->pad = F_ReadByte(fp);
+	trig->type = file_read_byte(fp);
+	trig->flags = file_read_byte(fp);
+	trig->num_links = file_read_byte(fp);
+	trig->pad = file_read_byte(fp);
 
-	trig->value = F_ReadInt(fp);
-	trig->time = F_ReadInt(fp);
+	trig->value = file_read_int(fp);
+	trig->time = file_read_int(fp);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		trig->seg[j] = F_ReadShort(fp);
+		trig->seg[j] = file_read_short(fp);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		trig->side[j] = F_ReadShort(fp);
+		trig->side[j] = file_read_short(fp);
 }
 
-void P_WriteTrigger(trigger* trig, FILE* fp)
+void write_trigger(trigger* trig, FILE* fp)
 {
 	int j;
-	F_WriteByte(fp, trig->type);
-	F_WriteByte(fp, trig->flags);
-	F_WriteByte(fp, trig->num_links);
-	F_WriteByte(fp, trig->pad);
+	file_write_byte(fp, trig->type);
+	file_write_byte(fp, trig->flags);
+	file_write_byte(fp, trig->num_links);
+	file_write_byte(fp, trig->pad);
 
-	F_WriteInt(fp, trig->value);
-	F_WriteInt(fp, trig->time);
+	file_write_int(fp, trig->value);
+	file_write_int(fp, trig->time);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		F_WriteShort(fp, trig->seg[j]);
+		file_write_short(fp, trig->seg[j]);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		F_WriteShort(fp, trig->side[j]);
+		file_write_short(fp, trig->side[j]);
 }

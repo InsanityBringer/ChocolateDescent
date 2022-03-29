@@ -29,8 +29,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "vclip.h"
 #include "newdemo.h"
-#include "text.h"
-#include "piggy.h"
+#include "stringtable.h"
+#include "main_shared/piggy.h"
 
 //------------- Globaly used hostage variables --------------------------------------------------
 int 					N_hostage_types = 0;			  				// Number of hostage types

@@ -173,7 +173,7 @@ int gr_wait_for_retrace = 1;
 void gr_show_canvas(grs_canvas* canv)
 {
 	//[ISB] I dunno...
-	I_BlitCanvas(canv);
+	plat_blit_canvas(canv);
 }
 
 void gr_set_current_canvas(grs_canvas* canv)

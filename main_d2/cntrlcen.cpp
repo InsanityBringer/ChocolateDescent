@@ -151,12 +151,12 @@ void do_countdown_frame()
 
 	#if !defined(D2_OEM) && !defined(SHAREWARE)	// get countdown in OEM and SHAREWARE only
 	//	On last level, we don't want a countdown.
-	if ((Current_mission_num == 0) && (Current_level_num == Last_level))
+	if (CurrentDataVersion == DataVer::FULL && (Current_mission_num == 0) && (Current_level_num == Last_level))
     {		
-     if (!(Game_mode & GM_MULTI))
-	   return;
-	  if (Game_mode & GM_MULTI_ROBOTS)
-		return;
+		if (!(Game_mode & GM_MULTI))
+			return;
+		if (Game_mode & GM_MULTI_ROBOTS)
+			return;
     }	 
 	#endif
    
@@ -248,7 +248,8 @@ void do_controlcen_destroyed_stuff(object *objp)
 	Control_center_destroyed = 1;
 
 	//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
-	if (Current_level_num < 0) {
+	if (Current_level_num < 0) 
+	{
 		int	rval;
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 		char secretc_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
@@ -260,10 +261,17 @@ void do_controlcen_destroyed_stuff(object *objp)
 		mprintf((0, "Deleting secret.sgc, return value = %i\n", rval));
 	}
 
-	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
-		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL - Difficulty_level - 1) / 4 - 1;
+	}
 	else
-		Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
+	{
+		if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
+			Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL - Difficulty_level - 1) / 2;
+		else
+			Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
+	}
 
 	Countdown_timer = i2f(Total_countdown_time);
 
@@ -508,24 +516,24 @@ void special_reactor_stuff(void)
 
 #include "cfile/cfile.h"
 
-void P_ReadReactorTrigger(control_center_triggers* trigger, FILE* fp)
+void read_reactor_triggers(control_center_triggers* trigger, FILE* fp)
 {
 	int i;
 
-	trigger->num_links = F_ReadShort(fp);
+	trigger->num_links = file_read_short(fp);
 	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
-		trigger->seg[i] = F_ReadShort(fp);
+		trigger->seg[i] = file_read_short(fp);
 	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
-		trigger->side[i] = F_ReadShort(fp);
+		trigger->side[i] = file_read_short(fp);
 }
 
-void P_WriteReactorTrigger(control_center_triggers* trigger, FILE* fp)
+void write_reactor_triggers(control_center_triggers* trigger, FILE* fp)
 {
 	int i;
 
-	F_WriteShort(fp, trigger->num_links);
+	file_write_short(fp, trigger->num_links);
 	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
-		F_WriteShort(fp, trigger->seg[i]);
+		file_write_short(fp, trigger->seg[i]);
 	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
-		F_WriteShort(fp, trigger->side[i]);
+		file_write_short(fp, trigger->side[i]);
 }

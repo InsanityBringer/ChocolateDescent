@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "misc/error.h"
 #include "sounds.h"
-#include "text.h"
+#include "stringtable.h"
 #include "powerup.h"
 #include "fireball.h"
 #include "newdemo.h"
@@ -1039,6 +1039,7 @@ void process_super_mines_frame(void)
 						dist = vm_vec_dist_quick(bombpos, &Objects[j].pos);
 
 						if (j != parent_num)
+						{
 							if (dist - Objects[j].size < F1_0 * 20)
 								if (Objects[i].segnum == Objects[j].segnum)
 									Objects[i].lifeleft = 1;
@@ -1067,6 +1068,12 @@ void process_super_mines_frame(void)
 											Objects[i].lifeleft = 1;
 									}
 								}
+						}
+						else if (CurrentLogicVersion == LogicVer::SHAREWARE)
+						{
+							if (dist - Objects[j].size < F1_0 * 20)
+								Objects[i].lifeleft = 1;
+						}
 					}
 				}
 			}

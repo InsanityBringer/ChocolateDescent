@@ -18,9 +18,38 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  //Returns a checksum of a block of memory.
 extern uint16_t netmisc_calc_checksum(void* vptr, int len);
 
-//Finds the difference between block1 and block2.  Fills in diff_buffer and returns the size of diff_buffer.
-//[ISB] both killed
-//extern int netmisc_find_diff(void* block1, void* block2, int block_size, void* diff_buffer);
+#define netmisc_encode_buffer(ptr, offset, buf, length) do { memcpy(&ptr[*offset], buf, length); *offset+=length; } while(0)
+#define netmisc_decode_buffer(ptr, offset, buf, length) do { memcpy(buf, &ptr[*offset], length); *offset+=length; } while(0)
 
-//Applies diff_buffer to block1 to create a new block1.  Returns the final size of block1.
-//extern int netmisc_apply_diff(void* block1, void* diff_buffer, int diff_size);
+#ifdef NETWORK
+//Functions for encoding values into a block of memory.
+//All values are written little-endian indepenedent of alignment. 
+void netmisc_encode_int8(uint8_t* ptr, int* offset, uint8_t v);
+void netmisc_encode_int16(uint8_t* ptr, int* offset, short v);
+void netmisc_encode_int32(uint8_t* ptr, int* offset, int v);
+void netmisc_encode_shortpos(uint8_t* ptr, int* offset, shortpos* v);
+void netmisc_encode_vector(uint8_t* ptr, int* offset, vms_vector* vec);
+void netmisc_encode_matrix(uint8_t* ptr, int* offset, vms_matrix* mat);
+
+//Functions for extracting values from a block of memory, as encoded by the above functions.
+void netmisc_decode_int8(uint8_t* ptr, int* offset, uint8_t* v);
+void netmisc_decode_int16(uint8_t* ptr, int* offset, short* v);
+void netmisc_decode_int32(uint8_t* ptr, int* offset, int* v);
+void netmisc_decode_shortpos(uint8_t* ptr, int* offset, shortpos* v);
+void netmisc_decode_vector(uint8_t* ptr, int* offset, vms_vector* vec);
+void netmisc_decode_matrix(uint8_t* ptr, int* offset, vms_matrix* mat);
+
+//Game-specific functions for encoding packet structures.
+void netmisc_encode_netgameinfo(uint8_t* ptr, int* offset, netgame_info* info);
+void netmisc_encode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* info);
+void netmisc_encode_frame_info(uint8_t* ptr, int* offset, frame_info* info);
+void netmisc_encode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info);
+void netmisc_encode_object(uint8_t* ptr, int* offset, object* objp);
+
+//Game-specific functions for decoding packet structures.
+void netmisc_decode_netgameinfo(uint8_t * ptr, int* offset, netgame_info * info);
+void netmisc_decode_sequence_packet(uint8_t* ptr, int* offset, sequence_packet* info);
+void netmisc_decode_frame_info(uint8_t* ptr, int* offset, frame_info* info);
+void netmisc_decode_endlevel_info(uint8_t* ptr, int* offset, endlevel_info* info);
+void netmisc_decode_object(uint8_t* ptr, int* offset, object* objp);
+#endif

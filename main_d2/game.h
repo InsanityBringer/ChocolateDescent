@@ -17,8 +17,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vecmat/vecmat.h"
 #include "object.h"
+#include "main_shared/game_shared.h"
 
-//#include "segment.h"
+#include "segment.h"
 
 #ifdef MACINTOSH
 extern ubyte Scanline_double;
@@ -34,19 +35,6 @@ typedef struct cockpit_span_line {
 
 extern cockpit_span_line win_cockpit_mask[480];
 #endif
-
-
-
-//from mglobal.c
-extern fix FrameTime;					//time in seconds since last frame
-extern fix RealFrameTime;					//time in seconds since last frame
-extern fix GameTime;						//time in game (sum of FrameTime)
-extern int FrameCount;					//how many frames rendered
-extern fix	Next_laser_fire_time;	//	Time at which player can next fire his selected laser.
-extern fix	Last_laser_fired_time;
-extern fix	Next_missile_fire_time;	//	Time at which player can next fire his selected missile.
-extern fix	Laser_delay_time;			//	Delay between laser fires.
-extern int Cheats_enabled;
 
 extern int Missile_view_enabled;
 
@@ -95,8 +83,6 @@ extern int ft_preference;
 //	Deathmatch mode via modem with robots is GM_MODEM | GM_MULTI_ROBOTS
 // Cooperative mode via serial link is GM_SERIAL | GM_MULTI_COOP
 
-#define	NDL	5		//	Number of difficulty levels.
-#define	NUM_DETAIL_LEVELS	6
 
 extern int Game_mode;
 
@@ -104,28 +90,14 @@ extern int Game_paused;
 extern int gauge_message_on;
 
 #ifndef NDEBUG		//if debugging, these are variables
-
 extern int Slew_on;							//in slew or sim mode?
 extern int Game_double_buffer;			//double buffering?
-
-
 #else					//if not debugging, these are constants
-
 #define Slew_on 				0		//no slewing in real game
 #define Game_double_buffer	1		//always double buffer in real game
-
-
 #endif
 
-#ifndef MACINTOSH
-
-#define Scanline_double		0		// PC doesn't do scanline doubling
-
-#else
-
-extern ubyte Scanline_double;			// but the Macintosh does
-
-#endif
+#define Scanline_double		0		// PC doesn't do scanline doubling TODO: remove me
 
 //Suspend flags
 

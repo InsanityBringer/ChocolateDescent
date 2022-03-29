@@ -56,7 +56,8 @@ typedef struct player
 {
 	// Who am I data
 	char		callsign[CALLSIGN_LEN + 1];	// The callsign of this player, for net purposes.
-	uint8_t		net_address[6];				// The network address of the player.
+	uint8_t		net_address[4];				// The network address of the player.
+	uint16_t	net_port;					// [ISB] the port last used by the player
 	int8_t		connected; 						//	Is the player connected or not?
 	int		objnum;							// What object number this player is. (made an int by mk because it's very often referenced)
 	int		n_packets_got;					// How many packets we got from them
@@ -126,5 +127,5 @@ extern int Player_num;								// The player number who is on the console.
 extern player Players[MAX_PLAYERS];				// Misc player info
 extern player_ship* Player_ship;
 
-void P_ReadPlayer(player* plr, FILE* fp);
-void P_WritePlayer(player* plr, FILE* fp);
+void read_player_file(player* plr, FILE* fp);
+void write_player_file(player* plr, FILE* fp);

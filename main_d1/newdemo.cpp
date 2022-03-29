@@ -66,15 +66,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "vecmat/vecmat.h"
 #include "newmenu.h"
-#include "args.h"
+#include "misc/args.h"
 #include "2d/palette.h"
 #include "multi.h"
 #include "network.h"
-#include "text.h"
+#include "stringtable.h"
 #include "cntrlcen.h"
 #include "aistruct.h"
 #include "mission.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"

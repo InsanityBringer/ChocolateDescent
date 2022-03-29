@@ -43,14 +43,17 @@ const char* titleMsg = "Chocolate Descent (" __DATE__ ")";
 #endif
 
 int WindowWidth = 1600, WindowHeight = 900;
+int CurWindowWidth, CurWindowHeight;
 SDL_Window* gameWindow = NULL;
 grs_canvas* screenBuffer;
 
 int BestFit = 0;
 int Fullscreen = 0;
 int SwapInterval = 0;
+bool HighcolorMode = false;
 
-SDL_Rect screenRectangle;
+SDL_Rect screenRectangle, sourceRectangle;
+SDL_Surface* softwareSurf = nullptr;
 
 uint32_t localPal[256];
 
@@ -58,8 +61,9 @@ uint32_t localPal[256];
 SDL_Color colors[256];
 
 int refreshDuration = US_70FPS;
+bool usingSoftware = false;
 
-int I_Init()
+int plat_init()
 {
 	int res;
 
@@ -76,49 +80,73 @@ int I_Init()
 		Error("I_Init(): Cannot load default OpenGL library: %s\n", SDL_GetError());
 		return res;
 	}*/
-	I_ReadChocolateConfig();
+	plat_read_chocolate_cfg();
 	return 0;
 }
 
-int I_InitWindow()
+int plat_create_window()
 {
 	//Attributes like this must be set before windows are created, apparently. 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	int flags = SDL_WINDOW_OPENGL;
+
+	CurWindowWidth = WindowWidth;
+	CurWindowHeight = WindowHeight;
+	int flags = SDL_WINDOW_HIDDEN;
+	if (!NoOpenGL)
+		flags |= SDL_WINDOW_OPENGL;
+	else
+		usingSoftware = true;
 	if (Fullscreen)
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS;
 	//SDL is good, create a game window
 	gameWindow = SDL_CreateWindow(titleMsg, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, flags);
 	//int result = SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, flags, &gameWindow, &renderer);
 	if (Fullscreen)
-		SDL_GetWindowSize(gameWindow, &WindowWidth, &WindowHeight);
+		SDL_GetWindowSize(gameWindow, &CurWindowWidth, &CurWindowHeight);
 
 	if (!gameWindow)
 	{
-		Warning("Error creating game window: %s\n", SDL_GetError());
+		Error("Error creating game window: %s\n", SDL_GetError());
 		return 1;
 	}
 	//where else do i do this...
 	I_InitSDLJoysticks();
 
-	I_InitGLContext(gameWindow);
+	if (!NoOpenGL && I_InitGLContext(gameWindow))
+	{
+		//Failed to initialize OpenGL, try simple surface code instead
+		SDL_DestroyWindow(gameWindow);
+		usingSoftware = true;
+
+		flags &= ~SDL_WINDOW_OPENGL;
+		gameWindow = SDL_CreateWindow(titleMsg, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, flags);
+		if (!gameWindow)
+		{
+			Error("Error creating game window, after falling back to software: %s\n", SDL_GetError());
+			return 1;
+		}
+	}
+
+	SDL_ShowWindow(gameWindow);
 
 	return 0;
 }
 
-void I_ShutdownGraphics()
+void plat_close_window()
 {
 	if (gameWindow)
 	{
-		I_ShutdownGL();
+		if (!usingSoftware)
+			I_ShutdownGL();
+
 		SDL_DestroyWindow(gameWindow);
 		gameWindow = NULL;
 	}
 }
 
-int I_CheckMode(int mode)
+int plat_check_gr_mode(int mode)
 {
 	//For now, high color modes are rejected (were those ever well supported? or even used?)
 	switch (mode)
@@ -147,15 +175,58 @@ int I_CheckMode(int mode)
 	return 11;
 }
 
-void I_SetScreenCanvas(grs_canvas* canv)
+void I_SetScreenRect(int w, int h)
 {
-	screenBuffer = canv;
+	//Create the destination rectangle for the game screen
+	int bestWidth = CurWindowHeight * 4 / 3;
+	if (CurWindowWidth < bestWidth) bestWidth = CurWindowWidth;
+	sourceRectangle.x = sourceRectangle.y = 0;
+	sourceRectangle.w = w; sourceRectangle.h = h;
+
+	if (!usingSoftware)
+	{
+		if (BestFit == FITMODE_FILTERED && h <= 400)
+		{
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+			w *= 2; h *= 2;
+		}
+		else
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+	}
+
+	if (BestFit == FITMODE_BEST)
+	{
+		int numWidths = bestWidth / w;
+		screenRectangle.w = numWidths * w;
+		screenRectangle.h = (screenRectangle.w * 3 / 4);
+		screenRectangle.x = (CurWindowWidth - screenRectangle.w) / 2;
+		screenRectangle.y = (CurWindowHeight - screenRectangle.h) / 2;
+	}
+	else
+	{
+		screenRectangle.w = bestWidth;
+		screenRectangle.h = (screenRectangle.w * 3 / 4);
+		screenRectangle.x = screenRectangle.y = 0;
+		screenRectangle.x = (CurWindowWidth - screenRectangle.w) / 2;
+		screenRectangle.y = (CurWindowHeight - screenRectangle.h) / 2;
+	}
+
+	if (!usingSoftware)
+		GL_SetVideoMode(w, h, HighcolorMode, &screenRectangle);
+	else
+	{
+		if (softwareSurf)
+			SDL_FreeSurface(softwareSurf);
+		
+		softwareSurf = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
+		if (!softwareSurf)
+			Error("Error creating software surface: %s\n", SDL_GetError());
+	}
 }
 
-int I_SetMode(int mode)
+int plat_set_gr_mode(int mode)
 {
 	int w, h;
-	bool highcolor = false;
 
 	refreshDuration = US_60FPS;
 	switch (mode)
@@ -216,47 +287,16 @@ int I_SetMode(int mode)
 		w = 1280; h = 1024;
 		break;
 	case SM_320x200V15:
-		w = 320; h = 200; highcolor = true;
+		w = 320; h = 200; HighcolorMode = true;
 		break;
 	default:
-		Error("I_SetMode: bad mode %d\n", mode);
+		Error("plat_set_gr_mode: bad mode %d\n", mode);
 		return 0;
 	}
 
-	if (BestFit == FITMODE_FILTERED && h <= 400)
-	{
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-		w *= 2; h *= 2;
-	}
-	else
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-
 	//[ISB] this should hopefully fix all instances of the screen flashing white when changing modes
-	I_WritePalette(0, 255, gr_palette);
-
-	//Create the destination rectangle for the game screen
-	int bestWidth = WindowHeight * 4 / 3;
-	if (WindowWidth < bestWidth) bestWidth = WindowWidth;
-
-	if (BestFit == FITMODE_BEST)
-	{
-		int numWidths = bestWidth / w;
-		screenRectangle.w = numWidths * w;
-		screenRectangle.h = (screenRectangle.w * 3 / 4);
-		screenRectangle.x = (WindowWidth - screenRectangle.w) / 2;
-		screenRectangle.y = (WindowHeight - screenRectangle.h) / 2;
-	}
-	else
-	{	
-		screenRectangle.w = bestWidth;
-		screenRectangle.h = (screenRectangle.w * 3 / 4);
-		screenRectangle.x = screenRectangle.y = 0;
-		screenRectangle.x = (WindowWidth - screenRectangle.w) / 2;
-		screenRectangle.y = (WindowHeight - screenRectangle.h) / 2;
-	}
-
-
-	GL_SetVideoMode(w, h, highcolor, &screenRectangle);
+	plat_write_palette(0, 255, gr_palette);
+	I_SetScreenRect(w, h);
 
 	return 0;
 }
@@ -264,14 +304,14 @@ int I_SetMode(int mode)
 void I_ScaleMouseToWindow(int* x, int* y)
 {
 	//printf("in: (%d, %d) ", *x, *y);
-	*x = (*x * screenRectangle.w / WindowWidth);
-	*y = (*y * screenRectangle.h / WindowHeight);
+	*x = (*x * screenRectangle.w / CurWindowWidth);
+	*y = (*y * screenRectangle.h / CurWindowHeight);
 	if (*x < 0) *x = 0; if (*x >= screenRectangle.w) *x = screenRectangle.w - 1;
 	if (*y < 0) *y = 0; if (*y >= screenRectangle.h) *y = screenRectangle.h - 1;
 	//printf("out: (%d, %d)\n", *x, *y);
 }
 
-void I_DoEvents()
+void plat_do_events()
 {
 	SDL_Event ev;
 	while (SDL_PollEvent(&ev))
@@ -295,7 +335,27 @@ void I_DoEvents()
 			break;
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
-			I_KeyHandler(ev.key.keysym.scancode, ev.key.state);
+			if (ev.key.keysym.scancode == SDL_SCANCODE_RETURN && ev.key.state == SDL_PRESSED && ev.key.keysym.mod & KMOD_ALT)
+			{
+				if (!Fullscreen)
+				{
+					SDL_SetWindowFullscreen(gameWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+					SDL_GetWindowSize(gameWindow, &CurWindowWidth, &CurWindowHeight);
+					Fullscreen = 1;
+				}
+				else
+				{
+					SDL_SetWindowFullscreen(gameWindow, 0);
+					SDL_SetWindowSize(gameWindow, WindowWidth, WindowHeight);
+					CurWindowWidth = WindowWidth; CurWindowHeight = WindowHeight;
+					SDL_SetWindowPosition(gameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+					Fullscreen = 0;
+				}
+
+				I_SetScreenRect(grd_curscreen->sc_w, grd_curscreen->sc_h);
+			}
+			else
+				I_KeyHandler(ev.key.keysym.scancode, ev.key.state);
 			break;
 			//[ISB] kill this. Descent's joystick code expects buttons to report that they're constantly being held down, and these button events only fire when the state changes
 /*
@@ -317,7 +377,7 @@ void I_DoEvents()
 	I_ControllerHandler();
 }
 
-void I_SetRelative(int state)
+void plat_set_mouse_relative_mode(int state)
 {
 	SDL_bool formerState = SDL_GetRelativeMouseMode();
 	SDL_SetRelativeMouseMode((SDL_bool)state);
@@ -328,11 +388,11 @@ void I_SetRelative(int state)
 	}
 	else if (!state && formerState)
 	{
-		SDL_WarpMouseInWindow(gameWindow, WindowWidth / 2, WindowHeight / 2);
+		SDL_WarpMouseInWindow(gameWindow, CurWindowWidth / 2, CurWindowHeight / 2);
 	}
 }
 
-void I_WritePalette(int start, int end, uint8_t* data)
+void plat_write_palette(int start, int end, uint8_t* data)
 {
 	int i;
 
@@ -342,19 +402,20 @@ void I_WritePalette(int start, int end, uint8_t* data)
 		colors[i].r = (Uint8)(data[i * 3 + 0] * 255 / 63);
 		colors[i].g = (Uint8)(data[i * 3 + 1] * 255 / 63);
 		colors[i].b = (Uint8)(data[i * 3 + 2] * 255 / 63);
-		localPal[start+i] = (255 << 24) | (colors[i].r) | (colors[i].g << 8) | (colors[i].b << 16);
+		localPal[start+i] = (255 << 24) | (colors[i].r << 16) | (colors[i].g << 8) | (colors[i].b);
 	}
-	GL_SetPalette(localPal);
+	if (!usingSoftware)
+		GL_SetPalette(localPal);
 }
 
-void I_BlankPalette()
+void plat_blank_palette()
 {
 	uint8_t pal[768];
 	memset(&pal[0], 0, 768 * sizeof(uint8_t));
-	I_WritePalette(0, 255, &pal[0]);
+	plat_write_palette(0, 255, &pal[0]);
 }
 
-void I_ReadPalette(uint8_t* dest)
+void plat_read_palette(uint8_t* dest)
 {
 	int i;
 	SDL_Color color;
@@ -367,7 +428,7 @@ void I_ReadPalette(uint8_t* dest)
 	}
 }
 
-void I_WaitVBL()
+void plat_wait_for_vbl()
 {
 	//Now what is a VBL, anyways?
 	//SDL_Delay(1000 / 70);
@@ -375,32 +436,69 @@ void I_WaitVBL()
 	I_MarkStart();
 }
 
-void I_DrawCurrentCanvas(int sync)
+extern uint8_t* gr_video_memory;
+void I_SoftwareBlit()
+{
+	int x, y;
+	int sourcePitch = grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize;
+	int destPitch = softwareSurf->pitch;
+	uint8_t* source = gr_video_memory;
+	if (SDL_LockSurface(softwareSurf))
+		Error("Failed to lock software surface for blitting");
+
+	uint8_t* dest = (uint8_t*)softwareSurf->pixels;
+
+	for (y = 0; y < softwareSurf->h; y++)
+	{
+		for (x = 0; x < softwareSurf->w; x++)
+		{
+			*(uint32_t*)&dest[x<<2] = localPal[source[x]];
+		}
+		source += sourcePitch;
+		dest += destPitch;
+	}
+
+	SDL_UnlockSurface(softwareSurf);
+
+	SDL_Surface* windowSurf = SDL_GetWindowSurface(gameWindow);
+	//SDL_BlitSurface(softwareSurf, &sourceRectangle, windowSurf, &sourceRectangle);
+	SDL_BlitScaled(softwareSurf, &sourceRectangle, windowSurf, &screenRectangle);
+}
+
+void plat_present_canvas(int sync)
 {
 	if (sync)
 	{
 		SDL_Delay(1000 / 70);
 	}
 
-	GL_DrawPhase1();
-	SDL_GL_SwapWindow(gameWindow);
+	if (!usingSoftware)
+	{
+		GL_DrawPhase1();
+		SDL_GL_SwapWindow(gameWindow);
+	}
+	else
+	{
+		I_SoftwareBlit();
+		SDL_UpdateWindowSurface(gameWindow);
+	}
 }
 
-void I_BlitCanvas(grs_canvas *canv)
+void plat_blit_canvas(grs_canvas *canv)
 {
 	//[ISB] Under the assumption that the screen buffer is always static and valid, memcpy the contents of the canvas into it
 	if (canv->cv_bitmap.bm_type == BM_SVGA)
-		memcpy(screenBuffer->cv_bitmap.bm_data, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
+		memcpy(gr_video_memory, canv->cv_bitmap.bm_data, canv->cv_bitmap.bm_w * canv->cv_bitmap.bm_h);
 }
 
-void I_Shutdown()
+void plat_close()
 {
 	//SDL_GL_UnloadLibrary();
-	I_ShutdownGraphics();
+	plat_close_window();
 	SDL_Quit();
 }
 
-void I_DisplayError(const char* msg)
+void plat_display_error(const char* msg)
 {
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game Error", msg, gameWindow);
 }

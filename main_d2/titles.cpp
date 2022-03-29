@@ -48,12 +48,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "multi.h"
 #include "player.h"
-#include "digi.h"
-#include "compbit.h"
-#include "text.h"
+#include "main_shared/digi.h"
+#include "main_shared/compbit.h"
+#include "stringtable.h"
 #include "kmatrix.h"
-#include "piggy.h"
-#include "songs.h"
+#include "main_shared/piggy.h"
+#include "main_shared/songs.h"
 #include "newmenu.h"
 #include "state.h"
 #include "movie.h"
@@ -177,8 +177,8 @@ int show_title_screen(const char* filename, int allow_keys, int from_hog_only)
 	timer = timer_get_fixed_seconds() + i2f(3);
 	while (1)
 	{
-		I_DoEvents();
-		I_DrawCurrentCanvas(0);
+		plat_do_events();
+		plat_present_canvas(0);
 		if (local_key_inkey() && allow_keys) break;
 		if (timer_get_fixed_seconds() > timer) break;
 
@@ -471,7 +471,7 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 
-	if (delay)
+	if (delay && CurrentDataVersion != DataVer::DEMO)
 		delay = fixdiv(F1_0, i2f(15));
 
 	if (delay != 0)
@@ -485,8 +485,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	{
 		if (RobotPlaying && delay != 0)
 		{
-			I_DoEvents();
-			I_DrawCurrentCanvas(0);
+			plat_do_events();
+			plat_present_canvas(0);
 			RotateRobot();
 		}
 	}
@@ -498,8 +498,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	//[ISB] surely this code could have been structured better
 	if (delay != 0)
 	{
-		I_DoEvents();
-		I_DrawCurrentCanvas(0);
+		plat_do_events();
+		plat_present_canvas(0);
 	}
 	//[ISB] draw right before the erase
 	//	Erase cursor
@@ -515,7 +515,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
 	gr_printf(Briefing_text_x + 1, Briefing_text_y, message);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	//	if (the_char != ' ')
 	//		if (!digi_is_sound_playing(SOUND_MARKER_HIT))
@@ -669,9 +668,8 @@ int show_briefing_message(int screen_num, char* message)
 
 	InitMovieBriefing();
 
-#ifndef SHAREWARE
-	hum_channel = digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0 / 2, 0xFFFF / 2, 1, -1, -1, -1);
-#endif
+	if (CurrentDataVersion != DataVer::DEMO)
+		hum_channel = digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0 / 2, 0xFFFF / 2, 1, -1, -1, -1);
 
 	// mprintf((0, "Going to print message [%s] at x=%i, y=%i\n", message, x, y));
 	gr_set_curfont(GAME_FONT);
@@ -783,14 +781,15 @@ int show_briefing_message(int screen_num, char* message)
 			{
 				mprintf((0, "Got a Z!\n"));
 				GotZ = 1;
-#if defined (D2_OEM) || defined(COMPILATION) || (defined(MACINTOSH) && defined(SHAREWARE))
-				DumbAdjust = 1;
-#else
-				if (LineAdjustment == 1)
+				if (CurrentDataVersion == DataVer::DEMO)
 					DumbAdjust = 1;
 				else
-					DumbAdjust = 2;
-#endif
+				{
+					if (LineAdjustment == 1)
+						DumbAdjust = 1;
+					else
+						DumbAdjust = 2;
+				}
 
 				i = 0;
 				while ((fname[i] = *message) != '\n') 
@@ -851,28 +850,12 @@ int show_briefing_message(int screen_num, char* message)
 					digi_stop_sound(printing_channel);
 				printing_channel = -1;
 
-#ifdef WINDOWS
-				if (!wpage_done) {
-					DDGRRESTORE;
-					wpage_done = 1;
-				}
-#endif
-
 				start_time = timer_get_fixed_seconds();
 				while ((keypress = local_key_inkey()) == 0) //	Wait for a key
 				{
-#ifdef WINDOWS
-					if (_RedrawScreen) {
-						_RedrawScreen = FALSE;
-						hum_channel = digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0 / 2, 0xFFFF / 2, 1, -1, -1, -1);
-						keypress = KEY_ESC;
-						break;
-					}
-#endif
-
 					//[ISB] the amount of frames that will get 2 events done is going to be high
-					I_DrawCurrentCanvas(0);
-					I_DoEvents();
+					plat_present_canvas(0);
+					plat_do_events();
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 					{
 					}
@@ -893,7 +876,6 @@ int show_briefing_message(int screen_num, char* message)
 
 				flashing_cursor = 0;
 				done = 1;
-				WIN(wpage_done = 0);
 			}
 			else if (ch == 'P') //	New page.
 			{		
@@ -965,7 +947,7 @@ int show_briefing_message(int screen_num, char* message)
 
 			prev_ch = ch;
 
-			if (!chattering)
+			if (!chattering && CurrentDataVersion != DataVer::DEMO)
 			{
 				printing_channel = digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF / 2, 1, -1, -1, -1);
 				chattering = 1;
@@ -1004,8 +986,8 @@ int show_briefing_message(int screen_num, char* message)
 
 		/*if (delay_count != 0) //Don't update if message should progress instantly.
 		{
-			I_DrawCurrentCanvas(0);
-			I_DoEvents();
+			plat_present_canvas(0);
+			plat_do_events();
 		}*/
 
 		if ((new_page) || (Briefing_text_y > bsp->text_uly + bsp->text_height)) 
@@ -1039,8 +1021,8 @@ int show_briefing_message(int screen_num, char* message)
 					break;
 				}
 #endif
-				I_DrawCurrentCanvas(0);
-				I_DoEvents();
+				plat_present_canvas(0);
+				plat_do_events();
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 				{
 				}
@@ -1070,8 +1052,6 @@ int show_briefing_message(int screen_num, char* message)
 			Briefing_text_x = bsp->text_ulx;
 			Briefing_text_y = bsp->text_uly;
 			delay_count = KEY_DELAY_DEFAULT;
-
-			WIN(wpage_done = 0);
 		}
 	}
 
@@ -1236,29 +1216,10 @@ int show_briefing_screen(int screen_num, int allow_keys)
 	memcpy(palette_save, gr_palette, sizeof(palette_save));
 	memcpy(New_pal, gr_palette, sizeof(gr_palette));
 
-#ifdef MACINTOSH
-	key_close();		// kill the keyboard handler during briefing screens for movies
-#endif
 	rval = show_briefing_text(screen_num);
-#ifdef MACINTOSH
-	key_init();
-#endif
 
-#if defined (MACINTOSH) || defined(WINDOWS)
-	memcpy(New_pal, gr_palette, sizeof(gr_palette));		// attempt to get fades after briefing screens done correctly.
-#endif
-
-#ifndef WINDOWS 
 	if (gr_palette_fade_out(New_pal, 32, allow_keys))
 		return 1;
-#else
-	DEFINE_SCREEN(NULL);
-	WIN(DDGRLOCK(dd_grd_curcanv));
-	gr_clear_canvas(0);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
-	if (gr_palette_fade_out(New_pal, 32, allow_keys))
-		return 1;
-#endif
 
 	gr_copy_palette(gr_palette, palette_save, sizeof(palette_save));
 	return rval;
@@ -1288,18 +1249,14 @@ void do_briefing_screens(const char* filename, int level_num)
 	if (!load_screen_text(filename, &Briefing_text))
 		return;
 
-#ifdef SHAREWARE
-	songs_play_song(SONG_BRIEFING, 1);
-#else
-	songs_stop_all();
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)
+		songs_play_song(SONG_BRIEFING, 1);
+	else
+		songs_stop_all();
 
 	set_screen_mode(SCREEN_MENU);
 
-	WINDOS(
-		dd_gr_set_current_canvas(NULL),
-		gr_set_current_canvas(NULL)
-	);
+	gr_set_current_canvas(NULL);
 
 	mprintf((0, "Playing briefing screen! %s %d\n", filename, level_num));
 

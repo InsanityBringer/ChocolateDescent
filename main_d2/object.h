@@ -19,7 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "aistruct.h"
 #include "2d/gr.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 /*
  *		CONSTANTS
@@ -404,10 +404,10 @@ extern void dead_player_end(void);
 
 //	Extract information from an object (objp->orient, objp->pos, objp->segnum), stuff in a shortpos structure.
 // See typedef shortpos.
-extern void create_shortpos(shortpos *spp, object *objp, int swap_bytes);
+extern void create_shortpos(shortpos *spp, object *objp);
 
 //	Extract information from a shortpos, stuff in objp->orient (matrix), objp->pos, objp->segnum
-extern void extract_shortpos(object *objp, shortpos *spp, int swap_bytes);
+extern void extract_shortpos(object *objp, shortpos *spp);
 
 //delete objects, such as weapons & explosions, that shouldn't stay between levels
 //if clear_all is set, clear even proximity bombs
@@ -442,5 +442,5 @@ extern void wake_up_rendered_objects(object *gmissp, int window_num);
 
 #include <stdio.h>
 //Reads an object from disk. This code is my absolute nightmare. Thanks, unions.
-void P_ReadObject(object* obj, FILE* f);
-void P_WriteObject(object* obj, FILE* f);
+void read_obj_instance(object* obj, FILE* f);
+void write_obj_instance(object* obj, FILE* f);

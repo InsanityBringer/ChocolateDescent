@@ -19,17 +19,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/platform_filesys.h"
 #include "misc/types.h"
 #include "game.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "kconfig.h"
 #include "2d/palette.h"
 #include "platform/joy.h"
-#include "args.h"
+#include "misc/args.h"
 #include "player.h"
 #include "mission.h"
 #include "misc/error.h"
-
- //#include "sos.h"//These sos headers are part of a commercial library, and aren't included-KRB
- //#include "sosm.h"
+#include "network.h"
 
 static const char* digi_dev_str = "DigiDeviceID";
 static const char* digi_port_str = "DigiPort";
@@ -47,18 +45,13 @@ static const char* joystick_max_str = "JoystickMax";
 static const char* joystick_cen_str = "JoystickCen";
 static const char* last_player_str = "LastPlayer";
 static const char* last_mission_str = "LastMission";
-static const char* config_vr_type_str = "VR_type";
-static const char* config_vr_tracking_str = "VR_tracking";
-
+static const char* port_number_str = "NetworkPort";
 
 char config_last_player[CALLSIGN_LEN + 1] = "";
 char config_last_mission[MISSION_NAME_LEN + 1] = "";
 
 int Config_digi_type = 0;
 int Config_midi_type = 0;
-
-int Config_vr_type = 0;
-int Config_vr_tracking = 0;
 
 extern int8_t	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
 
@@ -177,27 +170,25 @@ int ReadConfigFile()
 			else if (!strcmp(token, last_player_str)) 
 			{
 				char* p;
-				memset(config_last_player, '\0', CALLSIGN_LEN + 1 * sizeof(char));
 				strncpy(config_last_player, value, CALLSIGN_LEN);
+				config_last_player[CALLSIGN_LEN] = '\0';
 				p = strchr(config_last_player, '\n');
 				if (p)* p = 0;
 			}
 			else if (!strcmp(token, last_mission_str)) 
 			{
 				char* p;
-				memset(config_last_mission, '\0', MISSION_NAME_LEN + 1 * sizeof(char));
 				strncpy(config_last_mission, value, MISSION_NAME_LEN);
+				config_last_mission[CALLSIGN_LEN] = '\0';
 				p = strchr(config_last_mission, '\n');
 				if (p)* p = 0;
 			}
-			else if (!strcmp(token, config_vr_type_str))
+#ifdef NETWORK
+			else if (!strcmp(token, port_number_str))
 			{
-				Config_vr_type = strtol(value, NULL, 10);
+				Current_Port = (uint16_t)strtol(value, NULL, 10);
 			}
-			else if (!strcmp(token, config_vr_tracking_str))
-			{
-				Config_vr_tracking = strtol(value, NULL, 10);
-			}
+#endif
 		}
 	}
 
@@ -295,10 +286,10 @@ int WriteConfigFile()
 	fputs(str, infile);
 	sprintf(str, "%s=%s\n", last_mission_str, config_last_mission);
 	fputs(str, infile);
-	sprintf(str, "%s=%d\n", config_vr_type_str, Config_vr_type);
+#ifdef NETWORK
+	sprintf(str, "%s=%d\n", port_number_str, Current_Port);
 	fputs(str, infile);
-	sprintf(str, "%s=%d\n", config_vr_tracking_str, Config_vr_tracking);
-	fputs(str, infile);
+#endif
 	fclose(infile);
 	return 0;
 }

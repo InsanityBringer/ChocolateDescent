@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/error.h"
 #include "object.h"
 #include "vclip.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "polyobj.h"
 #include "wall.h"
 #include "textures.h"
@@ -44,7 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "laser.h"
 #include "sounds.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "aistruct.h"
 #include "robot.h"
 #include "weapon.h"
@@ -53,8 +53,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "endlevel.h"
 #include "cntrlcen.h"
-#include "compbit.h"
-#include "args.h"
+#include "main_shared/compbit.h"
+#include "misc/args.h"
 
 
 #include "editor\texpage.h"
@@ -2118,34 +2118,34 @@ void bm_write_all(FILE* fp)
 
 	fwrite(&NumTextures, sizeof(int), 1, fp);
 	for (i = 0; i < MAX_TEXTURES; i++)
-		F_WriteShort(fp, Textures[i].index);
+		file_write_short(fp, Textures[i].index);
 	write_tmap_info(fp);
 
 	fwrite(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 	fwrite(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
-	F_WriteInt(fp, Num_vclips);
+	file_write_int(fp, Num_vclips);
 	write_vclip_info(fp);
 
-	F_WriteInt(fp, Num_effects);
+	file_write_int(fp, Num_effects);
 	write_effect_info(fp);
 
-	F_WriteInt(fp, Num_wall_anims);
+	file_write_int(fp, Num_wall_anims);
 	write_wallanim_info(fp);
 
-	F_WriteInt(fp, N_robot_types);
+	file_write_int(fp, N_robot_types);
 	write_robot_info(fp);
 
-	F_WriteInt(fp, N_robot_joints);
+	file_write_int(fp, N_robot_joints);
 	write_robot_joints_info(fp);
 
-	F_WriteInt(fp, N_weapon_types);
+	file_write_int(fp, N_weapon_types);
 	write_weapon_info(fp);
 
-	F_WriteInt(fp, N_powerup_types);
+	file_write_int(fp, N_powerup_types);
 	write_powerup_info(fp);
 
-	F_WriteInt(fp, N_polygon_models);
+	file_write_int(fp, N_polygon_models);
 	write_polygon_models(fp);
 
 	for (i = 0; i < N_polygon_models; i++)
@@ -2154,52 +2154,52 @@ void bm_write_all(FILE* fp)
 	}
 
 	for (i = 0; i < MAX_GAUGE_BMS; i++)
-		F_WriteShort(fp, Gauges[i].index);
+		file_write_short(fp, Gauges[i].index);
 
 	for (i = 0; i < MAX_POLYGON_MODELS; i++)
-		F_WriteInt(fp, Dying_modelnums[i]);
+		file_write_int(fp, Dying_modelnums[i]);
 	for (i = 0; i < MAX_POLYGON_MODELS; i++)
-		F_WriteInt(fp, Dead_modelnums[i]);
+		file_write_int(fp, Dead_modelnums[i]);
 
 	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
-		F_WriteShort(fp, ObjBitmaps[i].index);
+		file_write_short(fp, ObjBitmaps[i].index);
 	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
-		F_WriteShort(fp, ObjBitmapPtrs[i]);
+		file_write_short(fp, ObjBitmapPtrs[i]);
 
 	write_player_ship(fp);
 
-	F_WriteInt(fp, Num_cockpits);
+	file_write_int(fp, Num_cockpits);
 	for (i = 0; i < N_COCKPIT_BITMAPS; i++)
-		F_WriteShort(fp, cockpit_bitmap[i].index);
+		file_write_short(fp, cockpit_bitmap[i].index);
 
 	fwrite(Sounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 	fwrite(AltSounds, sizeof(uint8_t), MAX_SOUNDS, fp);
 
-	F_WriteInt(fp, Num_total_object_types);
+	file_write_int(fp, Num_total_object_types);
 	for (i = 0; i < MAX_OBJTYPE; i++)
-		F_WriteByte(fp, ObjType[i]);
+		file_write_byte(fp, ObjType[i]);
 	for (i = 0; i < MAX_OBJTYPE; i++)
-		F_WriteByte(fp, ObjId[i]);
+		file_write_byte(fp, ObjId[i]);
 	for (i = 0; i < MAX_OBJTYPE; i++)
-		F_WriteInt(fp, ObjStrength[i]);
+		file_write_int(fp, ObjStrength[i]);
 
-	F_WriteInt(fp, First_multi_bitmap_num);
+	file_write_int(fp, First_multi_bitmap_num);
 
-	F_WriteInt(fp, N_controlcen_guns);
+	file_write_int(fp, N_controlcen_guns);
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
 	{
-		F_WriteInt(fp, controlcen_gun_points[i].x);
-		F_WriteInt(fp, controlcen_gun_points[i].y);
-		F_WriteInt(fp, controlcen_gun_points[i].z);
+		file_write_int(fp, controlcen_gun_points[i].x);
+		file_write_int(fp, controlcen_gun_points[i].y);
+		file_write_int(fp, controlcen_gun_points[i].z);
 	}
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
 	{
-		F_WriteInt(fp, controlcen_gun_dirs[i].x);
-		F_WriteInt(fp, controlcen_gun_dirs[i].y);
-		F_WriteInt(fp, controlcen_gun_dirs[i].z);
+		file_write_int(fp, controlcen_gun_dirs[i].x);
+		file_write_int(fp, controlcen_gun_dirs[i].y);
+		file_write_int(fp, controlcen_gun_dirs[i].z);
 	}
-	F_WriteInt(fp, exit_modelnum);
-	F_WriteInt(fp, destroyed_exit_modelnum);
+	file_write_int(fp, exit_modelnum);
+	file_write_int(fp, destroyed_exit_modelnum);
 }
 
 #endif

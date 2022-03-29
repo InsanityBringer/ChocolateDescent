@@ -15,7 +15,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "object.h"
 
-#define MAX_VECS 200
+//interpreter gets 1000 vecs but morph gets 200... thanks guys?
+#define MAX_VECS 1000
 
 typedef struct morph_data 
 {

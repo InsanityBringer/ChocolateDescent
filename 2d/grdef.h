@@ -19,7 +19,7 @@ extern unsigned int gr_var_color;
 extern unsigned int gr_var_bwidth;
 extern unsigned char* gr_var_bitmap;
 extern unsigned int Table8to32[256];
-extern unsigned char* gr_video_memory;
+extern uint8_t* gr_video_memory;
 
 #define WIDTH   grd_curcanv->cv_bitmap.bm_w
 #define HEIGHT  grd_curcanv->cv_bitmap.bm_h

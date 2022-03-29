@@ -4,8 +4,8 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set(CHOCOLATE_DESCENT_VERSION "0.1")
 
-set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 1 only. Won't link outside of Windows ATM.")
-set(NETWORK OFF CACHE BOOL "Build with NETWORK. At the moment, there are no networking capabilities. RIP.")
+set(BUILD_EDITOR OFF CACHE BOOL "Build the game editor. Descent 2 is highly broken atm. Won't link outside of Windows ATM.")
+set(NETWORK OFF CACHE BOOL "Build with UDP networking enabled.")
 #These features are intended for testing.
 set(DESCENT1_TEXMAP_IN_DESCENT2 OFF CACHE BOOL "Swaps Descent 1's texture mapper into Descent 2.")
 set(DESCENT2_TEXMAP_IN_DESCENT1 OFF CACHE BOOL "Swaps Descent 2's texture mapper into Descent 1. ")
@@ -18,8 +18,6 @@ set(SHARED_SOURCES
 	2d/circle.cpp
 	2d/clip.h
 	2d/disc.cpp
-	2d/effect2d.cpp
-	2d/effect2d.h
 	2d/gpixel.cpp
 	2d/gr.cpp
 	2d/gr.h
@@ -59,12 +57,31 @@ set(SHARED_SOURCES
 	fix/tables.cpp
 	iff/iff.cpp
 	iff/iff.h
+	main_shared/compbit.h
+	main_shared/digi.h
+	main_shared/effects.cpp
+	main_shared/effects.h
+	main_shared/game_shared.h
+	main_shared/hqmusic.cpp
+	main_shared/hqmusic.h
+	main_shared/inferno_shared.h
+	main_shared/piggy.h
+	main_shared/songs.cpp
+	main_shared/songs.h
+	main_shared/texmerge.cpp
+	main_shared/texmerge.h
+	main_shared/text.cpp
+	main_shared/text.h
 	mem/mem.cpp
 	mem/mem.h
+    misc/args.cpp
+	misc/args.h
 	misc/byteswap.cpp
 	misc/byteswap.h
 	misc/error.cpp
 	misc/error.h
+	misc/hash.cpp
+	misc/hash.h
 	misc/parsarg.cpp
 	misc/parsarg.h
     misc/rand.h
@@ -104,8 +121,6 @@ set(DESCENT1_SOURCES
 	main_d1/aistruct.cpp
 	main_d1/aistruct.h
 	main_d1/arcade.h
-    main_d1/args.cpp
-	main_d1/args.h
 	main_d1/automap.cpp
 	main_d1/automap.h
 	main_d1/bm.cpp
@@ -115,7 +130,6 @@ set(DESCENT1_SOURCES
 	main_d1/cntrlcen.h
 	main_d1/collide.cpp
 	main_d1/collide.h
-	main_d1/compbit.h
 	main_d1/config.cpp
 	main_d1/config.h
 	main_d1/controls.cpp
@@ -124,9 +138,7 @@ set(DESCENT1_SOURCES
 	main_d1/credits.h
 	main_d1/desc_id.h
 	main_d1/digi.cpp
-	main_d1/digi.h
 	main_d1/dumpmine.cpp
-	main_d1/effects.cpp
 	main_d1/endlevel.cpp
 	main_d1/endlevel.h
 	main_d1/fireball.cpp
@@ -149,8 +161,6 @@ set(DESCENT1_SOURCES
 	main_d1/gameseq.h
 	main_d1/gauges.cpp
 	main_d1/gauges.h
-	main_d1/hash.cpp
-	main_d1/hash.h
 	main_d1/hostage.cpp
 	main_d1/hostage.h
 	main_d1/hud.cpp
@@ -192,7 +202,6 @@ set(DESCENT1_SOURCES
 	main_d1/physics.cpp
 	main_d1/physics.h
 	main_d1/piggy.cpp
-	main_d1/piggy.h
 	main_d1/player.cpp
 	main_d1/player.h
 	main_d1/playsave.cpp
@@ -212,19 +221,14 @@ set(DESCENT1_SOURCES
 	main_d1/segpoint.h
 	main_d1/slew.cpp
 	main_d1/slew.h
-	main_d1/songs.cpp
-	main_d1/songs.h
 	main_d1/sounds.h
 	main_d1/state.cpp
 	main_d1/state.h
+	main_d1/stringtable.h
 	main_d1/switch.cpp
 	main_d1/switch.h
 	main_d1/terrain.cpp
 	main_d1/terrain.h
-	main_d1/texmerge.cpp
-	main_d1/texmerge.h
-	main_d1/text.cpp
-	main_d1/text.h
 	main_d1/textures.h
 	main_d1/titles.cpp
 	main_d1/titles.h
@@ -250,7 +254,7 @@ set(DESCENT1_TEXMAP_SOURCES
     texmap/tmapflat.cpp
 )
 
-set(EDITOR_SOURCES
+set(D1_EDITOR_SOURCES
 	ui/barbox.cpp
 	ui/button.cpp
 	ui/checkbox.cpp
@@ -348,7 +352,6 @@ set(DESCENT2_SOURCES
 	main_d2/cntrlcen.h
 	main_d2/collide.cpp
 	main_d2/collide.h
-	main_d2/compbit.h
 	main_d2/config.cpp
 	main_d2/config.h
 	main_d2/controls.cpp
@@ -358,11 +361,8 @@ set(DESCENT2_SOURCES
 	main_d2/crypt.cpp
 	main_d2/desc_id.h
 	main_d2/digi.cpp
-	main_d2/digi.h
 	main_d2/digiobj.cpp
 	main_d2/dumpmine.cpp
-	main_d2/effects.cpp
-	main_d2/effects.h
 	main_d2/endlevel.cpp
 	main_d2/endlevel.h
 	main_d2/escort.cpp
@@ -434,7 +434,6 @@ set(DESCENT2_SOURCES
 	main_d2/physics.cpp
 	main_d2/physics.h
 	main_d2/piggy.cpp
-	main_d2/piggy.h
 	main_d2/player.cpp
 	main_d2/player.h
 	main_d2/playsave.cpp
@@ -455,19 +454,14 @@ set(DESCENT2_SOURCES
 	main_d2/segpoint.h
 	main_d2/slew.cpp
 	main_d2/slew.h
-	main_d2/songs.cpp
-	main_d2/songs.h
 	main_d2/sounds.h
 	main_d2/state.cpp
 	main_d2/state.h
+	main_d2/stringtable.h
 	main_d2/switch.cpp
 	main_d2/switch.h
 	main_d2/terrain.cpp
 	main_d2/terrain.h
-	main_d2/texmerge.cpp
-	main_d2/texmerge.h
-	main_d2/text.cpp
-	main_d2/text.h
 	main_d2/textures.h
 	main_d2/titles.cpp
 	main_d2/titles.h
@@ -478,10 +472,6 @@ set(DESCENT2_SOURCES
 	main_d2/wall.h
 	main_d2/weapon.cpp
 	main_d2/weapon.h
-	misc/hash.cpp
-	misc/hash.h
-    misc/args.cpp
-	misc/args.h
 	mve/decoder8.cpp
 	mve/decoder16.cpp
 	mve/decoders.h
@@ -493,6 +483,86 @@ set(DESCENT2_SOURCES
 	mve/mveplay.cpp
 	2d/font_d2.cpp
 	2d/scale_d2.cpp
+)
+
+set(D2_EDITOR_SOURCES
+	ui/barbox.cpp
+	ui/button.cpp
+	ui/checkbox.cpp
+	ui/file.cpp
+	ui/func.cpp
+	ui/func.h
+	ui/gadget.cpp
+	ui/icon.cpp
+	ui/inputbox.cpp
+	ui/keypad.cpp
+	ui/keypress.cpp
+	ui/keytrap.cpp
+	ui/listbox.cpp
+	ui/menubar.cpp
+	ui/message.cpp
+	ui/popup.cpp
+	ui/radio.cpp
+	ui/scroll.cpp
+	ui/ui.cpp
+	ui/ui.h
+	ui/uidraw.cpp
+	ui/uimenu.cpp
+	ui/uimouse.cpp
+	ui/userbox.cpp
+	ui/window.cpp
+	main_d2/editor/med.cpp
+	main_d2/editor/einit.cpp
+	main_d2/editor/eglobal.cpp
+	main_d2/editor/mine.cpp
+	main_d2/editor/curves.cpp
+	main_d2/editor/kcurve.cpp
+	main_d2/editor/khelp.cpp
+	main_d2/editor/ksegsel.cpp
+	main_d2/editor/kbuild.cpp
+	main_d2/editor/kview.cpp
+	main_d2/editor/kmine.cpp
+	main_d2/editor/seguvs.cpp
+	main_d2/editor/ksegsize.cpp
+	main_d2/editor/ksegmove.cpp
+	main_d2/editor/ktmap.cpp
+	main_d2/editor/kfuncs.cpp
+	main_d2/editor/autosave.cpp
+	main_d2/editor/group.cpp
+	main_d2/editor/texture.cpp
+	main_d2/editor/fixseg.cpp
+	main_d2/editor/eobject.cpp
+	main_d2/editor/elight.cpp
+	main_d2/editor/texpage.cpp
+	main_d2/editor/objpage.cpp
+	main_d2/editor/medmisc.cpp
+	main_d2/editor/medsel.cpp
+	main_d2/editor/kgame.cpp
+	main_d2/editor/info.cpp
+	main_d2/editor/medwall.cpp
+	main_d2/editor/eswitch.cpp
+	main_d2/editor/medrobot.cpp
+	main_d2/editor/meddraw.cpp
+	main_d2/editor/segment.cpp
+	main_d2/editor/centers.cpp
+	main_d2/editor/ehostage.cpp
+	main_d2/editor/centers.h
+	main_d2/editor/editor.h
+	main_d2/editor/ehostage.h
+	main_d2/editor/eobject.h
+	main_d2/editor/eswitch.h
+	main_d2/editor/info.h
+	main_d2/editor/kdefs.h
+	main_d2/editor/meddraw.h
+	main_d2/editor/medmisc.h
+	main_d2/editor/medrobot.h
+	main_d2/editor/medsel.h
+	main_d2/editor/medwall.h
+	main_d2/editor/objpage.h
+	main_d2/editor/seguvs.h
+	main_d2/editor/texpage.h
+	main_d2/editor/func.h
+	main_d2/editor/nocfile.h
 )
 
 set(DESCENT2_TEXMAP_SOURCES
@@ -533,6 +603,8 @@ set(WIN32_SOURCES
 	platform/win32/win32joystick.cpp
 	platform/win32/win32joystick.h
 	platform/win32/win32main.cpp
+	platform/win32/win32midi.cpp
+	platform/win32/win32midi.h
 	platform/win32/win32window.cpp
 	ChocolateDescent.manifest
 )
@@ -593,9 +665,8 @@ else()
 endif()
 
 if (BUILD_EDITOR)
-	set(DESCENT1_SOURCES ${DESCENT1_SOURCES} ${EDITOR_SOURCES})
-else()
-	set(NOT_COMPILED_SOURCES ${NOT_COMPILED_SOURCES} ${EDITOR_SOURCES})
+	set(DESCENT1_SOURCES ${DESCENT1_SOURCES} ${D1_EDITOR_SOURCES})
+	set(DESCENT2_SOURCES ${DESCENT2_SOURCES} ${D2_EDITOR_SOURCES})
 endif()
 
 if (DESCENT2_TEXMAP_IN_DESCENT1)
@@ -672,8 +743,8 @@ if (APPLE)
 		add_custom_command(TARGET ChocolateDescent2 POST_BUILD COMMAND /bin/zsh -c "/usr/local/bin/dylibbundler -od -b -x \"${CMAKE_CURRENT_SOURCE_DIR}/ChocolateDescent2.app/Contents/MacOS/ChocolateDescent2\" -d \"${CMAKE_CURRENT_SOURCE_DIR}/ChocolateDescent2.app/Contents/libs\"")
 	endif()
 elseif(UNIX)
-	add_executable(ChocolateDescent UNIX ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT1_SOURCES})
-	add_executable(ChocolateDescent2 UNIX ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT2_SOURCES})
+	add_executable(ChocolateDescent ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT1_SOURCES})
+	add_executable(ChocolateDescent2 ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT2_SOURCES})
 elseif(WIN32)
 	add_executable(ChocolateDescent WIN32 ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT1_SOURCES})
 	add_executable(ChocolateDescent2 WIN32 ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT2_SOURCES})
@@ -683,6 +754,7 @@ set_target_properties(ChocolateDescent ChocolateDescent2 PROPERTIES CXX_STANDARD
 
 if (BUILD_EDITOR)
 	target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:DEBUG>:EDITOR>")
+	target_compile_definitions(ChocolateDescent2 PUBLIC "$<$<CONFIG:DEBUG>:EDITOR>")
 endif()
 
 target_link_libraries(ChocolateDescent ${SHARED_LIBS} ${DESCENT1_LIBS})
@@ -708,6 +780,8 @@ source_group("iff" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/iff/.+")
 source_group("main_d1" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d1/.+")
 source_group("main_d1\\editor" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d1/editor/.+")
 source_group("main_d2" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d2/.+")
+source_group("main_d2\\editor" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_d2/editor/.+")
+source_group("main_shared" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/main_shared/.+")
 source_group("mem" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/mem/.+")
 source_group("misc" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/misc/.+")
 source_group("mve" REGULAR_EXPRESSION "${CMAKE_CURRENT_SOURCE_DIR}/mve/.+")

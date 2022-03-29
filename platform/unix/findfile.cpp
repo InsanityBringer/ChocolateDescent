@@ -28,11 +28,11 @@ int	FileFindFirst(const char* search_str, FILEFINDSTRUCT* ffstruct)
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char dir[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char temp_search_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
-	char full_search_str[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char *separator_pos;
 #else
 	char dir[256];
 #endif
+	char full_search_str[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	const char *search;
 
 	//Make sure the current search buffer is clear

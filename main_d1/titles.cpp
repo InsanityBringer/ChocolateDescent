@@ -38,12 +38,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "multi.h"
 #include "player.h"
-#include "digi.h"
-#include "compbit.h"
-#include "text.h"
+#include "main_shared/digi.h"
+#include "main_shared/compbit.h"
+#include "stringtable.h"
 #include "kmatrix.h"
-#include "piggy.h"
-#include "songs.h"
+#include "main_shared/piggy.h"
+#include "main_shared/songs.h"
 #include "newmenu.h"
 #include "state.h"
 #include "titles.h"
@@ -106,7 +106,6 @@ int show_title_screen(const char* filename, int allow_keys)
 		return 0;
 	}
 
-	vfx_set_palette_sub(New_pal);
 	gr_palette_clear();
 	gr_set_current_canvas(NULL);
 	gr_bitmap(0, 0, &title_bm);
@@ -118,7 +117,7 @@ int show_title_screen(const char* filename, int allow_keys)
 	while (1) 
 	{
 		I_MarkStart();
-		I_DoEvents();
+		plat_do_events();
 		if (local_key_inkey() && allow_keys) break;
 		if (timer_get_fixed_seconds() > timer) break;
 
@@ -134,7 +133,7 @@ int show_title_screen(const char* filename, int allow_keys)
 			}
 		}
 #endif
-		I_DrawCurrentCanvas(0);
+		plat_present_canvas(0);
 		I_MarkEnd(US_70FPS);
 	}
 	if (gr_palette_fade_out(New_pal, 32, allow_keys))
@@ -297,7 +296,6 @@ void show_bitmap_frame(void)
 			New_pal[254 * 3 + 1] = 0;
 			New_pal[254 * 3 + 2] = 0;
 			gr_palette_load(New_pal);
-			vfx_set_palette_sub(New_pal);
 		}
 
 		switch (Animating_bitmap_type) 
@@ -473,8 +471,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	if (delay != 0) //Don't update if message should progress instantly. 
 	{
-		I_DrawCurrentCanvas(0);
-		I_DoEvents();
+		plat_present_canvas(0);
+		plat_do_events();
 	}
 	//[ISB] draw right before the erase
 	//	Erase cursor
@@ -732,8 +730,8 @@ int show_briefing_message(int screen_num, char* message)
 					}
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 					{
-						I_DrawCurrentCanvas(0);
-						I_DoEvents();
+						plat_present_canvas(0);
+						plat_do_events();
 					};
 					flash_cursor(flashing_cursor);
 					show_spinning_robot_frame(robot_num);
@@ -843,8 +841,8 @@ int show_briefing_message(int screen_num, char* message)
 				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT / 2)
 				{
 					//[ISB] the amount of frames that will get 2 events done is going to be high
-					I_DrawCurrentCanvas(0);
-					I_DoEvents();
+					plat_present_canvas(0);
+					plat_do_events();
 				};
 				flash_cursor(flashing_cursor);
 				show_spinning_robot_frame(robot_num);
@@ -994,7 +992,6 @@ int show_briefing_screen(int screen_num, int allow_keys)
 		return 0;
 	}
 
-	vfx_set_palette_sub(New_pal);
 	gr_palette_clear();
 	gr_bitmap(0, 0, &briefing_bm);
 

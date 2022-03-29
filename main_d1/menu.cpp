@@ -34,17 +34,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile/cfile.h"
 #include "platform/joy.h"
 #include "vecmat/vecmat.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "slew.h"
 #include "gamemine.h"
 #include "gamesave.h"
 #include "2d/palette.h"
-#include "args.h"
+#include "misc/args.h"
 #include "newdemo.h"
 #include "platform/timer.h"
 #include "sounds.h"
 #include "gameseq.h"
-#include "text.h"
+#include "stringtable.h"
 #include "gamefont.h"
 #include "newmenu.h"
 #include "network.h"
@@ -59,8 +59,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "state.h"
 #include "mission.h"
-#include "songs.h"
+#include "main_shared/songs.h"
 #include "config.h"
+
+#include "platform/i_net.h"
 
 #ifdef EDITOR
 #include "editor\editor.h"
@@ -248,6 +250,7 @@ int DoMenu()
 }
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
+void do_ip_address_menu();
 
 //returns flag, true means quit menu
 void do_option(int select)
@@ -316,13 +319,13 @@ void do_option(int select)
 	case MENU_PLAY_SONG: 
 	{
 		int i;
-		char* m[MAX_SONGS];
+		char* m[MAX_NUM_SONGS];
 
-		for (i = 0; i < MAX_SONGS; i++) 
+		for (i = 0; i < Num_songs; i++) 
 		{
 			m[i] = Songs[i].filename;
 		}
-		i = newmenu_listbox("Select Song", MAX_SONGS, m, 1, NULL);
+		i = newmenu_listbox("Select Song", Num_songs, m, 1, NULL);
 
 		if (i > -1) {
 			songs_play_song(i, 0);
@@ -368,7 +371,8 @@ void do_option(int select)
 		break;
 	case MENU_START_SERIAL:
 #ifdef NETWORK
-		nm_messagebox("Chocolate Note:", 1, TXT_OK, "Emulation of modem support is\nunlikely. Start a normal\nnetwork game.");
+		load_mission(0);
+		do_ip_address_menu();
 #endif
 		break;
 	case MENU_MULTIPLAYER:
@@ -630,7 +634,7 @@ void do_new_game_menu()
 	{
 		newmenu_item m[2];
 		char info_text[80];
-		char num_text[10];
+		char num_text[11];
 		int choice;
 
 	try_again:
@@ -831,6 +835,8 @@ void do_options_menu()
 	write_player_file();
 }
 
+char direct_join_str[40] = "CONNECT TO IP ADDRESS...";
+
 void do_multi_player_menu()
 {
 	int menu_choice[3];
@@ -843,9 +849,14 @@ void do_multi_player_menu()
 		old_game_mode = Game_mode;
 		num_options = 0;
 
+#ifdef NETWORK
+		//go back to the old port when starting new games
+		NetChangeDefaultSocket(Current_Port);
+#endif
+
 		ADD_ITEM(TXT_START_NET_GAME, MENU_START_NETGAME, -1);
 		ADD_ITEM(TXT_JOIN_NET_GAME, MENU_JOIN_NETGAME, -1);
-		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
+		ADD_ITEM(direct_join_str, MENU_START_SERIAL, -1);
 
 		choice = newmenu_do1(NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice);
 
@@ -857,3 +868,73 @@ void do_multi_player_menu()
 
 	} while (choice > -1);
 }
+
+#ifdef NETWORK
+void do_ip_address_menu()
+{
+	newmenu_item m;
+	static char text[256] = "";
+	uint8_t address[4];
+	char* ptr, *oldptr;
+	int i;
+	int value;
+
+	char buf[256];
+
+	uint16_t oldPort = NetGetCurrentPort();
+	snprintf(buf, 255, "Enter IP address\nCurrent port is %d", oldPort);
+	buf[255] = '\0';
+
+	m.type = NM_TYPE_INPUT; m.text_len = 255; m.text = text;
+
+	int opt = newmenu_do(NULL, buf, 1, &m, NULL);
+
+	if (opt == -1) return;
+
+	//new_level_num = atoi(m.text);
+	char* colonPtr = strchr(text, ':');
+	if (colonPtr)
+	{
+		*colonPtr = '\0';
+		char* portString = colonPtr+1;
+		int newPort = atoi(portString);
+		NetChangeDefaultSocket(newPort);
+	}
+	ptr = oldptr = text;
+	for (i = 0; i < 4; i++)
+	{
+		if (i != 3)
+		{
+			ptr = strchr(ptr, '.');
+			if (!ptr)
+			{
+				nm_messagebox(NULL, 1, TXT_OK, "Address is formatted incorrectly");
+				return;
+			}
+			*ptr = '\0';
+		}
+		value = atoi(oldptr);
+		if (value > 255)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "Invalid number in address");
+			return;
+		}
+		address[i] = value;
+		if (i != 3)
+		{
+			*ptr = '.';
+			ptr++;
+		}
+		oldptr = ptr;
+	}
+
+	network_join_game_at(address);
+
+	if (colonPtr)
+	{
+		*colonPtr = ':';
+	}
+
+	return;
+}
+#endif

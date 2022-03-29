@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "segpoint.h"
 #include "wall.h"
-#include "texmerge.h"
+#include "main_shared/texmerge.h"
 #include "physics.h"
 #include "3d/3d.h"
 #include "gameseg.h"
@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "newmenu.h"
 #include "mem/mem.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #define	INITIAL_LOCAL_LIGHT	(F1_0/4)		// local light value in segment of occurence (of light emission)
 
@@ -401,12 +401,8 @@ void render_side(segment* segp, int sidenum)
 	if (!(WALL_IS_DOORWAY(segp, sidenum) & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
 		return;
 
-#ifdef COMPACT_SEGS	
-	get_side_normals(segp, sidenum, &normals[0], &normals[1]);
-#else
 	normals[0] = segp->sides[sidenum].normals[0];
 	normals[1] = segp->sides[sidenum].normals[1];
-#endif
 
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
@@ -955,17 +951,12 @@ int find_joining_side_norms(vms_vector* norm0_0, vms_vector* norm0_1, vms_vector
 
 	//deal with the case where an edge is shared by more than two segments
 
-#ifdef COMPACT_SEGS
-	get_side_normals(seg0, edgeside0, norm0_0, norm0_1);
-	get_side_normals(seg1, edgeside1, norm1_0, norm1_1);
-#else 
-	* norm0_0 = seg0->sides[edgeside0].normals[0];
+	*norm0_0 = seg0->sides[edgeside0].normals[0];
 	*norm0_1 = seg0->sides[edgeside0].normals[1];
 	*norm1_0 = seg1->sides[edgeside1].normals[0];
 	*norm1_1 = seg1->sides[edgeside1].normals[1];
-#endif
 
-	* pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type == 3 ? 1 : 0]]];
+	*pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type == 3 ? 1 : 0]]];
 	*pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type == 3 ? 1 : 0]]];
 
 	return 1;
@@ -1873,7 +1864,7 @@ int find_seg_side_face(short x, short y, int* seg, int* side, int* face, int* po
 	}
 	else 
 	{
-		gr_set_current_canvas(&VR_render_sub_buffer[0]);	//render off-screen
+		gr_set_current_canvas(&VR_render_sub_buffer);	//render off-screen
 		render_frame(0);
 	}
 

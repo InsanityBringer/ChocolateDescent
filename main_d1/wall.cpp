@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "player.h"
 #include "gauges.h"
-#include "text.h"
+#include "stringtable.h"
 #include "fireball.h"
 #include "textures.h"
 #include "sounds.h"
@@ -999,82 +999,82 @@ void kill_stuck_objects(int wallnum)
 			Num_stuck_objects++;
 }
 
-void P_ReadWall(wall* nwall, FILE* fp)
+void read_wall(wall* nwall, FILE* fp)
 {
-	nwall->segnum = F_ReadInt(fp);
-	nwall->sidenum = F_ReadInt(fp);
-	nwall->hps = F_ReadInt(fp);
-	nwall->linked_wall = F_ReadInt(fp);
-	nwall->type = F_ReadByte(fp);
-	nwall->flags = F_ReadByte(fp);
-	nwall->state = F_ReadByte(fp);
-	nwall->trigger = F_ReadByte(fp);
-	nwall->clip_num = F_ReadByte(fp);
-	nwall->keys = F_ReadByte(fp);
-	nwall->pad = F_ReadShort(fp);
+	nwall->segnum = file_read_int(fp);
+	nwall->sidenum = file_read_int(fp);
+	nwall->hps = file_read_int(fp);
+	nwall->linked_wall = file_read_int(fp);
+	nwall->type = file_read_byte(fp);
+	nwall->flags = file_read_byte(fp);
+	nwall->state = file_read_byte(fp);
+	nwall->trigger = file_read_byte(fp);
+	nwall->clip_num = file_read_byte(fp);
+	nwall->keys = file_read_byte(fp);
+	nwall->pad = file_read_short(fp);
 }
 
-void P_ReadActiveDoor(active_door* door, FILE* fp)
+void read_active_door(active_door* door, FILE* fp)
 {
-	door->n_parts = F_ReadInt(fp);
-	door->front_wallnum[0] = F_ReadShort(fp);
-	door->front_wallnum[1] = F_ReadShort(fp);
-	door->back_wallnum[0] = F_ReadShort(fp);
-	door->back_wallnum[1] = F_ReadShort(fp);
-	door->time = F_ReadInt(fp);
+	door->n_parts = file_read_int(fp);
+	door->front_wallnum[0] = file_read_short(fp);
+	door->front_wallnum[1] = file_read_short(fp);
+	door->back_wallnum[0] = file_read_short(fp);
+	door->back_wallnum[1] = file_read_short(fp);
+	door->time = file_read_int(fp);
 }
 
-void P_ReadTrigger(trigger* trig, FILE* fp)
+void read_trigger(trigger* trig, FILE* fp)
 {
 	int j;
-	trig->type = F_ReadByte(fp);
-	trig->flags = F_ReadShort(fp);
-	trig->value = F_ReadInt(fp);
-	trig->time = F_ReadInt(fp);
-	trig->link_num = F_ReadByte(fp);
-	trig->num_links = F_ReadShort(fp);
+	trig->type = file_read_byte(fp);
+	trig->flags = file_read_short(fp);
+	trig->value = file_read_int(fp);
+	trig->time = file_read_int(fp);
+	trig->link_num = file_read_byte(fp);
+	trig->num_links = file_read_short(fp);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		trig->seg[j] = F_ReadShort(fp);
+		trig->seg[j] = file_read_short(fp);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		trig->side[j] = F_ReadShort(fp);
+		trig->side[j] = file_read_short(fp);
 }
 
-void P_WriteWall(wall* nwall, FILE* fp)
+void write_wall(wall* nwall, FILE* fp)
 {
-	F_WriteInt(fp, nwall->segnum);
-	F_WriteInt(fp, nwall->sidenum);
-	F_WriteInt(fp, nwall->hps);
-	F_WriteInt(fp, nwall->linked_wall);
-	F_WriteByte(fp, nwall->type);
-	F_WriteByte(fp, nwall->flags);
-	F_WriteByte(fp, nwall->state);
-	F_WriteByte(fp, nwall->trigger);
-	F_WriteByte(fp, nwall->clip_num);
-	F_WriteByte(fp, nwall->keys);
-	F_WriteShort(fp, nwall->pad);
+	file_write_int(fp, nwall->segnum);
+	file_write_int(fp, nwall->sidenum);
+	file_write_int(fp, nwall->hps);
+	file_write_int(fp, nwall->linked_wall);
+	file_write_byte(fp, nwall->type);
+	file_write_byte(fp, nwall->flags);
+	file_write_byte(fp, nwall->state);
+	file_write_byte(fp, nwall->trigger);
+	file_write_byte(fp, nwall->clip_num);
+	file_write_byte(fp, nwall->keys);
+	file_write_short(fp, nwall->pad);
 }
 
-void P_WriteActiveDoor(active_door* door, FILE* fp)
+void write_active_door(active_door* door, FILE* fp)
 {
-	F_WriteInt(fp, door->n_parts);
-	F_WriteShort(fp, door->front_wallnum[0]);
-	F_WriteShort(fp, door->front_wallnum[1]);
-	F_WriteShort(fp, door->back_wallnum[0]);
-	F_WriteShort(fp, door->back_wallnum[1]);
-	F_WriteInt(fp, door->time);
+	file_write_int(fp, door->n_parts);
+	file_write_short(fp, door->front_wallnum[0]);
+	file_write_short(fp, door->front_wallnum[1]);
+	file_write_short(fp, door->back_wallnum[0]);
+	file_write_short(fp, door->back_wallnum[1]);
+	file_write_int(fp, door->time);
 }
 
-void P_WriteTrigger(trigger* trig, FILE* fp)
+void write_trigger(trigger* trig, FILE* fp)
 {
 	int j;
-	F_WriteByte(fp, trig->type);
-	F_WriteShort(fp, trig->flags);
-	F_WriteInt(fp, trig->value);
-	F_WriteInt(fp, trig->time);
-	F_WriteByte(fp, trig->link_num);
-	F_WriteShort(fp, trig->num_links);
+	file_write_byte(fp, trig->type);
+	file_write_short(fp, trig->flags);
+	file_write_int(fp, trig->value);
+	file_write_int(fp, trig->time);
+	file_write_byte(fp, trig->link_num);
+	file_write_short(fp, trig->num_links);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		F_WriteShort(fp, trig->seg[j]);
+		file_write_short(fp, trig->seg[j]);
 	for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-		F_WriteShort(fp, trig->side[j]);
+		file_write_short(fp, trig->side[j]);
 }

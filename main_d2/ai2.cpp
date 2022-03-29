@@ -34,10 +34,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "wall.h"
 #include "vclip.h"
-#include "digi.h"
+#include "main_shared/digi.h"
 #include "fireball.h"
 #include "morph.h"
-#include "effects.h"
+#include "main_shared/effects.h"
 #include "platform/timer.h"
 #include "sounds.h"
 #include "cntrlcen.h"
@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/key.h"
 #include "powerup.h"
 #include "gauges.h"
-#include "text.h"
+#include "stringtable.h"
 #include "misc/rand.h"
 
 #ifdef EDITOR

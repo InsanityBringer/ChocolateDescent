@@ -1052,6 +1052,8 @@ void gr_close_font(grs_font* font)
 
 		open_font[fontnum].ptr = NULL;
 
+		if (font->ft_datablock)
+			free(font->ft_datablock);
 		if (font->ft_chars)
 			free(font->ft_chars);
 		free(font);
@@ -1081,26 +1083,32 @@ extern void decode_data_asm(uint8_t* data, int num_pixels, uint8_t* colormap, in
 
 //[ISB] saner font handling
 //implying that there's anything sane about this font format, sadly...
-void GR_ReadFont(grs_font* font, CFILE* fp, int len)
+void gr_read_font(grs_font* font, CFILE* fp, int len)
 {
 	int dataPtr, charPtr, widthPtr, kernPtr;
 	int nchars;
 	int i;
 	uint8_t* ptr;
 
+	if (font->ft_datablock)
+		free(font->ft_datablock);
+
+	if (font->ft_chars)
+		free(font->ft_chars);
+
 	font->ft_datablock = (uint8_t*)malloc(len);
 
-	font->ft_w = CF_ReadShort(fp);
-	font->ft_h = CF_ReadShort(fp);
-	font->ft_flags = CF_ReadShort(fp);
-	font->ft_baseline = CF_ReadShort(fp);
-	font->ft_minchar = CF_ReadByte(fp);
-	font->ft_maxchar = CF_ReadByte(fp);
-	font->ft_bytewidth = CF_ReadShort(fp);
-	dataPtr = CF_ReadInt(fp);
-	charPtr = CF_ReadInt(fp);
-	widthPtr = CF_ReadInt(fp);
-	kernPtr = CF_ReadInt(fp);
+	font->ft_w = cfile_read_short(fp);
+	font->ft_h = cfile_read_short(fp);
+	font->ft_flags = cfile_read_short(fp);
+	font->ft_baseline = cfile_read_short(fp);
+	font->ft_minchar = cfile_read_byte(fp);
+	font->ft_maxchar = cfile_read_byte(fp);
+	font->ft_bytewidth = cfile_read_short(fp);
+	dataPtr = cfile_read_int(fp);
+	charPtr = cfile_read_int(fp);
+	widthPtr = cfile_read_int(fp);
+	kernPtr = cfile_read_int(fp);
 
 	cfseek(fp, 8, SEEK_SET);
 	cfread(font->ft_datablock, len, 1, fp);
@@ -1187,15 +1195,16 @@ grs_font * gr_init_font(const char* fontname)
 		Error("Can't open font file %s", fontname);
 
 	cfread(&file_id, sizeof(file_id), 1, fontfile);
-	datasize = CF_ReadInt(fontfile);
+	datasize = cfile_read_int(fontfile);
 
 	if (file_id != 'NFSP')
 		Error("File %s is not a font file", fontname);
 
 	font = (grs_font*)malloc(datasize);
+	memset(font, 0, sizeof(*font));
 
 	//printf("loading font %s\n", fontname);
-	GR_ReadFont(font, fontfile, datasize);
+	gr_read_font(font, fontfile, datasize);
 
 	open_font[fontnum].ptr = font;
 
@@ -1238,7 +1247,7 @@ void gr_remap_font(grs_font* font, char* fontname)
 
 	//printf("loading font %s\n", fontname);
 	//[ISB] This isn't as efficient, but it makes it easier.
-	GR_ReadFont(font, fontfile, datasize);
+	gr_read_font(font, fontfile, datasize);
 
 	cfclose(fontfile);
 }

@@ -14,7 +14,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "2d/gr.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 
 #define MAX_TEXTURES		1200
 

@@ -1,22 +1,11 @@
 /* $Id: mveplay.c,v 1.11.2.1 2003/06/06 22:12:55 btb Exp $ */
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
-#ifndef __MSDOS__
-//[ISB] kill audio for now, it's a problem
-//#define AUDIO
-#endif
-//#define DEBUG
 
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-//#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-//#include <unistd.h>
 
 #include "mvelib.h"
 #include "mve_audio.h"
@@ -24,13 +13,13 @@
 #include "decoders.h"
 
 #include "libmve.h"
-#include "mem/mem.h"
 #include "2d/gr.h"
 #include "2d/palette.h"
 #include "platform/timer.h"
 #include "misc/types.h"
 #include "platform/i_sound.h"
 #include "platform/mono.h"
+#include "mem/mem.h"
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -62,16 +51,6 @@
 int g_spdFactorNum=0;
 static int g_spdFactorDenom=10;
 static int g_frameUpdated = 0;
-
-#ifdef STANDALONE
-static int playing = 1;
-int g_sdlVidFlags = SDL_ANYFORMAT | SDL_DOUBLEBUF;
-int g_loop = 0;
-
-void initializeMovie(MVESTREAM *mve);
-void playMovie(MVESTREAM *mve);
-void shutdownMovie(MVESTREAM *mve);
-#endif
 
 static short get_short(unsigned char *data)
 {
@@ -115,60 +94,14 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
 /*************************
  * timer handlers
  *************************/
-//[ISB] I should fix the definition but that was annoying
-struct timeval_s {
-	long    tv_sec;
-	long    tv_usec;
-};
-
 /*
  * timer variables
  */
 static int timer_created = 0;
 static int micro_frame_delay=0;
 static int timer_started=0;
-static struct timeval_s timer_expire = {0, 0};
 
 static uint64_t nextTimerTick;
-
- //[ISB] todo: just gotta gut all this timer stuff and replace it with the I_ platform stuff
-#if 0
-#if !HAVE_STRUCT_TIMESPEC
-struct timespec
-{
-	long int tv_sec;            /* Seconds.  */
-	long int tv_nsec;           /* Nanoseconds.  */
-};
-#endif 
-#endif
-
-#if defined(HAVE_DECL_NANOSLEEP) && !HAVE_DECL_NANOSLEEP
-int nanosleep(struct timespec *ts, void *rem);
-#endif
-
-#ifdef __WIN32
-#include <sys/timeb.h>
-
-int gettimeofday(struct timeval_s *tv, void *tz)
-{
-	static int counter = 0;
-	struct timeb tm;
-
-	counter++; /* to avoid collisions */
-	ftime(&tm);
-	tv->tv_sec  = tm.time;
-	tv->tv_usec = (tm.millitm * 1000) + counter;
-
-	return 0;
-}
-
-int nanosleep(struct timespec *ts, void *rem)
-{
-	_sleep(ts->tv_sec * 1000 + ts->tv_nsec / 1000000);
-
-	return 0;
-}
-#endif
 
 static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
@@ -202,67 +135,17 @@ static uint64_t GetClockTimeUS()
 
 static void timer_stop(void)
 {
-	timer_expire.tv_sec = 0;
-	timer_expire.tv_usec = 0;
 	timer_started = 0;
 }
 
 static void timer_start(void)
 {
-	//[ISB] TODO
-	/*int nsec=0;
-	gettimeofday(&timer_expire, NULL);
-	timer_expire.tv_usec += micro_frame_delay;
-	if (timer_expire.tv_usec > 1000000)
-	{
-		nsec = timer_expire.tv_usec / 1000000;
-		timer_expire.tv_sec += nsec;
-		timer_expire.tv_usec -= nsec*1000000;
-	}*/
 	nextTimerTick = GetClockTimeUS() + micro_frame_delay;
 	timer_started=1;
 }
 
 static void do_timer_wait(void)
 {
-	/*
-	int nsec=0;
-	struct timespec ts;
-	struct timeval_s tv;
-	if (! timer_started)
-		return;
-
-	gettimeofday(&tv, NULL);
-	if (tv.tv_sec > timer_expire.tv_sec)
-		goto end;
-	else if (tv.tv_sec == timer_expire.tv_sec  &&  tv.tv_usec >= timer_expire.tv_usec)
-		goto end;
-
-	ts.tv_sec = timer_expire.tv_sec - tv.tv_sec;
-	ts.tv_nsec = 1000 * (timer_expire.tv_usec - tv.tv_usec);
-	if (ts.tv_nsec < 0)
-	{
-		ts.tv_nsec += 1000000000UL;
-		--ts.tv_sec;
-	}
-#ifdef __CYGWIN__
-	usleep(ts.tv_sec * 1000000 + ts.tv_nsec / 1000);
-#else
-	if (nanosleep(&ts, NULL) == -1  &&  errno == EINTR)
-		exit(1);
-#endif
-
- end:
-	timer_expire.tv_usec += micro_frame_delay;
-	if (timer_expire.tv_usec > 1000000)
-	{
-		nsec = timer_expire.tv_usec / 1000000;
-		timer_expire.tv_sec += nsec;
-		timer_expire.tv_usec -= nsec*1000000;
-	}*/
-	//[ISB] godawful hack
-	//I_Delay(micro_frame_delay / 1000); //[ISB] should do polling like the above code, perhaps (actually it isn't polling what am I saying...)
-	//[ISB] okay this burns the CPU more but might give more precise results? We'll see...
 	uint64_t startTick = GetClockTimeUS();
 	uint64_t numTicks = nextTimerTick - startTick;
 	if (numTicks > 2000) //[ISB] again inspired by dpJudas, with 2000 US number from GZDoom
@@ -327,46 +210,14 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 		format = MVESND_U8;
 	}
 
-	I_InitMovieAudio(format, sample_rate, stereo);
+	mvesnd_init_audio(format, sample_rate, stereo);
 	mve_audio_canplay = 1;
-
-	//fprintf(stderr, "creating audio buffers:\n");
-	//fprintf(stderr, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
-	//		sample_rate, stereo, bitsize ? 16 : 8, compressed);
-
-	//mve_audio_spec = (SDL_AudioSpec *)malloc(sizeof(SDL_AudioSpec));
-	//mve_audio_spec->freq = sample_rate;
-	//mve_audio_spec->format = format;
-	//mve_audio_spec->channels = (stereo) ? 2 : 1;
-	//mve_audio_spec->samples = 4096;
-	//mve_audio_spec->callback = mve_audio_callback;
-	//mve_audio_spec->userdata = NULL;
-	/*if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0)
-	{
-		fprintf(stderr, "   success\n");
-		mve_audio_canplay = 1;
-	}
-	else
-	{
-		fprintf(stderr, "   failure : %s\n", SDL_GetError());
-		mve_audio_canplay = 0;
-	}*/
-
-	//memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
-	//memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
 
 	return 1;
 }
 
 static int play_audio_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-#ifdef AUDIO
-	if (mve_audio_canplay  &&  !mve_audio_playing  &&  mve_audio_bufhead != mve_audio_buftail)
-	{
-		SDL_PauseAudio(0);
-		mve_audio_playing = 1;
-	}
-#endif
 	return 1;
 }
 
@@ -379,9 +230,6 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 	short* buf = NULL;
 	if (mve_audio_canplay)
 	{
-		//if (mve_audio_playing)
-		//	SDL_LockAudio();
-
 		chan = get_ushort(data + 2);
 		nsamp = get_ushort(data + 4);
 		if (chan & selected_chan)
@@ -393,9 +241,6 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 				{
 					nsamp += 4;
 
-					//mve_audio_buflens[mve_audio_buftail] = nsamp;
-					//mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
-					//mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail], data, -1); /* XXX */
 					buf = (short*)malloc(nsamp+4);
 					mveaudio_uncompress(buf, data, -1);
 				} 
@@ -404,35 +249,20 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 					nsamp -= 8;
 					data += 8;
 
-					//mve_audio_buflens[mve_audio_buftail] = nsamp;
-					//mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
-					//memcpy(mve_audio_buffers[mve_audio_buftail], data, nsamp);
 					buf = (short*)malloc(nsamp+8);
 					mveaudio_uncompress(buf, data, -1);
 				}
 			} 
 			else 
 			{
-				//mve_audio_buflens[mve_audio_buftail] = nsamp;
-				//mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
-
 				buf = (short*)malloc(nsamp+4);
 				mveaudio_uncompress(buf, data, -1);
 
 				memset(buf, 0, nsamp); /* XXX */
 			}
 
-			I_QueueMovieAudioBuffer(nsamp, buf);
-
-			//if (++mve_audio_buftail == TOTAL_AUDIO_BUFFERS)
-			//	mve_audio_buftail = 0;
-
-			//if (mve_audio_buftail == mve_audio_bufhead)
-			//	fprintf(stderr, "d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
+			mvesnd_queue_audio_buffer(nsamp, buf);
 		}
-
-		//if (mve_audio_playing)
-		//	SDL_UnlockAudio();
 	}
 
 	if (buf) free(buf);
@@ -525,13 +355,6 @@ static mve_cb_SetPalette* SetPaletteCallback = NULL;
 
 static int display_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-#ifdef STANDALONE
-	ConvertAndDraw();
-
-	SDL_Flip(g_screen);
-
-	do_sdl_events();
-#else
 	if (ShowFrameCallback == NULL)
 	{
 		grs_bitmap* bitmap;
@@ -557,7 +380,6 @@ static int display_video_handler(unsigned char major, unsigned char minor, unsig
 			g_destY = (g_screenHeight - g_height) >> 1;
 		(*ShowFrameCallback)((uint8_t*)g_vBackBuf1, g_width, g_height, 0, 0, g_width, g_height, g_destX, g_destY);
 	}
-#endif
 	g_frameUpdated = 1;
 
 	return 1;
@@ -715,7 +537,7 @@ int MVE_rmStepMovie()
 	if (mve_audio_paused)
 	{
 		mve_audio_paused = 0;
-		I_UnPauseMovieAudio();
+		mvesnd_resume();
 	}
 
 	if (g_frameUpdated)
@@ -730,35 +552,8 @@ int MVE_rmStepMovie()
 
 void MVE_rmEndMovie()
 {
-#ifdef AUDIO
-	int i;
-#endif
-
 	timer_stop();
 	timer_created = 0;
-
-#ifdef AUDIO
-	if (mve_audio_canplay) {
-		// only close audio if we opened it
-		SDL_CloseAudio();
-		mve_audio_canplay = 0;
-	}
-	for (i = 0; i < TOTAL_AUDIO_BUFFERS; i++)
-		if (mve_audio_buffers[i] != NULL)
-			d_free(mve_audio_buffers[i]);
-	memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
-	memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
-	mve_audio_curbuf_curpos=0;
-	mve_audio_bufhead=0;
-	mve_audio_buftail=0;
-	mve_audio_playing=0;
-	mve_audio_canplay=0;
-	mve_audio_compressed=0;
-	if (mve_audio_spec)
-		d_free(mve_audio_spec);
-	mve_audio_spec=NULL;
-	audiobuf_created = 0;
-#endif
 
 	if (g_vBuffers != NULL)
 		free(g_vBuffers);
@@ -772,26 +567,15 @@ void MVE_rmEndMovie()
 	mve = NULL;
 
 	if (mve_audio_canplay)
-		I_DestroyMovieAudio();
+		mvesnd_close();
 }
 
 
 void MVE_rmHoldMovie()
 {
 	timer_started = 0;
-	I_PauseMovieAudio();
+	mvesnd_pause();
 	mve_audio_paused = 1;
-}
-
-
-void MVE_sndInit(int x)
-{
-#ifdef AUDIO
-	if (x == -1)
-		mve_audio_enabled = 0;
-	else
-		mve_audio_enabled = 1;
-#endif
 }
 
 //[ISB] whoops i made assumptions again. I guess D2X really tweaked how all this crap worked

@@ -109,7 +109,7 @@ void gr_linear_movsdm_8to15(void* src, void* dest, unsigned short num_pixels)
 
 void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 {
-	register int y1;
+	int y1;
 	int dest_rowsize;
 	int w;
 
@@ -158,7 +158,7 @@ void gr_ubitmap00(int x, int y, grs_bitmap * bm)
 
 void gr_ubitmap00m(int x, int y, grs_bitmap* bm)
 {
-	register int y1;
+	int y1;
 	int dest_rowsize;
 	int w;
 
@@ -205,7 +205,7 @@ void gr_ubitmap00m(int x, int y, grs_bitmap* bm)
 
 void gr_ubitmapGENERIC(int x, int y, grs_bitmap* bm)
 {
-	register int x1, y1;
+	int x1, y1;
 
 	for (y1 = 0; y1 < bm->bm_h; y1++)
 	{
@@ -219,11 +219,13 @@ void gr_ubitmapGENERIC(int x, int y, grs_bitmap* bm)
 
 void gr_ubitmapGENERICm(int x, int y, grs_bitmap* bm)
 {
-	register int x1, y1;
+	int x1, y1;
 	uint8_t c;
 
-	for (y1 = 0; y1 < bm->bm_h; y1++) {
-		for (x1 = 0; x1 < bm->bm_w; x1++) {
+	for (y1 = 0; y1 < bm->bm_h; y1++) 
+	{
+		for (x1 = 0; x1 < bm->bm_w; x1++) 
+		{
 			c = gr_gpixel(bm, x1, y1);
 			if (c != 255) {
 				gr_setcolor(c);
@@ -261,24 +263,9 @@ void gr_ubitmapm(int x, int y, grs_bitmap* bm)
 		gr_bm_ubitblt00m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
 	else
 	{
-		//gr_ubitmapGENERICm(x, y, bm);
 		gr_ubitmap00m(x, y, bm);
 	}
 }
-
-// From linear to SVGA
-void gr_bm_ubitblt02(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
-{
-	Error("gr_bm_ubitblt02: STUB\n");
-}
-
-// From SVGA to linear
-void gr_bm_ubitblt20(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
-{
-	Error("gr_bm_ubitblt20: STUB\n");
-}
-
-//@extern int Interlacing_on;
 
 // From Linear to Linear
 void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
@@ -307,6 +294,7 @@ void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* s
 			gr_linear_movsd_8to15(sbits, dbits, w);
 		else
 			gr_linear_movsd(sbits, dbits, w);
+
 		sbits += src->bm_rowsize;
 		dbits += dstep;
 	}
@@ -353,9 +341,6 @@ void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* 
 		}
 	}
 }
-
-
-//extern void gr_lbitblt(grs_bitmap* source, grs_bitmap* dest, int height, int width); [ISB] not needed?
 
 void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
 {
@@ -440,25 +425,23 @@ void gr_bitmapm(int x, int y, grs_bitmap* bm)
 	if (dx2 >= grd_curcanv->cv_bitmap.bm_w) { dx2 = grd_curcanv->cv_bitmap.bm_w - 1; }
 	if (dy2 >= grd_curcanv->cv_bitmap.bm_h) { dy2 = grd_curcanv->cv_bitmap.bm_h - 1; }
 
-	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
-	//if ((bm->bm_type == BM_LINEAR) && (grd_curcanv->cv_bitmap.bm_type == BM_LINEAR)) //[ISB] really need to clean this up and ensure all bitmaps are always linear
-	{
-		if (bm->bm_flags & BM_FLAG_RLE)
-			gr_bm_ubitblt00m_rle(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
-		else
-			gr_bm_ubitblt00m(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
-			//gr_bm_ubitbltm(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap); //[ISB] this is slow
-		return;
-	}
+	if (bm->bm_flags & BM_FLAG_RLE)
+		gr_bm_ubitblt00m_rle(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
+	else
+		gr_bm_ubitblt00m(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
+		//gr_bm_ubitbltm(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap); //[ISB] this is slow
+	return;
 }
 
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
 {
-	register int x1, y1;
+	int x1, y1;
 	uint8_t c;
 
-	for (y1 = 0; y1 < h; y1++) {
-		for (x1 = 0; x1 < w; x1++) {
+	for (y1 = 0; y1 < h; y1++)
+	{
+		for (x1 = 0; x1 < w; x1++)
+		{
 			if ((c = gr_gpixel(src, sx + x1, sy + y1)) != 255)
 				gr_bm_pixel(dest, dx + x1, dy + y1, c);
 		}
@@ -549,10 +532,8 @@ extern void gr_rle_expand_scanline_generic(grs_bitmap* dest, int dx, int dy, uin
 void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
 {
 	int i;
-	register int y1;
+	int y1;
 	unsigned char* sbits;
-
-	//mprintf( 0, "SVGA RLE!\n" );
 
 	sbits = &src->bm_data[4 + src->bm_h];
 	for (i = 0; i < sy; i++)

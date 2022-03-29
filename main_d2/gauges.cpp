@@ -20,7 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdarg.h>
 #include <algorithm>
-//[ISB] I suspect there are going to be regrets
 //#include "pa_enabl.h"                   //$$POLY_ACC
 #include "inferno.h"
 #include "game.h"
@@ -38,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "gamefont.h"
 #include "bm.h"
-#include "text.h"
+#include "stringtable.h"
 #include "powerup.h"
 #include "sounds.h"
 #include "multi.h"
@@ -48,9 +47,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 
 #include "wall.h"
-#include "text.h"
+#include "stringtable.h"
 #include "render.h"
-#include "piggy.h"
+#include "main_shared/piggy.h"
 #include "laser.h"
 
 #if defined(POLY_ACC)
@@ -308,21 +307,21 @@ extern int Current_display_mode;
 #define LHY(y)		((y)*(MenuHires?2.4:1))
 #endif
 
-static int score_display[2];
+static int score_display;
 static fix score_time;
 
-static int old_score[2] = { -1, -1 };
-static int old_energy[2] = { -1, -1 };
-static int old_shields[2] = { -1, -1 };
-static int old_flags[2] = { -1, -1 };
-static int old_weapon[2][2] = { { -1, -1 },{-1,-1} };
-static int old_ammo_count[2][2] = { { -1, -1 },{-1,-1} };
-static int Old_Omega_charge[2] = { -1, -1 };
-static int old_laser_level[2] = { -1, -1 };
-static int old_cloak[2] = { 0, 0 };
-static int old_lives[2] = { -1, -1 };
-static fix old_afterburner[2] = { -1, -1 };
-static int old_bombcount[2] = { 0, 0 };
+static int old_score = -1;
+static int old_energy = -1;
+static int old_shields = -1;
+static int old_flags = -1;
+static int old_weapon[2] = { -1, -1 };
+static int old_ammo_count[2] = { -1, -1 };
+static int Old_Omega_charge = -1;
+static int old_laser_level = -1;
+static int old_cloak = 0;
+static int old_lives = -1;
+static fix old_afterburner = -1;
+static int old_bombcount = 0;
 
 static int invulnerable_frame = 0;
 
@@ -780,56 +779,6 @@ gauge_box gauge_boxes[] =
 int	Color_0_31_0 = -1;
 
 //copy a box from the off-screen buffer to the visible page
-#ifdef WINDOWS
-void copy_gauge_box(gauge_box* box, dd_grs_canvas* cv)
-{
-	//	This is kind of funny.  If we are in a full cockpit mode
-	//	we have a system offscreen buffer for our canvas.
-	//	Since this is true of cockpit mode only, we should do a 
-	//	direct copy from system to video memory without blting.
-
-	if (box->spanlist) {
-		int n_spans = box->bot - box->top + 1;
-		int cnt, y;
-
-		if (Cockpit_mode == CM_FULL_COCKPIT && cv->sram) {
-			grs_bitmap* bm;
-
-			Assert(cv->sram);
-			DDGRLOCK(cv);
-			DDGRLOCK(dd_grd_curcanv);
-			bm = &cv->canvas.cv_bitmap;
-
-			for (cnt = 0, y = box->top; cnt < n_spans; cnt++, y++)
-			{
-				gr_bm_ubitblt(box->spanlist[cnt].r - box->spanlist[cnt].l + 1, 1,
-					box->left + box->spanlist[cnt].l, y, box->left + box->spanlist[cnt].l, y, bm, &grd_curcanv->cv_bitmap);
-			}
-			DDGRUNLOCK(dd_grd_curcanv);
-			DDGRUNLOCK(cv);
-		}
-		else {
-			for (cnt = 0, y = box->top; cnt < n_spans; cnt++, y++)
-			{
-				dd_gr_blt_notrans(cv,
-					box->left + box->spanlist[cnt].l, y,
-					box->spanlist[cnt].r - box->spanlist[cnt].l + 1, 1,
-					dd_grd_curcanv,
-					box->left + box->spanlist[cnt].l, y,
-					box->spanlist[cnt].r - box->spanlist[cnt].l + 1, 1);
-			}
-		}
-	}
-	else {
-		dd_gr_blt_notrans(cv, box->left, box->top,
-			box->right - box->left + 1, box->bot - box->top + 1,
-			dd_grd_curcanv, box->left, box->top,
-			box->right - box->left + 1, box->bot - box->top + 1);
-	}
-}
-
-#else
-
 void copy_gauge_box(gauge_box* box, grs_bitmap* bm)
 {
 	if (box->spanlist)
@@ -863,50 +812,6 @@ void copy_gauge_box(gauge_box* box, grs_bitmap* bm)
 		//PA_DFX (pa_set_front_to_read());
 	}
 }
-#endif
-
-#ifdef MACINTOSH
-
-extern int gr_bitblt_double;
-
-int copy_whole_box = 0;
-
-void copy_gauge_box_double(gauge_box* box, grs_bitmap* bm)
-{
-
-	if (!copy_whole_box && box->spanlist) {
-		int n_spans = box->bot - box->top + 1;
-		int cnt, sx, dx, sy, dy;
-
-		sy = dy = box->top;
-		for (cnt = 0; cnt < n_spans; cnt++) {
-			uint8_t* dbits;
-			uint8_t* sbits;
-			int i, j;
-
-			sx = box->left;
-			dx = box->left + box->spanlist[cnt].l;
-
-			sbits = bm->bm_data + (bm->bm_rowsize * sy) + sx;
-			dbits = grd_curcanv->cv_bitmap.bm_data + (grd_curcanv->cv_bitmap.bm_rowsize * dy) + dx;
-
-			for (j = box->spanlist[cnt].l; j < box->spanlist[cnt].r + 1; j++)
-				* dbits++ = sbits[j / 2];
-
-			dy++;
-
-			if (cnt & 1)
-				sy++;
-		}
-
-	}
-	else
-		gr_bm_ubitblt_double_slow(box->right - box->left + 1, box->bot - box->top,
-			box->left, box->top, box->left, box->top,
-			bm, &grd_curcanv->cv_bitmap);
-}
-#endif
-
 
 //fills in the coords of the hostage video window
 void get_hostage_window_coords(int* x, int* y, int* w, int* h)
@@ -1009,7 +914,7 @@ void hud_show_score_added()
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
 
-	if (score_display[0] == 0)
+	if (score_display == 0)
 		return;
 
 	gr_set_curfont(GAME_FONT);
@@ -1027,7 +932,7 @@ void hud_show_score_added()
 		if (Cheats_enabled)
 			sprintf(score_str, "%s", TXT_CHEATER);
 		else
-			sprintf(score_str, "%5d", score_display[0]);
+			sprintf(score_str, "%5d", score_display);
 
 		gr_get_string_size(score_str, &w, &h, &aw);
 		gr_set_fontcolor(gr_getcolor(0, color, 0), -1);
@@ -1036,7 +941,7 @@ void hud_show_score_added()
 	else
 	{
 		score_time = 0;
-		score_display[0] = 0;
+		score_display = 0;
 	}
 }
 
@@ -1048,13 +953,12 @@ void sb_show_score()
 	static int last_x[4] = { SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_H,SB_SCORE_RIGHT_H };
 	int redraw_score;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		redraw_score = -99;
 	else
 		redraw_score = -1;
 
-	if (old_score[VR_current_page] == redraw_score)
+	if (old_score == redraw_score)
 	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(gr_getcolor(0, 20, 0), -1);
@@ -1088,9 +992,9 @@ void sb_show_score()
 	//erase old score
 	gr_setcolor(BM_XRGB(0, 0, 0));
 	//PA_DFX (pa_set_frontbuffer_current());
-	 //PA_DFX (gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],y,SB_SCORE_RIGHT,y+GAME_FONT->ft_h));
+	 //PA_DFX (gr_rect(last_x[(Current_display_mode?2:0)],y,SB_SCORE_RIGHT,y+GAME_FONT->ft_h));
 	//PA_DFX(pa_set_backbuffer_current()); 
-	gr_rect(last_x[(Current_display_mode ? 2 : 0) + VR_current_page], y, SB_SCORE_RIGHT, y + GAME_FONT->ft_h);
+	gr_rect(last_x[(Current_display_mode ? 2 : 0)], y, SB_SCORE_RIGHT, y + GAME_FONT->ft_h);
 
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		gr_set_fontcolor(gr_getcolor(0, 20, 0), -1);
@@ -1102,8 +1006,7 @@ void sb_show_score()
 	//PA_DFX(pa_set_backbuffer_current());
 	gr_printf(x, y, score_str);
 
-	last_x[(Current_display_mode ? 2 : 0) + VR_current_page] = x;
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
+	last_x[(Current_display_mode ? 2 : 0)] = x;
 }
 
 void sb_show_score_added()
@@ -1113,31 +1016,30 @@ void sb_show_score_added()
 	char	score_str[32];
 	int x;
 	static int last_x[4] = { SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_H,SB_SCORE_RIGHT_H };
-	static	int last_score_display[2] = { -1, -1 };
+	static	int last_score_display = -1;
 	int frc = 0;
 	//PA_DFX(frc = 0);
 
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
 
-	if (score_display[VR_current_page] == 0)
+	if (score_display == 0)
 		return;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_curfont(GAME_FONT);
 
 	score_time -= FrameTime;
 	if (score_time > 0) 
 	{
-		if (score_display[VR_current_page] != last_score_display[VR_current_page] || frc) 
+		if (score_display != last_score_display || frc) 
 		{
 			gr_setcolor(BM_XRGB(0, 0, 0));
 			//PA_DFX(pa_set_frontbuffer_current());
-			//PA_DFX(gr_rect(last_x[(Current_display_mode ? 2 : 0) + VR_current_page], SB_SCORE_ADDED_Y, SB_SCORE_ADDED_RIGHT, SB_SCORE_ADDED_Y + GAME_FONT->ft_h));
+			//PA_DFX(gr_rect(last_x[(Current_display_mode ? 2 : 0), SB_SCORE_ADDED_Y, SB_SCORE_ADDED_RIGHT, SB_SCORE_ADDED_Y + GAME_FONT->ft_h));
 			//PA_DFX(pa_set_backbuffer_current());
-			gr_rect(last_x[(Current_display_mode ? 2 : 0) + VR_current_page], SB_SCORE_ADDED_Y, SB_SCORE_ADDED_RIGHT, SB_SCORE_ADDED_Y + GAME_FONT->ft_h);
+			gr_rect(last_x[(Current_display_mode ? 2 : 0)], SB_SCORE_ADDED_Y, SB_SCORE_ADDED_RIGHT, SB_SCORE_ADDED_Y + GAME_FONT->ft_h);
 
-			last_score_display[VR_current_page] = score_display[VR_current_page];
+			last_score_display = score_display;
 		}
 
 		color = f2i(score_time * 20) + 10;
@@ -1148,7 +1050,7 @@ void sb_show_score_added()
 		if (Cheats_enabled)
 			sprintf(score_str, "%s", TXT_CHEATER);
 		else
-			sprintf(score_str, "%5d", score_display[VR_current_page]);
+			sprintf(score_str, "%5d", score_display);
 
 		gr_get_string_size(score_str, &w, &h, &aw);
 
@@ -1162,7 +1064,7 @@ void sb_show_score_added()
 		gr_printf(x, SB_SCORE_ADDED_Y, score_str);
 
 
-		last_x[(Current_display_mode ? 2 : 0) + VR_current_page] = x;
+		last_x[(Current_display_mode ? 2 : 0)] = x;
 
 	}
 	else 
@@ -1170,18 +1072,17 @@ void sb_show_score_added()
 		//erase old score
 		gr_setcolor(BM_XRGB(0, 0, 0));
 		//PA_DFX(pa_set_frontbuffer_current());
-		//PA_DFX(gr_rect(last_x[(Current_display_mode ? 2 : 0) + VR_current_page], SB_SCORE_ADDED_Y, SB_SCORE_ADDED_RIGHT, SB_SCORE_ADDED_Y + GAME_FONT->ft_h));
+		//PA_DFX(gr_rect(last_x[(Current_display_mode ? 2 : 0)], SB_SCORE_ADDED_Y, SB_SCORE_ADDED_RIGHT, SB_SCORE_ADDED_Y + GAME_FONT->ft_h));
 		//PA_DFX(pa_set_backbuffer_current());
-		gr_rect(last_x[(Current_display_mode ? 2 : 0) + VR_current_page], SB_SCORE_ADDED_Y, SB_SCORE_ADDED_RIGHT, SB_SCORE_ADDED_Y + GAME_FONT->ft_h);
+		gr_rect(last_x[(Current_display_mode ? 2 : 0)], SB_SCORE_ADDED_Y, SB_SCORE_ADDED_RIGHT, SB_SCORE_ADDED_Y + GAME_FONT->ft_h);
 
 		score_time = 0;
-		score_display[VR_current_page] = 0;
+		score_display = 0;
 
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
-fix	Last_warning_beep_time[2] = { 0,0 };		//	Time we last played homing missile warning beep.
+fix	Last_warning_beep_time = 0;		//	Time we last played homing missile warning beep.
 
 //	-----------------------------------------------------------------------------
 void play_homing_warning(void)
@@ -1199,25 +1100,25 @@ void play_homing_warning(void)
 		else if (beep_delay < F1_0 / 8)
 			beep_delay = F1_0 / 8;
 
-		if (Last_warning_beep_time[VR_current_page] > GameTime)
-			Last_warning_beep_time[VR_current_page] = 0;
+		if (Last_warning_beep_time > GameTime)
+			Last_warning_beep_time = 0;
 
-		if (GameTime - Last_warning_beep_time[VR_current_page] > beep_delay / 2)
+		if (GameTime - Last_warning_beep_time > beep_delay / 2)
 		{
 			digi_play_sample(SOUND_HOMING_WARNING, F1_0);
-			Last_warning_beep_time[VR_current_page] = GameTime;
+			Last_warning_beep_time = GameTime;
 		}
 	}
 }
 
-int	Last_homing_warning_shown[2] = { -1,-1 };
+int	Last_homing_warning_shown = -1;
 
 //	-----------------------------------------------------------------------------
 void show_homing_warning(void)
 {
 	if ((Cockpit_mode == CM_STATUS_BAR) || (Endlevel_sequence)) 
 	{
-		if (Last_homing_warning_shown[VR_current_page] == 1) 
+		if (Last_homing_warning_shown == 1) 
 		{
 			PAGE_IN_GAUGE(GAUGE_HOMING_WARNING_OFF);
 
@@ -1225,49 +1126,40 @@ void show_homing_warning(void)
 			gr_ubitmapm(HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF)]);
 			WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-			Last_homing_warning_shown[VR_current_page] = 0;
+			Last_homing_warning_shown = 0;
 		}
 		return;
 	}
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
+	gr_set_current_canvas(get_current_game_screen());
 
-
-	WIN(DDGRLOCK(dd_grd_curcanv))
+	if (Players[Player_num].homing_object_dist >= 0)
 	{
-		if (Players[Player_num].homing_object_dist >= 0)
+		if (GameTime & 0x4000) 
 		{
-			if (GameTime & 0x4000) 
+			if (Last_homing_warning_shown != 1) 
 			{
-				if (Last_homing_warning_shown[VR_current_page] != 1) 
-				{
-					PAGE_IN_GAUGE(GAUGE_HOMING_WARNING_ON);
-					gr_ubitmapm(HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_ON)]);
-					Last_homing_warning_shown[VR_current_page] = 1;
-				}
-			}
-			else 
-			{
-				if (Last_homing_warning_shown[VR_current_page] != 0) 
-				{
-					PAGE_IN_GAUGE(GAUGE_HOMING_WARNING_OFF);
-					gr_ubitmapm(HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF)]);
-					Last_homing_warning_shown[VR_current_page] = 0;
-				}
+				PAGE_IN_GAUGE(GAUGE_HOMING_WARNING_ON);
+				gr_ubitmapm(HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_ON)]);
+				Last_homing_warning_shown = 1;
 			}
 		}
-		else if (Last_homing_warning_shown[VR_current_page] != 0) 
+		else 
 		{
-			PAGE_IN_GAUGE(GAUGE_HOMING_WARNING_OFF);
-			gr_ubitmapm(HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF)]);
-			Last_homing_warning_shown[VR_current_page] = 0;
+			if (Last_homing_warning_shown != 0) 
+			{
+				PAGE_IN_GAUGE(GAUGE_HOMING_WARNING_OFF);
+				gr_ubitmapm(HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF)]);
+				Last_homing_warning_shown = 0;
+			}
 		}
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
-
+	else if (Last_homing_warning_shown != 0) 
+	{
+		PAGE_IN_GAUGE(GAUGE_HOMING_WARNING_OFF);
+		gr_ubitmapm(HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF)]);
+		Last_homing_warning_shown = 0;
+	}
 }
 
 #define MAX_SHOWN_LIVES 4
@@ -1305,7 +1197,6 @@ void hud_show_keys(void)
 	{
 		PAGE_IN_GAUGE(KEY_ICON_BLUE);
 		gr_ubitmapm(2, y, &GameBitmaps[GET_GAUGE_INDEX(KEY_ICON_BLUE)]);
-
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY) 
@@ -1411,10 +1302,10 @@ void hud_show_energy(void)
 	{
 		int energy = f2ir(Players[Player_num].energy);
 
-		if (energy != old_energy[VR_current_page])
+		if (energy != old_energy)
 		{
-			newdemo_record_player_energy(old_energy[VR_current_page], energy);
-			old_energy[VR_current_page] = energy;
+			newdemo_record_player_energy(old_energy, energy);
+			old_energy = energy;
 		}
 	}
 }
@@ -1435,10 +1326,10 @@ void hud_show_afterburner(void)
 
 	if (Newdemo_state == ND_STATE_RECORDING) 
 	{
-		if (Afterburner_charge != old_afterburner[VR_current_page]) 
+		if (Afterburner_charge != old_afterburner) 
 		{
-			newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
-			old_afterburner[VR_current_page] = Afterburner_charge;
+			newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
+			old_afterburner = Afterburner_charge;
 		}
 	}
 }
@@ -1469,10 +1360,8 @@ void show_bomb_count(int x, int y, int bg_color, int always_show)
 	if (always_show && count == 0)		//no bombs, draw nothing on HUD
 		return;
 
-	if (!always_show && countx == old_bombcount[VR_current_page])
+	if (!always_show && countx == old_bombcount)
 		return;
-
-	WIN(DDGRLOCK(dd_grd_curcanv));
 
 	// I hate doing this off of hard coded coords!!!!
 
@@ -1515,9 +1404,7 @@ void show_bomb_count(int x, int y, int bg_color, int always_show)
 	//PA_DFX(pa_set_backbuffer_current());
 	gr_string(x, y, txt);
 
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
-
-	old_bombcount[VR_current_page] = countx;
+	old_bombcount = countx;
 }
 
 void draw_ammo_info(int x, int y, int ammo_count, int primary);
@@ -1595,21 +1482,21 @@ void hud_show_weapons(void)
 
 	if (Primary_weapon == VULCAN_INDEX) 
 	{
-		if (Players[Player_num].primary_ammo[Primary_weapon] != old_ammo_count[0][VR_current_page])
+		if (Players[Player_num].primary_ammo[Primary_weapon] != old_ammo_count[0])
 		{
 			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_primary_ammo(old_ammo_count[0][VR_current_page], Players[Player_num].primary_ammo[Primary_weapon]);
-			old_ammo_count[0][VR_current_page] = Players[Player_num].primary_ammo[Primary_weapon];
+				newdemo_record_primary_ammo(old_ammo_count[0], Players[Player_num].primary_ammo[Primary_weapon]);
+			old_ammo_count[0] = Players[Player_num].primary_ammo[Primary_weapon];
 		}
 	}
 
 	if (CurrentLogicVersion >= LogicVer::FULL_1_0 && Primary_weapon == OMEGA_INDEX) 
 	{
-		if (Omega_charge != Old_Omega_charge[VR_current_page]) 
+		if (Omega_charge != Old_Omega_charge) 
 		{
 			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_primary_ammo(Old_Omega_charge[VR_current_page], Omega_charge);
-			Old_Omega_charge[VR_current_page] = Omega_charge;
+				newdemo_record_primary_ammo(Old_Omega_charge, Omega_charge);
+			Old_Omega_charge = Omega_charge;
 		}
 	}
 
@@ -1619,11 +1506,11 @@ void hud_show_weapons(void)
 	gr_get_string_size(weapon_str, &w, &h, &aw);
 	gr_printf(grd_curcanv->cv_bitmap.bm_w - 5 - w, y - Line_spacing, weapon_str);
 
-	if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1][VR_current_page]) 
+	if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1]) 
 	{
 		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_secondary_ammo(old_ammo_count[1][VR_current_page], Players[Player_num].secondary_ammo[Secondary_weapon]);
-		old_ammo_count[1][VR_current_page] = Players[Player_num].secondary_ammo[Secondary_weapon];
+			newdemo_record_secondary_ammo(old_ammo_count[1], Players[Player_num].secondary_ammo[Secondary_weapon]);
+		old_ammo_count[1] = Players[Player_num].secondary_ammo[Secondary_weapon];
 	}
 
 	show_bomb_count(grd_curcanv->cv_bitmap.bm_w - (3 * GAME_FONT->ft_w + (FontHires ? 0 : 2)), y - 3 * Line_spacing, -1, 1);
@@ -1686,9 +1573,9 @@ void hud_show_shield(void)
 	{
 		int shields = f2ir(Players[Player_num].shields);
 
-		if (shields != old_shields[VR_current_page]) {		// Draw the shield gauge
-			newdemo_record_player_shields(old_shields[VR_current_page], shields);
-			old_shields[VR_current_page] = shields;
+		if (shields != old_shields) {		// Draw the shield gauge
+			newdemo_record_player_shields(old_shields, shields);
+			old_shields = shields;
 		}
 	}
 }
@@ -1728,8 +1615,7 @@ void sb_show_lives()
 
 	//PA_DFX(frc = 0);
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
-	if (old_lives[VR_current_page] == -1 || frc) 
+	if (old_lives == -1 || frc) 
 	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(gr_getcolor(0, 20, 0), -1);
@@ -1750,7 +1636,6 @@ void sb_show_lives()
 		}
 
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -1763,19 +1648,17 @@ void sb_show_lives()
 		sprintf(killed_str, "%5d", Players[Player_num].net_killed_total);
 		gr_get_string_size(killed_str, &w, &h, &aw);
 		gr_setcolor(BM_XRGB(0, 0, 0));
-		gr_rect(last_x[(Current_display_mode ? 2 : 0) + VR_current_page], y + 1, SB_SCORE_RIGHT, y + GAME_FONT->ft_h);
+		gr_rect(last_x[(Current_display_mode ? 2 : 0)], y + 1, SB_SCORE_RIGHT, y + GAME_FONT->ft_h);
 		gr_set_fontcolor(gr_getcolor(0, 20, 0), -1);
 		x = SB_SCORE_RIGHT - w - 2;
 		gr_printf(x, y + 1, killed_str);
-		last_x[(Current_display_mode ? 2 : 0) + VR_current_page] = x;
+		last_x[(Current_display_mode ? 2 : 0)] = x;
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		return;
 	}
 
-	if (frc || old_lives[VR_current_page] == -1 || Players[Player_num].lives != old_lives[VR_current_page]) 
+	if (frc || old_lives == -1 || Players[Player_num].lives != old_lives) 
 	{
-		WIN(DDGRLOCK(dd_grd_curcanv));
-
 		//erase old icons
 		gr_setcolor(BM_XRGB(0, 0, 0));
 
@@ -1800,7 +1683,6 @@ void sb_show_lives()
 
 			//			gr_printf(x+12, y, "x %d", Players[Player_num].lives-1);
 		}
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 
 	//	for (i=0;i<draw_count;i++,x+=bm->bm_w+2)
@@ -1836,8 +1718,7 @@ void add_points_to_score(int points)
 	int prev_score;
 
 	score_time += f1_0 * 2;
-	score_display[0] += points;
-	score_display[1] += points;
+	score_display += points;
 	if (score_time > f1_0 * 4) score_time = f1_0 * 4;
 
 	if (points == 0 || Cheats_enabled)
@@ -1932,21 +1813,21 @@ void init_gauges()
 	for (i = 0; i < 2; i++) 
 	{
 		if (((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) || ((Newdemo_state == ND_STATE_PLAYBACK) && (Newdemo_game_mode & GM_MULTI) && !(Newdemo_game_mode & GM_MULTI_COOP)))
-			old_score[i] = -99;
+			old_score = -99;
 		else
-			old_score[i] = -1;
-		old_energy[i] = -1;
-		old_shields[i] = -1;
-		old_flags[i] = -1;
-		old_cloak[i] = -1;
-		old_lives[i] = -1;
-		old_afterburner[i] = -1;
-		old_bombcount[i] = 0;
-		old_laser_level[i] = 0;
+			old_score = -1;
+		old_energy = -1;
+		old_shields = -1;
+		old_flags = -1;
+		old_cloak = -1;
+		old_lives = -1;
+		old_afterburner = -1;
+		old_bombcount = 0;
+		old_laser_level = 0;
 
-		old_weapon[0][i] = old_weapon[1][i] = -1;
-		old_ammo_count[0][i] = old_ammo_count[1][i] = -1;
-		Old_Omega_charge[i] = -1;
+		old_weapon[0] = old_weapon[1] = -1;
+		old_ammo_count[0] = old_ammo_count[1] = -1;
+		Old_Omega_charge = -1;
 	}
 
 	cloak_fade_state = 0;
@@ -1983,13 +1864,8 @@ void draw_energy_bar(int energy)
 			if (x2 > x1) gr_uscanline(x1, x2, y);
 		}
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(get_current_game_screen());
 	gr_ubitmapm(LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, &Canv_LeftEnergyGauge->cv_bitmap);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	// Draw right energy bar
 	gr_set_current_canvas(Canv_RightEnergyGauge);
@@ -2010,13 +1886,8 @@ void draw_energy_bar(int energy)
 			if (x2 > x1) gr_uscanline(x1, x2, y);
 		}
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(get_current_game_screen());
 	gr_ubitmapm(RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, &Canv_RightEnergyGauge->cv_bitmap);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 uint8_t afterburner_bar_table[AFTERBURNER_GAUGE_H_L * 2] = 
@@ -2150,13 +2021,8 @@ void draw_afterburner_bar(int afterburner)
 			(Current_display_mode ? afterburner_bar_table_hires[y * 2 + 1] : afterburner_bar_table[y * 2 + 1]), y);
 	}
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(get_current_game_screen());
 	gr_ubitmapm(AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, &Canv_AfterburnerGauge->cv_bitmap);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 void draw_shield_bar(int shield)
@@ -2164,13 +2030,10 @@ void draw_shield_bar(int shield)
 	int bm_num = shield >= 100 ? 9 : (shield / 10);
 
 	PAGE_IN_GAUGE(GAUGE_SHIELDS + 9 - bm_num);
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	//PA_DFX(pa_set_frontbuffer_current());
 	//PA_DFX(gr_ubitmapm(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIELDS + 9 - bm_num)]));
 	//PA_DFX(pa_set_backbuffer_current());
 	gr_ubitmapm(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIELDS + 9 - bm_num)]);
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 #define CLOAK_FADE_WAIT_TIME  0x400
@@ -2219,9 +2082,8 @@ void draw_player_ship(int cloak_state, int old_cloak_state, int x, int y)
 	if (cloak_fade_state)
 		cloak_fade_timer -= FrameTime;
 
-	while (cloak_fade_state && cloak_fade_timer < 0) {
-
-
+	while (cloak_fade_state && cloak_fade_timer < 0) 
+	{
 		cloak_fade_timer += CLOAK_FADE_WAIT_TIME;
 
 		cloak_fade_value += cloak_fade_state;
@@ -2246,74 +2108,40 @@ void draw_player_ship(int cloak_state, int old_cloak_state, int x, int y)
 
 	//	To fade out both pages in a paged mode.
 	if (refade) refade = 0;
-	else if (cloak_state && old_cloak_state && !cloak_fade_state && !refade) {
+	else if (cloak_state && old_cloak_state && !cloak_fade_state && !refade) 
+	{
 		cloak_fade_state = -1;
 		refade = 1;
 	}
 
 #if defined(POLY_ACC)
-#ifdef MACINTOSH
-	if (PAEnabled) {
-#endif
-		Gr_scanline_darkening_level = cloak_fade_value;
-		gr_set_current_canvas(get_current_game_screen());
-		PA_DFX(pa_set_frontbuffer_current());
-		PA_DFX(pa_blit_lit(&grd_curcanv->cv_bitmap, x, y, bm, 0, 0, bm->bm_w, bm->bm_h));
-		PA_DFX(pa_set_backbuffer_current());
-		pa_blit_lit(&grd_curcanv->cv_bitmap, x, y, bm, 0, 0, bm->bm_w, bm->bm_h);
+	Gr_scanline_darkening_level = cloak_fade_value;
+	gr_set_current_canvas(get_current_game_screen());
+	PA_DFX(pa_set_frontbuffer_current());
+	PA_DFX(pa_blit_lit(&grd_curcanv->cv_bitmap, x, y, bm, 0, 0, bm->bm_w, bm->bm_h));
+	PA_DFX(pa_set_backbuffer_current());
+	pa_blit_lit(&grd_curcanv->cv_bitmap, x, y, bm, 0, 0, bm->bm_w, bm->bm_h);
 
-		Gr_scanline_darkening_level = GR_FADE_LEVELS;
-		return;
-		//	    }
-		//	    else
-		//		    Gr_scanline_darkening_level = GR_FADE_LEVELS;
-		//		 mprintf ((1,"HEY! HIT THIS!\n"));	
-		//		 Int3();
-#ifdef MACINTOSH
-	}
-#endif
+	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	return;
+	//	    }
+	//	    else
+	//		    Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	//		 mprintf ((1,"HEY! HIT THIS!\n"));	
+	//		 Int3();
 #endif
 
-	WINDOS(
-		dd_gr_set_current_canvas(&dd_VR_render_buffer[0]),
-		gr_set_current_canvas(&VR_render_buffer[0])
-	);
+	gr_set_current_canvas(&VR_render_buffer);
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_ubitmap(x, y, bm);
 
 	Gr_scanline_darkening_level = cloak_fade_value;
 	gr_rect(x, y, x + bm->bm_w - 1, y + bm->bm_h - 1);
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
+	gr_set_current_canvas(get_current_game_screen());
 
-#ifdef WINDOWS
-	DDGRLOCK(dd_grd_curcanv);
-	if (dd_grd_curcanv->lpdds != dd_VR_render_buffer[0].lpdds) {
-		DDGRLOCK(&dd_VR_render_buffer[0]);
-	}
-	else {
-		dd_gr_dup_hack(&dd_VR_render_buffer[0], dd_grd_curcanv);
-	}
-#endif
-	WINDOS(
-		gr_bm_ubitbltm(bm->bm_w, bm->bm_h, x, y, x, y, &dd_VR_render_buffer[0].canvas.cv_bitmap, &grd_curcanv->cv_bitmap),
-		gr_bm_ubitbltm(bm->bm_w, bm->bm_h, x, y, x, y, &VR_render_buffer[0].cv_bitmap, &grd_curcanv->cv_bitmap)
-	);
-#ifdef WINDOWS
-	if (dd_grd_curcanv->lpdds != dd_VR_render_buffer[0].lpdds) {
-		DDGRUNLOCK(&dd_VR_render_buffer[0]);
-	}
-	else {
-		dd_gr_dup_unhack(&dd_VR_render_buffer[0]);
-	}
-	DDGRUNLOCK(dd_grd_curcanv);
-#endif
+	gr_bm_ubitbltm(bm->bm_w, bm->bm_h, x, y, x, y, &VR_render_buffer.cv_bitmap, &grd_curcanv->cv_bitmap);
 }
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
@@ -2340,24 +2168,15 @@ void draw_numerical_display(int shield, int energy)
 		gr_printf((energy > 99) ? 7 : ((energy > 9) ? 11 : 15), 4, "%d", energy);
 	}
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(get_current_game_screen());
 	gr_ubitmapm(NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, &Canv_NumericalGauge->cv_bitmap);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 
 void draw_keys()
 {
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
+	gr_set_current_canvas(get_current_game_screen());
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY) 
 	{
 		PAGE_IN_GAUGE(GAUGE_BLUE_KEY);
@@ -2390,7 +2209,6 @@ void draw_keys()
 		PAGE_IN_GAUGE(GAUGE_RED_KEY_OFF);
 		gr_ubitmapm(GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_RED_KEY_OFF)]);
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 
@@ -2431,9 +2249,9 @@ void draw_weapon_info_sub(int info_index, gauge_box* box, int pic_x, int pic_y, 
 	{
 		*p = 0;
 #ifdef PA_3DFX_VOODOO
-		//			pa_set_frontbuffer_current();
-	  //			gr_printf(text_x,text_y,name);
-	  //			gr_printf(text_x,text_y+grd_curcanv->cv_font->ft_h+1,p+1);
+		//pa_set_frontbuffer_current();
+		//gr_printf(text_x,text_y,name);
+		//gr_printf(text_x,text_y+grd_curcanv->cv_font->ft_h+1,p+1);
 #endif
 		//PA_DFX(pa_set_backbuffer_current());
 		gr_printf(text_x, text_y, name);
@@ -2442,8 +2260,8 @@ void draw_weapon_info_sub(int info_index, gauge_box* box, int pic_x, int pic_y, 
 }
 	else
 	{
-		//		PA_DFX(pa_set_frontbuffer_current());
-	  //		PA_DFX (gr_printf(text_x,text_y,name));
+		//PA_DFX(pa_set_frontbuffer_current());
+		//PA_DFX (gr_printf(text_x,text_y,name));
 		//PA_DFX(pa_set_backbuffer_current());
 		gr_printf(text_x, text_y, name);
 	}
@@ -2457,8 +2275,8 @@ void draw_weapon_info_sub(int info_index, gauge_box* box, int pic_x, int pic_y, 
 
 		temp_str[5] = Players[Player_num].laser_level + 1 + '0';
 
-		//		PA_DFX(pa_set_frontbuffer_current());
-		//		PA_DFX (gr_printf(text_x,text_y+Line_spacing, temp_str));
+		//PA_DFX(pa_set_frontbuffer_current());
+		//PA_DFX (gr_printf(text_x,text_y+Line_spacing, temp_str));
 		//PA_DFX(pa_set_backbuffer_current());
 		//NO_DFX(gr_printf(text_x, text_y + Line_spacing, temp_str));
 		//PA_DFX(gr_printf(text_x, text_y + 12, temp_str));
@@ -2468,8 +2286,8 @@ void draw_weapon_info_sub(int info_index, gauge_box* box, int pic_x, int pic_y, 
 		if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
 		{
 			strcpy(temp_str, TXT_QUAD);
-			//			PA_DFX(pa_set_frontbuffer_current());
-			//			PA_DFX (gr_printf(text_x,text_y+2*Line_spacing, temp_str));
+			//PA_DFX(pa_set_frontbuffer_current());
+			//PA_DFX (gr_printf(text_x,text_y+2*Line_spacing, temp_str));
 			//PA_DFX(pa_set_backbuffer_current());
 			gr_printf(text_x, text_y + 2 * Line_spacing, temp_str);
 		}
@@ -2531,23 +2349,18 @@ void draw_ammo_info(int x, int y, int ammo_count, int primary)
 	else
 		w = (grd_curcanv->cv_font->ft_w * 5) / 2;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
-	{
-		//PA_DFX(pa_set_frontbuffer_current());
+	//PA_DFX(pa_set_frontbuffer_current());
 
-		gr_setcolor(BM_XRGB(0, 0, 0));
-		gr_rect(x, y, x + w, y + grd_curcanv->cv_font->ft_h);
-		gr_set_fontcolor(gr_getcolor(20, 0, 0), -1);
-		sprintf(str, "%03d", ammo_count);
-		convert_1s(str);
-		gr_printf(x, y, str);
+	gr_setcolor(BM_XRGB(0, 0, 0));
+	gr_rect(x, y, x + w, y + grd_curcanv->cv_font->ft_h);
+	gr_set_fontcolor(gr_getcolor(20, 0, 0), -1);
+	sprintf(str, "%03d", ammo_count);
+	convert_1s(str);
+	gr_printf(x, y, str);
 
-		//PA_DFX(pa_set_backbuffer_current());
-		gr_rect(x, y, x + w, y + grd_curcanv->cv_font->ft_h);
-		gr_printf(x, y, str);
-	}
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
+	//PA_DFX(pa_set_backbuffer_current());
+	gr_rect(x, y, x + w, y + grd_curcanv->cv_font->ft_h);
+	gr_printf(x, y, str);
 }
 
 void draw_secondary_ammo_info(int ammo_count)
@@ -2564,34 +2377,30 @@ int draw_weapon_box(int weapon_type, int weapon_num)
 	int drew_flag = 0;
 	int laser_level_changed;
 
-	WINDOS(
-		dd_gr_set_current_canvas(&dd_VR_render_buffer[0]),
-		gr_set_current_canvas(&VR_render_buffer[0])
-	);
+	gr_set_current_canvas(&VR_render_buffer);
 
 	//PA_DFX(pa_set_backbuffer_current());
-
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_curfont(GAME_FONT);
 
-	laser_level_changed = (weapon_type == 0 && weapon_num == LASER_INDEX && (Players[Player_num].laser_level != old_laser_level[VR_current_page]));
+	laser_level_changed = (weapon_type == 0 && weapon_num == LASER_INDEX && (Players[Player_num].laser_level != old_laser_level));
 
-	if ((weapon_num != old_weapon[weapon_type][VR_current_page] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET) {
+	if ((weapon_num != old_weapon[weapon_type]|| laser_level_changed) && weapon_box_states[weapon_type] == WS_SET) 
+	{
 		weapon_box_states[weapon_type] = WS_FADING_OUT;
 		weapon_box_fade_values[weapon_type] = i2f(GR_FADE_LEVELS - 1);
 	}
 
-	if (old_weapon[weapon_type][VR_current_page] == -1)
+	if (old_weapon[weapon_type] == -1)
 	{
 		//@@if (laser_level_changed)
-		//@@	old_weapon[weapon_type][VR_current_page] = LASER_INDEX;
+		//@@	old_weapon[weapon_type] = LASER_INDEX;
 		//@@else 
 		{
 			draw_weapon_info(weapon_type, weapon_num, Players[Player_num].laser_level);
-			old_weapon[weapon_type][VR_current_page] = weapon_num;
-			old_ammo_count[weapon_type][VR_current_page] = -1;
-			Old_Omega_charge[VR_current_page] = -1;
-			old_laser_level[VR_current_page] = Players[Player_num].laser_level;
+			old_weapon[weapon_type] = weapon_num;
+			old_ammo_count[weapon_type] = -1;
+			Old_Omega_charge = -1;
+			old_laser_level = Players[Player_num].laser_level;
 			drew_flag = 1;
 			weapon_box_states[weapon_type] = WS_SET;
 		}
@@ -2599,37 +2408,36 @@ int draw_weapon_box(int weapon_type, int weapon_num)
 
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) 
 	{
-		draw_weapon_info(weapon_type, old_weapon[weapon_type][VR_current_page], old_laser_level[VR_current_page]);
-		old_ammo_count[weapon_type][VR_current_page] = -1;
-		Old_Omega_charge[VR_current_page] = -1;
+		draw_weapon_info(weapon_type, old_weapon[weapon_type], old_laser_level);
+		old_ammo_count[weapon_type] = -1;
+		Old_Omega_charge = -1;
 		drew_flag = 1;
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
-		if (weapon_box_fade_values[weapon_type] <= 0) {
+		if (weapon_box_fade_values[weapon_type] <= 0) 
+		{
 			weapon_box_states[weapon_type] = WS_FADING_IN;
-			old_weapon[weapon_type][VR_current_page] = weapon_num;
-			old_weapon[weapon_type][!VR_current_page] = weapon_num;
-			old_laser_level[VR_current_page] = Players[Player_num].laser_level;
-			old_laser_level[!VR_current_page] = Players[Player_num].laser_level;
+			old_weapon[weapon_type] = weapon_num;
+			old_laser_level = Players[Player_num].laser_level;
 			weapon_box_fade_values[weapon_type] = 0;
 		}
 	}
 	else if (weapon_box_states[weapon_type] == WS_FADING_IN) 
 	{
-		if (weapon_num != old_weapon[weapon_type][VR_current_page]) 
+		if (weapon_num != old_weapon[weapon_type]) 
 		{
 			weapon_box_states[weapon_type] = WS_FADING_OUT;
 		}
 		else 
 		{
 			draw_weapon_info(weapon_type, weapon_num, Players[Player_num].laser_level);
-			old_ammo_count[weapon_type][VR_current_page] = -1;
-			Old_Omega_charge[VR_current_page] = -1;
+			old_ammo_count[weapon_type] = -1;
+			Old_Omega_charge = -1;
 			drew_flag = 1;
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS - 1)) 
 			{
 				weapon_box_states[weapon_type] = WS_SET;
-				old_weapon[weapon_type][!VR_current_page] = -1;		//force redraw (at full fade-in) of other page
+				//old_weapon[weapon_type] = -1;		//force redraw (at full fade-in) of other page
 			}
 		}
 	}
@@ -2647,12 +2455,7 @@ int draw_weapon_box(int weapon_type, int weapon_num)
 
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
-
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
+	gr_set_current_canvas(get_current_game_screen());
 	return drew_flag;
 }
 
@@ -2679,15 +2482,11 @@ void draw_static(int win)
 
 	bmp = &GameBitmaps[vc->frames[framenum].index];
 
-	WINDOS(
-		dd_gr_set_current_canvas(&dd_VR_render_buffer[0]),
-		gr_set_current_canvas(&VR_render_buffer[0])
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(&VR_render_buffer);
 	//PA_DFX(pa_set_backbuffer_current());
 	//PA_DFX(pa_bypass_mode(0));
 	//PA_DFX(pa_clip_window(gauge_boxes[boxofs + win].left, gauge_boxes[boxofs + win].top,
-		//gauge_boxes[boxofs + win].right, gauge_boxes[boxofs + win].bot));
+	//gauge_boxes[boxofs + win].right, gauge_boxes[boxofs + win].bot));
 
 	for (x = gauge_boxes[boxofs + win].left; x < gauge_boxes[boxofs + win].right; x += bmp->bm_w)
 		for (y = gauge_boxes[boxofs + win].top; y < gauge_boxes[boxofs + win].bot; y += bmp->bm_h)
@@ -2696,19 +2495,10 @@ void draw_static(int win)
 	//PA_DFX(pa_bypass_mode(1));
 	//PA_DFX(pa_clip_window(0, 0, 640, 480));
 
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(get_current_game_screen());
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
-
-	//   PA_DFX (return);
-
-	WINDOS(
-		copy_gauge_box(&gauge_boxes[boxofs + win], &dd_VR_render_buffer[0]),
-		copy_gauge_box(&gauge_boxes[boxofs + win], &VR_render_buffer[0].cv_bitmap)
-	);
+	//PA_DFX (return);
+	copy_gauge_box(&gauge_boxes[boxofs + win], &VR_render_buffer.cv_bitmap);
 }
 
 void draw_weapon_boxes()
@@ -2720,32 +2510,29 @@ void draw_weapon_boxes()
 	{
 		drew = draw_weapon_box(0, Primary_weapon);
 		if (drew)
-			WINDOS(
-				copy_gauge_box(&gauge_boxes[boxofs + 0], &dd_VR_render_buffer[0]),
-				copy_gauge_box(&gauge_boxes[boxofs + 0], &VR_render_buffer[0].cv_bitmap)
-			);
+			copy_gauge_box(&gauge_boxes[boxofs + 0], &VR_render_buffer.cv_bitmap);
 
 		if (weapon_box_states[0] == WS_SET) 
 		{
 			if ((Primary_weapon == VULCAN_INDEX) || (Primary_weapon == GAUSS_INDEX)) 
 			{
-				if (Players[Player_num].primary_ammo[VULCAN_INDEX] != old_ammo_count[0][VR_current_page]) 
+				if (Players[Player_num].primary_ammo[VULCAN_INDEX] != old_ammo_count[0]) 
 				{
 					if (Newdemo_state == ND_STATE_RECORDING)
-						newdemo_record_primary_ammo(old_ammo_count[0][VR_current_page], Players[Player_num].primary_ammo[VULCAN_INDEX]);
+						newdemo_record_primary_ammo(old_ammo_count[0], Players[Player_num].primary_ammo[VULCAN_INDEX]);
 					draw_primary_ammo_info(f2i((unsigned)VULCAN_AMMO_SCALE * (unsigned)Players[Player_num].primary_ammo[VULCAN_INDEX]));
-					old_ammo_count[0][VR_current_page] = Players[Player_num].primary_ammo[VULCAN_INDEX];
+					old_ammo_count[0] = Players[Player_num].primary_ammo[VULCAN_INDEX];
 				}
 			}
 
 			if (CurrentLogicVersion >= LogicVer::FULL_1_0 && Primary_weapon == OMEGA_INDEX) 
 			{
-				if (Omega_charge != Old_Omega_charge[VR_current_page]) 
+				if (Omega_charge != Old_Omega_charge) 
 				{
 					if (Newdemo_state == ND_STATE_RECORDING)
-						newdemo_record_primary_ammo(Old_Omega_charge[VR_current_page], Omega_charge);
+						newdemo_record_primary_ammo(Old_Omega_charge, Omega_charge);
 					draw_primary_ammo_info(Omega_charge * 100 / MAX_OMEGA_CHARGE);
-					Old_Omega_charge[VR_current_page] = Omega_charge;
+					Old_Omega_charge = Omega_charge;
 				}
 			}
 		}
@@ -2757,19 +2544,16 @@ void draw_weapon_boxes()
 	{
 		drew = draw_weapon_box(1, Secondary_weapon);
 		if (drew)
-			WINDOS(
-				copy_gauge_box(&gauge_boxes[boxofs + 1], &dd_VR_render_buffer[0]),
-				copy_gauge_box(&gauge_boxes[boxofs + 1], &VR_render_buffer[0].cv_bitmap)
-			);
+			copy_gauge_box(&gauge_boxes[boxofs + 1], &VR_render_buffer.cv_bitmap);
 
 		if (weapon_box_states[1] == WS_SET)
-			if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1][VR_current_page]) 
+			if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1]) 
 			{
-				old_bombcount[VR_current_page] = 0x7fff;	//force redraw
+				old_bombcount = 0x7fff;	//force redraw
 				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_secondary_ammo(old_ammo_count[1][VR_current_page], Players[Player_num].secondary_ammo[Secondary_weapon]);
+					newdemo_record_secondary_ammo(old_ammo_count[1], Players[Player_num].secondary_ammo[Secondary_weapon]);
 				draw_secondary_ammo_info(Players[Player_num].secondary_ammo[Secondary_weapon]);
-				old_ammo_count[1][VR_current_page] = Players[Player_num].secondary_ammo[Secondary_weapon];
+				old_ammo_count[1] = Players[Player_num].secondary_ammo[Secondary_weapon];
 			}
 	}
 	else if (weapon_box_user[1] == WBU_STATIC)
@@ -2795,12 +2579,8 @@ void sb_draw_energy_bar(int energy)
 		gr_rect(0, 0, SB_ENERGY_GAUGE_W - 1, erase_height - 1);
 	}
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
+	gr_set_current_canvas(get_current_game_screen());
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	//PA_DFX(pa_set_frontbuffer_current());
 	//PA_DFX(gr_ubitmapm(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &Canv_SBEnergyGauge->cv_bitmap));
 	//PA_DFX(pa_set_backbuffer_current());
@@ -2814,7 +2594,6 @@ void sb_draw_energy_bar(int energy)
 	//PA_DFX(gr_printf(SB_ENERGY_GAUGE_X + ((SB_ENERGY_GAUGE_W - w) / 2), SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "%d", energy));
 	//PA_DFX(pa_set_backbuffer_current());
 	gr_printf(SB_ENERGY_GAUGE_X + ((SB_ENERGY_GAUGE_W - w) / 2), SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "%d", energy);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 void sb_draw_afterburner()
@@ -2834,11 +2613,7 @@ void sb_draw_afterburner()
 		gr_rect(0, 0, SB_AFTERBURNER_GAUGE_W - 1, erase_height - 1);
 	}
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(get_current_game_screen());
 	//PA_DFX(pa_set_frontbuffer_current());
 	gr_ubitmapm(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &Canv_SBAfterburnerGauge->cv_bitmap);
 	//PA_DFX(pa_set_backbuffer_current());
@@ -2855,8 +2630,6 @@ void sb_draw_afterburner()
 	//PA_DFX(gr_printf(SB_AFTERBURNER_GAUGE_X + ((SB_AFTERBURNER_GAUGE_W - w) / 2), SB_AFTERBURNER_GAUGE_Y + SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "AB"));
 	//PA_DFX(pa_set_backbuffer_current());
 	gr_printf(SB_AFTERBURNER_GAUGE_X + ((SB_AFTERBURNER_GAUGE_W - w) / 2), SB_AFTERBURNER_GAUGE_Y + SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "AB");
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 void sb_draw_shield_num(int shield)
@@ -2869,7 +2642,6 @@ void sb_draw_shield_num(int shield)
 	//erase old one
 	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode + (Current_display_mode ? (Num_cockpits / 2) : 0)]);
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	//PA_DFX(pa_set_back_to_read());
 	gr_setcolor(gr_gpixel(&grd_curcanv->cv_bitmap, SB_SHIELD_NUM_X - 1, SB_SHIELD_NUM_Y - 1));
 	//PA_DFX(pa_set_front_to_read());
@@ -2882,26 +2654,19 @@ void sb_draw_shield_num(int shield)
 	//PA_DFX(pa_set_backbuffer_current());
 	//PA_DFX(gr_rect(SB_SHIELD_NUM_X, SB_SHIELD_NUM_Y, SB_SHIELD_NUM_X + (Current_display_mode ? 27 : 13), SB_SHIELD_NUM_Y + GAME_FONT->ft_h));
 	//PA_DFX(gr_printf((shield > 99) ? SB_SHIELD_NUM_X : ((shield > 9) ? SB_SHIELD_NUM_X + 2 : SB_SHIELD_NUM_X + 4), SB_SHIELD_NUM_Y, "%d", shield));
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 void sb_draw_shield_bar(int shield)
 {
 	int bm_num = shield >= 100 ? 9 : (shield / 10);
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
+	gr_set_current_canvas(get_current_game_screen());
 	WIN(DDGRLOCK(dd_grd_curcanv));
 	PAGE_IN_GAUGE(GAUGE_SHIELDS + 9 - bm_num);
 	//PA_DFX(pa_set_frontbuffer_current());
 	gr_ubitmapm(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIELDS + 9 - bm_num)]);
 	//PA_DFX(pa_set_backbuffer_current());
 	//PA_DFX(gr_ubitmapm(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIELDS + 9 - bm_num)]));
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 void sb_draw_keys()
@@ -2909,11 +2674,8 @@ void sb_draw_keys()
 	grs_bitmap* bm;
 	int flags = Players[Player_num].flags;
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(get_current_game_screen());
+	
 	//PA_DFX(pa_set_frontbuffer_current());
 	bm = &GameBitmaps[GET_GAUGE_INDEX((flags & PLAYER_FLAGS_BLUE_KEY) ? SB_GAUGE_BLUE_KEY : SB_GAUGE_BLUE_KEY_OFF)];
 	PAGE_IN_GAUGE((flags & PLAYER_FLAGS_BLUE_KEY) ? SB_GAUGE_BLUE_KEY : SB_GAUGE_BLUE_KEY_OFF);
@@ -2936,8 +2698,6 @@ void sb_draw_keys()
 	PAGE_IN_GAUGE((flags & PLAYER_FLAGS_RED_KEY) ? SB_GAUGE_RED_KEY : SB_GAUGE_RED_KEY_OFF);
 	gr_ubitmapm(SB_GAUGE_KEYS_X, SB_GAUGE_RED_KEY_Y, bm);
 #endif
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
@@ -2945,11 +2705,7 @@ void draw_invulnerable_ship()
 {
 	static fix time = 0;
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(get_current_game_screen());
 
 	if (((Players[Player_num].invulnerable_time + INVULNERABLE_TIME_MAX - GameTime) > F1_0 * 4) || (GameTime & 0x8000)) 
 	{
@@ -2983,7 +2739,6 @@ void draw_invulnerable_ship()
 		sb_draw_shield_bar(f2ir(Players[Player_num].shields));
 	else
 		draw_shield_bar(f2ir(Players[Player_num].shields));
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 extern int Missile_gun;
@@ -3023,9 +2778,7 @@ void show_reticle(int force_big_one)
 
 	if (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_flying_guided)
 	{
-		WIN(DDGRLOCK(dd_grd_curcanv));
 		draw_guided_crosshair();
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		return;
 	}
 
@@ -3055,19 +2808,9 @@ void show_reticle(int force_big_one)
 	Assert(secondary_bm_num <= 4);
 	Assert(cross_bm_num <= 1);
 
-#ifndef MACINTOSH
 	use_hires_reticle = (FontHires != 0);
-#else
-	use_hires_reticle = !Scanline_double;
-#endif
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
-
-#ifndef MACINTOSH
 	small_reticle = !(grd_curcanv->cv_bitmap.bm_w * 3 > max_window_w * 2 || force_big_one);
-#else
-	small_reticle = !(grd_curcanv->cv_bitmap.bm_w * 3 > max_window_w * (Scanline_double ? 1 : 2) || force_big_one);
-#endif
 	ofs = (use_hires_reticle ? 0 : 2) + small_reticle;
 
 	gauge_index = (small_reticle ? SML_RETICLE_CROSS : RETICLE_CROSS) + cross_bm_num;
@@ -3081,8 +2824,6 @@ void show_reticle(int force_big_one)
 	gauge_index = (small_reticle ? SML_RETICLE_SECONDARY : RETICLE_SECONDARY) + secondary_bm_num;
 	PAGE_IN_GAUGE(gauge_index);
 	gr_ubitmapm(x + secondary_offsets[ofs].x, y + secondary_offsets[ofs].y, &GameBitmaps[GET_GAUGE_INDEX(gauge_index)]);
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 #ifdef NETWORK
@@ -3094,10 +2835,6 @@ void hud_show_kill_list()
 	// ugly hack since placement of netgame players and kills is based off of
 	// menuhires (which is always 1 for mac).  This throws off placement of
 	// players in pixel double mode.
-
-#ifdef MACINTOSH
-	MenuHires = !(Scanline_double);
-#endif
 
 	if (Show_kill_list_timer > 0)
 	{
@@ -3130,7 +2867,8 @@ void hud_show_kill_list()
 
 	save_y = y = grd_curcanv->cv_h - n_left * (fth + 1);
 
-	if (Cockpit_mode == CM_FULL_COCKPIT) {
+	if (Cockpit_mode == CM_FULL_COCKPIT) 
+	{
 		save_y = y -= LHX(6);
 		if (Game_mode & GM_MULTI_COOP)
 			x1 = LHX(33);
@@ -3138,12 +2876,14 @@ void hud_show_kill_list()
 			x1 = LHX(43);
 	}
 
-	for (i = 0; i < n_players; i++) {
+	for (i = 0; i < n_players; i++) 
+	{
 		int player_num;
 		char name[9];
 		int sw, sh, aw;
 
-		if (i >= n_left) {
+		if (i >= n_left) 
+		{
 			if (Cockpit_mode == CM_FULL_COCKPIT)
 				x0 = grd_curcanv->cv_w - LHX(53);
 			else
@@ -3167,7 +2907,6 @@ void hud_show_kill_list()
 			x1 -= LHX(18);
 			// x0-=LHX(18);
 		}
-
 
 		if (Show_kill_list == 3)
 			player_num = i;
@@ -3225,10 +2964,6 @@ void hud_show_kill_list()
 		y += fth + 1;
 
 	}
-
-#ifdef MACINTOSH
-	MenuHires = 1;
-#endif
 }
 #endif
 
@@ -3276,14 +3011,16 @@ void show_HUD_names()
 
 	player_team = get_team(Player_num);
 
-	for (p = 0; p < N_players; p++) {	//check all players
+	for (p = 0; p < N_players; p++) 
+	{	//check all players
 		int objnum;
 		int show_name, has_flag;
 
 		show_name = ((show_all_names && !(Players[p].flags & PLAYER_FLAGS_CLOAKED)) || (show_team_names && get_team(p) == player_team));
 		has_flag = (Players[p].connected && Players[p].flags & PLAYER_FLAGS_FLAG);
 
-		if (Newdemo_state == ND_STATE_PLAYBACK) {
+		if (Newdemo_state == ND_STATE_PLAYBACK)
+		{
 			//if this is a demo, the objnum in the player struct is wrong,
 			//so we search the object list for the objnum
 
@@ -3296,22 +3033,25 @@ void show_HUD_names()
 		else
 			objnum = Players[p].objnum;
 
-		if ((show_name || has_flag) && see_object(objnum)) {
+		if ((show_name || has_flag) && see_object(objnum)) 
+		{
 			g3s_point player_point;
 
 			g3_rotate_point(&player_point, &Objects[objnum].pos);
 
-			if (player_point.p3_codes == 0) {	//on screen
-
+			if (player_point.p3_codes == 0) //on screen
+			{	
 				g3_project_point(&player_point);
 
-				if (!(player_point.p3_flags & PF_OVERFLOW)) {
+				if (!(player_point.p3_flags & PF_OVERFLOW)) 
+				{
 					fix x, y;
 
 					x = player_point.p3_sx;
 					y = player_point.p3_sy;
 
-					if (show_name) {				// Draw callsign on HUD
+					if (show_name) // Draw callsign on HUD
+					{				
 						char s[CALLSIGN_LEN + 1];
 						int w, h, aw;
 						int x1, y1;
@@ -3327,7 +3067,8 @@ void show_HUD_names()
 						gr_string(x1, y1, s);
 					}
 
-					if (has_flag) {				// Draw box on HUD
+					if (has_flag) // Draw box on HUD
+					{				
 						fix dx, dy, w, h;
 
 						dy = -fixmuldiv(fixmul(Objects[objnum].size, Matrix_scale.y), i2f(grd_curcanv->cv_h) / 2, player_point.p3_z);
@@ -3369,18 +3110,8 @@ void show_HUD_names()
 //draw all the things on the HUD
 void draw_hud()
 {
-
-#ifdef MACINTOSH
-	if (Scanline_double)		// I should be shot for this ugly hack....
-		FontHires = 1;
-#endif
 	Line_spacing = GAME_FONT->ft_h + GAME_FONT->ft_h / 4;
-#ifdef MACINTOSH
-	if (Scanline_double)
-		FontHires = 0;
-#endif
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	//	Show score so long as not in rearview
 	if (!Rear_view && Cockpit_mode != CM_REAR_VIEW && Cockpit_mode != CM_STATUS_BAR && !Saving_movie_frames)
 	{
@@ -3408,10 +3139,10 @@ void draw_hud()
 				hud_show_keys();
 			hud_show_cloak_invuln();
 
-			if ((Newdemo_state == ND_STATE_RECORDING) && (Players[Player_num].flags != old_flags[VR_current_page])) 
+			if ((Newdemo_state == ND_STATE_RECORDING) && (Players[Player_num].flags != old_flags)) 
 			{
-				newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
-				old_flags[VR_current_page] = Players[Player_num].flags;
+				newdemo_record_player_flags(old_flags, Players[Player_num].flags);
+				old_flags = Players[Player_num].flags;
 			}
 		}
 
@@ -3456,7 +3187,6 @@ void draw_hud()
 		else
 			gr_printf(0x8000, grd_curcanv->cv_h - 10, TXT_REAR_VIEW);
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 extern short* BackBuffer;
@@ -3482,7 +3212,6 @@ void render_gauges()
 	// check to see if our display mode has changed since last render time --
 	// if so, then we need to make new gauge canvases.
 
-
 	if (old_display_mode != Current_display_mode) 
 	{
 		close_gauge_canvases();
@@ -3492,10 +3221,7 @@ void render_gauges()
 
 	if (shields < 0) shields = 0;
 
-	WINDOS(
-		dd_gr_set_current_canvas(get_current_game_screen()),
-		gr_set_current_canvas(get_current_game_screen())
-	);
+	gr_set_current_canvas(get_current_game_screen());
 	gr_set_curfont(GAME_FONT);
 
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -3504,50 +3230,50 @@ void render_gauges()
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) 
 	{
-		if (energy != old_energy[VR_current_page]) 
+		if (energy != old_energy) 
 		{
 			if (Newdemo_state == ND_STATE_RECORDING) 
 			{
-				newdemo_record_player_energy(old_energy[VR_current_page], energy);
+				newdemo_record_player_energy(old_energy, energy);
 			}
 			draw_energy_bar(energy);
 			draw_numerical_display(shields, energy);
-			old_energy[VR_current_page] = energy;
+			old_energy = energy;
 		}
 
-		if (Afterburner_charge != old_afterburner[VR_current_page]) 
+		if (Afterburner_charge != old_afterburner) 
 		{
 			if (Newdemo_state == ND_STATE_RECORDING) 
 			{
-				newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
+				newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
 			}
 			draw_afterburner_bar(Afterburner_charge);
-			old_afterburner[VR_current_page] = Afterburner_charge;
+			old_afterburner = Afterburner_charge;
 		}
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) 
 		{
 			draw_numerical_display(shields, energy);
 			draw_invulnerable_ship();
-			old_shields[VR_current_page] = shields ^ 1;
+			old_shields = shields ^ 1;
 		}
-		else if (shields != old_shields[VR_current_page]) // Draw the shield gauge
+		else if (shields != old_shields) // Draw the shield gauge
 		{		
 			if (Newdemo_state == ND_STATE_RECORDING) 
 			{
-				newdemo_record_player_shields(old_shields[VR_current_page], shields);
+				newdemo_record_player_shields(old_shields, shields);
 			}
 			draw_shield_bar(shields);
 			draw_numerical_display(shields, energy);
-			old_shields[VR_current_page] = shields;
+			old_shields = shields;
 		}
 
-		if (Players[Player_num].flags != old_flags[VR_current_page]) 
+		if (Players[Player_num].flags != old_flags) 
 		{
 			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
+				newdemo_record_player_flags(old_flags, Players[Player_num].flags);
 			draw_keys();
-			old_flags[VR_current_page] = Players[Player_num].flags;
+			old_flags = Players[Player_num].flags;
 		}
 
 		show_homing_warning();
@@ -3557,84 +3283,84 @@ void render_gauges()
 	}
 	else if (Cockpit_mode == CM_STATUS_BAR)
 	{
-		if (energy != old_energy[VR_current_page] || frc) 
+		if (energy != old_energy || frc) 
 		{
 			if (Newdemo_state == ND_STATE_RECORDING) 
 			{
-				newdemo_record_player_energy(old_energy[VR_current_page], energy);
+				newdemo_record_player_energy(old_energy, energy);
 			}
 			sb_draw_energy_bar(energy);
-			old_energy[VR_current_page] = energy;
+			old_energy = energy;
 		}
 
-		if (Afterburner_charge != old_afterburner[VR_current_page] || frc) 
+		if (Afterburner_charge != old_afterburner || frc) 
 		{
 			if (Newdemo_state == ND_STATE_RECORDING)
 			{
-				newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
+				newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
 			}
 			sb_draw_afterburner();
-			old_afterburner[VR_current_page] = Afterburner_charge;
+			old_afterburner = Afterburner_charge;
 		}
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) 
 		{
 			draw_invulnerable_ship();
-			old_shields[VR_current_page] = shields ^ 1;
+			old_shields = shields ^ 1;
 			sb_draw_shield_num(shields);
 		}
 		else
-			if (shields != old_shields[VR_current_page] || frc) // Draw the shield gauge
+			if (shields != old_shields || frc) // Draw the shield gauge
 			{		
 				if (Newdemo_state == ND_STATE_RECORDING) 
 				{
-					newdemo_record_player_shields(old_shields[VR_current_page], shields);
+					newdemo_record_player_shields(old_shields, shields);
 				}
 				sb_draw_shield_bar(shields);
-				old_shields[VR_current_page] = shields;
+				old_shields = shields;
 				sb_draw_shield_num(shields);
 			}
 
-		if (Players[Player_num].flags != old_flags[VR_current_page] || frc)
+		if (Players[Player_num].flags != old_flags|| frc)
 		{
 			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
+				newdemo_record_player_flags(old_flags, Players[Player_num].flags);
 			sb_draw_keys();
-			old_flags[VR_current_page] = Players[Player_num].flags;
+			old_flags = Players[Player_num].flags;
 		}
 
 
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
-			if (Players[Player_num].net_killed_total != old_lives[VR_current_page] || frc)
+			if (Players[Player_num].net_killed_total != old_lives || frc)
 			{
 				sb_show_lives();
-				old_lives[VR_current_page] = Players[Player_num].net_killed_total;
+				old_lives = Players[Player_num].net_killed_total;
 			}
 		}
 		else
 		{
-			if (Players[Player_num].lives != old_lives[VR_current_page] || frc) 
+			if (Players[Player_num].lives != old_lives || frc) 
 			{
 				sb_show_lives();
-				old_lives[VR_current_page] = Players[Player_num].lives;
+				old_lives = Players[Player_num].lives;
 			}
 		}
 
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) 
 		{
-			if (Players[Player_num].net_kills_total != old_score[VR_current_page] || frc)
+			if (Players[Player_num].net_kills_total != old_score || frc)
 			{
 				sb_show_score();
-				old_score[VR_current_page] = Players[Player_num].net_kills_total;
+				old_score = Players[Player_num].net_kills_total;
 			}
 		}
 		else 
 		{
-			if (Players[Player_num].score != old_score[VR_current_page] || frc) 
+			if (Players[Player_num].score != old_score || frc) 
 			{
 				sb_show_score();
-				old_score[VR_current_page] = Players[Player_num].score;
+				old_score = Players[Player_num].score;
 			}
 
 			//if (score_time)
@@ -3643,14 +3369,14 @@ void render_gauges()
 		show_bomb_count(SB_BOMB_COUNT_X, SB_BOMB_COUNT_Y, gr_find_closest_color(5, 5, 5), 0);
 	}
 
-	if (frc || cloak != old_cloak[VR_current_page] || cloak_fade_state || (cloak && GameTime > Players[Player_num].cloak_time + CLOAK_TIME_MAX - i2f(3))) 
+	if (frc || cloak != old_cloak|| cloak_fade_state || (cloak && GameTime > Players[Player_num].cloak_time + CLOAK_TIME_MAX - i2f(3))) 
 	{
 		if (Cockpit_mode == CM_FULL_COCKPIT)
-			draw_player_ship(cloak, old_cloak[VR_current_page], SHIP_GAUGE_X, SHIP_GAUGE_Y);
+			draw_player_ship(cloak, old_cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 		else
-			draw_player_ship(cloak, old_cloak[VR_current_page], SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
+			draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
-		old_cloak[VR_current_page] = cloak;
+		old_cloak = cloak;
 	}
 	draw_weapon_boxes();
 }
@@ -3660,9 +3386,9 @@ void render_gauges()
 //	If laser is active, set old_weapon[0] to -1 to force redraw.
 void update_laser_weapon_info(void)
 {
-	if (old_weapon[0][VR_current_page] == 0)
-		if (!(Players[Player_num].laser_level > MAX_LASER_LEVEL && old_laser_level[VR_current_page] <= MAX_LASER_LEVEL))
-			old_weapon[0][VR_current_page] = -1;
+	if (old_weapon[0] == 0)
+		if (!(Players[Player_num].laser_level > MAX_LASER_LEVEL && old_laser_level <= MAX_LASER_LEVEL))
+			old_weapon[0] = -1;
 }
 
 extern int Game_window_y;
@@ -3678,18 +3404,8 @@ int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
 //window.
 void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int user, const char* label)
 {
-	WINDOS(
-		dd_grs_canvas window_canv,
-		grs_canvas window_canv
-	);
-	WINDOS(
-		static dd_grs_canvas overlap_canv,
-		static grs_canvas overlap_canv
-	);
-
-#ifdef WINDOWS
-	int saved_window_x, saved_window_y;
-#endif
+	grs_canvas window_canv;
+	static grs_canvas overlap_canv;
 
 	object* viewer_save = Viewer;
 	static int overlap_dirty[2] = { 0,0 };
@@ -3713,10 +3429,7 @@ void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int use
 
 		if (overlap_dirty[win]) 
 		{
-			WINDOS(
-				dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
-				gr_set_current_canvas(&VR_screen_pages[VR_current_page])
-			);
+			gr_set_current_canvas(&VR_screen_pages);
 			fill_background();
 			overlap_dirty[win] = 0;
 		}
@@ -3733,40 +3446,19 @@ void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int use
 
 	if (Cockpit_mode == CM_FULL_SCREEN)
 	{
-		w = VR_render_buffer[0].cv_bitmap.bm_w / 6;			// hmm.  I could probably do the sub_buffer assigment for all macines, but I aint gonna chance it
-#ifdef MACINTOSH
-		if (Scanline_double)
-			w /= 2;
-#endif
+		w = VR_render_buffer.cv_bitmap.bm_w / 6;			// hmm.  I could probably do the sub_buffer assigment for all macines, but I aint gonna chance it
 
 		h = i2f(w) / grd_curscreen->sc_aspect;
 
 		dx = (win == 0) ? -(w + (w / 10)) : (w / 10);
 
-		window_x = VR_render_buffer[0].cv_bitmap.bm_w / 2 + dx;
-		window_y = VR_render_buffer[0].cv_bitmap.bm_h - h - (h / 10);
-
-#ifdef WINDOWS
-		saved_window_x = window_x;
-		saved_window_y = window_y;
-		window_x = dd_VR_render_sub_buffer[0].canvas.cv_bitmap.bm_w / 2 + dx;
-		window_y = VR_render_buffer[0].cv_bitmap.bm_h - h - (h / 10) - dd_VR_render_sub_buffer[0].yoff;
-#endif
-
-#ifdef MACINTOSH
-		if (Scanline_double) {
-			window_x = (VR_render_buffer[0].cv_bitmap.bm_w / 2 + VR_render_sub_buffer[0].cv_bitmap.bm_x) / 2 + dx;
-			window_y = ((VR_render_buffer[0].cv_bitmap.bm_h + VR_render_sub_buffer[0].cv_bitmap.bm_y) / 2) - h - (h / 10);
-}
-#endif
+		window_x = VR_render_buffer.cv_bitmap.bm_w / 2 + dx;
+		window_y = VR_render_buffer.cv_bitmap.bm_h - h - (h / 10);
 
 		//copy these vars so stereo code can get at them
 		SW_drawn[win] = 1; SW_x[win] = window_x; SW_y[win] = window_y; SW_w[win] = w; SW_h[win] = h;
 
-		WINDOS(
-			dd_gr_init_sub_canvas(&window_canv, &dd_VR_render_buffer[0], window_x, window_y, w, h),
-			gr_init_sub_canvas(&window_canv, &VR_render_buffer[0], window_x, window_y, w, h)
-		);
+		gr_init_sub_canvas(&window_canv, &VR_render_buffer, window_x, window_y, w, h);
 	}
 	else 
 	{
@@ -3779,25 +3471,12 @@ void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int use
 
 		box = &gauge_boxes[boxnum];
 
-#ifndef MACINTOSH
-		WINDOS(
-			dd_gr_init_sub_canvas(&window_canv, &dd_VR_render_buffer[0], box->left, box->top, box->right - box->left + 1, box->bot - box->top + 1),
-			gr_init_sub_canvas(&window_canv, &VR_render_buffer[0], box->left, box->top, box->right - box->left + 1, box->bot - box->top + 1)
-		);
-#else
-		if (Scanline_double)
-			gr_init_sub_canvas(&window_canv, &VR_render_buffer[0], box->left, box->top, (box->right - box->left + 1) / 2, (box->bot - box->top + 1) / 2);
-		else
-			gr_init_sub_canvas(&window_canv, &VR_render_buffer[0], box->left, box->top, box->right - box->left + 1, box->bot - box->top + 1);
-#endif
+		gr_init_sub_canvas(&window_canv, &VR_render_buffer, box->left, box->top, box->right - box->left + 1, box->bot - box->top + 1);
 	}
 
-	WINDOS(
-		dd_gr_set_current_canvas(&window_canv),
-		gr_set_current_canvas(&window_canv)
-	);
+	gr_set_current_canvas(&window_canv);
 
-#if defined(MACINTOSH) && defined(POLY_ACC)
+#if defined(POLY_ACC)
 	if (PAEnabled)
 	{
 		switch (Cockpit_mode)
@@ -3825,35 +3504,7 @@ void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int use
 	}
 #endif
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
-
-#ifdef MACINTOSH
-#ifdef POLY_ACC
-	if (PAEnabled)
-	{
-		if (Cockpit_mode != CM_FULL_SCREEN)
-		{
-			pa_render_start();
-		}
-				}
-#endif
-#endif 
-
 	render_frame(0, win + 1);
-
-#ifdef MACINTOSH
-#ifdef POLY_ACC
-	if (PAEnabled)
-	{
-		if (Cockpit_mode != CM_FULL_SCREEN)
-		{
-			pa_render_end();
-		}
-				}
-#endif
-#endif 
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	//	HACK! If guided missile, wake up robots as necessary.
 	if (viewer->type == OBJ_WEAPON) 
@@ -3864,138 +3515,59 @@ void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int use
 
 	if (label) 
 	{
-		WIN(DDGRLOCK(dd_grd_curcanv));
-		MAC(if (Scanline_double) FontHires = 0;)		// get the right font size
-			gr_set_curfont(GAME_FONT);
+		gr_set_curfont(GAME_FONT);
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = gr_getcolor(0, 31, 0);
 		gr_set_fontcolor(Color_0_31_0, -1);
 		gr_printf(0x8000, 2, label);
-		MAC(if (Scanline_double) FontHires = 1;)		// get the right font size back to normal
-			WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 
 	if (user == WBU_GUIDED) 
 	{
-		WIN(DDGRLOCK(dd_grd_curcanv));
 		draw_guided_crosshair();
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 
 	if (Cockpit_mode == CM_FULL_SCREEN) 
 	{
 		int small_window_bottom, big_window_bottom, extra_part_h;
 
-		WIN(DDGRLOCK(dd_grd_curcanv));
-		{
-			gr_setcolor(BM_XRGB(0, 0, 32));
-			gr_ubox(0, 0, grd_curcanv->cv_bitmap.bm_w - 1, grd_curcanv->cv_bitmap.bm_h - 1);
-		}
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
+		gr_setcolor(BM_XRGB(0, 0, 32));
+		gr_ubox(0, 0, grd_curcanv->cv_bitmap.bm_w - 1, grd_curcanv->cv_bitmap.bm_h - 1);
 
 		//if the window only partially overlaps the big 3d window, copy
 		//the extra part to the visible screen
-
-#ifdef MACINTOSH		// recalc window_x and window_y because of scanline doubling problems
-		{
-			int w, h, dx;
-
-			w = VR_render_buffer[0].cv_bitmap.bm_w / 6;			// hmm.  I could probably do the sub_buffer assigment for all macines, but I aint gonna chance it
-			h = i2f(w) / grd_curscreen->sc_aspect;
-			dx = (win == 0) ? -(w + (w / 10)) : (w / 10);
-			window_x = VR_render_buffer[0].cv_bitmap.bm_w / 2 + dx;
-			window_y = VR_render_buffer[0].cv_bitmap.bm_h - h - (h / 10);
-			if (Scanline_double)
-				window_x += ((win == 0) ? 2 : -1);		// a real hack here....
-	}
-#endif
 		big_window_bottom = Game_window_y + Game_window_h - 1;
 
-#ifdef WINDOWS
-		window_x = saved_window_x;
-		window_y = saved_window_y;
-		//		dd_gr_init_sub_canvas(&window_canv, &dd_VR_render_buffer[0],window_x,window_y,
-		//						VR_render_buffer[0].cv_bitmap.bm_w/6,
-		//						i2f(VR_render_buffer[0].cv_bitmap.bm_w/6) / grd_curscreen->sc_aspect);
-
-#endif
 		if (window_y > big_window_bottom) 
 		{
 			//the small window is completely outside the big 3d window, so
 			//copy it to the visible screen
 
 			if (VR_screen_flags & VRF_USE_PAGING)
-				WINDOS(
-					dd_gr_set_current_canvas(&dd_VR_screen_pages[!VR_current_page]),
-					gr_set_current_canvas(&VR_screen_pages[!VR_current_page])
-				);
+				gr_set_current_canvas(&VR_screen_pages);
 			else
-				WINDOS(
-					dd_gr_set_current_canvas(get_current_game_screen()),
-					gr_set_current_canvas(get_current_game_screen())
-				);
+				gr_set_current_canvas(get_current_game_screen());
 
-#ifdef MACINTOSH
-			if (Scanline_double)
-				gr_bm_ubitblt_double_slow(window_canv.cv_bitmap.bm_w * 2, window_canv.cv_bitmap.bm_h * 2, window_x, window_y, 0, 0, &window_canv.cv_bitmap, &grd_curcanv->cv_bitmap);
-			else
-#endif		// note link to above if
-				WINDOS(
-					dd_gr_blt_notrans(&window_canv, 0, 0, 0, 0,
-						dd_grd_curcanv, window_x, window_y, 0, 0),
-					gr_bitmap(window_x, window_y, &window_canv.cv_bitmap)
-				);
+				gr_bitmap(window_x, window_y, &window_canv.cv_bitmap);
 
 			overlap_dirty[win] = 1;
 		}
 		else 
 		{
-			WINDOS(
-				small_window_bottom = window_y + window_canv.canvas.cv_bitmap.bm_h - 1,
-				small_window_bottom = window_y + window_canv.cv_bitmap.bm_h - 1
-			);
-#ifdef MACINTOSH
-			if (Scanline_double)
-				small_window_bottom = window_y + (window_canv.cv_bitmap.bm_h * 2) - 1;
-#endif
+			small_window_bottom = window_y + window_canv.cv_bitmap.bm_h - 1;
 
 			extra_part_h = small_window_bottom - big_window_bottom;
 
 			if (extra_part_h > 0)
 			{
-#ifdef MACINTOSH
-				if (Scanline_double)
-					extra_part_h /= 2;
-#endif
-
-				WINDOS(
-					dd_gr_init_sub_canvas(&overlap_canv, &window_canv, 0,
-						window_canv.canvas.cv_bitmap.bm_h - extra_part_h,
-						window_canv.canvas.cv_bitmap.bm_w, extra_part_h),
-					gr_init_sub_canvas(&overlap_canv, &window_canv, 0, window_canv.cv_bitmap.bm_h - extra_part_h, window_canv.cv_bitmap.bm_w, extra_part_h)
-				);
+				gr_init_sub_canvas(&overlap_canv, &window_canv, 0, window_canv.cv_bitmap.bm_h - extra_part_h, window_canv.cv_bitmap.bm_w, extra_part_h);
 
 				if (VR_screen_flags & VRF_USE_PAGING)
-					WINDOS(
-						dd_gr_set_current_canvas(&dd_VR_screen_pages[!VR_current_page]),
-						gr_set_current_canvas(&VR_screen_pages[!VR_current_page])
-					);
+					gr_set_current_canvas(&VR_screen_pages);
 				else
-					WINDOS(
-						dd_gr_set_current_canvas(get_current_game_screen()),
-						gr_set_current_canvas(get_current_game_screen())
-					);
+					gr_set_current_canvas(get_current_game_screen());
 
-#ifdef MACINTOSH
-				if (Scanline_double)
-					gr_bm_ubitblt_double_slow(window_canv.cv_bitmap.bm_w * 2, extra_part_h * 2, window_x, big_window_bottom + 1, 0, window_canv.cv_bitmap.bm_h - extra_part_h, &window_canv.cv_bitmap, &grd_curcanv->cv_bitmap);
-				else
-#endif		// note link to above if
-					WINDOS(
-						dd_gr_blt_notrans(&overlap_canv, 0, 0, 0, 0,
-							dd_grd_curcanv, window_x, big_window_bottom + 1, 0, 0),
-						gr_bitmap(window_x, big_window_bottom + 1, &overlap_canv.cv_bitmap)
-					);
+				gr_bitmap(window_x, big_window_bottom + 1, &overlap_canv.cv_bitmap);
 
 				overlap_dirty[win] = 1;
 			}
@@ -4005,30 +3577,13 @@ void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int use
 {
 		//PA_DFX(goto skip_this_junk);
 
-		WINDOS(
-			dd_gr_set_current_canvas(get_current_game_screen()),
-			gr_set_current_canvas(get_current_game_screen())
-		);
-#ifndef MACINTOSH
-		WINDOS(
-			copy_gauge_box(box, &dd_VR_render_buffer[0]),
-			copy_gauge_box(box, &VR_render_buffer[0].cv_bitmap)
-		);
-#else
-		if (Scanline_double)
-			copy_gauge_box_double(box, &VR_render_buffer[0].cv_bitmap);		// pixel double the external view
-		else
-			// Only do this if we are not running under RAVE, otherwise we erase all of the rendering RAVE has done.
-			if (!PAEnabled)
-			{
-				copy_gauge_box(box, &VR_render_buffer[0].cv_bitmap);
-	}
-#endif
+		gr_set_current_canvas(get_current_game_screen());
+		copy_gauge_box(box, &VR_render_buffer.cv_bitmap);
 	}
 
 	//PA_DFX(skip_this_junk:)
 
-#if defined(MACINTOSH) && defined(POLY_ACC)
+#if defined(POLY_ACC)
 		if (PAEnabled)
 		{
 			pa_set_context(kGamePlayDrawContextID, NULL);
@@ -4036,7 +3591,7 @@ void do_cockpit_window_view(int win, object* viewer, int rear_view_flag, int use
 #endif
 
 	//force redraw when done
-	old_weapon[win][VR_current_page] = old_ammo_count[win][VR_current_page] = -1;
+	old_weapon[win] = old_ammo_count[win] = -1;
 
 abort:;
 
@@ -4046,68 +3601,3 @@ abort:;
 	//hack
 	gr_set_current_canvas(get_current_game_screen());
 }
-
-#ifdef MACINTOSH
-void calculate_sub_view_window_bounds(int inSubWindowNum, TQARect* outBoundsRect)
-{
-	int 		boxNumber = 0;
-	gauge_box* currentGaugeBox = NULL;
-	int w = 0;
-	int h = 0;
-	int dx = 0;
-	int window_x = 0;
-	int window_y = 0;
-
-	Assert(outBoundsRect);
-	Assert((inSubWindowNum == 0) || (inSubWindowNum == 1));
-	Assert(!Scanline_double);
-
-	switch (Cockpit_mode)
-	{
-	case CM_FULL_SCREEN:
-		// note: this calculation is taken from do_cockpit_window_view for the full
-		// screen mode case
-
-		w = (VR_render_buffer[0].cv_bitmap.bm_w) / 6;
-		h = (i2f(w)) / (grd_curscreen->sc_aspect);
-
-		dx = (inSubWindowNum == 0) ? -(w + (w / 10)) : (w / 10);
-
-		window_x = ((VR_render_buffer[0].cv_bitmap.bm_w) / 2) + dx;
-		window_y = (VR_render_buffer[0].cv_bitmap.bm_h) - h - (h / 10);
-
-		outBoundsRect->top = window_x;
-		outBoundsRect->left = window_y;
-		outBoundsRect->bottom = window_x + w;
-		outBoundsRect->right = window_y + h;
-		break;
-
-	case CM_FULL_COCKPIT:
-	case CM_STATUS_BAR:
-		if (inSubWindowNum == 0)
-		{
-			boxNumber = SB_PRIMARY_BOX;
-		}
-		else
-		{
-			boxNumber = SB_SECONDARY_BOX;
-		}
-
-		//boxNumber = (Current_display_mode * 4) + (Cockpit_mode * 2) + inSubWindowNum;
-		currentGaugeBox = &gauge_boxes[boxNumber];
-		Assert(currentGaugeBox);
-
-		outBoundsRect->top = currentGaugeBox->top;
-		outBoundsRect->left = currentGaugeBox->left;
-		outBoundsRect->bottom = currentGaugeBox->bot + 1;
-		outBoundsRect->right = currentGaugeBox->right + 1;
-
-		break;
-
-	default:
-		Int3();
-		return;
-		}
-	}
-
-#endif
