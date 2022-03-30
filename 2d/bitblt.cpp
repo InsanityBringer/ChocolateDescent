@@ -24,8 +24,6 @@ int gr_bitblt_dest_step_shift = 0;
 int gr_bitblt_double = 0;
 uint8_t* gr_bitblt_fade_table = NULL;
 
-//extern void gr_vesa_bitmap(grs_bitmap* source, grs_bitmap* dest, int x, int y); [ISB] seems unused too
-
 // This code aligns edi so that the destination is aligned to a dword boundry before rep movsd
 void gr_linear_movsd(void* src, void* dest, unsigned short num_pixels)
 {
@@ -236,7 +234,9 @@ void gr_ubitmapGENERICm(int x, int y, grs_bitmap* bm)
 }
 
 void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest);
+void gr_bm_ubitblt_to_rgb15_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest);
 void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest);
+void gr_bm_ubitblt_to_rgb15m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest);
 
 void gr_ubitmap(int x, int y, grs_bitmap* bm)
 {
@@ -246,10 +246,14 @@ void gr_ubitmap(int x, int y, grs_bitmap* bm)
 	dest = TYPE;
 
 	if (bm->bm_flags & BM_FLAG_RLE)
-		gr_bm_ubitblt00_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
+	{
+		if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			gr_bm_ubitblt_to_rgb15_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
+		else
+			gr_bm_ubitblt00_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
+	}
 	else
 		gr_ubitmap00(x, y, bm);
-		//gr_ubitmapGENERIC(x, y, bm);
 }
 
 void gr_ubitmapm(int x, int y, grs_bitmap* bm)
@@ -260,7 +264,12 @@ void gr_ubitmapm(int x, int y, grs_bitmap* bm)
 	dest = TYPE;
 
 	if (bm->bm_flags & BM_FLAG_RLE)
-		gr_bm_ubitblt00m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
+	{
+		if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			gr_bm_ubitblt_to_rgb15m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
+		else
+			gr_bm_ubitblt00m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
+	}
 	else
 	{
 		gr_ubitmap00m(x, y, bm);
@@ -377,13 +386,14 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src,
 	gr_bm_ubitblt(w, h, dx1, dy1, sx1, sy1, src, dest);
 }
 
-
-
 void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
 {
 	if (src->bm_flags & BM_FLAG_RLE)
 	{
-		gr_bm_ubitblt00_rle(w, h, dx, dy, sx, sy, src, dest);
+		if (dest->bm_type & BM_RGB15)
+			gr_bm_ubitblt_to_rgb15_rle(w, h, dx, dy, sx, sy, src, dest);
+		else
+			gr_bm_ubitblt00_rle(w, h, dx, dy, sx, sy, src, dest);
 	}
 	else
 	{
@@ -392,7 +402,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src
 }
 
 // Clipped bitmap ... 
-
 void gr_bitmap(int x, int y, grs_bitmap* bm)
 {
 	int dx1 = x, dx2 = x + bm->bm_w - 1;
@@ -407,9 +416,7 @@ void gr_bitmap(int x, int y, grs_bitmap* bm)
 	if (dy2 >= grd_curcanv->cv_bitmap.bm_h) { dy2 = grd_curcanv->cv_bitmap.bm_h - 1; }
 
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
-
 	gr_bm_ubitblt(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
-
 }
 
 void gr_bitmapm(int x, int y, grs_bitmap* bm)
@@ -426,10 +433,14 @@ void gr_bitmapm(int x, int y, grs_bitmap* bm)
 	if (dy2 >= grd_curcanv->cv_bitmap.bm_h) { dy2 = grd_curcanv->cv_bitmap.bm_h - 1; }
 
 	if (bm->bm_flags & BM_FLAG_RLE)
-		gr_bm_ubitblt00m_rle(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
+	{
+		if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			gr_bm_ubitblt_to_rgb15m_rle(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
+		else
+			gr_bm_ubitblt00m_rle(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
+	}
 	else
 		gr_bm_ubitblt00m(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap);
-		//gr_bm_ubitbltm(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap); //[ISB] this is slow
 	return;
 }
 
@@ -446,7 +457,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* sr
 				gr_bm_pixel(dest, dx + x1, dy + y1, c);
 		}
 	}
-
 }
 
 void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
@@ -479,12 +489,51 @@ void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 	for (i = 0; i < h; i++) 
 	{
 		gr_rle_expand_scanline(dbits, sbits, sx, sx + w - 1);
-		if (src->bm_flags & BM_FLAG_RLE_BIG) //[ISB] this code gives me a headache
+		if (src->bm_flags & BM_FLAG_RLE_BIG)
 			sbits += (int)(src->bm_data[4 + ((i + sy) * data_offset)] + (src->bm_data[4 + (((i + sy) * data_offset) + 1)] << 8));
 		else
 			sbits += (int)src->bm_data[4 + i + sy];
 
-		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
+		dbits += dest->bm_rowsize;
+	}
+}
+
+void gr_bm_ubitblt_to_rgb15_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
+{
+	uint16_t* dbits;
+	unsigned char* sbits;
+
+	int i, data_offset;
+
+	data_offset = 1;
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+		data_offset = 2;
+
+	sbits = &src->bm_data[4 + src->bm_h * data_offset];
+
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+	{
+		for (i = 0; i < sy; i++)
+			sbits += (int)(src->bm_data[4 + i * data_offset] + (src->bm_data[4 + (i * data_offset) + 1] << 8));
+	}
+	else
+	{
+		for (i = 0; i < sy; i++)
+			sbits += (int)src->bm_data[4 + i];
+	}
+
+	dbits = (uint16_t*)&dest->bm_data[dest->bm_rowsize * dy + dx * 2];
+
+	// No interlacing, copy the whole buffer.
+	for (i = 0; i < h; i++) 
+	{
+		gr_rle_expand_scanline_8_to_rgb15(dbits, sbits, sx, sx + w - 1);
+		if (src->bm_flags & BM_FLAG_RLE_BIG)
+			sbits += (int)(src->bm_data[4 + ((i + sy) * data_offset)] + (src->bm_data[4 + (((i + sy) * data_offset) + 1)] << 8));
+		else
+			sbits += (int)src->bm_data[4 + i + sy];
+
+		dbits += dest->bm_rowsize >> 1;
 	}
 }
 
@@ -512,7 +561,7 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 			sbits += (int)src->bm_data[4 + i];
 	}
 
-	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
+	dbits = &dest->bm_data[dest->bm_rowsize * dy + dx];
 
 	// No interlacing, copy the whole buffer.
 	for (i = 0; i < h; i++)
@@ -522,7 +571,45 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 			sbits += (int)(src->bm_data[4 + ((i + sy) * data_offset)] + (src->bm_data[4 + (((i + sy) * data_offset) + 1)] << 8));
 		else
 			sbits += (int)src->bm_data[4 + i + sy];
-		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
+		dbits += dest->bm_rowsize;
+	}
+}
+
+void gr_bm_ubitblt_to_rgb15m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap* src, grs_bitmap* dest)
+{
+	uint16_t* dbits;
+	unsigned char* sbits;
+
+	int i, data_offset;
+
+	data_offset = 1;
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+		data_offset = 2;
+
+	sbits = &src->bm_data[4 + src->bm_h * data_offset];
+
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+	{
+		for (i = 0; i < sy; i++)
+			sbits += (int)(src->bm_data[4 + i * data_offset] + (src->bm_data[4 + (i * data_offset) + 1] << 8));
+	}
+	else
+	{
+		for (i = 0; i < sy; i++)
+			sbits += (int)src->bm_data[4 + i];
+	}
+
+	dbits = (uint16_t*)&dest->bm_data[dest->bm_rowsize * dy + dx * 2];
+
+	// No interlacing, copy the whole buffer.
+	for (i = 0; i < h; i++)
+	{
+		gr_rle_expand_scanline_masked_8_to_rgb15(dbits, sbits, sx, sx + w - 1);
+		if (src->bm_flags & BM_FLAG_RLE_BIG) //[ISB] this code gives me a headache
+			sbits += (int)(src->bm_data[4 + ((i + sy) * data_offset)] + (src->bm_data[4 + (((i + sy) * data_offset) + 1)] << 8));
+		else
+			sbits += (int)src->bm_data[4 + i + sy];
+		dbits += dest->bm_rowsize >> 1;
 	}
 }
 
@@ -539,9 +626,9 @@ void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 	for (i = 0; i < sy; i++)
 		sbits += (int)src->bm_data[4 + i];
 
-	for (y1 = 0; y1 < h; y1++) {
+	for (y1 = 0; y1 < h; y1++) 
+	{
 		gr_rle_expand_scanline_generic(dest, dx, dy + y1, sbits, sx, sx + w - 1);
 		sbits += (int)src->bm_data[4 + y1 + sy];
 	}
-
 }

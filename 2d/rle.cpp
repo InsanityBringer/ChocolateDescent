@@ -61,6 +61,13 @@ void rle_stosb(uint8_t* dest, int len, int color)
 		* dest++ = color;
 }
 
+void rle_stosw(uint16_t* dest, int len, int color)
+{
+	int i;
+	for (i = 0; i < len; i++)
+		*dest++ = color;
+}
+
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
 void gr_rle_expand_scanline_masked(uint8_t* dest, uint8_t* src, int x1, int x2)
@@ -126,6 +133,86 @@ void gr_rle_expand_scanline_masked(uint8_t* dest, uint8_t* src, int x1, int x2)
 	}
 }
 
+void gr_rle_expand_scanline_masked_8_to_rgb15(uint16_t* dest, uint8_t* src, int x1, int x2)
+{
+	int i = 0;
+	uint8_t count;
+	uint8_t color = 0; //[ISB] shut up compiler warning
+	uint16_t c16;
+
+	if (x2 < x1) return;
+
+	count = 0;
+	while (i < x1) 
+	{
+		color = *src++;
+		if (color == RLE_CODE) return;
+		if ((color & RLE_CODE) == RLE_CODE) 
+		{
+			count = color & (~RLE_CODE);
+			color = *src++;
+		}
+		else 
+		{
+			// unique
+			count = 1;
+		}
+		i += count;
+	}
+	count = i - x1;
+	i = x1;
+	// we know have '*count' pixels of 'color'.
+
+	c16 = gr_highcolor_clut[color];
+	if (x1 + count > x2) 
+	{
+		count = x2 - x1 + 1;
+		if (color != 255)	
+			rle_stosw(dest, count, c16);
+		return;
+	}
+
+	if (color != 255)	
+		rle_stosw(dest, count, c16);
+
+	dest += count;
+	i += count;
+
+	while (i <= x2)
+	{
+		color = *src++;
+		if (color == RLE_CODE) return;
+		if ((color & RLE_CODE) == (RLE_CODE)) 
+		{
+			count = color & (~RLE_CODE);
+			color = *src++;
+		}
+		else 
+		{
+			// unique
+			count = 1;
+		}
+		// we know have '*count' pixels of 'color'.
+		c16 = gr_highcolor_clut[color];
+		if (i + count <= x2) 
+		{
+			if (color != 255) 
+				rle_stosw(dest, count, c16);
+			i += count;
+			dest += count;
+		}
+		else
+		{
+			count = x2 - i + 1;
+			if (color != 255)
+				rle_stosw(dest, count, c16);
+			i += count;
+			dest += count;
+		}
+
+	}
+}
+
 void gr_rle_expand_scanline(uint8_t* dest, uint8_t* src, int x1, int x2)
 {
 	int i = 0;
@@ -182,6 +269,81 @@ void gr_rle_expand_scanline(uint8_t* dest, uint8_t* src, int x1, int x2)
 		else {
 			count = x2 - i + 1;
 			rle_stosb(dest, count, color);
+			i += count;
+			dest += count;
+		}
+	}
+}
+
+void gr_rle_expand_scanline_8_to_rgb15(uint16_t* dest, uint8_t* src, int x1, int x2)
+{
+	int i = 0;
+	uint8_t count;
+	uint8_t color = 0; //[ISB] shut up compiler warning
+	uint16_t c16;
+
+	if (x2 < x1) return;
+
+	count = 0;
+	while (i < x1)
+	{
+		color = *src++;
+		if (color == RLE_CODE) return;
+		if ((color & RLE_CODE) == RLE_CODE) 
+		{
+			count = color & (~RLE_CODE);
+			color = *src++;
+		}
+		else 
+		{
+			// unique
+			count = 1;
+		}
+		i += count;
+	}
+	count = i - x1;
+	i = x1;
+	// we know have '*count' pixels of 'color'.
+	c16 = gr_highcolor_clut[color];
+
+	if (x1 + count > x2)
+	{
+		count = x2 - x1 + 1;
+		rle_stosw(dest, count, c16);
+		return;
+	}
+
+	rle_stosw(dest, count, c16);
+	dest += count;
+	i += count;
+
+	while (i <= x2) 
+	{
+		color = *src++;
+		if (color == RLE_CODE) return;
+		if ((color & RLE_CODE) == RLE_CODE) 
+		{
+			count = color & (~RLE_CODE);
+			color = *src++;
+		}
+		else
+		{
+			// unique
+			count = 1;
+		}
+
+		c16 = gr_highcolor_clut[color];
+		// we know have '*count' pixels of 'color'.
+		if (i + count <= x2) 
+		{
+			rle_stosw(dest, count, c16);
+			i += count;
+			dest += count;
+		}
+		else 
+		{
+			count = x2 - i + 1;
+			rle_stosw(dest, count, c16);
 			i += count;
 			dest += count;
 		}

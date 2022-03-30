@@ -17,7 +17,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void gr_upixel(int x, int y)
 {
-	DATA[ROWSIZE * y + x] = (unsigned char)COLOR;
+	if (grd_curcanv->cv_bitmap.bm_type != BM_RGB15)
+		DATA[ROWSIZE * y + x] = (unsigned char)COLOR;
+	else
+		*((uint16_t*)&DATA[ROWSIZE * y + x * 2]) = gr_highcolor_clut[COLOR];
 }
 
 void gr_pixel(int x, int y)
@@ -26,16 +29,22 @@ void gr_pixel(int x, int y)
 	if (grd_curcanv->cv_bitmap.bm_type != BM_RGB15)
 		DATA[ROWSIZE * y + x] = (unsigned char)COLOR;
 	else
-		*((uint16_t*)&DATA[ROWSIZE * y + x]) = gr_highcolor_clut[COLOR];
+		*((uint16_t*)&DATA[ROWSIZE * y + x * 2]) = gr_highcolor_clut[COLOR];
 }
 
 void gr_bm_upixel(grs_bitmap* bm, int x, int y, unsigned char color)
 {
-	bm->bm_data[bm->bm_rowsize * y + x] = color;
+	if (bm->bm_type == BM_RGB15)
+		*((uint16_t*)&bm->bm_data[bm->bm_rowsize * y + x * 2]) = gr_highcolor_clut[color];
+	else
+		bm->bm_data[bm->bm_rowsize * y + x] = color;
 }
 
 void gr_bm_pixel(grs_bitmap* bm, int x, int y, unsigned char color)
 {
 	if ((x < 0) || (y < 0) || (x >= bm->bm_w) || (y >= bm->bm_h)) return;
-	bm->bm_data[bm->bm_rowsize * y + x] = color;
+	if (bm->bm_type == BM_RGB15)
+		*((uint16_t*)&bm->bm_data[bm->bm_rowsize * y + x * 2]) = gr_highcolor_clut[color];
+	else
+		bm->bm_data[bm->bm_rowsize * y + x] = color;
 }
