@@ -58,6 +58,19 @@ void gr_palette_create_clut()
 	}
 }
 
+void gr_palette_create_clut(uint8_t* palette, uint16_t* clut)
+{
+	int i, r, g, b;
+	for (i = 0; i < 256; i++)
+	{
+		r = (palette[i * 3] >> 1) & 31;
+		g = (palette[i * 3 + 1] >> 1) & 31;
+		b = (palette[i * 3 + 2] >> 1) & 31;
+
+		clut[i] = (r << 1) | (g << 6) | (b << 11);
+	}
+}
+
 void gr_palette_set_gamma(int gamma)
 {
 	if (gamma < 0) gamma = 0;

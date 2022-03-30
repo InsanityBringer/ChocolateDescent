@@ -16,6 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stddef.h>
 #include "2d/gr.h"
+#include "2d/palette.h"
 #include "mem/mem.h"
 #include "2d/pcx.h"
 #include "cfile/cfile.h"
@@ -46,13 +47,16 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 	CFILE* PCXfile;
 	int i, row, col, count, xsize, ysize;
 	uint8_t data, * pixdata;
+	uint8_t* local_data = nullptr;
+	uint8_t local_pal[768];
 
 	PCXfile = cfopen(filename, "rb");
 	if (!PCXfile)
 		return PCX_ERROR_OPENING;
 
 	// read 128 char PCX header
-	if (cfread(&header, sizeof(PCXHeader), 1, PCXfile) != 1) {
+	if (cfread(&header, sizeof(PCXHeader), 1, PCXfile) != 1) 
+	{
 		cfclose(PCXfile);
 		return PCX_ERROR_NO_HEADER;
 	}
@@ -83,8 +87,27 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 			bmp->bm_type = bitmap_type;
 		}
 	}
+	else if (bitmap_type == BM_RGB15)
+	{
+		if (bmp->bm_data == NULL)
+		{
+			memset(bmp, 0, sizeof(grs_bitmap));
+			bmp->bm_data = (unsigned char*)malloc(xsize * 2 * ysize);
+			if (bmp->bm_data == NULL)
+			{
+				cfclose(PCXfile);
+				return PCX_ERROR_MEMORY;
+			}
+			bmp->bm_w = xsize;
+			bmp->bm_rowsize = xsize * 2;
+			bmp->bm_h = ysize;
+			bmp->bm_type = bitmap_type;
+		}
 
-	//if (bmp->bm_type == BM_LINEAR) 
+		local_data = (uint8_t*)malloc(bmp->bm_w * bmp->bm_h);
+	}
+
+	if (bmp->bm_type == BM_LINEAR) 
 	{
 		for (row = 0; row < ysize; row++) 
 		{
@@ -116,62 +139,93 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 			}
 		}
 	}
-	/*else 
+	else
 	{
-		for (row = 0; row < ysize; row++) 
+		for (row = 0; row < ysize; row++)
 		{
-			for (col = 0; col < xsize; ) 
+			pixdata = &local_data[bmp->bm_w * row];
+			for (col = 0; col < xsize; )
 			{
-				if (cfread(&data, 1, 1, PCXfile) != 1) 
+				if (cfread(&data, 1, 1, PCXfile) != 1)
 				{
 					cfclose(PCXfile);
+					free(local_data);
 					return PCX_ERROR_READING;
 				}
-				if ((data & 0xC0) == 0xC0) 
+				if ((data & 0xC0) == 0xC0)
 				{
 					count = data & 0x3F;
-					if (cfread(&data, 1, 1, PCXfile) != 1) 
+					if (cfread(&data, 1, 1, PCXfile) != 1)
 					{
 						cfclose(PCXfile);
+						free(local_data);
 						return PCX_ERROR_READING;
 					}
-					for (i = 0; i < count; i++)
-						gr_bm_pixel(bmp, col + i, row, data);
+					memset(pixdata, data, count);
+					pixdata += count;
 					col += count;
 				}
-				else 
+				else
 				{
-					gr_bm_pixel(bmp, col, row, data);
+					*pixdata++ = data;
 					col++;
 				}
 			}
 		}
-	}*/
+	}
 
 	// Read the extended palette at the end of PCX file
-	if (palette != NULL) 
+	// Read in a character which should be 12 to be extended palette file
+
+	if (palette || bmp->bm_type == BM_RGB15)
 	{
-		// Read in a character which should be 12 to be extended palette file
-		if (cfread(&data, 1, 1, PCXfile) == 1) 
+		if (cfread(&data, 1, 1, PCXfile) == 1)
 		{
-			if (data == 12) 
+			if (data == 12)
 			{
-				if (cfread(palette, 768, 1, PCXfile) != 1) 
+				if (cfread(local_pal, 768, 1, PCXfile) != 1)
 				{
 					cfclose(PCXfile);
 					return PCX_ERROR_READING;
 				}
 				for (i = 0; i < 768; i++)
-					palette[i] >>= 2;
+					local_pal[i] >>= 2;
 			}
 		}
-		else 
+		else
 		{
 			cfclose(PCXfile);
 			return PCX_ERROR_NO_PALETTE;
 		}
 	}
+
+	//Translate 8-bit PCX to RGB15 if reading to the screen
+	if (bmp->bm_type == BM_RGB15)
+	{
+		uint16_t clut[256];
+		uint16_t* ptr;
+		uint8_t* src_ptr;
+		gr_palette_create_clut(local_pal, clut);
+
+		for (row = 0; row < bmp->bm_h; row++)
+		{
+			ptr = (uint16_t*)&bmp->bm_data[bmp->bm_rowsize * row];
+			src_ptr = &local_data[bmp->bm_w * row];
+			for (col = 0; col < bmp->bm_w; col++)
+			{
+				*ptr++ = clut[*src_ptr++];
+			}
+		}
+	}
+
+	if (palette != nullptr) 
+	{
+		memcpy(palette, local_pal, 768);
+	}
+
 	cfclose(PCXfile);
+	if (local_data)
+		free(local_data);
 	return PCX_ERROR_NONE;
 }
 

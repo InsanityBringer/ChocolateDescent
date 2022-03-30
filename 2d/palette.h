@@ -26,3 +26,10 @@ void gr_palette_load(uint8_t* pal);
 void gr_make_cthru_table(uint8_t* table, uint8_t r, uint8_t g, uint8_t b);
 int gr_find_closest_color_current(int r, int g, int b);
 void gr_palette_read(uint8_t* palette);
+
+//Generates a CLUT for the current palette. External since portions like the
+//PCX reader need to be able to generate the CLUT
+void gr_palette_create_clut();
+
+//Generates a CLUT for an arbritary palette into an arbritary table.
+void gr_palette_create_clut(uint8_t* palette, uint16_t* clut);
