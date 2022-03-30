@@ -26,6 +26,7 @@ int scale_ydelta_minus_1;
 int scale_whole_step;
 uint8_t* scale_source_ptr;
 uint8_t* scale_dest_ptr;
+uint16_t* scale_dest_ptr_rgb15;
 
 
 uint8_t scale_rle_data[640];
@@ -34,6 +35,7 @@ void scale_up_bitmap(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y
 void scale_up_bitmap_rle(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0, fix u1, fix v1);
 void rls_stretch_scanline_setup(int XDelta, int YDelta);
 void rls_stretch_scanline(void);
+void rls_stretch_scanline_to_rgb15(void);
 
 
 void decode_row(grs_bitmap* bmp, int y)
@@ -56,17 +58,27 @@ void scale_up_bitmap(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y
 	if (scale_ydelta_minus_1 < 1) return;
 
 	v = v0;
-
-	for (y = y0; y <= y1; y++) {
-		scale_source_ptr = &source_bmp->bm_data[source_bmp->bm_rowsize * f2i(v) + f2i(u0)];
-		scale_dest_ptr = &dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0];
-		rls_stretch_scanline();
-		v += dv;
+	if (dest_bmp->bm_type == BM_RGB15)
+	{
+		for (y = y0; y <= y1; y++)
+		{
+			scale_source_ptr = &source_bmp->bm_data[source_bmp->bm_rowsize * f2i(v) + f2i(u0)];
+			scale_dest_ptr_rgb15 = (uint16_t*)&dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0 * 2];
+			rls_stretch_scanline_to_rgb15();
+			v += dv;
+		}
+	}
+	else
+	{
+		for (y = y0; y <= y1; y++)
+		{
+			scale_source_ptr = &source_bmp->bm_data[source_bmp->bm_rowsize * f2i(v) + f2i(u0)];
+			scale_dest_ptr = &dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0];
+			rls_stretch_scanline();
+			v += dv;
+		}
 	}
 }
-
-
-
 
 void scale_up_bitmap_rle(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0, fix u1, fix v1)
 {
@@ -80,15 +92,35 @@ void scale_up_bitmap_rle(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, i
 
 	v = v0;
 
-	for (y = y0; y <= y1; y++) {
-		if (f2i(v) != last_row) {
-			last_row = f2i(v);
-			decode_row(source_bmp, last_row);
+	if (dest_bmp->bm_type == BM_RGB15)
+	{
+		for (y = y0; y <= y1; y++)
+		{
+			if (f2i(v) != last_row)
+			{
+				last_row = f2i(v);
+				decode_row(source_bmp, last_row);
+			}
+			scale_source_ptr = &scale_rle_data[f2i(u0)];
+			scale_dest_ptr_rgb15 = (uint16_t*)&dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0 * 2];
+			rls_stretch_scanline_to_rgb15();
+			v += dv;
 		}
-		scale_source_ptr = &scale_rle_data[f2i(u0)];
-		scale_dest_ptr = &dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0];
-		rls_stretch_scanline();
-		v += dv;
+	}
+	else
+	{
+		for (y = y0; y <= y1; y++)
+		{
+			if (f2i(v) != last_row)
+			{
+				last_row = f2i(v);
+				decode_row(source_bmp, last_row);
+			}
+			scale_source_ptr = &scale_rle_data[f2i(u0)];
+			scale_dest_ptr = &dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0];
+			rls_stretch_scanline();
+			v += dv;
+		}
 	}
 }
 
@@ -148,60 +180,159 @@ void rls_stretch_scanline()
 	// Draw the first, partial run of pixels
 
 	c = *scale_source_ptr++;
-	if (c != TRANSPARENCY_COLOR) {
+	if (c != TRANSPARENCY_COLOR)
+	{
 		for (i = 0; i < scale_initial_pixel_count; i++)
 			* scale_dest_ptr++ = c;
 	}
-	else {
+	else 
+	{
 		scale_dest_ptr += scale_initial_pixel_count;
 	}
 
 	// Draw all full runs 
 
-	for (j = 0; j < scale_ydelta_minus_1; j++) {
+	for (j = 0; j < scale_ydelta_minus_1; j++)
+	{
 		len = scale_whole_step;		// run is at least this long
 
 		// Advance the error term and add an extra pixel if the error term so indicates
-		if ((ErrorTerm += scale_adj_up) > 0) {
+		if ((ErrorTerm += scale_adj_up) > 0) 
+		{
 			len++;
 			ErrorTerm -= scale_adj_down;   // reset the error term
 		}
 
 		// Draw this run o' pixels
 		c = *scale_source_ptr++;
-		if (c != TRANSPARENCY_COLOR) {
-
-			if (len > 3) {
+		if (c != TRANSPARENCY_COLOR)
+		{
+			if (len > 3) 
+			{
 				while ((uintptr_t)(scale_dest_ptr) & 0x3) { *scale_dest_ptr++ = c; len--; };
-				if (len >= 4) {
+				if (len >= 4) 
+				{
 					x = (c << 24) | (c << 16) | (c << 8) | c;
 					while (len > 4) { *((int*)scale_dest_ptr) = x; scale_dest_ptr += 4; len -= 4; };
 				}
 				while (len > 0) { *scale_dest_ptr++ = c; len--; };
 			}
-			else {
+			else 
+			{
 				for (i = 0; i < len; i++)
 					* scale_dest_ptr++ = c;
 			}
 		}
-		else {
+		else
+		{
 			scale_dest_ptr += len;
 		}
 	}
 
 	// Draw the final run of pixels
 	c = *scale_source_ptr++;
-	if (c != TRANSPARENCY_COLOR) {
+	if (c != TRANSPARENCY_COLOR) 
+	{
 		for (i = 0; i < scale_final_pixel_count; i++)
 			* scale_dest_ptr++ = c;
 	}
-	else {
+	else 
+	{
 		scale_dest_ptr += scale_final_pixel_count;
 	}
 }
 
-// old stuff here...
+void rls_stretch_scanline_to_rgb15()
+{
+	uint8_t	c;
+	uint16_t c16;
+	int i, j, len, ErrorTerm, x;
 
+	// Setup initial variables
+	ErrorTerm = scale_error_term;
+
+	// Draw the first, partial run of pixels
+
+	c = *scale_source_ptr++;
+	c16 = gr_highcolor_clut[c];
+	if (c != TRANSPARENCY_COLOR)
+	{
+		for (i = 0; i < scale_initial_pixel_count; i++)
+			*scale_dest_ptr_rgb15++ = c16;
+	}
+	else
+	{
+		scale_dest_ptr_rgb15 += scale_initial_pixel_count;
+	}
+
+	// Draw all full runs 
+
+	for (j = 0; j < scale_ydelta_minus_1; j++)
+	{
+		len = scale_whole_step;		// run is at least this long
+
+		// Advance the error term and add an extra pixel if the error term so indicates
+		if ((ErrorTerm += scale_adj_up) > 0)
+		{
+			len++;
+			ErrorTerm -= scale_adj_down;   // reset the error term
+		}
+
+		// Draw this run o' pixels
+		c = *scale_source_ptr++;
+		c16 = gr_highcolor_clut[c];
+		if (c != TRANSPARENCY_COLOR)
+		{
+			if (len > 1)
+			{
+				while ((uintptr_t)(scale_dest_ptr_rgb15) & 0x3)
+				{ 
+					*scale_dest_ptr_rgb15++ = c16; 
+					len--; 
+				};
+
+				if (len >= 2)
+				{
+					x = (c16 << 16) | c16;
+					while (len > 2) 
+					{ 
+						*((int*)scale_dest_ptr_rgb15) = x; 
+						scale_dest_ptr_rgb15 += 2; 
+						len -= 2; 
+					};
+				}
+				while (len > 0)
+				{
+					*scale_dest_ptr_rgb15++ = c16; 
+					len--; 
+				};
+			}
+			else
+			{
+				*scale_dest_ptr_rgb15++ = c16;
+			}
+		}
+		else
+		{
+			scale_dest_ptr_rgb15 += len;
+		}
+	}
+
+	// Draw the final run of pixels
+	c = *scale_source_ptr++;
+	c16 = gr_highcolor_clut[c];
+	if (c != TRANSPARENCY_COLOR)
+	{
+		for (i = 0; i < scale_final_pixel_count; i++)
+			*scale_dest_ptr_rgb15++ = c16;
+	}
+	else
+	{
+		scale_dest_ptr_rgb15 += scale_final_pixel_count;
+	}
+}
+
+// old stuff here...
 void scale_bitmap_c(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0, fix u1, fix v1)
 {
 	fix u, v, du, dv;
@@ -213,13 +344,41 @@ void scale_bitmap_c(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0
 
 	v = v0;
 
-	for (y = y0; y <= y1; y++) {
+	for (y = y0; y <= y1; y++) 
+	{
 		sbits = &source_bmp->bm_data[source_bmp->bm_rowsize * f2i(v)];
 		dbits = &dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0];
 		u = u0;
 		v += dv;
-		for (x = x0; x <= x1; x++) {
+		for (x = x0; x <= x1; x++) 
+		{
 			*dbits++ = sbits[u >> 16];
+			u += du;
+		}
+	}
+}
+
+void scale_bitmap_c_to_rgb15(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0, fix u1, fix v1)
+{
+	fix u, v, du, dv;
+	int x, y;
+	uint8_t* sbits;
+	uint16_t* dbits;
+
+	du = (u1 - u0) / (x1 - x0);
+	dv = (v1 - v0) / (y1 - y0);
+
+	v = v0;
+
+	for (y = y0; y <= y1; y++)
+	{
+		sbits = &source_bmp->bm_data[source_bmp->bm_rowsize * f2i(v)];
+		dbits = (uint16_t*)&dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0 * 2];
+		u = u0;
+		v += dv;
+		for (x = x0; x <= x1; x++)
+		{
+			*dbits++ = gr_highcolor_clut[sbits[u >> 16]];
 			u += du;
 		}
 	}
@@ -227,23 +386,12 @@ void scale_bitmap_c(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, int y0
 
 void scale_row_asm_transparent(uint8_t* sbits, uint8_t* dbits, int width, fix u, fix du)
 {
-#if 0
-	int i;
-	uint8_t c;
-
-	for (i = 0; i < width; i++) {
-		c = sbits[u >> 16];
-		if (c != TRANSPARENCY_COLOR)
-			* dbits = c;
-		dbits++;
-		u += du;
-	}
-#endif
 	int i;
 	uint8_t c;
 	uint8_t* dbits_end = &dbits[width - 1];
 
-	if (du < F1_0) {
+	if (du < F1_0)
+	{
 		// Scaling up.
 		fix next_u;
 		int next_u_int;
@@ -254,11 +402,13 @@ void scale_row_asm_transparent(uint8_t* sbits, uint8_t* dbits, int width, fix u,
 		if (c != TRANSPARENCY_COLOR) goto NonTransparent;
 
 	Transparent:
-		while (1) {
+		while (1)
+		{
 			dbits++;
 			if (dbits > dbits_end) return;
 			u += du;
-			if (u > next_u) {
+			if (u > next_u)
+			{
 				next_u_int = f2i(u) + 1;
 				c = sbits[next_u_int];
 				next_u = i2f(next_u_int);
@@ -268,11 +418,13 @@ void scale_row_asm_transparent(uint8_t* sbits, uint8_t* dbits, int width, fix u,
 		return;
 
 	NonTransparent:
-		while (1) {
+		while (1)
+		{
 			*dbits++ = c;
 			if (dbits > dbits_end) return;
 			u += du;
-			if (u > next_u) {
+			if (u > next_u)
+			{
 				next_u_int = f2i(u) + 1;
 				c = sbits[next_u_int];
 				next_u = i2f(next_u_int);
@@ -280,16 +432,84 @@ void scale_row_asm_transparent(uint8_t* sbits, uint8_t* dbits, int width, fix u,
 			}
 		}
 		return;
-
-
-
-	}
-	else {
-		for (i = 0; i < width; i++) {
+}
+	else
+	{
+		for (i = 0; i < width; i++)
+		{
 			c = sbits[f2i(u)];
 
 			if (c != TRANSPARENCY_COLOR)
-				* dbits = c;
+				*dbits = c;
+
+			dbits++;
+			u += du;
+		}
+	}
+}
+
+void scale_row_asm_transparent_to_rgb15(uint8_t* sbits, uint16_t* dbits, int width, fix u, fix du)
+{
+	int i;
+	uint8_t c;
+	uint16_t c16;
+	uint16_t* dbits_end = &dbits[width - 1];
+
+	if (du < F1_0)
+	{
+		// Scaling up.
+		fix next_u;
+		int next_u_int;
+
+		next_u_int = f2i(u) + 1;
+		c = sbits[next_u_int];
+		c16 = gr_highcolor_clut[c];
+		next_u = i2f(next_u_int);
+		if (c != TRANSPARENCY_COLOR) goto NonTransparent;
+
+	Transparent:
+		while (1) 
+		{
+			dbits++;
+			if (dbits > dbits_end) return;
+			u += du;
+			if (u > next_u)
+			{
+				next_u_int = f2i(u) + 1;
+				c = sbits[next_u_int];
+				c16 = gr_highcolor_clut[c];
+				next_u = i2f(next_u_int);
+				if (c != TRANSPARENCY_COLOR) goto NonTransparent;
+			}
+		}
+		return;
+
+	NonTransparent:
+		while (1) 
+		{
+			*dbits++ = c16;
+			if (dbits > dbits_end) return;
+			u += du;
+			if (u > next_u) 
+			{
+				next_u_int = f2i(u) + 1;
+				c = sbits[next_u_int];
+				c16 = gr_highcolor_clut[c];
+				next_u = i2f(next_u_int);
+				if (c == TRANSPARENCY_COLOR) goto Transparent;
+			}
+		}
+		return;
+	}
+	else 
+	{
+		for (i = 0; i < width; i++) 
+		{
+			c = sbits[f2i(u)];
+			c16 = gr_highcolor_clut[c];
+
+			if (c != TRANSPARENCY_COLOR)
+				*dbits = c16;
 
 			dbits++;
 			u += du;
@@ -307,12 +527,17 @@ void scale_bitmap_c_rle(grs_bitmap* source_bmp, grs_bitmap* dest_bmp, int x0, in
 
 	v = v0;
 
-	for (y = y0; y <= y1; y++) {
-		if (f2i(v) != last_row) {
+	for (y = y0; y <= y1; y++)
+	{
+		if (f2i(v) != last_row) 
+		{
 			last_row = f2i(v);
 			decode_row(source_bmp, last_row);
 		}
-		scale_row_asm_transparent(scale_rle_data, &dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0], x1 - x0 + 1, u0, du);
+		if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+			scale_row_asm_transparent_to_rgb15(scale_rle_data, (uint16_t*)&dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0 * 2], x1 - x0 + 1, u0, du);
+		else
+			scale_row_asm_transparent(scale_rle_data, &dest_bmp->bm_data[dest_bmp->bm_rowsize * y + x0], x1 - x0 + 1, u0, du);
 		v += dv;
 	}
 }
@@ -353,25 +578,29 @@ void scale_bitmap(grs_bitmap* bp, grs_point* vertbuf)
 	clipped_x1 = x1; clipped_y1 = y1;
 
 	// Clip the left, moving u0 right as necessary
-	if (x0 < xmin) {
+	if (x0 < xmin) 
+	{
 		clipped_u0 = FIND_SCALED_NUM(xmin, x0, x1, u0, u1);
 		clipped_x0 = xmin;
 	}
 
 	// Clip the right, moving u1 left as necessary
-	if (x1 > xmax) {
+	if (x1 > xmax) 
+	{
 		clipped_u1 = FIND_SCALED_NUM(xmax, x0, x1, u0, u1);
 		clipped_x1 = xmax;
 	}
 
 	// Clip the top, moving v0 down as necessary
-	if (y0 < ymin) {
+	if (y0 < ymin)
+	{
 		clipped_v0 = FIND_SCALED_NUM(ymin, y0, y1, v0, v1);
 		clipped_y0 = ymin;
 	}
 
 	// Clip the bottom, moving v1 up as necessary
-	if (y1 > ymax) {
+	if (y1 > ymax) 
+	{
 		clipped_v1 = FIND_SCALED_NUM(ymax, y0, y1, v0, v1);
 		clipped_y1 = ymax;
 	}
@@ -396,23 +625,24 @@ void scale_bitmap(grs_bitmap* bp, grs_point* vertbuf)
 
 	dtemp = f2i(clipped_u1) - f2i(clipped_u0);
 
-#if 0
-	if (bp->bm_flags & BM_FLAG_RLE)
-		scale_bitmap_c_rle(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1);
-	else
-		scale_bitmap_c(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1);
-#endif
-	if (bp->bm_flags & BM_FLAG_RLE) {
+	if (bp->bm_flags & BM_FLAG_RLE) 
+	{
 		if ((dtemp < (f2i(clipped_x1) - f2i(clipped_x0))) && (dtemp > 0))
 			scale_up_bitmap_rle(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1);
 		else
 			scale_bitmap_c_rle(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1);
 	}
-	else {
+	else 
+	{
 		if ((dtemp < (f2i(clipped_x1) - f2i(clipped_x0))) && (dtemp > 0))
 			scale_up_bitmap(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1);
 		else
-			scale_bitmap_c(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1);
+		{
+			if (grd_curcanv->cv_bitmap.bm_type == BM_RGB15)
+				scale_bitmap_c_to_rgb15(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1);
+			else
+				scale_bitmap_c(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1);
+		}
 	}
 }
 
