@@ -749,7 +749,6 @@ void MidiPlayer::Run()
 	for (;;)
 	{
 		//printf("I'm goin\n");
-		midi_set_music_samplerate(MIDI_SAMPLERATE);
 		std::unique_lock<std::mutex> lock(songMutex);
 		if (shouldEnd)
 		{
@@ -776,11 +775,13 @@ void MidiPlayer::Run()
 			}
 			//printf("Starting new song\n");
 			sequencer->StartSong(nextSong, nextLoop);
+			midi_set_music_samplerate(MIDI_SAMPLERATE);
 			TickFracDelta = (65536 * nextSong->GetTempo()) / 120;
 			curSong = nextSong;
 			nextSong = nullptr;
 			hasChangedSong = true;
 			songLoaded = true;
+			nextTimerTick = I_GetUS() + 1;
 		}
 		lock.unlock();
 

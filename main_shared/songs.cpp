@@ -31,6 +31,7 @@ extern uint8_t Config_redbook_volume;
 #include "cfile/cfile.h"
 #include "platform/timer.h"
 #include "platform/platform_filesys.h"
+#include "platform/s_midi.h"
 #include "hqmusic.h"
 
 song_info Songs[MAX_NUM_SONGS];
@@ -47,11 +48,7 @@ int Redbook_playing = 0;
 
 #define NumLevelSongs (Num_songs - SONG_FIRST_LEVEL_SONG)
 
-#ifndef MACINTOSH
-#define REDBOOK_VOLUME_SCALE  (255/3)		//255 is MAX
-#else
-#define REDBOOK_VOLUME_SCALE	(255)
-#endif
+#define REDBOOK_VOLUME_SCALE  (127/3) //changed to 127 since this uses the same interface as the MIDI sound system
 
 //takes volume in range 0..8
 void set_redbook_volume(int volume)
@@ -60,6 +57,7 @@ void set_redbook_volume(int volume)
 	RBASetVolume(0);		// makes the macs sound really funny
 	#endif
 	RBASetVolume(volume*REDBOOK_VOLUME_SCALE/8);*/
+	music_set_volume(volume * REDBOOK_VOLUME_SCALE / 8);
 }
 
 extern char CDROM_dir[];
@@ -123,11 +121,11 @@ void songs_init()
 //stop the redbook, so we can read off the CD
 void songs_stop_redbook(void)
 {
-	/*
 	int old_volume = Config_redbook_volume*REDBOOK_VOLUME_SCALE/8;
 	fix old_time = timer_get_fixed_seconds();
 
-	if (Redbook_playing) {		//fade out volume
+	if (Redbook_playing) //fade out volume
+	{		
 		int new_volume;
 		do {
 			fix t = timer_get_fixed_seconds();
@@ -137,17 +135,16 @@ void songs_stop_redbook(void)
 			if (new_volume < 0)
 				new_volume = 0;
 
-			RBASetVolume(new_volume);
+			music_set_volume(new_volume);
 
 		} while (new_volume > 0);
 	}
 
 	RBAStop();						// Stop CD, if playing
 
-	RBASetVolume(old_volume);	//restore volume
+	music_set_volume(old_volume);	//restore volume
 
 	Redbook_playing = 0;
-	*/
 }
 
 //stop any songs - midi or redbook - that are currently playing
@@ -180,7 +177,6 @@ int reinit_redbook()
 //play only specified track
 int play_redbook_track(int tracknum,int keep_playing)
 {
-	
 	Redbook_playing = 0;
 
 	if (!RBAEnabled() && Redbook_enabled && !FindArg("-noredbook"))
@@ -266,7 +262,7 @@ void songs_play_song( int songnum, int repeat )
 
 	if (!Redbook_playing) //not playing redbook, so play midi
 	{		
-			digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
+		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
 	}
 }
 
@@ -315,7 +311,6 @@ void songs_play_level_song( int levelnum )
 //this should be called regularly to check for redbook restart
 void songs_check_redbook_repeat()
 {
-	/*
 	static fix last_check_time;
 	fix current_time;
 
@@ -326,12 +321,13 @@ void songs_check_redbook_repeat()
 	{
 		if (!RBAPeekPlayStatus()) 
 		{
-			stop_time();
+			//stop_time();
 			// if title ends, start credit music
 			// if credits music ends, restart it
 			if (Redbook_playing == REDBOOK_TITLE_TRACK || Redbook_playing == REDBOOK_CREDITS_TRACK)
 				play_redbook_track(REDBOOK_CREDITS_TRACK,0);
-			else {
+			else 
+			{
 				//songs_goto_next_song();
 	
 				//new code plays all tracks to end of disk, so if disk has
@@ -339,10 +335,10 @@ void songs_check_redbook_repeat()
 	
 				songs_play_level_song(1);
 			}
-			start_time();
+			//start_time();
 		}
 		last_check_time = current_time;
-	}*/
+	}
 }
 
 //goto the next level song

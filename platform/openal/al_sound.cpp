@@ -35,7 +35,6 @@ ALuint sourceNames[_MAX_VOICES];
 //The higher this and the amount of ticks in the system, the higher the latency is.
 #define MAX_BUFFERS_QUEUED 4
 
-bool StopMIDI = true;
 bool LoopMusic;
 
 std::mutex MIDIMutex;
@@ -275,10 +274,10 @@ void plat_set_music_volume(int volume)
 	MusicVolume = volume;
 
 	//[ISB] Midi volume is now handled at the synth level, not the mixer level. 
-	/*if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
+	if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
 	{
 		alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
-	}*/
+	}
 	if (alIsSource(HQMusicSource)) //[ISB] heh
 	{
 		alSourcef(HQMusicSource, AL_GAIN, MusicVolume / 127.0f);
@@ -322,7 +321,7 @@ void I_CreateMusicSource()
 	alGenSources(1, &MusicSource);
 	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
 	alSource3f(MusicSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
-	//alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
+	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
 	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
 	alGenBuffers(MAX_BUFFERS_QUEUED, MIDISourceBuffers);
 	for (i = 0; i < MAX_BUFFERS_QUEUED; i++)
@@ -379,6 +378,8 @@ void midi_check_status()
 
 bool midi_check_finished()
 {
+	if (MusicSource == 0) return true;
+
 	ALenum playstatus;
 	alGetSourcei(MusicSource, AL_SOURCE_STATE, &playstatus);
 
@@ -432,7 +433,7 @@ void midi_queue_buffer(int numTicks, uint16_t *data)
 		MIDIUsedBuffers[MIDINumUsedBuffers] = freeBufferNum;
 		
 		BufferQueue[MIDINumUsedBuffers] = MIDISourceBuffers[freeBufferNum];
-		alBufferData(BufferQueue[MIDINumUsedBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, MIDI_SAMPLERATE);
+		alBufferData(BufferQueue[MIDINumUsedBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, MusicSampleRate);
 		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[MIDINumUsedBuffers]);
 		AL_ErrorCheck("Queueing music buffers");
 
@@ -445,13 +446,11 @@ void midi_queue_buffer(int numTicks, uint16_t *data)
 
 void plat_start_midi_song(HMPFile* song, bool loop)
 {
-	//midiPlayer->SetSong(song, loop);
 	playing = false;
 }
 
 void plat_stop_midi_song()
 {
-	//midiPlayer->StopSong();
 }
 
 uint32_t plat_get_preferred_midi_sample_rate()
@@ -461,7 +460,6 @@ uint32_t plat_get_preferred_midi_sample_rate()
 
 void midi_start_source()
 {
-	StopMIDI = false;
 	playing = false;
 	if (!AL_initialized) return;
 	I_CreateMusicSource();
@@ -470,7 +468,6 @@ void midi_start_source()
 
 void midi_stop_source()
 {
-	StopMIDI = true;
 	if (!AL_initialized) return;
 	alSourceStop(MusicSource);
 	midi_dequeue_midi_buffers();

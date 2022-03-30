@@ -144,7 +144,9 @@ void MidiFluidSynth::PerformBranchResets(BranchEntry* entry, int chan)
 
 void MidiFluidSynth::SetVolume(int volume)
 {
-	fluid_settings_setnum(FluidSynthSettings, "synth.gain", 0.5 * volume / 127);
+	//I had to revert this, since the MIDI softsynth playback code is also streaming emulated CD music now.
+	//Otherwise it is impossible to adjust the volume of CD music emulation. 
+	//fluid_settings_setnum(FluidSynthSettings, "synth.gain", 0.5 * volume / 127);
 }
 
 #endif

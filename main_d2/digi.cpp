@@ -605,7 +605,6 @@ extern int Redbook_playing;
 
 void digi_set_midi_volume( int mvolume )
 {
-
 	int old_volume = midi_volume;
 
 	if ( mvolume > 127 )
@@ -795,15 +794,10 @@ void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank
 			return;
 		}
 	}
-		
-	/*if (!dpmi_lock_region(SongData, SongSize))	{
-		mprintf( (1, "Error locking midi file, '%s'", filename ));
-		free(SongData);
-		SongData=NULL;
-		return;
-	}*/
 
-	// setup the song initialization structure
+	//Before playing, reconfirm that the volume is set correctly
+	//Since CD music and MIDI music use the same streaming pipeline, this ensures that the correct volume is set. 
+	music_set_volume(midi_volume);
 
 	//initialize the song
 	//if( ( wError = sosMIDIInitSong( &sSOSInitSong, &sSOSTrackMap, &wSongHandle ) ) )

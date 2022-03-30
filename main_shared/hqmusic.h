@@ -23,4 +23,5 @@ int RBAGetNumberOfTracks();
 int RBAGetTrackNum();
 int RBAPlayTrack(int track);
 int RBAPlayTracks(int first, int last);
+bool RBAPeekPlayStatus();
 
