@@ -121,6 +121,7 @@ void songs_init()
 //stop the redbook, so we can read off the CD
 void songs_stop_redbook(void)
 {
+#ifdef BUILD_DESCENT2
 	int old_volume = Config_redbook_volume*REDBOOK_VOLUME_SCALE/8;
 	fix old_time = timer_get_fixed_seconds();
 
@@ -145,6 +146,7 @@ void songs_stop_redbook(void)
 	music_set_volume(old_volume);	//restore volume
 
 	Redbook_playing = 0;
+#endif
 }
 
 //stop any songs - midi or redbook - that are currently playing
@@ -311,6 +313,7 @@ void songs_play_level_song( int levelnum )
 //this should be called regularly to check for redbook restart
 void songs_check_redbook_repeat()
 {
+#ifdef BUILD_DESCENT2
 	static fix last_check_time;
 	fix current_time;
 
@@ -339,6 +342,7 @@ void songs_check_redbook_repeat()
 		}
 		last_check_time = current_time;
 	}
+#endif
 }
 
 //goto the next level song
