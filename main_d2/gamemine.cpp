@@ -138,12 +138,7 @@ int CreateDefaultNewSegment();
 
 static fix read_fix(CFILE *file)
 {
-	fix f;
-
-	if (cfread( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fix in gamesave.c" );
-
-	return f;
+	return (fix)cfile_read_int(file);
 }
 
 static void read_vector(vms_vector *v,CFILE *file)
@@ -158,26 +153,6 @@ static void read_matrix(vms_matrix* m, CFILE* file)
 	read_vector(&m->rvec, file);
 	read_vector(&m->uvec, file);
 	read_vector(&m->fvec, file);
-}
-
-static short read_short(CFILE *file)
-{
-	short s;
-
-	if (cfread( &s, sizeof(s), 1, file) != 1)
-		Error( "Error reading short in gamesave.c" );
-
-	return s;
-}
-
-static int8_t read_byte(CFILE *file)
-{
-	int8_t b;
-
-	if (cfread( &b, sizeof(b), 1, file) != 1)
-		Error( "Error reading int8_t in gamesave.c" );
-
-	return b;
 }
 
 #ifdef EDITOR
@@ -708,10 +683,11 @@ void read_children(int segnum,uint8_t bit_mask,CFILE *LoadFile)
 {
 	int bit;
 
-	for (bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) {
-		if (bit_mask & (1 << bit)) {
-			Segments[segnum].children[bit] = read_short(LoadFile);
-//	 		cfread( &Segments[segnum].children[bit], sizeof(short), 1, LoadFile );
+	for (bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) 
+	{
+		if (bit_mask & (1 << bit))
+		{
+			Segments[segnum].children[bit] = cfile_read_short(LoadFile);
 		} else
 			Segments[segnum].children[bit] = -1;
 	}
@@ -721,9 +697,8 @@ void read_verts(int segnum,CFILE *LoadFile)
 {
 	int i;
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
-//	cfread( Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, LoadFile );
 	for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
-		Segments[segnum].verts[i] = read_short(LoadFile);
+		Segments[segnum].verts[i] = cfile_read_short(LoadFile);
 }
 
 //for shareware only
@@ -733,11 +708,11 @@ void read_special(int segnum, uint8_t bit_mask, CFILE* LoadFile)
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
 	{
 		// Read uint8_t	Segments[segnum].special
-		Segment2s[segnum].special = read_byte(LoadFile);
+		Segment2s[segnum].special = cfile_read_byte(LoadFile);
 		// Read int8_t	Segments[segnum].matcen_num
-		Segment2s[segnum].matcen_num = read_byte(LoadFile);
+		Segment2s[segnum].matcen_num = cfile_read_byte(LoadFile);
 		// Read short	Segments[segnum].value
-		Segment2s[segnum].value = read_short(LoadFile);
+		Segment2s[segnum].value = cfile_read_short(LoadFile);
 	}
 	else 
 	{
@@ -766,14 +741,17 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	fuelcen_reset();
 
 	//=============================== Reading part ==============================
-	version = read_byte(LoadFile);						// 1 int8_t = compiled version
-	Assert( version==COMPILED_MINE_VERSION );
+	version = cfile_read_byte(LoadFile);						// 1 int8_t = compiled version
+	if (version != COMPILED_MINE_VERSION)
+		Error("Got mine version %d when reading level file, expected %d.", version, COMPILED_MINE_VERSION);
 
-	Num_vertices = read_short(LoadFile);					// 2 bytes = Num_vertices
-	Assert( Num_vertices <= MAX_VERTICES );
+	Num_vertices = cfile_read_short(LoadFile);					// 2 bytes = Num_vertices
+	if (Num_vertices > MAX_VERTICES)
+		Error("Level contains more than MAX_VERTICES(%d) vertices.", MAX_VERTICES);
 
-	Num_segments = read_short(LoadFile);					// 2 bytes = Num_segments
-	Assert( Num_segments <= MAX_SEGMENTS );
+	Num_segments = cfile_read_short(LoadFile);					// 2 bytes = Num_segments
+	if (Num_segments > MAX_SEGMENTS)
+		Error("Level contains more than MAX_SEGMENTS(%d) segments.", MAX_SEGMENTS);
 
 	for (i = 0; i < Num_vertices; i++)
 		read_vector( &(Vertices[i]), LoadFile);
@@ -794,7 +772,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			read_children(segnum, bit_mask, LoadFile);
 
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-			temp_ushort = read_short(LoadFile);
+			temp_ushort = cfile_read_short(LoadFile);
 			Segment2s[segnum].static_light = ((fix)temp_ushort) << 4;
 		}
 		else
@@ -833,7 +811,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	
 			{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-				temp_ushort = read_short(LoadFile);
+				temp_ushort = cfile_read_short(LoadFile);
 				Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
 
 				if (!(temp_ushort & 0x8000))
@@ -841,17 +819,17 @@ int load_mine_data_compiled(CFILE *LoadFile)
 				else 
 				{
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					Segments[segnum].sides[sidenum].tmap_num2 = read_short(LoadFile);
+					Segments[segnum].sides[sidenum].tmap_num2 = cfile_read_short(LoadFile);
 				}
 
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	
 				{
-					temp_short = read_short(LoadFile);
+					temp_short = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].u = ((fix)temp_short) << 5;
-					temp_short = read_short(LoadFile);
+					temp_short = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].v = ((fix)temp_short) << 5;
-					temp_ushort = read_short(LoadFile);
+					temp_ushort = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) << 1;
 				}	
 			} 
@@ -910,10 +888,10 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	{
 		for (i = 0; i < Num_segments; i++)
 		{
-			Segment2s[i].special = read_byte(LoadFile);
-			Segment2s[i].matcen_num = read_byte(LoadFile);
-			Segment2s[i].value = read_byte(LoadFile);
-			Segment2s[i].s2_flags = read_byte(LoadFile);
+			Segment2s[i].special = cfile_read_byte(LoadFile);
+			Segment2s[i].matcen_num = cfile_read_byte(LoadFile);
+			Segment2s[i].value = cfile_read_byte(LoadFile);
+			Segment2s[i].s2_flags = cfile_read_byte(LoadFile);
 			Segment2s[i].static_light = read_fix(LoadFile);
 			fuelcen_activate(&Segments[i], Segment2s[i].special);
 		}

@@ -1108,7 +1108,10 @@ int load_game_data(CFILE* LoadFile)
 
 	if (game_top_fileinfo.fileinfo_version >= 19) //load pof names
 	{
-		N_save_pof_names = (int)cfile_read_short(LoadFile); //[ISB] yes, it's an int, but the above line suggests its just a short so................................
+		N_save_pof_names = (int)cfile_read_short(LoadFile);
+		if (N_save_pof_names >= MAX_POLYGON_MODELS)
+			Error("Level contains over MAX_POLYGON_MODELS(%d) POF names.", MAX_POLYGON_MODELS);
+
 		cfread(Save_pof_names, N_save_pof_names, 13, LoadFile);
 	}
 
@@ -1428,7 +1431,8 @@ int load_level(char* filename_passed)
 	gamedata_offset = read_int(LoadFile);
 	hostagetext_offset = read_int(LoadFile);
 
-	Assert(sig == 'PLVL');
+	if (sig != 'PLVL')
+		Error("Level file doesn't have PLVL signature.");
 
 	cfseek(LoadFile, minedata_offset, SEEK_SET);
 #ifdef EDITOR

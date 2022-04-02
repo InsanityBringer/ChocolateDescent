@@ -1137,6 +1137,9 @@ int load_game_data(CFILE* LoadFile)
 	if (game_top_fileinfo.fileinfo_version >= 19) 	//load pof names
 	{
 		N_save_pof_names = read_short(LoadFile);
+		if (N_save_pof_names >= MAX_POLYGON_MODELS)
+			Error("Level contains over MAX_POLYGON_MODELS(%d) POF names.", MAX_POLYGON_MODELS);
+
 		cfread(Save_pof_names, N_save_pof_names, FILENAME_LEN, LoadFile);
 	}
 
