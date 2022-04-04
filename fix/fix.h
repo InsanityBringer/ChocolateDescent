@@ -13,31 +13,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
- //#define USE_INLINE 1
-
 #include "misc/types.h"
+
+constexpr int FRACBITS = 16;
 
 typedef int32_t fix;				//16 bits int, 16 bits frac
 typedef short fixang;		//angles
-
-typedef struct quad 
-{
-	uint32_t low;
-	int32_t high;
-} quad;
-
-//Convert an int to a fix
-#define i2f(i) ((i)<<16)
-
-//Get the int part of a fix
-#define f2i(f) ((f)>>16)
-
-//Get the int part of a fix, with rounding
-#define f2ir(f) (((f)+f0_5)>>16)
-
-//Convert fix to float and float to fix [ISB] added suffix
-#define f2fl(f) (((float) (f)) / 65536.0f)
-#define fl2f(f) ((fix) ((f) * 65536))
 
 //Some handy constants
 #define f0_0	0
@@ -58,14 +39,63 @@ typedef struct quad
 #define F0_5 	f0_5
 #define F0_1 	f0_1
 
+typedef struct quad 
+{
+	uint32_t low;
+	int32_t high;
+} quad;
+
+//Convert an int to a fix
+constexpr fix i2f(int i)
+{
+	return i << FRACBITS;
+}
+
+//Get the int part of a fix
+constexpr int f2i(fix f)
+{
+	return f >> FRACBITS;
+}
+
+//Get the int part of a fix, with rounding
+constexpr int f2ir(int f)
+{
+	return (f + F0_5) >> FRACBITS;
+}
+
+//Convert fix to float and float to fix
+constexpr float f2fl(fix f)
+{
+	return f / 65536.0f;
+}
+
+constexpr fix fl2f(float f)
+{
+	return (fix)(f * 65536);
+}
+
 //multiply two fixes, return a fix
-fix fixmul(fix a, fix b);
+constexpr fix fixmul(fix a, fix b)
+{
+	return ((int64_t)a * (int64_t)b) >> FRACBITS;
+}
 
 //divide two fixes, return a fix
-fix fixdiv(fix a, fix b);
+constexpr fix fixdiv(fix a, fix b)
+{
+	//[ISB] TODO: Why did I put this here? if it's div0ing something's wrong. The original game doesn't allow it. 
+	if (b == 0) return 1;
+
+	return (fix)(((int64_t)a << 16) / b);
+}
 
 //multiply two fixes, then divide by a third, return a fix
-fix fixmuldiv(fix a, fix b, fix c);
+constexpr fix fixmuldiv(fix a, fix b, fix c)
+{
+	if (c == 0) return 1;
+
+	return (fix)((int64_t)a * (int64_t)b / c);
+}
 
 //multiply two fixes, and add 64-bit product to a quad
 void fixmulaccum(int64_t*q, fix a, fix b);
@@ -74,7 +104,11 @@ void fixmulaccum(int64_t*q, fix a, fix b);
 fix fixquadadjust(int64_t q);
 
 //divide a quad by a long
-int32_t fixdivquadlong(int64_t n, uint32_t d);
+constexpr int32_t fixdivquadlong(int64_t n, uint32_t d)
+{
+	if (d == 0) return 1;
+	return (int32_t)(n / d);
+}
 
 //negate a quad
 void fixquadnegate(quad* q);

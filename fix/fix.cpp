@@ -57,48 +57,11 @@ fix fixquadadjust(int64_t q)
 	return v;
 }
 
-fix fixmul(fix a, fix b)
-{
-	/*	"imul	edx"				\
-	"shrd	eax,edx,16";*/
-	//[ISB] heh
-	int64_t mul;
-	mul = (int64_t)a * (int64_t)b;
-	return (fix)(mul >> 16);
-}
-
-//divide a quad by a fix, returning a fix
-int32_t fixdivquadlong(int64_t n, uint32_t d)
-{
-	if (d == 0) return 1;
-	return (int32_t)(n / d);
-}
-
 //divide a quad by a fix, returning a fix
 uint32_t ufixdivquadlong(uint32_t nl, uint32_t nh, uint32_t d)
 {
 	uint64_t num = ((( uint64_t)nh << 32) + (uint64_t)nl);
 	return (uint32_t)(num / d);
-}
-
-fix fixdiv(fix a, fix b)
-{
-	//[ISB] TODO: Why did I put this here? if it's div0ing something's wrong. The original game doesn't allow it. 
-	if (b == 0) return 1;
-
-	int64_t ic = ((int64_t)a << 16);
-
-	return (fix)(ic / b);
-}
-
-//multiply two fixes, then divide by a third, return a fix
-fix fixmuldiv(fix a, fix b, fix c)
-{
-	if (c == 0) return 1;
-
-	int64_t mul;
-	mul = (int64_t)a * (int64_t)b;
-	return (fix)(mul / c);
 }
 
 fixang fix_atan2(fix cos, fix sin)
@@ -142,9 +105,6 @@ uint32_t quad_sqrt(int64_t q)
 {
 	uint32_t cnt, r, old_r, t;
 	int32_t high = (q >> 32) & 0xFFFFFFFF;
-	quad tq;
-	//[ISB] fixes c4700 error
-	memset((void*)&tq, 0, sizeof(quad));
 
 	if (q < 0)
 		return 0;
