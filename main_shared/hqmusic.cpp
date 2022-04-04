@@ -247,6 +247,8 @@ void RBAInit()
 	char track_name[16];
 	FILE* fp;
 
+	RBA_error = 0;
+
 	//Simple hack to figure out how many CD tracks there are.
 	for (i = 0; i < 99; i++)
 	{

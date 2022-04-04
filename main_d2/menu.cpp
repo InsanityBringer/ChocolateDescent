@@ -1085,51 +1085,50 @@ void sound_menuset(int nitems, newmenu_item * items, int* last_key, int citem)
 	}
 
 	// don't enable redbook for a non-apple demo version of the shareware demo
-#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-
-	if (Config_redbook_volume != items[2].value)
+	if (CurrentDataVersion != DataVer::DEMO)
 	{
-		Config_redbook_volume = items[2].value;
-		set_redbook_volume(Config_redbook_volume);
-	}
-
-	if (items[4].value != (Redbook_playing != 0))
-	{
-
-		if (items[4].value && FindArg("-noredbook"))
+		if (Config_redbook_volume != items[2].value)
 		{
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, "Redbook audio has been disabled\non the command line");
-			items[4].value = 0;
-			items[4].redraw = 1;
+			Config_redbook_volume = items[2].value;
+			set_redbook_volume(Config_redbook_volume);
 		}
-		else
+
+		if (items[4].value != (Redbook_playing != 0))
 		{
-			Redbook_enabled = items[4].value;
-
-			mprintf((1, "Redbook_enabled = %d\n", Redbook_enabled));
-
-			if (Function_mode == FMODE_MENU)
-				songs_play_song(SONG_TITLE, 1);
-			else if (Function_mode == FMODE_GAME)
-				songs_play_level_song(Current_level_num);
-			else
-				Int3();
-
-			if (items[4].value && !Redbook_playing)
+			if (items[4].value && FindArg("-noredbook"))
 			{
-				nm_messagebox(TXT_SORRY, 1, TXT_OK, "Cannot start CD Music.  Insert\nyour Descent II CD and try again");
+				nm_messagebox(TXT_SORRY, 1, TXT_OK, "Redbook audio has been disabled\non the command line");
 				items[4].value = 0;
 				items[4].redraw = 1;
 			}
+			else
+			{
+				Redbook_enabled = items[4].value;
 
-			items[1].type = (Redbook_playing ? NM_TYPE_TEXT : NM_TYPE_SLIDER);
-			items[1].redraw = 1;
-			items[2].type = (Redbook_playing ? NM_TYPE_SLIDER : NM_TYPE_TEXT);
-			items[2].redraw = 1;
+				mprintf((1, "Redbook_enabled = %d\n", Redbook_enabled));
+
+				if (Function_mode == FMODE_MENU)
+					songs_play_song(SONG_TITLE, 1);
+				else if (Function_mode == FMODE_GAME)
+					songs_play_level_song(Current_level_num);
+				else
+					Int3();
+
+				if (items[4].value && !Redbook_playing)
+				{
+					nm_messagebox(TXT_SORRY, 1, TXT_OK, "Cannot start CD Music. OGG files\nshould be placed in the cdmusic\ndirectory with the filenames\ntrack01.ogg, track02.ogg and so on.");
+					items[4].value = 0;
+					items[4].redraw = 1;
+				}
+
+				items[1].type = (Redbook_playing ? NM_TYPE_TEXT : NM_TYPE_SLIDER);
+				items[1].redraw = 1;
+				items[2].type = (Redbook_playing ? NM_TYPE_SLIDER : NM_TYPE_TEXT);
+				items[2].redraw = 1;
+			}
 		}
 	}
 
-#endif
 	citem++;		//kill warning
 }
 

@@ -182,9 +182,9 @@ int ReadConfigFile()
 				digi_midi_port = strtol(value, NULL, 16);
 			else if (!strcmp(token, midi_volume_str))
 				Config_midi_volume = strtol(value, NULL, 10);
-			else if (!strcmp(token, redbook_enabled_str))
+			else if (CurrentDataVersion != DataVer::DEMO && !strcmp(token, redbook_enabled_str))
 				Redbook_enabled = save_redbook_enabled = strtol(value, NULL, 10);
-			else if (!strcmp(token, redbook_volume_str))
+			else if (CurrentDataVersion != DataVer::DEMO && !strcmp(token, redbook_volume_str))
 				Config_redbook_volume = strtol(value, NULL, 10);
 			else if (!strcmp(token, stereo_rev_str))
 				Config_channels_reversed = strtol(value, NULL, 10);
@@ -371,10 +371,13 @@ int WriteConfigFile()
 	fputs(str, infile);
 	sprintf (str, "%s=%d\n", midi_volume_str, Config_midi_volume);
 	fputs(str, infile);
-	sprintf (str, "%s=%d\n", redbook_enabled_str, FindArg("-noredbook")?save_redbook_enabled:Redbook_enabled);
-	fputs(str, infile);
-	sprintf (str, "%s=%d\n", redbook_volume_str, Config_redbook_volume);
-	fputs(str, infile);
+	if (CurrentDataVersion != DataVer::DEMO)
+	{
+		sprintf(str, "%s=%d\n", redbook_enabled_str, FindArg("-noredbook") ? save_redbook_enabled : Redbook_enabled);
+		fputs(str, infile);
+		sprintf(str, "%s=%d\n", redbook_volume_str, Config_redbook_volume);
+		fputs(str, infile);
+	}
 	sprintf (str, "%s=%d\n", stereo_rev_str, Config_channels_reversed);
 	fputs(str, infile);
 	sprintf (str, "%s=%d\n", gamma_level_str, gamma);
