@@ -750,7 +750,7 @@ elseif(WIN32)
 	add_executable(ChocolateDescent2 WIN32 ${SHARED_SOURCES} ${NOT_COMPILED_SOURCES} ${DESCENT2_SOURCES})
 endif()
 
-set_target_properties(ChocolateDescent ChocolateDescent2 PROPERTIES CXX_STANDARD 11)
+set_target_properties(ChocolateDescent ChocolateDescent2 PROPERTIES CXX_STANDARD 14)
 
 if (BUILD_EDITOR)
 	target_compile_definitions(ChocolateDescent PUBLIC "$<$<CONFIG:DEBUG>:EDITOR>")
