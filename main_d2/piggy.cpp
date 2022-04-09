@@ -417,7 +417,7 @@ void piggy_init_pigfile(const char* filename)
 #else
 	Piggy_bitmap_cache_size = PIGGY_BUFFER_SIZE;
 #endif
-	BitmapBits = (uint8_t*)malloc(Piggy_bitmap_cache_size);
+	BitmapBits = (uint8_t*)mem_malloc(Piggy_bitmap_cache_size);
 	if (BitmapBits == NULL)
 		Error("Not enough memory to load bitmaps\n");
 	Piggy_bitmap_cache_data = BitmapBits;
@@ -628,14 +628,14 @@ void piggy_new_pigfile(const char* pigname)
 						size = bm[fnum]->bm_w * bm[fnum]->bm_h;
 
 					memcpy(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], bm[fnum]->bm_data, size);
-					free(bm[fnum]->bm_data);
+					mem_free(bm[fnum]->bm_data);
 					bm[fnum]->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 					Piggy_bitmap_cache_next += size;
 
 					GameBitmaps[i + fnum] = *bm[fnum];
 
 					// -- mprintf( (0, "U" ));
-					free(bm[fnum]);
+					mem_free(bm[fnum]);
 				}
 
 				i += nframes - 1;         //filled in multiple bitmaps
@@ -682,13 +682,13 @@ void piggy_new_pigfile(const char* pigname)
 					size = newbm->bm_w * newbm->bm_h;
 
 				memcpy(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], newbm->bm_data, size);
-				free(newbm->bm_data);
+				mem_free(newbm->bm_data);
 				newbm->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 				Piggy_bitmap_cache_next += size;
 
 				GameBitmaps[i] = *newbm;
 
-				free(newbm);
+				mem_free(newbm);
 
 				// -- mprintf( (0, "U" ));
 			}
@@ -876,7 +876,7 @@ int read_sndfile()
 		//mprintf(( 0, "%d bytes of sound\n", sbytes ));
 	}
 
-	SoundBits = (uint8_t*)malloc(sbytes + 16);
+	SoundBits = (uint8_t*)mem_malloc(sbytes + 16);
 	if (SoundBits == NULL)
 		Error("Not enough memory to load sounds\n");
 
@@ -1418,7 +1418,7 @@ void piggy_dump_all()
 
 		//free up memeory used by new bitmaps
 		for (i = Num_bitmap_files - Num_bitmap_files_new; i < Num_bitmap_files; i++)
-			free(GameBitmaps[i].bm_data);
+			mem_free(GameBitmaps[i].bm_data);
 
 		//next thing must be done after pig written
 		fseek(ham_fp, xlat_offset, SEEK_SET);
@@ -1495,10 +1495,10 @@ void piggy_close()
 	piggy_close_file();
 
 	if (BitmapBits)
-		free(BitmapBits);
+		mem_free(BitmapBits);
 
 	if (SoundBits)
-		free(SoundBits);
+		mem_free(SoundBits);
 
 	hashtable_free(&AllBitmapsNames);
 	hashtable_free(&AllDigiSndNames);

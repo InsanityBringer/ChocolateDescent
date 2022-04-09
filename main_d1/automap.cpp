@@ -408,7 +408,7 @@ void do_automap(int key_code)
 		modex_printf(70, 385, TXT_VIEWING_DISTANCE, GFONT_SMALL);
 	}
 	if (Automap_background.bm_data)
-		free(Automap_background.bm_data);
+		mem_free(Automap_background.bm_data);
 	Automap_background.bm_data = NULL;
 
 	gr_set_current_canvas(&DrawingPages[current_page]);

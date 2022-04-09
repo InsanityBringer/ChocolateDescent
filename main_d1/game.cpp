@@ -387,7 +387,7 @@ void init_cockpit()
 	gr_set_curfont(GAME_FONT);
 
 	if (Game_cockpit_copy_code)
-		free(Game_cockpit_copy_code);
+		mem_free(Game_cockpit_copy_code);
 	Game_cockpit_copy_code = NULL;
 
 	switch (Cockpit_mode) 
@@ -2187,12 +2187,12 @@ void close_game()
 
 	if (Game_cockpit_copy_code) 
 	{
-		free(Game_cockpit_copy_code);
+		mem_free(Game_cockpit_copy_code);
 		Game_cockpit_copy_code = NULL;
 	}
 
 	if (background_bitmap.bm_data)
-		free(background_bitmap.bm_data);
+		mem_free(background_bitmap.bm_data);
 
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 }

@@ -241,7 +241,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 				{
 					nsamp += 4;
 
-					buf = (short*)malloc(nsamp+4);
+					buf = (short*)mem_malloc(nsamp+4);
 					mveaudio_uncompress(buf, data, -1);
 				} 
 				else 
@@ -249,13 +249,13 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 					nsamp -= 8;
 					data += 8;
 
-					buf = (short*)malloc(nsamp+8);
+					buf = (short*)mem_malloc(nsamp+8);
 					mveaudio_uncompress(buf, data, -1);
 				}
 			} 
 			else 
 			{
-				buf = (short*)malloc(nsamp+4);
+				buf = (short*)mem_malloc(nsamp+4);
 				mveaudio_uncompress(buf, data, -1);
 
 				memset(buf, 0, nsamp); /* XXX */
@@ -265,7 +265,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 		}
 	}
 
-	if (buf) free(buf);
+	if (buf) mem_free(buf);
 
 	return 1;
 }
@@ -327,7 +327,7 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	if (hackBuf1 == NULL && hackBuf2 == NULL)
 	{
 		/* TODO: * 4 causes crashes on some files */
-		g_vBackBuf1 = g_vBuffers = (uint8_t*)malloc(g_width * g_height * 8);
+		g_vBackBuf1 = g_vBuffers = (uint8_t*)mem_malloc(g_width * g_height * 8);
 		if (truecolor)
 		{
 			g_vBackBuf2 = (unsigned short*)g_vBackBuf1 + (g_width * g_height);
@@ -556,7 +556,7 @@ void MVE_rmEndMovie()
 	timer_created = 0;
 
 	if (g_vBuffers != NULL)
-		free(g_vBuffers);
+		mem_free(g_vBuffers);
 	g_vBuffers = NULL;
 	g_pCurMap=NULL;
 	g_nMapLength=0;

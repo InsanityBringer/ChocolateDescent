@@ -240,10 +240,10 @@ int start_endlevel_movie()
 void free_endlevel_data()
 {
 	if (terrain_bm_instance.bm_data)
-		free(terrain_bm_instance.bm_data);
+		mem_free(terrain_bm_instance.bm_data);
 
 	if (satellite_bm_instance.bm_data)
-		free(satellite_bm_instance.bm_data);
+		mem_free(satellite_bm_instance.bm_data);
 }
 
 void generate_starfield();
@@ -1552,7 +1552,7 @@ try_again:
 				uint8_t pal[768];
 
 				if (terrain_bm_instance.bm_data)
-					free(terrain_bm_instance.bm_data);
+					mem_free(terrain_bm_instance.bm_data);
 
 				Assert(terrain_bm_instance.bm_data == NULL);
 				
@@ -1590,7 +1590,7 @@ try_again:
 				uint8_t pal[768];
 
 				if (satellite_bm_instance.bm_data)
-					free(satellite_bm_instance.bm_data);
+					mem_free(satellite_bm_instance.bm_data);
 
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) 

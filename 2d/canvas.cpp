@@ -36,8 +36,8 @@ grs_canvas* gr_create_canvas(int w, int h)
 	unsigned char* data;
 	grs_canvas* newvar;
 
-	newvar = (grs_canvas*)malloc(sizeof(grs_canvas));
-	data = (unsigned char*)malloc(w * h * sizeof(unsigned char));
+	newvar = (grs_canvas*)mem_malloc(sizeof(grs_canvas));
+	data = (unsigned char*)mem_malloc(w * h * sizeof(unsigned char));
 
 	newvar->cv_bitmap.bm_x = 0;
 	newvar->cv_bitmap.bm_y = 0;
@@ -60,7 +60,7 @@ grs_canvas* gr_create_sub_canvas(grs_canvas* canv, int x, int y, int w, int h)
 {
 	grs_canvas* newvar;
 
-	newvar = (grs_canvas*)malloc(sizeof(grs_canvas));
+	newvar = (grs_canvas*)mem_malloc(sizeof(grs_canvas));
 
 	newvar->cv_bitmap.bm_x = x + canv->cv_bitmap.bm_x;
 	newvar->cv_bitmap.bm_y = y + canv->cv_bitmap.bm_y;
@@ -128,13 +128,13 @@ void gr_init_sub_canvas(grs_canvas* newc, grs_canvas* src, int x, int y, int w, 
 
 void gr_free_canvas(grs_canvas* canv)
 {
-	free(canv->cv_bitmap.bm_data);
-	free(canv);
+	mem_free(canv->cv_bitmap.bm_data);
+	mem_free(canv);
 }
 
 void gr_free_sub_canvas(grs_canvas* canv)
 {
-	free(canv);
+	mem_free(canv);
 }
 
 int gr_wait_for_retrace = 1;

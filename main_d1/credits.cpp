@@ -234,7 +234,7 @@ void credits_show()
 				gr_close_font(names_font);
 				gr_palette_fade_out(gr_palette, 32, 0);
 				gr_use_palette_table("palette.256");
-				free(backdrop.bm_data);
+				mem_free(backdrop.bm_data);
 				cfclose(file);
 				songs_play_song(SONG_TITLE, 1);
 				return;

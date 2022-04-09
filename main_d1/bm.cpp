@@ -742,7 +742,7 @@ void bm_read_all(CFILE* fp)
 
 	for (i = 0; i < N_polygon_models; i++) 
 	{
-		Polygon_models[i].model_data = (uint8_t*)malloc(Polygon_models[i].model_data_size);
+		Polygon_models[i].model_data = (uint8_t*)mem_malloc(Polygon_models[i].model_data_size);
 		Assert(Polygon_models[i].model_data != NULL);
 		cfread(Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp);
 	}

@@ -86,12 +86,12 @@ void _strrev(char *s1)
 	int i,l;
 	char *s2;
 	
-	s2 = (char *)malloc(strlen(s1) + 1);
+	s2 = (char *)mem_malloc(strlen(s1) + 1);
 	strcpy(s2, s1);
 	l = strlen(s2);
 	for (i = 0; i < l; i++)
 		s1[l-1-i] = s2[i];
-	free(s2);
+	mem_free(s2);
 }
 
 char* _itoa(int num, char* buf, int max)
@@ -106,7 +106,7 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 
 	//[ISB] oops, splitpath is destructive, lovely...
 	//Since the incoming char* is likely const, copy it into a new buffer. 
-	char* buf = (char*)malloc(sizeof(char) * (strlen(name) + 1));
+	char* buf = (char*)mem_malloc(sizeof(char) * (strlen(name) + 1));
 	strcpy(buf, name);
 
 	p = &buf[0];
@@ -122,7 +122,7 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 		p = s+1;
 		if (!p)
 		{
-			free(buf);
+			mem_free(buf);
 			return;
 		}
 	} else if (drive)
@@ -143,7 +143,7 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 		p = s+1;
 		if (!p)
 		{
-			free(buf);
+			mem_free(buf);
 			return;
 		}
 	} 
@@ -162,7 +162,7 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 		p = s+1;
 		if (!p)
 		{
-			free(buf);
+			mem_free(buf);
 			return;
 		}
 	} 
@@ -172,5 +172,5 @@ void _splitpath(const char *name, char *drive, char *path, char *base, char *ext
 	if (ext)
 		strcpy(ext, p);	
 
-	free(buf);	
+	mem_free(buf);	
 }

@@ -147,8 +147,8 @@ void free_reticle_canvas(void)
 {
 	if (reticle_canvas) 
 	{
-		free(reticle_canvas->cv_bitmap.bm_data);
-		free(reticle_canvas);
+		mem_free(reticle_canvas->cv_bitmap.bm_data);
+		mem_free(reticle_canvas);
 		reticle_canvas = NULL;
 	}
 }

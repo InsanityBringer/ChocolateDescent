@@ -771,7 +771,7 @@ void do_automap(int key_code)
 				modex_printf(30, 385, TXT_VIEWING_DISTANCE, SMALL_FONT, Font_color_20);
 			}
 			if (Automap_background.bm_data)
-				free(Automap_background.bm_data);
+				mem_free(Automap_background.bm_data);
 			Automap_background.bm_data = NULL;
 
 			gr_set_current_canvas(&DrawingPages[current_page]);
@@ -1061,7 +1061,7 @@ void do_automap(int key_code)
 
 		if (must_free_canvas)
 		{
-			free(Page.cv_bitmap.bm_data);
+			mem_free(Page.cv_bitmap.bm_data);
 		}
 
 		mprintf((0, "Automap memory freed\n"));

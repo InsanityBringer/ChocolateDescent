@@ -570,7 +570,7 @@ KConfigPaint:
 	nm_draw_background(0, 0, grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
 	gr_palette_load(gr_palette);
 
-	titlebuf = (char*)malloc(sizeof(char) * (strlen(title)+1));
+	titlebuf = (char*)mem_malloc(sizeof(char) * (strlen(title)+1));
 	strcpy(titlebuf, title);
 
 	grd_curcanv->cv_font = MEDIUM3_FONT;
@@ -580,7 +580,7 @@ KConfigPaint:
 	gr_string(0x8000, LHY(8), titlebuf);
 	if (p)*p = '\n';
 
-	free(titlebuf);
+	mem_free(titlebuf);
 
 #ifdef MENU_MOUSE_ENABLED
 	close_x = close_y = 15;

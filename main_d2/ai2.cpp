@@ -83,7 +83,7 @@ void init_ai_system(void)
 	int	i;
 
 	mprintf((0, "Trying to malloc %i bytes for Robot_info.\n", N_robot_types * sizeof(*Robot_info)));
-	Robot_info = (robot_info *) malloc( N_robot_types * sizeof(*Robot_info) );
+	Robot_info = (robot_info *) mem_malloc( N_robot_types * sizeof(*Robot_info) );
 	mprintf((0, "Robot_info = %i\n", Robot_info));
 
 	for (i=0; i<N_robot_types; i++) {

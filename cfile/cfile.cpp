@@ -315,7 +315,7 @@ CFILE* cfopen(const char* filename, const char* mode)
 		fp = cfile_find_libfile(filename, &length);
 		if (!fp)
 			return NULL;		// No file found
-		cfile = (CFILE*)malloc(sizeof(CFILE));
+		cfile = (CFILE*)mem_malloc(sizeof(CFILE));
 		if (cfile == NULL) 
 		{
 			fclose(fp);
@@ -329,7 +329,7 @@ CFILE* cfopen(const char* filename, const char* mode)
 	}
 	else
 	{
-		cfile = (CFILE*)malloc(sizeof(CFILE));
+		cfile = (CFILE*)mem_malloc(sizeof(CFILE));
 		if (cfile == NULL) 
 		{
 			fclose(fp);
@@ -431,7 +431,7 @@ int cfseek(CFILE* fp, long int offset, int where)
 void cfclose(CFILE* fp)
 {
 	fclose(fp->file);
-	free(fp);
+	mem_free(fp);
 	return;
 }
 

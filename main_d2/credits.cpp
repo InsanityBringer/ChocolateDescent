@@ -452,7 +452,7 @@ get_line:;
 					gr_close_font(title_font);
 					gr_close_font(names_font);
 
-					free(backdrop.bm_data);
+					mem_free(backdrop.bm_data);
 					gr_free_canvas(CreditsOffscreenBuf);
 		
 					goto CreditsPaint;
@@ -496,7 +496,7 @@ get_line:;
 					gr_close_font(names_font);
 					gr_palette_fade_out( gr_palette, 32, 0 );
 					gr_use_palette_table( DEFAULT_PALETTE );
-					free(backdrop.bm_data);
+					mem_free(backdrop.bm_data);
 					cfclose(file);
 				WINDOS(
 					dd_gr_set_current_canvas(save_canv),

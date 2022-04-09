@@ -96,7 +96,7 @@ void PrintInfo(int id)
 }
 
 
-void* mem_malloc(unsigned int size, const char* var, const char* filename, int line, int fill_zero)
+void* mem_malloc_(unsigned int size, const char* var, const char* filename, int line, int fill_zero)
 {
 	int i, j, id;
 	void* ptr;
@@ -195,7 +195,7 @@ int mem_find_id(void* buffer)
 int mem_check_integrity(int block_number)
 {
 	int i, ErrorCount;
-	unsigned char* CheckData; //[ISB] UNSIGNED IS NOT IMPLICIT GOD DAMN IT
+	unsigned char* CheckData;
 
 	ErrorCount = 0;
 	CheckData = (unsigned char*)((unsigned char*)MallocBase[block_number]);
@@ -235,7 +235,7 @@ int mem_check_integrity(int block_number)
 
 }
 
-void mem_free(void* buffer)
+void mem_free_(void* buffer)
 {
 	int id;
 	unsigned char* pc = (unsigned char*)buffer;
@@ -268,7 +268,7 @@ void mem_free(void* buffer)
 	BytesMalloced -= MallocSize[id];
 
 	//free(buffer);
-	free(pc);
+	mem_free(pc);
 
 	Present[id] = 0;
 	MallocBase[id] = 0;
@@ -355,7 +355,7 @@ void mem_init()
 	atexit(mem_display_blocks);
 }
 
-void* mem_malloc(unsigned int size, const char* var, const char* filename, int line, int fill_zero)
+void* mem_malloc_(unsigned int size, const char* var, const char* filename, int line, int fill_zero)
 {
 	unsigned int base;
 	void* ptr;
@@ -391,7 +391,7 @@ void* mem_malloc(unsigned int size, const char* var, const char* filename, int l
 	return ptr;
 }
 
-void mem_free(void* buffer)
+void mem_free_(void* buffer)
 {
 	int ErrorCount;
 

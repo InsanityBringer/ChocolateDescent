@@ -336,7 +336,7 @@ void render_terrain(vms_vector* org_point, int org_2dx, int org_2dy)
 
 void free_height_array(void)
 {
-	free(height_array);
+	mem_free(height_array);
 }
 
 void load_terrain(char* filename)
@@ -353,7 +353,7 @@ void load_terrain(char* filename)
 	}
 
 	if (height_array)
-		free(height_array);
+		mem_free(height_array);
 	else
 		atexit(free_height_array);		//first time
 
@@ -434,7 +434,7 @@ fix get_avg_light(int i, int j)
 void free_light_table(void)
 {
 	if (light_array)
-		free(light_array);
+		mem_free(light_array);
 }
 
 void build_light_table()
@@ -443,12 +443,12 @@ void build_light_table()
 	fix l, l2, min_l = 0x7fffffff, max_l = 0;
 
 	if (light_array)
-		free(light_array);
+		mem_free(light_array);
 	else
 		atexit(free_light_table);		//first time
 
 	//MALLOC(light_array,uint8_t,grid_w*grid_h); //Won't comile -KRB
-	light_array = (uint8_t*)malloc(grid_w * grid_h + (sizeof(uint8_t))); //my hack -KRB
+	light_array = (uint8_t*)mem_malloc(grid_w * grid_h + (sizeof(uint8_t))); //my hack -KRB
 	for (i = 1; i < grid_w; i++)
 		for (j = 1; j < grid_h; j++) {
 			l = get_avg_light(i, j);

@@ -81,7 +81,7 @@ extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 void newmenu_close(void) 
 {
 	if (nm_background.bm_data)
-		free(nm_background.bm_data);
+		mem_free(nm_background.bm_data);
 	Newmenu_first_time = 1;
 }
 
@@ -1081,7 +1081,7 @@ int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_ite
 		// Save the background under the menu...
 		gr_bitmap(0, 0, bg.saved);
 		gr_free_bitmap(bg.saved);
-		free(bg.background);
+		mem_free(bg.background);
 	}
 	else 
 	{
@@ -1257,7 +1257,7 @@ int newmenu_get_filename(const char* title, const char* filespec, char* filename
 	}
 #endif
 
-	filenames = (char*)malloc(MAX_FILES * 14);
+	filenames = (char*)mem_malloc(MAX_FILES * 14);
 	if (filenames == NULL) return 0;
 
 	citem = 0;
@@ -1591,7 +1591,7 @@ ExitFileMenu:
 	}
 
 	if (filenames)
-		free(filenames);
+		mem_free(filenames);
 
 	return exit_value;
 }

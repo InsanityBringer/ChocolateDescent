@@ -419,13 +419,13 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 	{
 		char* p;
 
-		titlebuf = (char*)malloc(sizeof(char) * (strlen(title)+1));
+		titlebuf = (char*)mem_malloc(sizeof(char) * (strlen(title)+1));
 		strcpy(titlebuf, title);
 		p = strchr(titlebuf, '\n');
 		if (p)* p = 32;
 		gr_string(0x8000, 8, titlebuf);
 		if (p)* p = '\n';
-		free(titlebuf);
+		mem_free(titlebuf);
 	}
 
 

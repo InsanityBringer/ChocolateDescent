@@ -356,7 +356,7 @@ int state_save_old_game(int slotnum, char* sg_name, player* sg_player,
 				vertbuf[2].x = i2f(THUMBNAIL_W); vertbuf[2].y = i2f(THUMBNAIL_H + 7);	// + 7 pixel rows for ascpect
 				scale_bitmap(&bmp, vertbuf);
 				gr_remap_bitmap_good(&cnv->cv_bitmap, pcx_palette, -1, -1);
-				free(bmp.bm_data);
+				mem_free(bmp.bm_data);
 			}
 		}
 		fwrite(cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp);
@@ -521,7 +521,7 @@ int state_save_all_sub(char* filename, char* desc, int between_levels)
 					vertbuf[2].x = i2f(THUMBNAIL_W); vertbuf[2].y = i2f(THUMBNAIL_H + 7);	// + 7 pixel rows for ascpect
 					scale_bitmap(&bmp, vertbuf);
 					gr_remap_bitmap_good(&cnv->cv_bitmap, pcx_palette, -1, -1);
-					free(bmp.bm_data);
+					mem_free(bmp.bm_data);
 				}
 			}
 		}

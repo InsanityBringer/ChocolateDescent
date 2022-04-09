@@ -173,7 +173,7 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 	int anim_flag = 0;
 	uint8_t* model_buf;
 
-	model_buf = (uint8_t*)malloc(MODEL_BUF_SIZE * sizeof(uint8_t));
+	model_buf = (uint8_t*)mem_malloc(MODEL_BUF_SIZE * sizeof(uint8_t));
 	if (!model_buf)
 		Error("Can't allocate space to read model %s\n", filename);
 
@@ -347,7 +347,7 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 		case ID_IDTA:		//Interpreter data
 			//mprintf(0,"Got chunk IDTA, len=%d\n",len);
 
-			pm->model_data = (uint8_t*)malloc(len);
+			pm->model_data = (uint8_t*)mem_malloc(len);
 			pm->model_data_size = len;
 
 			pof_cfread(pm->model_data, 1, len, model_buf);
@@ -379,7 +379,7 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 		*p = '.';
 	}
 
-	free(model_buf);
+	mem_free(model_buf);
 
 	return pm;
 }
@@ -394,7 +394,7 @@ int read_model_guns(char* filename, vms_vector* gun_points, vms_vector* gun_dirs
 	int n_guns = 0;
 	uint8_t* model_buf;
 
-	model_buf = (uint8_t*)malloc(MODEL_BUF_SIZE * sizeof(uint8_t));
+	model_buf = (uint8_t*)mem_malloc(MODEL_BUF_SIZE * sizeof(uint8_t));
 	if (!model_buf)
 		Error("Can't allocate space to read model %s\n", filename);
 
@@ -453,7 +453,7 @@ int read_model_guns(char* filename, vms_vector* gun_points, vms_vector* gun_dirs
 
 	}
 
-	free(model_buf);
+	mem_free(model_buf);
 
 	return n_guns;
 }
@@ -461,7 +461,7 @@ int read_model_guns(char* filename, vms_vector* gun_points, vms_vector* gun_dirs
 //free up a model, getting rid of all its memory
 void free_model(polymodel* po)
 {
-	free(po->model_data);
+	mem_free(po->model_data);
 }
 
 grs_bitmap* texture_list[MAX_POLYOBJ_TEXTURES];

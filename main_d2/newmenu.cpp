@@ -112,10 +112,10 @@ char already_showing_info = 0;
 void newmenu_close()
 {
 	if (nm_background.bm_data)
-		free(nm_background.bm_data);
+		mem_free(nm_background.bm_data);
 
 	if (nm_background_save.bm_data)
-		free(nm_background_save.bm_data);
+		mem_free(nm_background_save.bm_data);
 	Newmenu_first_time = 1;
 }
 
@@ -127,7 +127,7 @@ void nm_remap_background()
 	if (!Newmenu_first_time)
 	{
 		if (!nm_background.bm_data)
-			nm_background.bm_data = (unsigned char*)malloc(nm_background.bm_w * nm_background.bm_h);
+			nm_background.bm_data = (unsigned char*)mem_malloc(nm_background.bm_w * nm_background.bm_h);
 
 		memcpy(nm_background.bm_data, nm_background_save.bm_data, nm_background.bm_w * nm_background.bm_h);
 
@@ -209,9 +209,9 @@ void nm_draw_background(int x1, int y1, int x2, int y2)
 		else
 		{
 			if (nm_background_save.bm_data)
-				free(nm_background_save.bm_data);
+				mem_free(nm_background_save.bm_data);
 			if (nm_background.bm_data)
-				free(nm_background.bm_data);
+				mem_free(nm_background.bm_data);
 		}
 
 		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP, &nm_background_save, BM_LINEAR, background_palette);
@@ -297,7 +297,7 @@ void nm_string(bkg* b, int w1, int x, int y, char* s)
 	char* buf; //[ISB] godawful hack
 	int XTabs[] = { 15,87,124,162,228,253 };
 
-	buf = (char*)malloc(strlen(s) * sizeof(char) + 1);
+	buf = (char*)mem_malloc(strlen(s) * sizeof(char) + 1);
 	if (!buf)
 	{
 		Error("Insufficient memory for menu string hack. Somehow...");
@@ -358,7 +358,7 @@ void nm_string(bkg* b, int w1, int x, int y, char* s)
 		*p = '\t';
 	}
 
-	if (buf) free(buf);
+	if (buf) mem_free(buf);
 }
 
 // Draw a slider and it's string
@@ -1187,7 +1187,7 @@ RePaintNewmenu4:
 
 			if (!filename) {
 				gr_free_bitmap(bg.saved);
-				free(bg.background);
+				mem_free(bg.background);
 			}
 			else
 				gr_free_bitmap(bg.background);
@@ -1906,7 +1906,7 @@ RePaintNewmenu4:
 		gr_bitmap(0, 0, bg.saved);
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		gr_free_bitmap(bg.saved);
-		free(bg.background);
+		mem_free(bg.background);
 	}
 	else
 	{
@@ -2105,7 +2105,7 @@ int newmenu_get_filename(const char* title, const char* filespec, char* filename
 	}
 #endif
 
-	filenames = (char*)malloc(MAX_FILES * 14);
+	filenames = (char*)mem_malloc(MAX_FILES * 14);
 	if (filenames == NULL) return 0;
 
 	citem = 0;
@@ -2787,7 +2787,7 @@ ExitFileMenu:
 		}
 
 	if (filenames)
-		free(filenames);
+		mem_free(filenames);
 
 	WIN(mouse_set_mode(1));				//re-enable centering mode
 	WIN(HideCursorW());
@@ -3394,7 +3394,7 @@ void nm_wrap_text(char* dbuf, char* sbuf, int line_length)
 	char* wordptr;
 	char* tbuf;
 
-	tbuf = (char*)malloc(strlen(sbuf) + 1);
+	tbuf = (char*)mem_malloc(strlen(sbuf) + 1);
 	strcpy(tbuf, sbuf);
 
 	wordptr = strtok(tbuf, " ");
@@ -3415,5 +3415,5 @@ void nm_wrap_text(char* dbuf, char* sbuf, int line_length)
 		wordptr = strtok(NULL, " ");
 	}
 
-	free(tbuf);
+	mem_free(tbuf);
 }

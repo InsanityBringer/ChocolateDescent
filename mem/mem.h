@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#pragma once
+
 extern int show_mem_info;
 
 #ifndef NDEBUG
@@ -18,21 +20,23 @@ extern int show_mem_info;
 //extern int show_mem_info;
 
 void* mem_display_blocks(void);
-extern void* mem_malloc(unsigned int size, const char* var, const char* file, int line, int fill_zero);
-extern void mem_free(void* buffer);
+extern void* mem_malloc_(unsigned int size, const char* var, const char* file, int line, int fill_zero);
+extern void mem_free_(void* buffer);
 
-#define malloc(size)    mem_malloc((size),"Unknown", __FILE__,__LINE__, 0 )
-#define calloc(n,size)  mem_malloc((n*size),"Unknown", __FILE__,__LINE__, 1 )
-#define free(ptr)       do{ mem_free(ptr); ptr=NULL; } while(0)
+#define mem_malloc(size)    mem_malloc_((size),"Unknown", __FILE__,__LINE__, 0 )
+#define mem_calloc(n,size)  mem_malloc_((n*size),"Unknown", __FILE__,__LINE__, 1 )
+#define mem_free(ptr)       do{ mem_free_(ptr); ptr=NULL; } while(0)
 
-#define MALLOC( var, type, count )   (var=(type *)mem_malloc((count)*sizeof(type),#var, __FILE__,__LINE__,0 ))
+#define MALLOC( var, type, count )   (var=(type *)mem_malloc_((count)*sizeof(type),#var, __FILE__,__LINE__,0 ))
 
 // Checks to see if any blocks are overwritten
 void mem_validate_heap();
 
 #else
 
-#define free(ptr)       do{ free(ptr); ptr=NULL; } while(0)
+#define mem_malloc(size)	malloc(size)
+#define mem_calloc(n,size)	calloc(n,size)
+#define mem_free(ptr)       do{ free(ptr); ptr=NULL; } while(0)
 
 #define MALLOC( var, type, count )   (var=(type *)malloc((count)*sizeof(type)))
 

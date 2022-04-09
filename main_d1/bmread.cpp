@@ -225,7 +225,7 @@ bitmap_index bm_load_sub(char* filename)
 
 	mprintf((0, "N"));
 	bitmap_num = piggy_register_bitmap(newbm, fname, 0);
-	free(newbm);
+	mem_free(newbm);
 	return bitmap_num;
 }
 
@@ -288,7 +288,7 @@ void ab_load(char* filename, bitmap_index bmp[], int* nframes)
 		bm[i]->avg_color = compute_average_pixel(bm[i]);
 
 		new_bmp = piggy_register_bitmap(bm[i], tempname, 0);
-		free(bm[i]);
+		mem_free(bm[i]);
 		bmp[i] = new_bmp;
 		mprintf((0, "Registering frame %d, %s, in piggy file\n", i, tempname));
 	}

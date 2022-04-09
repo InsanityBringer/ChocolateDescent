@@ -198,7 +198,7 @@ int show_title_screen(const char* filename, int allow_keys, int from_hog_only)
 	if (gr_palette_fade_out(New_pal, 32, allow_keys))
 		return 1;
 	gr_copy_palette(gr_palette, palette_save, sizeof(palette_save));
-	free(title_bm.bm_data);
+	mem_free(title_bm.bm_data);
 	return 0;
 }
 
@@ -363,7 +363,7 @@ void show_bitmap_frame(void)
 			dd_grd_curcanv = curcanv_save,
 			grd_curcanv = curcanv_save
 		);
-		free(bitmap_canv);
+		mem_free(bitmap_canv);
 
 		switch (Animating_bitmap_type) 
 		{
@@ -409,7 +409,7 @@ void show_briefing_bitmap(grs_bitmap* bmp)
 	gr_set_current_canvas(curcanv_save);
 #endif
 
-	free(bitmap_canv);
+	mem_free(bitmap_canv);
 }
 
 #ifndef WINDOWS
@@ -724,7 +724,7 @@ int show_briefing_message(int screen_num, char* message)
 			{
 				if (Robot_canv != NULL)
 				{
-					free(Robot_canv);
+					mem_free(Robot_canv);
 					Robot_canv = NULL;
 				}
 				if (RobotPlaying)
@@ -753,7 +753,7 @@ int show_briefing_message(int screen_num, char* message)
 				//--grs_bitmap	*bitmap_ptr;
 				if (Robot_canv != NULL)
 				{
-					free(Robot_canv); Robot_canv = NULL;
+					mem_free(Robot_canv); Robot_canv = NULL;
 				}
 
 				get_message_name(&message, Bitmap_name);
@@ -765,7 +765,7 @@ int show_briefing_message(int screen_num, char* message)
 			{
 				if (Robot_canv != NULL)
 				{
-					free(Robot_canv); Robot_canv = NULL;
+					mem_free(Robot_canv); Robot_canv = NULL;
 				}
 
 				get_message_name(&message, Bitmap_name);
@@ -826,7 +826,7 @@ int show_briefing_message(int screen_num, char* message)
 
 				if (Robot_canv != NULL)
 				{
-					free(Robot_canv); Robot_canv = NULL;
+					mem_free(Robot_canv); Robot_canv = NULL;
 				}
 
 				get_message_name(&message, bitmap_name);
@@ -837,7 +837,7 @@ int show_briefing_message(int screen_num, char* message)
 				gr_remap_bitmap_good(&guy_bitmap, temp_palette, -1, -1);
 
 				show_briefing_bitmap(&guy_bitmap);
-				free(guy_bitmap.bm_data);
+				mem_free(guy_bitmap.bm_data);
 				prev_ch = 10;
 			}
 			else if (ch == 'S') 
@@ -1064,7 +1064,7 @@ int show_briefing_message(int screen_num, char* message)
 
 	if (Robot_canv != NULL)
 	{
-		free(Robot_canv); Robot_canv = NULL;
+		mem_free(Robot_canv); Robot_canv = NULL;
 	}
 
 	if (hum_channel > -1)
@@ -1264,7 +1264,7 @@ void do_briefing_screens(const char* filename, int level_num)
 
 	show_briefing_screen(level_num, 0);
 
-	free(Briefing_text);
+	mem_free(Briefing_text);
 	key_flush();
 
 	return;

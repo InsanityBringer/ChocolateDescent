@@ -63,7 +63,7 @@ void close_autosave(void) {
     for (i=0;i<Autosave_total;i++) {
 
         //MALLOC(delname, char, 128);//Hack by KRB
-        delname = (char *)malloc(128*sizeof(char));
+        delname = (char *)mem_malloc(128*sizeof(char));
 
         strcpy ( delname, mine_filename );
         strupr( delname );
@@ -73,7 +73,7 @@ void close_autosave(void) {
         sprintf( ext, ".M%d", i );
 
         remove( delname );
-        free( delname );
+        mem_free( delname );
     }
     //for (i=0;i<10;i++) free( undo_status[i] );
     //free( undo_status );
@@ -86,7 +86,7 @@ void autosave_mine(char *name) {
 	if (Autosave_flag) {
 	
 	    //MALLOC(savename, char, 128);//Hack by KRB
-	    savename = (char *)malloc(128*sizeof(char));
+	    savename = (char *)mem_malloc(128*sizeof(char));
 
 	
 	    strcpy ( savename, name );
@@ -106,7 +106,7 @@ void autosave_mine(char *name) {
 	    if (Autosave_total < 10)
 	        Autosave_total++;
 	
-	    free(savename);
+	    mem_free(savename);
 
 	}
 

@@ -29,7 +29,7 @@ grs_bitmap* gr_create_bitmap(int w, int h)
 {
 	grs_bitmap* newbm;
 
-	newbm = (grs_bitmap*)malloc(sizeof(grs_bitmap));
+	newbm = (grs_bitmap*)mem_malloc(sizeof(grs_bitmap));
 	newbm->bm_x = 0;
 	newbm->bm_y = 0;
 	newbm->bm_w = w;
@@ -39,7 +39,7 @@ grs_bitmap* gr_create_bitmap(int w, int h)
 	newbm->bm_rowsize = w;
 	newbm->bm_selector = 0;
 
-	newbm->bm_data = (unsigned char*)malloc(w * h * sizeof(unsigned char));
+	newbm->bm_data = (unsigned char*)mem_malloc(w * h * sizeof(unsigned char));
 
 	return newbm;
 }
@@ -48,7 +48,7 @@ grs_bitmap* gr_create_bitmap_raw(int w, int h, unsigned char* raw_data)
 {
 	grs_bitmap* newbm;
 
-	newbm = (grs_bitmap*)malloc(sizeof(grs_bitmap));
+	newbm = (grs_bitmap*)mem_malloc(sizeof(grs_bitmap));
 	newbm->bm_x = 0;
 	newbm->bm_y = 0;
 	newbm->bm_w = w;
@@ -80,7 +80,7 @@ grs_bitmap* gr_create_sub_bitmap(grs_bitmap* bm, int x, int y, int w, int h)
 {
 	grs_bitmap* newbm;
 
-	newbm = (grs_bitmap*)malloc(sizeof(grs_bitmap));
+	newbm = (grs_bitmap*)mem_malloc(sizeof(grs_bitmap));
 	newbm->bm_x = x + bm->bm_x;
 	newbm->bm_y = y + bm->bm_y;
 	newbm->bm_w = w;
@@ -98,16 +98,16 @@ grs_bitmap* gr_create_sub_bitmap(grs_bitmap* bm, int x, int y, int w, int h)
 void gr_free_bitmap(grs_bitmap* bm)
 {
 	if (bm->bm_data != NULL)
-		free(bm->bm_data);
+		mem_free(bm->bm_data);
 	bm->bm_data = NULL;
 	if (bm != NULL)
-		free(bm);
+		mem_free(bm);
 }
 
 void gr_free_sub_bitmap(grs_bitmap* bm)
 {
 	if (bm != NULL)
-		free(bm);
+		mem_free(bm);
 }
 
 void build_colormap_good(uint8_t* palette, uint8_t* colormap, int* freq);

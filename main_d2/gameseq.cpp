@@ -840,7 +840,7 @@ void load_bitmap_replacements(char* level_name)
 	//first, free up data allocated for old bitmaps
 	if (Bitmap_replacement_data)
 	{
-		free(Bitmap_replacement_data);
+		mem_free(Bitmap_replacement_data);
 		Bitmap_replacement_data = NULL;
 	}
 
@@ -906,7 +906,7 @@ void load_bitmap_replacements(char* level_name)
 
 		cfread(Bitmap_replacement_data, 1, bitmap_data_size, ifile);
 
-		free(indices);
+		mem_free(indices);
 
 		cfclose(ifile);
 

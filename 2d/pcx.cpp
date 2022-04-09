@@ -72,7 +72,7 @@ int pcx_read_bitmap(const char* filename, grs_bitmap* bmp, int bitmap_type, uint
 		if (bmp->bm_data == NULL) 
 		{
 			memset(bmp, 0, sizeof(grs_bitmap));
-			bmp->bm_data = (unsigned char*)malloc(xsize * ysize);
+			bmp->bm_data = (unsigned char*)mem_malloc(xsize * ysize);
 			if (bmp->bm_data == NULL) 
 			{
 				cfclose(PCXfile);

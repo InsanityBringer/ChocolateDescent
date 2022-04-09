@@ -138,7 +138,7 @@ int show_title_screen(const char* filename, int allow_keys)
 	}
 	if (gr_palette_fade_out(New_pal, 32, allow_keys))
 		return 1;
-	free(title_bm.bm_data);
+	mem_free(title_bm.bm_data);
 	return 0;
 }
 
@@ -362,7 +362,7 @@ void show_bitmap_frame(void)
 
 		gr_bitmapm(0, 0, bitmap_ptr);
 		grd_curcanv = curcanv_save;
-		free(bitmap_canv);
+		mem_free(bitmap_canv);
 
 		switch (Animating_bitmap_type) 
 		{
@@ -395,7 +395,7 @@ void show_briefing_bitmap(grs_bitmap* bmp)
 	grd_curcanv = bitmap_canv;
 	gr_bitmapm(0, 0, bmp);
 	grd_curcanv = curcanv_save;
-	free(bitmap_canv);
+	mem_free(bitmap_canv);
 }
 
 //	-----------------------------------------------------------------------------
@@ -649,7 +649,7 @@ int show_briefing_message(int screen_num, char* message)
 			{
 				if (Robot_canv != NULL)
 				{
-					free(Robot_canv); Robot_canv = NULL;
+					mem_free(Robot_canv); Robot_canv = NULL;
 				}
 
 				init_spinning_robot();
@@ -661,7 +661,7 @@ int show_briefing_message(int screen_num, char* message)
 				//--grs_bitmap	*bitmap_ptr;
 				if (Robot_canv != NULL)
 				{
-					free(Robot_canv); Robot_canv = NULL;
+					mem_free(Robot_canv); Robot_canv = NULL;
 				}
 
 				get_message_name(&message, Bitmap_name);
@@ -673,7 +673,7 @@ int show_briefing_message(int screen_num, char* message)
 			{
 				if (Robot_canv != NULL)
 				{
-					free(Robot_canv); Robot_canv = NULL;
+					mem_free(Robot_canv); Robot_canv = NULL;
 				}
 
 				get_message_name(&message, Bitmap_name);
@@ -690,7 +690,7 @@ int show_briefing_message(int screen_num, char* message)
 
 				if (Robot_canv != NULL)
 				{
-					free(Robot_canv); Robot_canv = NULL;
+					mem_free(Robot_canv); Robot_canv = NULL;
 				}
 
 				get_message_name(&message, bitmap_name);
@@ -700,7 +700,7 @@ int show_briefing_message(int screen_num, char* message)
 				Assert(iff_error == IFF_NO_ERROR);
 
 				show_briefing_bitmap(&guy_bitmap);
-				free(guy_bitmap.bm_data);
+				mem_free(guy_bitmap.bm_data);
 				prev_ch = 10;
 				//			} else if (ch == 'B') {
 				//				if (Robot_canv != NULL)
@@ -871,7 +871,7 @@ int show_briefing_message(int screen_num, char* message)
 
 	if (Robot_canv != NULL)
 	{
-		free(Robot_canv); Robot_canv = NULL;
+		mem_free(Robot_canv); Robot_canv = NULL;
 	}
 
 	return rval;
@@ -1003,7 +1003,7 @@ int show_briefing_screen(int screen_num, int allow_keys)
 	if (gr_palette_fade_out(New_pal, 32, allow_keys))
 		return 1;
 
-	free(briefing_bm.bm_data);
+	mem_free(briefing_bm.bm_data);
 
 	return rval;
 }
@@ -1047,7 +1047,7 @@ void do_briefing_screens(int level_num)
 	}
 
 
-	free(Briefing_text);
+	mem_free(Briefing_text);
 
 	key_flush();
 }
@@ -1066,7 +1066,7 @@ void do_registered_end_game(void)
 		int len = 40;
 
 		//MALLOC(Briefing_text, char, len);//Unable to compile -KRB
-		Briefing_text = (char*)malloc(len * sizeof(char));//my hack -KRB
+		Briefing_text = (char*)mem_malloc(len * sizeof(char));//my hack -KRB
 		sprintf(Briefing_text, "Test");
 	}
 
@@ -1145,7 +1145,7 @@ void do_end_game(void)
 #endif
 
 	if (Briefing_text) {
-		free(Briefing_text);
+		mem_free(Briefing_text);
 		Briefing_text = NULL;
 	}
 

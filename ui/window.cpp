@@ -200,7 +200,7 @@ UI_WINDOW* ui_open_window(short x, short y, short w, short h, int flags)
 	UI_WINDOW* wnd;
 	int sw, sh, req_w, req_h;
 
-	wnd = (UI_WINDOW*)malloc(sizeof(UI_WINDOW));
+	wnd = (UI_WINDOW*)mem_malloc(sizeof(UI_WINDOW));
 	if (wnd == NULL) exit(1);
 
 	W_NEXT = NULL;
@@ -302,7 +302,7 @@ void ui_close_window(UI_WINDOW* wnd)
 	if (CurWindow == wnd)
 		CurWindow = NULL;
 
-	free(wnd);
+	mem_free(wnd);
 
 	ui_mouse_show();
 }

@@ -65,7 +65,7 @@ void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 	int i;
 	sort_element *sortlist;
 
-	sortlist = (sort_element*)calloc(n_segs,sizeof(*sortlist));
+	sortlist = (sort_element*)mem_calloc(n_segs,sizeof(*sortlist));
 
 	for (i=0;i<n_segs;i++) {
 		sortlist[i].segnum = segnumlist[i];
@@ -77,7 +77,7 @@ void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 	for (i=0;i<n_segs;i++)
 		segnumlist[i] = sortlist[i].segnum;
 
-	free(sortlist);
+	mem_free(sortlist);
 }
 
 int SortSelectedList(void)

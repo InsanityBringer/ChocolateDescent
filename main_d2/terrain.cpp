@@ -332,7 +332,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 void free_height_array()
 {
-	free(height_array);
+	mem_free(height_array);
 }
 
 void load_terrain(char *filename)
@@ -349,7 +349,7 @@ void load_terrain(char *filename)
 	}
 
 	if (height_array)
-		free(height_array);
+		mem_free(height_array);
 	else
 		atexit(free_height_array);		//first time
 
@@ -430,7 +430,7 @@ fix get_avg_light(int i,int j)
 void free_light_table()
 {
 	if (light_array)
-		free(light_array);
+		mem_free(light_array);
 
 }
 
@@ -441,7 +441,7 @@ void build_light_table()
 
 
 	if (light_array)
-		free(light_array);
+		mem_free(light_array);
 	else
 		atexit(free_light_table);		//first time
 

@@ -639,7 +639,7 @@ int convert_ilbm_to_pbm(iff_bitmap_header* bmheader)
 
 	}
 
-	free(bmheader->raw_data);
+	mem_free(bmheader->raw_data);
 	bmheader->raw_data = (uint8_t*)new_data;
 
 	bmheader->type = TYPE_PBM;
@@ -671,7 +671,7 @@ int convert_rgb15(grs_bitmap* bm, iff_bitmap_header* bmheader)
 
 	}
 
-	free(bm->bm_data);				//get rid of old-style data
+	mem_free(bm->bm_data);				//get rid of old-style data
 	bm->bm_data = (uint8_t*)new_data;			//..and point to new data
 
 	bm->bm_rowsize *= 2;				//two bytes per row
@@ -711,7 +711,7 @@ int open_fake_file(char* ifilename, FFILE* ffile)
 void close_fake_file(FFILE* f)
 {
 	if (f->data)
-		free(f->data);
+		mem_free(f->data);
 
 	f->data = NULL;
 }
@@ -770,7 +770,7 @@ int iff_parse_bitmap(FFILE* ifile, grs_bitmap* bm, int bitmap_type, int8_t* pale
 
 	if (ret != IFF_NO_ERROR) //got an error parsing
 	{
-		if (bmheader.raw_data) free(bmheader.raw_data);
+		if (bmheader.raw_data) mem_free(bmheader.raw_data);
 		goto done;
 	}
 
@@ -819,7 +819,7 @@ int iff_read_bitmap(char* ifilename, grs_bitmap* bm, int bitmap_type, uint8_t* p
 
 done:
 
-	if (ifile.data) free(ifile.data);
+	if (ifile.data) mem_free(ifile.data);
 
 	close_fake_file(&ifile);
 
@@ -842,7 +842,7 @@ int iff_read_into_bitmap(char* ifilename, grs_bitmap* bm, uint8_t* palette)
 
 done:
 
-	if (ifile.data) free(ifile.data);
+	if (ifile.data) mem_free(ifile.data);
 
 	close_fake_file(&ifile);
 
@@ -1024,7 +1024,7 @@ int write_body(FILE* ofile, iff_bitmap_header* bitmap_header, int compression_on
 		if (total_len & 1) fputc(0, ofile);		//pad to even
 	}
 
-	free(new_span);
+	mem_free(new_span);
 
 	return ((compression_on) ? (EVEN(total_len) + 8) : (len + 8));
 

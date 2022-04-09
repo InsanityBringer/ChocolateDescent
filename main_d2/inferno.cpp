@@ -913,11 +913,11 @@ Here:
 			ifile = fopen(sounds[i], "rb");
 			Assert(ifile != NULL);
 			size = filelength(fileno(ifile));
-			buf = (uint8_t*)malloc(size);
+			buf = (uint8_t*)mem_malloc(size);
 			fread(buf, 1, size, ifile);
 			fwrite(&size, sizeof(size), 1, ofile);
 			fwrite(buf, 1, size, ofile);
-			free(buf);
+			mem_free(buf);
 			fclose(ifile);
 		}
 

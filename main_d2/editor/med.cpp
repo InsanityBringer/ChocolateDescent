@@ -367,7 +367,7 @@ void medkey_init()
 		}
 		fclose(keyfile);
 	}
-	free( LispCommand );
+	mem_free( LispCommand );
 }
 
 void init_editor()

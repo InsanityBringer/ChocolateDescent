@@ -547,7 +547,7 @@ int ui_get_file(char* filename, int filenamelen, char* Filespec)
 
 	for (i = 0; i < NumFiles; i++)
 	{
-		free(text[i]);
+		mem_free(text[i]);
 	}
 
 	if (x > 0)

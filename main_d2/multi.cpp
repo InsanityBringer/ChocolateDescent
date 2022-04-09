@@ -5365,7 +5365,7 @@ void init_hoard_data()
 			}
 
 			GameSounds[Num_sound_files + i].length = len;
-			GameSounds[Num_sound_files + i].data = (uint8_t*)malloc(len);
+			GameSounds[Num_sound_files + i].data = (uint8_t*)mem_malloc(len);
 			cfread(GameSounds[Num_sound_files + i].data, 1, len, ifile);
 
 			if (digi_sample_rate == SAMPLE_RATE_11K) 

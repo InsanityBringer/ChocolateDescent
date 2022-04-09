@@ -547,10 +547,10 @@ void gr_close_font(grs_font* font)
 {
 	if (font)
 	{
-		free(font->ft_datablock);
+		mem_free(font->ft_datablock);
 		if (font->ft_chars)
-			free(font->ft_chars);
-		free(font);
+			mem_free(font->ft_chars);
+		mem_free(font);
 	}
 }
 
@@ -567,7 +567,7 @@ void gr_read_font(grs_font* font, CFILE* fp, int len)
 	int i;
 	uint8_t* ptr;
 
-	font->ft_datablock = (uint8_t*)malloc(len);
+	font->ft_datablock = (uint8_t*)mem_malloc(len);
 
 	font->ft_w = cfile_read_short(fp);
 	font->ft_h = cfile_read_short(fp);
@@ -596,7 +596,7 @@ void gr_read_font(grs_font* font, CFILE* fp, int len)
 		//font->ft_widths = (short*)(((int)font->ft_widths) + ((uint8_t*)font));
 		font->ft_widths = (short*)&font->ft_datablock[widthPtr];
 		font->ft_data = &font->ft_datablock[dataPtr];
-		font->ft_chars = (unsigned char**)malloc(nchars * sizeof(unsigned char*));
+		font->ft_chars = (unsigned char**)mem_malloc(nchars * sizeof(unsigned char*));
 		ptr = font->ft_data;
 
 		for (i = 0; i < nchars; i++)
@@ -655,7 +655,7 @@ grs_font * gr_init_font(const char* fontname)
 	if (file_id != 'NFSP')
 		Error("File %s is not a font file", fontname);
 
-	font = (grs_font*)malloc(datasize);
+	font = (grs_font*)mem_malloc(datasize);
 
 	//printf("loading font %s\n", fontname);
 	gr_read_font(font, fontfile, datasize);

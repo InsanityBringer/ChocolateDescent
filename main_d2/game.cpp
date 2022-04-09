@@ -280,7 +280,7 @@ void load_background_bitmap()
 	int pcx_error;
 
 	if (background_bitmap.bm_data)
-		free(background_bitmap.bm_data);
+		mem_free(background_bitmap.bm_data);
 
 	background_bitmap.bm_data=NULL;
 	pcx_error = pcx_read_bitmap(john_head_on?"johnhead.pcx":BACKGROUND_NAME,&background_bitmap,BM_LINEAR,pal);
@@ -375,7 +375,7 @@ void init_cockpit()
 	gr_set_curfont( GAME_FONT );
 
 	if (Game_cockpit_copy_code)
-		free(Game_cockpit_copy_code);
+		mem_free(Game_cockpit_copy_code);
 	Game_cockpit_copy_code  = NULL;
 
 	switch( Cockpit_mode )	
@@ -527,7 +527,7 @@ void game_init_render_buffers(int screen_mode, int render_w, int render_h, int r
 #if defined(POLY_ACC)
 			#ifndef MACINTOSH
             VR_offscreen_buffer = gr_create_canvas( render_w, render_h );
-            free(VR_offscreen_buffer->cv_bitmap.bm_data);
+            mem_free(VR_offscreen_buffer->cv_bitmap.bm_data);
             gr_init_canvas(VR_offscreen_buffer, pa_get_buffer_address(1), BM_LINEAR15, render_w, render_h);
 			#else
 				if ( PAEnabled || gConfigInfo.mAcceleration ) {
@@ -1927,7 +1927,7 @@ void close_game()
 
 #if !defined(MACINTOSH) && !defined(WINDOWS)
 	if (Game_cockpit_copy_code)	{
-		free(Game_cockpit_copy_code);
+		mem_free(Game_cockpit_copy_code);
 		Game_cockpit_copy_code = NULL;
 	}
 #else
@@ -1936,7 +1936,7 @@ void close_game()
 #endif
 
 	if (background_bitmap.bm_data)
-		free(background_bitmap.bm_data);
+		mem_free(background_bitmap.bm_data);
 
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 }
@@ -2054,7 +2054,7 @@ void toggle_movie_saving()
 
 		if (!Movie_frame_buffer) 
 		{
-			Movie_frame_buffer = (uint8_t*)malloc(MAX_MOVIE_BUFFER_FRAMES * MOVIE_FRAME_SIZE);
+			Movie_frame_buffer = (uint8_t*)mem_malloc(MAX_MOVIE_BUFFER_FRAMES * MOVIE_FRAME_SIZE);
 			if (!Movie_frame_buffer) 
 			{
 				Int3();

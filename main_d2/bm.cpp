@@ -453,7 +453,7 @@ bitmap_index exitmodel_bm_load_sub( char * filename )
 
 	GameBitmaps[extra_bitmap_num++] = *new;
 	
-	free( new );
+	mem_free( new );
 	return bitmap_num;
 }
 
@@ -529,7 +529,7 @@ void load_exit_models()
 	Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 	#endif
 
-	Polygon_models[exit_modelnum].model_data = malloc(Polygon_models[exit_modelnum].model_data_size);
+	Polygon_models[exit_modelnum].model_data = mem_malloc(Polygon_models[exit_modelnum].model_data_size);
 	Assert( Polygon_models[exit_modelnum].model_data != NULL );
 	cfread( Polygon_models[exit_modelnum].model_data, sizeof(uint8_t), Polygon_models[exit_modelnum].model_data_size, exit_hamfile );
 	#ifdef MACINTOSH
@@ -537,7 +537,7 @@ void load_exit_models()
 	#endif
 	g3_init_polygon_model(Polygon_models[exit_modelnum].model_data);
 
-	Polygon_models[destroyed_exit_modelnum].model_data = malloc(Polygon_models[destroyed_exit_modelnum].model_data_size);
+	Polygon_models[destroyed_exit_modelnum].model_data = mem_malloc(Polygon_models[destroyed_exit_modelnum].model_data_size);
 	Assert( Polygon_models[destroyed_exit_modelnum].model_data != NULL );
 	cfread( Polygon_models[destroyed_exit_modelnum].model_data, sizeof(uint8_t), Polygon_models[destroyed_exit_modelnum].model_data_size, exit_hamfile );
 	#ifdef MACINTOSH
@@ -607,7 +607,7 @@ void bm_read_all(CFILE* fp)
 
 	for (i = 0; i < N_polygon_models; i++)
 	{
-		Polygon_models[i].model_data = (uint8_t*)malloc(Polygon_models[i].model_data_size);
+		Polygon_models[i].model_data = (uint8_t*)mem_malloc(Polygon_models[i].model_data_size);
 		Assert(Polygon_models[i].model_data != NULL);
 		cfread(Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp);
 #ifdef MACINTOSH
@@ -738,7 +738,7 @@ void bm_read_extra_robots(char *fname,int type)
 	
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )
 	{
-		Polygon_models[i].model_data = (uint8_t*)malloc(Polygon_models[i].model_data_size);
+		Polygon_models[i].model_data = (uint8_t*)mem_malloc(Polygon_models[i].model_data_size);
 		Assert( Polygon_models[i].model_data != NULL );
 		cfread( Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp );
 		
@@ -828,11 +828,11 @@ void load_robot_replacements(char *level_name)
 
 		//[ISB] I'm going to hurt someone
 		//Free the old model data before loading a bogus pointer over it
-		free(Polygon_models[i].model_data);
+		mem_free(Polygon_models[i].model_data);
 	
 		read_polygon_models(fp, 1, i);
 	
-		Polygon_models[i].model_data = (uint8_t*)malloc(Polygon_models[i].model_data_size);
+		Polygon_models[i].model_data = (uint8_t*)mem_malloc(Polygon_models[i].model_data_size);
 		Assert( Polygon_models[i].model_data != NULL );
 
 		cfread( Polygon_models[i].model_data, sizeof(uint8_t), Polygon_models[i].model_data_size, fp );

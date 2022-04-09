@@ -337,7 +337,7 @@ polymodel* read_model_file(polymodel* pm, char* filename, robot_info* r)
 		case ID_IDTA:		//Interpreter data
 			//mprintf(0,"Got chunk IDTA, len=%d\n",len);
 
-			pm->model_data = (uint8_t*)malloc(len);
+			pm->model_data = (uint8_t*)mem_malloc(len);
 			pm->model_data_size = len;
 
 			pof_cfread(pm->model_data, 1, len, model_buf);
@@ -442,7 +442,7 @@ int read_model_guns(char* filename, vms_vector* gun_points, vms_vector* gun_dirs
 //free up a model, getting rid of all its memory
 void free_model(polymodel* po)
 {
-	free(po->model_data);
+	mem_free(po->model_data);
 }
 
 grs_bitmap* texture_list[MAX_POLYOBJ_TEXTURES];

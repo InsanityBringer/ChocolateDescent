@@ -83,12 +83,12 @@ int Num_subtitles;
 // ----------------------------------------------------------------------
 void* MPlayAlloc(unsigned size)
 {
-	return malloc(size);
+	return mem_malloc(size);
 }
 
 void MPlayFree(void* p)
 {
-	free(p);
+	mem_free(p);
 }
 
 extern uint16_t hSOSDigiDriver;
@@ -632,7 +632,7 @@ void FreeRoboBuffer(int n)
 	int i;
 
 	for (i = n; i >= 0; i--)
-		free(RoboBuffer[i]);
+		mem_free(RoboBuffer[i]);
 
 #endif 
 }
@@ -650,8 +650,8 @@ void DeInitRobotMovie()
 
 	MVE_rmEndMovie();
 	MVE_ReleaseMem();
-	free(FirstVid);
-	free(SecondVid);
+	mem_free(FirstVid);
+	mem_free(SecondVid);
 
 	FreeRoboBuffer(49);
 
@@ -697,9 +697,9 @@ int InitRobotMovie(const char* filename)
 	for (i = 0; i < 50; i++)
 	{
 		if (MenuHires)
-			RoboBuffer[i] = malloc(65000L);
+			RoboBuffer[i] = mem_malloc(65000L);
 		else
-			RoboBuffer[i] = malloc(17000L);
+			RoboBuffer[i] = mem_malloc(17000L);
 
 		if (RoboBuffer[i] == NULL)
 		{
@@ -711,14 +711,14 @@ int InitRobotMovie(const char* filename)
 	}
 #endif
 
-	if ((FirstVid = (char*)calloc(65000L, 1)) == NULL)
+	if ((FirstVid = (char*)mem_calloc(65000L, 1)) == NULL)
 	{
 		FreeRoboBuffer(49);
 		return (0);
 	}
-	if ((SecondVid = (char*)calloc(65000L, 1)) == NULL)
+	if ((SecondVid = (char*)mem_calloc(65000L, 1)) == NULL)
 	{
-		free(FirstVid);
+		mem_free(FirstVid);
 		FreeRoboBuffer(49);
 		return (0);
 	}
@@ -733,8 +733,8 @@ int InitRobotMovie(const char* filename)
 
 	if (RoboFile == -1) 
 	{
-		free(FirstVid);
-		free(SecondVid);
+		mem_free(FirstVid);
+		mem_free(SecondVid);
 		FreeRoboBuffer(49);
 #ifdef RELEASE
 		Error("Cannot open movie file <%s>", filename);
@@ -757,8 +757,8 @@ int InitRobotMovie(const char* filename)
 	{
 #endif
 		Int3();
-		free(FirstVid);
-		free(SecondVid);
+		mem_free(FirstVid);
+		mem_free(SecondVid);
 		FreeRoboBuffer(49);
 		return 0;
 	}
@@ -835,7 +835,7 @@ int init_subtitles(const char* filename)
 
 	if (read_count != size) 
 	{
-		free(subtitle_raw_data);
+		mem_free(subtitle_raw_data);
 		return 0;
 	}
 
@@ -881,7 +881,7 @@ int init_subtitles(const char* filename)
 void close_subtitles()
 {
 	if (subtitle_raw_data)
-		free(subtitle_raw_data);
+		mem_free(subtitle_raw_data);
 	subtitle_raw_data = NULL;
 	Num_subtitles = 0;
 }
@@ -974,7 +974,7 @@ movielib * init_new_movie_lib(const char* filename, FILE * fp)
 
 	fread(&nfiles, 4, 1, fp);		//get number of files
 
-	table = (movielib*)malloc(sizeof(*table) + sizeof(ml_entry) * nfiles);
+	table = (movielib*)mem_malloc(sizeof(*table) + sizeof(ml_entry) * nfiles);
 
 	strcpy(table->name, filename);
 	table->n_movies = nfiles;
@@ -1013,7 +1013,7 @@ movielib* init_old_movie_lib(const char* filename, FILE * fp)
 	nfiles = 0;
 
 	//allocate big table
-	table = (movielib*)malloc(sizeof(*table) + sizeof(ml_entry) * MAX_MOVIES_PER_LIB);
+	table = (movielib*)mem_malloc(sizeof(*table) + sizeof(ml_entry) * MAX_MOVIES_PER_LIB);
 
 	while (1) 
 	{
@@ -1038,9 +1038,9 @@ movielib* init_old_movie_lib(const char* filename, FILE * fp)
 
 	//allocate correct-sized table
 	size = sizeof(*table) + sizeof(ml_entry) * nfiles;
-	table2 = (movielib*)malloc(size);
+	table2 = (movielib*)mem_malloc(size);
 	memcpy(table2, table, size);
-	free(table);
+	mem_free(table);
 	table = table2;
 
 	strcpy(table->name, filename);
@@ -1072,7 +1072,7 @@ movielib* init_movie_lib(const char* filename)
 #ifndef _WINDOWS
 	if (!fp)
 	{
-		char* filename2 = (char*)malloc(sizeof(char) * (strlen(filename) + 1));
+		char* filename2 = (char*)mem_malloc(sizeof(char) * (strlen(filename) + 1));
 		strcpy(filename2, filename);
 		_strupr(filename2);
 		fp = fopen(filename2, "rb");
@@ -1082,7 +1082,7 @@ movielib* init_movie_lib(const char* filename)
 			_strupr(filename2);
 			fp = fopen(filename2, "rb");
 		}
-		free(filename2);
+		mem_free(filename2);
 	}
 #endif
 	if (fp == NULL)
@@ -1125,7 +1125,7 @@ movielib* movie_libs[N_MOVIE_LIBS];
 void close_movie(int i)
 {
 	if (movie_libs[i])
-		free(movie_libs[i]);
+		mem_free(movie_libs[i]);
 }
 
 void close_movies()

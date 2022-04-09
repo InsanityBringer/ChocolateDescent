@@ -294,13 +294,13 @@ int gr_bitmap_rle_compress(grs_bitmap* bmp)
 	int doffset;
 	uint8_t* rle_data;
 
-	rle_data = (uint8_t*)malloc((bmp->bm_w + 1) * bmp->bm_h);
+	rle_data = (uint8_t*)mem_malloc((bmp->bm_w + 1) * bmp->bm_h);
 	if (rle_data == NULL) return 0;
 	doffset = 4 + bmp->bm_h;
 	for (y = 0; y < bmp->bm_h; y++) {
 		d1 = gr_rle_getsize(bmp->bm_w, &bmp->bm_data[bmp->bm_w * y]);
 		if (((doffset + d1) > bmp->bm_w * bmp->bm_h) || (d1 > 255)) {
-			free(rle_data);
+			mem_free(rle_data);
 			return 0;
 		}
 		d = gr_rle_encode(bmp->bm_w, &bmp->bm_data[bmp->bm_w * y], &rle_data[doffset]);
@@ -311,7 +311,7 @@ int gr_bitmap_rle_compress(grs_bitmap* bmp)
 	//mprintf( 0, "Bitmap of size %dx%d, (%d bytes) went down to %d bytes\n", bmp->bm_w, bmp->bm_h, bmp->bm_h*bmp->bm_w, doffset );
 	memcpy(rle_data, &doffset, 4);
 	memcpy(bmp->bm_data, rle_data, doffset);
-	free(rle_data);
+	mem_free(rle_data);
 	bmp->bm_flags |= BM_FLAG_RLE;
 	return 1;
 }

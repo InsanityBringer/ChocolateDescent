@@ -29,7 +29,7 @@ std::vector<char*> Text_string;
 
 void free_text()
 {
-	free(text);
+	mem_free(text);
 }
 
 // rotates a byte left one bit, preserving the bit falling off the right

@@ -47,7 +47,7 @@ void gr_close()
 	if (gr_installed == 1)
 	{
 		gr_installed = 0;
-		free(grd_curscreen);
+		mem_free(grd_curscreen);
 		//[ISB] Oops, gr_close is an atexit, but plat_close_window was expected to be called on the SDL code before. Keep call for Windows code atm.
 		plat_close_window();
 	}
