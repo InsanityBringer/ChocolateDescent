@@ -17,7 +17,7 @@ used. This isn't fully featured at the moment, but I try to keep it compilable.
 Only the SDL and OpenAL backends are available on Linux right now.
 
 -------------------------------------------------------------------------------
-Building on Windows
+Building on Windows with Cmake GUI + Visual Studio
 -------------------------------------------------------------------------------
 Here's a step by step outline to building on Windows with CMake-gui. I don't 
 know enough about the CLI version to give instructions there, sorry.
@@ -44,6 +44,40 @@ values, and then click Generate to make the project files.
 
 6. Open up the generated solution file in Visual Studio, and then build the
 projects as desired. 
+
+-------------------------------------------------------------------------------
+Building on Windows with MSYS 2
+-------------------------------------------------------------------------------
+A quick tutorial for building with MSYS and MinGW-W64.
+
+Setting up the environment:
+From the msys2 terminal, install the needed dev packages. on an x86 platform,
+these are as follows:
+mingw-w64-x86_64-make (make will also work)
+mingw-w64-x86_64-cmake
+mingw-w64-x86_64-gcc
+mingw-w64-x86_64-SDL2 (optional, but recommended ATM)
+mingw-w64-clang-x86_64-fluidsynth (optional)
+mingw-w64-x86_64-openal (optional, but recommended ATM)
+git (optional, if you want to clone the source from MSYS 2)
+
+Getting and preparing the sources:
+With git installed, run 
+ git clone https://github.com/InsanityBringer/ChocolateDescent.git
+
+Once cloned, cd into the newly created ChocolateDescent directory, and create
+a build directory with
+
+ mkdir build
+ 
+When created, cd into the new directory.
+
+Making the sources: 
+To create the make files, form the build directory, run
+ cmake.exe -G "MSYS Makefiles" ..
+ 
+This will generate a makefile in the build directory, which can then be built
+with the make command. The executables will be output into the build directory
 
 -------------------------------------------------------------------------------
 Building on Linux
