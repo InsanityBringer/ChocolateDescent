@@ -10,7 +10,6 @@ as described in copying.txt.
 #include "platform/s_midi.h"
 
 #include <Windows.h>
-#include <mmeapi.h>
 
 class MidiWin32Synth : MidiSynth
 {
