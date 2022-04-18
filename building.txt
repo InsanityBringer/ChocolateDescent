@@ -74,7 +74,7 @@ When created, cd into the new directory.
 
 Making the sources: 
 To create the make files, form the build directory, run
- cmake -G "MSYS Makefiles" ..
+ cmake.exe -G "MSYS Makefiles" ..
  
 This will generate a makefile in the build directory, which can then be built
 with the make command. The executables will be output into the build directory
