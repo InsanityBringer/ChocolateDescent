@@ -953,6 +953,7 @@ void do_chocolate_midi_menu()
 	newmenu_item m[13];
 	int i = 0, j;
 	std::vector<std::string> names;
+	GenDevices new_preferred_device;
 
 	names = music_get_MME_devices();
 
@@ -994,6 +995,23 @@ void do_chocolate_midi_menu()
 			delete[] strings;
 		}
 	} while (i != -1);
+
+	if (m[2].value)
+		new_preferred_device = GenDevices::FluidSynthDevice;
+	else if (m[5].value)
+		new_preferred_device = GenDevices::MMEDevice;
+	else
+		new_preferred_device = GenDevices::NullDevice;
+
+	if (new_preferred_device != PreferredGenDevice)
+	{
+		PreferredGenDevice = new_preferred_device;
+		//restart the sound system
+		digi_reset();
+		digi_reset();
+
+		songs_play_song(SONG_TITLE, 1);
+	}
 }
 
 void do_chocolate_menu()
@@ -1039,7 +1057,7 @@ void do_chocolate_menu()
 		*x_ptr = '\0';
 		new_width = atoi(res_string);
 		new_height = atoi(x_ptr + 1);
-		if (new_width == 0 || new_height == 0)
+		if (new_width < 320 || new_height < 240)
 			nm_messagebox(NULL, 1, TXT_OK, "Window size is invalid");
 		else
 		{
