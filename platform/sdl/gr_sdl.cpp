@@ -223,6 +223,32 @@ void I_SetScreenRect(int w, int h)
 	}
 }
 
+void plat_toggle_fullscreen()
+{
+	if (Fullscreen)
+	{
+		SDL_SetWindowFullscreen(gameWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		SDL_GetWindowSize(gameWindow, &CurWindowWidth, &CurWindowHeight);
+	}
+	else
+	{
+		SDL_SetWindowFullscreen(gameWindow, 0);
+		SDL_SetWindowSize(gameWindow, WindowWidth, WindowHeight);
+		CurWindowWidth = WindowWidth; CurWindowHeight = WindowHeight;
+		SDL_SetWindowPosition(gameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	}
+
+	I_SetScreenRect(grd_curscreen->sc_w, grd_curscreen->sc_h);
+}
+
+void plat_update_window()
+{
+	SDL_SetWindowSize(gameWindow, WindowWidth, WindowHeight);
+	SDL_SetWindowPosition(gameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+	plat_toggle_fullscreen();
+}
+
 int plat_set_gr_mode(int mode)
 {
 	int w, h;
@@ -333,22 +359,8 @@ void plat_do_events()
 		case SDL_KEYUP:
 			if (ev.key.keysym.scancode == SDL_SCANCODE_RETURN && ev.key.state == SDL_PRESSED && ev.key.keysym.mod & KMOD_ALT)
 			{
-				if (!Fullscreen)
-				{
-					SDL_SetWindowFullscreen(gameWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-					SDL_GetWindowSize(gameWindow, &CurWindowWidth, &CurWindowHeight);
-					Fullscreen = 1;
-				}
-				else
-				{
-					SDL_SetWindowFullscreen(gameWindow, 0);
-					SDL_SetWindowSize(gameWindow, WindowWidth, WindowHeight);
-					CurWindowWidth = WindowWidth; CurWindowHeight = WindowHeight;
-					SDL_SetWindowPosition(gameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-					Fullscreen = 0;
-				}
-
-				I_SetScreenRect(grd_curscreen->sc_w, grd_curscreen->sc_h);
+				Fullscreen ^= 1;
+				plat_toggle_fullscreen();
 			}
 			else
 				I_KeyHandler(ev.key.keysym.scancode, ev.key.state);

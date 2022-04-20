@@ -31,6 +31,7 @@ static const char* MouseScalarStr = "MouseScalar";
 static const char* SwapIntervalStr = "SwapInterval";
 static const char* NoOpenGLStr = "NoOpenGL";
 static const char* GenDeviceStr = "PreferredGenMidiDevice";
+static const char* MMEDeviceStr = "MMEDevice";
 
 bool NoOpenGL = false;
 
@@ -119,6 +120,7 @@ int plat_read_chocolate_cfg()
 	//some basic validation
 	if (WindowWidth <= 320) WindowWidth = 320;
 	if (WindowHeight <= 240) WindowHeight = 240;
+	if (PreferredMMEDevice < -1) PreferredMMEDevice = -1;
 
 	fclose(infile);
 

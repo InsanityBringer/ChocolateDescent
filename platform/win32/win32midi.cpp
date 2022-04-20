@@ -29,6 +29,15 @@ void MidiWin32Synth::SetSampleRate(uint32_t newSampleRate)
 
 void MidiWin32Synth::CreateSynth()
 {
+	UINT device = MIDI_MAPPER;
+	UINT max_device = midiOutGetNumDevs();
+	if (PreferredMMEDevice >= 0)
+	{
+		mprintf((0, "Using explicit MME device %d\n", PreferredMMEDevice));
+		if (PreferredMMEDevice < max_device)
+			device = PreferredMMEDevice;
+	}
+		
 	MMRESULT res = midiOutOpen(&OutputDevice, MIDI_MAPPER, NULL, NULL, CALLBACK_NULL);
 
 	if (res != MMSYSERR_NOERROR)
@@ -177,4 +186,20 @@ void MidiWin32Synth::SetVolume(int volume)
 			return;
 		}
 	}
+}
+
+std::vector<std::string> music_get_MME_devices()
+{
+	UINT numdevs = midiOutGetNumDevs();
+	MIDIOUTCAPS caps = {};
+	std::vector<std::string> options;
+
+	for (UINT i = 0; i < numdevs; i++)
+	{
+		midiOutGetDevCaps(i, &caps, sizeof(caps));
+
+		options.push_back(std::string(caps.szPname, strlen(caps.szPname)));
+	}
+
+	return options;
 }

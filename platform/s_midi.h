@@ -9,6 +9,7 @@ as described in copying.txt
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <string>
 #include <stdint.h>
 
 #define EVENT_NOTEOFF 8
@@ -68,6 +69,9 @@ enum class GenDevices
 
 extern GenDevices PreferredGenDevice;
 extern char SoundFontFilename[];
+
+//Preferred device for the MME MIDI device. Default to -1, which uses the MIDI mapper
+extern int PreferredMMEDevice;
 
 typedef struct
 {
@@ -244,6 +248,8 @@ public:
 int S_InitMusic(int device);
 void S_ShutdownMusic();
 void music_set_volume(int volume);
+
+std::vector<std::string> music_get_MME_devices();
 
 uint16_t S_StartSong(int length, uint8_t* data, bool loop, uint32_t* handle);
 uint16_t S_StopSong();

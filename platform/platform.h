@@ -38,6 +38,9 @@ void plat_close();
 //Display an error message
 void plat_display_error(const char* msg);
 
+//Updates the window, if settings changed in game
+void plat_update_window();
+
 //-----------------------------------------------------------------------------
 //	Setting graphics modes
 //-----------------------------------------------------------------------------

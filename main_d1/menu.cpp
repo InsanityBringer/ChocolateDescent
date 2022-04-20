@@ -792,6 +792,10 @@ void joydef_menuset(int nitems, newmenu_item* items, int* last_key, int citem)
 #define	TXT_JOYS_SENSITIVITY "Joystick/Mouse\nSensitivity"
 #endif
 
+char chocolate_menu_text[] = "Chocolate Settings";
+
+void do_chocolate_menu();
+
 void do_options_menu()
 {
 	newmenu_item m[13];
@@ -807,7 +811,7 @@ void do_options_menu()
 		m[5].type = NM_TYPE_TEXT; m[5].text = (char*)"";
 		m[6].type = NM_TYPE_MENU; m[6].text = TXT_CONTROLS_;
 		m[7].type = NM_TYPE_MENU; m[7].text = TXT_DETAIL_LEVELS;
-		m[8].type = NM_TYPE_MENU; m[8].text = TXT_CAL_JOYSTICK;
+		m[8].type = NM_TYPE_MENU; m[8].text = chocolate_menu_text;
 		m[9].type = NM_TYPE_TEXT; m[9].text = (char*)"";
 		m[10].type = NM_TYPE_SLIDER; m[10].text = TXT_JOYS_SENSITIVITY; m[10].value = Config_joystick_sensitivity; m[10].min_value = 0; m[10].max_value = 8;
 		m[11].type = NM_TYPE_TEXT; m[11].text = (char*)"";
@@ -819,7 +823,7 @@ void do_options_menu()
 		{
 		case 6: joydefs_config(); 			break;
 		case 7: do_detail_level_menu();	break;
-		case 8: joydefs_calibrate();		break;
+		case 8: do_chocolate_menu();		break;
 		}
 
 		Config_channels_reversed = m[2].value;
@@ -938,3 +942,113 @@ void do_ip_address_menu()
 	return;
 }
 #endif
+
+#include "platform/platform.h"
+#include "platform/s_midi.h"
+
+char default_str[] = "Default MIDI device";
+
+void do_chocolate_midi_menu()
+{
+	newmenu_item m[13];
+	int i = 0, j;
+	std::vector<std::string> names;
+
+	names = music_get_MME_devices();
+
+	do
+	{
+		m[0].type = NM_TYPE_TEXT; m[0].text = "Preferred general MIDI device";
+		m[1].type = NM_TYPE_RADIO; m[1].text = "None"; m[1].group = 0; m[1].value = PreferredGenDevice == GenDevices::NullDevice;
+		m[2].type = NM_TYPE_RADIO; m[2].text = "FluidSynth (if available)"; m[2].group = 0; m[2].value = PreferredGenDevice == GenDevices::FluidSynthDevice;
+		m[3].type = NM_TYPE_TEXT; m[3].text = "Soundfont path";
+		m[4].type = NM_TYPE_INPUT; m[4].text = SoundFontFilename; m[4].text_len = _MAX_PATH - 1;
+		m[5].type = NM_TYPE_RADIO; m[5].text = "MS/Native MIDI (if available)"; m[5].group = 0; m[5].value = PreferredGenDevice == GenDevices::MMEDevice;
+		m[6].type = NM_TYPE_MENU; m[6].text = "Select MME device";
+
+		i = newmenu_do1(NULL, "MIDI Options", 7, m, nullptr, i);
+
+		if (i == 6)
+		{
+			char** strings = new char* [names.size() + 1];
+			strings[0] = default_str;
+			for (j = 0; j < names.size(); j++)
+				strings[j + 1] = (char*)names[j].c_str();
+
+			j = newmenu_listbox1("Available MME devices", names.size() + 1, strings, 1, PreferredMMEDevice+1, nullptr);
+
+			if (j != -1)
+			{
+				j--;
+				if (j != PreferredMMEDevice)
+				{
+					PreferredMMEDevice = j;
+					//restart the sound system
+					digi_reset();
+					digi_reset();
+
+					songs_play_song(SONG_TITLE, 1);
+				}
+			}
+
+			delete[] strings;
+		}
+	} while (i != -1);
+}
+
+void do_chocolate_menu()
+{
+	newmenu_item m[13];
+	char res_string[64];
+	int i = 0;
+	int new_width, new_height;
+
+	snprintf(res_string, 64, "%dx%d", WindowWidth, WindowHeight);
+	res_string[63] = '\0';
+
+	do
+	{
+		m[0].type = NM_TYPE_TEXT; m[0].text = "Window size";
+		m[1].type = NM_TYPE_INPUT; m[1].text = res_string; m[1].text_len = 63;
+		m[2].type = NM_TYPE_CHECK; m[2].text = "Fullscreen"; m[2].value = Fullscreen;
+		m[3].type = NM_TYPE_CHECK; m[3].text = "Integer scaling"; m[3].value = BestFit;
+		m[4].type = NM_TYPE_RADIO; m[4].text = "Disable VSync"; m[4].group = 0; m[4].value = SwapInterval == 0;
+		m[5].type = NM_TYPE_RADIO; m[5].text = "Enable VSync"; m[5].group = 0; m[5].value = SwapInterval == 1;
+		m[6].type = NM_TYPE_RADIO; m[6].text = "Enable smart VSync"; m[6].group = 0; m[6].value = SwapInterval == 2;
+		m[7].type = NM_TYPE_MENU; m[7].text = "MIDI settings";
+
+		i = newmenu_do1(NULL, "Chocolate Options", 8, m, nullptr, i);
+
+		if (i == 7)
+			do_chocolate_midi_menu();
+
+	} while (i > -1);
+
+	Fullscreen = m[2].value;
+
+	char* x_ptr = strchr(res_string, 'x');
+	if (!x_ptr)
+		x_ptr = strchr(res_string, 'X');
+	if (!x_ptr)
+		x_ptr = strchr(res_string, '*');
+
+	if (!x_ptr)
+		nm_messagebox(NULL, 1, TXT_OK, "Can't read window size");
+	else
+	{
+		*x_ptr = '\0';
+		new_width = atoi(res_string);
+		new_height = atoi(x_ptr + 1);
+		if (new_width == 0 || new_height == 0)
+			nm_messagebox(NULL, 1, TXT_OK, "Window size is invalid");
+		else
+		{
+			WindowWidth = new_width;
+			WindowHeight = new_height;
+		}
+
+		*x_ptr = 'x';
+	}
+
+	plat_update_window();
+}
