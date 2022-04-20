@@ -38,7 +38,7 @@ void MidiWin32Synth::CreateSynth()
 			device = PreferredMMEDevice;
 	}
 		
-	MMRESULT res = midiOutOpen(&OutputDevice, MIDI_MAPPER, NULL, NULL, CALLBACK_NULL);
+	MMRESULT res = midiOutOpen(&OutputDevice, device, NULL, NULL, CALLBACK_NULL);
 
 	if (res != MMSYSERR_NOERROR)
 	{
