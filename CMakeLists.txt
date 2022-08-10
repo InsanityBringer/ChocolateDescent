@@ -86,7 +86,7 @@ set(SHARED_SOURCES
 	misc/parsarg.h
     misc/rand.h
     misc/rand.cpp
-	misc/stb_vorbis.h
+	misc/stb_vorbis.c
 	misc/types.h
 	platform/disk.h
 	platform/findfile.h

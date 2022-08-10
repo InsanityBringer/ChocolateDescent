@@ -4,13 +4,16 @@ and is not under the terms of the Parallax Software Source license.
 Instead, it is released under the terms of the MIT License.
 */
 
+#define STB_VORBIS_HEADER_ONLY
+#include "misc/stb_vorbis.c"
+
+
 #include <stdlib.h>
 #include <string.h>
 #include <string>
 #include <vector>
 #include <thread>
 
-#include "misc/stb_vorbis.h"
 #include "platform/mono.h"
 #include "platform/i_sound.h"
 #include "platform/platform_filesys.h"
@@ -137,7 +140,7 @@ bool RBAThreadStartTrack(int num)
 	snprintf(filename_full_path, CHOCOLATE_MAX_FILE_PATH_SIZE, "cdmusic/%s", track_name);
 	filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE - 1] = '\0';
 #endif
-
+	
 	FILE* file = fopen(filename_full_path, "rb");
 	if (!file) return false;
 
@@ -152,7 +155,9 @@ bool RBAThreadStartTrack(int num)
 	RBA_Current_vorbis_handle = stb_vorbis_open_memory(RBA_data.data(), RBA_data.size(), &RBA_Vorbis_error, &RBA_Vorbis_alloc_buffer);
 	if (!RBA_Current_vorbis_handle) return false;
 
-	midi_set_music_samplerate(RBA_Current_vorbis_handle->sample_rate);
+	stb_vorbis_info info = stb_vorbis_get_info(RBA_Current_vorbis_handle);
+
+	midi_set_music_samplerate(info.sample_rate);
 	midi_start_source();
 	RBA_out_of_data = false;
 
