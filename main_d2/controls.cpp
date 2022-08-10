@@ -189,7 +189,7 @@ void read_flying_controls( object * obj )
 			mprintf((0, "Preventing divide overflow in controls.c for max_rotthrust!\n"));
 			ft = (Player_ship->max_thrust >> 15) + 1;
 		}
-
+		
 		vm_vec_scale( &obj->mtype.phys_info.rotthrust, fixdiv(Player_ship->max_rotthrust,ft) );
 	}
 
