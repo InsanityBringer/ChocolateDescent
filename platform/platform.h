@@ -26,6 +26,9 @@ int plat_init();
 //Load configuration
 int plat_read_chocolate_cfg();
 
+//Save configuration
+void plat_save_chocolate_cfg();
+
 //Init graphics library and create a window
 int plat_create_window();
 

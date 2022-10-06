@@ -122,8 +122,6 @@ uint8_t CybermouseActive = 0;
 LogicVer CurrentLogicVersion = LogicVer::FULL_1_2;
 DataVer CurrentDataVersion = DataVer::FULL;
 
-void check_joystick_calibration(void);
-
 
 //--------------------------------------------------------------------------
 
@@ -1016,7 +1014,6 @@ Here:
 				}
 #endif
 
-				check_joystick_calibration();
 				gr_palette_clear();		//I'm not sure why we need this, but we do
 				DoMenu();
 #ifdef EDITOR
@@ -1062,6 +1059,7 @@ Here:
 	}
 
 	WriteConfigFile();
+	plat_save_chocolate_cfg();
 
 #ifndef RELEASE
 	if (!FindArg("-notitles"))
@@ -1075,40 +1073,6 @@ Here:
 
 	plat_close();
 	return(0);		//presumably successful exit
-}
-
-
-void check_joystick_calibration() 
-{
-	/*int x1, y1, x2, y2, c;
-	fix t1;
-
-	if ((Config_control_type != CONTROL_JOYSTICK) &&
-		(Config_control_type != CONTROL_FLIGHTSTICK_PRO) &&
-		(Config_control_type != CONTROL_THRUSTMASTER_FCS) &&
-		(Config_control_type != CONTROL_GRAVIS_GAMEPAD)
-		) return;
-
-	joy_get_pos(&x1, &y1);
-
-	t1 = timer_get_fixed_seconds();
-	while (timer_get_fixed_seconds() < t1 + F1_0 / 100)
-		;
-
-	joy_get_pos(&x2, &y2);
-
-	// If joystick hasn't moved...
-	if ((abs(x2 - x1) < 30) && (abs(y2 - y1) < 30)) 
-	{
-		if ((abs(x1) > 30) || (abs(x2) > 30) || (abs(y1) > 30) || (abs(y2) > 30)) 
-		{
-			c = nm_messagebox(NULL, 2, TXT_CALIBRATE, TXT_SKIP, TXT_JOYSTICK_NOT_CEN);
-			if (c == 0) 
-			{
-				joydefs_calibrate();
-			}
-		}
-	}*/
 }
 
 void show_order_form()

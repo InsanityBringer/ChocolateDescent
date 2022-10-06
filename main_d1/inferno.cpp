@@ -674,6 +674,7 @@ int D_DescentMain(int argc, const char** argv)
 	}
 
 	WriteConfigFile();
+	plat_save_chocolate_cfg();
 
 #ifndef ROCKWELL_CODE
 #ifndef RELEASE

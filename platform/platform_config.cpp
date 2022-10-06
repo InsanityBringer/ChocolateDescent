@@ -57,20 +57,7 @@ int plat_read_chocolate_cfg()
 	if (infile == NULL) 
 	{
 		//Try creating a default config file
-		infile = fopen(cfgpath, "w");
-		if (infile != NULL)
-		{
-			fprintf(infile, "%s=%d\n", WindowWidthStr, WindowWidth);
-			fprintf(infile, "%s=%d\n", WindowHeightStr, WindowHeight);
-			fprintf(infile, "%s=%d\n", FitModeStr, BestFit);
-			fprintf(infile, "%s=%d\n", FullscreenStr, Fullscreen);
-			fprintf(infile, "%s=%f\n", MouseScalarStr, MouseScalar);
-			fprintf(infile, "%s=%d\n", SwapIntervalStr, SwapInterval);
-			if (SoundFontFilename[0])
-				fprintf(infile, "%s=%s", SoundFontPath, SoundFontFilename);
-			fprintf(infile, "%s=%d\n", GenDeviceStr, (int)PreferredGenDevice);
-			fclose(infile);
-		}
+		plat_save_chocolate_cfg();
 		return 1;
 	}
 	while (!feof(infile)) 
@@ -100,11 +87,11 @@ int plat_read_chocolate_cfg()
 			{
 				char* p;
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
-				memset(&SoundFontFilename[0], 0, CHOCOLATE_MAX_FILE_PATH_SIZE);
 				get_full_file_path(&SoundFontFilename[0], value, CHOCOLATE_SOUNDFONTS_DIR);
+				SoundFontFilename[CHOCOLATE_MAX_FILE_PATH_SIZE - 1] = '\0';
 #else
-				memset(&SoundFontFilename[0], 0, 256);
 				strncpy(&SoundFontFilename[0], value, 255);
+				SoundFontFilename[_MAX_PATH - 1] = '\0';
 #endif
 				//[ISB] godawful hack from Descent's config parser, should fix parsing the soundfont path
 				p = strchr(SoundFontFilename, '\n');
@@ -125,4 +112,31 @@ int plat_read_chocolate_cfg()
 	fclose(infile);
 
 	return 0;
+}
+
+void plat_save_chocolate_cfg()
+{
+	char cfgpath[CHOCOLATE_MAX_FILE_PATH_SIZE];
+
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+	get_full_file_path(cfgpath, "chocolatedescent.cfg", CHOCOLATE_CONFIG_DIR);
+#else
+	sprintf(cfgpath, "chocolatedescent.cfg");
+#endif
+
+	FILE* infile = fopen(cfgpath, "w");
+	if (infile != NULL)
+	{
+		fprintf(infile, "%s=%d\n", WindowWidthStr, WindowWidth);
+		fprintf(infile, "%s=%d\n", WindowHeightStr, WindowHeight);
+		fprintf(infile, "%s=%d\n", FitModeStr, BestFit);
+		fprintf(infile, "%s=%d\n", FullscreenStr, Fullscreen);
+		fprintf(infile, "%s=%f\n", MouseScalarStr, MouseScalar);
+		fprintf(infile, "%s=%d\n", SwapIntervalStr, SwapInterval);
+		if (SoundFontFilename[0])
+			fprintf(infile, "%s=%s\n", SoundFontPath, SoundFontFilename);
+		fprintf(infile, "%s=%d\n", NoOpenGLStr, NoOpenGL);
+		fprintf(infile, "%s=%d\n", GenDeviceStr, (int)PreferredGenDevice);
+		fclose(infile);
+	}
 }
