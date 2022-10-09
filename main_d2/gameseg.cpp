@@ -2001,22 +2001,36 @@ void change_light(int segnum, int sidenum, int dir)
 {
 	int	i, j, k;
 
-	for (i=0; i<Num_static_lights; i++) {
-		if ((Dl_indices[i].segnum == segnum) && (Dl_indices[i].sidenum == sidenum)) {
+	for (i=0; i<Num_static_lights; i++) 
+	{
+		if ((Dl_indices[i].segnum == segnum) && (Dl_indices[i].sidenum == sidenum)) 
+		{
 			delta_light	*dlp;
-			dlp = &Delta_lights[Dl_indices[i].index];
+			int index = Dl_indices[i].index;
 
-			for (j=0; j<Dl_indices[i].count; j++) {
-				for (k=0; k<4; k++) {
+			for (j=0; j<Dl_indices[i].count; j++) 
+			{
+				//Validate that the index is valid
+				if (index < 0 || index >= MAX_DELTA_LIGHTS)
+					continue;
+				dlp = &Delta_lights[index];
+
+				//Validate that segnum and sidenum are valid
+				//RODO: If it's possible to do sanely, this should emulate overflows and underflows. 
+				if (dlp->segnum < 0 || dlp->segnum > Highest_segment_index || dlp->sidenum < 0 || dlp->sidenum >= MAX_SIDES_PER_SEGMENT)
+					continue;
+
+				for (k=0; k<4; k++) 
+				{
 					fix	dl,new_l;
 					dl = dir * dlp->vert_light[k] * DL_SCALE;
-					Assert((dlp->segnum >= 0) && (dlp->segnum <= Highest_segment_index));
-					Assert((dlp->sidenum >= 0) && (dlp->sidenum < MAX_SIDES_PER_SEGMENT));
+					//Assert((dlp->segnum >= 0) && (dlp->segnum <= Highest_segment_index));
+					//Assert((dlp->sidenum >= 0) && (dlp->sidenum < MAX_SIDES_PER_SEGMENT));
 					new_l = (Segments[dlp->segnum].sides[dlp->sidenum].uvls[k].l += dl);
 					if (new_l < 0)
 						Segments[dlp->segnum].sides[dlp->sidenum].uvls[k].l = 0;
 				}
-				dlp++;
+				index++;
 			}
 		}
 	}
