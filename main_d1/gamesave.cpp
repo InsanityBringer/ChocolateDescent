@@ -1109,10 +1109,20 @@ int load_game_data(CFILE* LoadFile)
 	if (game_top_fileinfo.fileinfo_version >= 19) //load pof names
 	{
 		N_save_pof_names = (int)cfile_read_short(LoadFile);
-		if (N_save_pof_names >= MAX_POLYGON_MODELS)
-			Error("Level contains over MAX_POLYGON_MODELS(%d) POF names.", MAX_POLYGON_MODELS);
+		if (N_save_pof_names > MAX_POLYGON_MODELS)
+		{
+			//Some levels seem to exceed these limits. Still need to read all of them or else the file pointer won't be at the right place. 
+			char* badLevelHack = (char*)malloc(N_save_pof_names * FILENAME_LEN * sizeof(char));
 
-		cfread(Save_pof_names, N_save_pof_names, 13, LoadFile);
+			cfread(badLevelHack, N_save_pof_names, FILENAME_LEN, LoadFile);
+			memcpy(Save_pof_names, badLevelHack, MAX_POLYGON_MODELS * FILENAME_LEN * sizeof(char));
+
+			free(badLevelHack);
+		}
+		else
+		{
+			cfread(Save_pof_names, N_save_pof_names, FILENAME_LEN, LoadFile);
+		}
 	}
 
 	//===================== READ PLAYER INFO ==========================
@@ -1128,7 +1138,7 @@ int load_game_data(CFILE* LoadFile)
 		if (cfseek(LoadFile, game_fileinfo.object_offset, SEEK_SET))
 			Error("Error seeking to object_offset in gamesave.c");
 
-		if (game_fileinfo.object_howmany >= MAX_OBJECTS)
+		if (game_fileinfo.object_howmany > MAX_OBJECTS)
 			Error("Level contains over MAX_OBJECTS(%d) objects.", MAX_OBJECTS);
 
 		for (i = 0; i < game_fileinfo.object_howmany; i++) 
@@ -1167,7 +1177,7 @@ int load_game_data(CFILE* LoadFile)
 		{
 			mprintf((1, "load_game_data: active doors present"));
 
-			if (game_fileinfo.doors_howmany >= MAX_DOORS)
+			if (game_fileinfo.doors_howmany > MAX_DOORS)
 				Error("Level contains over MAX_DOORS(%d) active doors.", MAX_DOORS);
 
 			for (i = 0; i < game_fileinfo.doors_howmany; i++) 
@@ -1185,7 +1195,7 @@ int load_game_data(CFILE* LoadFile)
 	{
 		if (!cfseek(LoadFile, game_fileinfo.triggers_offset, SEEK_SET)) 
 		{
-			if (game_fileinfo.triggers_howmany >= MAX_TRIGGERS)
+			if (game_fileinfo.triggers_howmany > MAX_TRIGGERS)
 				Error("Level contains more than MAX_TRIGGERS(%d) triggers.", MAX_TRIGGERS);
 
 			for (i = 0; i < game_fileinfo.triggers_howmany; i++) 
@@ -1224,7 +1234,7 @@ int load_game_data(CFILE* LoadFile)
 
 		if (!cfseek(LoadFile, game_fileinfo.matcen_offset, SEEK_SET)) 
 		{
-			if (game_fileinfo.matcen_howmany >= MAX_ROBOT_CENTERS)
+			if (game_fileinfo.matcen_howmany > MAX_ROBOT_CENTERS)
 				Error("Level contains over MAX_ROBOT_CENTERS(%d) matcens.", MAX_ROBOT_CENTERS);
 
 			// mprintf((0, "Reading %i materialization centers.\n", game_fileinfo.matcen_howmany));
