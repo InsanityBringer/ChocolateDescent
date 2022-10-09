@@ -670,8 +670,8 @@ int load_mine_data_compiled_new(CFILE* LoadFile)
 
 	//=============================== Reading part ==============================
 	version = cfile_read_byte(LoadFile);						// 1 int8_t = compiled version
-	if (version != COMPILED_MINE_VERSION)
-		Error("Got mine version %d when reading level file, expected %d.", version, COMPILED_MINE_VERSION);
+	//if (version != COMPILED_MINE_VERSION)
+	//	Error("Got mine version %d when reading level file, expected %d.", version, COMPILED_MINE_VERSION);
 
 	Num_vertices = cfile_read_short(LoadFile);					// 2 bytes = Num_vertices
 	if (Num_vertices > MAX_VERTICES)
