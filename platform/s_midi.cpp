@@ -463,7 +463,7 @@ HMPFile::HMPFile(int len, uint8_t* data)
 			branch.branchID = data[pointer++];
 			branch.program = data[pointer++];
 			branch.loopCount = data[pointer++];
-			branch.controlChangeCount = data[pointer++];
+			branch.controlChangeCount = data[pointer++] / 2; // adjust for byte count in file
 			branch.controlChangeOffset = BS_MakeInt(&data[pointer]); pointer += 4;
 			pointer += 12;
 
