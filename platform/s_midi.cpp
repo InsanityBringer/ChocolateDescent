@@ -40,7 +40,7 @@ int PreferredMMEDevice = -1;
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 char SoundFontFilename[CHOCOLATE_MAX_FILE_PATH_SIZE] = "TestSoundfont.sf2";
 #else
-char SoundFontFilename[_MAX_PATH] = "TestSoundfont.sf2";
+char SoundFontFilename[CHOCOLATE_MAX_FILE_PATH_SIZE] = "TestSoundfont.sf2";
 #endif
 MidiSynth* synth = nullptr;
 MidiSequencer* sequencer = nullptr;
