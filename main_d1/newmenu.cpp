@@ -357,9 +357,9 @@ void draw_item(bkg* b, newmenu_item* item, int is_current)
 		sprintf(item->saved_text, "%s\t%s", item->text, SLIDER_LEFT);
 		for (j = 0; j < (item->max_value - item->min_value + 1); j++) 
 		{
-			sprintf(item->saved_text, "%s%s", item->saved_text, SLIDER_MIDDLE);
+			strcat(item->saved_text, SLIDER_MIDDLE);
 		}
-		sprintf(item->saved_text, "%s%s", item->saved_text, SLIDER_RIGHT);
+		strcat(item->saved_text, SLIDER_RIGHT);
 
 		item->saved_text[item->value + 1 + strlen(item->text) + 1] = SLIDER_MARKER[0];
 
