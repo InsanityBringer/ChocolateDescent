@@ -40,7 +40,7 @@ int PreferredMMEDevice = -1;
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 char SoundFontFilename[CHOCOLATE_MAX_FILE_PATH_SIZE] = "TestSoundfont.sf2";
 #else
-char SoundFontFilename[_MAX_PATH] = "TestSoundfont.sf2";
+char SoundFontFilename[CHOCOLATE_MAX_FILE_PATH_SIZE] = "TestSoundfont.sf2";
 #endif
 MidiSynth* synth = nullptr;
 MidiSequencer* sequencer = nullptr;
@@ -463,7 +463,7 @@ HMPFile::HMPFile(int len, uint8_t* data)
 			branch.branchID = data[pointer++];
 			branch.program = data[pointer++];
 			branch.loopCount = data[pointer++];
-			branch.controlChangeCount = data[pointer++];
+			branch.controlChangeCount = data[pointer++] / 2; // adjust for byte count in file
 			branch.controlChangeOffset = BS_MakeInt(&data[pointer]); pointer += 4;
 			pointer += 12;
 
