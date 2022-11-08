@@ -103,6 +103,7 @@ fixang fix_atan2(fix cos, fix sin)
 //computes the square root of a quad, returning a long 
 uint32_t quad_sqrt(int64_t q)
 {
+	//int iterLimit = 0;
 	uint32_t cnt, r, old_r, t;
 	int32_t high = (q >> 32) & 0xFFFFFFFF;
 
@@ -112,22 +113,35 @@ uint32_t quad_sqrt(int64_t q)
 	if (q <= 0x7FFFFFFF)
 		return long_sqrt((int32_t)q);
 
+	int index;
 	if (high & 0xff000000)
+	{
+		index = high >> 24;
 		cnt = 12 + 16;
+	}
 	else if (high & 0xff0000)
+	{
+		index = high >> 16;
 		cnt = 8 + 16;
+	}
 	else if (high & 0xff00)
+	{
+		index = high >> 8;
 		cnt = 4 + 16;
+	}
 	else
+	{
+		index = high;
 		cnt = 0 + 16;
+	}
 
-	r = guess_table[(high >> cnt) & 0xff] << cnt;
+	r = guess_table[index & 0xff] << cnt;
 
 	//quad loop usually executed 4 times
 
-	r = (fixdivquadlong(q, r) + r) / 2;
-	r = (fixdivquadlong(q, r) + r) / 2;
-	r = (fixdivquadlong(q, r) + r) / 2;
+	r = ((int64_t)fixdivquadlong(q, r) + r) / 2;
+	r = ((int64_t)fixdivquadlong(q, r) + r) / 2;
+	r = ((int64_t)fixdivquadlong(q, r) + r) / 2;
 
 	do 
 	{
@@ -137,20 +151,19 @@ uint32_t quad_sqrt(int64_t q)
 		if (t == r)	//got it!
 			return r;
 
-		r = t / 2 + r / 2; //t / 2 + r / 2 + (t & r & 1) Quoth Parabolicus: this would make it exact to (r + t) / 2;
+		r = t / 2 + r / 2 + (t & r & 1); //Quoth Parabolicus: this would make it exact to (r + t) / 2;
 
 		/*iterLimit++;
 		if (iterLimit > 500)
 		{
-			Warning("quad_sqrt: SERIOUS INFINITE LOOP PROBLEM DETECTED\nYELL AT ISB IF YOU SEE THIS\n");
+			Warning("quad_sqrt: infinite loop\n");
 			break;
 		}*/
 
 	} while (!(r == t || r == old_r));
 
 	t = fixdivquadlong(q, r);
-	//tq.low = tq.high;
-	int64_t tq2;
+	int64_t tq2 = 0;
 	fixmulaccum(&tq2, r, t);
 	int32_t high2 = (tq2 >> 32) & 0xFFFFFFFF;
 	uint32_t low2 = (uint32_t)(tq2 & 0xFFFFFFFFF);
