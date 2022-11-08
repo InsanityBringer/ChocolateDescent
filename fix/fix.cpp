@@ -109,8 +109,7 @@ uint32_t quad_sqrt(int64_t q)
 	if (q < 0)
 		return 0;
 
-	//if (high == 0 && low >= 0)
-	if (q < 0x7FFFFFFF)
+	if (q <= 0x7FFFFFFF)
 		return long_sqrt((int32_t)q);
 
 	if (high & 0xff000000)
@@ -195,8 +194,8 @@ uint16_t long_sqrt(int32_t a)
 	r = ((a / r) + r) / 2;
 	r = ((a / r) + r) / 2;
 
-	do {
-
+	do 
+	{
 		old_r = r;
 		t = a / r;
 
@@ -204,7 +203,6 @@ uint16_t long_sqrt(int32_t a)
 			return r;
 
 		r = (t + r) / 2;
-
 	} while (!(r == t || r == old_r));
 
 	if (a % r)

@@ -15,8 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fix/fix.h"
 
- //#define INLINE 1		//are some of these functions inline?
-
  //The basic fixed-point vector.  Access elements by name or position
 typedef struct vms_vector 
 {
@@ -30,18 +28,21 @@ typedef struct vms_vector_array
 
 //Short vector, used for pre-rotation points. 
 //Access elements by name or position
-typedef struct vms_svec {
+typedef struct vms_svec 
+{
 	short sv_x, sv_y, sv_z;
 } vms_svec;
 
 //Angle vector.  Used to store orientations
-typedef struct vms_angvec {
+typedef struct vms_angvec 
+{
 	fixang p, b, h;
 } vms_angvec;
 
 //A 3x3 rotation matrix.  Sorry about the numbering starting with one.
 //Ordering is across then down, so <m1,m2,m3> is the first row
-typedef struct vms_matrix {
+typedef struct vms_matrix 
+{
 	vms_vector rvec, uvec, fvec;
 } vms_matrix;
 
@@ -62,22 +63,8 @@ typedef struct vms_matrix {
 										m->fvec.x = m->fvec.y = 0;} while (0)
 
 vms_vector* vm_vec_make(vms_vector* v, fix x, fix y, fix z);
-
-#if 0 //[ISB] wouldn't this like, not compile on the mac?
-#pragma aux vm_vec_make "*_" parm [eax] [edx] [ebx] [ecx] value [eax] modify exact [] = \
-	"mov 0[eax],edx"	\
-	"mov 4[eax],ebx"	\
-	"mov 8[eax],ecx";
-#endif
-
 vms_angvec* vm_angvec_make(vms_angvec* v, fixang p, fixang b, fixang h);
 
-#if 0
-#pragma aux vm_angvec_make "*_" parm [eax] [dx] [bx] [cx] value [eax] modify exact [] = \
-	"mov 0[eax],dx"	\
-	"mov 2[eax],bx"	\
-	"mov 4[eax],cx";
-#endif
 //Global constants
 
 extern vms_vector vmd_zero_vector;
@@ -88,46 +75,10 @@ extern vms_matrix vmd_identity_matrix;
 #define ZERO_VECTOR {0,0,0}
 #define IDENTITY_MATRIX {f1_0,0,0,0,f1_0,0,0,0,f1_0}
 
-//#define vm_vec_make(v,_x,_y,_z) (((v)->x=(_x), (v)->y=(_y), (v)->z=(_z)), (v))
-
-//#pragma off (unreferenced)
-////make this local, so compiler can in-line it
-//static vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z)
-//{
-//	v->x = x;
-//	v->y = y;
-//	v->z = z;
-//
-//	return v;
-//}
-//#pragma on (unreferenced)
-
-
-////macro to fill in elements of a matrix, also for Mike
-//#define vm_mat_make(m,_m1,_m2,_m3,_m4,_m5,_m6,_m7,_m8,_m9) \
-//	 do {	(m)->m1=(_m1); (m)->m2=(_m2); (m)->m3=(_m3); \
-//			(m)->m4=(_m4); (m)->m5=(_m5); (m)->m6=(_m6); \
-//			(m)->m7=(_m7); (m)->m8=(_m8); (m)->m9=(_m9);} while (0)
-
-#if 0	//kill this, since bogus with new matrix ordering
-
-//macro to fill in elements of a matrix, also for Mike
-#define vm_mat_make(m,_m1,_m2,_m3,_m4,_m5,_m6,_m7,_m8,_m9) \
-	 	( ((m)->m1=(_m1), (m)->m2=(_m2), (m)->m3=(_m3), \
-			(m)->m4=(_m4), (m)->m5=(_m5), (m)->m6=(_m6), \
-			(m)->m7=(_m7), (m)->m8=(_m8), (m)->m9=(_m9)), (m))
-
-#endif
-
-////fills in fields of an angle vector
-//#define vm_angvec_make(v,_p,_b,_h) (((v)->p=(_p), (v)->b=(_b), (v)->h=(_h)), (v))
-
 //negate a vector
 #define vm_vec_negate(v) do {(v)->x = - (v)->x; (v)->y = - (v)->y; (v)->z = - (v)->z;} while (0);
 
 //Functions in library
-
-#ifndef INLINE
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
@@ -144,34 +95,6 @@ vms_vector* vm_vec_add2(vms_vector* dest, vms_vector* src);
 //subs one vector from another, returns ptr to dest
 //dest can equal source
 vms_vector* vm_vec_sub2(vms_vector* dest, vms_vector* src);
-
-#else
-
-#define vm_vec_add(dest,src0,src1) do {	\
-	(dest)->x = (src0)->x + (src1)->x;		\
-	(dest)->y = (src0)->y + (src1)->y;		\
-	(dest)->z = (src0)->z + (src1)->z;		\
-} while (0);
-
-#define vm_vec_sub(dest,src0,src1) do {	\
-	(dest)->x = (src0)->x - (src1)->x;		\
-	(dest)->y = (src0)->y - (src1)->y;		\
-	(dest)->z = (src0)->z - (src1)->z;		\
-} while (0);
-
-#define vm_vec_add2(dest,src) do {		\
-	(dest)->x += (src)->x;					\
-	(dest)->y += (src)->y;					\
-	(dest)->z += (src)->z;					\
-} while (0);
-
-#define vm_vec_sub2(dest,src) do {		\
-	(dest)->x -= (src)->x;					\
-	(dest)->y -= (src)->y;					\
-	(dest)->z -= (src)->z;					\
-} while (0);
-
-#endif
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
@@ -231,28 +154,6 @@ fix vm_vec_normalized_dir_quick(vms_vector* dest, vms_vector* end, vms_vector* s
 ////returns dot product of two vectors
 fix vm_vec_dotprod(vms_vector* v0, vms_vector* v1);
 #define vm_vec_dot(v0,v1) vm_vec_dotprod((v0),(v1))
-
-#ifdef INLINE
-
-#pragma aux vm_vec_dotprod parm [esi] [edi] value [eax] modify exact [eax ebx ecx edx] = \
-	"mov	eax,[esi]"				\
-	"imul	dword ptr [edi]"		\
-	"mov	ebx,eax"					\
-	"mov	ecx,edx"					\
-										\
-	"mov	eax,4[esi]"				\
-	"imul	dword ptr 4[edi]"		\
-	"add	ebx,eax"					\
-	"adc	ecx,edx"					\
-										\
-	"mov	eax,8[esi]"				\
-	"imul	dword ptr 8[edi]"		\
-	"add	eax,ebx"					\
-	"adc	edx,ecx"					\
-										\
-	"shrd	eax,edx,16";
-
-#endif
 
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source

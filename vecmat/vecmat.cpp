@@ -17,8 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat/vecmat.h"
 #include "misc/error.h"
 
-//#define USE_ISQRT 1
-
 vms_vector vmd_zero_vector = { 0,0,0 };
 vms_matrix vmd_identity_matrix = { f1_0,0,0,
 												0,f1_0,0,
@@ -34,7 +32,6 @@ vms_vector* vm_vec_add(vms_vector* dest, vms_vector* src0, vms_vector* src1)
 
 	return dest;
 }
-
 
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
@@ -80,7 +77,6 @@ vms_vector* vm_vec_avg(vms_vector* dest, vms_vector* src0, vms_vector* src1)
 	return dest;
 }
 
-
 //averages four vectors. returns ptr to dest
 //dest can equal any source
 vms_vector* vm_vec_avg4(vms_vector* dest, vms_vector* src0, vms_vector* src1, vms_vector* src2, vms_vector* src3)
@@ -91,7 +87,6 @@ vms_vector* vm_vec_avg4(vms_vector* dest, vms_vector* src0, vms_vector* src1, vm
 
 	return dest;
 }
-
 
 //scales a vector in place.  returns ptr to vector
 vms_vector* vm_vec_scale(vms_vector* dest, fix s)
@@ -148,46 +143,6 @@ vms_vector* vm_vec_scale2(vms_vector* dest, fix n, fix d)
 }
 
 //returns dot product of 2 vectors
-#ifdef __powerc
-
-#if 0
-fix vm_vec_dotprod(vms_vector * v0, vms_vector * v1)
-{
-	double d;
-
-	d = (double)(v0->x) * (double)(v1->x);
-	d += (double)(v0->y) * (double)(v1->y);
-	d += (double)(v0->z) * (double)(v1->z);
-
-	return (fix)(d / 65536);
-}
-
-//returns dot product of <x,y,z> and vector
-fix vm_vec_dot3(fix x, fix y, fix z, vms_vector* v)
-{
-	double d;
-
-	d = (double)(x) * (double)(v->x);
-	d += (double)(y) * (double)(v->y);
-	d += (double)(z) * (double)(v->z);
-
-	return (fix)(d / 65536);
-}
-#endif
-
-fix vm_vec_mag(vms_vector* v)
-{
-	double d;
-
-	d = (double)(v->x) * (double)(v->x);
-	d += (double)(v->y) * (double)(v->y);
-	d += (double)(v->z) * (double)(v->z);
-	d = sqrt(d) + 0.5;
-
-	return (fix)(d);
-}
-
-#else
 fix vm_vec_dotprod(vms_vector* v0, vms_vector* v1)
 {
 	int64_t q;
@@ -227,7 +182,6 @@ fix vm_vec_mag(vms_vector* v)
 
 	return quad_sqrt(q);
 }
-#endif
 
 //computes the distance between two points. (does sub and mag)
 fix vm_vec_dist(vms_vector* v0, vms_vector* v1)
@@ -284,7 +238,8 @@ fix vm_vec_copy_normalize(vms_vector* dest, vms_vector* src)
 
 	m = vm_vec_mag(src);
 
-	if (m > 0) {
+	if (m > 0) 
+	{
 		dest->x = fixdiv(src->x, m);
 		dest->y = fixdiv(src->y, m);
 		dest->z = fixdiv(src->z, m);
@@ -299,7 +254,6 @@ fix vm_vec_normalize(vms_vector* v)
 	return vm_vec_copy_normalize(v, v);
 }
 
-#ifndef USE_ISQRT
 //normalize a vector. returns mag of source vec. uses approx mag
 fix vm_vec_copy_normalize_quick(vms_vector* dest, vms_vector* src)
 {
@@ -307,7 +261,8 @@ fix vm_vec_copy_normalize_quick(vms_vector* dest, vms_vector* src)
 
 	m = vm_vec_mag_quick(src);
 
-	if (m > 0) {
+	if (m > 0) 
+	{
 		dest->x = fixdiv(src->x, m);
 		dest->y = fixdiv(src->y, m);
 		dest->z = fixdiv(src->z, m);
@@ -315,45 +270,6 @@ fix vm_vec_copy_normalize_quick(vms_vector* dest, vms_vector* src)
 
 	return m;
 }
-
-#else
-//these routines use an approximation for 1/sqrt
-
-//returns approximation of 1/magnitude of a vector
-fix vm_vec_imag(vms_vector* v)
-{
-	quad q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q, v->x, v->x);
-	fixmulaccum(&q, v->y, v->y);
-	fixmulaccum(&q, v->z, v->z);
-
-	if (q.high == 0)
-		return fix_isqrt(fixquadadjust(&q));
-	else if (q.high >= 0x800000) {
-		return (fix_isqrt(q.high) >> 8);
-	}
-	else
-		return (fix_isqrt((q.high << 8) + (q.low >> 24)) >> 4);
-}
-
-//normalize a vector. returns 1/mag of source vec. uses approx 1/mag
-fix vm_vec_copy_normalize_quick(vms_vector* dest, vms_vector* src)
-{
-	fix im;
-
-	im = vm_vec_imag(src);
-
-	dest->x = fixmul(src->x, im);
-	dest->y = fixmul(src->y, im);
-	dest->z = fixmul(src->z, im);
-
-	return im;
-}
-
-#endif
 
 //normalize a vector. returns 1/mag of source vec. uses approx 1/mag
 fix vm_vec_normalize_quick(vms_vector* v)
@@ -404,14 +320,17 @@ void check_vec(vms_vector* v)
 	if (check == 0)
 		return;
 
-	if (check & 0xfffc0000) {		//too big
-
-		while (check & 0xfff00000) {
+	if (check & 0xfffc0000) 
+	{		
+		//too big
+		while (check & 0xfff00000) 
+		{
 			cnt += 4;
 			check >>= 4;
 		}
 
-		while (check & 0xfffc0000) {
+		while (check & 0xfffc0000) 
+		{
 			cnt += 2;
 			check >>= 2;
 		}
@@ -420,15 +339,18 @@ void check_vec(vms_vector* v)
 		v->y >>= cnt;
 		v->z >>= cnt;
 	}
-	else												//maybe too small
-		if ((check & 0xffff8000) == 0) {		//yep, too small
-
-			while ((check & 0xfffff000) == 0) {
+	else	//maybe too small
+		if ((check & 0xffff8000) == 0) 
+		{		
+			//yep, too small
+			while ((check & 0xfffff000) == 0) 
+			{
 				cnt += 4;
 				check <<= 4;
 			}
 
-			while ((check & 0xffff8000) == 0) {
+			while ((check & 0xffff8000) == 0) 
+			{
 				cnt += 2;
 				check <<= 2;
 			}
@@ -444,38 +366,6 @@ void check_vec(vms_vector* v)
 //product of the magnitudes of the two source vectors.  This means it is
 //quite easy for this routine to overflow and underflow.  Be careful that
 //your inputs are ok.
-//#ifndef __powerc
-#if 0
-vms_vector * vm_vec_crossprod(vms_vector * dest, vms_vector * src0, vms_vector * src1)
-{
-	double d;
-	Assert(dest != src0 && dest != src1);
-
-	d = (double)(src0->y) * (double)(src1->z);
-	d += (double)-(src0->z) * (double)(src1->y);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->x = (fix)d;
-
-	d = (double)(src0->z) * (double)(src1->x);
-	d += (double)-(src0->x) * (double)(src1->z);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->y = (fix)d;
-
-	d = (double)(src0->x) * (double)(src1->y);
-	d += (double)-(src0->y) * (double)(src1->x);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->z = (fix)d;
-
-	return dest;
-}
-#else
-
 vms_vector * vm_vec_crossprod(vms_vector * dest, vms_vector * src0, vms_vector * src1)
 {
 	int64_t q;
@@ -500,9 +390,6 @@ vms_vector * vm_vec_crossprod(vms_vector * dest, vms_vector * src0, vms_vector *
 	return dest;
 }
 
-#endif
-
-
 //computes non-normalized surface normal from three points. 
 //returns ptr to dest
 //dest CANNOT equal either source
@@ -518,7 +405,6 @@ vms_vector* vm_vec_perp(vms_vector* dest, vms_vector* p0, vms_vector* p1, vms_ve
 
 	return vm_vec_crossprod(dest, &t0, &t1);
 }
-
 
 //computes the delta angle between two vectors. 
 //vectors need not be normalized. if they are, call vm_vec_delta_ang_norm()
@@ -542,7 +428,8 @@ fixang vm_vec_delta_ang_norm(vms_vector* v0, vms_vector* v1, vms_vector* fvec)
 
 	a = fix_acos(vm_vec_dot(v0, v1));
 
-	if (fvec) {
+	if (fvec) 
+	{
 		vms_vector t;
 
 		vm_vec_cross(&t, v0, v1);
@@ -590,7 +477,6 @@ vms_matrix* vm_angles_2_matrix(vms_matrix* m, vms_angvec* a)
 	fix_sincos(a->h, &sinh, &cosh);
 
 	return sincos_2_matrix(m, sinp, cosp, sinb, cosb, sinh, cosh);
-
 }
 
 //computes a matrix from a forward vector and an angle
@@ -609,7 +495,6 @@ vms_matrix* vm_vec_ang_2_matrix(vms_matrix* m, vms_vector* v, fixang a)
 	return sincos_2_matrix(m, sinp, cosp, sinb, cosb, sinh, cosh);
 }
 
-
 //computes a matrix from one or more vectors. The forward vector is required,
 //with the other two being optional.  If both up & right vectors are passed,
 //the up vector is used.  If only the forward vector is passed, a bank of
@@ -621,26 +506,33 @@ vms_matrix* vm_vector_2_matrix(vms_matrix* m, vms_vector* fvec, vms_vector* uvec
 
 	Assert(fvec != NULL);
 
-	if (vm_vec_copy_normalize(zvec, fvec) == 0) {
+	if (vm_vec_copy_normalize(zvec, fvec) == 0) 
+	{
 		Int3();		//forward vec should not be zero-length
 		return m;
 	}
 
-	if (uvec == NULL) {
-
-		if (rvec == NULL) {		//just forward vec
+	if (uvec == NULL) 
+	{
+		if (rvec == NULL) 
+		{
+			//just forward vec
 
 		bad_vector2:
 			;
 
-			if (zvec->x == 0 && zvec->z == 0) {		//forward vec is straight up or down
+			if (zvec->x == 0 && zvec->z == 0) 
+			{
+				//forward vec is straight up or down
 
 				m->rvec.x = f1_0;
 				m->uvec.z = (zvec->y < 0) ? f1_0 : -f1_0;
 
 				m->rvec.y = m->rvec.z = m->uvec.x = m->uvec.y = 0;
 			}
-			else { 		//not straight up or down
+			else 
+			{
+				//not straight up or down
 
 				xvec->x = zvec->z;
 				xvec->y = 0;
@@ -649,11 +541,11 @@ vms_matrix* vm_vector_2_matrix(vms_matrix* m, vms_vector* fvec, vms_vector* uvec
 				vm_vec_normalize(xvec);
 
 				vm_vec_crossprod(yvec, zvec, xvec);
-
 			}
-
 		}
-		else {						//use right vec
+		else 
+		{
+			//use right vec
 
 			if (vm_vec_copy_normalize(xvec, rvec) == 0)
 				goto bad_vector2;
@@ -666,11 +558,11 @@ vms_matrix* vm_vector_2_matrix(vms_matrix* m, vms_vector* fvec, vms_vector* uvec
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
 			vm_vec_crossprod(xvec, yvec, zvec);
-
 		}
 	}
-	else {		//use up vec
-
+	else 
+	{
+		//use up vec
 		if (vm_vec_copy_normalize(yvec, uvec) == 0)
 			goto bad_vector2;
 
@@ -682,7 +574,6 @@ vms_matrix* vm_vector_2_matrix(vms_matrix* m, vms_vector* fvec, vms_vector* uvec
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar
 		vm_vec_crossprod(yvec, zvec, xvec);
-
 	}
 
 	return m;
@@ -696,21 +587,25 @@ vms_matrix* vm_vector_2_matrix_norm(vms_matrix* m, vms_vector* fvec, vms_vector*
 
 	Assert(fvec != NULL);
 
-	if (uvec == NULL) {
-
-		if (rvec == NULL) {		//just forward vec
-
+	if (uvec == NULL) 
+	{
+		if (rvec == NULL) 
+		{
+		//just forward vec
 		bad_vector2:
 			;
 
-			if (zvec->x == 0 && zvec->z == 0) {		//forward vec is straight up or down
-
+			if (zvec->x == 0 && zvec->z == 0) 
+			{		
+				//forward vec is straight up or down
 				m->rvec.x = f1_0;
 				m->uvec.z = (zvec->y < 0) ? f1_0 : -f1_0;
 
 				m->rvec.y = m->rvec.z = m->uvec.x = m->uvec.y = 0;
 			}
-			else { 		//not straight up or down
+			else 
+			{
+				//not straight up or down
 
 				xvec->x = zvec->z;
 				xvec->y = 0;
@@ -719,12 +614,11 @@ vms_matrix* vm_vector_2_matrix_norm(vms_matrix* m, vms_vector* fvec, vms_vector*
 				vm_vec_normalize(xvec);
 
 				vm_vec_crossprod(yvec, zvec, xvec);
-
 			}
-
 		}
-		else {						//use right vec
-
+		else 
+		{
+			//use right vec
 			vm_vec_crossprod(yvec, zvec, xvec);
 
 			//normalize new perpendicular vector
@@ -733,11 +627,11 @@ vms_matrix* vm_vector_2_matrix_norm(vms_matrix* m, vms_vector* fvec, vms_vector*
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
 			vm_vec_crossprod(xvec, yvec, zvec);
-
 		}
 	}
-	else {		//use up vec
-
+	else 
+	{
+		//use up vec
 		vm_vec_crossprod(xvec, yvec, zvec);
 
 		//normalize new perpendicular vector
@@ -746,7 +640,6 @@ vms_matrix* vm_vector_2_matrix_norm(vms_matrix* m, vms_vector* fvec, vms_vector*
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar
 		vm_vec_crossprod(yvec, zvec, xvec);
-
 	}
 
 	return m;
@@ -849,7 +742,8 @@ vms_angvec* vm_extract_angles_matrix(vms_angvec* a, vms_matrix* m)
 
 		a->b = 0;
 
-	else {
+	else 
+	{
 		fix sinb, cosb;
 
 		sinb = fixdiv(m->rvec.y, cosp);
@@ -859,7 +753,6 @@ vms_angvec* vm_extract_angles_matrix(vms_angvec* a, vms_matrix* m)
 			a->b = 0;
 		else
 			a->b = fix_atan2(cosb, sinb);
-
 	}
 
 	return a;
