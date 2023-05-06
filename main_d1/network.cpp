@@ -53,6 +53,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "platform/platform.h"
 #include "misc/rand.h"
+#include "platform/posixstub.h"
 
 #ifdef SHAREWARE
 #define PID_REQUEST 					11

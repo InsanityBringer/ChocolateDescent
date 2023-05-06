@@ -53,6 +53,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 #include "state.h"
 #include "netmisc.h"
+#include "platform/posixstub.h"
 
 //*******************************************
 //
