@@ -691,6 +691,8 @@ if (NETWORK)
 	#Poke in platform network sources.
 	set(WIN32_SOURCES ${WIN32_SOURCES} 
 	platform/win32/win32net.cpp)
+	set(UNIX_SOURCES ${UNIX_SOURCES}
+	platform/unix/unixnet.cpp)
 endif()
 
 
