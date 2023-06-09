@@ -2816,7 +2816,7 @@ void multi_restore_game(uint8_t slot, uint32_t id)
 	}
 
 	memcpy(Players[Player_num].callsign, saved_player.callsign, CALLSIGN_LEN + 1);
-	memcpy(Players[Player_num].net_address, saved_player.net_address, 6);
+	memcpy(Players[Player_num].net_address, saved_player.net_address, 4);
 	Players[Player_num].connected = saved_player.connected;
 	Players[Player_num].n_packets_got = saved_player.n_packets_got;
 	Players[Player_num].n_packets_sent = saved_player.n_packets_sent;
