@@ -1432,6 +1432,7 @@ void do_chocolate_menu()
 	char res_string[64];
 	int i = 0;
 	int new_width, new_height;
+	int set_swap_interval = 0;
 
 	snprintf(res_string, 64, "%dx%d", WindowWidth, WindowHeight);
 	res_string[63] = '\0';
@@ -1455,6 +1456,13 @@ void do_chocolate_menu()
 	} while (i > -1);
 
 	Fullscreen = m[2].value;
+
+	if (m[4].value)
+		set_swap_interval = SwapInterval = 0;
+	else if (m[5].value)
+		set_swap_interval = SwapInterval = 1;
+	else if (m[6].value)
+		set_swap_interval = SwapInterval = 2;
 
 	char* x_ptr = strchr(res_string, 'x');
 	if (!x_ptr)
@@ -1481,5 +1489,7 @@ void do_chocolate_menu()
 	}
 
 	plat_update_window();
+	if (SwapInterval != 2 && set_swap_interval == 2)
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Adaptive vsync is not available.\nNormal vsync has been enabled.");
 }
 

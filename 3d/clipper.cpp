@@ -155,9 +155,10 @@ void clip_line(g3s_point** p0, g3s_point** p1, uint8_t codes_or)
 				free_temp_point(old_p1);
 
 			//[ISB] mac descent bug: codes should be recalculated here, but they weren't
+			if ((*p0)->p3_codes & (*p1)->p3_codes) //Entirely off screen now?
+				return;
 			codes_or = (*p0)->p3_codes | (*p1)->p3_codes;
 		}
-
 }
 
 

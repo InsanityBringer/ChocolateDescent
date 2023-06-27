@@ -248,6 +248,9 @@ void plat_update_window()
 	SDL_SetWindowPosition(gameWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
 	plat_toggle_fullscreen();
+
+	if (!NoOpenGL)
+		GL_UpdateSwapInterval();
 }
 
 int plat_set_gr_mode(int mode)

@@ -269,9 +269,30 @@ bool I_InitGLContext(SDL_Window *win)
 	int srcFBUniform = sglGetUniformLocation(phase1ProgramName, "srcfb");
 	sglUniform1i(srcFBUniform, 0);
 
-	SDL_GL_SetSwapInterval(SwapInterval);
+	GL_UpdateSwapInterval();
 
 	return false;
+}
+
+void GL_UpdateSwapInterval()
+{
+	int set_swap_interval = SwapInterval;
+	if (set_swap_interval == 2)
+		set_swap_interval = -1;
+	int res = SDL_GL_SetSwapInterval(set_swap_interval);
+	if (res == -1)
+	{
+		//try normal vsync
+		set_swap_interval = 1;
+		res = SDL_GL_SetSwapInterval(set_swap_interval);
+		if (res == -1) //try no vsync
+			SDL_GL_SetSwapInterval(0);
+		else
+		{
+			//Normal vsync worked, so change SwapInterval to it
+			SwapInterval = 1;
+		}
+	}
 }
 
 extern uint8_t* gr_video_memory;
