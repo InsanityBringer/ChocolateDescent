@@ -90,12 +90,6 @@ grs_font * header_font;
 grs_font * title_font;
 grs_font * names_font;
 
-#ifdef SHAREWARE
-#define ALLOWED_CHAR 'S'
-#else
-#define ALLOWED_CHAR 'R'
-#endif
-
 #ifdef RELEASE
 #define CREDITS_BACKGROUND_FILENAME (MenuHires?"\x01starsb.pcx":"\x01stars.pcx")	//only read from hog file
 #else
@@ -127,28 +121,22 @@ void credits_show(char *credits_filename)
 	int pcx_error;
 	int buffer_line = 0;
 	fix last_time;
-//	fix time_delay = 4180;			// ~ F1_0 / 12.9
-//	fix time_delay = 1784;
 	fix time_delay = 2800;
+	char allowed_char = 'R';
+	if (CurrentDataVersion == DataVer::DEMO) //slow down credits for shareware
+	{
+		time_delay = 4180;
+		allowed_char = 'S';
+	}
+
 	int first_line_offset,extra_inc=0;
 	int have_bin_file = 0;
 	char * tempp;
 	char filename[32];
 
-WIN(int credinit = 0;)
-
 	box dirty_box[NUM_LINES_HIRES];
 	grs_canvas *CreditsOffscreenBuf=NULL;
-
-	WINDOS(
-		dd_grs_canvas *save_canv,
-		grs_canvas *save_canv
-	);
-
-	WINDOS(
-		save_canv = dd_grd_curcanv,
-		save_canv = grd_curcanv
-	);
+	grs_canvas* save_canv = grd_curcanv;
 
 	// Clear out all tex buffer lines.
 	for (i=0; i<NUM_LINES; i++ ) 
@@ -157,10 +145,10 @@ WIN(int credinit = 0;)
 		dirty_box[i].left = dirty_box[i].top = dirty_box[i].width = dirty_box[i].height = 0;
 	}
 
-
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;
-	if (credits_filename) {
+	if (credits_filename) 
+	{
 		strcpy(filename,credits_filename);
 		have_bin_file = 1;
 	}
@@ -183,8 +171,6 @@ WIN(int credinit = 0;)
 
 	set_screen_mode(SCREEN_MENU);
 
-	WIN(DEFINE_SCREEN(NULL));
-
 CreditsPaint:
 	gr_use_palette_table( "credits.256" );
 #if defined(POLY_ACC)
@@ -195,11 +181,11 @@ CreditsPaint:
 	names_font = gr_init_font( MenuHires?"font2-2h.fnt":"font2-2.fnt" );
 	backdrop.bm_data=NULL;
 
-//MWA  Made backdrop bitmap linear since it should always be.  the current canvas may not
-//MWA  be linear, so we can't rely on grd_curcanv->cv_bitmap->bm_type.
-
+	//MWA  Made backdrop bitmap linear since it should always be.  the current canvas may not
+	//MWA  be linear, so we can't rely on grd_curcanv->cv_bitmap->bm_type.
 	pcx_error = pcx_read_bitmap(CREDITS_BACKGROUND_FILENAME,&backdrop, BM_LINEAR,backdrop_palette);
-	if (pcx_error != PCX_ERROR_NONE)		{
+	if (pcx_error != PCX_ERROR_NONE)		
+	{
 		cfclose(file);
 		return;
 	}
@@ -208,22 +194,14 @@ CreditsPaint:
 
 	gr_remap_bitmap_good( &backdrop,backdrop_palette, -1, -1 );
 
-WINDOS(
-	dd_gr_set_current_canvas(NULL),	
-	gr_set_current_canvas(NULL)
-);
-WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(NULL);
 	gr_bitmap(0,0,&backdrop);
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
 //	Create a new offscreen buffer for the credits screen
-//MWA  Let's be a little smarter about this and check the VR_offscreen buffer
-//MWA  for size to determine if we can use that buffer.  If the game size
-//MWA  matches what we need, then lets save memory.
-
-#ifndef PA_3DFX_VOODOO
-#ifndef WINDOWS
+	//MWA  Let's be a little smarter about this and check the VR_offscreen buffer
+	//MWA  for size to determine if we can use that buffer.  If the game size
+	//MWA  matches what we need, then lets save memory.
 	if (MenuHires && VR_offscreen_buffer->cv_w == 640)	
 	{
 		CreditsOffscreenBuf = VR_offscreen_buffer;
@@ -236,12 +214,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	{
 		CreditsOffscreenBuf = gr_create_canvas(320,200);
 	}
-#else
-	CreditsOffscreenBuf = gr_create_canvas(640,480);
-#endif				 
-#else
-	CreditsOffscreenBuf = gr_create_canvas(640,480);
-#endif
 
 	if (!CreditsOffscreenBuf) 
 		Error("Not enough memory to allocate Credits Buffer.");
@@ -284,7 +256,7 @@ get_line:;
 				if (p[0] == ';')
 					goto get_line;
 				if (p[0] == '%')
-					if (p[1] == ALLOWED_CHAR)
+					if (p[1] == allowed_char)
 						strcpy(p,p+2);
 					else
 						goto get_line;
@@ -301,8 +273,6 @@ get_line:;
 		} while (extra_inc--);
 		extra_inc = 0;
 
-//NO_DFX (for (i=0; i<ROW_SPACING; i += (MenuHires?2:1) )	{)
-//PA_DFX (for (i=0; i<ROW_SPACING; i += (MenuHires?2:1) )	{)
 		//[ISB] I'm confused...
 		for (i = 0; i < ROW_SPACING; i += (MenuHires ? 2 : 1)) 
 		{
@@ -406,8 +376,7 @@ get_line:;
                 pa_flush();
 #endif
 
-#if !defined(POLY_ACC) || defined(MACINTOSH)
-				MAC( if(!PAEnabled) )			// POLY_ACC always on for the macintosh
+#if !defined(POLY_ACC)
 				for (j=0; j<NUM_LINES; j++ )
 				{
 					new_box = &dirty_box[j];
@@ -423,44 +392,13 @@ get_line:;
 									,&backdrop
 									,tempbmp );
 				}
-				
 #endif
 				
 			}
 
-//		Wacky Fast Credits thing doesn't need this (it's done above)
-//@@		WINDOS(
-//@@			dd_gr_blt_notrans(CreditsOffscreenBuf, 0,0,0,0,	dd_grd_screencanv, 0,0,0,0),
-//@@			gr_bm_ubitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(CreditsOffscreenBuf->cv_bitmap), &(grd_curscreen->sc_canvas.cv_bitmap) );
-//@@		);
-
 //			mprintf( ( 0, "Fr = %d", (timer_get_fixed_seconds() - last_time) ));
 			while( timer_get_fixed_seconds() < last_time+time_delay );
 			last_time = timer_get_fixed_seconds();
-		
-		#ifdef WINDOWS
-			{
-				MSG msg;
-
-				DoMessageStuff(&msg);
-
-				if (_RedrawScreen) 
-				{
-					_RedrawScreen = FALSE;
-
-					gr_close_font(header_font);
-					gr_close_font(title_font);
-					gr_close_font(names_font);
-
-					mem_free(backdrop.bm_data);
-					gr_free_canvas(CreditsOffscreenBuf);
-		
-					goto CreditsPaint;
-				}
-
-				DDGRRESTORE;
-			}
-		#endif
 
 			//see if redbook song needs to be restarted
 			songs_check_redbook_repeat();
@@ -474,14 +412,6 @@ get_line:;
 				k=0;
 			}
 			#endif
-
-//			{
-//				fix ot = time_delay;
-//				time_delay += (keyd_pressed[KEY_X] - keyd_pressed[KEY_Z])*100;
-//				if (ot!=time_delay)	{
-//					mprintf( (0, "[%x] ", time_delay ));
-//				}
-//			}
 
 			if (k == KEY_PRINT_SCREEN)
 			{
