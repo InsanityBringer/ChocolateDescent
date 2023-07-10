@@ -156,11 +156,7 @@ short next_signature = 0;
 
 int digi_sounds_initialized = 0;
 
-void* testLoadFile(char* szFileName, int* length);
-
 void digi_reset_digi_sounds();
-uint32_t sosMIDICallback(uint32_t PassedSongHandle);
-void sosEndMIDICallback();
 
 int digi_xlat_sound(int soundno)
 {
@@ -670,8 +666,6 @@ TryNextChannel:
 //	sampledata->wSampleID = i;
 
 	digi_lock_sound_data(soundnum);
-	//[ISB] TODO
-	//sHandle = sosDIGIStartSample( hSOSDigiDriver, sampledata );
 	sHandle = plat_get_new_sound_handle();
 	if (sHandle == _ERR_NO_SLOTS)
 	{
@@ -683,11 +677,6 @@ TryNextChannel:
 	plat_set_sound_position(sHandle, sampledata->volume, sampledata->angle);
 	plat_start_sound(sHandle, sampledata->loop);
 	//mprintf(( 0, "Starting sound on channel %d\n", sHandle ));
-
-#ifndef NDEBUG
-	//verify_sound_channel_free(sHandle); //[ISB] i have no idea what the hell a handle is tbh
-	//Assert( sHandle != _ERR_NO_SLOTS );
-#endif
 
 	for (i=0; i<digi_max_channels; i++ )	
 	{
@@ -907,7 +896,6 @@ void digi_set_midi_volume(int mvolume)
 		//sosMIDISetMasterVolume(midi_volume);
 		music_set_volume(midi_volume);
 	}
-	
 }
 
 void digi_set_digi_volume(int dvolume)
@@ -933,48 +921,6 @@ void digi_set_volume(int dvolume, int mvolume)
 	digi_set_midi_volume( mvolume );
 	digi_set_digi_volume( dvolume );
 //	mprintf(( 1, "Volume: 0x%x and 0x%x\n", digi_volume, midi_volume ));
-}
-
-// allocate memory for file, load file, create far pointer
-// with DS in selector.
-//[ISB] we probably aren't using this ever
-void* testLoadFile(char* szFileName, int* length)
-{
-	/*
-	   PSTR  pDataPtr;
-		CFILE * fp;
-
-	   // open file
-	   fp  =  cfopen( szFileName, "rb" );
-		if ( !fp ) return NULL;
-
-	   *length  =  cfilelength(fp);
-
-	   pDataPtr =  malloc( *length );
-		if ( !pDataPtr ) return NULL;
-
-	   // read in driver
-	   cfread( pDataPtr, *length, 1, fp);
-
-	   // close driver file
-	   cfclose( fp );
-
-	   // return
-	   return( pDataPtr );
-	   */
-	return NULL;//KRB Comment out...
-}
-
-// ALL VARIABLES IN HERE MUST BE LOCKED DOWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//[ISB] well they did at one point...
-uint32_t sosMIDICallback(uint32_t PassedSongHandle)
-{
-	//sosMIDIStartSong(PassedSongHandle);
-	return 0;
-}
-
-void sosEndMIDICallback()		// Used to mark the end of sosMIDICallBack
-{
 }
 
 void digi_stop_current_song()
