@@ -101,6 +101,8 @@ int plat_read_chocolate_cfg()
 				NoOpenGL = strtol(value, NULL, 10) != 0;
 			else if (!strcmp(token, GenDeviceStr))
 				PreferredGenDevice = (GenDevices)strtol(value, NULL, 10);
+			else if (!strcmp(token, MMEDeviceStr))
+				PreferredMMEDevice = strtol(value, NULL, 10);
 		}
 	}
 
@@ -137,6 +139,7 @@ void plat_save_chocolate_cfg()
 			fprintf(infile, "%s=%s\n", SoundFontPath, SoundFontFilename);
 		fprintf(infile, "%s=%d\n", NoOpenGLStr, NoOpenGL);
 		fprintf(infile, "%s=%d\n", GenDeviceStr, (int)PreferredGenDevice);
+		fprintf(infile, "%s=%d\n", MMEDeviceStr, PreferredMMEDevice);
 		fclose(infile);
 	}
 }
