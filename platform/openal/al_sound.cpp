@@ -147,9 +147,8 @@ void plat_close_audio()
 
 int plat_get_new_sound_handle()
 {
-	int i;
 	ALint state;
-	for (i = 0; i < _MAX_VOICES; i++)
+	for (int i = 0; i < _MAX_VOICES; i++)
 	{
 		alGetSourcei(sourceNames[i], AL_SOURCE_STATE, &state);
 		if (state != AL_PLAYING)
