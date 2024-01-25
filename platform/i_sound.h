@@ -70,24 +70,26 @@ void plat_set_music_volume(int volume);
 void plat_start_midi_song(HMPFile* song, bool loop);
 void plat_stop_midi_song();
 
+//The following all use a void pointer as an opaque pointer to a implementation-dependent source pointer. 
+
 //Sets the sample rate of the current music playback
-void midi_set_music_samplerate(uint32_t samplerate);
+void midi_set_music_samplerate(void* opaquesource, uint32_t samplerate);
 //Returns true if there are available buffer slots in the music source's buffer queue.
-bool midi_queue_slots_available();
+bool midi_queue_slots_available(void* opaquesource);
 //Clears all finished buffers from the queue.
-void midi_dequeue_midi_buffers();
+void midi_dequeue_midi_buffers(void* opaquesource);
 //Queues a new buffer into the music source, at a specified sample rate.
 //This is used for both MIDI and CD music right now
-void midi_queue_buffer(int numSamples, uint16_t* data);
+void midi_queue_buffer(void* opaquesource, int numSamples, uint16_t* data);
 
-//Readies the source for playing MIDI music.
-void midi_start_source();
-//Stops the MIDI music source.
-void midi_stop_source();
+//Readies the source for playing MIDI music. Returns an opaque pointer for the source.
+void* midi_start_source();
+//Stops the MIDI music source. Will free the pointer passed. 
+void midi_stop_source(void* opaquesource);
 //Starts the MIDI source if it hasn't started already, and starts it again if it starved.
-void midi_check_status();
+void midi_check_status(void* opaquesource);
 //Checks if the MIDI source is done playing, returns true if it is.
-bool midi_check_finished();
+bool midi_check_finished(void* opaquesource);
 
 
 //-----------------------------------------------------------------------------

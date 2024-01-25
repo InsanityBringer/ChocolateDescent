@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "main_shared/piggy.h"
 #include "main_shared/hqmusic.h"
 #include "stringtable.h"
+#include "main_shared/songs.h"
 
 #include "config.h"
 
@@ -124,7 +125,8 @@ void digi_close_midi()
 {
 	if (digi_midi_type>0)	
 	{
-		if (wSongHandle < 0xffff)	
+		Assert(wSongHandle == 0xffff); //should have closed already
+		/*if (wSongHandle < 0xffff)	
 		{
 			S_StopSong();
 			wSongHandle = 0xffff;
@@ -133,7 +135,7 @@ void digi_close_midi()
 		{
 			free(SongData);
 			SongData = NULL;
-		}
+		}*/
 
 		if ( midi_system_initialized )	
 		{
@@ -155,6 +157,12 @@ void digi_close_digi()
 void digi_close()
 {
 	if (!Digi_initialized) return;
+
+	//Call songs_stop_all instead of closing MIDI directly. 
+	//This is because redbook audio uses the state set up by digi.
+	songs_stop_all();
+
+	//The stop must be done before this otherwise it won't stop correctly. 
 	Digi_initialized = 0;
 
 	digi_close_midi();

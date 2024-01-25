@@ -40,14 +40,19 @@ bool LoopMusic;
 std::mutex MIDIMutex;
 std::thread MIDIThread;
 
-int MIDINumFreeBuffers = 0;
-int MIDINumUsedBuffers = 0;
-int MIDIAvailableBuffers[MAX_BUFFERS_QUEUED];
-int MIDIUsedBuffers[MAX_BUFFERS_QUEUED];
-ALuint MIDISourceBuffers[MAX_BUFFERS_QUEUED];
-ALuint BufferQueue[MAX_BUFFERS_QUEUED];
-ALuint MusicSource;
-ALuint MusicSampleRate;
+struct ALMusicSource
+{
+	int MusicVolume; //Current volume level of the source. Compare against the current MusicVolume while servicing.
+	int NumFreeBuffers; //Number of free buffers
+	int NumUsedBuffers; //Number of used buffers
+	int AvailableBuffers[MAX_BUFFERS_QUEUED]; //All available buffer names
+	int UsedBuffers[MAX_BUFFERS_QUEUED]; //All currently queued buffer names. 
+	ALuint SourceBuffers[MAX_BUFFERS_QUEUED]; //The source names this music source will use. 
+	ALuint BufferQueue[MAX_BUFFERS_QUEUED]; 
+	ALuint MusicSource; //Source name for the music
+	ALuint MusicSampleRate; //Sample rate for the current music. 
+	bool Playing; //True if the source has been started for the first time. 
+};
 
 //HQ audio fields
 ALuint HQMusicSource;
@@ -76,7 +81,7 @@ void AL_ErrorCheck(const char* context)
 	}
 }
 
-void I_CreateMusicSource();
+void* I_CreateMusicSource();
 
 void AL_InitSource(ALuint source)
 {
@@ -255,7 +260,7 @@ int plat_check_if_sound_finished(int handle)
 //-----------------------------------------------------------------------------
 // Emitting pleasing rythmic sound at player
 //-----------------------------------------------------------------------------
-bool playing = false;
+//bool playing = false;
 
 int plat_start_midi(MidiSequencer* sequencer)
 {
@@ -273,10 +278,10 @@ void plat_set_music_volume(int volume)
 	MusicVolume = volume;
 
 	//[ISB] Midi volume is now handled at the synth level, not the mixer level. 
-	if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
+	/*if (alIsSource(MusicSource)) //[ISB] TODO okay so this isn't truly thread safe, it likely won't pose a problem, but I should fix it just in case
 	{
 		alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
-	}
+	}*/
 	if (alIsSource(HQMusicSource)) //[ISB] heh
 	{
 		alSourcef(HQMusicSource, AL_GAIN, MusicVolume / 127.0f);
@@ -314,138 +319,162 @@ void plat_stop_hq_song()
 	}
 }
 
-void I_CreateMusicSource()
+void* I_CreateMusicSource()
 {
 	int i;
-	alGenSources(1, &MusicSource);
-	alSourcef(MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
-	alSource3f(MusicSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
-	alSourcef(MusicSource, AL_GAIN, MusicVolume / 127.0f);
-	memset(&BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
-	alGenBuffers(MAX_BUFFERS_QUEUED, MIDISourceBuffers);
+	ALMusicSource* source = new ALMusicSource;
+
+	alGenSources(1, &source->MusicSource);
+	alSourcef(source->MusicSource, AL_ROLLOFF_FACTOR, 0.0f);
+	alSource3f(source->MusicSource, AL_POSITION, 0.0f, 0.0f, 0.0f);
+	alSourcef(source->MusicSource, AL_GAIN, MusicVolume / 127.0f);
+	source->MusicVolume = MusicVolume;
+	memset(&source->BufferQueue[0], 0, sizeof(ALuint) * MAX_BUFFERS_QUEUED);
+	alGenBuffers(MAX_BUFFERS_QUEUED, source->SourceBuffers);
 	for (i = 0; i < MAX_BUFFERS_QUEUED; i++)
-		MIDIAvailableBuffers[i] = i;
-	MIDINumFreeBuffers = MAX_BUFFERS_QUEUED;
-	MIDINumUsedBuffers = 0;
+		source->AvailableBuffers[i] = i;
+	source->NumFreeBuffers = MAX_BUFFERS_QUEUED;
+	source->NumUsedBuffers = 0;
+	source->Playing = false;
 	AL_ErrorCheck("Creating music source");
+
+	return source;
 }
 
-void I_DestroyMusicSource()
+void I_DestroyMusicSource(void* opaquesource)
 {
+	ALMusicSource* source = (ALMusicSource*)opaquesource;
 	int BuffersProcessed;
-	alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &BuffersProcessed);
+	alGetSourcei(source->MusicSource, AL_BUFFERS_QUEUED, &BuffersProcessed);
 	/*if (BuffersProcessed > 0) //Free any lingering buffers
 	{
 		alSourceUnqueueBuffers(MusicSource, BuffersProcessed, &BufferQueue[0]);
 		alDeleteBuffers(BuffersProcessed, &BufferQueue[0]);
 	}
 	I_ErrorCheck("Destroying lingering music buffers");*/
-	alDeleteSources(1, &MusicSource);
+	alDeleteSources(1, &source->MusicSource);
 	AL_ErrorCheck("Destroying music source");
-	alDeleteBuffers(MAX_BUFFERS_QUEUED, MIDISourceBuffers);
+	alDeleteBuffers(MAX_BUFFERS_QUEUED, source->SourceBuffers);
 	AL_ErrorCheck("Destroying lingering buffers");
-	MusicSource = 0;
+	source->MusicSource = 0;
+
+	delete source;
 }
 
-void midi_set_music_samplerate(uint32_t samplerate)
+void midi_set_music_samplerate(void* opaquesource, uint32_t samplerate)
 {
-	MusicSampleRate = samplerate;
+	ALMusicSource* source = (ALMusicSource*)opaquesource;
+	source->MusicSampleRate = samplerate;
 }
 
-void midi_check_status()
+void midi_check_status(void* opaquesource)
 {
+	ALMusicSource* source = (ALMusicSource*)opaquesource;
 	ALenum playstatus;
-	if (!playing)
+	if (!source->Playing)
 	{
-		playing = true;
-		alSourcePlay(MusicSource);
+		source->Playing = true;
+		alSourcePlay(source->MusicSource);
 		AL_ErrorCheck("Playing music source");
 	}
 	else
 	{
-		alGetSourcei(MusicSource, AL_SOURCE_STATE, &playstatus);
+		alGetSourcei(source->MusicSource, AL_SOURCE_STATE, &playstatus);
 		if (playstatus != AL_PLAYING)
 		{
 			//If this happens, the buffer starved, kick it back up
 			//This should happen as rarely as humanly possible, otherwise there's a pop because of the brief stall in the stream.
 			//I need to find ways to reduce the amount of overhead in the setup. 
 			printf("midi buffer starved\n");
-			alSourcePlay(MusicSource);
+			alSourcePlay(source->MusicSource);
 		}
 	}
 }
 
-bool midi_check_finished()
+bool midi_check_finished(void* opaquesource)
 {
-	if (MusicSource == 0) return true;
+	ALMusicSource* source = (ALMusicSource*)opaquesource;
+	if (source->MusicSource == 0) return true;
 
 	ALenum playstatus;
-	alGetSourcei(MusicSource, AL_SOURCE_STATE, &playstatus);
+	alGetSourcei(source->MusicSource, AL_SOURCE_STATE, &playstatus);
 
 	return playstatus != AL_PLAYING;
 }
 
-bool midi_queue_slots_available()
+bool midi_queue_slots_available(void* opaquesource)
 {
 	if (!AL_initialized) return false;
+	ALMusicSource* source = (ALMusicSource*)opaquesource;
 	/*alGetSourcei(MusicSource, AL_BUFFERS_QUEUED, &CurrentBuffers);
 	AL_ErrorCheck("Checking can queue buffers");
 	return CurrentBuffers < MAX_BUFFERS_QUEUED;*/
-	return MIDINumFreeBuffers > 0;
+	return source->NumFreeBuffers > 0;
 }
 
-void midi_dequeue_midi_buffers()
+void midi_dequeue_midi_buffers(void* opaquesource)
 {
 	int i;
 	if (!AL_initialized) return;
+	ALMusicSource* source = (ALMusicSource*)opaquesource;
+	//I should probably keep track of all active music sources to do this immediately, but this will work for now. 
+	//Check if the music volume changed and keep it up to date.
+	if (source->MusicVolume != MusicVolume)
+	{
+		alSourcef(source->MusicSource, AL_GAIN, MusicVolume / 127.0f);
+		source->MusicVolume = MusicVolume;
+	}
+
 	int BuffersProcessed;
-	alGetSourcei(MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
+	alGetSourcei(source->MusicSource, AL_BUFFERS_PROCESSED, &BuffersProcessed);
 	if (BuffersProcessed > 0)
 	{
-		alSourceUnqueueBuffers(MusicSource, BuffersProcessed, &BufferQueue[0]);
+		alSourceUnqueueBuffers(source->MusicSource, BuffersProcessed, &source->BufferQueue[0]);
 		for (i = 0; i < BuffersProcessed; i++)
 		{
-			MIDIAvailableBuffers[MIDINumFreeBuffers] = MIDIUsedBuffers[i];
+			source->AvailableBuffers[source->NumFreeBuffers] = source->UsedBuffers[i];
 
-			//printf("dq %d\n", MIDIUsedBuffers[i]);
+			//printf("dq %d\n", source->UsedBuffers[i]);
 
-			MIDINumFreeBuffers++;
-			MIDINumUsedBuffers--;
+			source->NumFreeBuffers++;
+			source->NumUsedBuffers--;
 		}
 		for (i = 0; i < MAX_BUFFERS_QUEUED - BuffersProcessed; i++)
 		{
-			BufferQueue[i] = BufferQueue[i + BuffersProcessed];
-			MIDIUsedBuffers[i] = MIDIUsedBuffers[i + BuffersProcessed];
+			source->BufferQueue[i] = source->BufferQueue[i + BuffersProcessed];
+			source->UsedBuffers[i] = source->UsedBuffers[i + BuffersProcessed];
 		}
 		//printf("Killing %d buffers\n", BuffersProcessed);
 	}
 	AL_ErrorCheck("Unqueueing music buffers");
 }
 
-void midi_queue_buffer(int numTicks, uint16_t *data)
+void midi_queue_buffer(void* opaquesource, int numTicks, uint16_t *data)
 {
 	if (!AL_initialized) return;
+	ALMusicSource* source = (ALMusicSource*)opaquesource;
+
 	//printf("Queuing %d ticks\n", numTicks);
-	if (MIDINumFreeBuffers > 0)
+	if (source->NumFreeBuffers > 0)
 	{
-		int freeBufferNum = MIDIAvailableBuffers[MIDINumFreeBuffers - 1];
-		MIDIUsedBuffers[MIDINumUsedBuffers] = freeBufferNum;
+		int freeBufferNum = source->AvailableBuffers[source->NumFreeBuffers - 1];
+		source->UsedBuffers[source->NumUsedBuffers] = freeBufferNum;
 		
-		BufferQueue[MIDINumUsedBuffers] = MIDISourceBuffers[freeBufferNum];
-		alBufferData(BufferQueue[MIDINumUsedBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, MusicSampleRate);
-		alSourceQueueBuffers(MusicSource, 1, &BufferQueue[MIDINumUsedBuffers]);
+		source->BufferQueue[source->NumUsedBuffers] = source->SourceBuffers[freeBufferNum];
+		alBufferData(source->BufferQueue[source->NumUsedBuffers], AL_FORMAT_STEREO16, data, numTicks * sizeof(ALushort) * 2, source->MusicSampleRate);
+		alSourceQueueBuffers(source->MusicSource, 1, &source->BufferQueue[source->NumUsedBuffers]);
 		AL_ErrorCheck("Queueing music buffers");
 
 		//printf("q %d\n", freeBufferNum);
 
-		MIDINumUsedBuffers++;
-		MIDINumFreeBuffers--;
+		source->NumUsedBuffers++;
+		source->NumFreeBuffers--;
 	}
 }
 
 void plat_start_midi_song(HMPFile* song, bool loop)
 {
-	playing = false;
+	//Hey, how'd I get here? What do I do?
 }
 
 void plat_stop_midi_song()
@@ -457,20 +486,21 @@ uint32_t plat_get_preferred_midi_sample_rate()
 	return MIDI_SAMPLERATE;
 }
 
-void midi_start_source()
+void* midi_start_source()
 {
-	playing = false;
-	if (!AL_initialized) return;
-	I_CreateMusicSource();
+	if (!AL_initialized) return nullptr;
+	void* source = I_CreateMusicSource();
 	AL_ErrorCheck("Creating source");
+	return source;
 }
 
-void midi_stop_source()
+void midi_stop_source(void* opaquesource)
 {
 	if (!AL_initialized) return;
-	alSourceStop(MusicSource);
-	midi_dequeue_midi_buffers();
-	I_DestroyMusicSource();
+	ALMusicSource* source = (ALMusicSource*)opaquesource;
+	alSourceStop(source->MusicSource);
+	midi_dequeue_midi_buffers(opaquesource);
+	I_DestroyMusicSource(opaquesource);
 	AL_ErrorCheck("Destroying source");
 }
 

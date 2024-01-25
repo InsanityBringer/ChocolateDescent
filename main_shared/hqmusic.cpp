@@ -18,6 +18,7 @@ Instead, it is released under the terms of the MIT License.
 #include "platform/i_sound.h"
 #include "platform/platform_filesys.h"
 #include "platform/timer.h"
+#include "misc/error.h"
 
 bool PlayHQSong(const char* filename, bool loop)
 {
@@ -127,7 +128,7 @@ short RBA_Vorbis_frame_data[RBA_NUM_SAMPLES * 2];
 int RBA_Vorbis_frame_size;
 
 //Tracks are ones-based, heh.
-bool RBAThreadStartTrack(int num)
+bool RBAThreadStartTrack(int num, void** mysourceptr)
 {
 	char filename_full_path[CHOCOLATE_MAX_FILE_PATH_SIZE];
 	char track_name[16];
@@ -157,17 +158,12 @@ bool RBAThreadStartTrack(int num)
 
 	stb_vorbis_info info = stb_vorbis_get_info(RBA_Current_vorbis_handle);
 
-	midi_set_music_samplerate(info.sample_rate);
-	midi_start_source();
+	void* mysource = midi_start_source();
+	midi_set_music_samplerate(mysource, info.sample_rate);
+	*mysourceptr = mysource;
 	RBA_out_of_data = false;
 
 	return true;
-}
-
-void RBAThreadCloseTrack()
-{
-	midi_stop_source();
-	stb_vorbis_close(RBA_Current_vorbis_handle);
 }
 
 //int stb_vorbis_get_samples_short_interleaved(stb_vorbis *f, int channels, short *buffer, int num_shorts);
@@ -188,7 +184,8 @@ bool RBAPeekPlayStatus()
 void RBAThread()
 {
 	RBA_Current_track = RBA_Start_track;
-	bool res = RBAThreadStartTrack(RBA_Current_track);
+	void* mysource;
+	bool res = RBAThreadStartTrack(RBA_Current_track, &mysource);
 
 	if (!res)
 	{
@@ -201,21 +198,21 @@ void RBAThread()
 	{
 		if (!RBA_out_of_data)
 		{
-			midi_dequeue_midi_buffers();
-			if (midi_queue_slots_available())
+			midi_dequeue_midi_buffers(mysource);
+			if (midi_queue_slots_available(mysource))
 			{
 				RBAThreadDecodeSamples();
 				if (RBA_Vorbis_frame_size > 0)
 				{
-					midi_queue_buffer(RBA_Vorbis_frame_size, (uint16_t*)RBA_Vorbis_frame_data);
+					midi_queue_buffer(mysource, RBA_Vorbis_frame_size, (uint16_t*)RBA_Vorbis_frame_data);
 				}
-				midi_check_status();
+				midi_check_status(mysource);
 			}
 		}
 		else
 		{
-			midi_dequeue_midi_buffers();
-			if (midi_check_finished())
+			midi_dequeue_midi_buffers(mysource);
+			if (midi_check_finished(mysource))
 			{
 				RBA_Current_track++;
 				if (RBA_Current_track > RBA_End_track)
@@ -225,8 +222,8 @@ void RBAThread()
 				}
 				else
 				{
-					midi_stop_source();
-					res = RBAThreadStartTrack(RBA_Current_track);
+					midi_stop_source(mysource);
+					res = RBAThreadStartTrack(RBA_Current_track, &mysource);
 					if (!res)
 					{
 						RBA_active = true;
@@ -241,7 +238,7 @@ void RBAThread()
 	}
 
 	//If we aborted, still check if the MIDI is actually done playing. 
-	midi_stop_source();
+	midi_stop_source(mysource);
 	return;
 }
 
@@ -307,6 +304,7 @@ int RBAGetTrackNum()
 void RBAStartThread()
 {
 	RBA_active = true;
+	Assert(RBA_thread == nullptr);
 	RBA_thread = new std::thread(&RBAThread);
 }
 

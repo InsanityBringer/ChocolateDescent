@@ -978,7 +978,7 @@ void do_chocolate_midi_menu()
 
 			j = newmenu_listbox1("Available MME devices", names.size() + 1, strings, 1, PreferredMMEDevice+1, nullptr);
 
-			if (j != -1)
+			/*if (j != -1)
 			{
 				j--;
 				if (j != PreferredMMEDevice)
@@ -990,7 +990,7 @@ void do_chocolate_midi_menu()
 
 					songs_play_song(SONG_TITLE, 1);
 				}
-			}
+			}*/
 
 			delete[] strings;
 		}

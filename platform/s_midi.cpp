@@ -752,7 +752,7 @@ void MidiPlayer::Run()
 	uint64_t currentTime, delta;
 	initialized = true;
 	nextTimerTick = I_GetUS();
-	midi_start_source();
+	void* mysource = midi_start_source();
 	int i;
 
 	for (;;)
@@ -784,7 +784,7 @@ void MidiPlayer::Run()
 			}
 			//printf("Starting new song\n");
 			sequencer->StartSong(nextSong, nextLoop);
-			midi_set_music_samplerate(MIDI_SAMPLERATE);
+			midi_set_music_samplerate(mysource, MIDI_SAMPLERATE);
 			TickFracDelta = (65536 * nextSong->GetTempo()) / 120;
 			curSong = nextSong;
 			nextSong = nullptr;
@@ -808,8 +808,8 @@ void MidiPlayer::Run()
 				//Ugh. This is hideous.
 				//Queue buffers as fast as possible. When done, sleep for a while. This comes close enough to avoiding starvation.
 				//Anything less than 5 120hz ticks of latency will result in OpenAL occasionally starving. It's the most I can do...
-				midi_dequeue_midi_buffers();
-				while (midi_queue_slots_available())
+				midi_dequeue_midi_buffers(mysource);
+				while (midi_queue_slots_available(mysource))
 				{
 					for (i = 0; i < NUMSOFTTICKS; i++)
 					{
@@ -821,10 +821,10 @@ void MidiPlayer::Run()
 						}
 						sequencer->Render(MIDI_SAMPLERATE / 120, songBuffer + (MIDI_SAMPLERATE / 120 * 2) * i);
 					}
-					midi_queue_buffer(MIDI_SAMPLERATE / 120 * NUMSOFTTICKS, songBuffer);
+					midi_queue_buffer(mysource, MIDI_SAMPLERATE / 120 * NUMSOFTTICKS, songBuffer);
 				}
 
-				midi_check_status();
+				midi_check_status(mysource);
 				I_DelayUS(4000);
 			}
 			else if (synth->ClassifySynth() == MIDISYNTH_LIVE)
@@ -850,7 +850,7 @@ void MidiPlayer::Run()
 			}
 		}
 	}
-	midi_stop_source();
+	midi_stop_source(mysource);
 	shouldEnd = false;
 	hasEnded = true;
 	//printf("Midi thread rip\n");
