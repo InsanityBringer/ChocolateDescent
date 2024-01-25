@@ -191,6 +191,7 @@ void RBAThread()
 	{
 		RBA_active = false;
 		RBA_error = 1;
+		midi_stop_source(mysource);
 		return;
 	}
 
