@@ -96,7 +96,7 @@ bool RBA_Initialized;
 int RBA_Start_track, RBA_End_track;
 volatile int RBA_Current_track = -1;
 
-std::thread* RBA_thread;
+std::thread RBA_thread;
 
 //Data of the song currently decoding. ATM loaded all at once.
 //TODO: Profile, may be much faster to let stb_vorbis do its own IO.
@@ -283,12 +283,10 @@ bool RBAEnabled()
 
 void RBAStop()
 {
-	if (RBA_thread != nullptr)
+	if (RBA_thread.joinable())
 	{
 		RBA_active = false;
-		RBA_thread->join();
-		delete RBA_thread;
-		RBA_thread = nullptr;
+		RBA_thread.join();
 	}
 }
 
@@ -305,8 +303,8 @@ int RBAGetTrackNum()
 void RBAStartThread()
 {
 	RBA_active = true;
-	Assert(RBA_thread == nullptr);
-	RBA_thread = new std::thread(&RBAThread);
+	Assert(!RBA_thread.joinable()); //joinable thread is an active thread, so it wasn't cleaned up before.
+	RBA_thread = std::thread(&RBAThread);
 }
 
 int RBAPlayTrack(int track)
