@@ -482,6 +482,8 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 	//_SOS_START_SAMPLE sSOSSampleData;
 	sampledata_t DigiSampleData;
 
+	if (soundnum == 255) return -1;
+
 	if ( !Digi_initialized ) return -1;
 	if ( digi_driver_board <= 0 )	return -1;
 

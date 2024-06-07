@@ -2190,12 +2190,20 @@ int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, int8_t
 	objp->mtype.phys_info.rotvel.z = (GameTime - start_time)/7;
 
 	if (digi_sample_rate)
-		sound_duration = fixdiv(GameSounds[digi_xlat_sound(death_sound)].length,digi_sample_rate);
+	{
+		int soundno = digi_xlat_sound(death_sound);
+		if (soundno >= 0 && soundno != 255)
+			sound_duration = fixdiv(GameSounds[soundno].length, digi_sample_rate);
+		else
+			sound_duration = F1_0;
+	}
 	else
 		sound_duration = F1_0;
 
-	if (start_time + roll_duration - sound_duration < GameTime) {
-		if (!*dying_sound_playing) {
+	if (start_time + roll_duration - sound_duration < GameTime) 
+	{
+		if (!*dying_sound_playing) 
+		{
 			mprintf((0, "Starting death sound!\n"));
 			*dying_sound_playing = 1;
 			digi_link_sound_to_object2( death_sound, objp-Objects, 0, sound_scale, sound_scale*256 );	//	F1_0*512 means play twice as loud

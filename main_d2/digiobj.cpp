@@ -186,7 +186,7 @@ void digi_play_sample( int soundno, fix max_volume )
 #endif
 	soundno = digi_xlat_sound(soundno);
 
-	if (soundno < 0 ) return;
+	if (soundno < 0 || soundno == 255) return;
 
    // start the sample playing
 	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, -1 );
@@ -208,7 +208,7 @@ void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
 #endif
 	soundno = digi_xlat_sound(soundno);
 
-	if (soundno < 0 ) return;
+	if (soundno < 0 || soundno == 255) return;
 
 	if (volume < 10 ) return;
 
@@ -260,7 +260,7 @@ void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int l
 {
 	soundno = digi_xlat_sound(soundno);
 
-	if (soundno < 0 ) return;
+	if (soundno < 0 || soundno == 255) return;
 
 	if (digi_looping_channel>-1)
 		digi_stop_sound( digi_looping_channel );
@@ -347,7 +347,7 @@ int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix
 	if ( max_volume < 0 ) return -1;
 //	if ( max_volume > F1_0 ) max_volume = F1_0;
 
-	if (soundnum < 0 ) return -1;
+	if (soundnum < 0 || soundnum == 255) return -1;
 	if (GameSounds[soundnum].data==NULL) 
 	{
 		Int3();
@@ -443,7 +443,7 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 	if ( max_volume < 0 ) return -1;
 //	if ( max_volume > F1_0 ) max_volume = F1_0;
 
-	if (soundnum < 0 ) return -1;
+	if (soundnum < 0 || soundnum == 255) return -1;
 	if (GameSounds[soundnum].data==NULL) 
 	{
 		Int3();
@@ -524,6 +524,8 @@ void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum )
 	if (soundnum != -1)
 		soundnum = digi_xlat_sound(soundnum);
 
+	if (soundnum < 0 || soundnum == 255)
+		return;
 
 	killed = 0;
 
@@ -946,7 +948,7 @@ void digi_start_sound_queued( short soundnum, fix volume )
 
 	soundnum = digi_xlat_sound(soundnum);
 
-	if (soundnum < 0 ) return;
+	if (soundnum < 0 || soundnum == 255) return;
 
 	i = SoundQ_tail+1;
 	if ( i>=MAX_Q ) i = 0;
