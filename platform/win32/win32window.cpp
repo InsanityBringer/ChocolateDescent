@@ -480,6 +480,10 @@ int plat_check_gr_mode(int mode)
 	return 11;
 }
 
+void plat_update_window()
+{
+}
+
 int plat_set_gr_mode(int mode)
 {
 	int w = 0, h = 0;

@@ -655,25 +655,43 @@ void plat_stop_midi_song()
 	std::unique_lock<std::mutex> lock(mixer_mutex);
 }
 
-//[ISB] new MIDI buffering inferface
-bool midi_queue_slots_available()
+void midi_set_music_samplerate(void* opaquesource, uint32_t samplerate)
+{
+}
+
+void midi_check_status(void* opaquesource)
+{
+}
+
+bool midi_check_finished(void* opaquesource)
 {
 	return false;
 }
 
-void midi_dequeue_midi_buffers()
+//[ISB] new MIDI buffering inferface
+bool midi_queue_slots_available(void* opaquesource)
+{
+	return false;
+}
+
+void midi_dequeue_midi_buffers(void* opaquesource)
 {
 }
 
-void midi_queue_buffer(int numSamples, uint16_t* data)
+void midi_queue_buffer(void* opaquesource, int numTicks, uint16_t *data)
 {
 }
 
-void midi_start_source()
+void *midi_start_source()
+{
+	return NULL;
+}
+
+void midi_stop_source(void* opaquesource)
 {
 }
 
-void midi_stop_source()
+void plat_close_midi()
 {
 }
 
