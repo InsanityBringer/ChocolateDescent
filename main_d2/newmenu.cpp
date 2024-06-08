@@ -73,18 +73,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SELECTED_FONT  	MEDIUM2_FONT		//highlighted item
 #define SUBTITLE_FONT	MEDIUM3_FONT
 
-#define NORMAL_CHECK_BOX	"Å"
-#define CHECKED_CHECK_BOX       "Ç"    
-
-#define NORMAL_RADIO_BOX	""
-#define CHECKED_RADIO_BOX	"Ä"
+#define NORMAL_CHECK_BOX	"\x81"
+#define CHECKED_CHECK_BOX	"\x82"    
+#define NORMAL_RADIO_BOX	"\x7f"
+#define CHECKED_RADIO_BOX	"\x80"
 #define CURSOR_STRING		"_"
-#define SLIDER_LEFT			"É"		// 131
-#define SLIDER_RIGHT			"Ñ"		// 132
-#define SLIDER_MIDDLE		"Ö"		// 133
-#define SLIDER_MARKER		"Ü"		// 134
-#define UP_ARROW_MARKER       "á"    // 135
-#define DOWN_ARROW_MARKER       "à"      // 136
+#define SLIDER_LEFT			"\x83"	// 131
+#define SLIDER_RIGHT			"\x84"	// 132
+#define SLIDER_MIDDLE		"\x85"	// 133
+#define SLIDER_MARKER		"\x86"	// 134
+#define UP_ARROW_MARKER		"\x87"	// 135
+#define DOWN_ARROW_MARKER	"\x88"	// 136
 
 int Newmenu_first_time = 1;
 //--unused-- int Newmenu_fade_in = 1;
