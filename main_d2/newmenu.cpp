@@ -1483,7 +1483,7 @@ RePaintNewmenu4:
 			}
 			break;
 
-		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 		case KEY_PRINT_SCREEN:
 			MAC(hide_cursor());
 			save_screen_shot(0);
@@ -2373,7 +2373,7 @@ ReadFileNames:
 
 		switch (key)
 		{
-		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 		case KEY_PRINT_SCREEN:
 			MAC(hide_cursor());
 			save_screen_shot(0);
@@ -3009,7 +3009,7 @@ RePaintNewmenuListbox:
 
 		switch (key)
 		{
-		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 		case KEY_PRINT_SCREEN:
 			MAC(hide_cursor());
 			save_screen_shot(0);

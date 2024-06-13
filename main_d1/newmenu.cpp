@@ -933,7 +933,10 @@ int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_ite
 			}
 			break;
 
-		case KEY_PRINT_SCREEN: 		save_screen_shot(0); break;
+		case KEY_PRINT_SCREEN:
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+			save_screen_shot(0);
+			break;
 
 #ifndef NDEBUG
 		case KEY_BACKSP:
@@ -1380,7 +1383,10 @@ ReadFileNames:
 		key = key_inkey();
 		switch (key) 
 		{
-		case KEY_PRINT_SCREEN: 		save_screen_shot(0); break;
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+		case KEY_PRINT_SCREEN:
+			save_screen_shot(0);
+			break;
 		case KEY_CTRLED + KEY_D:
 			if (((player_mode) && (citem > 0)) || ((demo_mode) && (citem >= 0)))
 			{
@@ -1699,6 +1705,7 @@ int newmenu_listbox1(const char* title, int nitems, char* items[], int allow_abo
 		switch (key) 
 		{
 		case KEY_PRINT_SCREEN:
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 			save_screen_shot(0);
 			break;
 		case KEY_HOME:

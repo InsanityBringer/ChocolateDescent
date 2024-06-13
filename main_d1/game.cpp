@@ -1768,6 +1768,7 @@ int do_game_pause(int allow_menu)
 			break;
 
 		case KEY_PRINT_SCREEN:
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 			save_screen_shot(0);
 			break;
 
@@ -2626,10 +2627,10 @@ void ReadControls()
 
 		if (Endlevel_sequence) {
 
-			if (key == KEY_PRINT_SCREEN)
+			if ( key == KEY_PRINT_SCREEN || (key == KEY_COMMAND + KEY_SHIFTED + KEY_3) )
 				save_screen_shot(0);
 
-			if (key == KEY_PAUSE)
+			if ( key == KEY_PAUSE || (key == KEY_COMMAND + KEY_P) )
 				key = do_game_pause(0);		//so esc from pause will end level
 
 			if (key == KEY_ESC) {
@@ -2648,10 +2649,10 @@ void ReadControls()
 
 		if (Player_is_dead) {
 
-			if (key == KEY_PRINT_SCREEN)
+			if ( key == KEY_PRINT_SCREEN || (key == KEY_COMMAND + KEY_SHIFTED + KEY_3) )
 				save_screen_shot(0);
 
-			if (key == KEY_PAUSE) {
+			if ( key == KEY_PAUSE || (key == KEY_COMMAND + KEY_P) ) {
 				key = do_game_pause(0);		//so esc from pause will end level
 				Death_sequence_aborted = 0;		// Clear because code above sets this for any key.
 			}
@@ -2744,9 +2745,11 @@ void ReadControls()
 				newdemo_goto_beginning();
 				break;
 			case KEY_PAUSE:
+			case KEY_COMMAND + KEY_P:
 				do_game_pause(0);
 				break;
 			case KEY_PRINT_SCREEN: {
+			case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 				int old_state;
 
 				old_state = Newdemo_vcr_state;
@@ -2853,27 +2856,45 @@ void ReadControls()
 			Game_aborted = 1;
 			Function_mode = FMODE_MENU;
 			break;
-		case KEY_F1: 				do_show_help();			break;
-		case KEY_F2:				Config_menu_flag = 1;	break;
-		case KEY_F3:				toggle_cockpit();			break;
-		//case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
+		case KEY_F1:
+		case KEY_1 + KEY_COMMAND:
+			do_show_help();
+			break;
+		case KEY_F2:
+		case KEY_2 + KEY_COMMAND:
+			Config_menu_flag = 1;
+			break;
+		case KEY_F3:
+		case KEY_3 + KEY_COMMAND:
+			toggle_cockpit();
+			break;
+		// case KEY_F4:
+		// case KEY_4 + KEY_COMMAND:
+		// 	palette_save();
+		// 	joydefs_calibrate();
+		// 	palette_restore();
+		// 	break;
 		case KEY_F5:
+		case KEY_5 + KEY_COMMAND:
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_stop_recording();
 			else if (Newdemo_state == ND_STATE_NORMAL)
 				newdemo_start_recording();
 			break;
 		case KEY_F6:
+		case KEY_6 + KEY_COMMAND:
 #ifdef NETWORK
 			Show_reticle_name = (Show_reticle_name + 1) % 2;
 #endif
 			break;
 		case KEY_F7:
+		case KEY_7 + KEY_COMMAND:
 #ifdef NETWORK
 			Show_kill_list = (Show_kill_list + 1) % ((Game_mode & GM_TEAM) ? 3 : 2);
 #endif
 			break;
 		case KEY_F8:
+		case KEY_8 + KEY_COMMAND:
 #ifdef NETWORK
 			multi_send_message_start();
 #endif
@@ -2886,6 +2907,27 @@ void ReadControls()
 			multi_send_macro(key);
 #endif
 			break;		// send taunt macros
+
+		case KEY_9 + KEY_COMMAND:
+#ifdef NETWORK
+			multi_send_macro(KEY_F9);
+#endif
+			break;
+		case KEY_0 + KEY_COMMAND:
+#ifdef NETWORK
+			multi_send_macro(KEY_F10);
+#endif
+			break;
+		case KEY_1 + KEY_COMMAND + KEY_CTRLED:
+#ifdef NETWORK
+			multi_send_macro(KEY_F11);
+#endif
+			break;
+		case KEY_2 + KEY_COMMAND + KEY_CTRLED:
+#ifdef NETWORK
+			multi_send_macro(KEY_F12);
+#endif
+			break;
 
 		case KEY_ALTED + KEY_F9:
 #ifdef NETWORK
@@ -2917,8 +2959,35 @@ void ReadControls()
 #endif
 			break;		// redefine taunt macros
 
-		case KEY_PAUSE:			do_game_pause(1); 		break;
-		case KEY_PRINT_SCREEN: 	save_screen_shot(0);		break;
+		case KEY_9 + KEY_SHIFTED + KEY_COMMAND:
+#ifdef NETWORK
+			multi_define_macro(KEY_F9);
+#endif
+			break;
+		case KEY_0 + KEY_SHIFTED + KEY_COMMAND:
+#ifdef NETWORK
+			multi_define_macro(KEY_F10);
+#endif
+			break;
+		case KEY_1 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
+#ifdef NETWORK
+			multi_define_macro(KEY_F11);
+#endif
+			break;
+		case KEY_2 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
+#ifdef NETWORK
+			multi_define_macro(KEY_F12);
+#endif
+			break;
+
+		case KEY_PAUSE:
+		case KEY_COMMAND + KEY_P:
+			do_game_pause(1);
+			break;
+		case KEY_PRINT_SCREEN:
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+			save_screen_shot(0);
+			break;
 
 		case KEY_SHIFTED + KEY_MINUS:
 		case KEY_MINUS:			shrink_window();			break;
@@ -2959,8 +3028,17 @@ void ReadControls()
 			digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 			break;
 #else
-		case KEY_ALTED + KEY_F2:	state_save_all(0);		break;	// 0 means not between levels.
-		case KEY_ALTED + KEY_F3:	state_restore_all(1);		break;
+		case KEY_ALTED + KEY_F2:
+		case KEY_ALTED + KEY_COMMAND + KEY_2:
+		case KEY_COMMAND + KEY_S:
+			state_save_all(0);
+			break;	// 0 means not between levels.
+
+		case KEY_ALTED + KEY_F3:
+		case KEY_ALTED + KEY_COMMAND + KEY_3:
+		case KEY_COMMAND + KEY_O:
+			state_restore_all(1);
+			break;
 #endif
 		//[ISB] kill VR stuff
 

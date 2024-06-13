@@ -29,6 +29,8 @@ unsigned char 	keyd_last_released;
 unsigned char	keyd_pressed[256];
 int				keyd_time_when_last_pressed;
 
+unsigned char CommandKeyCombos = 0;
+
 typedef struct keyboard {
 	unsigned short		keybuffer[KEY_BUFFER_SIZE];
 	fix					time_pressed[KEY_BUFFER_SIZE];
@@ -296,6 +298,9 @@ void KeyPressed(int scancode)
 
 		if (keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
 			keycode |= KEY_CTRLED;
+
+		if ( CommandKeyCombos && (keyd_pressed[KEY_LCMD] || keyd_pressed[KEY_RCMD]) )
+			keycode |= KEY_COMMAND;
 
 #ifndef NDEBUG
 		if (keyd_pressed[KEY_DELETE])
