@@ -1800,21 +1800,21 @@ void show_help()
 {
 	newmenu_item m[14];
 
-	//if (VR_render_mode != VR_NONE) //[ISB] I'm confused
-	{
-		m[0].type = NM_TYPE_TEXT; m[0].text = TXT_HELP_ESC;
-		m[1].type = NM_TYPE_TEXT; m[1].text = TXT_HELP_ALT_F2;
-		m[2].type = NM_TYPE_TEXT; m[2].text = TXT_HELP_ALT_F3;
-		m[3].type = NM_TYPE_TEXT; m[3].text = TXT_HELP_F2;
-		m[4].type = NM_TYPE_TEXT; m[4].text = TXT_HELP_F4;
-		m[5].type = NM_TYPE_TEXT; m[5].text = TXT_HELP_F5;
-		m[6].type = NM_TYPE_TEXT; m[6].text = TXT_HELP_PAUSE;
-		m[7].type = NM_TYPE_TEXT; m[7].text = TXT_HELP_1TO5;
-		m[8].type = NM_TYPE_TEXT; m[8].text = TXT_HELP_6TO10;
-		m[9].type = NM_TYPE_TEXT; m[9].text = (char*)"";
-		m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_TO_VIEW;
-		newmenu_do(NULL, TXT_KEYS, 11, m, NULL);
-	}
+	m[0].type = NM_TYPE_TEXT; m[0].text = TXT_HELP_ESC;
+	m[1].type = NM_TYPE_TEXT; m[1].text = TXT_HELP_ALT_F2;
+	m[2].type = NM_TYPE_TEXT; m[2].text = TXT_HELP_ALT_F3;
+	m[3].type = NM_TYPE_TEXT; m[3].text = TXT_HELP_F2;
+	m[4].type = NM_TYPE_TEXT; m[4].text = TXT_HELP_F3;
+	m[5].type = NM_TYPE_TEXT; m[5].text = TXT_HELP_F4;
+	m[6].type = NM_TYPE_TEXT; m[6].text = TXT_HELP_F5;
+	m[7].type = NM_TYPE_TEXT; m[7].text = TXT_HELP_PAUSE;
+	m[8].type = NM_TYPE_TEXT; m[8].text = TXT_HELP_MINUSPLUS;
+	m[9].type = NM_TYPE_TEXT; m[9].text = TXT_HELP_PRTSCN;
+	m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_1TO5;
+	m[11].type = NM_TYPE_TEXT; m[11].text = TXT_HELP_6TO10;
+	m[12].type = NM_TYPE_TEXT; m[12].text = (char*)"";
+	m[13].type = NM_TYPE_TEXT; m[13].text = TXT_HELP_TO_VIEW;
+	newmenu_do(NULL, TXT_KEYS, 14, m, NULL);
 }
 
 
