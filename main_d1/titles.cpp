@@ -86,7 +86,7 @@ int local_key_inkey(void)
 		return 0;
 	}
 
-	if (rval == KEY_PRINT_SCREEN) 
+	if ( rval == KEY_PRINT_SCREEN || (rval == KEY_COMMAND + KEY_SHIFTED + KEY_3) )
 	{
 		save_screen_shot(0);
 		return 0;				//say no key pressed

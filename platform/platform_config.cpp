@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "platform/platform.h"
 #include "platform/s_midi.h"
 #include "platform/mouse.h"
+#include "platform/key.h"
 
 static const char* WindowWidthStr = "WindowWidth";
 static const char* WindowHeightStr = "WindowHeight";
@@ -32,6 +33,7 @@ static const char* SwapIntervalStr = "SwapInterval";
 static const char* NoOpenGLStr = "NoOpenGL";
 static const char* GenDeviceStr = "PreferredGenMidiDevice";
 static const char* MMEDeviceStr = "MMEDevice";
+static const char* CommandKeyCombosStr = "CommandKeyCombos";
 
 bool NoOpenGL = false;
 
@@ -103,6 +105,8 @@ int plat_read_chocolate_cfg()
 				PreferredGenDevice = (GenDevices)strtol(value, NULL, 10);
 			else if (!strcmp(token, MMEDeviceStr))
 				PreferredMMEDevice = strtol(value, NULL, 10);
+			else if (!strcmp(token, CommandKeyCombosStr))
+				CommandKeyCombos = strtol(value, NULL, 10);
 		}
 	}
 
@@ -140,6 +144,7 @@ void plat_save_chocolate_cfg()
 		fprintf(infile, "%s=%d\n", NoOpenGLStr, NoOpenGL);
 		fprintf(infile, "%s=%d\n", GenDeviceStr, (int)PreferredGenDevice);
 		fprintf(infile, "%s=%d\n", MMEDeviceStr, PreferredMMEDevice);
+		fprintf(infile, "%s=%d\n", CommandKeyCombosStr, CommandKeyCombos);
 		fclose(infile);
 	}
 }

@@ -54,7 +54,7 @@ int     SenseStatus1(void);
 int8_t fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
 //char * invert_text[2] = { "N", "Y" };
-//char * joybutton_text[28] = { "BTN 1", "BTN 2", "BTN 3", "BTN 4", "", "TRIG", "LEFT", "HAT Å", "RIGHT", "", "", "HAT Ä", "MID", "", "", "HAT ", "", "", "", "HAT Ç", "TRIG", "LEFT", "RIGHT", "", "UP","DOWN","LEFT", "RIGHT" };
+//char * joybutton_text[28] = { "BTN 1", "BTN 2", "BTN 3", "BTN 4", "", "TRIG", "LEFT", "HAT \x81", "RIGHT", "", "", "HAT \x80", "MID", "", "", "HAT \x7f", "", "", "", "HAT \x82", "TRIG", "LEFT", "RIGHT", "", "UP","DOWN","LEFT", "RIGHT" };
 //char * joyaxis_text[4] = { "X1", "Y1", "X2", "Y2" };
 //char * mouseaxis_text[2] = { "L/R", "F/B" };
 //char * mousebutton_text[3] = { "Left", "Right", "Mid" };
@@ -72,10 +72,10 @@ const char* choco_joybutton_text[28] =
 //Basic inputs
 { "BTN 1", "BTN 2", "BTN 3", "BTN 4",
 //"Extended" Flightstick inputs, default ATM. 
-"BTN 1", "BTN 2", "BTN 3", "HAT Å",
-"BTN 4", "BTN 5", "BTN 6", "HAT Ä",
-"BTN 7", "BTN 8", "BTN 9", "HAT ",
-"BTN 10", "BTN 11", "BTN 12", "HAT Ç",
+"BTN 1", "BTN 2", "BTN 3", "HAT \x81",
+"BTN 4", "BTN 5", "BTN 6", "HAT \x80",
+"BTN 7", "BTN 8", "BTN 9", "HAT \x7f",
+"BTN 10", "BTN 11", "BTN 12", "HAT \x82",
 //[ISB] can't bind above 20...
 "-20-", "-21-", "-22-", "-23-",
 "-24-", "-25-", "-26-", "-27-" };
@@ -96,7 +96,7 @@ int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
 const char* key_text[256] = { \
 "","ESC","1","2","3","4","5","6","7","8","9","0","-", 			\
 "=","BSPC","TAB","Q","W","E","R","T","Y","U","I","O",				\
-"P","[","]","É","LCTRL","A","S","D","F",        \
+"P","[","]","\x83","LCTRL","A","S","D","F",        \
 "G","H","J","K","L",";","'","`",        \
 "LSHFT","\\","Z","X","C","V","B","N","M",",",      \
 ".","/","RSHFT","PAD*","LALT","SPC",      \
@@ -107,11 +107,11 @@ const char* key_text[256] = { \
 "","","","","","","","","","","","","","","","","","","","",     \
 "","","","","","","","","","","","","","","","","","","","",     \
 "","","","","","","","","","","","","","","","","","",           \
-"PADÉ","RCTRL","","","","","","","","","","","","","", \
+"PAD\x83","RCTRL","","","","","","","","","","","","","", \
 "","","","","","","","","","","PAD/","","","RALT","",      \
-"","","","","","","","","","","","","","HOME","Ç","PGUP",     \
-"","Å","","","","END","Ä","PGDN","INS",       \
-"DEL","","","","","","","","","","","","","","","","","",     \
+"","","","","","","","","","","","","","HOME","\x82","PGUP",     \
+"","\x81","","\x7f","","END","\x80","PGDN","INS",       \
+"DEL","","","","","","","","LCMD","RCMD","","","","","","","","",     \
 "","","","","","","","","","","","","","","","","","","","",     \
 "","","","","","","" };
 
@@ -523,6 +523,7 @@ void kconfig_sub(kc_item* items, int nitems, char* title)
 		case KEY_BACKSP:
 			Int3();
 			break;
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 		case KEY_PRINT_SCREEN:
 			save_screen_shot(0);
 			break;

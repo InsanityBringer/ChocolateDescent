@@ -36,6 +36,9 @@ extern unsigned char keyd_editor_mode;
 // Time in seconds when last key was pressed...
 extern int keyd_time_when_last_pressed;
 
+// Enable the use of Command/Meta/Windows Key for combos
+extern unsigned char CommandKeyCombos;
+
 //==========================================================================
 // These are the "buffered" keypress routines.  Use them by setting the
 // "keyd_buffer_type" variable.
@@ -83,6 +86,7 @@ void KeyReleased(int scancode);
 #define KEY_ALTED       0x200
 #define KEY_CTRLED      0x400
 #define KEY_DEBUGGED		0x800
+#define KEY_COMMAND		0x1000
 
 #define KEY_0           0x0B
 #define KEY_1           0x02
@@ -154,6 +158,9 @@ void KeyReleased(int scancode);
 
 #define KEY_LCTRL       0x1D
 #define KEY_RCTRL       0x9D
+
+#define KEY_LCMD        0xDB
+#define KEY_RCMD        0xDC
 
 #define KEY_F1          0x3B
 #define KEY_F2          0x3C
