@@ -17,6 +17,7 @@ class MidiFluidSynth : MidiSynth
 	fluid_audio_driver_t* AudioDriver;
 public:
 	MidiFluidSynth();
+	~MidiFluidSynth() override;
 	void SetSoundfont(const char* filename);
 	void SetSampleRate(uint32_t newSampleRate) override;
 	void CreateSynth() override;

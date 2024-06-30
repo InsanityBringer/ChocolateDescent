@@ -30,6 +30,10 @@ MidiFluidSynth::MidiFluidSynth()
 	}
 }
 
+MidiFluidSynth::~MidiFluidSynth()
+{
+}
+
 void MidiFluidSynth::SetSampleRate(uint32_t newSampleRate)
 {
 	fluid_settings_setnum(FluidSynthSettings, "synth.sample-rate", (double)newSampleRate);

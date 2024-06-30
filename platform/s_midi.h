@@ -264,6 +264,9 @@ class MidiSequencer;
 class MidiSynth
 {
 public:
+	virtual ~MidiSynth()
+	{
+	}
 	//Synth classification. Returns MIDISYNTH_SOFT if using a softsynth, MIDISYNTH_LIVE if using a hardware synth
 	virtual int ClassifySynth() = 0;
 	//Changes the sample rate for soft synths.
@@ -288,6 +291,9 @@ public:
 class DummyMidiSynth : public MidiSynth
 {
 public:
+	~DummyMidiSynth() override
+	{
+	}
 	int ClassifySynth() override { return MIDISYNTH_SOFT; }
 	void SetSampleRate(uint32_t newSampleRate) override { }
 	void CreateSynth() override { }
