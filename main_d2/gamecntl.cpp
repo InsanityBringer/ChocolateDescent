@@ -785,21 +785,14 @@ void do_show_netgame_help()
 void HandleEndlevelKey(int key)
 {
 #ifdef MACINTOSH
-	if (key == (KEY_COMMAND + KEY_SHIFTED + KEY_3))
-		save_screen_shot(0);
-
 	if (key == KEY_COMMAND + KEY_Q && !(Game_mode & GM_MULTI))
 		macintosh_quit();
 #endif
 
-	if (key == KEY_PRINT_SCREEN)
+	if ( key == KEY_PRINT_SCREEN || (key == KEY_COMMAND + KEY_SHIFTED + KEY_3) )
 		save_screen_shot(0);
 
-#ifdef MACINTOSH
-	if (key == (KEY_COMMAND + KEY_P))
-		key = do_game_pause();
-#endif
-	if (key == KEY_PAUSE)
+	if ( key == KEY_PAUSE || (key == KEY_COMMAND + KEY_P) )
 		key = do_game_pause();		//so esc from pause will end level
 
 	if (key == KEY_ESC)
@@ -826,29 +819,17 @@ void HandleDeathKey(int key)
 		Death_sequence_aborted = 1;		//Any key but func or modifier aborts
 
 #ifdef MACINTOSH
-	if (key == (KEY_COMMAND + KEY_SHIFTED + KEY_3)) {
-		//		save_screen_shot(0);
-		Death_sequence_aborted = 0;		// Clear because code above sets this for any key.
-	}
-
 	if (key == KEY_COMMAND + KEY_Q && !(Game_mode & GM_MULTI))
 		macintosh_quit();
 #endif
 
-	if (key == KEY_PRINT_SCREEN)
+	if ( key == KEY_PRINT_SCREEN || (key == KEY_COMMAND + KEY_SHIFTED + KEY_3) )
 	{
 		//		save_screen_shot(0);
 		Death_sequence_aborted = 0;		// Clear because code above sets this for any key.
 	}
 
-#ifdef MACINTOSH
-	if (key == (KEY_COMMAND + KEY_P)) {
-		//		key = do_game_pause();
-		Death_sequence_aborted = 0;		// Clear because code above sets this for any key.
-	}
-#endif
-
-	if (key == KEY_PAUSE)
+	if ( key == KEY_PAUSE || (key == KEY_COMMAND + KEY_P) )
 	{
 		//		key = do_game_pause();		//so esc from pause will end level
 		Death_sequence_aborted = 0;		// Clear because code above sets this for any key.
@@ -904,10 +885,12 @@ void HandleDemoKey(int key)
 	case KEY_SHIFTED + KEY_EQUAL:
 	case KEY_EQUAL:		grow_window(); break;
 
-	MAC(case KEY_COMMAND + KEY_2:)
-	case KEY_F2:		Config_menu_flag = 1; break;
+	case KEY_COMMAND + KEY_2:
+	case KEY_F2:
+		Config_menu_flag = 1;
+		break;
 
-	MAC(case KEY_COMMAND + KEY_7:)
+	case KEY_COMMAND + KEY_7:
 	case KEY_F7:
 #ifdef NETWORK
 		Show_kill_list = (Show_kill_list + 1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
@@ -937,12 +920,12 @@ void HandleDemoKey(int key)
 		newdemo_goto_beginning();
 		break;
 
-	MAC(case KEY_COMMAND + KEY_P:)
+	case KEY_COMMAND + KEY_P:
 	case KEY_PAUSE:
 		do_game_pause();
 		break;
 
-	MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
+	case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 	case KEY_PRINT_SCREEN: {
 		int old_state;
 
@@ -1182,9 +1165,11 @@ int HandleSystemKey(int key)
 
 			// fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
+		case KEY_COMMAND + KEY_SHIFTED + KEY_1:
 		case KEY_SHIFTED + KEY_F1:
 			screen_changed = select_next_window_function(0);
 			break;
+		case KEY_COMMAND + KEY_SHIFTED + KEY_2:
 		case KEY_SHIFTED + KEY_F2:
 			screen_changed = select_next_window_function(1);
 			break;
@@ -1202,13 +1187,22 @@ int HandleSystemKey(int key)
 		Function_mode = FMODE_EXIT;
 		break;
 
+	case KEY_COMMAND + KEY_P:
 	case KEY_PAUSE:
-		do_game_pause();				break;
+		do_game_pause();
+		break;
 
-	case KEY_PRINT_SCREEN:  save_screen_shot(0);		break;
+	case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+	case KEY_PRINT_SCREEN:
+		save_screen_shot(0);
+		break;
 
-	case KEY_F1:					do_show_help();			break;
+	case KEY_COMMAND + KEY_1:
+	case KEY_F1:
+		do_show_help();
+		break;
 
+	case KEY_COMMAND + KEY_2:
 	case KEY_F2:					//Config_menu_flag = 1; break;
 	{
 		int scanline_save = Scanline_double;
@@ -1221,6 +1215,7 @@ int HandleSystemKey(int key)
 		break;
 	}
 
+	case KEY_COMMAND + KEY_3:
 	case KEY_F3:
 
 		//PA_DFX (HUD_init_message ("Cockpit not available in 3dfx version."));
@@ -1232,7 +1227,12 @@ int HandleSystemKey(int key)
 		}
 		break;
 
-	case KEY_F7 + KEY_SHIFTED: palette_save(); joydefs_calibrate(); palette_restore(); break;
+	case KEY_COMMAND + KEY_SHIFTED + KEY_7:
+	case KEY_F7 + KEY_SHIFTED:
+		palette_save();
+		joydefs_calibrate();
+		palette_restore();
+		break;
 
 	case KEY_SHIFTED + KEY_MINUS:
 	case KEY_MINUS:
@@ -1262,6 +1262,7 @@ int HandleSystemKey(int key)
 		screen_changed = 1;
 		break;
 
+	case KEY_COMMAND + KEY_5:
 	case KEY_F5:
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_stop_recording();
@@ -1270,12 +1271,14 @@ int HandleSystemKey(int key)
 				newdemo_start_recording();
 		break;
 
+	case KEY_COMMAND + KEY_ALTED + KEY_4:
 	case KEY_ALTED + KEY_F4:
 #ifdef NETWORK
 		Show_reticle_name = (Show_reticle_name + 1) % 2;
 #endif
 		break;
 
+	case KEY_COMMAND + KEY_7:
 	case KEY_F7:
 #ifdef NETWORK
 		Show_kill_list = (Show_kill_list + 1) % ((Game_mode & GM_TEAM) ? 4 : 3);
@@ -1284,6 +1287,7 @@ int HandleSystemKey(int key)
 #endif
 		break;
 
+	case KEY_COMMAND + KEY_8:
 	case KEY_F8:
 #ifdef NETWORK
 		multi_send_message_start();
@@ -1299,6 +1303,27 @@ int HandleSystemKey(int key)
 #endif
 		break;		// send taunt macros
 
+	case KEY_9 + KEY_COMMAND:
+#ifdef NETWORK
+		multi_send_macro(KEY_F9);
+#endif
+		break;
+	case KEY_0 + KEY_COMMAND:
+#ifdef NETWORK
+		multi_send_macro(KEY_F10);
+#endif
+		break;
+	case KEY_1 + KEY_COMMAND + KEY_CTRLED:
+#ifdef NETWORK
+		multi_send_macro(KEY_F11);
+#endif
+		break;
+	case KEY_2 + KEY_COMMAND + KEY_CTRLED:
+#ifdef NETWORK
+		multi_send_macro(KEY_F12);
+#endif
+		break;
+
 	case KEY_SHIFTED + KEY_F9:
 	case KEY_SHIFTED + KEY_F10:
 	case KEY_SHIFTED + KEY_F11:
@@ -1308,8 +1333,29 @@ int HandleSystemKey(int key)
 #endif
 		break;		// redefine taunt macros
 
-	MAC(case KEY_COMMAND + KEY_S:)
-	MAC(case KEY_COMMAND + KEY_ALTED + KEY_2:)
+	case KEY_9 + KEY_SHIFTED + KEY_COMMAND:
+#ifdef NETWORK
+		multi_define_macro(KEY_F9);
+#endif
+		break;
+	case KEY_0 + KEY_SHIFTED + KEY_COMMAND:
+#ifdef NETWORK
+		multi_define_macro(KEY_F10);
+#endif
+		break;
+	case KEY_1 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
+#ifdef NETWORK
+		multi_define_macro(KEY_F11);
+#endif
+		break;
+	case KEY_2 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
+#ifdef NETWORK
+		multi_define_macro(KEY_F12);
+#endif
+		break;
+
+	case KEY_COMMAND + KEY_S:
+	case KEY_COMMAND + KEY_ALTED + KEY_2:
 	case KEY_ALTED + KEY_F2:
 		if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 			int     rsave, gsave, bsave;
@@ -1326,6 +1372,8 @@ int HandleSystemKey(int key)
 		}
 		break;  // 0 means not between levels.
 
+	case KEY_COMMAND + KEY_O:
+	case KEY_COMMAND + KEY_ALTED + KEY_3:
 	case KEY_ALTED + KEY_F3:
 		if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 			full_palette_save();
@@ -1335,12 +1383,12 @@ int HandleSystemKey(int key)
 		}
 		break;
 
-
+	case KEY_COMMAND + KEY_SHIFTED + KEY_4:
 	case KEY_F4 + KEY_SHIFTED:
 		do_escort_menu();
 		break;
 
-
+	case KEY_COMMAND + KEY_SHIFTED + KEY_ALTED + KEY_4:
 	case KEY_F4 + KEY_SHIFTED + KEY_ALTED:
 		change_guidebot_name();
 		break;
@@ -1363,7 +1411,7 @@ void HandleGameKey(int key)
 {
 	switch (key) {
 
-#if defined(MACINTOSH)  && !defined(RELEASE)
+#if !defined(RELEASE)
 	case KEY_COMMAND + KEY_F:	framerate_on = !framerate_on; break;
 #endif
 
@@ -1419,12 +1467,12 @@ void HandleGameKey(int key)
 				HUD_init_message("No Guide-Bot in Multiplayer!");
 		break;
 
-	MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_5:)
+	case KEY_COMMAND + KEY_SHIFTED + KEY_5:
 	case KEY_F5 + KEY_SHIFTED:
 		DropCurrentWeapon();
 		break;
 
-	MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_6:)
+	case KEY_COMMAND + KEY_SHIFTED + KEY_6:
 	case KEY_F6 + KEY_SHIFTED:
 		DropSecondaryWeapon();
 		break;
@@ -1435,12 +1483,14 @@ void HandleGameKey(int key)
 		break;
 #endif
 
+	case KEY_COMMAND + KEY_4:
 	case KEY_F4:
 		if (!DefiningMarkerMessage)
 			InitMarkerInput();
 		break;
 
 #ifdef NETWORK
+	case KEY_COMMAND + KEY_6:
 	case KEY_F6:
 		if (Netgame.RefusePlayers && WaitForRefuseAnswer && !(Game_mode & GM_TEAM))
 		{

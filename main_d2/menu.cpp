@@ -1447,8 +1447,9 @@ void do_chocolate_menu()
 		m[5].type = NM_TYPE_RADIO; m[5].text = "Enable VSync"; m[5].group = 0; m[5].value = SwapInterval == 1;
 		m[6].type = NM_TYPE_RADIO; m[6].text = "Enable smart VSync"; m[6].group = 0; m[6].value = SwapInterval == 2;
 		m[7].type = NM_TYPE_MENU; m[7].text = "MIDI settings";
+		m[8].type = NM_TYPE_CHECK; m[8].text = "Use CMD key combos"; m[8].value = CommandKeyCombos;
 
-		i = newmenu_do1(NULL, "Chocolate Options", 8, m, nullptr, i);
+		i = newmenu_do1(NULL, "Chocolate Options", 9, m, nullptr, i);
 
 		if (i == 7)
 			do_chocolate_midi_menu();
@@ -1463,6 +1464,8 @@ void do_chocolate_menu()
 		set_swap_interval = SwapInterval = 1;
 	else if (m[6].value)
 		set_swap_interval = SwapInterval = 2;
+
+	CommandKeyCombos = m[8].value;
 
 	char* x_ptr = strchr(res_string, 'x');
 	if (!x_ptr)

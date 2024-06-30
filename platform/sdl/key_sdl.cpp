@@ -42,6 +42,10 @@ void I_KeyHandler(int sc, dbool down)
 			scancode = KEY_LSHIFT;
 		else if (sc == SDL_SCANCODE_RSHIFT)
 			scancode = KEY_RSHIFT;
+		else if (sc == SDL_SCANCODE_LGUI)
+			scancode = KEY_LCMD;
+		else if (sc == SDL_SCANCODE_RGUI)
+			scancode = KEY_RCMD;
 		else
 			return;
 	}

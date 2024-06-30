@@ -51,15 +51,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NORMAL_FONT  	(Gamefonts[GFONT_MEDIUM_1])
 #define TEXT_FONT  		(Gamefonts[GFONT_MEDIUM_3])
 
-#define NORMAL_CHECK_BOX	""
-#define CHECKED_CHECK_BOX	"‚"
-#define NORMAL_RADIO_BOX	""
-#define CHECKED_RADIO_BOX	"€"
+#define NORMAL_CHECK_BOX	"\x81"
+#define CHECKED_CHECK_BOX	"\x82"
+#define NORMAL_RADIO_BOX	"\x7f"
+#define CHECKED_RADIO_BOX	"\x80"
 #define CURSOR_STRING		"_"
-#define SLIDER_LEFT			"ƒ"		// 131
-#define SLIDER_RIGHT			"„"		// 132
-#define SLIDER_MIDDLE		"…"		// 133
-#define SLIDER_MARKER		"†"		// 134
+#define SLIDER_LEFT			"\x83"	// 131
+#define SLIDER_RIGHT			"\x84"	// 132
+#define SLIDER_MIDDLE		"\x85"	// 133
+#define SLIDER_MARKER		"\x86"	// 134
 
 int Newmenu_first_time = 1;
 //--unused-- int Newmenu_fade_in = 1;
@@ -933,7 +933,10 @@ int newmenu_do3(const char* title, const char* subtitle, int nitems, newmenu_ite
 			}
 			break;
 
-		case KEY_PRINT_SCREEN: 		save_screen_shot(0); break;
+		case KEY_PRINT_SCREEN:
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+			save_screen_shot(0);
+			break;
 
 #ifndef NDEBUG
 		case KEY_BACKSP:
@@ -1380,7 +1383,10 @@ ReadFileNames:
 		key = key_inkey();
 		switch (key) 
 		{
-		case KEY_PRINT_SCREEN: 		save_screen_shot(0); break;
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+		case KEY_PRINT_SCREEN:
+			save_screen_shot(0);
+			break;
 		case KEY_CTRLED + KEY_D:
 			if (((player_mode) && (citem > 0)) || ((demo_mode) && (citem >= 0)))
 			{
@@ -1699,6 +1705,7 @@ int newmenu_listbox1(const char* title, int nitems, char* items[], int allow_abo
 		switch (key) 
 		{
 		case KEY_PRINT_SCREEN:
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 			save_screen_shot(0);
 			break;
 		case KEY_HOME:
