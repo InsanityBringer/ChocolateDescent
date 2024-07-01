@@ -393,14 +393,18 @@ cpp_done1: ;
 	}	//	while (cur_seg ...
 
 	//	Set qtail to the segment which ends at the goal.
-	while (seg_queue[--qtail].end != end_seg)
-		if (qtail < 0) {
+	do //[ISB] alternate logic to avoid accessing seg_queue[-1]
+	{
+		qtail--;
+		if (qtail < 0) 
+		{
 			// mprintf((0, "\nNo path!\n"));
 			// printf("UNABLE TO FORM PATH");
 			// Int3();
 			*num_points = l_num_points;
 			return -1;
 		}
+	} while (seg_queue[qtail].end != end_seg);
 
 	#ifdef EDITOR
 	// -- N_selected_segs = 0;
@@ -424,8 +428,11 @@ cpp_done1: ;
 		if (parent_seg == start_seg)
 			break;
 
-		while (seg_queue[--qtail].end != parent_seg)
+		do
+		{
+			qtail--;
 			Assert(qtail >= 0);
+		} while (seg_queue[qtail].end != parent_seg);
 	}
 
 	Assert((start_seg >= 0) && (start_seg <= Highest_segment_index));
