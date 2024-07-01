@@ -308,7 +308,8 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 	//	If there is a segment we're not allowed to visit, mark it.
 	if (avoid_seg != -1) {
 		Assert(avoid_seg <= Highest_segment_index);
-		if ((start_seg != avoid_seg) && (end_seg != avoid_seg)) {
+		if ((start_seg != avoid_seg) && (end_seg != avoid_seg)) 
+		{
 			visited[avoid_seg] = 1;
 			depth[avoid_seg] = 0;
 		} else
@@ -322,7 +323,8 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 	visited[cur_seg] = 1;
 	cur_depth = 0;
 
-	while (cur_seg != end_seg) {
+	while (cur_seg != end_seg) 
+	{
 		segment	*segp = &Segments[cur_seg];
 
 		if (random_flag)
@@ -330,17 +332,20 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 				create_random_xlate(random_xlate);
 
 		// mprintf((0, "\n"));
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) 
+		{
 
 			int	snum = sidenum;
 
 			if (random_flag)
 				snum = random_xlate[sidenum];
 
-			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum)))) {
+			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum)))) 
+			{
 				int			this_seg = segp->children[snum];
 				Assert(this_seg != -1);
-				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
+				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) 
+				{
 					vms_vector	center_point;
 
 					fvi_query	fq;
@@ -358,18 +363,21 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 					fq.flags					= 0;
 
 					hit_type = find_vector_intersection(&fq, &hit_data);
-					if (hit_type != HIT_NONE) {
+					if (hit_type != HIT_NONE) 
+					{
 						// -- mprintf((0, "hit_type = %i, object = %i\n", hit_type, hit_data.hit_object));
 						goto dont_add;
 					}
 				}
 
-				if (!visited[this_seg]) {
+				if (!visited[this_seg]) 
+				{
 					seg_queue[qtail].start = cur_seg;
 					seg_queue[qtail].end = this_seg;
 					visited[this_seg] = 1;
 					depth[qtail++] = cur_depth+1;
-					if (depth[qtail-1] == max_depth) {
+					if (depth[qtail-1] == max_depth) 
+					{
 						// mprintf((0, "\ndepth == max_depth == %i\n", max_depth));
 						end_seg = seg_queue[qtail-1].end;
 						goto cpp_done1;
@@ -379,9 +387,16 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 dont_add: ;
 		}	//	for (sidenum...
 
-		if (qhead >= qtail) {
+		if (qhead >= qtail) 
+		{
 			//	Couldn't get to goal, return a path as far as we got, which probably acceptable to the unparticular caller.
-			end_seg = seg_queue[qtail-1].end;
+			if (qtail == 0)
+				end_seg = visited[MAX_SEGMENTS - 4] 
+				| (visited[MAX_SEGMENTS - 3] << 8) 
+				| (visited[MAX_SEGMENTS - 2] << 16) 
+				| (visited[MAX_SEGMENTS - 1] << 24); //[ISB] emulating underflow, since the code demands a path is found elsewhere. 
+			else
+				end_seg = seg_queue[qtail - 1].end;
 			break;
 		}
 
@@ -393,10 +408,20 @@ cpp_done1: ;
 	}	//	while (cur_seg ...
 
 	//	Set qtail to the segment which ends at the goal.
-	do //[ISB] alternate logic to avoid accessing seg_queue[-1]
+	//[ISB] underflow emulation
+	int checkval;
+	qtail--;
+	if (qtail < 0)
+		checkval = visited[MAX_SEGMENTS - 4]
+		| (visited[MAX_SEGMENTS - 3] << 8)
+		| (visited[MAX_SEGMENTS - 2] << 16)
+		| (visited[MAX_SEGMENTS - 1] << 24);
+	else
+		checkval = seg_queue[qtail].end;
+
+	while (checkval != end_seg)
 	{
-		qtail--;
-		if (qtail < 0) 
+		if (qtail < 0)
 		{
 			// mprintf((0, "\nNo path!\n"));
 			// printf("UNABLE TO FORM PATH");
@@ -404,7 +429,11 @@ cpp_done1: ;
 			*num_points = l_num_points;
 			return -1;
 		}
-	} while (seg_queue[qtail].end != end_seg);
+
+		qtail--;
+		checkval = seg_queue[qtail].end;
+	}
+
 
 	#ifdef EDITOR
 	// -- N_selected_segs = 0;
@@ -431,7 +460,9 @@ cpp_done1: ;
 		do
 		{
 			qtail--;
-			Assert(qtail >= 0);
+			if (qtail < 0)
+				break; //agh
+
 		} while (seg_queue[qtail].end != parent_seg);
 	}
 

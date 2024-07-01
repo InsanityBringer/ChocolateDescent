@@ -160,9 +160,11 @@ int create_path_points(object* objp, int start_seg, int end_seg, point_seg* pseg
 	memset(depth, 0, sizeof(depth[0]) * (Highest_segment_index + 1));
 
 	//	If there is a segment we're not allowed to visit, mark it.
-	if (avoid_seg != -1) {
+	if (avoid_seg != -1) 
+	{
 		Assert(avoid_seg <= Highest_segment_index);
-		if ((start_seg != avoid_seg) && (end_seg != avoid_seg)) {
+		if ((start_seg != avoid_seg) && (end_seg != avoid_seg)) 
+		{
 			visited[avoid_seg] = 1;
 			depth[avoid_seg] = 0;
 		}
@@ -175,18 +177,21 @@ int create_path_points(object* objp, int start_seg, int end_seg, point_seg* pseg
 	visited[cur_seg] = 1;
 	cur_depth = 0;
 
-	while (cur_seg != end_seg) {
+	while (cur_seg != end_seg) 
+	{
 		segment* segp = &Segments[cur_seg];
 
 		// mprintf((0, "\n"));
-		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) 
+		{
 
 			int	snum = sidenum;
 
 			if (random_flag)
 				snum = random_xlate[sidenum];
 
-			if ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum))) {
+			if ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum))) 
+			{
 				int	this_seg = segp->children[snum];
 
 				if (!visited[this_seg])
@@ -195,7 +200,8 @@ int create_path_points(object* objp, int start_seg, int end_seg, point_seg* pseg
 					seg_queue[qtail].end = this_seg;
 					visited[this_seg] = 1;
 					depth[qtail++] = cur_depth + 1;
-					if (depth[qtail - 1] == max_depth) {
+					if (depth[qtail - 1] == max_depth) 
+					{
 						// mprintf((0, "\ndepth == max_depth == %i\n", max_depth));
 						end_seg = seg_queue[qtail - 1].end;
 						goto cpp_done1;
@@ -205,9 +211,17 @@ int create_path_points(object* objp, int start_seg, int end_seg, point_seg* pseg
 			}
 		}	//	for (sidenum...
 
-		if (qhead >= qtail) {
+		if (qhead >= qtail) 
+		{
 			//	Couldn't get to goal, return a path as far as we got, which probably acceptable to the unparticular caller.
-			end_seg = seg_queue[qtail - 1].end;
+			if (qtail == 0)
+				end_seg = visited[MAX_SEGMENTS - 4] 
+				| (visited[MAX_SEGMENTS - 3] << 8) 
+				| (visited[MAX_SEGMENTS - 2] << 16) 
+				| (visited[MAX_SEGMENTS - 1] << 24); //[ISB] emulating underflow, since the code demands a path is found elsewhere. 
+			else
+				end_seg = seg_queue[qtail - 1].end;
+
 			break;
 		}
 
@@ -219,17 +233,30 @@ int create_path_points(object* objp, int start_seg, int end_seg, point_seg* pseg
 	}	//	while (cur_seg ...
 
 	//	Set qtail to the segment which ends at the goal.
-	do //[ISB] alternate logic to avoid accessing seg_queue[-1]
+	//[ISB] underflow emulation
+	int checkval;
+	qtail--;
+	if (qtail < 0)
+		checkval = visited[MAX_SEGMENTS - 4]
+		| (visited[MAX_SEGMENTS - 3] << 8)
+		| (visited[MAX_SEGMENTS - 2] << 16)
+		| (visited[MAX_SEGMENTS - 1] << 24);
+	else
+		checkval = seg_queue[qtail].end;
+
+	while (checkval != end_seg)
 	{
-		qtail--;
-		if (qtail < 0) 
+		if (qtail < 0)
 		{
 			// mprintf((0, "\nNo path!\n"));
 			// printf("UNABLE TO FORM PATH");
 			// Int3();
 			return -1;
 		}
-	} while (seg_queue[qtail].end != end_seg);
+
+		qtail--;
+		checkval = seg_queue[qtail].end;
+	}
 
 #ifdef EDITOR
 	N_selected_segs = 0;
@@ -255,7 +282,9 @@ int create_path_points(object* objp, int start_seg, int end_seg, point_seg* pseg
 		do
 		{
 			qtail--;
-			Assert(qtail >= 0);
+			if (qtail < 0)
+				break; //agh
+
 		} while (seg_queue[qtail].end != parent_seg);
 	}
 

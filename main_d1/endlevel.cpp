@@ -1168,7 +1168,10 @@ void do_endlevel_flythrough(int n)
 		vm_vec_scale(&flydata->step, flydata->speed);
 
 		compute_segment_center(&curcenter, pseg);
-		compute_segment_center(&nextcenter, &Segments[pseg->children[exit_side]]);
+		int nextsegnum = pseg->children[exit_side];
+		if (nextsegnum >= 0) //[ISB] don't try to iterate through the external wall. 
+			compute_segment_center(&nextcenter, &Segments[pseg->children[exit_side]]);
+		
 		vm_vec_sub(&flydata->headvec, &nextcenter, &curcenter);
 
 		vm_vector_2_matrix(&dest_orient, &flydata->headvec, &pseg->sides[up_side].normals[0], NULL);
