@@ -458,7 +458,7 @@ void ntexture_map_lighted(grs_bitmap* srcb, g3ds_tmap* t)
 
 	// Set amount to change x coordinate for each advance to next scanline.
 	dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
-	if (dy < FIX_RECIP_TABLE_SIZE)
+	if (dy >= 0 && dy < FIX_RECIP_TABLE_SIZE) //[ISB] rarely dy may be negative due to precision errors. 
 		recip_dyl = fix_recip[dy];
 	else
 		recip_dyl = F1_0 / dy;
@@ -469,7 +469,7 @@ void ntexture_map_lighted(grs_bitmap* srcb, g3ds_tmap* t)
 	dz_dy_left = compute_dz_dy(t, vlt, vlb, recip_dyl);
 
 	dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
-	if (dy < FIX_RECIP_TABLE_SIZE)
+	if (dy >= 0 && dy < FIX_RECIP_TABLE_SIZE)
 		recip_dyr = fix_recip[dy];
 	else
 		recip_dyr = F1_0 / dy;
@@ -523,7 +523,7 @@ void ntexture_map_lighted(grs_bitmap* srcb, g3ds_tmap* t)
 			next_break_left = f2i(v3d[vlb].y2d);
 
 			dy = f2i(t->verts[vlb].y2d) - f2i(t->verts[vlt].y2d);
-			if (dy < FIX_RECIP_TABLE_SIZE)
+			if (dy >= 0 && dy < FIX_RECIP_TABLE_SIZE)
 				recip_dy = fix_recip[dy];
 			else
 				recip_dy = F1_0 / dy;
@@ -562,7 +562,7 @@ void ntexture_map_lighted(grs_bitmap* srcb, g3ds_tmap* t)
 			next_break_right = f2i(v3d[vrb].y2d);
 
 			dy = f2i(t->verts[vrb].y2d) - f2i(t->verts[vrt].y2d);
-			if (dy < FIX_RECIP_TABLE_SIZE)
+			if (dy >= 0 && dy < FIX_RECIP_TABLE_SIZE)
 				recip_dy = fix_recip[dy];
 			else
 				recip_dy = F1_0 / dy;
