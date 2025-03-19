@@ -238,8 +238,6 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 			{
 				if (mve_audio_compressed)
 				{
-					nsamp += 4;
-
 					buf = (short*)mem_malloc(nsamp);
 					mveaudio_uncompress(buf, data, -1);
 				} 
