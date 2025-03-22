@@ -1201,8 +1201,9 @@ void do_invulnerable_stuff(void)
 uint8_t	Last_afterburner_state = 0;
 fix Last_afterburner_charge = 0;
 
-#define AFTERBURNER_LOOP_START	((digi_sample_rate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
-#define AFTERBURNER_LOOP_END		((digi_sample_rate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
+#define AFTERBURNER_LOOP_START_REG	((digi_sample_rate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
+#define AFTERBURNER_LOOP_END_REG	((digi_sample_rate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
+
 
 int	Ab_scale = 4;
 
@@ -1229,8 +1230,17 @@ extern void multi_send_sound_function (char,char);
 
 void do_afterburner_stuff(void)
 {
-   if (!(Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER))
+	if (!(Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER))
 		Afterburner_charge=0;
+
+	int afterburner_loop_start = AFTERBURNER_LOOP_START_REG;
+	int afterburner_loop_end = AFTERBURNER_LOOP_END_REG;
+
+	if (CurrentDataVersion == DataVer::DEMO)
+	{
+		afterburner_loop_start = 20098;
+		afterburner_loop_end = 25776;
+	}
 
 	if (Endlevel_sequence || Player_is_dead)
 	{
@@ -1245,7 +1255,7 @@ void do_afterburner_stuff(void)
 
 		if (Afterburner_charge && Controls.afterburner_state && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER))
 		{
-			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, Players[Player_num].objnum, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
+			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, Players[Player_num].objnum, 1, F1_0, i2f(256), afterburner_loop_start, afterburner_loop_end);
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
