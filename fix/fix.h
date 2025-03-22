@@ -57,6 +57,11 @@ constexpr int f2i(fix f)
 	return f >> FRACBITS;
 }
 
+constexpr int f2iu(unsigned int f)
+{
+	return f >> FRACBITS;
+}
+
 //Get the int part of a fix, with rounding
 constexpr int f2ir(int f)
 {

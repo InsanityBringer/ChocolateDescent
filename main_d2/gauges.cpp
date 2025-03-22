@@ -1451,7 +1451,7 @@ void hud_show_weapons(void)
 
 	case VULCAN_INDEX:
 	case GAUSS_INDEX:
-		sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned)Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned)VULCAN_AMMO_SCALE));
+		sprintf(weapon_str, "%s: %i", weapon_name, f2iu((unsigned)Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned)VULCAN_AMMO_SCALE));
 		convert_1s(weapon_str);
 		break;
 
@@ -2520,7 +2520,7 @@ void draw_weapon_boxes()
 				{
 					if (Newdemo_state == ND_STATE_RECORDING)
 						newdemo_record_primary_ammo(old_ammo_count[0], Players[Player_num].primary_ammo[VULCAN_INDEX]);
-					draw_primary_ammo_info(f2i((unsigned)VULCAN_AMMO_SCALE * (unsigned)Players[Player_num].primary_ammo[VULCAN_INDEX]));
+					draw_primary_ammo_info(f2iu((unsigned)VULCAN_AMMO_SCALE * (unsigned)Players[Player_num].primary_ammo[VULCAN_INDEX]));
 					old_ammo_count[0] = Players[Player_num].primary_ammo[VULCAN_INDEX];
 				}
 			}
