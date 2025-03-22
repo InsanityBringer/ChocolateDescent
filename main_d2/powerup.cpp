@@ -215,7 +215,7 @@ int pick_up_vulcan_ammo(void)
 		max = Primary_ammo_max[VULCAN_INDEX];
 		if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
 			max *= 2;
-		HUD_init_message("%s %d %s!", TXT_ALREADY_HAVE, f2i((unsigned)VULCAN_AMMO_SCALE * (unsigned)max), TXT_VULCAN_ROUNDS);
+		HUD_init_message("%s %d %s!", TXT_ALREADY_HAVE, f2iu((unsigned)VULCAN_AMMO_SCALE * (unsigned)max), TXT_VULCAN_ROUNDS);
 		used = 0;
 	}
 	Primary_weapon = pwsave;
