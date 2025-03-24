@@ -48,6 +48,23 @@ extern void init_replacements();
 extern int set_level_palette();
 extern int med_create_flickering_light();
 
+extern void save_all_compiled_levels();
+extern void load_all_levels();
+
+extern int GotoMainMenu();
+
+int save_all_compiled_levels_h()
+{
+	save_all_compiled_levels();
+	return 1;
+}
+
+int load_all_levels_h()
+{
+	load_all_levels();
+	return 1;
+}
+
 int Test1() 
 {
 //	{ int i;
@@ -358,6 +375,7 @@ FUNCTION med_functions[] = {
 {   "med-decrease-draw-depth",          0,        DecreaseDrawDepth },
 {   "med-goto-game",                    0,        GotoGame },
 {   "med-goto-game-screen",             0,        GotoGameScreen },
+{   "med-goto-main-menu",             0,        GotoMainMenu },
 {   "med-drop-into-debugger",           0,        DropIntoDebugger },
 // {   "med-sync-large-view",              0,        SyncLargeView },
 {   "med-create-default-new-segment",   0,        CreateDefaultNewSegment },
@@ -400,6 +418,8 @@ FUNCTION med_functions[] = {
 
 // In gamesavec
 {	"rename-level",							0, get_level_name },
+{	"save-all-compiled-levels",							0, save_all_compiled_levels_h },
+{	"load-all-levels",							0, load_all_levels_h },
 
 // The terminating marker
 {   NULL, 0, NULL } };

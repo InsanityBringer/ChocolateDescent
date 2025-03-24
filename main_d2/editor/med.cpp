@@ -308,6 +308,12 @@ int GotoGame()
 	return GotoGameCommon(2);
 }
 
+int GotoMainMenu()
+{
+	ModeFlag = 4;
+	return 1;
+}
+
 
 void ReadLispMacro( FILE * file, char * buffer )
 {
@@ -1210,6 +1216,15 @@ void editor(void)
 			Function_mode=FMODE_GAME;			//force back into game
 			set_screen_mode(SCREEN_GAME);		//put up game screen
 			gr_free_bitmap( savedbitmap );
+			break;
+		}
+
+		if (ModeFlag == 4)
+		{
+			close_editor_screen();
+			Function_mode = FMODE_MENU;
+			set_screen_mode(SCREEN_MENU);
+			gr_free_bitmap(savedbitmap);
 			break;
 		}
 
