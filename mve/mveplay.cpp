@@ -409,8 +409,7 @@ static int video_palette_handler(unsigned char major, unsigned char minor, unsig
 		memcpy(g_palette + 3 * start, data + 4, 3 * count);
 	else
 	{
-		//[ISB] offset is a dumb hack to ensure the palette callback works without modification
-		(*SetPaletteCallback)(data + 4 - (start * 3), start, count);
+		(*SetPaletteCallback)(data + 4, start, count);
 	}
 
 	return 1;
