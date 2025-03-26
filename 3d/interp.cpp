@@ -109,108 +109,6 @@ void g3_remap_interp_colors()
 	}
 }
 
-void swap_polygon_model_data(uint8_t* data)
-{
-	int i;
-	short n;
-	g3s_uvl* uvl_val;
-	uint8_t* p = data;
-
-	short_swap(wp(p));
-
-	while (w(p) != OP_EOF) 
-	{
-		switch (w(p)) 
-		{
-		case OP_DEFPOINTS:
-			short_swap(wp(p + 2));
-			n = w(p + 2);
-			for (i = 0; i < n; i++)
-				vms_vector_swap(vp((p + 4) + (i * sizeof(vms_vector))));
-			p += n * sizeof(struct vms_vector) + 4;
-			break;
-
-		case OP_DEFP_START:
-			short_swap(wp(p + 2));
-			short_swap(wp(p + 4));
-			n = w(p + 2);
-			for (i = 0; i < n; i++)
-				vms_vector_swap(vp((p + 8) + (i * sizeof(vms_vector))));
-			p += n * sizeof(struct vms_vector) + 8;
-			break;
-
-		case OP_FLATPOLY:
-			short_swap(wp(p + 2));
-			n = w(p + 2);
-			vms_vector_swap(vp(p + 4));
-			vms_vector_swap(vp(p + 16));
-			short_swap(wp(p + 28));
-			// swap the colors 0 and 255 here!!!!
-			if (w(p + 28) == 0)
-				w(p + 28) = 255;
-			else if (w(p + 28) == 255)
-				w(p + 28) = 0;
-			for (i = 0; i < n; i++)
-				short_swap(wp(p + 30 + (i * 2)));
-			p += 30 + ((n & ~1) + 1) * 2;
-			break;
-
-		case OP_TMAPPOLY:
-			short_swap(wp(p + 2));
-			n = w(p + 2);
-			vms_vector_swap(vp(p + 4));
-			vms_vector_swap(vp(p + 16));
-			for (i = 0; i < n; i++) 
-			{
-				uvl_val = (g3s_uvl*)((p + 30 + ((n & ~1) + 1) * 2) + (i * sizeof(g3s_uvl)));
-				uvl_val->u = (fix)swapint((int)uvl_val->u);
-				uvl_val->v = (fix)swapint((int)uvl_val->v);
-			}
-			short_swap(wp(p + 28));
-			for (i = 0; i < n; i++)
-				short_swap(wp(p + 30 + (i * 2)));
-			p += 30 + ((n & ~1) + 1) * 2 + n * 12;
-			break;
-
-		case OP_SORTNORM:
-			vms_vector_swap(vp(p + 4));
-			vms_vector_swap(vp(p + 16));
-			short_swap(wp(p + 28));
-			short_swap(wp(p + 30));
-			swap_polygon_model_data(p + w(p + 28));
-			swap_polygon_model_data(p + w(p + 30));
-			p += 32;
-			break;
-
-		case OP_RODBM:
-			vms_vector_swap(vp(p + 20));
-			vms_vector_swap(vp(p + 4));
-			short_swap(wp(p + 2));
-			*((int*)(p + 16)) = swapint(*((int*)(p + 16)));
-			*((int*)(p + 32)) = swapint(*((int*)(p + 32)));
-			p += 36;
-			break;
-
-		case OP_SUBCALL:
-			short_swap(wp(p + 2));
-			vms_vector_swap(vp(p + 4));
-			short_swap(wp(p + 16));
-			swap_polygon_model_data(p + w(p + 16));
-			p += 20;
-			break;
-
-		case OP_GLOW:
-			short_swap(wp(p + 2));
-			p += 4;
-			break;
-
-		default:
-			Int3();
-		}
-		short_swap(wp(p));
-	}
-}
-
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
 dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_angvec* anim_angles, fix model_light, fix* glow_values)
@@ -228,6 +126,9 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 		case OP_DEFPOINTS: 
 		{
 			int n = w(p + 2);
+			if (n > MAX_POLYGON_VECS)
+				Error("g3_draw_polygon_model: Too many vertices in DEFPOINTS (n: %d, max: %d)", n, MAX_POLYGON_VECS);
+
 			rotate_point_list(Interp_point_list, vp(p + 4), n);
 			p += n * sizeof(struct vms_vector) + 4;
 			break;
@@ -237,6 +138,8 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 		{
 			int n = w(p + 2);
 			int s = w(p + 4);
+			if (s + n > MAX_POLYGON_VECS)
+				Error("g3_draw_polygon_model: DEFP_START offset + count exceeds max (n: %d, s: %d, max: %d)", n, s, MAX_POLYGON_VECS);
 
 			rotate_point_list(&Interp_point_list[s], vp(p + 8), n);
 			p += n * sizeof(struct vms_vector) + 8;
@@ -407,6 +310,8 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 		case OP_DEFPOINTS: 
 		{
 			int n = w(p + 2);
+			if (n > MAX_POLYGON_VECS)
+				Error("g3_draw_polygon_model: Too many vertices in DEFPOINTS (n: %d, max: %d)", n, MAX_POLYGON_VECS);
 
 			rotate_point_list(Interp_point_list, new_points, n);
 			p += n * sizeof(struct vms_vector) + 4;
@@ -418,6 +323,8 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 		{
 			int n = w(p + 2);
 			int s = w(p + 4);
+			if (s + n > MAX_POLYGON_VECS)
+				Error("g3_draw_polygon_model: DEFP_START offset + count exceeds max (n: %d, s: %d, max: %d)", n, s, MAX_POLYGON_VECS);
 
 			rotate_point_list(&Interp_point_list[s], new_points, n);
 			p += n * sizeof(struct vms_vector) + 8;

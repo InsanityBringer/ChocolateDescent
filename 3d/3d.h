@@ -64,17 +64,7 @@ typedef struct g3s_point
 #define p3_y p3_vec.y
 #define p3_z p3_vec.z
 
-//An object, such as a robot
-typedef struct g3s_object 
-{
-	vms_vector o3_pos;       //location of this object
-	vms_angvec o3_orient;    //orientation of this object
-	int o3_nverts;           //number of points in the object
-	int o3_nfaces;           //number of faces in the object
-
-	//this will be filled in later
-
-} g3s_object;
+#define MAX_POLYGON_VECS 1000
 
 //Functions in library
 
