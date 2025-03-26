@@ -662,19 +662,20 @@ void DeInitRobotMovie()
 
 void PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 {
-	int i;
+	//[ISB] Disabling check because it doesn't really make any sense, and can underflow due to how the palette is submitted
+	/*int i;
 
 	for (i = 0; i < 256; i++)
 		if (p[i] != 0)
 			break;
 
 	if (i >= 255 && (MVEPaletteCalls++) > 0)
-		return;
+		return;*/
 
 	//MVE_SetPalette(p, start, count); //[ISB] I need to figure out if I should do something here
 	//[ISB] for whatever reason, the implication of the above line is that the palette is set without actually informing the game's palette code
 	//Replicate this by using a raw palette push call. 
-	plat_write_palette(start, start + count - 1, p);
+	plat_write_palette(start, start + count - 1, p + start * 3);
 	//memcpy(gr_palette + start * 3, p, count * 3);
 	//gr_palette_load(gr_palette);
 }

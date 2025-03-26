@@ -409,7 +409,8 @@ static int video_palette_handler(unsigned char major, unsigned char minor, unsig
 		memcpy(g_palette + 3 * start, data + 4, 3 * count);
 	else
 	{
-		(*SetPaletteCallback)(data + 4, start, count);
+		//[ISB] Subtracting start is silly but this is what the code on the side of Descent seems to expect. 
+		(*SetPaletteCallback)(data + 4 - start * 3, start, count);
 	}
 
 	return 1;
