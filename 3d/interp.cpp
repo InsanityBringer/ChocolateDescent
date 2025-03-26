@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define N_OPCODES (sizeof(opcode_table) / sizeof(*opcode_table))
 
-#define MAX_POINTS_PER_POLY		25
+#define MAX_POINTS_PER_POLY		MAX_POINTS_IN_POLY
 
 short	highest_texture_num;
 int	g3d_interp_outline;
@@ -250,7 +250,8 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 			int drawindex;
 			int nv = w(p + 2);
 
-			Assert(nv < MAX_POINTS_PER_POLY);
+			if (nv > MAX_POINTS_PER_POLY)
+				Error("g3_draw_polygon_model: Too many vertices in FLATPOLY (nv: %d, max: %d)", nv, MAX_POINTS_PER_POLY);
 
 			if (g3_check_normal_facing(vp(p + 4), vp(p + 16)) > 0)
 			{
@@ -288,7 +289,9 @@ dbool g3_draw_polygon_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_ang
 			int nv = w(p + 2);
 			g3s_uvl* uvl_list;
 
-			Assert(nv < MAX_POINTS_PER_POLY);
+			if (nv > MAX_POINTS_PER_POLY)
+				Error("g3_draw_polygon_model: Too many vertices in TMAPPOLY (nv: %d, max: %d)", nv, MAX_POINTS_PER_POLY);
+
 			if (g3_check_normal_facing(vp(p + 4), vp(p + 16)) > 0) 
 			{
 				int i;

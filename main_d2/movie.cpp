@@ -675,6 +675,8 @@ void PaletteChecker(unsigned char* p, unsigned start, unsigned count)
 	//[ISB] for whatever reason, the implication of the above line is that the palette is set without actually informing the game's palette code
 	//Replicate this by using a raw palette push call. 
 	plat_write_palette(start, start + count - 1, p);
+	//memcpy(gr_palette + start * 3, p, count * 3);
+	//gr_palette_load(gr_palette);
 }
 
 

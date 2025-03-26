@@ -53,6 +53,10 @@ void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 	fix	average_light;
 
 	Assert(nverts < MAX_TMAP_VERTS);
+	if (nverts > MAX_TMAP_VERTS)
+	{
+		Error("draw_tmap_flat: nverts exceeded max safe value (nverts: %d, safe value: %d)", nverts, MAX_TMAP_VERTS);
+	}
 
 	average_light = vertbuf[0]->p3_l;
 	for (i=1; i<nverts; i++)
@@ -105,6 +109,10 @@ void gr_upoly_tmap(int nverts, int *vert )
 	int	i;
 
 	Assert(nverts < MAX_TMAP_VERTS);
+	if (nverts > MAX_TMAP_VERTS)
+	{
+		Error("gr_upoly_tmap: nverts exceeded max safe value (nverts: %d, safe value: %d)", nverts, MAX_TMAP_VERTS);
+	}
 
 	my_tmap.nv = nverts;
 

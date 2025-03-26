@@ -18,7 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "2d/gr.h"
 
 #define	NUM_LIGHTING_LEVELS 32
-#define MAX_TMAP_VERTS 25
+#define MAX_TMAP_VERTS (25 + 14)
 #define MAX_LIGHTING_VALUE	((NUM_LIGHTING_LEVELS-1)*F1_0/NUM_LIGHTING_LEVELS)
 #define MIN_LIGHTING_VALUE	(F1_0/NUM_LIGHTING_LEVELS)
 
@@ -61,7 +61,7 @@ typedef struct g3ds_vertex {
 typedef struct g3ds_tmap {
 	int	nv;			// number of vertices
 	g3ds_vertex	verts[MAX_TMAP_VERTS];	// up to 8 vertices, this is inefficient, change
-} g3ds_tmap;
+} g3ds_tmap; //[ISB] Added 14 to MAX_TMAP_VERTS, because after Tmap1 were two unused arrays that contained storage for 14 vertices. 
 
 // -------------------------------------------------------------------------------------------------------
 

@@ -194,6 +194,10 @@ void draw_tmap_flat(grs_bitmap* bp, int nverts, g3s_point** vertbuf)
 	int	color;
 
 	Assert(nverts < MAX_TMAP_VERTS);
+	if (nverts > MAX_TMAP_VERTS)
+	{
+		Error("draw_tmap_flat: nverts exceeded max safe value (nverts: %d, safe value: %d)", nverts, MAX_TMAP_VERTS);
+	}
 
 	average_light = vertbuf[0]->p3_l;
 	for (i = 1; i < nverts; i++)
@@ -230,6 +234,12 @@ void gr_upoly_tmap_ylr(int nverts, int* vert, void(*ylr_func)(int, fix, fix))
 	int			i;
 
 	//--now called from g3_start_frame-- init_interface_vars_to_assembler();
+
+	Assert(nverts <= MAX_TMAP_VERTS);
+	if (nverts > MAX_TMAP_VERTS)
+	{
+		Error("gr_upoly_tmap_ylr: nverts exceeded max safe value (nverts: %d, safe value: %d)", nverts, MAX_TMAP_VERTS);
+	}
 
 	my_tmap.nv = nverts;
 

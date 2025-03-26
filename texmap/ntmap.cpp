@@ -46,9 +46,6 @@ int	SC2000 = SC2000K;
 // Temporary texture map, interface from Matt's 3d system to Mike's texture mapper.
 g3ds_tmap Tmap1;
 
-grs_bitmap Texmap_ptrs[NUM_TMAPS];
-grs_bitmap Texmap4_ptrs[NUM_TMAPS];
-
 fix Range_max = 0; // debug, kill me
 
 int	Interpolation_method = 0;	// 0 = choose best method
@@ -889,6 +886,10 @@ void draw_tmap(grs_bitmap* bp, int nverts, g3s_point** vertbuf)
 	int	lighting_on_save = Lighting_on;
 
 	Assert(nverts <= MAX_TMAP_VERTS);
+	if (nverts > MAX_TMAP_VERTS)
+	{
+		Error("draw_tmap: nverts exceeded max safe value (nverts: %d, safe value: %d)", nverts, MAX_TMAP_VERTS);
+	}
 #ifdef USE_MULT_CODE
 	if (!divide_table_filled) fill_divide_table();
 #endif

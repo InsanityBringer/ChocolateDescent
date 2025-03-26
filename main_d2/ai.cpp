@@ -234,14 +234,23 @@ fix	Dist_to_last_fired_upon_player_pos = 0;
 // --------------------------------------------------------------------------------------------------------------------
 void init_ai_frame(void)
 {
-	int	ab_state;
-
 	Dist_to_last_fired_upon_player_pos = vm_vec_dist_quick(&Last_fired_upon_player_pos, &Believed_player_pos);
 
-	ab_state = Afterburner_charge && Controls.afterburner_state && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER);
+	if (CurrentLogicVersion == LogicVer::SHAREWARE)
+	{
+		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
+		{
+			Believed_player_seg = ConsoleObject->segnum;
+			Believed_player_pos = ConsoleObject->pos;
+		}
+	}
+	else
+	{
+		int ab_state = Afterburner_charge && Controls.afterburner_state && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER);
 
-	if (!(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) || (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON) || ab_state) {
-		ai_do_cloak_stuff();
+		if (!(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) || (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON) || ab_state) {
+			ai_do_cloak_stuff();
+		}
 	}
 }
 
