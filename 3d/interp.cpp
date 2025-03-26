@@ -430,6 +430,9 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			int nv = w(p + 2);
 			int i, ntris;
 
+			if (nv > MAX_POINTS_PER_POLY)
+				Error("g3_draw_morphing_model: Too many vertices in FLATPOLY (nv: %d, max: %d)", nv, MAX_POINTS_PER_POLY);
+
 #ifdef BUILD_DESCENT2
 			gr_setcolor(interp_color_table[w(p + 28)].pal_entry);
 #else
@@ -458,6 +461,9 @@ dbool g3_draw_morphing_model(void* model_ptr, grs_bitmap** model_bitmaps, vms_an
 			g3s_uvl morph_uvls[3];
 			int i, ntris;
 			fix light;
+
+			if (nv > MAX_POINTS_PER_POLY)
+				Error("g3_draw_morphing_model: Too many vertices in TMAPPOLY (nv: %d, max: %d)", nv, MAX_POINTS_PER_POLY);
 
 			//calculate light from surface normal
 
