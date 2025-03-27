@@ -96,22 +96,68 @@ static void m_write_matrix(vms_matrix* m, FILE* file)
 void save_v16_side(side* sidep, FILE* LoadFile)
 {
 	int i;
-	M_WriteByte(LoadFile, sidep->type);
-	M_WriteByte(LoadFile, sidep->pad);
-	M_WriteShort(LoadFile, sidep->wall_num);
-	M_WriteShort(LoadFile, sidep->tmap_num);
-	M_WriteShort(LoadFile, sidep->tmap_num2);
+	file_write_byte(LoadFile, sidep->type);
+	file_write_byte(LoadFile, sidep->pad);
+	file_write_short(LoadFile, sidep->wall_num);
+	file_write_short(LoadFile, sidep->tmap_num);
+	file_write_short(LoadFile, sidep->tmap_num2);
 	for (i = 0; i < 4; i++)
 	{
-		M_WriteInt(LoadFile, sidep->uvls[i].u);
-		M_WriteInt(LoadFile, sidep->uvls[i].v);
-		M_WriteInt(LoadFile, sidep->uvls[i].l);
+		file_write_int(LoadFile, sidep->uvls[i].u);
+		file_write_int(LoadFile, sidep->uvls[i].v);
+		file_write_int(LoadFile, sidep->uvls[i].l);
 	}
 	for (i = 0; i < 2; i++)
 	{
-		M_WriteInt(LoadFile, sidep->normals[i].x);
-		M_WriteInt(LoadFile, sidep->normals[i].y);
-		M_WriteInt(LoadFile, sidep->normals[i].z);
+		file_write_int(LoadFile, sidep->normals[i].x);
+		file_write_int(LoadFile, sidep->normals[i].y);
+		file_write_int(LoadFile, sidep->normals[i].z);
+	}
+}
+
+void save_segment(segment* segp, FILE* SaveFile)
+{
+	file_write_short(SaveFile, segp->segnum);
+	for (int i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
+	{
+		save_v16_side(&segp->sides[i], SaveFile);
+	}
+	for (int i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
+	{
+		file_write_short(SaveFile, segp->children[i]);
+	}
+	for (int i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
+	{
+		file_write_short(SaveFile, segp->verts[i]);
+	}
+	file_write_short(SaveFile, segp->group);
+	file_write_short(SaveFile, segp->objects);
+}
+
+void save_n_segments(FILE* SaveFile, int count)
+{
+	Assert(count <= MAX_SEGMENTS);
+	for (int i = 0; i < count; i++)
+	{
+		save_segment(&Segments[i], SaveFile);
+	}
+}
+
+void save_segment2(segment2* segp, FILE* SaveFile)
+{
+	file_write_byte(SaveFile, segp->special);
+	file_write_byte(SaveFile, segp->matcen_num);
+	file_write_byte(SaveFile, segp->value);
+	file_write_byte(SaveFile, segp->s2_flags);
+	file_write_int(SaveFile, segp->static_light);
+}
+
+void save_n_segment2s(FILE* SaveFile, int count)
+{
+	Assert(count <= MAX_SEGMENTS);
+	for (int i = 0; i < count; i++)
+	{
+		save_segment2(&Segment2s[i], SaveFile);
 	}
 }
 
@@ -175,8 +221,6 @@ int med_save_mine(char * filename)
 
 }
 
-#define SEGMENT_SIZEOF sizeof(segment)
-
 //I don't actually need to do this, since it's aligned, but I'm a masochist I guess :D
 void write_mine_fileinfo(FILE* fp)
 {
@@ -236,6 +280,23 @@ void write_mine_fileinfo(FILE* fp)
 	file_write_int(fp, mine_fileinfo.segment2_sizeof);
 }
 
+void write_mine_editor(FILE* fp)
+{
+	file_write_int(fp, mine_editor.current_seg);
+	file_write_int(fp, mine_editor.newsegment_offset);
+	file_write_int(fp, mine_editor.newsegment_size);
+	file_write_int(fp, mine_editor.Curside);
+	file_write_int(fp, mine_editor.Markedsegp);
+	file_write_int(fp, mine_editor.Markedside);
+	for (int i = 0; i < 10; i++)
+		file_write_int(fp, mine_editor.Groupsegp[i]);
+	for (int i = 0; i < 10; i++)
+		file_write_int(fp, mine_editor.Groupside[i]);
+
+	file_write_int(fp, mine_editor.num_groups);
+	file_write_int(fp, mine_editor.current_group);
+}
+
 // -----------------------------------------------------------------------------
 // saves to an already-open file
 int save_mine_data(FILE * SaveFile)
@@ -257,13 +318,13 @@ int save_mine_data(FILE * SaveFile)
 	editor_offset = header_offset + MH_SIZEOF;
 	texture_offset = editor_offset + ME_SIZEOF;
 	vertex_offset  = texture_offset + (13*NumTextures);
-	segment_offset = vertex_offset + (sizeof(vms_vector)*Num_vertices);
+	segment_offset = vertex_offset + (12*Num_vertices);
 	segment2s_offset = segment_offset + (SEGMENT_SIZEOF * Num_segments);
-	newsegment_offset = segment2s_offset + (sizeof(segment2)*Num_segments);
+	newsegment_offset = segment2s_offset + (SEGMENT2_SIZEOF*Num_segments);
 	newseg_verts_offset = newsegment_offset + SEGMENT_SIZEOF;
-	walls_offset = newseg_verts_offset + (sizeof(vms_vector)*8);
-	triggers_offset =	walls_offset + (sizeof(wall)*Num_walls);
-	doors_offset = triggers_offset + (sizeof(trigger)*Num_triggers);
+	walls_offset = newseg_verts_offset + (12*8);
+	triggers_offset =	walls_offset + (WALL_SIZEOF*Num_walls);
+	doors_offset = triggers_offset + (TRIGGER_SIZEOF*Num_triggers);
 	//dlindex_offset = doors_offset + (sizeof(dl_index)*Num_dl
 	
 
@@ -271,11 +332,11 @@ int save_mine_data(FILE * SaveFile)
 
 	mine_fileinfo.fileinfo_signature=	0x2884;
 	mine_fileinfo.fileinfo_version  =   MINE_VERSION;
-	mine_fileinfo.fileinfo_sizeof   =   sizeof(mine_fileinfo);
+	mine_fileinfo.fileinfo_sizeof   =   MFI_SIZEOF;
 	mine_fileinfo.header_offset     =   header_offset;
-	mine_fileinfo.header_size       =   sizeof(mine_header);
+	mine_fileinfo.header_size       =   MH_SIZEOF;
 	mine_fileinfo.editor_offset     =   editor_offset;
-	mine_fileinfo.editor_size       =   sizeof(mine_editor);
+	mine_fileinfo.editor_size       =   ME_SIZEOF;
 	mine_fileinfo.vertex_offset     =   vertex_offset;
 	mine_fileinfo.vertex_howmany    =   Num_vertices;
 	mine_fileinfo.vertex_sizeof     =   12;
@@ -284,16 +345,16 @@ int save_mine_data(FILE * SaveFile)
 	mine_fileinfo.segment_sizeof    =   SEGMENT_SIZEOF;
 	mine_fileinfo.newseg_verts_offset     =   newseg_verts_offset;
 	mine_fileinfo.newseg_verts_howmany    =   8;
-	mine_fileinfo.newseg_verts_sizeof     =   sizeof(vms_vector);
+	mine_fileinfo.newseg_verts_sizeof     =   12;
 	mine_fileinfo.texture_offset    =   texture_offset;
 	mine_fileinfo.texture_howmany   =   NumTextures;
 	mine_fileinfo.texture_sizeof    =   13;  // num characters in a name
 	mine_fileinfo.walls_offset		  =	walls_offset;
 	mine_fileinfo.walls_howmany	  =	Num_walls;
-	mine_fileinfo.walls_sizeof		  =	sizeof(wall);  
+	mine_fileinfo.walls_sizeof		  =	WALL_SIZEOF;  
 	mine_fileinfo.triggers_offset	  =	triggers_offset;
 	mine_fileinfo.triggers_howmany  =	Num_triggers;
-	mine_fileinfo.triggers_sizeof	  =	sizeof(trigger);  
+	mine_fileinfo.triggers_sizeof	  =	TRIGGER_SIZEOF;  
 	//[ISB] Don't actually need to write this, it's read by the mine reader but the gamesave reader is what actually cares about it. 
 	//mine_fileinfo.dl_indices_offset = dlindex_offset;
 
@@ -303,7 +364,7 @@ int save_mine_data(FILE * SaveFile)
 	mine_fileinfo.secret_return_segment = Secret_return_segment;
 	mine_fileinfo.secret_return_orient = Secret_return_orient;
 	mine_fileinfo.segment2_offset = segment2s_offset;
-	mine_fileinfo.segment2_sizeof = sizeof(segment2);
+	mine_fileinfo.segment2_sizeof = SEGMENT2_SIZEOF;
 	mine_fileinfo.segment2_howmany = Num_segments;
 
 	// Write the fileinfo
@@ -340,7 +401,7 @@ int save_mine_data(FILE * SaveFile)
 
 	if (editor_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	fwrite( &mine_editor, sizeof(mine_editor), 1, SaveFile );
+	write_mine_editor(SaveFile);
 
 	//===================== SAVE TEXTURE INFO ==========================
 
@@ -368,28 +429,28 @@ int save_mine_data(FILE * SaveFile)
 	//	save_v16_segment(&Segments[i], SaveFile);
 
 	//V20 saves raw segments
-	fwrite( Segments, sizeof(segment), Num_segments, SaveFile );
+	save_n_segments(SaveFile, Num_segments);
 
 	//===================== SAVE SEGMENT2 INFO =========================
 	if (segment2s_offset != ftell(SaveFile))
 		Error("OFFSETS WRONG IN MINE.C!");
 
-	fwrite(Segment2s, sizeof(segment2), Num_segments, SaveFile);
+	save_n_segment2s(SaveFile, Num_segments);
 
 	//===================== SAVE NEWSEGMENT INFO ======================
 
 	if (newsegment_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	//save_v16_segment(&New_segment, SaveFile);
-	fwrite( &New_segment, sizeof(segment), 1, SaveFile );
+	save_segment(&New_segment, SaveFile);
 
 	if (newseg_verts_offset != ftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	for (i = 0; i < 8; i++)
 	{
-		M_WriteInt(SaveFile, Vertices[New_segment.verts[i]].x);
-		M_WriteInt(SaveFile, Vertices[New_segment.verts[i]].y);
-		M_WriteInt(SaveFile, Vertices[New_segment.verts[i]].z);
+		file_write_int(SaveFile, Vertices[New_segment.verts[i]].x);
+		file_write_int(SaveFile, Vertices[New_segment.verts[i]].y);
+		file_write_int(SaveFile, Vertices[New_segment.verts[i]].z);
 	}
 	//cfwrite( &Vertices[New_segment.verts[0]], sizeof(vms_vector), 8, SaveFile );
 

@@ -91,6 +91,8 @@ typedef struct stuckobj
 	int	signature;
 } stuckobj;
 
+#define WALL_SIZEOF 24
+
 typedef struct wall 
 {
 	int	segnum,sidenum;	// Seg & side for this wall

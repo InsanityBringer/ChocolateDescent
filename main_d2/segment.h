@@ -66,6 +66,8 @@ typedef struct uvl
 	fix u,v,l;
 } uvl;
 
+#define SIDE_SIZEOF 80
+
 #ifdef COMPACT_SEGS
 typedef struct side {
 	int8_t		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
@@ -87,6 +89,12 @@ typedef struct side
 	uvl		uvls[4];
 	vms_vector	normals[2];						// 2 normals, if quadrilateral, both the same.
 } side;
+#endif
+
+#ifdef EDITOR
+#define SEGMENT_SIZEOF 514
+#else
+#define SEGMENT_SIZEOF 512
 #endif
 
 typedef struct segment 
@@ -116,6 +124,8 @@ typedef struct segment
 
 #define	S2F_AMBIENT_WATER		0x01
 #define	S2F_AMBIENT_LAVA		0x02
+
+#define SEGMENT2_SIZEOF 8
 
 typedef struct segment2 
 {

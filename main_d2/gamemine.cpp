@@ -225,6 +225,85 @@ void read_mine_fileinfo(CFILE* LoadFile, int version)
 	mine_fileinfo.segment2_sizeof = cfile_read_int(LoadFile);
 }
 
+void read_mine_editor(CFILE* LoadFile)
+{
+	mine_editor.current_seg = cfile_read_int(LoadFile);
+	mine_editor.newsegment_offset = cfile_read_int(LoadFile);
+	mine_editor.newsegment_size = cfile_read_int(LoadFile);
+	mine_editor.Curside = cfile_read_int(LoadFile);
+	mine_editor.Markedsegp = cfile_read_int(LoadFile);
+	mine_editor.Markedside = cfile_read_int(LoadFile);
+	for (int i = 0; i < 10; i++)
+		mine_editor.Groupsegp[i] = cfile_read_int(LoadFile);
+	for (int i = 0; i < 10; i++)
+		mine_editor.Groupside[i] = cfile_read_int(LoadFile);
+
+	mine_editor.num_groups = cfile_read_int(LoadFile);
+	mine_editor.current_group = cfile_read_int(LoadFile);
+}
+
+void read_side(side& sidep, CFILE* LoadFile)
+{
+	sidep.type = cfile_read_byte(LoadFile);
+	sidep.pad = cfile_read_byte(LoadFile);
+	sidep.wall_num = cfile_read_short(LoadFile);
+	sidep.tmap_num = cfile_read_short(LoadFile);
+	sidep.tmap_num2 = cfile_read_short(LoadFile);
+	for (int i = 0; i < 4; i++)
+	{
+		sidep.uvls[i].u = cfile_read_int(LoadFile);
+		sidep.uvls[i].v = cfile_read_int(LoadFile);
+		sidep.uvls[i].l = cfile_read_int(LoadFile);
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		sidep.normals[i].x = cfile_read_int(LoadFile);
+		sidep.normals[i].y = cfile_read_int(LoadFile);
+		sidep.normals[i].z = cfile_read_int(LoadFile);
+	}
+}
+
+void read_segment(segment& segp, CFILE* LoadFile)
+{
+	//This should only ever be called with EDITOR
+#ifdef EDITOR
+	segp.segnum = cfile_read_short(LoadFile);
+	for (int i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
+		read_side(segp.sides[i], LoadFile);
+	for (int i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
+		segp.children[i] = cfile_read_short(LoadFile);
+	for (int i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
+		segp.verts[i] = cfile_read_short(LoadFile);
+	segp.group = cfile_read_short(LoadFile);
+	segp.objects = cfile_read_short(LoadFile);
+#endif
+}
+
+void read_n_segments(CFILE* LoadFile, int count)
+{
+	for (int i = 0; i < count; i++)
+	{
+		read_segment(Segments[i], LoadFile);
+	}
+}
+
+void read_segment2(segment2& segp, CFILE* LoadFile)
+{
+	segp.special = cfile_read_byte(LoadFile);
+	segp.matcen_num = cfile_read_byte(LoadFile);
+	segp.value = cfile_read_byte(LoadFile);
+	segp.s2_flags = cfile_read_byte(LoadFile);
+	segp.static_light = cfile_read_int(LoadFile);
+}
+
+void read_n_segment2s(CFILE* LoadFile, int count)
+{
+	for (int i = 0; i < count; i++)
+	{
+		read_segment2(Segment2s[i], LoadFile);
+	}
+}
+
 // -----------------------------------------------------------------------------
 //loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
@@ -370,14 +449,16 @@ int load_mine_data(CFILE *LoadFile)
 		if (cfseek( LoadFile, mine_fileinfo.editor_offset, SEEK_SET ))
 			Error( "Error seeking to editor_offset in gamemine.c" );
 	
-		if (cfread( &mine_editor, mine_fileinfo.editor_size, 1, LoadFile )!=1)
-			Error( "Error reading mine_editor in gamemine.c" );
+		read_mine_editor(LoadFile);
+		//if (cfread( &mine_editor, mine_fileinfo.editor_size, 1, LoadFile )!=1)
+		//	Error( "Error reading mine_editor in gamemine.c" );
 	}
 
 	//===================== READ TEXTURE INFO ==========================
 
 	if ( (mine_fileinfo.texture_offset > -1) && (mine_fileinfo.texture_howmany > 0))
 	{
+		Assert(mine_fileinfo.texture_sizeof == FILENAME_LEN); //What even is the point of storing out the sizeof?
 		if (cfseek( LoadFile, mine_fileinfo.texture_offset, SEEK_SET ))
 			Error( "Error seeking to texture_offset in gamemine.c" );
 
@@ -454,13 +535,9 @@ int load_mine_data(CFILE *LoadFile)
 
 		for (i=0; i< mine_fileinfo.vertex_howmany; i++ )
 		{
-			// Set the default values for this vertex
-			Vertices[i].x = 1;
-			Vertices[i].y = 1;
-			Vertices[i].z = 1;
-
-			if (cfread( &Vertices[i], mine_fileinfo.vertex_sizeof, 1, LoadFile )!=1)
-				Error( "Error reading Vertices[i] in gamemine.c" );
+			Vertices[i].x = cfile_read_int(LoadFile);
+			Vertices[i].y = cfile_read_int(LoadFile);
+			Vertices[i].z = cfile_read_int(LoadFile);
 		}
 	}
 
@@ -522,8 +599,9 @@ int load_mine_data(CFILE *LoadFile)
 			}
 			else  
 			{
-				if (cfread( &Segments[i], mine_fileinfo.segment_sizeof, 1, LoadFile )!=1)
-					Error("Unable to read segment %i\n", i);
+				read_segment(Segments[i], LoadFile);
+				//if (cfread( &Segments[i], mine_fileinfo.segment_sizeof, 1, LoadFile )!=1)
+				//	Error("Unable to read segment %i\n", i);
 			}
 
 			Segments[i].objects = -1;
@@ -573,8 +651,10 @@ int load_mine_data(CFILE *LoadFile)
 
 
 		if (mine_top_fileinfo.fileinfo_version >= 20)
-			for (i=0; i<=Highest_segment_index; i++) {
-				cfread(&Segment2s[i], sizeof(segment2), 1, LoadFile);
+			for (i=0; i<=Highest_segment_index; i++) 
+			{
+				//cfread(&Segment2s[i], sizeof(segment2), 1, LoadFile);
+				read_segment2(Segment2s[i], LoadFile);
 				fuelcen_activate( &Segments[i], Segment2s[i].special );
 			}
 	}
@@ -593,8 +673,9 @@ int load_mine_data(CFILE *LoadFile)
 	{
 		if (cfseek( LoadFile, mine_editor.newsegment_offset,SEEK_SET ))
 			Error( "Error seeking to newsegment_offset in gamemine.c" );
-		if (cfread( &New_segment, mine_editor.newsegment_size,1,LoadFile )!=1)
-			Error( "Error reading new_segment in gamemine.c" );
+		read_segment(New_segment, LoadFile);
+		//if (cfread( &New_segment, mine_editor.newsegment_size,1,LoadFile )!=1)
+		//	Error( "Error reading new_segment in gamemine.c" );
 	}
 
 	if ( (mine_fileinfo.newseg_verts_offset > -1) && (mine_fileinfo.newseg_verts_howmany > 0))
@@ -603,13 +684,16 @@ int load_mine_data(CFILE *LoadFile)
 			Error( "Error seeking to newseg_verts_offset in gamemine.c" );
 		for (i=0; i< mine_fileinfo.newseg_verts_howmany; i++ )
 		{
+			Vertices[NEW_SEGMENT_VERTICES + i].x = cfile_read_int(LoadFile);
+			Vertices[NEW_SEGMENT_VERTICES + i].y = cfile_read_int(LoadFile);
+			Vertices[NEW_SEGMENT_VERTICES + i].z = cfile_read_int(LoadFile);
 			// Set the default values for this vertex
-			Vertices[NEW_SEGMENT_VERTICES+i].x = 1;
-			Vertices[NEW_SEGMENT_VERTICES+i].y = 1;
-			Vertices[NEW_SEGMENT_VERTICES+i].z = 1;
+			//Vertices[NEW_SEGMENT_VERTICES+i].x = 1;
+			//Vertices[NEW_SEGMENT_VERTICES+i].y = 1;
+			//Vertices[NEW_SEGMENT_VERTICES+i].z = 1;
 			
-			if (cfread( &Vertices[NEW_SEGMENT_VERTICES+i], mine_fileinfo.newseg_verts_sizeof,1,LoadFile )!=1)
-				Error( "Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c" );
+			//if (cfread( &Vertices[NEW_SEGMENT_VERTICES+i], mine_fileinfo.newseg_verts_sizeof,1,LoadFile )!=1)
+			//	Error( "Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c" );
 
 			New_segment.verts[i] = NEW_SEGMENT_VERTICES+i;
 		}

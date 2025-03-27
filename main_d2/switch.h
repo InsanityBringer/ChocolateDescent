@@ -48,6 +48,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //the trigger really should have both a type & a flags, since most of the
 //flags bits are exclusive of the others.
+
+#define TRIGGER_SIZEOF 52
+
 typedef struct trigger 
 {
 	uint8_t		type;			//what this trigger does 
