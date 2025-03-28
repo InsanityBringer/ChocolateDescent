@@ -279,9 +279,68 @@ int bind_wall_to_trigger()
 	return 1;
 }
 
+int bind_non_wall_to_trigger() 
+{
+	int wall_num, trigger_num, link_num;
+	int i;
+
+	if (!Markedsegp)
+	{
+		editor_status("No marked segment.");
+		return 0;
+	}
+
+	wall_num = Markedsegp->sides[Markedside].wall_num;
+	if (wall_num == -1) 
+	{
+		editor_status("No wall at Markedside.");
+		return 0;
+	}
+
+	trigger_num = Walls[wall_num].trigger;	
+
+	if (trigger_num == -1) {
+		editor_status("No trigger at Markedside.");
+		return 0;
+	}
+
+	if ((Cursegp==Markedsegp) && (Curside==Markedside)) 
+	{
+		editor_status("Cannot bind wall to itself.");
+		return 0;
+	}
+
+	link_num = Triggers[trigger_num].num_links;
+	for (i=0;i<link_num;i++)
+		if ((Cursegp-Segments == Triggers[trigger_num].seg[i]) && (Curside == Triggers[trigger_num].side[i])) {
+			editor_status("Curside already bound to Markedside.");
+			return 0;
+		}
+
+	// Error checking completed, actual binding begins
+	Triggers[trigger_num].seg[link_num] = Cursegp - Segments;
+	Triggers[trigger_num].side[link_num] = Curside;
+	Triggers[trigger_num].num_links++;
+
+	mprintf((0, "seg %d:side %d linked to link_num %d\n",
+				Triggers[trigger_num].seg[link_num], Triggers[trigger_num].side[link_num], link_num)); 
+
+	editor_status("Side linked to trigger");
+
+	return 1;
+}
+
 void remove_trigger_num(int trigger_num)
 {
-	//TODO
+	for (int t = trigger_num; t < Num_triggers - 1; t++)
+		Triggers[t] = Triggers[t + 1];
+
+	for (int w = 0; w < Num_walls; w++) {
+		if (Walls[w].trigger > trigger_num)
+			Walls[w].trigger--;
+	}
+
+	Num_triggers--;
 }
 
 int remove_trigger(segment *seg, short side)
@@ -391,6 +450,7 @@ int do_trigger_dialog()
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Remove Trigger", trigger_remove ); i += 29;
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Bind Wall", bind_wall_to_trigger ); i += 29;
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Bind Matcen", bind_matcen_to_trigger ); i += 29;
+	ui_add_gadget_button( MainWindow,155,i,140, 26, "Bind Light", bind_non_wall_to_trigger); i += 29;
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "All Triggers ON", trigger_turn_all_ON ); i += 29;
 	TriggerFlag[0] = ui_add_gadget_checkbox(MainWindow, 155, i, 16, 16, 0, "No message");  	i += 22;
 	TriggerFlag[1] = ui_add_gadget_checkbox(MainWindow, 155, i, 16, 16, 0, "One shot");  	i += 22;
@@ -462,64 +522,12 @@ void do_trigger_window()
 	//------------------------------------------------------------
 	//if (IS_CHILD(Markedsegp->children[Markedside])) 
 	{
-		/*
-		if (TriggerMode[0]->flag == 1) 
-			trigger_add_to_Markedside(TRIGGER_CONTROL_DOORS); 
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_CONTROL_DOORS);
-		if (TriggerMode[1]->flag == 1)
-			trigger_add_to_Markedside(TRIGGER_SHIELD_DAMAGE); 
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_SHIELD_DAMAGE);
-		if (TriggerMode[2]->flag == 1)
-			trigger_add_to_Markedside(TRIGGER_ENERGY_DRAIN); 
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_ENERGY_DRAIN);
-		if (TriggerMode[3]->flag == 1)
-			trigger_add_to_Markedside(TRIGGER_EXIT); 
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_EXIT);
-		if (TriggerMode[4]->flag == 1)
-			trigger_add_to_Markedside(TRIGGER_ONE_SHOT); 
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_ONE_SHOT);
-		if (TriggerMode[5]->flag == 1)
-			trigger_add_to_Markedside(TRIGGER_ILLUSION_ON); 
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_ILLUSION_ON);
-		if (TriggerMode[6]->flag == 1)
-			trigger_add_to_Markedside(TRIGGER_ILLUSION_OFF);
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_ILLUSION_OFF);
-		if (TriggerMode[7]->flag == 1)
-			trigger_add_to_Markedside(TRIGGER_ON);
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_ON);
-
-		if (TriggerMode[8]->flag == 1) 
-			trigger_add_to_Markedside(TRIGGER_MATCEN);
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_MATCEN);
-
-		if (TriggerMode[9]->flag == 1) 
-			trigger_add_to_Markedside(TRIGGER_SECRET_EXIT);
-		else
-			trigger_remove_flag_from_Markedside(TRIGGER_SECRET_EXIT);*/
-
 		for (i = 0; i < NUM_TRIGGER_FLAGS; i++)
 		{
 			if (TriggerMode[i]->flag == 1)
 				trigger_add_to_Markedside(i);
 		}
-
 	} 
-	/*else
-		for (i=0; i < NUM_TRIGGER_FLAGS; i++)
-			if (TriggerMode[i]->flag == 1) 
-			{ 
-				TriggerMode[i]->flag = 0;					// Tells ui that this button isn't checked
-				TriggerMode[i]->status = 1;				// Tells ui to redraw button
-			}*/
 
 	if (trigger_num != -1)
 	{

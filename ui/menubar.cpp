@@ -197,7 +197,11 @@ int menu_match_keypress(MENU* menu, int keypress)
 
 	for (i = 0; i < menu->NumItems; i++)
 	{
+#ifdef BUILD_DESCENT2
+		letter = strrchr(menu->Item[i].Text, CC_UNDERLINE);
+#else
 		letter = strrchr(menu->Item[i].Text, '&');
+#endif
 		if (letter)
 		{
 			letter++;
@@ -625,6 +629,15 @@ void CommaParse(int n, char* dest, char* source)
 	dsthack[j++] = 0;
 }
 
+#ifdef BUILD_DESCENT2
+//translate '&' characters to the underline character
+void ul_xlate(char* s)
+{
+	while ((s = strchr(s, '&')) != NULL)
+		*s = CC_UNDERLINE;
+}
+#endif
+
 void menubar_init(const char* file)
 {
 	int i, j, np;
@@ -649,7 +662,11 @@ void menubar_init(const char* file)
 		{
 			Menu[i].Item[j].x = Menu[i].Item[j].y = Menu[i].Item[j].w = Menu[i].Item[j].h = 0;
 			Menu[i].Item[j].Text = NULL;
+#ifdef BUILD_DESCENT2
+			Menu[i].Item[j].Hotkey = -1;
+#else
 			Menu[i].Item[j].Hotkey = 0;
+#endif
 			Menu[i].Item[j].user_function = NULL;
 		}
 	}
@@ -669,6 +686,9 @@ void menubar_init(const char* file)
 		CommaParse(1, buf1, buffer);
 		item = atoi(buf1);
 		CommaParse(2, buf1, buffer);
+#ifdef BUILD_DESCENT2
+		ul_xlate(buf1);
+#endif
 
 		//[ISB] i suppose this is what you get when you aren't ever intending to release this publically. 
 		if (menu >= MAXMENUS)
@@ -697,8 +717,13 @@ void menubar_init(const char* file)
 		for (i = 0; i <= strlen(Menu[menu].Item[item].Text); i++)
 		{
 			np = Menu[menu].Item[item].Text[i];
+#ifdef BUILD_DESCENT2
+			if (np != CC_UNDERLINE)
+				Menu[menu].Item[item].InactiveText[j++] = np;
+#else
 			if (np != '&')
 				Menu[menu].Item[item].InactiveText[j++] = np;
+#endif
 		}
 
 		CommaParse(3, buf1, buffer);
