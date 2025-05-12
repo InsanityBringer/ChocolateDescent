@@ -19,6 +19,7 @@ find_path(FLUIDSYNTH_INCLUDE_DIRS
 find_library(FLUIDSYNTH_LIBRARIES
    NAMES
       fluidsynth #[ISB] TODO: Non-windows names....
+	  "fluidsynth-3"
    HINTS
       $ENV{FLUIDSYNTHDIR} #[ISB] TODO: Is there a standard name for this....
 )
