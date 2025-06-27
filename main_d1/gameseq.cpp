@@ -656,8 +656,6 @@ do_menu_again:
 	return 1;
 }
 
-extern int descent_critical_error;
-
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
 void LoadLevel(int level_num)
 {

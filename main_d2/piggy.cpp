@@ -52,8 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "misc/byteswap.h"
 #include "platform/findfile.h"
 
-//#include "unarj.h" //[ISB] goddamnit
-
 //#define NO_DUMP_SOUNDS        1               //if set, dump bitmaps but not sounds
 
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"
@@ -293,20 +291,6 @@ int Pigfile_initialized = 0;
 #define PIGFILE_ID              'GIPP'          //PPIG
 #define PIGFILE_VERSION         2
 
-extern char CDROM_dir[];
-
-int request_cd(void);
-
-
-//copies a pigfile from the CD to the current dir
-//retuns file handle of new pig
-CFILE* copy_pigfile_from_cd(const char* filename)
-{
-	Error("Cannot copy PIG file from CD. stub function\n");
-	return NULL;
-}
-
-
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
 void piggy_init_pigfile(const char* filename)
@@ -317,18 +301,17 @@ void piggy_init_pigfile(const char* filename)
 	grs_bitmap temp_bitmap;
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_size, data_start;
-#ifdef MACINTOSH
-	char name[255];		// filename + path for the mac
-#elif defined(CHOCOLATE_USE_LOCALIZED_PATHS)
+#if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	char name[CHOCOLATE_MAX_FILE_PATH_SIZE];
 #endif
 
 	piggy_close_file();             //close old pig if still open
 
-#ifdef SHAREWARE                //rename pigfile for shareware
-	if (strfcmp(filename, DEFAULT_PIGFILE_REGISTERED) == 0)
-		filename = DEFAULT_PIGFILE_SHAREWARE;
-#endif
+	if (CurrentDataVersion == DataVer::DEMO)             //rename pigfile for shareware
+	{
+		if (_strfcmp(filename, DEFAULT_PIGFILE_REGISTERED) == 0)
+			filename = DEFAULT_PIGFILE_SHAREWARE;
+	}
 
 #if defined(CHOCOLATE_USE_LOCALIZED_PATHS)
 	get_full_file_path(name, filename, CHOCOLATE_SYSTEM_FILE_DIR);
@@ -499,7 +482,8 @@ void piggy_new_pigfile(const char* pigname)
 	}
 
 #ifndef EDITOR
-	if (!Piggy_fp) Error("Piggy_fp not defined in piggy_new_pigfile.");
+	if (!Piggy_fp) 
+		Error("piggy_new_pigfile: Can't open %s.", pigname);
 #endif
 
 	if (Piggy_fp)
@@ -869,10 +853,7 @@ int read_sndfile()
 		memcpy(temp_name_read, sndh.name, 8);
 		temp_name_read[8] = 0;
 		piggy_register_sound(&temp_sound, temp_name_read, 1);
-#ifdef MACINTOSH
-		if (piggy_is_needed(i))
-#endif		// note link to if.
-			sbytes += sndh.length;
+		sbytes += sndh.length;
 		//mprintf(( 0, "%d bytes of sound\n", sbytes ));
 	}
 
@@ -1047,30 +1028,6 @@ void piggy_read_sounds(void)
 
 }
 
-
-extern int descent_critical_error;
-extern unsigned descent_critical_deverror;
-extern unsigned descent_critical_errcode;
-
-const char* crit_errors[13] = { "Write Protected", "Unknown Unit", "Drive Not Ready", "Unknown Command", "CRC Error", \
-"Bad struct length", "Seek Error", "Unknown media type", "Sector not found", "Printer out of paper", "Write Fault", \
-"Read fault", "General Failure" };
-
-void piggy_critical_error()
-{
-	grs_canvas* save_canv;
-	grs_font* save_font;
-	int i;
-	save_canv = grd_curcanv;
-	save_font = grd_curcanv->cv_font;
-	gr_palette_load(gr_palette);
-	i = nm_messagebox("Disk Error", 2, "Retry", "Exit", "%s\non drive %c:", crit_errors[descent_critical_errcode & 0xf], (descent_critical_deverror & 0xf) + 'A');
-	if (i == 1)
-		exit(1);
-	gr_set_current_canvas(save_canv);
-	grd_curcanv->cv_font = save_font;
-}
-
 void piggy_bitmap_page_in(bitmap_index bitmap)
 {
 	grs_bitmap* bmp;
@@ -1095,30 +1052,19 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 
 	bmp = &GameBitmaps[i];
 
-	if (bmp->bm_flags & BM_FLAG_PAGED_OUT) {
+	if (bmp->bm_flags & BM_FLAG_PAGED_OUT) 
+	{
 		stop_time();
 
 	ReDoIt:
-		descent_critical_error = 0;
 		cfseek(Piggy_fp, GameBitmapOffset[i], SEEK_SET);
-		if (descent_critical_error) {
-			piggy_critical_error();
-			goto ReDoIt;
-		}
 
 		bmp->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 		bmp->bm_flags = GameBitmapFlags[i];
 
 		if (bmp->bm_flags & BM_FLAG_RLE)
 		{
-			int zsize = 0;
-			descent_critical_error = 0;
-			zsize = cfile_read_int(Piggy_fp);
-			if (descent_critical_error)
-			{
-				piggy_critical_error();
-				goto ReDoIt;
-			}
+			int zsize = cfile_read_int(Piggy_fp);
 
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			//Assert( Piggy_bitmap_cache_next+zsize < Piggy_bitmap_cache_size );      
@@ -1130,13 +1076,7 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 			}
 			memcpy(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], &zsize, sizeof(int));
 			Piggy_bitmap_cache_next += sizeof(int);
-			descent_critical_error = 0;
 			temp = cfread(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize - 4, Piggy_fp);
-			if (descent_critical_error)
-			{
-				piggy_critical_error();
-				goto ReDoIt;
-			}
 			Piggy_bitmap_cache_next += zsize - 4;
 		}
 		else
@@ -1147,21 +1087,9 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 				piggy_bitmap_page_out_all();
 				goto ReDoIt;
 			}
-			descent_critical_error = 0;
 			temp = cfread(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h * bmp->bm_w, Piggy_fp);
-			if (descent_critical_error) {
-				piggy_critical_error();
-				goto ReDoIt;
-			}
 			Piggy_bitmap_cache_next += bmp->bm_h * bmp->bm_w;
 		}
-
-		//@@if ( bmp->bm_selector ) {
-		//@@#if !defined(WINDOWS) && !defined(MACINTOSH)
-		//@@	if (!dpmi_modify_selector_base( bmp->bm_selector, bmp->bm_data ))
-		//@@		Error( "Error modifying selector base in piggy.c\n" );
-		//@@#endif
-		//@@}
 
 		start_time();
 	}
@@ -1170,15 +1098,6 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 		if (org_i != i)
 			GameBitmaps[org_i] = GameBitmaps[i];
 	}
-
-	//@@Removed from John's code:
-	//@@#ifndef WINDOWS
-	//@@    if ( bmp->bm_selector ) {
-	//@@            if (!dpmi_modify_selector_base( bmp->bm_selector, bmp->bm_data ))
-	//@@                    Error( "Error modifying selector base in piggy.c\n" );
-	//@@    }
-	//@@#endif
-
 }
 
 void piggy_bitmap_page_out_all()
@@ -1570,28 +1489,3 @@ int piggy_is_substitutable_bitmap(char* name, char* subst_name)
 	strcpy(subst_name, name);
 	return 0;
 }
-
-
-
-#ifdef WINDOWS
-//	New Windows stuff
-
-//	windows bitmap page in
-//		Page in a bitmap, if ddraw, then page it into a ddsurface in 
-//		'video' memory.  if that fails, page it in normally.
-
-void piggy_bitmap_page_in_w(bitmap_index bitmap, int ddraw)
-{
-}
-
-
-//	Essential when switching video modes!
-
-void piggy_bitmap_page_out_all_w()
-{
-}
-
-
-#endif
-
-

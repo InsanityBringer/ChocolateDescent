@@ -340,16 +340,6 @@ int piggy_init()
 
 	for (i = 0; i < N_bitmaps; i++) 
 	{
-		//cfread(&bmh, sizeof(DiskBitmapHeader), 1, Piggy_fp);
-		//size -= sizeof(DiskBitmapHeader);
-		//[ISB] fix platform bugs, hopefully
-		/*	char name[8];
-	uint8_t dflags;
-	uint8_t	width;
-	uint8_t height;
-	uint8_t flags;
-	uint8_t avg_color;
-	int offset;*/
 		cfread(&bmh.name[0], 8 * sizeof(char), 1, Piggy_fp);
 		bmh.dflags = cfile_read_byte(Piggy_fp);
 		bmh.width = cfile_read_byte(Piggy_fp);
@@ -379,23 +369,20 @@ int piggy_init()
 		if (bmh.flags & BM_FLAG_NO_LIGHTING) GameBitmapFlags[i + 1] |= BM_FLAG_NO_LIGHTING;
 		if (bmh.flags & BM_FLAG_RLE) GameBitmapFlags[i + 1] |= BM_FLAG_RLE;
 
-		GameBitmapOffset[i + 1] = bmh.offset + header_size + (sizeof(int) * 2) + Pigdata_start;
+		GameBitmapOffset[i + 1] = bmh.offset + header_size + 8 + Pigdata_start;
 		Assert((i + 1) == Num_bitmap_files);
 		piggy_register_bitmap(&temp_bitmap, temp_name, 1);
 	}
 
 	for (i = 0; i < N_sounds; i++) 
 	{
-		//cfread(&sndh, sizeof(DiskSoundHeader), 1, Piggy_fp);
-		//[ISB] fix platform bugs, hopefully
 		cfread(&sndh.name, 8 * sizeof(char), 1, Piggy_fp);
 		sndh.length = cfile_read_int(Piggy_fp);
 		sndh.data_length = cfile_read_int(Piggy_fp);
 		sndh.offset = cfile_read_int(Piggy_fp);
-		//size -= sizeof(DiskSoundHeader);
 		temp_sound.length = sndh.length;
-		temp_sound.data = (uint8_t*)(sndh.offset + header_size + (sizeof(int) * 2) + Pigdata_start);
-		SoundOffset[Num_sound_files] = sndh.offset + header_size + (sizeof(int) * 2) + Pigdata_start;
+		temp_sound.data = (uint8_t*)(sndh.offset + header_size + 8 + Pigdata_start);
+		SoundOffset[Num_sound_files] = sndh.offset + header_size + 8 + Pigdata_start;
 		memcpy(temp_name_read, sndh.name, 8);
 		temp_name_read[8] = 0;
 		piggy_register_sound(&temp_sound, temp_name_read, 1);
@@ -479,30 +466,6 @@ void piggy_read_sounds()
 
 }
 
-extern int descent_critical_error;
-extern unsigned descent_critical_deverror;
-extern unsigned descent_critical_errcode;
-
-const char* crit_errors[16] = { "Write Protected", "Unknown Unit", "Drive Not Ready", "Unknown Command", "CRC Error", \
-"Bad struct length", "Seek Error", "Unknown media type", "Sector not found", "Printer out of paper", "Write Fault", \
-"Read fault", "General Failure", "", "", "" };
-
-void piggy_critical_error()
-{
-	grs_canvas* save_canv;
-	grs_font* save_font;
-	int i;
-	save_canv = grd_curcanv;
-	save_font = grd_curcanv->cv_font;
-	gr_palette_load(gr_palette);
-	i = nm_messagebox("Disk Error", 2, "Retry", "Exit", "%s\non drive %c:", crit_errors[descent_critical_errcode & 0xf], (descent_critical_deverror & 0xf) + 'A');
-	if (i == 1)
-		Error("You chose to abort. Rip.\n");
-		//exit(1);
-	gr_set_current_canvas(save_canv);
-	grd_curcanv->cv_font = save_font;
-}
-
 void piggy_bitmap_page_in(bitmap_index bitmap)
 {
 	grs_bitmap* bmp;
@@ -532,13 +495,7 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 		stop_time();
 
 	ReDoIt:
-		descent_critical_error = 0;
 		cfseek(Piggy_fp, GameBitmapOffset[i], SEEK_SET);
-		if (descent_critical_error) 
-		{
-			piggy_critical_error();
-			goto ReDoIt;
-		}
 
 		bmp->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 		bmp->bm_flags = GameBitmapFlags[i];
@@ -546,14 +503,8 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 		if (bmp->bm_flags & BM_FLAG_RLE) 
 		{
 			int zsize = 0;
-			descent_critical_error = 0;
 			//temp = cfread(&zsize, 1, sizeof(int), Piggy_fp);
 			zsize = cfile_read_int(Piggy_fp);
-			if (descent_critical_error) 
-			{
-				piggy_critical_error();
-				goto ReDoIt;
-			}
 
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			Assert(Piggy_bitmap_cache_next + zsize < Piggy_bitmap_cache_size);
@@ -564,13 +515,7 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 			}
 			memcpy(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], &zsize, sizeof(int));
 			Piggy_bitmap_cache_next += sizeof(int);
-			descent_critical_error = 0;
 			temp = cfread(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize - 4, Piggy_fp);
-			if (descent_critical_error)
-			{
-				piggy_critical_error();
-				goto ReDoIt;
-			}
 			Piggy_bitmap_cache_next += zsize - 4;
 		}
 		else 
@@ -582,23 +527,10 @@ void piggy_bitmap_page_in(bitmap_index bitmap)
 				piggy_bitmap_page_out_all();
 				goto ReDoIt;
 			}
-			descent_critical_error = 0;
 			temp = cfread(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h * bmp->bm_w, Piggy_fp);
-			if (descent_critical_error) 
-			{
-				piggy_critical_error();
-				goto ReDoIt;
-			}
 			Piggy_bitmap_cache_next += bmp->bm_h * bmp->bm_w;
 		}
 
-#if 0 //[ISB] ughhhhhhhhhhhhhhhhhhhh
-		if (bmp->bm_selector) 
-		{
-			if (!dpmi_modify_selector_base(bmp->bm_selector, bmp->bm_data))
-				Error("Error modifying selector base in piggy.c\n");
-		}
-#endif
 		start_time();
 	}
 

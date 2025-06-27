@@ -233,10 +233,6 @@ int Inferno_verbose = 0;
 
 extern int digi_timer_rate;
 
-int descent_critical_error = 0;
-unsigned descent_critical_deverror = 0;
-unsigned descent_critical_errcode = 0;
-
 extern int Network_allow_socket_changes;
 
 #ifdef NETWORK
