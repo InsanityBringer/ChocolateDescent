@@ -20,6 +20,7 @@ Instead, it is released under the terms of the MIT License.
 #include "platform/s_midi.h"
 #include "platform/s_sequencer.h"
 #include "misc/error.h"
+#include "platform/mono.h"
 //#include "mem/mem.h" //[ISB] mem.h isn't thread safe so uh
 
 ALCdevice *ALDevice = NULL;
@@ -63,6 +64,8 @@ int MusicVolume;
 
 MidiPlayer* midiPlayer;
 
+LPALGETSTRINGIDIRECTSOFT dalGetStringiDirectSOFT;
+
 void AL_ErrorCheck(const char* context)
 {
 	int error;
@@ -99,14 +102,14 @@ void AL_InitSource(ALuint source)
 int plat_init_audio()
 {
 	int i;
-	ALDevice = alcOpenDevice(NULL);
-	if (ALDevice == NULL)
+	ALDevice = alcOpenDevice(nullptr);
+	if (ALDevice == nullptr)
 	{
 		Warning("plat_init_audio: Cannot open OpenAL device\n");
 		return 1;
 	}
-	ALContext = alcCreateContext(ALDevice, 0);
-	if (ALContext == NULL)
+	ALContext = alcCreateContext(ALDevice, nullptr);
+	if (ALContext == nullptr)
 	{
 		Warning("plat_init_audio: Cannot create OpenAL context\n");
 		plat_close_audio();
@@ -132,6 +135,36 @@ int plat_init_audio()
 		Error("OpenAL implementation doesn't support OpenAL soft loop points.\n");
 	}
 	AL_ErrorCheck("Checking exts");
+
+	const char* str = alGetString(AL_VERSION);
+	if (str)
+		mprintf((0, "AL_VERSION: %s\n", str));
+
+	str = alGetString(AL_VENDOR);
+	if (str)
+		mprintf((0, "AL_VENDOR: %s\n", str));
+
+	if (alIsExtensionPresent("AL_SOFT_source_resampler"))
+	{
+		dalGetStringiDirectSOFT = (LPALGETSTRINGIDIRECTSOFT)alGetProcAddress("alGetStringiDirectSOFT");
+		if (!dalGetStringiDirectSOFT)
+		{
+			Int3();
+		}
+		else
+		{
+			int num = alGetInteger(AL_NUM_RESAMPLERS_SOFT);
+			mprintf((0, "Num resamplers: %d\n", num));
+			int def = alGetInteger(AL_DEFAULT_RESAMPLER_SOFT);
+			mprintf((0, "Default: %d\n", def));
+			for (int i = 0; i < num; i++)
+			{
+				const char* name = dalGetStringiDirectSOFT(ALContext, AL_RESAMPLER_NAME_SOFT, i);
+				if (name)
+					mprintf((0, "Resampler %d: %s\n", i, name));
+			}
+		}
+	}
 
 	AL_initialized = 1;
 
