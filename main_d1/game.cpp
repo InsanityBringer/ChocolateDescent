@@ -2140,9 +2140,12 @@ void game()
 			uint64_t numUS = 1000000 / FPSLimit;
 			//[ISB] Combine a sleep with the polling loop to try to spare CPU cycles
 			uint64_t diff = (startTime + numUS) - I_GetUS();
-			if (diff > 2000) //[ISB] Sleep only if there's sufficient time to do so, since the scheduler isn't precise enough
-				I_DelayUS(diff - 2000);
-			while (I_GetUS() < startTime + numUS);
+			if (diff > 5000) //[ISB] Sleep only if there's sufficient time to do so, since the scheduler isn't precise enough
+				I_DelayUS(diff - 5000);
+			while (I_GetUS() < startTime + numUS)
+			{
+				plat_do_events();
+			}
 		}
 	}
 
