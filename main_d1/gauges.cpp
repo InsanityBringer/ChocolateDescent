@@ -1623,7 +1623,7 @@ void draw_hostage_gauge()
 {
 	int drew;
 
-	gr_set_current_canvas(&VR_render_buffer[0]);
+	gr_set_current_canvas(&VR_render_buffer);
 
 	drew = do_hostage_effects();
 
@@ -1632,7 +1632,7 @@ void draw_hostage_gauge()
 		int boxofs = (Cockpit_mode == CM_STATUS_BAR) ? 2 : 0;
 
 		gr_set_current_canvas(get_current_game_screen());
-		copy_gauge_box(&gauge_boxes[boxofs + 1], &VR_render_buffer[0].cv_bitmap);
+		copy_gauge_box(&gauge_boxes[boxofs + 1], &VR_render_buffer.cv_bitmap);
 
 		old_weapon[1] = old_ammo_count[1] = -1;
 	}
