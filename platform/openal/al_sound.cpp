@@ -65,7 +65,7 @@ int MusicVolume;
 
 MidiPlayer* midiPlayer;
 
-#ifdef OAL_DEBUGGING
+#ifdef OAL_SOFT_DEBUGGING
 LPALGETSTRINGIDIRECTSOFT dalGetStringiDirectSOFT;
 #endif
 
