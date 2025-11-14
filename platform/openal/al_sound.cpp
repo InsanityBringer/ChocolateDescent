@@ -12,6 +12,7 @@ Instead, it is released under the terms of the MIT License.
 #include <mutex>
 
 #ifdef USE_OPENAL
+//#define OAL_SOFT_DEBUGGING
 
 #include "AL/al.h"
 #include "AL/alc.h"
@@ -64,7 +65,9 @@ int MusicVolume;
 
 MidiPlayer* midiPlayer;
 
+#ifdef OAL_DEBUGGING
 LPALGETSTRINGIDIRECTSOFT dalGetStringiDirectSOFT;
+#endif
 
 void AL_ErrorCheck(const char* context)
 {
@@ -144,6 +147,7 @@ int plat_init_audio()
 	if (str)
 		mprintf((0, "AL_VENDOR: %s\n", str));
 
+#ifdef OAL_SOFT_DEBUGGING
 	if (alIsExtensionPresent("AL_SOFT_source_resampler"))
 	{
 		dalGetStringiDirectSOFT = (LPALGETSTRINGIDIRECTSOFT)alGetProcAddress("alGetStringiDirectSOFT");
@@ -165,6 +169,7 @@ int plat_init_audio()
 			}
 		}
 	}
+#endif
 
 	AL_initialized = 1;
 
